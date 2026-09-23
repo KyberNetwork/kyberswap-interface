@@ -207,7 +207,11 @@ const PreparedActionModal = ({
   const recovery = getRecoveryViewModel(state, unavailableShowBackAction)
   const reviewPreparing = state.phase === 'review' && state.isPreparing === true
   const interactionLocked = confirmLoading || reviewPreparing
-  const recoveryError = recovery?.text ?? (state.error ? friendlyError(state.error) : undefined)
+  const safeMessage =
+    state.action?.failureDetails?.message || state.action?.guidance?.message || state.guidance?.message
+  const recoveryError =
+    recovery?.text ??
+    (state.error ? (state.error === safeMessage ? state.error : friendlyError(state.error)) : undefined)
   const hasErrorDetail = state.phase === 'error' && !!state.error && recoveryError !== state.error
   const showErrorDetail = hasErrorDetail && expandedError === state.error
   return (

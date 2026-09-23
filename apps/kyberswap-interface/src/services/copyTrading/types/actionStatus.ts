@@ -1,3 +1,5 @@
+import type { DataFinality, LooseString, Metric } from 'services/copyTrading/types/primitives'
+
 // Operator-authored selector: preserve every field verbatim when observing a submitted call.
 export type ActionStatusContext = {
   expectedOwner?: string
@@ -5,6 +7,20 @@ export type ActionStatusContext = {
 }
 
 export type ActionReceiptReference = { blockNumber?: string; blockHash?: string }
+
+export type SubmittedActionDisplay = {
+  status?: LooseString<
+    | 'SUBMITTED_ACTION_DISPLAY_STATUS_UNSPECIFIED'
+    | 'SUBMITTED_ACTION_DISPLAY_STATUS_PENDING'
+    | 'SUBMITTED_ACTION_DISPLAY_STATUS_READY'
+  >
+  copyRunId?: string
+  readOwnerAddress?: string
+  userPositionId?: string
+  capitalInUsd?: Metric
+  capitalOutUsd?: Metric
+  finality?: DataFinality
+}
 
 export type SubmittedActionStatusData = {
   status?:
@@ -24,6 +40,7 @@ export type SubmittedActionStatusData = {
       | 'ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED'
     receipt?: ActionReceiptReference
   }
+  display?: SubmittedActionDisplay
   result?: {
     copyRunId?: string
     readOwnerAddress?: string

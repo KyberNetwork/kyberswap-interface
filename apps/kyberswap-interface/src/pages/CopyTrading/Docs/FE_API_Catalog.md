@@ -4,9 +4,51 @@ Use this catalog to integrate frontend applications with the public HTTPS/JSON
 API. Use the endpoint reference for request fields, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: September 21, 2026.
+Last updated: September 22, 2026.
 
 ## Changelog
+
+### September 22, 2026: display readiness for every submitted action
+
+[PR #83](https://github.com/KyberNetwork/copy-trade-api/pull/83), verified at
+`70583b83faa9c1a88ec44fc512cdc16d94e277a8`, adds `data.display` to
+`POST /users/{ownerAddress}/actions:status`. The PR is open at this update;
+deployment has not been verified. This is additive and leaves the existing
+action-status enum and the 35 HTTP operations unchanged.
+
+- Use `display.status = SUBMITTED_ACTION_DISPLAY_STATUS_READY` to show the
+  action's updated public data, even while `data.status` remains `SYNCING`.
+- Render returned `capitalInUsd` / `capitalOutUsd` as decimal strings with
+  their metric status and the separate `display.finality` qualifier.
+- Keep polling for strict completion. Conversely, `SUCCEEDED` with display
+  `PENDING` supplies a retry hint while the updated display data catches up.
+- Replace display state on every successful poll. Missing `display` from an
+  older server does not prove readiness; retain the existing completion flow.
+
+See [Submitted-action display readiness](#submitted-action-display-readiness)
+for all action guarantees and [Refresh after a transaction](#refresh-after-a-transaction)
+for polling. Regenerate clients from the
+[PR #83 OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/70583b83faa9c1a88ec44fc512cdc16d94e277a8/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
+
+### September 22, 2026: live ROI, cached prices, and preparation diagnostics
+
+Copy-run `roiPct` uses `totalPnlUsd / capitalInUsd × 100` from the same response.
+Both fields can update after a background price refresh. Historical chart
+points keep their existing formulas and refresh schedule.
+
+Current-price availability uses the last successful fetch of each token,
+including an unchanged price. The provider observation time remains in `asOf`;
+do not override the server's metric status by comparing that timestamp with
+the browser clock. Accept value changes even when `asOf` is unchanged. A failed
+refresh or omitted token does not renew its age.
+
+Preparation responses can include `data.failureDetails` with a stable code,
+stage, safe message, and retryability. Aggregator failures also carry the original
+numeric `aggregatorCode`, `aggregatorHttpStatus`, and a provider `retryAfterMs`
+when available. Routing or simulation outages can return
+HTTP 200 with a non-callable `PENDING` result. A prepared response that fails
+contract validation returns HTTP 400, preventing automatic gateway retries.
+See [preparation failures](#manual-sell-and-close-preparation-failures).
 
 ### September 21, 2026: funding-token discovery
 
@@ -1395,8 +1437,10 @@ route is missing.
 - Start a new cursor sequence when a filter, sort field, sort order, owner,
   agent, chain, view, route, or position-event `generationId` changes.
 - After wallet submission, use `actions:status` to check the exact transaction
-  and its result. On success, refresh the relevant detail and list reads, then
-  follow `nextStep` for any remaining stage. A submitted-operation overlay may show an explicitly
+  and its result. When `display.status` is `READY`, show its qualified values
+  and refresh the named detail or position without waiting for `SUCCEEDED`.
+  On success, refresh the relevant lists and follow `nextStep` for any remaining
+  stage. A submitted-operation overlay may show an explicitly
   pending user delta, but it must remain separate from authoritative API data
   and action availability.
 
@@ -1660,17 +1704,22 @@ Rules:
 ROI (%) = lifetime Total P&L / cumulative deposits × 100
 ```
 
-Total P&L uses the lifetime dollar value published by the cumulative Total P&L
-chart, including marked open positions. It is not limited to realized P&L or
-closed trades. Cumulative deposits include opening allocation, deposits, and
-top-ups. Withdrawals do not reduce this denominator. For a copy run, this is
-the Capital In contribution total; it is not `capitalInUsd - capitalOutUsd` or
-the current wallet balance. Agent ROI uses the agent's own deposit history.
+For copy-run list and detail responses, the numerator is `totalPnlUsd` in the
+same response, including marked open positions. The denominator is its
+canonical `capitalInUsd`. Both P&L and ROI respond to a live price refresh;
+there is no wait for a historical chart point or midnight refresh.
+
+Cumulative deposits include opening allocation, deposits, and top-ups.
+Withdrawals do not reduce this denominator. It is not
+`capitalInUsd - capitalOutUsd` or the current wallet balance. Agent ROI uses
+the agent's own deposit history and retained lifetime P&L. Historical copy-run
+chart points retain their existing formulas and can differ from the live
+headline between refreshes.
 
 For example, deposits of $100 and a $50 top-up give a $150 denominator. If
 Total P&L is $30, ROI is 20%, even after a $60 withdrawal. Render the
-server-published metric instead of recomputing it from separately refreshed
-summary fields:
+server-published metric and its status. Do not combine fields from different
+responses to recompute it:
 
 ```json
 {
@@ -1724,6 +1773,14 @@ funding; do not reset or annualize it.
 
 An unavailable valuation is not the same as a zero-valued asset. Never derive a
 USD value from missing fields.
+
+For an open agent position, read its unit price from
+`currentValuation.priceUsd` and its remaining holding value from
+`currentValuation.valueUsd`. Render both `CURRENT` and `STALE` values, with a
+stale indication for the latter. Follow `status` for availability; do not hide
+a price solely because `priceAsOf` is old. The server refreshes each token in
+the background and measures freshness from its last successful fetch while
+preserving the provider observation time in `priceAsOf`.
 
 ### Advisory action availability
 
@@ -2225,9 +2282,13 @@ Its token address and generation ID are illustrative, not frontend defaults.
 }
 ```
 
+Each enabled chain includes `quoteToken` with its chain, address, and decimals.
+The API retains this operator-provided identity in memory; a later operator or
+metadata outage does not remove it.
+
 Identify the token by `(chainId, address)`. If only display metadata is missing,
 show the address and use the returned decimals. Missing metadata does not make
-the funding token unavailable. If `quoteToken` itself is absent, show a retryable
+the funding token unavailable. If `quoteToken` is unexpectedly absent, show a retryable
 token-information message; do not assume a token or decimals. A valid preparation
 response remains another source of token information. `whitelistedSymbols`
 describes tradable base tokens and must not populate the funding-token selector.
@@ -2246,13 +2307,13 @@ Use these response rules for the funding form:
 | --- | --- |
 | Token identity, decimals, and metadata are present | Show the token and initialize the amount input. |
 | `symbol`, `name`, or `logoUrl` is omitted or empty | Show the address or a generic icon. Keep the amount input and preparation available. |
-| `quoteToken` is omitted | Show “Funding token information is unavailable” with a retry control. Keep other reads and independently available actions usable. Do not submit a dummy preparation to discover decimals. |
+| `quoteToken` is unexpectedly omitted | Show “Funding token information is unavailable” with a retry control. Keep other reads and independently available actions usable. Do not submit a dummy preparation to discover decimals. |
 | `/chains` returns an HTTP error | Apply the catalog's normal read-error handling and retry discovery. This is not a preparation result. |
 | The prepared token has another chain or address, or provides different decimals | Do not open the wallet with that result. Refresh discovery and have the user review the amount before preparing again. |
 
-`meta.status: DATA_STATUS_CURRENT` describes the chain response; it does not
-prove that `quoteToken` or its optional display fields are present. Check those
-fields directly. Missing quote-token discovery has no dedicated `reason` or
+`meta.status: DATA_STATUS_CURRENT` describes the chain response. Optional
+display fields can still be absent; check them directly. Treat a missing
+`quoteToken` as an incomplete response and retry discovery. Missing quote-token discovery has no dedicated `reason` or
 `guidance` object in this response.
 
 When the selected chain or funding-token identity changes, discard the old
@@ -2519,7 +2580,10 @@ OWNER_COPY_RUN_SORT_FIELD_REBATES
 
 `OWNER_COPY_RUN_SORT_FIELD_ROI_PCT` orders by the copy run's `roiPct` and is
 available in both Open and History, in either direction. Unavailable values
-sort last. `OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE` still orders by the
+sort last. ROI cursors retain the price generations used on the first page,
+so a background price refresh does not move rows between pages. Restart from
+the first page if the cursor expires or reports a changed target.
+`OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE` still orders by the
 agent's win rate, even though copy-run snapshots omit that metric. There is
 no copy-run win-rate sort field. Do not label the agent sort as a sort of
 `copyRunWinRatePct` or reorder a cursor page locally.
@@ -3032,6 +3096,7 @@ fields used for rendering.
 | Preparation `data.generationId` | Required on all preparation results. Keep it with chain/account identity; reject a missing or mismatched value before submission. |
 | Preparation `data.call` and `data.statusContext` | Both are required for `READY` and Start-only `PARTIALLY_COMPLETED`. Neither is available for a non-executable result. Treat an executable response missing either field as invalid. |
 | Preparation `data.reason` | Usually omitted for an executable result. Interpret absence as `PREPARED_ACTION_REASON_UNSPECIFIED`, not as evidence of readiness. |
+| Preparation `data.failureDetails` | Optional diagnostics for a non-callable `PENDING` or `UNAVAILABLE` result. An omitted `retryable` inside a present object means `false`; it does not disable later user-triggered preparation. |
 | Preparation preview | Exactly one action-specific preview. In a blocked result, individual identities, amounts, and quote fields can be absent or unavailable. Do not copy them from an older preparation. |
 | `guidance.nextSteps` | Omitted or empty means no suggested controls. It does not mean success or prohibit polling when `retryAfterMs` and the status allow it. |
 | `guidance.retryAfterMs` | Omitted means no automatic retry interval is supplied. Do not treat omission as a zero-delay retry. |
@@ -3040,6 +3105,12 @@ fields used for rendering.
 | Status `data.transaction.safeBlockNumber` | Decimal string when supplied. It can be `"0"` or absent when evidence is unavailable. It is not a frontend confirmation target. |
 | Status `data.transaction.verifiedActor` | Optional. Absence means the response does not provide an independently verified actor. Do not infer it from the request owner. |
 | Status `data.result` | Present only for `SUCCEEDED`. Replace the latest observation as a whole; never merge an old result into a newer response that omits it. |
+| Status `data.display` | Added by PR #83 on all normal status responses; absent on older servers and request-error envelopes. Missing or unknown display readiness proves nothing and must not reuse a prior `READY`. |
+| Status `data.display.status` | `SUBMITTED_ACTION_DISPLAY_STATUS_PENDING` or `SUBMITTED_ACTION_DISPLAY_STATUS_READY`. Independent of `data.status`; inspect both. An omitted or `UNSPECIFIED` value is not ready. |
+| Status `data.display.copyRunId`, `readOwnerAddress` | Supplied when `READY`; they can also identify the target while pending. Use this read owner for resource links, not as a replacement for the saved request owner. |
+| Status `data.display.userPositionId` | Present for a resolved sell/close position; use it only with the matching copy run and saved chain. |
+| Status `data.display.capitalInUsd`, `capitalOutUsd` | Optional `DecimalMetric` objects, populated only when `READY` and applicable. Keep `value` as a decimal string, preserve `status` and `asOf`, and treat an omitted metric as unknown rather than zero. See the action table below. |
+| Status `data.display.finality` | Qualifies the displayed data as `DATA_FINALITY_PROVISIONAL` or `DATA_FINALITY_FINAL` when ready. Usually omitted while pending. It does not change the strict action status or authorize another action. |
 | Status `data.reason`, `data.nextStep` | Default `UNSPECIFIED` values are normally omitted. A normal successful sale can omit both fields. |
 | Status receipt/effect indexes | `transactionIndex` and `logIndex` are JSON numbers and can be omitted when zero. Default to zero only inside a present receipt or effect object. |
 | `data.result.stop` | A successful Stop identifies its exact accepted or reused parent. A Withdraw Tokens result can omit optional related Stop information. A missing required Stop result needs a fresh status check, not a claim that all exits finished. |
@@ -3677,32 +3748,185 @@ generic sell endpoint.
 
 #### Manual Sell and Close preparation failures
 
-Both endpoints use the following public HTTPS/JSON behavior. Enum reasons in
-the table have the `PREPARED_ACTION_REASON_` prefix.
+Check HTTP status first, then `data.status`, `data.reason`, and optional
+`data.failureDetails`. HTTP 200 does not mean that a call is executable.
+Enum reasons below have the `PREPARED_ACTION_REASON_` prefix. No failure
+response supplies executable `call` or `statusContext` fields.
 
 | Failure | HTTP response | Frontend behavior |
 | --- | --- | --- |
-| Aggregator returns no route, rejects a liquidity-provider quote (422), or has no positive quote output | 200 with `data.status = PREPARED_ACTION_STATUS_UNAVAILABLE`, `data.reason = NO_EXECUTABLE_ROUTE`, and no call | Show `data.guidance` and allow a fresh preparation. Do not mark the endpoint or the action permanently unavailable. |
-| Other aggregator failures, including 5xx, throttling, unclassified request rejection, network failure, or HTTP-client timeout | 503 with `code: 14`, `message: "service unavailable"`, and guidance in `details[]` | Keep the current selection and retry preparation after the delay. The response does not identify the failing provider. |
-| Overall request deadline expires | 504 with `code: 4`, `message: "request deadline exceeded"`, and guidance in `details[]` | Retry preparation. No transaction was submitted by the API. |
-| Built route fails consistency validation | 500 with `code: 13`, `message: "internal query error"`, and guidance in `details[]` | Show the error and support guidance. Do not use a previous call as a fallback. |
-| Prepared account call reverts during simulation | 200 with `data.status = PREPARED_ACTION_STATUS_UNAVAILABLE`, `data.reason = INNER_CALL_REVERTED`, and no call | Show `data.guidance`; let the user refresh or check an independent withdrawal option. |
+| No route, rejected liquidity-provider quote, or unfulfillable output | 200, `UNAVAILABLE / NO_EXECUTABLE_ROUTE`; `failureDetails.code` is `route_not_found`, `route_rejected`, or `route_unfulfillable` | Show the supplied message; allow a fresh preparation. |
+| Aggregator network failure, HTTP-client timeout, HTTP 408, or 5xx | 200, `PENDING / ACTION_SETUP_UNAVAILABLE`, `aggregator_unavailable` | Keep the selection and retry after `guidance.retryAfterMs`. |
+| Aggregator rate limit or upstream cancellation | 200, `PENDING / ACTION_SETUP_UNAVAILABLE`, `aggregator_rate_limited` or `aggregator_canceled` | Keep the selection and respect `guidance.retryAfterMs`. |
+| Other aggregator errors | 200, `UNAVAILABLE / NO_EXECUTABLE_ROUTE`; code from the table below | Use `failureDetails.retryable` and the supplied guidance. `UNAVAILABLE` alone does not prohibit a fresh preparation. |
+| Simulation RPC unavailable or its local deadline expires | 200, `PENDING / ACTION_SETUP_UNAVAILABLE`, `simulation_unavailable` | Retry preparation after the supplied delay. |
+| Account call reverts during simulation | 200, `UNAVAILABLE / INNER_CALL_REVERTED`; a simulation code below | Follow `failureDetails` and `guidance`; do not reuse an earlier call. |
+| Operator route, connection, or another unresolved dependency fails | 503, gRPC `code: 14`, `message: "service unavailable"`, guidance in `details[]` | Retry after the supplied delay. This generic error does not identify a provider. |
+| Overall request deadline expires | 504, gRPC `code: 4`, `message: "request deadline exceeded"`, guidance in `details[]` | Retry preparation. The API did not submit a transaction. |
+| Returned preparation fails contract, selector, scope, or evidence validation | 400, gRPC `code: 9`, sanitized message and guidance in `details[]` | Show support guidance. Do not automatically repeat this invalid response. |
+| Built route fails internal consistency validation | 500, gRPC `code: 13`, `message: "internal query error"`, guidance in `details[]` | Show support guidance; do not use old calldata as a fallback. |
 
-The no-route message is: "No executable sale route is available now. Refresh
-the quote or review the amount and slippage." For Manual Sell and Close, the
-amount is determined by the action; expose the supported slippage input rather
-than changing the returned sell amount.
+`failureDetails` has this shape. It can also appear on other preparation
+endpoints after simulation failure. Stop Copy with selected positions also uses
+these fields when its quote step fails; Stop without positions does not need a
+route. Render the `CHECK_ALTERNATIVE_ACTION` guidance step for Stop with existing
+settings even when the selected sale is non-retryable. This makes a separate
+preparation with an empty position selection; do not silently change the user's
+selection or treat it as an already executable call:
 
-The generic dependency guidance is: "This action could not be checked right
-now. Retry shortly." Both outcomes currently provide `retryAfterMs: 2000`.
-Read the returned value instead of hard-coding it.
+```ts
+interface ActionFailureDetails {
+  code: string; // Stable identifier; unknown codes use the returned guidance.
+  stage: 'quote' | 'route_build' | 'simulation';
+  message: string; // Safe explanation, at most 256 characters.
+  retryable?: boolean; // Omitted means false inside this present object.
+  revertSelector?: string; // Four bytes: 0x plus eight lowercase hex digits.
+  contractError?: string; // Recognized ABI error name/signature; no arguments.
+  aggregatorCode?: number; // Original positive int32 body code, including unknown codes.
+  aggregatorHttpStatus?: number; // Upstream HTTP status, 100–599; not this API's status.
+  retryAfterMs?: number; // Provider delay, 100–2147483647 ms; only when retryable is true.
+}
+```
 
-The API does not expose the aggregator's raw HTTP status, vendor error code,
-or message. In particular, aggregator throttling can appear as HTTP 503;
-public HTTP 429 reports a server resource or action-capacity limit, including
-response-size limits. It does not identify aggregator throttling. An
-HTTP-client timeout can also appear as 503 instead of 504. Do not identify a
-specific provider failure from a generic response.
+Aggregator fields appear only at `quote` or `route_build`. A present
+`aggregatorCode` always has `aggregatorHttpStatus`. A transport failure without
+an HTTP response omits both fields. `revertSelector` and `contractError` appear
+only at `simulation`, which runs the actual account call through the operator's
+RPC. An aggregator gas-estimation failure is not that simulation.
+
+These existing codes indicate that a fresh preparation can help:
+
+| Code | Stage | Suggested response |
+| --- | --- | --- |
+| `route_not_found` | `quote` or `route_build` | Try again later. |
+| `route_rejected` | `quote` or `route_build` | Request a fresh quote. |
+| `route_unfulfillable` | `quote` or `route_build` | Refresh the quote or review slippage. |
+| `aggregator_unavailable` | `quote` or `route_build` | Retry after the supplied delay. |
+| `simulation_price_failure` | `simulation` | Refresh the quote or review slippage. |
+| `simulation_signature_expired` | `simulation` | Prepare again for a fresh signature. |
+| `simulation_unavailable` | `simulation` | Retry after the supplied delay. |
+
+The aggregator mappings below use the numeric response code first, with HTTP
+429 and recognized rate-limit errors taking precedence. Numeric codes come from KyberSwap; the text identifiers
+are Copy Trade's categories. The versioned Aggregator v2.13.0 OpenAPI defines
+4001, 4002, 4005, 4007, 4008, 4009, 4010, 4011, and 4221. Other recognized codes
+come from the [KyberSwap error catalog](https://raw.githubusercontent.com/KyberNetwork/kyberswap-skills/refs/heads/main/skills/error-handling/SKILL.md)
+and may evolve upstream.
+
+| Upstream condition | `failureDetails.code` | `retryable` | Frontend behavior |
+| --- | --- | --- | --- |
+| 4000, 4001, 4002, 40010 | `aggregator_invalid_request` | false | Review request fields or contact support. 40010 is distinct from 4010. |
+| 4003 | `aggregator_invalid_swap` | true | Prepare again for a fresh route. |
+| 4004, 4005, 4007 | `aggregator_invalid_fee` | false | Show the message and support guidance; routing fee settings need review. |
+| 4008 or 4010 | `route_not_found` | true | Try again later; liquidity can change. |
+| 4009 | `aggregator_amount_too_large` | false | Show the size limit failure. Manual Sell and Close amounts are fixed by the operator. |
+| 4011 | `aggregator_token_not_found` | false | Check token and chain support or try again after indexing. |
+| 4221 | `aggregator_wrapped_native_unavailable` | false | Show support guidance for chain configuration. |
+| 4222 | `aggregator_quote_changed` | true | Prepare again for a fresh quote. |
+| 40011 | `aggregator_liquidity_filtered` | false | Routing restrictions need review. Do not silently change source filters. |
+| 4227 with recognized minimum-return failure | `aggregator_price_failure` | true | Prepare again for a fresh quote. Do not increase slippage automatically. |
+| 4227 with recognized insufficient-funds failure | `aggregator_insufficient_funds` | false | Refresh account state or contact support; this does not prove the owner wallet lacks gas. |
+| 4227 with recognized token-transfer failure | `aggregator_transfer_failed` | false | Show token restriction or integration guidance. Do not request approval to an arbitrary router. |
+| Other 4227 | `aggregator_gas_estimation_failed` | true | Try a fresh route within the retry budget; show support guidance if it persists. No specific revert cause is established. |
+| 4990 while the preparation request remains active | `aggregator_canceled` | true | Retry preparation after the supplied delay. |
+| 500, HTTP 408/5xx without another recognized code, or network/read failure | `aggregator_unavailable` | true | Retry after the supplied delay. |
+| HTTP 429 or recognized RFQ rate limit | `aggregator_rate_limited` | true | Respect `guidance.retryAfterMs`, including delays longer than five minutes. |
+| HTTP 401/403/404 without another recognized code | `aggregator_configuration_error` | false | Show endpoint, chain, or access configuration guidance; this is not proof of missing liquidity. |
+| Other unrecognized HTTP 422 | `route_rejected` | true | Try a fresh route within the retry budget. |
+| Other unrecognized response code, including a nonzero code on HTTP 200 | `aggregator_request_failed` | false | Show safe guidance and retain the numeric code for support. |
+
+Recognized PMM/RFQ source errors can also return `aggregator_amount_too_small`,
+`aggregator_amount_too_large`, `aggregator_source_restricted`,
+`aggregator_pair_unsupported`, or `aggregator_self_fill` with `retryable: false`.
+Temporary liquidity or source timeouts return `route_rejected`; market changes
+return `aggregator_quote_changed`; source throttling returns
+`aggregator_rate_limited`. All use fixed safe messages. Do not parse vendor
+message text or assume every HTTP 422 is a price error.
+
+Example fragment for an aggregator rate limit with `Retry-After: 600`:
+
+```json
+{
+  "status": "PREPARED_ACTION_STATUS_PENDING",
+  "reason": "PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE",
+  "failureDetails": {
+    "code": "aggregator_rate_limited",
+    "stage": "route_build",
+    "message": "The routing service is rate limited. Wait before preparing again.",
+    "retryable": true,
+    "aggregatorHttpStatus": 429,
+    "retryAfterMs": 600000
+  },
+  "guidance": {
+    "message": "The routing service is rate limited. Wait before preparing again.",
+    "retryAfterMs": 600000,
+    "nextSteps": [
+      {"kind": "ACTION_GUIDANCE_STEP_KIND_RETRY", "label": "Retry preparation"}
+    ]
+  }
+}
+```
+
+Here the public API returns HTTP 200 and the aggregator returned HTTP 429.
+`aggregatorCode` is omitted because this example has no positive body code.
+For a minimum-return 4227 response, the three key fields are
+`code: "aggregator_price_failure"`, `aggregatorCode: 4227`, and
+`aggregatorHttpStatus: 422`; `retryable` is true. For a 4009 response, the code is
+`aggregator_amount_too_large`; `retryable` is false or omitted, and guidance
+contains no retry delay. Do not infer retryability from the numeric code alone.
+
+The following simulation codes have `retryable: false`. Resolve or refresh the
+prerequisite before another attempt; do not run an automatic retry loop:
+
+| Code | Suggested response |
+| --- | --- |
+| `simulation_insufficient_balance` | Refresh balances. |
+| `simulation_paused` | Check again after the contract is unpaused. |
+| `simulation_authorization_failed` | Check the owner and permissions. |
+| `simulation_contract_reverted` | Review `contractError` and show support guidance. |
+| `simulation_unknown_revert` | Show the failure and offer support; its cause is not established. |
+
+Example fragment from `data` after a recognized minimum-return revert:
+
+```json
+{
+  "status": "PREPARED_ACTION_STATUS_UNAVAILABLE",
+  "reason": "PREPARED_ACTION_REASON_INNER_CALL_REVERTED",
+  "failureDetails": {
+    "code": "simulation_price_failure",
+    "stage": "simulation",
+    "message": "The swap did not meet its minimum return. Refresh the quote or review slippage.",
+    "retryable": true,
+    "revertSelector": "0x08c379a0",
+    "contractError": "Error(string)"
+  },
+  "guidance": {
+    "message": "The swap did not meet its minimum return. Refresh the quote or review slippage.",
+    "retryAfterMs": 2000,
+    "nextSteps": [
+      {"kind": "ACTION_GUIDANCE_STEP_KIND_RETRY", "label": "Retry preparation"}
+    ]
+  }
+}
+```
+
+Use `guidance.retryAfterMs` to schedule a retry; do not hard-code 2000 ms. It is
+at least 2000 ms and at least a valid provider delay. HTTP delay seconds and dates
+are supported; the maximum is 2147483647 ms to fit browser timers. Bound automatic
+retries, for example to three attempts with backoff and jitter, and cancel them
+when the form or selected action changes. Stop automatic retries when
+`failureDetails.retryable` is false or omitted. A retry means a new preparation
+request, not replaying a transaction. Keep manual retry available when the
+relevant state changes. For Manual Sell and Close, the action fixes
+the sell amount; expose the supported slippage input without changing returned
+amounts.
+
+If `failureDetails` is absent, fall back to `reason` and `guidance`. Do not
+infer the aggregator from a generic revert, HTTP 503, or HTTP 504. The API
+never exposes raw provider messages, vendor payloads, revert arguments, or
+signed calldata in diagnostics. HTTP 429 reports an API resource or action
+capacity limit. An aggregator rate limit is represented by a preparation result
+whose `failureDetails.aggregatorHttpStatus` is 429.
 
 ## Submitted action status
 
@@ -3772,6 +3996,11 @@ current status display. For example, a pending response can be:
       "transactionHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
       "safeBlockNumber": "0"
     },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
+    },
     "guidance": {
       "message": "The transaction has not been confirmed yet. Keep its hash to check again.",
       "retryAfterMs": 2000
@@ -3781,14 +4010,17 @@ current status display. For example, a pending response can be:
 ```
 
 The hash above is illustrative. Missing `result` is expected until this call's
-required publication is available. Malformed contexts return an input error;
+required publication is available. The `display` field in this and the status
+fixtures below requires PR #83; older servers can omit it.
+Malformed contexts return an input error;
 oversized HTTP bodies return 413. A transport error is separate from an
 `UNKNOWN` observation and must not be shown as transaction failure.
 
 ### Status and reason matrix
 
 Response `data` contains `status`, `transaction`, and `guidance`, with `reason`,
-`result`, and `nextStep` according to the rules below. The table omits the
+`result`, and `nextStep` according to the rules below. PR #83 also returns the
+independent `display` object described below. The table omits the
 `SUBMITTED_ACTION_STATUS_` and `SUBMITTED_ACTION_REASON_` prefixes. Receipt
 outcomes use the `ACTION_TRANSACTION_RECEIPT_OUTCOME_` prefix.
 
@@ -3798,19 +4030,80 @@ outcomes use the `ACTION_TRANSACTION_RECEIPT_OUTCOME_` prefix.
 | `PENDING` | `TRANSACTION_PENDING` | Absent | Absent | Show **Pending** and poll. |
 | `PENDING` | `REORGED` | Absent | Absent | Replace any previous success with **Checking new inclusion** and poll the same hash/context. |
 | `CONFIRMING` | `CONFIRMATIONS_PENDING` | Present; `SUCCESS` or `REVERTED` | Absent | Show **Confirming**, with the observed outer outcome separately. Continue polling even for a reverted receipt. |
-| `SYNCING` | `SOURCE_INDEXING`, `RESULT_PUBLICATION`, or `REPAIR_IN_PROGRESS` | Present; `SUCCESS` | Absent | Show **Updating result**. The effect is verified; continue polling for the required result. |
-| `SUCCEEDED` | Omitted, `UNSPECIFIED`, or `REINCLUDED` | Present; `SUCCESS` | Present | Show this call's success, refresh its resources, and handle `nextStep` separately. |
+| `SYNCING` | `SOURCE_INDEXING`, `RESULT_PUBLICATION`, or `REPAIR_IN_PROGRESS` | Present; `SUCCESS` | Absent | The effect is verified; continue polling for the strict result. If display is `READY`, show the updated data with its qualifiers now; otherwise show **Updating result**. |
+| `SUCCEEDED` | Omitted, `UNSPECIFIED`, or `REINCLUDED` | Present; `SUCCESS` | Present | Show this call's success and handle `nextStep` separately. If display is `PENDING`, keep polling at the returned interval while waiting to show updated data. |
 | `FAILED` | `TRANSACTION_REVERTED` | Present; `REVERTED` | Absent | Show that the exact matched transaction reverted. Offer review of a fresh preparation; never resubmit automatically. |
 | `UNKNOWN` | `SOURCE_UNAVAILABLE` | May be present | Absent | Show **Status temporarily unavailable** and retry observation. |
 | `UNKNOWN` | `HISTORY_UNAVAILABLE`, `TARGET_MISMATCH`, `AMBIGUOUS_EFFECT`, or `EFFECT_NOT_VERIFIABLE` | May be present | Absent | Show the explanation and offer review or support. Do not label the transaction failed or keep polling without a retry hint. |
 
 Pending, confirming, and syncing responses currently supply a 2,000 ms retry
-hint. `UNKNOWN/SOURCE_UNAVAILABLE` supplies 5,000 ms. Read
+hint. `SUCCEEDED` with display `PENDING` also supplies 2,000 ms.
+`UNKNOWN/SOURCE_UNAVAILABLE` supplies 5,000 ms. Read
 `guidance.retryAfterMs` instead of hard-coding those values. These responses
 can omit `guidance.nextSteps`; polling does not depend on a `RETRY` step.
 
 If a future status or reason is unsupported, preserve the operation and show
 an unsupported-status message. Do not map it to success or failure.
+
+### Submitted-action display readiness
+
+This section describes PR #83's additive contract. `data.status` still answers
+whether the submitted call, stage, or batch has completed its required result
+publication. `data.display.status` answers whether its relevant updated public
+data can be shown. Neither `SYNCING` nor `SUCCEEDED` alone answers both questions.
+
+Display enum values use the `SUBMITTED_ACTION_DISPLAY_STATUS_` prefix:
+
+| Display status | Frontend behavior |
+| --- | --- |
+| `PENDING` | The action's updated public data is not yet verified. Do not invent updated totals or retain values from an earlier ready observation. Target IDs alone do not prove readiness. |
+| `READY` | Show the named copy run or position's action-specific data; use any returned monetary values and qualify them with metric status and `display.finality`. Continue strict-result polling when action status is `SYNCING`. |
+| Missing, `UNSPECIFIED`, or unsupported | No readiness guarantee. On an older server without `display`, use the existing strict-completion/refresh flow; do not start an endless display-only poll. |
+
+`READY` is available only alongside `SYNCING` or `SUCCEEDED`. Pending,
+confirming, failed, and unknown observations return display `PENDING`.
+Display readiness does not add a new top-level action status or expose
+`result` before `SUCCEEDED`. It is also separate from the copy run's
+`capitalInProjectionStatus`; that field describes the capital projection,
+whereas display readiness is tied to this exact submitted action.
+
+| Action or stage | What display `READY` guarantees |
+| --- | --- |
+| Start Copy CREATE | The account lifecycle is published and the copy-run detail is readable. `capitalInUsd` is optional and only supplied when independently verified; its omission must not become zero or the prepared funding amount. |
+| Start Copy FUND | Public `capitalInUsd` includes the exact funding credit. The metric is included in `display`. |
+| Add Capital | Public `capitalInUsd` includes the exact deposit, including explicitly provisional values. The metric is included in `display`. |
+| Stop Copy | The permanent pause/account lifecycle is published. The public run can be `closing` while exits continue; readiness does not mean all positions are sold. |
+| Withdraw Quote | A positive withdrawal is included in public `capitalOutUsd`, returned in `display`. A zero maximum withdrawal requires readable account data but no capital movement or invented zero metric. |
+| Withdraw Tokens | The pause/account lifecycle is published. A positive quote withdrawal also requires updated public `capitalOutUsd`. A zero/nonquote batch need not return a capital metric; refreshed wallet balances and reduced trading-position quantities are not promised. |
+| Manual Sell / Close Position | The exact sale activity and current public position summary are published. Use `userPositionId` to refresh the position and execution history. A later valid trade may have changed the current remaining amount. |
+
+For owner-scoped reads use `display.readOwnerAddress` with `copyRunId`, plus
+`userPositionId` for position detail/history. Keep the original request owner,
+chain, hash, and `statusContext` for polling; the read owner can differ from the
+transaction actor. Amounts are server totals, not deltas: replace the displayed
+metric rather than adding the deposited/withdrawn amount to it again.
+
+Metric status and finality are separate. `METRIC_STATUS_CURRENT` does not mean
+final: a ready provisional Capital In may already be current. Label
+`DATA_FINALITY_PROVISIONAL` values as provisional; retain a stale label for
+`METRIC_STATUS_STALE` even when finality is `DATA_FINALITY_FINAL`. Finality
+qualifies only the action's indicated display data, not every metric in its
+account. Capital Out currently waits for the published total because it has no
+provisional candidate. Prices, PnL, account-wide totals, list order/membership,
+wallet balances, and optional exit progress can still be updating.
+
+Capital In can become display-ready before the capital replay window matures
+or the separate historical-fact promotion finishes. Thus `SYNCING` does not
+mean events or values are absent. A repair of strict-only workflow evidence
+can also leave independently verified account/position display `READY`; use
+the returned display status instead of suppressing it solely because the
+action reason is `REPAIR_IN_PROGRESS`.
+
+Readiness is revocable. Replace `display` with each new response, including
+`READY` → `PENDING` after a reorg, correction, or source reset. Clear the prior
+action-specific display claim and values, then refresh normal public reads;
+do not merge an earlier ready object into a later pending/missing response.
+Readiness is never authority to skip preparation or follow `nextStep` early.
 
 ### Receipt changes and remaining work
 
@@ -3874,8 +4167,8 @@ An HTTP error, including cancellation of the status request, does not establish
 failure or cancellation of the transaction.
 
 Use the **Action Status** operation in the generated
-[OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
-for all context and result fields.
+[OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/70583b83faa9c1a88ec44fc512cdc16d94e277a8/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
+for all context, display, and result fields; the display addition is from PR #83.
 
 ### Refresh targets after success
 
@@ -4329,6 +4622,11 @@ HTTP 200 from `actions:status`. The receipt says `REVERTED`, but the action stat
     "guidance": {
       "message": "The transaction was mined and is waiting for the required confirmations. Its observed receipt result is shown separately.",
       "retryAfterMs": 2000
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
 }
@@ -4339,7 +4637,7 @@ HTTP 200 from `actions:status`. The receipt says `REVERTED`, but the action stat
 <details>
 <summary>Status: the effect is verified while its result is being repaired</summary>
 
-HTTP 200. Show that the result is updating. There is no `result` yet, and polling is driven by `guidance.retryAfterMs` even though no `nextSteps` array is present.
+HTTP 200. This example has a repair affecting display data, so both result publication and display are pending. Clear any earlier ready display values. There is no `result` yet, and polling is driven by `guidance.retryAfterMs` even though no `nextSteps` array is present. A strict-only workflow repair can instead return display `READY`.
 
 <!-- fe-response-example: status_syncing_repair -->
 ```json
@@ -4358,6 +4656,154 @@ HTTP 200. Show that the result is updating. There is no `result` yet, and pollin
     },
     "guidance": {
       "message": "The transaction's effect is verified. We are rechecking its result after a data correction.",
+      "retryAfterMs": 2000
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: Add Capital is ready to show while the action is syncing</summary>
+
+HTTP 200 under PR #83. Display Capital In as 21 with a provisional label. It already includes this deposit: do not add the local deposit delta again. Refresh the named copy-run detail and keep polling for strict success; `result` and `nextStep` remain absent.
+
+<!-- fe-response-example: status_syncing_display_ready -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_SYNCING",
+    "reason": "SUBMITTED_ACTION_REASON_SOURCE_INDEXING",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "202"
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "capitalInUsd": {
+        "value": "21",
+        "status": "METRIC_STATUS_CURRENT",
+        "asOf": "2026-09-22T08:47:49Z"
+      },
+      "finality": "DATA_FINALITY_PROVISIONAL"
+    },
+    "guidance": {
+      "message": "Your updated data is ready to show. The submitted action's final result is still syncing.",
+      "retryAfterMs": 2000
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: Add Capital succeeded but its updated total is not ready</summary>
+
+HTTP 200 under PR #83. The exact credit is published, so this action succeeded. The updated public total is not verified yet: no capital metric is supplied in `display`. Keep polling at the returned interval while the view waits for that total.
+
+<!-- fe-response-example: status_success_display_pending -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_SUCCEEDED",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "202"
+    },
+    "result": {
+      "kind": "ACTION_TRANSACTION_KIND_ADD_CAPITAL",
+      "copyAccount": "0x2222222222222222222222222222222222222222",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "effects": [
+        {
+          "cursor": {
+            "blockNumber": "201",
+            "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "logIndex": 1,
+            "blockTime": "2026-09-22T08:47:49Z"
+          },
+          "emitter": "0x3333333333333333333333333333333333333333",
+          "transfer": {
+            "token": "0x3333333333333333333333333333333333333333",
+            "from": "0x1111111111111111111111111111111111111111",
+            "to": "0x2222222222222222222222222222222222222222",
+            "amountRaw": "1000000"
+          }
+        }
+      ],
+      "chainId": "8453",
+      "factory": "0x4444444444444444444444444444444444444444",
+      "generationId": "example-v1"
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
+    },
+    "guidance": {
+      "message": "This submitted call completed. Any remaining funding, exits, or withdrawal batches are shown separately. Its display data is still updating.",
+      "retryAfterMs": 2000
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: withdrawal Capital Out is ready while strict status is syncing</summary>
+
+HTTP 200 under PR #83. Capital Out includes the exact positive quote withdrawal. Render 5 with its stale qualifier; finality is separate from freshness. This does not promise a refreshed wallet balance. Keep polling for strict success.
+
+<!-- fe-response-example: status_withdrawal_display_ready -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_SYNCING",
+    "reason": "SUBMITTED_ACTION_REASON_SOURCE_INDEXING",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "202"
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "capitalOutUsd": {
+        "value": "5",
+        "status": "METRIC_STATUS_STALE",
+        "asOf": "2026-09-22T08:47:49Z"
+      },
+      "finality": "DATA_FINALITY_FINAL"
+    },
+    "guidance": {
+      "message": "Your updated data is ready to show. The submitted action's final result is still syncing.",
       "retryAfterMs": 2000
     }
   }
@@ -4417,6 +4863,13 @@ HTTP 200. The exact sale completed with 50 raw base units remaining. Refresh the
     },
     "guidance": {
       "message": "This submitted call completed. Any remaining funding, exits, or withdrawal batches are shown separately."
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "finality": "DATA_FINALITY_PROVISIONAL",
+      "userPositionId": "position_1"
     }
   }
 }
@@ -4453,6 +4906,11 @@ HTTP 200. The confirmed direct transaction reverted. `result` is absent. Review 
           "label": "Review a fresh preparation"
         }
       ]
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
 }
@@ -4478,6 +4936,11 @@ HTTP 200. This is an `UNKNOWN` observation, not an HTTP dependency error or a fa
     "guidance": {
       "message": "The chain evidence could not be read right now. This does not mean the transaction failed. Retry shortly.",
       "retryAfterMs": 5000
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
 }
@@ -4488,7 +4951,7 @@ HTTP 200. This is an `UNKNOWN` observation, not an HTTP dependency error or a fa
 <details>
 <summary>Status: a previously observed receipt was invalidated</summary>
 
-HTTP 200. Replace the previous observation with this response, including removal of its receipt and result. Keep the submitted hash and original context for the next poll.
+HTTP 200. Replace the previous observation with this response, including removal of its receipt, result, and previous ready display values. Keep the submitted hash and original context for the next poll.
 
 <!-- fe-response-example: status_reorged -->
 ```json
@@ -4503,6 +4966,11 @@ HTTP 200. Replace the previous observation with this response, including removal
     "guidance": {
       "message": "The previous receipt is no longer canonical. We are checking for this transaction's new inclusion.",
       "retryAfterMs": 2000
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
 }
@@ -4571,6 +5039,12 @@ HTTP 200 for an empty Stop that reasserted pause. `result.stop` identifies the e
     },
     "guidance": {
       "message": "This submitted call completed. Any remaining funding, exits, or withdrawal batches are shown separately."
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "finality": "DATA_FINALITY_PROVISIONAL"
     }
   }
 }
@@ -4820,6 +5294,9 @@ The browser should never ABI-encode a Copy Trade action from preview fields.
 3. For `PENDING`, `CONFIRMING`, or `SYNCING`, show the returned explanation and
    poll after `guidance.retryAfterMs`. Allow only one in-flight poll per
    operation; cancel the request when its view is closed and resume when needed.
+   Independently inspect `display`: on `READY`, render its qualified monetary
+   values and refresh the named detail/position immediately. Keep polling when
+   the strict action is still `SYNCING`; do not execute a continuation yet.
 4. For `UNKNOWN`, display the reason without labeling the transaction failed.
    Retry transient `SOURCE_UNAVAILABLE` according to guidance. For a target
    mismatch, ambiguous effect, or unavailable history without a retry hint,
@@ -4828,12 +5305,17 @@ The browser should never ABI-encode a Copy Trade action from preview fields.
    [Error handling](#error-handling). Never resubmit to recover a failed poll.
 6. On `SUCCEEDED`, refresh the resource IDs in `result` and their containing
    lists. Follow `nextStep` for Start funding or a new withdrawal batch; keep
-   optional Stop progress separate from this call's success.
+   optional Stop progress separate from this call's success. If display is
+   `PENDING` and the view is waiting for updated data, continue polling using
+   `guidance.retryAfterMs`; don't treat the old total as updated.
 7. On `FAILED`, show that the matched transaction reverted. Require a fresh
    preparation and user review before any new submission.
 
-Stop continuous polling after a resolved result, but check again when reopening
-the operation or when the wallet reports a replacement hash. Every observation
+For PR #83, stop successful-operation polling once both action `SUCCEEDED`
+and display `READY` are observed. A confirmed `FAILED` stops success/display
+polling too. When an older server omits `display`, use the existing resolved
+result and refresh flow. Check again when reopening the operation or when the
+wallet reports a replacement hash. Every observation
 can revise a previous result after a reorg; don't cache success as irreversible.
 
 Guard updates by the saved chain, transaction hash, and status context. If the
@@ -4843,7 +5325,8 @@ than using overlapping intervals. Browser cancellation can prevent any HTTP
 response; treat it as a stopped observation request.
 
 `CONFIRMING` reports the outer receipt result separately. `SYNCING` means the
-required result is catching up. `UNKNOWN` is not failure. Do not infer execution
+required result is catching up; readable display data may already be ready.
+`UNKNOWN` is not failure. Do not infer execution
 from a newer timestamp, successful outer wrapper, or elapsed timeout. A reorg can
 invalidate previous success; send the previous receipt reference to explain a
 changed inclusion. Never reuse a successfully submitted preparation.
@@ -4887,13 +5370,27 @@ component and request-state tests. No live transaction is needed for these cases
 - A `CONFIRMING` response with a reverted outer receipt keeps polling and does
   not render a final failed action.
 - `SYNCING/REPAIR_IN_PROGRESS` shows pending result publication without an old
-  `result` object.
+  `result` object. Independently proved display `READY` can still be rendered.
+- `SYNCING` with display `READY` renders the exact returned Capital In and its
+  provisional label, clears the included local pending delta, and keeps polling
+  for strict success without adding the deposit twice.
+- `SUCCEEDED` with display `PENDING` shows action success but continues display
+  polling at `guidance.retryAfterMs`; it does not label an older total updated.
+- Every action follows its display guarantee above. CREATE can be ready with
+  no capital value, Stop can remain closing, and a partial sale can be shown
+  even when a later valid sale changed the remaining amount.
+- Positive quote withdrawals wait for returned Capital Out; zero/nonquote
+  batches do not wait for wallet-balance RPC or invent missing capital values.
+- `CURRENT` plus `PROVISIONAL`, and `STALE` plus `FINAL`, retain both qualifiers.
+- Missing or unknown display status never borrows prior ready values. An older
+  server without `display` uses the legacy completion flow without endless polling.
 - `SUCCEEDED` works with omitted `reason`, `nextStep`, and zero indexes.
 - Stop success with unavailable progress does not display zero remaining exits.
 - `UNKNOWN/SOURCE_UNAVAILABLE` retries observation; a target mismatch or
   invalid request requires review instead of an automatic loop.
 - A reorg replaces the latest success and removes its displayed result while
   retaining the original context, hash, and last observed receipt reference.
+  A new display `PENDING` also removes the earlier ready display claim/values.
 - Start and Withdraw Tokens continuation creates a fresh preparation request;
   it never resubmits the call from the successful operation.
 - Canceling, refreshing, or reopening the view retains the operation identity
@@ -4918,6 +5415,12 @@ authority.
 - Reconcile a delta only when an authoritative read exposes matching source
   evidence or the exact operation outcome. A newer response timestamp alone
   isn't proof that the event was included.
+- For FUND/Add Capital, display `READY` proves the exact credit is already in
+  returned Capital In. Replace the matching local funding overlay with that
+  server total, even while the action is `SYNCING`, to avoid double counting.
+  Apply the same rule to returned Capital Out for a positive quote withdrawal.
+  Keep unrelated pending operations separate; a ready account/position alone
+  does not prove an omitted monetary metric includes its delta.
 - Reconcile the overlay with exact submitted status. A reorg or lost receipt
   withdraws a prior success; elapsed time alone never proves failure or cancellation.
 - A Stop Copy overlay can show “stopping” locally, but it must not move the run

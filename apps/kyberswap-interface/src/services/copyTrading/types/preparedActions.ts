@@ -3,6 +3,23 @@ import type { ActionStatusContext } from 'services/copyTrading/types/actionStatu
 import type { PositionValuation } from 'services/copyTrading/types/positions'
 import type { Address, LooseString, Metric, MetricStatus, Timestamp } from 'services/copyTrading/types/primitives'
 
+export type ActionGuidance = {
+  message?: string
+  retryAfterMs?: number
+}
+
+export type ActionFailureDetails = {
+  code?: string
+  stage?: LooseString<'quote' | 'route_build' | 'simulation'>
+  message?: string
+  retryable?: boolean
+  revertSelector?: string
+  contractError?: string
+  aggregatorCode?: number
+  aggregatorHttpStatus?: number
+  retryAfterMs?: number
+}
+
 export type RawAmountMetric = Pick<Metric, 'valueRaw' | 'status' | 'asOf'>
 
 export type SwapQuotePreview = {
@@ -253,6 +270,8 @@ export type PreparedAction = {
   liquidationConfigDeadline?: Timestamp
   call?: PreparedCall
   reason?: PreparedActionReason
+  guidance?: ActionGuidance
+  failureDetails?: ActionFailureDetails
   warnings?: PreparedActionWarning[]
   evidence?: ActionEvidence
   displayEnrichment: ActionDisplayEnrichment

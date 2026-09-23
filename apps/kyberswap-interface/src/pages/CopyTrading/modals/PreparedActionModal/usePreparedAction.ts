@@ -1,7 +1,7 @@
 import { getPublicClient } from '@wagmi/core'
 import { useCallback, useRef, useState } from 'react'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
-import type { SubmittedActionStatusData } from 'services/copyTrading/types/actionStatus'
+import type { SubmittedActionDisplay } from 'services/copyTrading/types/actionStatus'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 
 import { wagmiConfig } from 'components/Web3Provider'
@@ -32,10 +32,7 @@ type UsePreparedActionProps = {
   validateBeforeSubmit?: (action: PreparedAction) => void
   reviewUnavailable?: (action: PreparedAction) => boolean
   onPrepared?: (action: PreparedAction) => void
-  onSubmittedSuccess?: (
-    result: NonNullable<SubmittedActionStatusData['result']>,
-    action: PreparedAction,
-  ) => Promise<void> | void
+  onSubmittedSuccess?: (data: SubmittedActionDisplay, action: PreparedAction) => Promise<void> | void
 }
 
 export const usePreparedAction = ({
@@ -90,14 +87,14 @@ export const usePreparedAction = ({
 
   const syncSubmittedAction = async (action: PreparedAction, hash: Hash) => {
     setState({ phase: 'syncing', action, hash })
-    // Refresh once on receipt and again when the API reports a successful transaction outcome.
+    // Refresh once on receipt and again when the action's public data is ready.
     refresh()
 
     try {
       const status = await pollSubmittedActionStatus({ action, hash, getStatus })
       refresh()
-      if (status.result) await onSubmittedSuccess?.(status.result, action)
-      setState({ phase: 'success', action, hash })
+      if (status.display) await onSubmittedSuccess?.(status.display, action)
+      setState({ phase: 'success', action, hash, display: status.display })
     } catch (error) {
       setState({
         phase: error instanceof SubmittedActionFailedError ? 'error' : 'sync_error',
@@ -239,10 +236,17 @@ export const usePreparedAction = ({
       return
     }
 
+    const delay =
+      state.retryAt !== undefined
+        ? Math.max(0, state.retryAt - Date.now())
+        : state.phase === 'pending' && state.action
+        ? getReprepareDelay(state.action)
+        : 0
     await requestPreparedAction({
-      delay: state.phase === 'pending' && state.action ? getReprepareDelay(state.action) : 0,
+      delay,
       onReady,
-      phaseWhilePreparing: !onReady && (state.phase === 'expired' || state.phase === 'error') ? 'review' : undefined,
+      phaseWhilePreparing:
+        !delay && !onReady && (state.phase === 'expired' || state.phase === 'error') ? 'review' : undefined,
     })
   }
 

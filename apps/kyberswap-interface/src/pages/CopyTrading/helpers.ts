@@ -202,6 +202,8 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_ACCOUNT_PERMANENTLY_PAUSED: 'This Smart Wallet is permanently paused.',
   PREPARED_ACTION_REASON_EXIT_IN_PROGRESS: 'A position exit is already in progress.',
   PREPARED_ACTION_REASON_EXIT_NOT_TERMINAL: 'The previous exit has not reached a terminal state yet.',
+  PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE:
+    'This action could not be checked right now. Please try again shortly.',
   PREPARED_ACTION_REASON_SOURCE_STALE: 'The latest on-chain state is still syncing. Please try again shortly.',
   PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING: 'The latest on-chain state is still being indexed.',
   PREPARED_ACTION_REASON_FACTORY_PAUSED: 'New Copy Trading accounts are temporarily paused.',

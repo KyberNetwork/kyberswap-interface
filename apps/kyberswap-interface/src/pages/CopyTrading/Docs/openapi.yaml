@@ -1769,6 +1769,37 @@ definitions:
       ActionEvidence exposes the fact and mutable-state boundaries used to prepare
       the call. Operator-owned route clocks remain internal; reprepare_after is the
       only client expiry boundary.
+  v1ActionFailureDetails:
+    type: object
+    properties:
+      code:
+        type: string
+      stage:
+        type: string
+      message:
+        type: string
+      retryable:
+        type: boolean
+      revertSelector:
+        type: string
+      contractError:
+        type: string
+      aggregatorCode:
+        type: integer
+        format: int32
+        description: Original numeric aggregator application code. Omitted when none was returned.
+      aggregatorHttpStatus:
+        type: integer
+        format: int64
+        description: HTTP status of the aggregator response, distinct from this API's HTTP status.
+      retryAfterMs:
+        type: integer
+        format: int64
+        description: Bounded provider Retry-After hint. Also applied to guidance.retry_after_ms.
+    description: |-
+      ActionFailureDetails describes a failed preparation without exposing raw
+      provider responses, revert data, or signed transaction payloads. Retryable
+      means preparing a fresh action may help; it never authorizes submission.
   v1ActionGuidance:
     type: object
     properties:
@@ -4453,6 +4484,8 @@ definitions:
         $ref: '#/definitions/v1PositionSellPreview'
       generationId:
         type: string
+      failureDetails:
+        $ref: '#/definitions/v1ActionFailureDetails'
     description: PreparedAction is the common current-action result.
   v1PreparedActionReason:
     type: string
@@ -4831,6 +4864,42 @@ definitions:
       description:
         type: string
     description: StrategyExecutionItem is one configured Strategy & Execution display item.
+  v1SubmittedActionDisplay:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/v1SubmittedActionDisplayStatus'
+      copyRunId:
+        type: string
+      readOwnerAddress:
+        type: string
+      capitalInUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Only populated when READY; uses the public copy-run value and availability.
+      finality:
+        $ref: '#/definitions/v1DataFinality'
+      userPositionId:
+        type: string
+      capitalOutUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: |-
+      SubmittedActionDisplay qualifies the named copy-run or position read.
+      READY requires its action-specific data to include the exact submitted effect.
+      CREATE requires the account lifecycle, with Capital In included when verified.
+      Capital In is required for FUND/Add Capital; Capital Out for positive quote withdrawals;
+      Stop and token batches require the account lifecycle, and sells the position.
+      Finality is separate. Reorgs and corrections can withdraw readiness.
+      Unrelated metrics, wallet balances, account totals and lists may still update.
+  v1SubmittedActionDisplayStatus:
+    type: string
+    enum:
+      - SUBMITTED_ACTION_DISPLAY_STATUS_UNSPECIFIED
+      - SUBMITTED_ACTION_DISPLAY_STATUS_PENDING
+      - SUBMITTED_ACTION_DISPLAY_STATUS_READY
+    default: SUBMITTED_ACTION_DISPLAY_STATUS_UNSPECIFIED
+    description: |-
+      SubmittedActionDisplayStatus describes whether this submission's updated
+      public data can be shown. It does not authorize another action.
   v1SubmittedActionNextStep:
     type: string
     enum:
@@ -4924,6 +4993,9 @@ definitions:
         $ref: '#/definitions/v1SubmittedActionNextStep'
       guidance:
         $ref: '#/definitions/v1ActionGuidance'
+      display:
+        $ref: '#/definitions/v1SubmittedActionDisplay'
+        description: Readiness of this action's public data, independent of strict action success.
     description: SubmittedActionStatusData uses the same progress contract for all seven actions.
   v1SubmittedStopResult:
     type: object

@@ -77,9 +77,9 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     },
     onPrepared: attempt.acceptPreparation,
     reviewUnavailable: action => requiresStartCopyAuthorization(action) && !attempt.hasAuthorization(),
-    onSubmittedSuccess: result => {
+    onSubmittedSuccess: data => {
       setAgreed(false)
-      setCreatedCopyRunId(result.copyRunId)
+      setCreatedCopyRunId(data.copyRunId)
     },
   })
   const { state: flowState } = flow

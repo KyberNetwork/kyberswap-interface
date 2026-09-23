@@ -4,8 +4,11 @@ import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import {
   type PreparedActionExpectation,
   type PreparedActionStateSetter,
+  getApiErrorGuidance,
   getApiErrorMessage,
+  getPreparationRetryAt,
   isPreparationExpiredError,
+  isPreparationFailure,
   validatePreparedAction,
   validatePreparedGeneration,
   wait,
@@ -56,7 +59,8 @@ export const requestPreparation = async (
     action = await prepare()
   } catch (error) {
     if (!isCurrent()) return
-    setState({ phase: 'error', error: getApiErrorMessage(error) })
+    const guidance = getApiErrorGuidance(error)
+    setState({ phase: 'error', error: getApiErrorMessage(error), guidance, retryAt: getPreparationRetryAt(guidance) })
     return
   }
   if (!isCurrent()) return
@@ -81,19 +85,30 @@ export const requestPreparation = async (
     if (failValidation(action, validatePreparedAction(action, expected, { requireCall: executable }))) return
   }
   try {
-    onPrepared?.(action)
+    // Failed previews may omit identity fields; keep the current attempt unchanged.
+    if (!isPreparationFailure(action)) onPrepared?.(action)
   } catch (error) {
     failValidation(action, getApiErrorMessage(error))
     return
   }
 
   if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
-    setState({ phase: 'pending', action, error: getPreparedReasonMessage(action.reason) })
+    setState({
+      phase: 'pending',
+      action,
+      error: action.failureDetails?.message || action.guidance?.message || getPreparedReasonMessage(action.reason),
+      retryAt: getPreparationRetryAt(action.guidance),
+    })
     return
   }
 
   if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE' && !reviewDiagnostic) {
-    setState({ phase: 'unavailable', action, error: getPreparedReasonMessage(action.reason) })
+    setState({
+      phase: 'unavailable',
+      action,
+      error: action.failureDetails?.message || action.guidance?.message || getPreparedReasonMessage(action.reason),
+      retryAt: getPreparationRetryAt(action.guidance),
+    })
     return
   }
 

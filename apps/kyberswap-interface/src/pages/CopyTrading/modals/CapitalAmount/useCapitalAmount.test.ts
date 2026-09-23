@@ -3,6 +3,8 @@ import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
+import type { PreparedActionFlowState } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { requestPreparation } from 'pages/CopyTrading/modals/PreparedActionModal/requestPreparation'
 
 const harness = vi.hoisted(() => ({
   slots: [] as { current: unknown }[],
@@ -205,5 +207,75 @@ describe('funding amount discovery and validation', () => {
     expect(() =>
       form.validatePreparation({ ...unavailable, reason: 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE' }),
     ).toThrow()
+  })
+})
+
+describe.each(['startCopy', 'addCapital'] as const)('%s preparation diagnostics', preview => {
+  it.each([
+    { status: 'PREPARED_ACTION_STATUS_PENDING' as const, details: true },
+    { status: 'PREPARED_ACTION_STATUS_PENDING' as const, details: false },
+    { status: 'PREPARED_ACTION_STATUS_UNAVAILABLE' as const, details: true },
+  ])('preserves message and retry guidance through the funding validator: %j', async ({ status, details }) => {
+    CapitalAmountHarness().setAmount('1.25')
+    const form = CapitalAmountHarness()
+    const account = '0x1111111111111111111111111111111111111111'
+    const action: PreparedAction = {
+      ...preparation(preview),
+      expectedAccount: account,
+      status,
+      reason:
+        status === 'PREPARED_ACTION_STATUS_PENDING'
+          ? 'PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE'
+          : 'PREPARED_ACTION_REASON_INNER_CALL_REVERTED',
+      [preview]: {},
+      failureDetails: details ? { message: 'Simulation could not complete.', retryable: true } : undefined,
+      guidance: { message: 'Try a fresh preparation.', retryAfterMs: 600_000 },
+    }
+    let state: PreparedActionFlowState = { phase: 'idle' }
+    const onPrepared = vi.fn(() => {
+      throw new Error('Diagnostic preview must not update the Start attempt.')
+    })
+    const onReady = vi.fn()
+    const before = Date.now()
+    await requestPreparation(
+      {
+        getExpected: () => ({
+          account,
+          chainId: 8453,
+          generationId: action.generationId,
+          preview,
+          callKinds: [],
+        }),
+        isCurrent: () => true,
+        finish: vi.fn(),
+        prepare: async () => form.validatePreparation(action),
+        onPrepared,
+        setState: update => {
+          state = typeof update === 'function' ? update(state) : update
+        },
+      },
+      { onReady },
+    )
+    expect(state).toMatchObject({
+      phase: status === 'PREPARED_ACTION_STATUS_PENDING' ? 'pending' : 'unavailable',
+      action,
+      error: details ? action.failureDetails?.message : action.guidance?.message,
+    })
+    expect(state.retryAt).toBeGreaterThanOrEqual(before + 600_000)
+    expect(onPrepared).not.toHaveBeenCalled()
+    expect(onReady).not.toHaveBeenCalled()
+    expect(form.amountRaw).toBe('1250000')
+  })
+
+  it('still rejects an executable response missing its amount even if diagnostics are present', () => {
+    CapitalAmountHarness().setAmount('1.25')
+    const form = CapitalAmountHarness()
+    expect(() =>
+      form.validatePreparation({
+        ...preparation(preview),
+        [preview]: {},
+        failureDetails: { message: 'Unexpected diagnostic' },
+      }),
+    ).toThrow('Review the amount and prepare again.')
   })
 })

@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { SubmittedActionStatusData } from 'services/copyTrading/types/actionStatus'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   DEFAULT_PREPARED_ACTION_STATE,
@@ -52,6 +52,11 @@ const callTarget = '0x3333333333333333333333333333333333333333'
 const startRequestId = '123e4567-e89b-42d3-a456-426614174000'
 const targetCapitalRaw = '50000000'
 const generationId = 'generation-v1'
+const readyDisplay = {
+  status: 'SUBMITTED_ACTION_DISPLAY_STATUS_READY' as const,
+  copyRunId: 'run-1',
+  readOwnerAddress: account,
+}
 const displayEnrichment = { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const }
 
 const expected: PreparedActionExpectation = {
@@ -394,6 +399,7 @@ describe('submitted status recovery', () => {
         data: {
           status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
           transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+          display: readyDisplay,
           result: { copyRunId: 'run-1' },
         },
       })
@@ -443,6 +449,7 @@ describe('submitted status recovery', () => {
           data: {
             status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
             transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+            display: readyDisplay,
             result: { copyRunId: 'run-1' },
             nextStep,
           },
@@ -453,7 +460,7 @@ describe('submitted status recovery', () => {
         prepare,
       }).retry()
       expect(prepare).not.toHaveBeenCalled()
-      expect(harness.getState()).toEqual({ phase: 'success', action, hash })
+      expect(harness.getState()).toEqual({ phase: 'success', action, hash, display: readyDisplay })
     },
   )
 })
@@ -482,6 +489,7 @@ describe('replacement transaction receipts', () => {
         data: {
           status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
           transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+          display: readyDisplay,
           result: { copyRunId: 'run-1' },
         },
       })
@@ -496,7 +504,7 @@ describe('replacement transaction receipts', () => {
     expect(walletMocks.waitForTransactionReceipt).toHaveBeenCalledWith({ hash: originalHash })
     expect(harness.getState()).toMatchObject({ phase: 'sync_error', hash: replacementHash, retryStage: 'sync' })
     await useFlow().retry()
-    expect(harness.getState()).toEqual({ phase: 'success', action, hash: replacementHash })
+    expect(harness.getState()).toEqual({ phase: 'success', action, hash: replacementHash, display: readyDisplay })
     expect(getStatus).toHaveBeenCalledTimes(2)
     for (const [request] of getStatus.mock.calls) {
       expect(request.transactionHash).toBe(replacementHash)
@@ -602,7 +610,7 @@ describe('authorized preparation', () => {
 })
 
 describe('shared result ownership', () => {
-  it('completes a successful transaction while the API is syncing without a result', async () => {
+  it('uses display data for action callbacks while the API is syncing without a result', async () => {
     const hash = `0x${'c'.repeat(64)}` as const
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
     statusMocks.getStatus.mockReturnValue({
@@ -610,20 +618,46 @@ describe('shared result ownership', () => {
         data: {
           status: 'SUBMITTED_ACTION_STATUS_SYNCING',
           transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+          display: readyDisplay,
         },
       }),
     })
     const onSubmittedSuccess = vi.fn()
     const prepare = vi.fn()
     await usePreparedAction({ getExpected: () => expected, prepare, onSubmittedSuccess }).retry()
-    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash, display: readyDisplay })
     expect(statusMocks.refresh).toHaveBeenCalledTimes(2)
-    expect(onSubmittedSuccess).not.toHaveBeenCalled()
+    expect(onSubmittedSuccess).toHaveBeenCalledWith(readyDisplay, readyAction)
     expect(prepare).not.toHaveBeenCalled()
     expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
   })
 
-  it('refreshes at receipt and verified success, then lets the action consume the result', async () => {
+  it.each([
+    {
+      capitalInUsd: { value: '25.50', status: 'METRIC_STATUS_CURRENT' as const },
+      finality: 'DATA_FINALITY_PROVISIONAL' as const,
+    },
+    {
+      capitalOutUsd: { value: '12.25', status: 'METRIC_STATUS_STALE' as const },
+      finality: 'DATA_FINALITY_FINAL' as const,
+    },
+    { userPositionId: 'position-1', finality: 'DATA_FINALITY_PROVISIONAL' as const },
+  ])('preserves action-specific display data for the flow: %j', async fields => {
+    const hash = `0x${'d'.repeat(64)}` as const
+    const display = { ...readyDisplay, ...fields }
+    const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    statusMocks.getStatus.mockReturnValue({
+      unwrap: vi.fn().mockResolvedValue({ data: { status: 'SUBMITTED_ACTION_STATUS_SYNCING', display } }),
+    })
+    const onSubmittedSuccess = vi.fn()
+    await usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), onSubmittedSuccess }).retry()
+    expect(onSubmittedSuccess).toHaveBeenCalledWith(display, readyAction)
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash, display })
+    expect(statusMocks.getStatus).toHaveBeenCalledOnce()
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
+  it('refreshes at receipt and display readiness, then lets the action consume display data', async () => {
     const hash = `0x${'a'.repeat(64)}` as const
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
     let resolveStatus: (response: { data: SubmittedActionStatusData }) => void = () => undefined
@@ -646,15 +680,16 @@ describe('shared result ownership', () => {
       data: {
         status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
         transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+        display: readyDisplay,
         result,
       },
     })
-    await vi.waitFor(() => expect(onSubmittedSuccess).toHaveBeenCalledWith(result, readyAction))
+    await vi.waitFor(() => expect(onSubmittedSuccess).toHaveBeenCalledWith(readyDisplay, readyAction))
     expect(statusMocks.refresh).toHaveBeenCalledTimes(2)
     expect(harness.getState().phase).toBe('syncing')
     resolveResult()
     await request
-    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash, display: readyDisplay })
   })
 
   it('keeps refresh failures separate from the verified transaction result', async () => {
@@ -666,6 +701,7 @@ describe('shared result ownership', () => {
         data: {
           status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
           transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+          display: readyDisplay,
           result: {},
         },
       }),
@@ -674,7 +710,7 @@ describe('shared result ownership', () => {
       getExpected: () => expected,
       prepare: vi.fn(),
     }).retry()
-    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash, display: readyDisplay })
   })
 })
 
@@ -723,6 +759,125 @@ describe('funding validation before wallet submission', () => {
     await usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), validateBeforeSubmit }).confirm()
     expect(validateBeforeSubmit).toHaveBeenCalledTimes(2)
     expect(harness.getState()).toMatchObject({ phase: 'error', error: 'Funding token changed during simulation' })
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+})
+
+describe('preparation failure diagnostics', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  const failure: PreparedAction = {
+    ...readyAction,
+    status: 'PREPARED_ACTION_STATUS_PENDING',
+    reason: 'PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE',
+    call: undefined,
+    statusContext: undefined,
+    startCopy: {},
+    failureDetails: {
+      code: 'simulation_unavailable',
+      stage: 'simulation',
+      message: 'Simulation is temporarily unavailable.',
+      retryable: true,
+    },
+    guidance: { message: 'Try a fresh preparation.', retryAfterMs: 600_000 },
+  }
+
+  it.each(['PREPARED_ACTION_STATUS_PENDING', 'PREPARED_ACTION_STATUS_UNAVAILABLE'] as const)(
+    'shows safe diagnostics for %s without opening the wallet or automatically retrying',
+    async status => {
+      vi.useFakeTimers()
+      const now = Date.now()
+      const harness = createStateHarness()
+      const action = { ...failure, status }
+      const prepare = vi.fn().mockResolvedValue(action)
+      await usePreparedAction({ getExpected: () => expected, prepare }).prepareAndConfirm()
+      expect(harness.getState()).toMatchObject({
+        phase: status === 'PREPARED_ACTION_STATUS_PENDING' ? 'pending' : 'unavailable',
+        action,
+        error: failure.failureDetails?.message,
+        retryAt: now + 600_000,
+      })
+      await vi.advanceTimersByTimeAsync(600_001)
+      expect(prepare).toHaveBeenCalledOnce()
+      expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+    },
+  )
+
+  it.each([false, undefined])('allows a fresh manual preparation when retryable is %s', async retryable => {
+    const action = {
+      ...failure,
+      status: 'PREPARED_ACTION_STATUS_UNAVAILABLE' as const,
+      guidance: undefined,
+      failureDetails: { ...failure.failureDetails, retryable },
+    }
+    const harness = createStateHarness({ phase: 'unavailable', action })
+    const prepare = vi.fn().mockResolvedValue(readyAction)
+    await usePreparedAction({ getExpected: () => expected, prepare }).retry()
+    expect(prepare).toHaveBeenCalledOnce()
+    expect(harness.getState()).toMatchObject({ phase: 'review', action: readyAction })
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
+  it('falls back to guidance when diagnostics are absent', async () => {
+    const harness = createStateHarness()
+    await usePreparedAction({
+      getExpected: () => expected,
+      prepare: async () => ({ ...failure, failureDetails: undefined }),
+    }).prepare()
+    expect(harness.getState().error).toBe('Try a fresh preparation.')
+  })
+
+  it.each(['pending', 'unavailable', 'error'] as const)('honors the remaining provider delay for %s', async phase => {
+    vi.useFakeTimers()
+    const harness = createStateHarness({ phase, action: failure, retryAt: Date.now() + 600_000 })
+    await vi.advanceTimersByTimeAsync(60_000)
+    const prepare = vi.fn().mockResolvedValue(readyAction)
+    const request = usePreparedAction({ getExpected: () => expected, prepare }).retry()
+    // Stay on the dismissible recovery screen while waiting for the provider delay.
+    expect(harness.getState()).toMatchObject({ phase, isPreparing: true })
+    await vi.advanceTimersByTimeAsync(539_999)
+    expect(prepare).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1)
+    await request
+    expect(prepare).toHaveBeenCalledOnce()
+    expect(harness.getState().phase).toBe('review')
+  })
+
+  it('cancels a delayed retry when the form is reset', async () => {
+    vi.useFakeTimers()
+    const harness = createStateHarness({ phase: 'pending', action: failure, retryAt: Date.now() + 10_000 })
+    const prepare = vi.fn()
+    const flow = usePreparedAction({ getExpected: () => expected, prepare })
+    const request = flow.retry()
+    flow.reset()
+    await vi.advanceTimersByTimeAsync(10_000)
+    await request
+    expect(harness.getState()).toEqual({ phase: 'idle' })
+    expect(prepare).not.toHaveBeenCalled()
+  })
+
+  it.each([400, 503])('reads typed HTTP %s guidance and does not automatically retry', async status => {
+    vi.useFakeTimers()
+    const harness = createStateHarness()
+    const guidance = {
+      '@type': 'type.googleapis.com/kyber.copytrade.aggregate.v1.ActionGuidance',
+      message: 'Check the preparation settings.',
+      ...(status === 503 ? { retryAfterMs: 600_000 } : {}),
+    }
+    const prepare = vi.fn().mockRejectedValue({
+      status,
+      data: {
+        message: 'generic error',
+        details: [{ '@type': 'another.type', message: 'Ignore this detail' }, guidance],
+      },
+    })
+    await usePreparedAction({ getExpected: () => expected, prepare }).prepare()
+    expect(harness.getState()).toMatchObject({ phase: 'error', error: guidance.message, guidance })
+    expect(harness.getState().retryAt).toBe(status === 503 ? Date.now() + 600_000 : undefined)
+    await vi.advanceTimersByTimeAsync(600_001)
+    expect(prepare).toHaveBeenCalledOnce()
     expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
   })
 })

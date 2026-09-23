@@ -41,13 +41,14 @@ export const pollSubmittedActionStatus = async ({
     if (data.transaction?.receipt) previousReceipt = data.transaction.receipt
     message = data.guidance?.message || message
 
-    // UI completion follows the transaction outcome, without waiting for result publication.
-    if (data.transaction?.outcome === 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS') return data
     if (data.transaction?.outcome === 'ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED') {
       throw new SubmittedActionFailedError(
         data.guidance?.message || 'The transaction reverted. Prepare a new call before trying again.',
       )
     }
+
+    // READY confirms the action's public data is readable, even while strict status is SYNCING.
+    if (data.display?.status === 'SUBMITTED_ACTION_DISPLAY_STATUS_READY') return data
 
     const delay = data.guidance?.retryAfterMs
     if (delay === undefined || !Number.isFinite(delay) || delay < 0) {

@@ -20,10 +20,12 @@ const succeeded: SubmittedActionStatusData = {
   status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
   transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
   result: { copyRunId: 'run-1' },
+  display: { status: 'SUBMITTED_ACTION_DISPLAY_STATUS_READY', copyRunId: 'run-1', readOwnerAddress: owner },
 }
 const receipt = { blockNumber: '100', blockHash: '0xabc' }
 const pending = (status: SubmittedActionStatusData['status'], retryAfterMs = 2000): SubmittedActionStatusData => ({
   status,
+  display: { status: 'SUBMITTED_ACTION_DISPLAY_STATUS_PENDING' },
   guidance: { retryAfterMs },
 })
 const statusReader = (...responses: SubmittedActionStatusData[]) => {
@@ -81,10 +83,10 @@ describe('submitted action convergence after receipt', () => {
     ).resolves.toEqual(data)
   })
 
-  it.each(['SUBMITTED_ACTION_STATUS_SYNCING', 'SUBMITTED_ACTION_STATUS_CONFIRMING', undefined] as const)(
-    'finishes immediately on a successful outcome with status %s and no result',
+  it.each(['SUBMITTED_ACTION_STATUS_SYNCING', 'SUBMITTED_ACTION_STATUS_SUCCEEDED', undefined] as const)(
+    'finishes on display READY with status %s and no result',
     async status => {
-      const data = { status, transaction: succeeded.transaction }
+      const data = { status, display: succeeded.display }
       const getStatus = statusReader(data)
       const waitForNextAttempt = vi.fn()
       await expect(pollSubmittedActionStatus({ action, hash, getStatus, waitForNextAttempt })).resolves.toEqual(data)
@@ -93,11 +95,34 @@ describe('submitted action convergence after receipt', () => {
     },
   )
 
-  it('does not infer a successful outcome from the action status', async () => {
+  it.each([
+    undefined,
+    {},
+    { status: 'SUBMITTED_ACTION_DISPLAY_STATUS_UNSPECIFIED' },
+    { status: 'SUBMITTED_ACTION_DISPLAY_STATUS_PENDING' },
+    { status: 'NEW_UNKNOWN_STATUS' },
+  ])('does not infer data readiness from a successful outcome or strict status: %j', async display => {
     await expect(
-      pollSubmittedActionStatus({ action, hash, getStatus: statusReader({ ...succeeded, transaction: undefined }) }),
+      pollSubmittedActionStatus({ action, hash, getStatus: statusReader({ ...succeeded, display }) }),
     ).rejects.toThrow('could not be verified')
   })
+
+  it.each(['SUBMITTED_ACTION_STATUS_SYNCING', 'SUBMITTED_ACTION_STATUS_SUCCEEDED'] as const)(
+    'keeps polling display PENDING with a successful transaction and status %s',
+    async status => {
+      const getStatus = statusReader(
+        { ...pending(status, 3000), transaction: succeeded.transaction, result: succeeded.result },
+        { status, display: succeeded.display },
+      )
+      const waitForNextAttempt = vi.fn().mockResolvedValue(undefined)
+      await expect(pollSubmittedActionStatus({ action, hash, getStatus, waitForNextAttempt })).resolves.toEqual({
+        status,
+        display: succeeded.display,
+      })
+      expect(getStatus).toHaveBeenCalledTimes(2)
+      expect(waitForNextAttempt).toHaveBeenCalledWith(3000)
+    },
+  )
 
   it('retries transient UNKNOWN but stops at a target mismatch', async () => {
     const getStatus = statusReader(

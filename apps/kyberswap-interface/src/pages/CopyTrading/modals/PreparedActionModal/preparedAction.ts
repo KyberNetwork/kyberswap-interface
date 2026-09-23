@@ -1,6 +1,8 @@
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import type { Dispatch, SetStateAction } from 'react'
+import type { SubmittedActionDisplay } from 'services/copyTrading/types/actionStatus'
 import type {
+  ActionGuidance,
   PositionSellContext,
   PreparedAction,
   PreparedCallKind,
@@ -30,7 +32,10 @@ export type PreparedActionFlowState = {
   action?: PreparedAction
   error?: string
   hash?: Hash
+  display?: SubmittedActionDisplay
   retryStage?: 'receipt' | 'sync'
+  retryAt?: number
+  guidance?: ActionGuidance
 }
 
 export const DEFAULT_PREPARED_ACTION_STATE: PreparedActionFlowState = { phase: 'idle' }
@@ -51,6 +56,26 @@ export type PreparedActionExpectation = {
   startCopyTargetRaw?: string
 }
 
+export const isPreparationFailure = (action: PreparedAction) =>
+  (action.status === 'PREPARED_ACTION_STATUS_PENDING' || action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') &&
+  (!!action.failureDetails || action.reason === 'PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE')
+
+export const getApiErrorGuidance = (error: unknown): ActionGuidance | undefined => {
+  if (!error || typeof error !== 'object' || !('data' in error)) return undefined
+  const data = error.data
+  if (!data || typeof data !== 'object' || !('details' in data) || !Array.isArray(data.details)) return undefined
+  return data.details.find(
+    detail => detail?.['@type'] === 'type.googleapis.com/kyber.copytrade.aggregate.v1.ActionGuidance',
+  )
+}
+
+export const getPreparationRetryAt = (guidance?: ActionGuidance) => {
+  const delay = guidance?.retryAfterMs
+  return typeof delay === 'number' && Number.isFinite(delay) && delay > 0
+    ? Date.now() + Math.min(delay, 2_147_483_647)
+    : undefined
+}
+
 export const getApiErrorMessage = (error: unknown) => {
   if (error instanceof Error) return error.message
   if (!error || typeof error !== 'object') return 'The request could not be completed.'
@@ -62,6 +87,7 @@ export const getApiErrorMessage = (error: unknown) => {
   }
   if (typeof value.data === 'string') return value.data
   return (
+    getApiErrorGuidance(error)?.message ||
     value.data?.publicErrorMessage ||
     value.data?.message ||
     value.data?.error ||
@@ -231,6 +257,11 @@ export const validatePreparedAction = (
     call
   ) {
     return 'The non-executable preparation unexpectedly returned a call.'
+  }
+
+  // Setup failures are diagnostic; their preview need not contain executable-stage fields.
+  if (!requireCall && isPreparationFailure(action)) {
+    return undefined
   }
 
   if (expected.preview === 'startCopy') {

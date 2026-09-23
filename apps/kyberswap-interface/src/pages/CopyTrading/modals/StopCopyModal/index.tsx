@@ -124,13 +124,13 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
 
       return response.data
     },
-    onSubmittedSuccess: async (result, action) => {
-      // This read only chooses the navigation destination; status already proved success.
-      const ownerAddress = result.readOwnerAddress || action.expectedAccount
-      if (result.copyRunId && ownerAddress) {
+    onSubmittedSuccess: async (data, action) => {
+      // Display readiness makes the copy run readable; this read chooses the navigation destination.
+      const ownerAddress = data.readOwnerAddress || action.expectedAccount
+      if (data.copyRunId && ownerAddress) {
         const response = await getCopyRun({
           ownerAddress,
-          copyRunId: result.copyRunId,
+          copyRunId: data.copyRunId,
         })
           .unwrap()
           .catch(() => undefined)
