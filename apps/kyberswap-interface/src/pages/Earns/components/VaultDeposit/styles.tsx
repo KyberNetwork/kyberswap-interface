@@ -182,6 +182,11 @@ export const ErrorNote = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>
   <div className={cn('w-full rounded-xl bg-red-20 px-3 py-2 text-xs leading-5 text-red', className)} {...rest} />
 )
 
+/** The same note in the tone the zap flows give a setting that is unusual but still workable. */
+export const WarningNote = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('w-full rounded-xl bg-warning-20 px-3 py-2 text-xs leading-5 text-white', className)} {...rest} />
+)
+
 export const SegmentedTabs = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn('flex w-full items-center gap-0 rounded-xl border border-white-08 bg-white-04 p-0.5', className)}

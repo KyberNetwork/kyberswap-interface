@@ -774,9 +774,7 @@ msgid "Your Balance"
 msgstr ""
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Est. Gas Fee"
 msgstr ""
 
@@ -963,6 +961,11 @@ msgstr "您的手续费将自动复投以获得更多收益"
 
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "No participants found for this week."
+msgstr ""
+
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor."
 msgstr ""
 
 #: src/components/TokenSelectorModal/TabBar.tsx
@@ -1724,8 +1727,6 @@ msgstr "这些条款与细则 <0>(“条款”)</0> 应与 KyberSwap 使用条�
 #~ msgid "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
 #~ msgstr "当前授权额度不足，请额外授权 {0} {1}"
 
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "You receive"
 msgstr ""
@@ -2139,6 +2140,10 @@ msgstr "我获得的积分"
 
 #: src/pages/Earns/components/SmartExit/Actions.tsx
 msgid "Estimating fee..."
+msgstr ""
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Selected: {count} protocols"
 msgstr ""
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
@@ -3387,8 +3392,8 @@ msgid "You have chosen option {selectedOption} for KyberSwap Elastic Exploit Tre
 msgstr "您已为 KyberSwap Elastic 漏洞国库赠款计划选择了选项 {selectedOption}"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-msgid "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
-msgstr ""
+#~ msgid "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
+#~ msgstr ""
 
 #: src/components/TokenSelectorModal/TokenList.tsx
 msgid "Native"
@@ -3551,9 +3556,7 @@ msgid "Fee estimation failed"
 msgstr ""
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Estimated network fee for this transaction. What you actually pay depends on network conditions."
 msgstr ""
 
@@ -3711,6 +3714,10 @@ msgstr "领取中"
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
 #~ msgstr "<0/> 取消可能不会立即生效 <1>了解更多 ↗︎</1>"
+
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Deposit the whole {symbol} balance"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 msgid "ETH Derivatives trading will give 1 Point per USD swapped."
@@ -4124,6 +4131,10 @@ msgstr "*仅可委托给以太坊地址"
 #~ msgid "For support, please contact Transak <0>here</0>."
 #~ msgstr "如需支持，请联系 Transak <0>这里</0>"
 
+#: src/utils/slippage.ts
+msgid "Your slippage {tail}"
+msgstr ""
+
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Campaign/constants.tsx
@@ -4397,6 +4408,7 @@ msgstr "授权 <0>{0}</0> 需大于 <1>{1} {2}</1>，了解更多 <2>这里</2>"
 msgid "Cancel Order"
 msgstr "取消订单"
 
+#: src/pages/Earns/components/VaultFormSkeleton.tsx
 #: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
@@ -4803,8 +4815,8 @@ msgstr "仓位流动性（美元）"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
-msgstr ""
+#~ msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
+#~ msgstr ""
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Points are earned from eligible trading activity using Swap, Zap, Cross-Chain Swap, Limit Order and Smart Exit Orders on kyberswap.com"
@@ -5179,10 +5191,6 @@ msgstr "头像"
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
 #: src/pages/CrossChainSwap/components/Summary.tsx
-#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price Impact"
@@ -5733,6 +5741,13 @@ msgstr "合约地址"
 msgid "You are depositing:"
 msgstr ""
 
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+#: src/pages/Earns/PoolExplorer/Filter.tsx
+#: src/pages/Earns/UserPositions/index.tsx
+msgid "Selected: {count} chains"
+msgstr ""
+
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Note: Staking KNC is only available on Ethereum chain."
 msgstr "注意：KNC 质押仅支持以太坊链"
@@ -5741,6 +5756,7 @@ msgstr "注意：KNC 质押仅支持以太坊链"
 msgid "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
 msgstr ""
 
+#: src/pages/Earns/components/VaultIdentityRow.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
@@ -6016,7 +6032,6 @@ msgstr "您没有可移除的流动性"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
-#: src/pages/Earns/components/VaultProcessingModal.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 msgid "My Vaults"
 msgstr ""
@@ -6112,8 +6127,8 @@ msgstr "存在待处理请求，请在钱包中批准"
 #~ msgstr "步骤 1"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-msgid "Earnings auto-compound into your balance — there is nothing to claim."
-msgstr ""
+#~ msgid "Earnings auto-compound into your balance — there is nothing to claim."
+#~ msgstr ""
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
@@ -6171,6 +6186,7 @@ msgstr "使用钱包登录"
 #~ msgstr "将在本周期结束后转入“解锁期”"
 
 #: src/components/SwapForm/SlippageSetting.tsx
+#: src/pages/Earns/components/VaultDeposit/SlippageSelect.tsx
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl.tsx
 msgid "Suggestion"
 msgstr "建议"
@@ -6179,8 +6195,8 @@ msgstr "建议"
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
-msgstr ""
+#~ msgid "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
+#~ msgstr ""
 
 #: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
 #~ msgid "Open settings"
@@ -7152,7 +7168,9 @@ msgstr ""
 msgid "External Call"
 msgstr "外部调用"
 
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Est. Min Received"
 msgstr ""
@@ -8229,6 +8247,7 @@ msgstr "我的仓位"
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultFormSkeleton.tsx
 #: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
@@ -8369,8 +8388,6 @@ msgid "Due to a potential issue with our legacy <0>Elastic protocol</0>, we have
 msgstr "由于旧版 <0>Elastic 协议</0> 存在潜在问题，我们已永久暂停 <1>Elastic {0}（Legacy）</1>，请使用全新并已审计的 <2>Elastic {2}</2>"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 msgid "Minimum Receiving"
 msgstr "最小接收量"
 
@@ -8942,6 +8959,10 @@ msgstr "当前链不匹配，请确认钱包已切换至目标链"
 msgid "Confirm this transaction in your wallet"
 msgstr "请在钱包中确认该交易"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Withdraw the whole balance"
+msgstr ""
+
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Opt Out"
@@ -9502,6 +9523,10 @@ msgstr ""
 #~ msgid "this profile"
 #~ msgstr "该配置文件"
 
+#: src/pages/Earns/components/VaultProcessingModal.tsx
+msgid "View positions"
+msgstr ""
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 msgid "Price:"
 msgstr "价格："
@@ -9687,8 +9712,8 @@ msgid "Half"
 msgstr "一半"
 
 #: src/pages/Earns/UserPositions/index.tsx
-msgid "Select chains"
-msgstr "选择链"
+#~ msgid "Select chains"
+#~ msgstr "选择链"
 
 #: src/components/Announcement/helpers.ts
 msgid "Cancelled by you"

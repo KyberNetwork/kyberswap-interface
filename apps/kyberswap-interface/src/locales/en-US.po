@@ -774,9 +774,7 @@ msgid "Your Balance"
 msgstr "Your Balance"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Est. Gas Fee"
 msgstr "Est. Gas Fee"
 
@@ -964,6 +962,11 @@ msgstr "Your fees are being automatically compounded so you earn more"
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "No participants found for this week."
 msgstr "No participants found for this week."
+
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor."
+msgstr "The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor."
 
 #: src/components/TokenSelectorModal/TabBar.tsx
 msgid "Trending"
@@ -1724,8 +1727,6 @@ msgstr "These Terms and Conditions <0>(\"Terms\")</0> should be read in conjunct
 #~ msgid "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
 #~ msgstr "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
 
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "You receive"
 msgstr "You receive"
@@ -2140,6 +2141,10 @@ msgstr "My Earned Points"
 #: src/pages/Earns/components/SmartExit/Actions.tsx
 msgid "Estimating fee..."
 msgstr "Estimating fee..."
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Selected: {count} protocols"
+msgstr "Selected: {count} protocols"
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9. Rewards are claimable on Ethereum, and claiming will require a gas fee. Users must claim their rewards before 00:00 UTC on July 9; unclaimed rewards after this time will no longer be available."
@@ -3387,8 +3392,8 @@ msgid "You have chosen option {selectedOption} for KyberSwap Elastic Exploit Tre
 msgstr "You have chosen option {selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-msgid "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
-msgstr "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
+#~ msgid "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
+#~ msgstr "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
 
 #: src/components/TokenSelectorModal/TokenList.tsx
 msgid "Native"
@@ -3551,9 +3556,7 @@ msgid "Fee estimation failed"
 msgstr "Fee estimation failed"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Estimated network fee for this transaction. What you actually pay depends on network conditions."
 msgstr "Estimated network fee for this transaction. What you actually pay depends on network conditions."
 
@@ -3711,6 +3714,10 @@ msgstr "Claiming"
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
 #~ msgstr "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
+
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Deposit the whole {symbol} balance"
+msgstr "Deposit the whole {symbol} balance"
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 msgid "ETH Derivatives trading will give 1 Point per USD swapped."
@@ -4124,6 +4131,10 @@ msgstr "*Only delegate to Ethereum address"
 #~ msgid "For support, please contact Transak <0>here</0>."
 #~ msgstr "For support, please contact Transak <0>here</0>."
 
+#: src/utils/slippage.ts
+msgid "Your slippage {tail}"
+msgstr "Your slippage {tail}"
+
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Campaign/constants.tsx
@@ -4397,6 +4408,7 @@ msgstr "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out mor
 msgid "Cancel Order"
 msgstr "Cancel Order"
 
+#: src/pages/Earns/components/VaultFormSkeleton.tsx
 #: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
@@ -4803,8 +4815,8 @@ msgstr "POSITION LIQUIDITY (USD)"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
-msgstr "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
+#~ msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
+#~ msgstr "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Points are earned from eligible trading activity using Swap, Zap, Cross-Chain Swap, Limit Order and Smart Exit Orders on kyberswap.com"
@@ -5179,10 +5191,6 @@ msgstr "Profile Picture"
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
 #: src/pages/CrossChainSwap/components/Summary.tsx
-#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price Impact"
@@ -5733,6 +5741,13 @@ msgstr "Contract Address"
 msgid "You are depositing:"
 msgstr "You are depositing:"
 
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+#: src/pages/Earns/PoolExplorer/Filter.tsx
+#: src/pages/Earns/UserPositions/index.tsx
+msgid "Selected: {count} chains"
+msgstr "Selected: {count} chains"
+
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Note: Staking KNC is only available on Ethereum chain."
 msgstr "Note: Staking KNC is only available on Ethereum chain."
@@ -5741,6 +5756,7 @@ msgstr "Note: Staking KNC is only available on Ethereum chain."
 msgid "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
 msgstr "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
 
+#: src/pages/Earns/components/VaultIdentityRow.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
@@ -6016,7 +6032,6 @@ msgstr "You have zero liquidity to remove"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
-#: src/pages/Earns/components/VaultProcessingModal.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 msgid "My Vaults"
 msgstr "My Vaults"
@@ -6112,8 +6127,8 @@ msgstr "Pending request(s), please approve it in your wallet."
 #~ msgstr "Step 1"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-msgid "Earnings auto-compound into your balance — there is nothing to claim."
-msgstr "Earnings auto-compound into your balance — there is nothing to claim."
+#~ msgid "Earnings auto-compound into your balance — there is nothing to claim."
+#~ msgstr "Earnings auto-compound into your balance — there is nothing to claim."
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
@@ -6171,6 +6186,7 @@ msgstr "Sign-In with Wallet"
 #~ msgstr "will move to “Vesting” when this cycle ends."
 
 #: src/components/SwapForm/SlippageSetting.tsx
+#: src/pages/Earns/components/VaultDeposit/SlippageSelect.tsx
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/SlippageControl.tsx
 msgid "Suggestion"
 msgstr "Suggestion"
@@ -6179,8 +6195,8 @@ msgstr "Suggestion"
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
-msgstr "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
+#~ msgid "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
+#~ msgstr "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
 
 #: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
 #~ msgid "Open settings"
@@ -7152,7 +7168,9 @@ msgstr "Pool Address:"
 msgid "External Call"
 msgstr "External Call"
 
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Est. Min Received"
 msgstr "Est. Min Received"
@@ -8229,6 +8247,7 @@ msgstr "My position"
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultFormSkeleton.tsx
 #: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
@@ -8369,8 +8388,6 @@ msgid "Due to a potential issue with our legacy <0>Elastic protocol</0>, we have
 msgstr "Due to a potential issue with our legacy <0>Elastic protocol</0>, we have permanently paused our <1>Elastic {0} (Legacy)</1>. If you wish to participate in our {1}, check out our new and audited <2>Elastic {2}</2>."
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 msgid "Minimum Receiving"
 msgstr "Minimum Receiving"
 
@@ -8942,6 +8959,10 @@ msgstr "Your chain is mismatched, please make sure your wallet is switch to the 
 msgid "Confirm this transaction in your wallet"
 msgstr "Confirm this transaction in your wallet"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Withdraw the whole balance"
+msgstr "Withdraw the whole balance"
+
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Opt Out"
@@ -9502,6 +9523,10 @@ msgstr "The information is intended solely for your reference at the time you ar
 #~ msgid "this profile"
 #~ msgstr "this profile"
 
+#: src/pages/Earns/components/VaultProcessingModal.tsx
+msgid "View positions"
+msgstr "View positions"
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 msgid "Price:"
 msgstr "Price:"
@@ -9687,8 +9712,8 @@ msgid "Half"
 msgstr "Half"
 
 #: src/pages/Earns/UserPositions/index.tsx
-msgid "Select chains"
-msgstr "Select chains"
+#~ msgid "Select chains"
+#~ msgstr "Select chains"
 
 #: src/components/Announcement/helpers.ts
 msgid "Cancelled by you"

@@ -16,7 +16,11 @@ import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQue
 import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
-import { getVaultSlippageNotice, useVaultSlippageAdvice } from 'pages/Earns/hooks/useVaultSlippageAdvice'
+import {
+  getVaultSlippageNotice,
+  getVaultSuggestedSlippage,
+  useVaultSlippageAdvice,
+} from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -302,6 +306,7 @@ export const useWithdrawForm = ({
     priceImpactResult: zapPriceImpactResult,
     isSlippageResolving: slippageAdvice.isResolving,
     slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, zapWithdraw.route?.zapDetails.suggestedSlippage),
+    suggestedSlippage: getVaultSuggestedSlippage(slippageAdvice, zapWithdraw.route?.zapDetails.suggestedSlippage),
     zapRoute: zapWithdraw.route,
     zapAmountOutRaw: zapWithdraw.amountOutRaw,
     zapMinAmountOutRaw: zapWithdraw.minAmountOutRaw,

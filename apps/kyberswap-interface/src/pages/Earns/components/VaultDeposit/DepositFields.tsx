@@ -192,6 +192,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
           value={form.slippage}
           onChange={form.setSlippage}
           notice={form.slippageNotice}
+          suggested={form.suggestedSlippage}
           isResolving={form.isSlippageResolving}
         />
       </DetailsBox>

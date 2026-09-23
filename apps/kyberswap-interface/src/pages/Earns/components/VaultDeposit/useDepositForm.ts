@@ -12,7 +12,11 @@ import useDefaultDepositToken from 'pages/Earns/components/VaultDeposit/useDefau
 import { useDepositApprovals } from 'pages/Earns/components/VaultDeposit/useDepositApprovals'
 import { VAULT_ACTION_STEP, VaultStep, vaultApproveStep } from 'pages/Earns/components/vaultSteps'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
-import { getVaultSlippageNotice, useVaultSlippageAdvice } from 'pages/Earns/hooks/useVaultSlippageAdvice'
+import {
+  getVaultSlippageNotice,
+  getVaultSuggestedSlippage,
+  useVaultSlippageAdvice,
+} from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { checkPriceImpact } from 'utils/prices'
@@ -369,6 +373,7 @@ export const useDepositForm = ({
     priceImpactResult,
     isSlippageResolving: slippageAdvice.isResolving,
     slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, deposit.route?.zapDetails.suggestedSlippage),
+    suggestedSlippage: getVaultSuggestedSlippage(slippageAdvice, deposit.route?.zapDetails.suggestedSlippage),
     isRouteLoading: deposit.isRouteLoading,
     sharesOutRaw: deposit.sharesOutRaw,
     minSharesOutRaw: deposit.minSharesOutRaw,

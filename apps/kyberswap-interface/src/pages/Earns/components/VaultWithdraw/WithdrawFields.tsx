@@ -251,6 +251,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             value={form.slippage}
             onChange={form.setSlippage}
             notice={form.slippageNotice}
+            suggested={form.suggestedSlippage}
             isResolving={form.isSlippageResolving}
           />
         )}

@@ -66,6 +66,21 @@ export const useVaultSlippageAdvice = ({
 
 export type VaultSlippageAdvice = ReturnType<typeof useVaultSlippageAdvice>
 
+/**
+ * The figure the control offers back once the setting has moved away from it, from whichever model
+ * `useVaultSlippageAdvice` picked: a single-token form has its pair's opening value, while a route
+ * spending several tokens has only the one the quote asks for. Undefined while either is still
+ * being worked out — there is nothing to offer yet.
+ */
+export const getVaultSuggestedSlippage = (
+  advice: VaultSlippageAdvice,
+  suggestedSlippage?: number,
+): number | undefined => {
+  if (!advice.isSingleToken) return suggestedSlippage && suggestedSlippage > 0 ? suggestedSlippage : undefined
+
+  return advice.isResolving ? undefined : advice.defaultBps
+}
+
 /** The note under the control, from whichever model `useVaultSlippageAdvice` picked. */
 export const getVaultSlippageNotice = (
   advice: VaultSlippageAdvice,

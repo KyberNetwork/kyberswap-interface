@@ -1,9 +1,10 @@
 import { t } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import { TextHelper } from 'components/Text'
 import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
+import { WarningNote } from 'pages/Earns/components/VaultDeposit/styles'
 import { cn } from 'utils/cn'
 import { SlippageNotice, formatSlippage } from 'utils/slippage'
 
@@ -25,20 +26,32 @@ const SlippageSelect = ({
   value,
   onChange,
   notice,
+  suggested,
   isResolving,
 }: {
   value: number
   onChange: (bps: number) => void
   /** How the form reads this setting, if it has anything to say about it. */
   notice?: SlippageNotice | null
+  /** What the form would pick on its own, offered back once the setting has moved away from it. */
+  suggested?: number
   /** The opening figure is still being worked out; showing one now would only replace it. */
   isResolving?: boolean
 }) => {
   const [isExpanded, setExpanded] = useState(false)
   /** Raw text while the field is being edited, so a half-typed "1." survives the next keystroke. */
   const [custom, setCustom] = useState('')
+  const [isEditing, setEditing] = useState(false)
 
   const isCustom = custom !== '' || !isPreset(value)
+
+  // The field follows the applied value whenever it is not being typed into: a setting restored from
+  // a previous visit, or one that lands late, belongs in the box rather than behind a placeholder.
+  // Typing is left alone — reconciling mid-keystroke is what turns "1.5" into "15".
+  useEffect(() => {
+    if (isEditing) return
+    setCustom(isPreset(value) ? '' : formatSlippage(value, false))
+  }, [isEditing, value])
 
   const handleCustomChange = (raw: string) => {
     const next = raw.replace(/,/g, '.')
@@ -51,19 +64,19 @@ const SlippageSelect = ({
     onChange(Math.min(bps, MAX_BPS))
   }
 
-  // Reconcile the text with what is actually applied: a clamped or half-typed entry reads back as
-  // the value the route is quoted with, and an entry that never resolved falls back to a preset.
+  const handleSuggestionClick = (bps: number) => {
+    setCustom(isPreset(bps) ? '' : formatSlippage(bps, false))
+    onChange(bps)
+  }
+
+  // An entry that never resolved into a usable figure falls back to a preset; everything else is
+  // already applied, and the text reconciles itself once the field stops being edited.
   const handleCustomBlur = () => {
+    setEditing(false)
     if (custom === '') return
 
     const bps = toBps(custom)
-    if (!Number.isFinite(bps) || bps <= 0) {
-      setCustom('')
-      onChange(PRESETS_BPS[1])
-      return
-    }
-
-    setCustom(formatSlippage(Math.min(bps, MAX_BPS), false))
+    if (!Number.isFinite(bps) || bps <= 0) onChange(PRESETS_BPS[1])
   }
 
   return (
@@ -82,7 +95,7 @@ const SlippageSelect = ({
         >
           {t`Max Slippage`}
         </TextHelper>
-        <span className="flex items-center gap-1 text-sm leading-5 text-white">
+        <span className={cn('flex items-center gap-1 text-sm leading-5', notice ? 'text-warning' : 'text-white')}>
           {isResolving ? <ValueSkeleton className="h-4 w-10" /> : formatSlippage(value)}
           <ChevronDown
             className={cn('size-4 text-subText transition-transform duration-200 ease-out', isExpanded && 'rotate-180')}
@@ -130,6 +143,7 @@ const SlippageSelect = ({
                 placeholder={t`Custom`}
                 tabIndex={isExpanded ? undefined : -1}
                 onChange={e => handleCustomChange(e.target.value)}
+                onFocus={() => setEditing(true)}
                 onBlur={handleCustomBlur}
                 className="w-14 min-w-0 border-none bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit"
               />
@@ -137,7 +151,18 @@ const SlippageSelect = ({
             </div>
           </div>
 
-          {notice ? <p className="m-0 pt-2 text-xs leading-4 text-warning">{notice.message}</p> : null}
+          {suggested !== undefined && suggested !== value ? (
+            <button
+              type="button"
+              tabIndex={isExpanded ? undefined : -1}
+              onClick={() => handleSuggestionClick(suggested)}
+              className="mt-2 w-fit cursor-pointer border-none bg-transparent p-0 text-xs leading-4 text-primary transition-[filter] duration-200 hover:brightness-[1.12] motion-reduce:transition-none"
+            >
+              {t`Suggestion`}: {formatSlippage(suggested)}
+            </button>
+          ) : null}
+
+          {notice ? <WarningNote className="mt-2">{notice.message}</WarningNote> : null}
         </div>
       </div>
     </div>
