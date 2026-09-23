@@ -1,7 +1,7 @@
 import { Token as TokenSchema } from '@kyber/schema'
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   VaultApiDetailItem,
   VaultPositionItem,
@@ -226,6 +226,22 @@ export const useWithdrawForm = ({
     setMode(next)
     setPercent(undefined)
   }, [])
+
+  /**
+   * The form opens on the whole position, which is what the 100% pill would do: a withdrawal is
+   * about a stake someone already holds, so no smaller amount is a better guess. Seeded once, so it
+   * neither lands on top of what someone is typing nor refills the form a finished run emptied.
+   */
+  const hasSeededAmountRef = useRef(false)
+  useEffect(() => {
+    hasSeededAmountRef.current = false
+  }, [chainId, vault.vaultId])
+
+  useEffect(() => {
+    if (hasSeededAmountRef.current || typedValue || shareBalanceRaw <= 0n) return
+    hasSeededAmountRef.current = true
+    onSelectPercent(100)
+  }, [typedValue, shareBalanceRaw, onSelectPercent])
 
   /**
    * Only the aggregator route moves a price: a native redemption is quoted by the queue and filled
