@@ -12,11 +12,7 @@ const Card = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
 
 export const PageWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      'flex w-full flex-1 flex-col gap-5 [animation:fadeIn_0.25s_ease-out_both]',
-      REDUCED_MOTION,
-      className,
-    )}
+    className={cn('flex w-full flex-1 animate-[fadeIn_0.25s_ease-out_both] flex-col gap-5', REDUCED_MOTION, className)}
     {...rest}
   />
 )
@@ -187,7 +183,7 @@ export const PeriodTab = ({ $active, className, ...rest }: TabProps) => (
 )
 
 export const ChartBox = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('w-full [animation:fadeIn_0.35s_ease-out_both]', REDUCED_MOTION, className)} {...rest} />
+  <div className={cn('w-full animate-[fadeIn_0.35s_ease-out_both]', REDUCED_MOTION, className)} {...rest} />
 )
 
 export const HowItWorks = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
@@ -245,7 +241,7 @@ export const ActionBody = ({ className, ...rest }: HTMLAttributes<HTMLDivElement
   <div
     className={cn(
       'flex flex-1 flex-col gap-4 p-5',
-      '[animation:fadeIn_0.25s_ease-out_both]',
+      'animate-[fadeIn_0.25s_ease-out_both]',
       'max-xxs:gap-3 max-xxs:p-4',
       REDUCED_MOTION,
       className,

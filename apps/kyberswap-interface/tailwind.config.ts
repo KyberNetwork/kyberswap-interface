@@ -194,6 +194,11 @@ const config: Config = {
             filter: 'drop-shadow(0 0 8px rgba(255, 178, 55, 0.8)) drop-shadow(0 0 12px rgba(255, 178, 55, 0.4))',
           },
         },
+        // Plain reveal for content that arrives in place, such as a chart filling its box.
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
         fadeInUp: {
           from: { opacity: '0', transform: 'translateY(4px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
