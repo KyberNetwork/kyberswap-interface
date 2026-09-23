@@ -188,11 +188,13 @@ export const WarningNote = ({ className, ...rest }: HTMLAttributes<HTMLDivElemen
   <div className={cn('w-full rounded-xl bg-warning-20 px-3 py-2 text-sm text-white', className)} {...rest} />
 )
 
+/**
+ * The header of the `Field` it opens: it reaches back over the card's padding to sit flush against
+ * all three edges, and carries no frame of its own — the segments mark themselves with a rule along
+ * the bottom, which runs unbroken across the full width.
+ */
 export const SegmentedTabs = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn('flex w-full items-center gap-0 rounded-xl border border-white-08 bg-white-04 p-0.5', className)}
-    {...rest}
-  />
+  <div className={cn('-mx-4 -mt-3 flex items-stretch overflow-hidden rounded-t-xl', className)} {...rest} />
 )
 
 type SegmentedTabProps = ButtonHTMLAttributes<HTMLButtonElement> & { $active?: boolean }
@@ -201,9 +203,11 @@ export const SegmentedTab = ({ $active, className, ...rest }: SegmentedTabProps)
   <button
     type="button"
     className={cn(
-      'flex h-8 min-w-0 flex-1 items-center justify-center rounded-[10px] px-3 py-1',
+      'flex h-9 min-w-0 flex-1 items-center justify-center border-0 border-b-2 border-solid px-3 py-1',
       'text-sm leading-5 transition-colors duration-200',
-      $active ? 'bg-white-08 text-white2 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.32)]' : 'text-subText hover:text-white2',
+      $active
+        ? 'border-primary bg-primary-10 text-white2'
+        : 'border-white-08 bg-transparent text-subText hover:text-white2',
       'motion-reduce:transition-none',
       className,
     )}
@@ -260,9 +264,12 @@ export const FieldStack = ({ className, ...rest }: HTMLAttributes<HTMLDivElement
   <div className={cn('flex w-full flex-col items-stretch', className)} {...rest} />
 )
 
-/** Marks the seam between what goes in and what comes back out. Decorative — nothing to press. */
+/**
+ * Marks the seam between what goes in and what comes back out. Decorative — nothing to press. It
+ * sits in the gap rather than over either panel, so the space it leaves on each side is its own.
+ */
 export const FieldSeam = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div aria-hidden className={cn('relative z-10 -my-2 flex justify-center', className)} {...rest}>
+  <div aria-hidden className={cn('relative z-10 my-2 flex justify-center', className)} {...rest}>
     <span className="flex size-6 items-center justify-center rounded-full border border-white-08 bg-tableHeader text-subText">
       <ChevronDown size={14} />
     </span>

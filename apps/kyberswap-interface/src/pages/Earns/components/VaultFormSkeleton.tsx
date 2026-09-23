@@ -104,8 +104,9 @@ export const VaultFieldsSkeleton = ({ kind }: { kind: VaultFormKind }) => (
 
         <FieldSeam />
 
-        <Field className="gap-3">
-          <ValueSkeleton className="h-9 w-full rounded-xl" />
+        <Field className="gap-3 border border-solid border-white-08 bg-transparent">
+          {/* The tab strip is the field's own header, so its placeholder reaches over the padding too. */}
+          <ValueSkeleton className="-mx-4 -mt-3 h-9 rounded-t-xl" />
           <NoteSkeleton />
           <FieldRow>
             <ValueSkeleton className="h-8 w-24 rounded-xl" />

@@ -11,7 +11,6 @@ import {
   useVaultPositionGrowthHistoryQuery,
 } from 'services/vault'
 
-import { ReactComponent as BagIcon } from 'assets/svg/earn/ic_bag.svg'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -363,7 +362,6 @@ const VaultDetail = () => {
             </ActionTab>
             <ActionTabDivider />
             <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={() => setActiveTab('withdraw')}>
-              <BagIcon width={16} height={16} />
               {t`Withdraw`}
             </ActionTab>
             <ActionTabDivider />
