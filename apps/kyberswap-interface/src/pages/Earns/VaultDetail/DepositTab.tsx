@@ -1,3 +1,4 @@
+import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { VaultApiDetailItem } from 'services/vault'
@@ -14,9 +15,11 @@ import { useDepositForm } from 'pages/Earns/components/VaultDeposit/useDepositFo
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
+import { toRouteSwaps, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getNativeTokenLogo, getTokenLogoURL } from 'utils/tokenLogo'
 import { formatUnits } from 'utils/viem'
 
 const DepositTab = ({
@@ -51,42 +54,51 @@ const DepositTab = ({
 
   /** Only the rows carrying an amount are being spent. */
   const spent = form.rows.filter(row => row.parsedAmount?.greaterThan(0))
-  const isMultiToken = spent.length > 1
+
+  // Every token the route can name: what is being spent, and the shares it buys. A native row is
+  // registered under both spellings, since the route may echo it back either way.
+  const routeTokens = toRouteTokenMap([
+    ...spent.flatMap(row => {
+      // A row picked from the selector carries its logo; the opening pick is an SDK currency, so
+      // its mark is derived the way CurrencyLogo would.
+      const logo =
+        row.logo ??
+        (row.currency.isNative
+          ? getNativeTokenLogo(row.currency.chainId)
+          : getTokenLogoURL(row.currency.wrapped.address, row.currency.chainId))
+      const info = { symbol: row.currency.symbol, decimals: row.currency.decimals, logo }
+      return row.currency.isNative
+        ? [
+            { ...info, address: NATIVE_TOKEN_ADDRESS },
+            { ...info, address: row.currency.wrapped.address },
+          ]
+        : [{ ...info, address: row.currency.wrapped.address }]
+    }),
+    vault.shareToken,
+  ])
+  const swaps = toRouteSwaps(form.route, routeTokens)
 
   // A same-asset deposit has nothing to show; anything else swaps on the way in.
   const routeSummary: VaultRouteSummary | null =
-    !form.isVaultAsset && form.route && spent.length > 0 && form.sharesOutRaw
+    !form.isVaultAsset && form.route && swaps.length > 0 && form.sharesOutRaw
       ? {
-          from: {
-            // One token fills "amount symbol"; several are spelled out in the amount instead, since
-            // the strip has a single slot for a symbol and a single logo.
-            amount: isMultiToken
-              ? spent
-                  .map(row =>
-                    `${formatDisplayNumber(row.parsedAmount?.toExact() ?? '0', { significantDigits: 6 })} ${
-                      row.currency.symbol ?? ''
-                    }`.trim(),
-                  )
-                  .join(' + ')
-              : formatDisplayNumber(spent[0]?.parsedAmount?.toExact() ?? '0', { significantDigits: 6 }),
-            symbol: isMultiToken ? '' : spent[0]?.currency.symbol ?? '',
-            usd: formatDisplayNumber(form.route.zapDetails.initialAmountUsd, {
-              style: 'currency',
-              significantDigits: 4,
-            }),
-            logo: isMultiToken ? undefined : spent[0]?.logo,
-          },
+          // The amounts the route itself quotes, rather than what the form was typed with.
+          from: swaps.map(swap => swap.from),
+          fromUsd: formatDisplayNumber(form.route.zapDetails.initialAmountUsd, {
+            style: 'currency',
+            significantDigits: 4,
+          }),
           to: {
             amount: formatDisplayNumber(formatUnits(form.sharesOutRaw, vault.shareToken?.decimals ?? 18), {
               significantDigits: 6,
             }),
             symbol: vault.shareToken?.symbol ?? '',
-            usd: formatDisplayNumber(form.route.zapDetails.finalAmountUsd, {
-              style: 'currency',
-              significantDigits: 4,
-            }),
             logo: vault.shareToken?.logo,
           },
+          toUsd: formatDisplayNumber(form.route.zapDetails.finalAmountUsd, {
+            style: 'currency',
+            significantDigits: 4,
+          }),
         }
       : null
 
@@ -100,7 +112,8 @@ const DepositTab = ({
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
   const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
-  const singleSymbol = isMultiToken ? '' : spent[0]?.currency.symbol ?? ''
+  // The button names the token only when there is one to name.
+  const singleSymbol = spent.length > 1 ? '' : spent[0]?.currency.symbol ?? ''
 
   const actionLabel = !form.account
     ? t`Connect Wallet`

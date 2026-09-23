@@ -15,6 +15,7 @@ import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdra
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
+import { toRouteSwaps, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -60,30 +61,38 @@ const WithdrawTab = ({
   const nativeAssetSymbol = form.nativeAsset?.symbol ?? ''
 
   // Only the any-token route swaps; a native redemption goes straight to the queue.
+  // The shares going in, and the token the route sells them into.
+  const routeTokens = toRouteTokenMap([
+    {
+      address: vault.shareToken?.address,
+      symbol: form.shareSymbol,
+      decimals: form.shareDecimals,
+      logo: vault.shareToken?.logo,
+    },
+    form.swapToken,
+  ])
+  const swaps = toRouteSwaps(form.zapRoute, routeTokens)
+
   const routeSummary: VaultRouteSummary | null =
-    !form.isNative && form.zapRoute && form.swapToken && form.zapAmountOutRaw && form.shares
+    !form.isNative && form.zapRoute && form.swapToken && form.zapAmountOutRaw && swaps.length > 0
       ? {
           leading: { label: vault.provider?.name ?? '', logo: vault.provider?.logo },
-          from: {
-            amount: formatDisplayNumber(formatUnits(form.shares, form.shareDecimals), { significantDigits: 6 }),
-            symbol: form.shareSymbol,
-            usd: formatDisplayNumber(form.zapRoute.zapDetails.initialAmountUsd, {
-              style: 'currency',
-              significantDigits: 4,
-            }),
-            logo: vault.shareToken?.logo,
-          },
+          from: swaps.map(swap => swap.from),
+          fromUsd: formatDisplayNumber(form.zapRoute.zapDetails.initialAmountUsd, {
+            style: 'currency',
+            significantDigits: 4,
+          }),
           to: {
             amount: formatDisplayNumber(formatUnits(form.zapAmountOutRaw, form.swapToken.decimals), {
               significantDigits: 6,
             }),
             symbol: form.swapToken.symbol,
-            usd: formatDisplayNumber(form.zapRoute.zapDetails.finalAmountUsd, {
-              style: 'currency',
-              significantDigits: 4,
-            }),
             logo: form.swapToken.logo,
           },
+          toUsd: formatDisplayNumber(form.zapRoute.zapDetails.finalAmountUsd, {
+            style: 'currency',
+            significantDigits: 4,
+          }),
         }
       : null
 
