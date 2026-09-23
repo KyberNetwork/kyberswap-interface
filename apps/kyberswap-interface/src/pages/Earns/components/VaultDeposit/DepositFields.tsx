@@ -8,8 +8,8 @@ import { VaultApiDetailItem } from 'services/vault'
 
 import { ReactComponent as WalletIcon } from 'assets/svg/earn/ic_wallet.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
-import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
+import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import SlippageSelect from 'pages/Earns/components/VaultDeposit/SlippageSelect'
 import {
   AddTokenButton,
@@ -32,6 +32,7 @@ import {
   TokenTag,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { DepositFormState, PERCENT_OPTIONS } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import { AmountFieldSkeleton } from 'pages/Earns/components/VaultFormSkeleton'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { isInventoryChain } from 'state/walletInventory/store'
 import { cn } from 'utils/cn'
@@ -71,6 +72,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
   return (
     <>
       <TokenRowList>
+        {form.isInitialising ? <AmountFieldSkeleton /> : null}
         {form.rows.map((row, index) => {
           const balanceText = row.balance ? formatDisplayNumber(row.balance.toExact(), { significantDigits: 6 }) : '--'
           const amountUsd = formatUsd(row.amountUsd)
@@ -134,28 +136,35 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
         <FieldRow>
           <div className="flex min-w-0 items-center gap-2">
             {form.isRouteLoading && !sharesOut ? (
-              <Loader size="20px" />
+              <ValueSkeleton className="h-7 w-[140px]" />
             ) : (
               <ReceiveAmount>{sharesOut ?? '--'}</ReceiveAmount>
             )}
             {receiveUsd ? <span className="text-base leading-6 text-subText">~{receiveUsd}</span> : null}
           </div>
-          <TokenTag>
+          {/* Flat, unlike the withdraw field's: there is no token to choose on this side, and a
+              pill reads as something to press. */}
+          <TokenTag className="bg-transparent px-0">
             {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={20} /> : null}
             {shareSymbol}
           </TokenTag>
         </FieldRow>
       </ReceiveField>
 
-      {form.exchangeRate !== undefined ? (
-        <FieldCaption>
-          <span>{t`Exchange Rate`}</span>
+      {/* Always on the page, so the rate arriving does not push everything under it down. */}
+      <FieldCaption>
+        <span>{t`Exchange Rate`}</span>
+        {form.exchangeRate !== undefined ? (
           <span className="text-text">
             1 {vault.underlyingToken?.symbol} = {formatDisplayNumber(form.exchangeRate, { significantDigits: 6 })}{' '}
             {shareSymbol}
           </span>
-        </FieldCaption>
-      ) : null}
+        ) : form.isRouteLoading ? (
+          <ValueSkeleton className="h-4 w-40" />
+        ) : (
+          <span className="text-text">--</span>
+        )}
+      </FieldCaption>
 
       <InfoList>
         {/* Slippage applies to the shares the route mints, whether or not a swap happened on the
@@ -166,7 +175,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
           >{t`Est. Min Received`}</InfoLabel>
           <InfoValue>
             {form.isRouteLoading && !minSharesOut ? (
-              <Loader size="14px" />
+              <ValueSkeleton />
             ) : minSharesOut ? (
               <>
                 {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={16} /> : null}
@@ -179,7 +188,12 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
           </InfoValue>
         </InfoRow>
 
-        <SlippageSelect value={form.slippage} onChange={form.setSlippage} notice={form.slippageNotice} />
+        <SlippageSelect
+          value={form.slippage}
+          onChange={form.setSlippage}
+          notice={form.slippageNotice}
+          isResolving={form.isSlippageResolving}
+        />
       </InfoList>
 
       {isSelectorOpen ? (

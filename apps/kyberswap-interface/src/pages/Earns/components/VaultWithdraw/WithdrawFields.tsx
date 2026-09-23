@@ -7,9 +7,15 @@ import { ChevronDown } from 'react-feather'
 import { VaultApiDetailItem } from 'services/vault'
 
 import { ReactComponent as SharesIcon } from 'assets/svg/earn/ic_featured_vault.svg'
-import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+
+/**
+ * Amount field and terms for both withdrawal routes: selling the shares through the aggregator, or
+ * queueing a redemption with the vault itself. The shares go in at the top and the route that takes
+ * them out — along with the token it pays in — sits below the seam.
+ */
+import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import SlippageSelect from 'pages/Earns/components/VaultDeposit/SlippageSelect'
 import {
   AmountInput,
@@ -38,11 +44,6 @@ import { isInventoryChain } from 'state/walletInventory/store'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
 
-/**
- * Amount field and terms for both withdrawal routes: selling the shares through the aggregator, or
- * queueing a redemption with the vault itself. The shares go in at the top and the route that takes
- * them out — along with the token it pays in — sits below the seam.
- */
 const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: WithdrawFormState }) => {
   const [isSelectorOpen, setSelectorOpen] = useState(false)
   const [isAssetMenuOpen, setAssetMenuOpen] = useState(false)
@@ -204,7 +205,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             )}
 
             {isOutLoading && !amountOut ? (
-              <Loader size="20px" />
+              <ValueSkeleton className="h-7 w-[120px]" />
             ) : (
               <ReceiveAmount className="truncate text-right">{amountOut ?? '--'}</ReceiveAmount>
             )}
@@ -226,12 +227,12 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
           <InfoValue>
             {form.isNative ? (
               form.isLoadingPreview && !nativeOut ? (
-                <Loader size="14px" />
+                <ValueSkeleton />
               ) : (
                 nativeOut || '--'
               )
             ) : form.isRouteLoading && !zapMinOut ? (
-              <Loader size="14px" />
+              <ValueSkeleton />
             ) : (
               zapMinOut || '--'
             )}
@@ -246,7 +247,12 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
           </InfoRow>
         ) : (
-          <SlippageSelect value={form.slippage} onChange={form.setSlippage} notice={form.slippageNotice} />
+          <SlippageSelect
+            value={form.slippage}
+            onChange={form.setSlippage}
+            notice={form.slippageNotice}
+            isResolving={form.isSlippageResolving}
+          />
         )}
       </InfoList>
 

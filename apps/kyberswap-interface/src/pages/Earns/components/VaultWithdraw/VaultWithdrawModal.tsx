@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { VaultApiDetailItem, useVaultDetailQuery, useVaultPositionDetailQuery } from 'services/vault'
 
-import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useActiveWeb3React } from 'hooks'
@@ -19,6 +18,7 @@ import {
   OutlinedButton,
   PrimaryButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultFormSkeleton from 'pages/Earns/components/VaultFormSkeleton'
 import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
@@ -194,8 +194,8 @@ const VaultWithdrawModal = ({
       {vault ? (
         <WithdrawBody vault={vault} onClose={onClose} onWithdrawn={onWithdrawn} />
       ) : (
-        <ModalWrapper className="items-center justify-center py-10">
-          <Loader size="24px" />
+        <ModalWrapper>
+          <VaultFormSkeleton kind="withdraw" onClose={onClose} />
         </ModalWrapper>
       )}
     </Modal>

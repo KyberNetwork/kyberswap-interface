@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { VaultApiDetailItem, useVaultDetailQuery } from 'services/vault'
 
-import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -19,6 +18,7 @@ import {
   PrimaryButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { useDepositForm } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import VaultFormSkeleton from 'pages/Earns/components/VaultFormSkeleton'
 import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
@@ -159,8 +159,8 @@ const VaultDepositModal = ({
       {vault ? (
         <DepositBody vault={vault} onClose={onClose} onDeposited={onDeposited} />
       ) : (
-        <ModalWrapper className="items-center justify-center py-10">
-          <Loader size="24px" />
+        <ModalWrapper>
+          <VaultFormSkeleton kind="deposit" onClose={onClose} />
         </ModalWrapper>
       )}
     </Modal>

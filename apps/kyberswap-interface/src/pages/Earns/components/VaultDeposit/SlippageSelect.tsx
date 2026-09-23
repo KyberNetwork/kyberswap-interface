@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import { TextHelper } from 'components/Text'
+import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import { cn } from 'utils/cn'
 import { SlippageNotice, formatSlippage } from 'utils/slippage'
 
@@ -24,11 +25,14 @@ const SlippageSelect = ({
   value,
   onChange,
   notice,
+  isResolving,
 }: {
   value: number
   onChange: (bps: number) => void
   /** How the form reads this setting, if it has anything to say about it. */
   notice?: SlippageNotice | null
+  /** The opening figure is still being worked out; showing one now would only replace it. */
+  isResolving?: boolean
 }) => {
   const [isExpanded, setExpanded] = useState(false)
   /** Raw text while the field is being edited, so a half-typed "1." survives the next keystroke. */
@@ -79,7 +83,7 @@ const SlippageSelect = ({
           {t`Max Slippage`}
         </TextHelper>
         <span className="flex items-center gap-1 text-sm leading-5 text-white">
-          {formatSlippage(value)}
+          {isResolving ? <ValueSkeleton className="h-4 w-10" /> : formatSlippage(value)}
           <ChevronDown
             className={cn('size-4 text-subText transition-transform duration-200 ease-out', isExpanded && 'rotate-180')}
           />

@@ -300,6 +300,7 @@ export const useWithdrawForm = ({
     setSwapToken,
     priceImpact: zapPriceImpact,
     priceImpactResult: zapPriceImpactResult,
+    isSlippageResolving: slippageAdvice.isResolving,
     slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, zapWithdraw.route?.zapDetails.suggestedSlippage),
     zapRoute: zapWithdraw.route,
     zapAmountOutRaw: zapWithdraw.amountOutRaw,

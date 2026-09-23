@@ -342,6 +342,8 @@ export const useDepositForm = ({
     account,
     chainId,
     rows: rowStates,
+    /** No token is on the form yet: the opening pick is still reading the candidates' balances. */
+    isInitialising: rows.length === 0 && !isDefaultTokenReady,
     canAddToken: rows.length < MAX_TOKENS,
     selectorTokens,
     selectorAmounts,
@@ -365,6 +367,7 @@ export const useDepositForm = ({
     routeError: deposit.routeError,
     priceImpact,
     priceImpactResult,
+    isSlippageResolving: slippageAdvice.isResolving,
     slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, deposit.route?.zapDetails.suggestedSlippage),
     isRouteLoading: deposit.isRouteLoading,
     sharesOutRaw: deposit.sharesOutRaw,

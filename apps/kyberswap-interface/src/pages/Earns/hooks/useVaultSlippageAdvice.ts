@@ -55,6 +55,8 @@ export const useVaultSlippageAdvice = ({
   return {
     isSingleToken,
     category,
+    /** A single-token form opens on its pair's figure; until that lands there is none to show. */
+    isResolving: isSingleToken && !category,
     // Until the category lands, the zap default stands in: reading an unresolved pair as the widest
     // kind would open the form at 0.5% and drop it a moment later.
     defaultBps:
