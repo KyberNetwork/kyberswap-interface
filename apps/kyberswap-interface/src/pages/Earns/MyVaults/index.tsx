@@ -47,7 +47,7 @@ import {
 import { UserVaultPosition } from 'pages/Earns/ExploreVaults/types'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
 import VaultWithdrawModal from 'pages/Earns/components/VaultWithdraw/VaultWithdrawModal'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
@@ -223,39 +223,43 @@ const MyVaultCard = ({
 }
 
 const MyVaultCardSkeleton = () => (
-  <VaultCard className="gap-3">
-    <div className="flex w-full items-center justify-between">
+  <VaultCard>
+    <CardHeader>
       <div className="flex items-center gap-1">
-        <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
-        <PositionSkeleton width={40} height={18} />
-        <PositionSkeleton width={30} height={18} />
+        <ValueSkeleton className="size-6 rounded-full" />
+        <ValueSkeleton className="ml-1 h-6 w-12" />
+        <ValueSkeleton className="h-6 w-8" />
       </div>
-      <div className="flex items-center gap-2">
-        <PositionSkeleton width={72} height={28} />
-        <PositionSkeleton width={80} height={28} />
-      </div>
-    </div>
-    <div className="flex flex-1 flex-col gap-3">
-      <div className="flex justify-between">
-        <PositionSkeleton width={80} height={16} />
-        <PositionSkeleton width={100} height={16} />
-      </div>
-      <div className="flex justify-between">
-        <PositionSkeleton width={50} height={16} />
-        <PositionSkeleton width={80} height={16} />
-      </div>
-      <div className="flex justify-between">
-        <PositionSkeleton width={100} height={16} />
-        <PositionSkeleton width={120} height={16} />
-      </div>
-    </div>
-    <div className="flex flex-col gap-2">
-      <div className="flex justify-between">
-        <PositionSkeleton width={80} height={16} />
-        <PositionSkeleton width={80} height={16} />
-      </div>
-      <PositionSkeleton width={140} height={22} />
-    </div>
+      {/* Narrow enough that the two of them stay on the title's line, as the real buttons do. */}
+      <CardActions>
+        <ValueSkeleton className="h-[34px] w-20 rounded-3xl" />
+        <ValueSkeleton className="h-[34px] w-20 rounded-3xl" />
+      </CardActions>
+    </CardHeader>
+
+    {/* Balance and Earned; a card with a request in flight adds a third row, which the real card
+        grows into — the footer is pinned to the bottom either way. */}
+    <MyVaultCardBody>
+      {Array.from({ length: 2 }, (_, index) => (
+        <InfoRow key={index}>
+          <ValueSkeleton className="h-6 w-24" />
+          <InfoValue>
+            <ValueSkeleton className="h-6 w-32" />
+            <ValueSkeleton className="h-6 w-20" />
+          </InfoValue>
+        </InfoRow>
+      ))}
+    </MyVaultCardBody>
+
+    <MyVaultFooter>
+      <ApyTvlRow>
+        <ValueSkeleton className="h-6 w-24" />
+        <ValueSkeleton className="h-6 w-24" />
+      </ApyTvlRow>
+      <CardFooterRow>
+        <ValueSkeleton className="h-6 w-40 rounded-lg" />
+      </CardFooterRow>
+    </MyVaultFooter>
   </VaultCard>
 )
 

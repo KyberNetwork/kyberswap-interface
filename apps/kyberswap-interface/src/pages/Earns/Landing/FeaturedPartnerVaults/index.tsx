@@ -10,7 +10,7 @@ import {
   VaultDepositButton,
   VaultProtocolTag,
 } from 'pages/Earns/Landing/FeaturedPartnerVaults/styles'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
 import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -19,17 +19,17 @@ const FEATURED_COUNT = 3
 
 const VaultItemSkeleton = () => (
   <VaultCard>
-    <div className="flex w-full items-center justify-between">
+    <div className="flex w-full items-start justify-between">
       <div className="flex items-center gap-1">
-        <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
-        <PositionSkeleton width={40} height={16} />
-        <PositionSkeleton width={30} height={16} />
+        <ValueSkeleton className="size-6 rounded-full" />
+        <ValueSkeleton className="h-6 w-12" />
+        <ValueSkeleton className="h-6 w-9" />
       </div>
-      <PositionSkeleton width={80} height={20} />
+      <ValueSkeleton className="h-6 w-20" />
     </div>
     <div className="flex w-full items-center justify-between">
-      <PositionSkeleton width={120} height={18} />
-      <PositionSkeleton width={72} height={24} />
+      <ValueSkeleton className="h-4 w-32 rounded-lg" />
+      <ValueSkeleton className="h-6 w-20 rounded-3xl" />
     </div>
   </VaultCard>
 )

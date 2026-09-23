@@ -1,6 +1,7 @@
 import { useMedia } from 'react-use'
 
 import {
+  ActionBody,
   ActionCard,
   ActionTabs,
   ChartBox,
@@ -11,16 +12,22 @@ import {
   ChartsColumn,
   ContentGrid,
   HeaderRow,
+  HowItWorks,
   PageWrapper,
   VaultMetaLeft,
   VaultMetaRow,
 } from 'pages/Earns/VaultDetail/styles'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
+import { VaultFieldsSkeleton } from 'pages/Earns/components/VaultFormSkeleton'
 import { MEDIA_WIDTHS } from 'theme'
+
+const CHART_COUNT = 2
+const ACTION_TAB_COUNT = 2
 
 /**
  * Stands in for the vault detail page while its data loads. It renders the page's own containers,
- * so the placeholder sits on exactly the grid the real content lands on and nothing shifts.
+ * so the placeholder sits on exactly the grid the real content lands on and nothing shifts. The
+ * action card borrows the deposit form's own placeholder, which is the tab the page opens on.
  */
 const VaultDetailPageSkeleton = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -30,13 +37,10 @@ const VaultDetailPageSkeleton = () => {
   return (
     <PageWrapper>
       <HeaderRow>
-        <PositionSkeleton width={24} height={24} />
-        <PositionSkeleton width={32} height={32} style={{ borderRadius: '50%' }} />
-        <PositionSkeleton width={180} height={28} />
-        <div className="ml-auto flex flex-col items-end gap-1">
-          <PositionSkeleton width={72} height={24} />
-          <PositionSkeleton width={32} height={12} />
-        </div>
+        <ValueSkeleton className="size-6 rounded-full" />
+        <ValueSkeleton className="size-8 rounded-full" />
+        <ValueSkeleton className="h-7 w-44" />
+        <ValueSkeleton className="h-7 w-24" />
       </HeaderRow>
 
       <ContentGrid>
@@ -44,50 +48,46 @@ const VaultDetailPageSkeleton = () => {
           <ChartsCard>
             <VaultMetaRow>
               <VaultMetaLeft>
-                <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
-                <PositionSkeleton width={150} height={20} />
+                <ValueSkeleton className="size-6 rounded-full" />
+                <ValueSkeleton className="h-6 w-28" />
               </VaultMetaLeft>
-              <PositionSkeleton width={160} height={24} />
+              <ValueSkeleton className="h-6 w-40 rounded-lg" />
             </VaultMetaRow>
 
             <ChartsBody>
               {/* TVL then APY — same two sections, same period tabs, same chart box height. */}
-              {Array.from({ length: 2 }, (_, index) => (
+              {Array.from({ length: CHART_COUNT }, (_, index) => (
                 <ChartSection key={index}>
                   <ChartHeader>
-                    <PositionSkeleton width={index === 0 ? 140 : 44} height={18} />
-                    <PositionSkeleton width={168} height={28} />
+                    <ValueSkeleton className="h-7 w-16" />
+                    <ValueSkeleton className="h-7 w-40 rounded-3xl" />
                   </ChartHeader>
-                  <ChartBox>
-                    <PositionSkeleton width="100%" height={chartHeight} />
+                  <ChartBox style={{ height: chartHeight }}>
+                    <ValueSkeleton className="size-full rounded-lg" />
                   </ChartBox>
                 </ChartSection>
               ))}
             </ChartsBody>
 
-            <PositionSkeleton width={420} height={20} />
+            {/* Two lines: the label and a description that wraps. */}
+            <HowItWorks>
+              <ValueSkeleton className="h-6 w-28" />
+              <ValueSkeleton className="h-6 w-full" />
+            </HowItWorks>
           </ChartsCard>
         </ChartsColumn>
 
         <ActionCard>
           <ActionTabs>
-            <PositionSkeleton width={148} height={48} />
-            <PositionSkeleton width={148} height={48} />
+            {Array.from({ length: ACTION_TAB_COUNT }, (_, index) => (
+              <ValueSkeleton key={index} className="mx-4 h-12 w-[116px] rounded-none" />
+            ))}
           </ActionTabs>
 
-          <div className="flex flex-1 flex-col gap-4 p-5 max-xxs:gap-3 max-xxs:p-4">
-            {/* Amount field, then the summary rows, then the action button. */}
-            <PositionSkeleton width="100%" height={104} />
-            {Array.from({ length: 4 }, (_, index) => (
-              <div key={index} className="flex items-center justify-between gap-3">
-                <PositionSkeleton width={index === 3 ? 88 : 110} height={16} />
-                <PositionSkeleton width={index === 3 ? 64 : 80} height={16} />
-              </div>
-            ))}
-            <div className="mt-auto">
-              <PositionSkeleton width="100%" height={44} />
-            </div>
-          </div>
+          <ActionBody>
+            <VaultFieldsSkeleton kind="deposit" />
+            <ValueSkeleton className="mt-auto h-10 w-full rounded-[20px]" />
+          </ActionBody>
         </ActionCard>
       </ContentGrid>
     </PageWrapper>

@@ -57,7 +57,7 @@ import {
   ViewToggleGroup,
 } from 'pages/Earns/ExploreVaults/styles'
 import { VaultInfo, VaultSortBy, VaultViewMode } from 'pages/Earns/ExploreVaults/types'
-import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
 import { VAULT_CHAIN_OPTIONS, VAULT_PROTOCOL_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
@@ -284,48 +284,69 @@ const SKELETON_COUNT = 3
 const ExploreVaultListItemSkeleton = () => (
   <VaultListRow>
     <VaultListRowMain>
-      <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
-      <PositionSkeleton width={40} height={18} />
-      <PositionSkeleton width={30} height={18} />
-      <PositionSkeleton width={140} height={20} style={{ borderRadius: '8px' }} />
+      <ValueSkeleton className="size-6 rounded-full" />
+      <ValueSkeleton className="h-6 w-14" />
+      <ValueSkeleton className="h-6 w-10" />
+      <ValueSkeleton className="ml-1 h-6 w-36 rounded-lg" />
     </VaultListRowMain>
-    <VaultListMetric>
-      <PositionSkeleton width={160} height={28} />
-    </VaultListMetric>
-    <VaultListMetric>
-      <PositionSkeleton width={160} height={28} />
-    </VaultListMetric>
+
+    {Array.from({ length: 2 }, (_, index) => (
+      <VaultListMetric key={index}>
+        <VaultListMetricText>
+          <ValueSkeleton className="h-5 w-8" />
+          <ValueSkeleton className="h-6 w-16" />
+        </VaultListMetricText>
+        <VaultListChartWrapper>
+          <ValueSkeleton className="size-full rounded-lg" />
+        </VaultListChartWrapper>
+      </VaultListMetric>
+    ))}
+
     <VaultListActions>
-      <PositionSkeleton width={90} height={32} />
+      <ValueSkeleton className="h-[34px] w-24 rounded-3xl" />
     </VaultListActions>
   </VaultListRow>
 )
 
 const ExploreVaultCardSkeleton = () => (
-  <VaultCard className="gap-4">
-    <div className="flex w-full items-center justify-between">
+  <VaultCard $subgrid>
+    <CardHeader>
       <div className="flex items-center gap-1">
-        <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
-        <PositionSkeleton width={40} height={18} />
-        <PositionSkeleton width={30} height={18} />
+        <ValueSkeleton className="size-6 rounded-full" />
+        <ValueSkeleton className="ml-1 h-6 w-14" />
+        <ValueSkeleton className="h-6 w-10" />
       </div>
-      <PositionSkeleton width={80} height={28} />
-    </div>
-    <div className="flex flex-col gap-1">
-      <div className="flex items-end gap-2">
-        <PositionSkeleton width={30} height={16} />
-        <PositionSkeleton width={80} height={32} />
+      <CardActions>
+        <ValueSkeleton className="h-[34px] w-24 rounded-3xl" />
+      </CardActions>
+    </CardHeader>
+
+    <CardBody>
+      {/* APY over its bars, then TVL over its line — the two sections the card always carries. */}
+      <div className="flex flex-col gap-1">
+        <MetricRow>
+          <ValueSkeleton className="h-6 w-9" />
+          <ValueSkeleton className="h-8 w-28" />
+        </MetricRow>
+        <ChartWrapper $height={28}>
+          <ValueSkeleton className="size-full rounded-lg" />
+        </ChartWrapper>
       </div>
-      <PositionSkeleton width="100%" height={28} />
-    </div>
-    <div className="flex flex-col gap-4">
-      <div className="flex items-end gap-2">
-        <PositionSkeleton width={30} height={16} />
-        <PositionSkeleton width={60} height={24} />
+
+      <div className="flex flex-col gap-4">
+        <MetricRow>
+          <ValueSkeleton className="h-6 w-9" />
+          <ValueSkeleton className="h-6 w-20" />
+        </MetricRow>
+        <ChartWrapper $height={49}>
+          <ValueSkeleton className="size-full rounded-lg" />
+        </ChartWrapper>
       </div>
-      <PositionSkeleton width="100%" height={49} />
-    </div>
-    <PositionSkeleton width={140} height={22} />
+
+      <CardFooter>
+        <ValueSkeleton className="h-6 w-40 rounded-lg" />
+      </CardFooter>
+    </CardBody>
   </VaultCard>
 )
 
