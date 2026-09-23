@@ -47,15 +47,6 @@ export const toChartSeries = (
 ): ChartDataPoint[] => toChartPoints(metrics?.canonicalMetrics?.points, pick)
 
 /**
- * A position's growth series as chart points. A bucket the API could not value stays a gap rather
- * than becoming a zero — the series is marked to NAV and can be negative, so a zero is a real value
- * here, not an absence.
- *
- * The window always spans the whole interval, however young the position is, so the buckets before
- * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
- * space. Only the run at the front goes; a gap later on is a gap in the data and stays visible.
- */
-/**
  * What the vault's unit is called on screen. The API overrides the underlying's own symbol for the
  * vaults whose accounting token is a wrapper — Liquid ETH accounts in WETH but reads as ETH — and
  * falls back to the underlying for anything it does not name.
@@ -73,6 +64,15 @@ export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[]
   return firstValued > 0 ? points.slice(firstValued) : points
 }
 
+/**
+ * A position's growth series as chart points. A bucket the API could not value stays a gap rather
+ * than becoming a zero — the series is marked to NAV and can be negative, so a zero is a real value
+ * here, not an absence.
+ *
+ * The window always spans the whole interval, however young the position is, so the buckets before
+ * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
+ * space. Only the run at the front goes; a gap later on is a gap in the data and stays visible.
+ */
 export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] => {
   const points = (history?.points || []).map(point => ({
     value: financialNumber(point) ?? null,
@@ -152,6 +152,20 @@ const toVaultEarningsUsd = (item: VaultPositionItem): number | undefined =>
       : null,
   )
 
+/**
+ * What the position is worth, a withdrawal already in flight included. The flat `usdValue` counts
+ * only the shares still in the wallet, so queuing a withdrawal read as the balance dropping by the
+ * amount being withdrawn — the money looked gone until the payout landed. `ownedValue` carries the
+ * parts and `totalUsd` is their sum, which is the only one to read: `pendingPayoutUsd` and
+ * `refundableSharesUsd` are the same shares in another state, so adding either would count it twice.
+ *
+ * An expired request leaves `totalUsd` uncomputable. The wallet's own share is still true, so it
+ * stands in — understating what can be reclaimed rather than leaving the row blank or, worse,
+ * guessing at a total.
+ */
+const toOwnedUsd = (item: VaultPositionItem): number =>
+  financialNumber(item.ownedValue?.totalUsd) ?? (Number(item.usdValue) || 0)
+
 export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition => {
   const v = item.vault
   const summary = item.pendingWithdrawalSummary
@@ -174,7 +188,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     apyHistory: [],
     tvlHistory: [],
     balance: Number(item.underlyingEquivalent) || 0,
-    balanceUsd: Number(item.usdValue) || 0,
+    balanceUsd: toOwnedUsd(item),
     earned: toVaultEarnings(item),
     earnedUsd: toVaultEarningsUsd(item),
     pendingWithdrawal:
