@@ -4524,6 +4524,7 @@ definitions:
       - PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED
       - PREPARED_ACTION_REASON_REVIEW_REQUIRED
       - PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE
+      - PREPARED_ACTION_REASON_NO_WITHDRAWABLE_BALANCE
     default: PREPARED_ACTION_REASON_UNSPECIFIED
     description: PreparedActionReason is the shared stable action/preparation reason vocabulary.
   v1PreparedActionStatus:

@@ -1,6 +1,7 @@
 import type { WithdrawTokensPreview } from 'services/copyTrading/types/preparedActions'
 import { describe, expect, it } from 'vitest'
 
+import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import {
   UINT256_MAX_RAW,
   getWithdrawAmountError,
@@ -167,9 +168,27 @@ describe('withdrawal primary action', () => {
       disabled: false,
     })
     expect(getWithdrawalPrimaryAction(failed)).toMatchObject({
-      label: 'Withdraw Unavailable',
+      label: 'Withdraw',
       disabled: true,
       title: 'Prepare failed',
+    })
+  })
+
+  it('disables All Tokens withdrawal when preparation reports no withdrawable balance', () => {
+    const unavailable = {
+      status: 'PREPARED_ACTION_STATUS_UNAVAILABLE' as const,
+      reason: 'PREPARED_ACTION_REASON_NO_WITHDRAWABLE_BALANCE' as const,
+    }
+    const failed = {
+      ...ready,
+      executionBlocked: true,
+      previewError: getPreparedReasonMessage(unavailable.reason),
+    }
+
+    expect(getWithdrawalPrimaryAction(failed)).toMatchObject({
+      label: 'Withdraw',
+      disabled: true,
+      title: 'There is no withdrawable balance. Deposit funds and prepare the withdrawal again.',
     })
   })
 })
