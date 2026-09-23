@@ -1,9 +1,11 @@
 import { Trans, t } from '@lingui/macro'
 import { formatUnits } from 'viem'
 
+import Skeleton from 'components/Skeleton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { Currency } from 'pages/CrossChainSwap/adapters'
+import { GasDropQuoteLine } from 'pages/CrossChainSwap/components/GasDrop'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -23,16 +25,45 @@ export const formatTime = (seconds: number) => {
 export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: Currency; full?: boolean }) => {
   const [slippage] = useUserSlippageTolerance()
 
-  const { currencyIn, warning } = useCrossChainSwap()
+  const { currencyIn, warning, getQuotePriceImpactInfo, gasDropEnabled, setGasDropEnabled, loading, toChainId } =
+    useCrossChainSwap()
 
+  const priceImpactInfo = getQuotePriceImpactInfo(quote)
   const theme = useTheme()
   const minimumReceived =
     quote && tokenOut
-      ? formatUnits((quote.quote.outputAmount * (10000n - BigInt(slippage))) / 10000n, tokenOut.decimals)
+      ? formatUnits(
+          quote.quote.minimumOutputAmount
+            ? BigInt(quote.quote.minimumOutputAmount)
+            : (quote.quote.outputAmount * (10000n - BigInt(slippage))) / 10000n,
+          tokenOut.decimals,
+        )
       : '--'
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-solid border-border p-4 text-xs">
+      {!full && (gasDropEnabled || quote?.quote.gasDrop) && (
+        <>
+          <div className="flex justify-between">
+            <span className="text-subText">{t`You receive`}</span>
+            {loading ? (
+              <Skeleton width="130px" height="16px" />
+            ) : (
+              <span>
+                {formatDisplayNumber(quote?.quote.formattedOutputAmount, { significantDigits: 8 })} {tokenOut?.symbol}
+              </span>
+            )}
+          </div>
+          {toChainId && (
+            <GasDropQuoteLine
+              gasDrop={quote?.quote.gasDrop}
+              chain={toChainId}
+              loading={loading}
+              onRemove={() => setGasDropEnabled(false)}
+            />
+          )}
+        </>
+      )}
       {full && (
         <div className="flex justify-between">
           <span className="text-subText">{t`Current price`}</span>
@@ -64,11 +95,7 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
         </MouseoverTooltip>
         <span
           style={{
-            color: warning?.priceImpaceInfo?.isVeryHigh
-              ? theme.red
-              : warning?.priceImpaceInfo?.isHigh
-              ? theme.warning
-              : undefined,
+            color: priceImpactInfo?.isVeryHigh ? theme.red : priceImpactInfo?.isHigh ? theme.warning : undefined,
           }}
         >
           {quote

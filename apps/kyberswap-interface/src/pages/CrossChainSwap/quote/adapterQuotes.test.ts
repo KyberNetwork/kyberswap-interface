@@ -131,6 +131,20 @@ afterEach(() => {
 })
 
 describe('getQuotes', () => {
+  it('requests Gas Drop from KyberCross even with streaming enabled and excludes other adapters', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(createResponse(createReader()))
+    const params = { ...baseParams, gasDrop: true }
+    const { adapter, getQuote, run } = setup(params, 'KyberCross')
+    const otherQuote = vi.fn().mockResolvedValue(normalizedQuote)
+    const other = createAdapter(otherQuote, 'Symbiosis')
+    vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters').mockReturnValue([adapter, other])
+    getQuote.mockResolvedValue({ ...normalizedQuote, quoteParams: params })
+    await run()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(otherQuote).not.toHaveBeenCalled()
+    expect(getQuote).toHaveBeenCalledWith(expect.objectContaining({ gasDrop: true }), expect.any(AbortSignal))
+  })
+
   it('uses local adapters when streaming is disabled', async () => {
     quoteMode.streaming = false
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(createResponse(createReader()))
