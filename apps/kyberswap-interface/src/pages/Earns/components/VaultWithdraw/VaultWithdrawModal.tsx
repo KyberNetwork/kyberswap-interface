@@ -48,6 +48,7 @@ const WithdrawBody = ({
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
+  const [actionSummary, setActionSummary] = useState('')
   const processingState = useProcessingState<VaultStep>()
 
   const { data: position, refetch: refetchPosition } = useVaultPositionDetailQuery(
@@ -65,7 +66,11 @@ const WithdrawBody = ({
   const processing = useProcessingSteps<VaultStep>({
     ...processingState,
     ...form.processing,
-    onStart: () => setConfirming(false),
+    // Taken before the run, since finishing it clears the form the amounts are read from.
+    onStart: () => {
+      setActionSummary(form.amountSummary)
+      setConfirming(false)
+    },
     onComplete: () => {
       form.resetAmount()
       onWithdrawn?.()
@@ -142,6 +147,7 @@ const WithdrawBody = ({
         chainId={form.chainId}
         tokenSymbol={form.shareSymbol}
         kind={form.isNative ? 'request' : 'withdraw'}
+        actionSummary={actionSummary}
         errorMessage={form.submitError}
         onClose={onClose}
       />

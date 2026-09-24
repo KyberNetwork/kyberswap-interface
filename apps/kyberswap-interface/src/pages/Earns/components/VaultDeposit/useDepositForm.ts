@@ -19,6 +19,7 @@ import {
   getVaultSuggestedSlippage,
   useVaultSlippageAdvice,
 } from 'pages/Earns/hooks/useVaultSlippageAdvice'
+import { formatVaultAmounts } from 'pages/Earns/utils/vaultFormat'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { formatUnits } from 'utils/viem'
@@ -179,6 +180,15 @@ export const useDepositForm = ({
         .map((row, index) => ({ currency: row.currency, parsedAmount: parsedAmounts[index] }))
         .filter((input): input is VaultDepositInput => Boolean(input.parsedAmount?.greaterThan(0))),
     [rows, parsedAmounts],
+  )
+
+  /** What the run is about to spend, for the step list to name once it has gone through. */
+  const amountSummary = useMemo(
+    () =>
+      formatVaultAmounts(
+        inputs.map(input => ({ amount: input.parsedAmount.toExact(), symbol: input.currency.symbol ?? '' })),
+      ),
+    [inputs],
   )
 
   const deposit = useVaultDeposit({
@@ -380,6 +390,7 @@ export const useDepositForm = ({
     /** True when every token being spent is the vault's own asset, so no swap happens on the way in. */
     isVaultAsset,
     hasAmount,
+    amountSummary,
     insufficientBalance,
     wrongChain,
     isReady,

@@ -19,6 +19,7 @@ const VaultProcessingModal = ({
   tokenSymbol,
   approveSymbols,
   kind,
+  actionSummary,
   errorMessage,
   onClose,
 }: {
@@ -28,6 +29,8 @@ const VaultProcessingModal = ({
   /** Symbol per approval step, for a run that spends several tokens. */
   approveSymbols?: Record<string, string>
   kind: VaultActionKind
+  /** What the run moves, for the step that reports it once it has gone through. */
+  actionSummary?: string
   errorMessage?: string | null
   onClose?: () => void
 }) => {
@@ -38,7 +41,7 @@ const VaultProcessingModal = ({
       chainId={chainId}
       processing={processing}
       title={getVaultProcessingTitle(kind)}
-      getStepLabel={getVaultStepLabel({ tokenSymbol, approveSymbols, kind })}
+      getStepLabel={getVaultStepLabel({ tokenSymbol, approveSymbols, kind, actionSummary })}
       errorMessage={errorMessage}
       successAction={{ label: t`View positions`, onClick: () => navigate(APP_PATHS.EARN_MY_VAULTS) }}
       onClose={onClose}

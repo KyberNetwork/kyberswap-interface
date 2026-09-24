@@ -38,6 +38,7 @@ const DepositTab = ({
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
+  const [actionSummary, setActionSummary] = useState('')
   const processingState = useProcessingState<VaultStep>()
 
   const form = useDepositForm({
@@ -49,7 +50,11 @@ const DepositTab = ({
   const processing = useProcessingSteps<VaultStep>({
     ...processingState,
     ...form.processing,
-    onStart: () => setConfirming(false),
+    // Taken before the run, since finishing it clears the form the amounts are read from.
+    onStart: () => {
+      setActionSummary(form.amountSummary)
+      setConfirming(false)
+    },
     onComplete: () => {
       form.resetAmount()
       onDeposited()
@@ -149,6 +154,7 @@ const DepositTab = ({
         chainId={form.chainId}
         approveSymbols={form.processing.approveSymbols}
         kind="deposit"
+        actionSummary={actionSummary}
         errorMessage={form.submitError}
       />
 

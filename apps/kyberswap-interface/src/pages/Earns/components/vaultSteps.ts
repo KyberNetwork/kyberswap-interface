@@ -22,21 +22,22 @@ export const vaultApproveStep = (tokenAddress: string): VaultStep =>
  */
 export type VaultActionKind = 'deposit' | 'withdraw' | 'request'
 
-const actionLabel = (kind: VaultActionKind, status: ProcessingStepStatus) => {
+/** `summary` is what the run moved, named once it has: the step is the only place that reports it. */
+const actionLabel = (kind: VaultActionKind, status: ProcessingStepStatus, summary?: string) => {
   if (kind === 'deposit') {
     if (status === 'active') return t`Depositing`
-    if (status === 'success') return t`Deposited`
+    if (status === 'success') return summary ? t`Deposited ${summary}` : t`Deposited`
     return t`Deposit`
   }
 
   if (kind === 'withdraw') {
     if (status === 'active') return t`Withdrawing`
-    if (status === 'success') return t`Withdrawn`
+    if (status === 'success') return summary ? t`Withdrawn ${summary}` : t`Withdrawn`
     return t`Withdraw`
   }
 
   if (status === 'active') return t`Submitting request`
-  if (status === 'success') return t`Request submitted`
+  if (status === 'success') return summary ? t`Requested ${summary}` : t`Request submitted`
   return t`Request withdrawal`
 }
 
@@ -46,16 +47,19 @@ export const getVaultStepLabel =
     tokenSymbol,
     approveSymbols,
     kind,
+    actionSummary,
   }: {
     tokenSymbol?: string
     /** Symbol per approval step, so a run spending several tokens names each one it asks for. */
     approveSymbols?: Record<string, string>
     kind: VaultActionKind
+    /** The amounts the run moves, taken before it starts: the form is cleared once it finishes. */
+    actionSummary?: string
   }) =>
   (step: VaultStep, status: ProcessingStepStatus) => {
     if (step === VAULT_APPROVE_STEP) return getApproveStepLabel(tokenSymbol, status)
     if (step.startsWith(`${VAULT_APPROVE_STEP}:`)) return getApproveStepLabel(approveSymbols?.[step], status)
-    return actionLabel(kind, status)
+    return actionLabel(kind, status, actionSummary)
   }
 
 /** Title above the step list, matched to what the run actually does. */

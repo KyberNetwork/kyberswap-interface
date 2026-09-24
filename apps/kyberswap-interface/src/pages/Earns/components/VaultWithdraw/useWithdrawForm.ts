@@ -20,6 +20,7 @@ import {
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { isWrappedNativeToken } from 'pages/Earns/utils'
 import { getBoringQueueRoute, safeBigInt } from 'pages/Earns/utils/vault'
+import { formatVaultAmounts } from 'pages/Earns/utils/vaultFormat'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getNativeTokenLogo } from 'utils/tokenLogo'
@@ -371,6 +372,15 @@ export const useWithdrawForm = ({
     spender: isNative ? queueAddress : zapWithdraw.route?.allowanceHubAddress,
   })
 
+  /** The shares the run is about to spend, for the step list to name once it has gone through. */
+  const amountSummary = useMemo(
+    () =>
+      shares && shares > 0n
+        ? formatVaultAmounts([{ amount: formatUnits(shares, shareDecimals), symbol: shareSymbol }])
+        : '',
+    [shares, shareDecimals, shareSymbol],
+  )
+
   return {
     account,
     chainId,
@@ -378,6 +388,7 @@ export const useWithdrawForm = ({
     isNative,
     onSelectMode,
     typedValue,
+    amountSummary,
     percent,
     slippage,
     setSlippage,
