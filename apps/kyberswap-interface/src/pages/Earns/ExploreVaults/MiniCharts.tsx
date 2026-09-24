@@ -280,23 +280,24 @@ export const EarningLineChart = memo(({ data, height = 49, showAxes }: MiniChart
       <AreaChart data={data}>
         {showAxes ? <CartesianGrid {...gridProps} /> : null}
         {showAxes ? <XAxis {...dateAxisProps(theme.subText)} /> : null}
-        {showAxes ? (
-          <YAxis
-            {...valueAxisProps(theme.subText, value =>
-              // Earnings sit either side of zero, and the formatter blanks a negative by default.
-              formatDisplayNumber(value, { style: 'currency', significantDigits: 3, allowDisplayNegative: true }),
-            )}
-          />
-        ) : null}
+        {/* One value axis, drawn or not. A second one would share the default id and replace this
+            one, taking the ticks and the right-hand inset with it. Zero is pinned into its domain:
+            left to scale itself, a run of losses fills the height as a rising line reading as profit. */}
+        <YAxis
+          {...(showAxes
+            ? valueAxisProps(theme.subText, value =>
+                // Earnings sit either side of zero, and the formatter blanks a negative by default.
+                formatDisplayNumber(value, { style: 'currency', significantDigits: 3, allowDisplayNegative: true }),
+              )
+            : { hide: true })}
+          domain={[(min: number) => Math.min(0, min), (max: number) => Math.max(0, max)]}
+        />
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={theme.blue3} stopOpacity={0.3} />
             <stop offset="100%" stopColor={theme.blue3} stopOpacity={0} />
           </linearGradient>
         </defs>
-        {/* Zero is pinned into the domain: left to scale itself, a run of losses fills the height
-            as a rising line that reads as a profit. */}
-        <YAxis hide domain={[(min: number) => Math.min(0, min), (max: number) => Math.max(0, max)]} />
         <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" strokeWidth={1} />
         <Tooltip content={<EarningTooltipContent />} cursor={{ stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1 }} />
         <Area

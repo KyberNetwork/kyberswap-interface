@@ -62,6 +62,7 @@ import {
   toGrowthSeries,
   toVaultInfoFromDetail,
 } from 'pages/Earns/utils/vault'
+import { formatVaultApy } from 'pages/Earns/utils/vaultFormat'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -87,9 +88,6 @@ const PERIOD_TO_INTERVAL: Record<PeriodKey, VaultInterval> = {
   '30D': '30d',
 }
 
-const formatApy = (value?: number) =>
-  value === undefined ? '--' : `${formatDisplayNumber(value, { style: 'decimal', fractionDigits: 2 })}%`
-
 const VaultDetail = () => {
   const { chainId: chainIdParam, vaultId } = useParams<{ chainId?: string; vaultId?: string }>()
   const navigate = useNavigate()
@@ -103,7 +101,9 @@ const VaultDetail = () => {
   const hasValidParams = !!vaultId && Number.isFinite(chainId) && chainId > 0
 
   const {
-    data: detail,
+    // `currentData`, not `data`: the latter holds the vault this hook last resolved, so walking from
+    // one detail page to another would render the previous vault until the new read lands.
+    currentData: detail,
     isLoading: isDetailLoading,
     isError: isDetailError,
   } = useVaultDetailQuery(
@@ -186,7 +186,9 @@ const VaultDetail = () => {
     }
   }
 
-  if (!hasValidParams || isDetailError) {
+  // Only a vault that never arrived sends the user away. The read polls, and a failed refresh leaves
+  // the last good one in hand — bouncing on that would throw away a half-filled form every 30 seconds.
+  if (!hasValidParams || (isDetailError && !detail)) {
     return <Navigate to={APP_PATHS.EARN_VAULTS} replace />
   }
 
@@ -213,7 +215,7 @@ const VaultDetail = () => {
         </HeaderTitle>
         <HeaderApy>
           <HeaderApyValue>
-            <AnimatedNumber value={formatApy(vault.apy)} />
+            <AnimatedNumber value={formatVaultApy(vault.apy)} />
           </HeaderApyValue>
           <HeaderApyLabel>{t`APY`}</HeaderApyLabel>
         </HeaderApy>

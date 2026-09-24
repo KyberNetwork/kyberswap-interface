@@ -15,6 +15,7 @@ import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import {
   ApyValue,
@@ -61,14 +62,11 @@ import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
 import { VAULT_CHAIN_OPTIONS, VAULT_PROTOCOL_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
+import { formatVaultApy, formatVaultTvl } from 'pages/Earns/utils/vaultFormat'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
-import { formatDisplayNumber } from 'utils/numbers'
 
-const formatTvl = (value?: number) =>
-  value === undefined ? '--' : formatDisplayNumber(value, { style: 'currency', significantDigits: 3 })
-
-const formatApy = (value?: number) => (value === undefined ? '--' : `${value.toFixed(2)}%`)
+const SEARCH_DEBOUNCE_MS = 300
 
 const SORT_BY_OPTIONS = [
   { label: 'APY', value: VaultSortBy.APY },
@@ -154,7 +152,7 @@ const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultI
         <div className="flex flex-col gap-1">
           <MetricRow>
             <MetricLabel>APY</MetricLabel>
-            <ApyValue>{formatApy(vault.apy)}</ApyValue>
+            <ApyValue>{formatVaultApy(vault.apy)}</ApyValue>
           </MetricRow>
           <ChartWrapper $height={28}>
             <ApyBarChart data={vault.apyHistory} height={28} />
@@ -164,7 +162,7 @@ const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultI
         <div className="flex flex-col gap-4">
           <MetricRow>
             <MetricLabel>TVL</MetricLabel>
-            <TvlValue>{formatTvl(vault.tvl)}</TvlValue>
+            <TvlValue>{formatVaultTvl(vault.tvl)}</TvlValue>
           </MetricRow>
           <ChartWrapper $height={49}>
             <TvlLineChart data={vault.tvlHistory} height={49} />
@@ -235,14 +233,16 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
               style={{ borderRadius: '50%' }}
             />
           ) : null}
-          <span className="truncate">{`managed by ${vault.partner}`}</span>
+          <span className="truncate">
+            {t`managed by`} {vault.partner}
+          </span>
         </ProtocolTag>
       </VaultListRowMain>
 
       <VaultListMetric>
         <VaultListMetricText>
           <VaultListMetricLabel>APY</VaultListMetricLabel>
-          <VaultListMetricValue className="text-primary">{formatApy(vault.apy)}</VaultListMetricValue>
+          <VaultListMetricValue className="text-primary">{formatVaultApy(vault.apy)}</VaultListMetricValue>
         </VaultListMetricText>
         <VaultListChartWrapper>
           <ApyBarChart data={vault.apyHistory} height={28} />
@@ -252,7 +252,7 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
       <VaultListMetric>
         <VaultListMetricText>
           <VaultListMetricLabel>TVL</VaultListMetricLabel>
-          <VaultListMetricValue>{formatTvl(vault.tvl)}</VaultListMetricValue>
+          <VaultListMetricValue>{formatVaultTvl(vault.tvl)}</VaultListMetricValue>
         </VaultListMetricText>
         <VaultListChartWrapper>
           <TvlLineChart data={vault.tvlHistory} height={28} />
@@ -354,6 +354,8 @@ const ExploreVaults = () => {
   const { account } = useActiveWeb3React()
   const [depositVault, setDepositVault] = useState<VaultInfo | null>(null)
   const [search, setSearch] = useState('')
+  // One request per keystroke would also re-render every card and its two sparklines.
+  const debouncedSearch = useDebounce(search, SEARCH_DEBOUNCE_MS)
   const [selectedChain, setSelectedChain] = useState('')
   const [selectedProtocol, setSelectedProtocol] = useState('')
   const [sortBy, setSortBy] = useState<VaultSortBy>(VaultSortBy.APY)
@@ -372,7 +374,7 @@ const ExploreVaults = () => {
   const { data: vaultListData, isLoading } = useVaultListQuery({
     chainIds: selectedChain || undefined,
     providers: selectedProtocol || undefined,
-    keyword: search.trim() || undefined,
+    keyword: debouncedSearch.trim() || undefined,
     sorts: `${SORT_FIELD_BY_KEY[sortBy]}:desc`,
     pageSize: 100,
   })
@@ -388,7 +390,7 @@ const ExploreVaults = () => {
   // fetched under new filters is a fresh arrival and animates in like any other.
   useEffect(() => {
     setView(current => (current.stagger ? current : { ...current, stagger: true }))
-  }, [selectedChain, selectedProtocol, sortBy, search])
+  }, [selectedChain, selectedProtocol, sortBy, debouncedSearch])
 
   const userVaultIds = useMemo(() => {
     const set = new Set<string>()

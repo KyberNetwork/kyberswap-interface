@@ -2,6 +2,7 @@ import { useTokenPrices } from '@kyber/hooks'
 import { NATIVE_TOKEN_ADDRESS, Token as TokenSchema } from '@kyber/schema'
 import { MAX_TOKENS } from '@kyber/token-selector'
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { VaultApiDetailItem } from 'services/vault'
 
@@ -321,6 +322,27 @@ export const useDepositForm = ({
   // A balance that has not been read yet cannot be shown to cover the amount.
   const hasAllBalances = rowStates.every(row => !row.parsedAmount?.greaterThan(0) || Boolean(row.balance))
   const wrongChain = Boolean(account && chainId && walletChainId !== chainId)
+  const chainName = vault.chain?.name ?? ''
+
+  /**
+   * What the button has to say while the form cannot be acted on, or nothing when it can. It lives
+   * here because every branch reads state this hook owns; the wording for a form that IS actionable
+   * is the caller's, since the page names the token it is spending and the modal has no room to.
+   */
+  const actionBlocker = !account
+    ? t`Connect Wallet`
+    : wrongChain
+    ? t`Switch to ${chainName}`
+    : !hasAmount
+    ? t`Enter an amount`
+    : insufficientBalance
+    ? t`Insufficient balance`
+    : deposit.isRouteLoading && !deposit.route
+    ? t`Finding best route`
+    : deposit.routeError
+    ? t`No route found`
+    : undefined
+
   const isReady = Boolean(
     account &&
       !wrongChain &&
@@ -362,6 +384,7 @@ export const useDepositForm = ({
     insufficientBalance,
     wrongChain,
     isReady,
+    actionBlocker,
     onTypeAmount,
     onSelectPercent,
     onTokensChange,

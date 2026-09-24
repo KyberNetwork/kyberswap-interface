@@ -54,16 +54,6 @@ export const toChartSeries = (
 export const toDisplaySymbol = (baseToken?: { symbol?: string }, underlying?: { symbol?: string }): string =>
   baseToken?.symbol || underlying?.symbol || ''
 
-/** The wallet-held balance over time. Each point already includes the yield inside it. */
-export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[] => {
-  const points = (history?.points || []).map(point => ({
-    value: financialNumber(point.balance) ?? null,
-    timestamp: point.timestamp ?? undefined,
-  }))
-  const firstValued = points.findIndex(point => point.value !== null)
-  return firstValued > 0 ? points.slice(firstValued) : points
-}
-
 /**
  * A position's growth series as chart points. A bucket the API could not value stays a gap rather
  * than becoming a zero — the series is marked to NAV and can be negative, so a zero is a real value
@@ -73,14 +63,24 @@ export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[]
  * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
  * space. Only the run at the front goes; a gap later on is a gap in the data and stays visible.
  */
-export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] => {
-  const points = (history?.points || []).map(point => ({
-    value: financialNumber(point) ?? null,
+const toPositionSeries = <Point extends { timestamp?: string | null }>(
+  points: Point[] | undefined,
+  pick: (point: Point) => VaultFinancialValue,
+): ChartDataPoint[] => {
+  const mapped = (points || []).map(point => ({
+    value: financialNumber(pick(point)) ?? null,
     timestamp: point.timestamp ?? undefined,
   }))
-  const firstValued = points.findIndex(point => point.value !== null)
-  return firstValued > 0 ? points.slice(firstValued) : points
+  const firstValued = mapped.findIndex(point => point.value !== null)
+  return firstValued > 0 ? mapped.slice(firstValued) : mapped
 }
+
+/** The wallet-held balance over time. Each point already includes the yield inside it. */
+export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[] =>
+  toPositionSeries(history?.points, point => point.balance)
+
+export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] =>
+  toPositionSeries(history?.points, point => point)
 
 const toEpochSeconds = (iso?: string | null): number | undefined => {
   if (!iso) return undefined

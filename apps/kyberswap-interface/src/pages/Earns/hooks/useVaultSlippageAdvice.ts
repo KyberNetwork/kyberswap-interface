@@ -45,7 +45,7 @@ export const useVaultSlippageAdvice = ({
   const isSingleToken = tokensIn.length === 1
   const tokenIn = isSingleToken ? tokensIn[0] : undefined
 
-  const { data } = useCheckPairQuery(
+  const { data, isLoading } = useCheckPairQuery(
     { chainId: chainId as number, tokenIn: tokenIn ?? '', tokenOut: tokenOut ?? '' },
     { skip: !chainId || !tokenIn || !tokenOut },
   )
@@ -55,8 +55,13 @@ export const useVaultSlippageAdvice = ({
   return {
     isSingleToken,
     category,
-    /** A single-token form opens on its pair's figure; until that lands there is none to show. */
-    isResolving: isSingleToken && !category,
+    /**
+     * A single-token form opens on its pair's figure; until that lands there is none to show. Read
+     * from the request rather than from the answer: a pair the catalog has no category for — a
+     * vault's own share token is one — answers without one, and waiting on a category that is never
+     * coming would leave the control showing a placeholder for the rest of the session.
+     */
+    isResolving: isSingleToken && isLoading,
     // Until the category lands, the zap default stands in: reading an unresolved pair as the widest
     // kind would open the form at 0.5% and drop it a moment later.
     defaultBps:

@@ -68,29 +68,11 @@ const WithdrawBody = ({
     },
   })
 
-  const chainName = vault.chain?.name ?? ''
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
   const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
-  const nativeAssetSymbol = form.nativeAsset?.symbol ?? ''
 
-  const actionLabel = !form.account
-    ? t`Connect Wallet`
-    : form.wrongChain
-    ? t`Switch to ${chainName}`
-    : !form.shares
-    ? t`Enter an amount`
-    : form.insufficientShares
-    ? t`Insufficient balance`
-    : form.belowMinimum
-    ? t`Amount below the queue minimum`
-    : form.isRouteLoading && !form.zapRoute && !form.isNative
-    ? t`Finding best route`
-    : form.zapRouteError && !form.isNative
-    ? t`No route found`
-    : isImpactBad
-    ? t`Withdraw Anyway`
-    : t`Withdraw`
+  const actionLabel = form.actionBlocker ?? (isImpactBad ? t`Withdraw Anyway` : t`Withdraw`)
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
@@ -98,15 +80,7 @@ const WithdrawBody = ({
     return setConfirming(true)
   }
 
-  const blockingError = form.missingQueue
-    ? t`Withdrawals are unavailable for this vault right now.`
-    : form.noWithdrawableAsset
-    ? t`No asset can be withdrawn from this vault right now.`
-    : form.assetUnavailable
-    ? t`${nativeAssetSymbol} cannot be withdrawn from this vault.`
-    : form.zapRouteError && !form.isNative && form.shares
-    ? form.zapRouteError
-    : undefined
+  const blockingError = form.blockingError
 
   return (
     <>
@@ -144,8 +118,9 @@ const WithdrawBody = ({
                 shareSymbol={form.shareSymbol}
                 shareDecimals={form.shareDecimals}
                 onCancelled={() => {
-                  // The list this modal renders comes from the position query, so that is what has
-                  // to reload; the caller's own refresh is separate.
+                  // The rows come from the requests query and the shares come back to the position,
+                  // so both reload; the caller's own refresh is separate again.
+                  form.refetchRequests()
                   refetchPosition()
                   onWithdrawn?.()
                 }}
@@ -188,7 +163,9 @@ const VaultWithdrawModal = ({
   onClose: () => void
   onWithdrawn?: () => void
 }) => {
-  const { data: vault } = useVaultDetailQuery(
+  // `currentData`, not `data`: the latter holds whatever vault this hook last resolved, so
+  // reopening on another one would render the previous vault's tokens until the new read lands.
+  const { currentData: vault } = useVaultDetailQuery(
     { chainId: target?.chainId as number, vaultId: target?.vaultId as string },
     { skip: !target },
   )

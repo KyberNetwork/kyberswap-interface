@@ -5,9 +5,12 @@ import { InfoLabel, InfoRow, InfoValue } from 'pages/Earns/components/VaultDepos
 import { formatDisplayNumber } from 'utils/numbers'
 
 /**
- * The figure behind the impact warning: how far the route moves the pools it passes through. Only
- * a quoted route carries one, so the row reads "--" until the quote lands. The API states it in
- * basis points.
+ * The figure behind the impact warning: how far the route moves the pools it passes through. Only a
+ * quoted route carries one, so the row reads "--" until the quote lands. The API states it as a
+ * percent — 1.45 meaning 1.45% — which is why it is divided before being formatted as one.
+ *
+ * A route can return more value than it spends, so the figure goes either side of zero and the
+ * formatter has to be told to print a negative; left to itself it blanks one.
  */
 const VaultPriceImpactRow = ({ priceImpact, isLoading }: { priceImpact?: number; isLoading?: boolean }) => (
   <InfoRow>
@@ -22,7 +25,7 @@ const VaultPriceImpactRow = ({ priceImpact, isLoading }: { priceImpact?: number;
           '--'
         )
       ) : (
-        formatDisplayNumber(priceImpact / 100, { style: 'percent', fractionDigits: 2 })
+        formatDisplayNumber(priceImpact / 100, { style: 'percent', fractionDigits: 2, allowDisplayNegative: true })
       )}
     </InfoValue>
   </InfoRow>

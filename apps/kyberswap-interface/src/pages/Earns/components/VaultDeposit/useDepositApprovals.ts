@@ -30,7 +30,12 @@ const useApprovalSlot = ({ input, spender, chainId, account }: ApprovalSlotArgs)
     spender,
   })
 
-  return { approval, approveCallback, checkApprovalManually }
+  // Memoised: the slots are the deps of the list below, and a fresh literal each render would
+  // rebuild that list, the step sequence built from it, and every object handed to the forms.
+  return useMemo(
+    () => ({ approval, approveCallback, checkApprovalManually }),
+    [approval, approveCallback, checkApprovalManually],
+  )
 }
 
 /**

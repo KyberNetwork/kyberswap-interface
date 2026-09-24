@@ -108,30 +108,14 @@ const DepositTab = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(routeSummary)])
 
-  const chainName = vault.chain?.name ?? ''
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
   const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
   // The button names the token only when there is one to name.
   const singleSymbol = spent.length > 1 ? '' : spent[0]?.currency.symbol ?? ''
 
-  const actionLabel = !form.account
-    ? t`Connect Wallet`
-    : form.wrongChain
-    ? t`Switch to ${chainName}`
-    : !form.hasAmount
-    ? t`Enter an amount`
-    : form.insufficientBalance
-    ? t`Insufficient balance`
-    : form.isRouteLoading && !form.route
-    ? t`Finding best route`
-    : form.routeError
-    ? t`No route found`
-    : isImpactBad
-    ? t`Deposit Anyway`
-    : singleSymbol
-    ? t`Deposit ${singleSymbol}`
-    : t`Deposit`
+  const actionLabel =
+    form.actionBlocker ?? (isImpactBad ? t`Deposit Anyway` : singleSymbol ? t`Deposit ${singleSymbol}` : t`Deposit`)
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()

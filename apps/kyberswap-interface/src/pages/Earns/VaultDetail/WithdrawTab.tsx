@@ -54,11 +54,9 @@ const WithdrawTab = ({
     },
   })
 
-  const chainName = vault.chain?.name ?? ''
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
   const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
-  const nativeAssetSymbol = form.nativeAsset?.symbol ?? ''
 
   // Only the any-token route swaps; a native redemption goes straight to the queue.
   // The shares going in, and the token the route sells them into.
@@ -102,23 +100,7 @@ const WithdrawTab = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(routeSummary)])
 
-  const actionLabel = !form.account
-    ? t`Connect Wallet`
-    : form.wrongChain
-    ? t`Switch to ${chainName}`
-    : !form.shares
-    ? t`Enter an amount`
-    : form.insufficientShares
-    ? t`Insufficient balance`
-    : form.belowMinimum
-    ? t`Amount below the queue minimum`
-    : form.isRouteLoading && !form.zapRoute && !form.isNative
-    ? t`Finding best route`
-    : form.zapRouteError && !form.isNative
-    ? t`No route found`
-    : isImpactBad
-    ? t`Withdraw Anyway`
-    : t`Withdraw`
+  const actionLabel = form.actionBlocker ?? (isImpactBad ? t`Withdraw Anyway` : t`Withdraw`)
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
@@ -126,15 +108,7 @@ const WithdrawTab = ({
     return setConfirming(true)
   }
 
-  const blockingError = form.missingQueue
-    ? t`Withdrawals are unavailable for this vault right now.`
-    : form.noWithdrawableAsset
-    ? t`No asset can be withdrawn from this vault right now.`
-    : form.assetUnavailable
-    ? t`${nativeAssetSymbol} cannot be withdrawn from this vault.`
-    : form.zapRouteError && !form.isNative && form.shares
-    ? form.zapRouteError
-    : undefined
+  const blockingError = form.blockingError
 
   return (
     <ActionBody>
@@ -159,7 +133,12 @@ const WithdrawTab = ({
           assets={form.supportedAssets}
           shareSymbol={form.shareSymbol}
           shareDecimals={form.shareDecimals}
-          onCancelled={onRequested}
+          onCancelled={() => {
+            // The rows come from the requests query, not the position; only reloading the latter
+            // would leave the cancelled row on screen with its button live until the next poll.
+            form.refetchRequests()
+            onRequested()
+          }}
         />
       ) : null}
 

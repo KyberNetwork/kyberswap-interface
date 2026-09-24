@@ -54,14 +54,11 @@ import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
 import { buildVaultDetailPath, toUserVaultPosition } from 'pages/Earns/utils/vault'
+import { formatVaultApy, formatVaultTvl } from 'pages/Earns/utils/vaultFormat'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { Colors } from 'theme/color'
 import { formatDisplayNumber } from 'utils/numbers'
-
-/** A figure the API could not supply shows as unknown; zero is reserved for a real zero. */
-const formatTvl = (value?: number) =>
-  value === undefined ? '--' : formatDisplayNumber(value, { style: 'decimal', significantDigits: 3 })
 
 const formatUsd = (value?: number) =>
   value === undefined ? '--' : formatDisplayNumber(value, { style: 'currency', significantDigits: 4 })
@@ -79,8 +76,6 @@ const formatSignedAmount = (value?: number) =>
   value === undefined
     ? '--'
     : formatDisplayNumber(value, { style: 'decimal', significantDigits: 4, allowDisplayNegative: true })
-
-const formatApy = (value?: number) => (value === undefined ? '--' : `${value.toFixed(2)}%`)
 
 const SEARCH_DEBOUNCE_MS = 300
 
@@ -195,13 +190,13 @@ const MyVaultCard = ({
           <FooterMetric>
             <FooterMetricLabel>APY</FooterMetricLabel>
             <span className="text-base font-normal text-primary">
-              <AnimatedNumber value={formatApy(vault.apy)} />
+              <AnimatedNumber value={formatVaultApy(vault.apy)} />
             </span>
           </FooterMetric>
           <FooterMetric>
             <FooterMetricLabel>TVL</FooterMetricLabel>
             <span className="text-base text-white2">
-              <AnimatedNumber value={formatTvl(vault.tvl)} />
+              <AnimatedNumber value={formatVaultTvl(vault.tvl)} />
             </span>
           </FooterMetric>
         </ApyTvlRow>

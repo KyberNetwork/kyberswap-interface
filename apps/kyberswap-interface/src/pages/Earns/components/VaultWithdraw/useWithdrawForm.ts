@@ -319,6 +319,41 @@ export const useWithdrawForm = ({
         : Boolean(zapWithdraw.route) && !zapWithdraw.routeError && !zapWithdraw.isRouteStale),
   )
 
+  const chainName = vault.chain?.name ?? ''
+
+  /**
+   * What the button has to say while the form cannot be acted on, or nothing when it can. It lives
+   * here because every branch reads state this hook owns; the wording for a form that IS actionable
+   * stays with the caller.
+   */
+  const actionBlocker = !account
+    ? t`Connect Wallet`
+    : wrongChain
+    ? t`Switch to ${chainName}`
+    : !shares
+    ? t`Enter an amount`
+    : insufficientShares
+    ? t`Insufficient balance`
+    : belowMinimum
+    ? t`Amount below the queue minimum`
+    : !isNative && zapWithdraw.isRouteLoading && !zapWithdraw.route
+    ? t`Finding best route`
+    : !isNative && zapWithdraw.routeError
+    ? t`No route found`
+    : undefined
+
+  /** A condition the form cannot get past, spelled out. The button names the rest. */
+  const nativeAssetSymbol = nativeAsset?.symbol ?? ''
+  const blockingError = missingQueue
+    ? t`Withdrawals are unavailable for this vault right now.`
+    : noWithdrawableAsset
+    ? t`No asset can be withdrawn from this vault right now.`
+    : assetUnavailable
+    ? t`${nativeAssetSymbol} cannot be withdrawn from this vault.`
+    : !isNative && zapWithdraw.routeError && shares
+    ? zapWithdraw.routeError
+    : undefined
+
   // The queue pulls the shares for a native redemption; the router pulls them for a market sale.
   const checkApprovalManually = useCheckAllowance({
     account,
@@ -399,6 +434,8 @@ export const useWithdrawForm = ({
     missingQueue,
     wrongChain,
     isReady,
+    actionBlocker,
+    blockingError,
   }
 }
 

@@ -58,26 +58,11 @@ const DepositBody = ({
     },
   })
 
-  const chainName = vault.chain?.name ?? ''
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
   const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
 
-  const actionLabel = !form.account
-    ? t`Connect Wallet`
-    : form.wrongChain
-    ? t`Switch to ${chainName}`
-    : !form.hasAmount
-    ? t`Enter an amount`
-    : form.insufficientBalance
-    ? t`Insufficient balance`
-    : form.isRouteLoading && !form.route
-    ? t`Finding best route`
-    : form.routeError
-    ? t`No route found`
-    : isImpactBad
-    ? t`Deposit Anyway`
-    : t`Deposit`
+  const actionLabel = form.actionBlocker ?? (isImpactBad ? t`Deposit Anyway` : t`Deposit`)
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
@@ -149,7 +134,9 @@ const VaultDepositModal = ({
   onClose: () => void
   onDeposited?: () => void
 }) => {
-  const { data: vault } = useVaultDetailQuery(
+  // `currentData`, not `data`: the latter holds whatever vault this hook last resolved, so
+  // reopening on another one would render the previous vault's tokens until the new read lands.
+  const { currentData: vault } = useVaultDetailQuery(
     { chainId: target?.chainId as number, vaultId: target?.vaultId as string },
     { skip: !target },
   )
