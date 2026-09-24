@@ -34,7 +34,6 @@ import {
   InfoValuePrimary,
   InfoValueSecondary,
   MyVaultCardBody,
-  MyVaultFooter,
   ProtocolTag,
   StatusBadge,
   TokenIconWrapper,
@@ -53,7 +52,7 @@ import VaultWithdrawModal from 'pages/Earns/components/VaultWithdraw/VaultWithdr
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
-import { buildVaultDetailPath, toUserVaultPosition } from 'pages/Earns/utils/vault'
+import { buildVaultDetailPath, safeBigInt, toUserVaultPosition } from 'pages/Earns/utils/vault'
 import { formatVaultApy, formatVaultTvl } from 'pages/Earns/utils/vaultFormat'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -106,6 +105,9 @@ const MyVaultCard = ({
   const pending = vault.pendingWithdrawal
   const statusConfig = pending ? getStatusConfig(theme)[pending.status] ?? null : null
   const requestCount = pending?.count ?? 0
+  // The shares the wallet still holds, which is what a withdrawal spends — not the card's underlying
+  // equivalent, a figure the API leaves at zero whenever it cannot price the vault's asset.
+  const hasShares = safeBigInt(vault.shareBalanceRaw) > 0n
 
   return (
     <VaultCard $clickable $revealIndex={revealIndex}>
@@ -130,12 +132,7 @@ const MyVaultCard = ({
         </CardTitleLink>
 
         <CardActions>
-          <WithdrawButton
-            type="button"
-            $disabled={vault.balance <= 0}
-            disabled={vault.balance <= 0}
-            onClick={() => onWithdraw(vault)}
-          >
+          <WithdrawButton type="button" $disabled={!hasShares} disabled={!hasShares} onClick={() => onWithdraw(vault)}>
             {t`Withdraw`}
           </WithdrawButton>
           <DepositButton type="button" onClick={() => onDeposit(vault)}>
@@ -173,19 +170,6 @@ const MyVaultCard = ({
           </InfoValue>
         </InfoRow>
 
-        {/* The card says how much is in flight; the badge below carries the status, and the vault
-            page lists each request with the time it has left. */}
-        {pending ? (
-          <InfoRow>
-            <InfoLabel>{t`Withdrawing`}</InfoLabel>
-            <InfoValue>
-              <InfoValuePrimary>{requestCount > 1 ? t`${requestCount} requests` : t`1 request`}</InfoValuePrimary>
-            </InfoValue>
-          </InfoRow>
-        ) : null}
-      </MyVaultCardBody>
-
-      <MyVaultFooter>
         <ApyTvlRow>
           <FooterMetric>
             <FooterMetricLabel>APY</FooterMetricLabel>
@@ -201,6 +185,17 @@ const MyVaultCard = ({
           </FooterMetric>
         </ApyTvlRow>
 
+        {/* The card says how much is in flight; the badge below carries the status, and the vault
+            page lists each request with the time it has left. */}
+        {pending ? (
+          <InfoRow>
+            <InfoLabel>{t`Withdrawing`}</InfoLabel>
+            <InfoValue>
+              <InfoValuePrimary>{requestCount > 1 ? t`${requestCount} requests` : t`1 request`}</InfoValuePrimary>
+            </InfoValue>
+          </InfoRow>
+        ) : null}
+
         <CardFooterRow>
           <ProtocolTag>
             {vault.partnerLogo ? (
@@ -212,7 +207,7 @@ const MyVaultCard = ({
           </ProtocolTag>
           {statusConfig && <StatusBadge $color={statusConfig.color}>{statusConfig.label}</StatusBadge>}
         </CardFooterRow>
-      </MyVaultFooter>
+      </MyVaultCardBody>
     </VaultCard>
   )
 }
@@ -232,8 +227,8 @@ const MyVaultCardSkeleton = () => (
       </CardActions>
     </CardHeader>
 
-    {/* Balance and Earned; a card with a request in flight adds a third row, which the real card
-        grows into — the footer is pinned to the bottom either way. */}
+    {/* Balance and Earned; a card with a request in flight adds a row between the metrics and the
+        partner tag, which the column absorbs without moving the tag off the bottom. */}
     <MyVaultCardBody>
       {Array.from({ length: 2 }, (_, index) => (
         <InfoRow key={index}>
@@ -244,9 +239,7 @@ const MyVaultCardSkeleton = () => (
           </InfoValue>
         </InfoRow>
       ))}
-    </MyVaultCardBody>
 
-    <MyVaultFooter>
       <ApyTvlRow>
         <ValueSkeleton className="h-6 w-24" />
         <ValueSkeleton className="h-6 w-24" />
@@ -254,7 +247,7 @@ const MyVaultCardSkeleton = () => (
       <CardFooterRow>
         <ValueSkeleton className="h-6 w-40 rounded-lg" />
       </CardFooterRow>
-    </MyVaultFooter>
+    </MyVaultCardBody>
   </VaultCard>
 )
 

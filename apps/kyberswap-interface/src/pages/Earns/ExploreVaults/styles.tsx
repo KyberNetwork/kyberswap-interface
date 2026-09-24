@@ -263,12 +263,14 @@ export const Disclaimer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement
   <div className={cn('mt-auto pt-6 text-center text-sm italic leading-6 text-gray', className)} {...rest} />
 )
 
+/**
+ * Every row of a position card in one column: `justify-between` keeps the partner tag on the card's
+ * bottom edge and hands the height a shorter card has to spare to the gaps between the rows in equal
+ * shares, so a card with a withdrawal in flight and one without both read at an even rhythm. `gap-3`
+ * is the floor under that share.
+ */
 export const MyVaultCardBody = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex flex-1 flex-col gap-3 pt-3', className)} {...rest} />
-)
-
-export const MyVaultFooter = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mt-auto flex flex-col gap-2', className)} {...rest} />
+  <div className={cn('flex flex-1 flex-col justify-between gap-3 pt-3', className)} {...rest} />
 )
 
 export const ApyTvlRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
