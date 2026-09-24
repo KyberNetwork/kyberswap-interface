@@ -6,7 +6,7 @@ import Modal from 'components/Modal'
 import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
+import WithdrawRequestsPanel from 'pages/Earns/VaultDetail/WithdrawRequestsPanel'
 import { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import {
   ButtonGroup,
@@ -115,23 +115,6 @@ const WithdrawBody = ({
 
             {!blockingError ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
 
-            {form.chainId ? (
-              <WithdrawRequestList
-                chainId={form.chainId}
-                requests={form.withdrawRequests}
-                assets={form.supportedAssets}
-                shareSymbol={form.shareSymbol}
-                shareDecimals={form.shareDecimals}
-                onCancelled={() => {
-                  // The rows come from the requests query and the shares come back to the position,
-                  // so both reload; the caller's own refresh is separate again.
-                  form.refetchRequests()
-                  refetchPosition()
-                  onWithdrawn?.()
-                }}
-              />
-            ) : null}
-
             <ButtonGroup>
               <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
               <PrimaryButton
@@ -142,6 +125,14 @@ const WithdrawBody = ({
                 {actionLabel}
               </PrimaryButton>
             </ButtonGroup>
+
+            <WithdrawRequestsPanel
+              vault={vault}
+              onChanged={() => {
+                refetchPosition()
+                onWithdrawn?.()
+              }}
+            />
           </>
         )}
       </ModalWrapper>

@@ -17,6 +17,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApyBarChart, BalanceLineChart, EarningLineChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import DepositTab from 'pages/Earns/VaultDetail/DepositTab'
 import VaultDetailPageSkeleton from 'pages/Earns/VaultDetail/PageSkeleton'
+import WithdrawRequestsPanel from 'pages/Earns/VaultDetail/WithdrawRequestsPanel'
 import WithdrawTab from 'pages/Earns/VaultDetail/WithdrawTab'
 import ZapRouteStrip, { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import {
@@ -357,34 +358,41 @@ const VaultDetail = () => {
           </ChartsCard>
         </ChartsColumn>
 
-        <ActionCard>
-          <ActionTabs>
-            <ActionTab type="button" $active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')}>
-              {t`Deposit`}
-            </ActionTab>
-            <ActionTabDivider />
-            <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={() => setActiveTab('withdraw')}>
-              {t`Withdraw`}
-            </ActionTab>
-            <ActionTabDivider />
-          </ActionTabs>
-          {activeTab === 'deposit' ? (
-            <DepositTab
-              key={`deposit-${detail.vaultId}`}
-              vault={detail}
-              onDeposited={refetchPosition}
-              onRouteChange={setRouteSummary}
-            />
-          ) : (
-            <WithdrawTab
-              key={`withdraw-${detail.vaultId}`}
-              vault={detail}
-              position={position}
-              onRequested={refetchPosition}
-              onRouteChange={setRouteSummary}
-            />
-          )}
-        </ActionCard>
+        <div className="flex w-full flex-col gap-4">
+          <ActionCard>
+            <ActionTabs>
+              <ActionTab type="button" $active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')}>
+                {t`Deposit`}
+              </ActionTab>
+              <ActionTabDivider />
+              <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={() => setActiveTab('withdraw')}>
+                {t`Withdraw`}
+              </ActionTab>
+              <ActionTabDivider />
+            </ActionTabs>
+            {activeTab === 'deposit' ? (
+              <DepositTab
+                key={`deposit-${detail.vaultId}`}
+                vault={detail}
+                onDeposited={refetchPosition}
+                onRouteChange={setRouteSummary}
+              />
+            ) : (
+              <WithdrawTab
+                key={`withdraw-${detail.vaultId}`}
+                vault={detail}
+                position={position}
+                onRequested={refetchPosition}
+                onRouteChange={setRouteSummary}
+              />
+            )}
+          </ActionCard>
+
+          {/* Belongs to the position rather than to the form beside it: a request made days ago is
+              still in flight while the wallet is topping the vault up, so it stays on screen on both
+              tabs and takes itself off once there is nothing left to report. */}
+          <WithdrawRequestsPanel vault={detail} onChanged={refetchPosition} />
+        </div>
       </ContentGrid>
     </PageWrapper>
   )

@@ -262,6 +262,11 @@ export const DetailValue = ({ className, ...rest }: HTMLAttributes<HTMLSpanEleme
   <span className={cn('text-right text-text', className)} {...rest} />
 )
 
+/** Its own surface beside the action card: the requests are not part of filling the form in. */
+export const RequestsPanel = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <Card className={cn('gap-3 p-5 max-xxs:gap-2 max-xxs:p-4', className)} {...rest} />
+)
+
 export const RequestList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col gap-2', className)} {...rest} />
 )

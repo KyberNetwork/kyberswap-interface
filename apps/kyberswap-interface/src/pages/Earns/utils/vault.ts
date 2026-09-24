@@ -221,11 +221,21 @@ export const isOpenWithdrawRequest = (request: VaultWithdrawRequest) =>
   request.status === VaultWithdrawRequestStatus.PENDING ||
   request.status === VaultWithdrawRequestStatus.EXPIRED
 
-/** Oldest first: the request the user has been waiting on longest is the one to show and act on. */
-export const getOpenWithdrawRequests = (requests?: VaultWithdrawRequest[]) =>
-  (requests || [])
+/**
+ * Every request, the ones still running above the ones already over. A running request is ordered
+ * oldest first — the one waited on longest is the one to act on — and a settled one newest first,
+ * since the last thing that happened is the one being looked for.
+ */
+export const getWithdrawRequestsInProgress = (requests?: VaultWithdrawRequest[]) => {
+  const all = requests || []
+  const open = all
     .filter(isOpenWithdrawRequest)
     .sort((a, b) => (toEpochSeconds(a.requestedAt) ?? 0) - (toEpochSeconds(b.requestedAt) ?? 0))
+  const settled = all
+    .filter(request => !isOpenWithdrawRequest(request))
+    .sort((a, b) => (toEpochSeconds(b.requestedAt) ?? 0) - (toEpochSeconds(a.requestedAt) ?? 0))
+  return [...open, ...settled]
+}
 
 export const getWithdrawRequestExpiryAt = (request: VaultWithdrawRequest) => toEpochSeconds(request.deadline)
 

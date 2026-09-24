@@ -5,7 +5,6 @@ import { VaultApiDetailItem, VaultPositionItem } from 'services/vault'
 import Modal from 'components/Modal'
 import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
 import { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import { ActionBody } from 'pages/Earns/VaultDetail/styles'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
@@ -130,22 +129,6 @@ const WithdrawTab = ({
       >
         {actionLabel}
       </PrimaryButton>
-
-      {form.chainId ? (
-        <WithdrawRequestList
-          chainId={form.chainId}
-          requests={form.withdrawRequests}
-          assets={form.supportedAssets}
-          shareSymbol={form.shareSymbol}
-          shareDecimals={form.shareDecimals}
-          onCancelled={() => {
-            // The rows come from the requests query, not the position; only reloading the latter
-            // would leave the cancelled row on screen with its button live until the next poll.
-            form.refetchRequests()
-            onRequested()
-          }}
-        />
-      ) : null}
 
       <VaultProcessingModal
         processing={processing}

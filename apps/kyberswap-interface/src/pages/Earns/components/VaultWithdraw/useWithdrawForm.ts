@@ -2,12 +2,7 @@ import { Token as TokenSchema } from '@kyber/schema'
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  VaultApiDetailItem,
-  VaultPositionItem,
-  useVaultSupportedAssetsQuery,
-  useVaultWithdrawalRequestsQuery,
-} from 'services/vault'
+import { VaultApiDetailItem, VaultPositionItem, useVaultSupportedAssetsQuery } from 'services/vault'
 
 import { useActiveWeb3React } from 'hooks'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
@@ -15,7 +10,6 @@ import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw
 import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
 import { getVaultPriceImpact } from 'pages/Earns/components/VaultPriceImpactNote'
 import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
-import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
 import {
   getVaultSlippageNotice,
@@ -23,7 +17,7 @@ import {
   useVaultSlippageAdvice,
 } from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
-import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
+import { getBoringQueueRoute, safeBigInt } from 'pages/Earns/utils/vault'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { formatUnits, parseUnits } from 'utils/viem'
@@ -145,13 +139,6 @@ export const useWithdrawForm = ({
     discount: queueLimits?.minDiscount,
     secondsToDeadline: queueLimits?.minimumSecondsToDeadline,
   })
-
-  // Requests are their own resource now, and they move on the solver's clock rather than the user's.
-  const { data: requestsData, refetch: refetchRequests } = useVaultWithdrawalRequestsQuery(
-    { chainId: chainId as number, userAddress: (account || '').toLowerCase(), vaultId: vault.vaultId },
-    { skip: !account || !chainId || !vault.vaultId, pollingInterval: VAULT_POLLING_INTERVAL },
-  )
-  const withdrawRequests = useMemo(() => getOpenWithdrawRequests(requestsData?.requests), [requestsData?.requests])
 
   // ---- any-token path: the aggregator sells the shares outright ----
 
@@ -389,9 +376,6 @@ export const useWithdrawForm = ({
     nativeAssetAddress,
     setNativeAssetAddress,
     queueLimits,
-    supportedAssets: supportedAssets || [],
-    withdrawRequests,
-    refetchRequests,
     nativeAmountOut,
     isLoadingPreview,
 
