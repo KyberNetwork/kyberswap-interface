@@ -1036,6 +1036,13 @@
 }
 
 @layer base {
+  /* The app is dark-only. Declaring it lets browsers with an automatic dark theme (Samsung Internet
+     Dark mode, Chrome Auto Dark) render the authored colours instead of re-colouring the page, and
+     gives UA form controls and scrollbars their dark defaults. Mirrors the color-scheme meta in index.html. */
+  :root {
+    color-scheme: dark;
+  }
+
   /* Formerly FixedGlobalStyle (theme/index.tsx) — base font, html/body reset,
      link colors (primary + lightened hover), focus, smoothing, font feature settings. */
   html,
