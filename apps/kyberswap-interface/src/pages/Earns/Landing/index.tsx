@@ -83,21 +83,28 @@ const EarnLanding = () => {
     const openPool = searchParams.get('openPool')
     const type = searchParams.get('type')
     const openPoolIndex = parseInt(openPool || '', 10)
-    const poolsToOpen = type === 'farming' ? farmingPools : type === 'highlighted' ? highlightedPools : []
+    if (isNaN(openPoolIndex) || !data) return
 
-    if (!isNaN(openPoolIndex) && poolsToOpen.length && poolsToOpen[openPoolIndex]) {
-      searchParams.delete('openPool')
-      searchParams.delete('type')
-      setSearchParams(searchParams)
-      handleOpenZapIn({
-        pool: {
-          dex: poolsToOpen[openPoolIndex].exchange,
-          chainId: poolsToOpen[openPoolIndex].chainId as number,
-          address: poolsToOpen[openPoolIndex].address,
-        },
-      })
-    }
-  }, [handleOpenZapIn, searchParams, setSearchParams, farmingPools, highlightedPools])
+    // Indexed against the whole lists, not what the page shows: those are slices, and
+    // `largePoolCount` narrows with the viewport, so indexing them would make one link open a pool
+    // on a desktop and quietly do nothing on a phone.
+    const poolsToOpen =
+      type === 'farming'
+        ? data.data?.farmingPools || []
+        : type === 'highlighted'
+        ? data.data?.highlightedPools || []
+        : []
+
+    // Cleared either way: a link naming a pool this response does not carry has nothing left to do,
+    // and leaving the params in place would keep the URL offering an action that never happens.
+    searchParams.delete('openPool')
+    searchParams.delete('type')
+    setSearchParams(searchParams)
+
+    const pool = poolsToOpen[openPoolIndex]
+    if (!pool) return
+    handleOpenZapIn({ pool: { dex: pool.exchange, chainId: pool.chainId as number, address: pool.address } })
+  }, [handleOpenZapIn, searchParams, setSearchParams, data])
 
   return (
     <>
