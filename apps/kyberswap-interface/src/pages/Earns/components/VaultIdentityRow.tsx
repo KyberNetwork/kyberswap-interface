@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { VaultApiDetailItem } from 'services/vault'
 
 import TokenLogo from 'components/TokenLogo'
+import { toDisplaySymbol } from 'pages/Earns/utils/vault'
 import { cn } from 'utils/cn'
 
 /**
@@ -22,7 +23,7 @@ const VaultIdentityRow = ({ vault, className }: { vault: VaultApiDetailItem; cla
       ) : null}
     </span>
     <span className="text-base leading-6 text-white">
-      {vault.underlyingToken?.symbol} <span className="text-subText">{t`Yield`}</span>
+      {toDisplaySymbol(vault.baseToken, vault.underlyingToken)} <span className="text-subText">{t`Yield`}</span>
     </span>
     {vault.provider?.name ? (
       <span className="flex items-center gap-1 rounded-2xl bg-white-08 px-2 py-0.5 text-xs leading-4 text-subText">
