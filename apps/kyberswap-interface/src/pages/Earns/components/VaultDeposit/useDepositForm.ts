@@ -1,7 +1,6 @@
 import { useTokenPrices } from '@kyber/hooks'
 import { NATIVE_TOKEN_ADDRESS, Token as TokenSchema } from '@kyber/schema'
 import { MAX_TOKENS } from '@kyber/token-selector'
-import { translateZapImpact } from '@kyber/ui'
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -12,6 +11,7 @@ import { useActiveWeb3React } from 'hooks'
 import { VaultDepositInput, useVaultDeposit } from 'pages/Earns/VaultDetail/hooks/useVaultDeposit'
 import useDefaultDepositToken from 'pages/Earns/components/VaultDeposit/useDefaultDepositToken'
 import { useDepositApprovals } from 'pages/Earns/components/VaultDeposit/useDepositApprovals'
+import { getVaultPriceImpact } from 'pages/Earns/components/VaultPriceImpactNote'
 import { VAULT_ACTION_STEP, VaultStep, vaultApproveStep } from 'pages/Earns/components/vaultSteps'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
 import {
@@ -356,14 +356,11 @@ export const useDepositForm = ({
   )
 
   /**
-   * How far the route moves the price, read exactly as the zap flows read it: their thresholds are
-   * relative to the route's own suggested slippage, and their wording is the wording shown here.
-   * A bad route is flagged and the action relabelled rather than blocked outright.
+   * How far the route moves the price. A bad route is flagged and the action relabelled rather than
+   * blocked outright: the vault has no degen mode to unblock it with.
    */
   const priceImpact = deposit.route?.zapDetails.priceImpact
-  const priceImpactResult = deposit.route
-    ? translateZapImpact(priceImpact, deposit.route.zapDetails.suggestedSlippage || 100)
-    : undefined
+  const priceImpactResult = deposit.route ? getVaultPriceImpact(priceImpact) : undefined
 
   const totalUsd = deposit.route ? Number(deposit.route.zapDetails.initialAmountUsd) : undefined
 

@@ -21,11 +21,13 @@ const VaultPriceImpactRow = ({
   result,
   isLoading,
 }: {
-  priceImpact?: number
+  priceImpact?: number | null
   result?: VaultPriceImpact
   isLoading?: boolean
 }) => {
   const tone = getPriceImpactTone(result)
+  // A route can carry a null or non-finite figure, and dividing that lands on a confident 0%.
+  const hasFigure = typeof priceImpact === 'number' && Number.isFinite(priceImpact)
 
   return (
     <InfoRow>
@@ -33,14 +35,12 @@ const VaultPriceImpactRow = ({
         tooltip={t`How far this trade moves the price of the pools it routes through. A large impact means thin liquidity.`}
       >{t`Price Impact`}</InfoLabel>
       <InfoValue className={cn(tone === 'error' && 'text-red', tone === 'warning' && 'text-warning')}>
-        {priceImpact === undefined ? (
-          isLoading ? (
-            <ValueSkeleton />
-          ) : (
-            '--'
-          )
-        ) : (
+        {hasFigure ? (
           formatDisplayNumber(priceImpact / 100, { style: 'percent', fractionDigits: 2, allowDisplayNegative: true })
+        ) : isLoading ? (
+          <ValueSkeleton />
+        ) : (
+          '--'
         )}
       </InfoValue>
     </InfoRow>

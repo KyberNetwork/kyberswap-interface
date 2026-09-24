@@ -1,5 +1,4 @@
 import { Token as TokenSchema } from '@kyber/schema'
-import { translateZapImpact } from '@kyber/ui'
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -14,6 +13,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw'
 import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
+import { getVaultPriceImpact } from 'pages/Earns/components/VaultPriceImpactNote'
 import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
@@ -293,10 +293,7 @@ export const useWithdrawForm = ({
    * a redemption that never touched a pool.
    */
   const zapPriceImpact = isNative ? undefined : zapWithdraw.route?.zapDetails.priceImpact
-  const zapPriceImpactResult =
-    !isNative && zapWithdraw.route
-      ? translateZapImpact(zapPriceImpact, zapWithdraw.route.zapDetails.suggestedSlippage || 100)
-      : undefined
+  const zapPriceImpactResult = !isNative && zapWithdraw.route ? getVaultPriceImpact(zapPriceImpact) : undefined
 
   const active = isNative ? nativeWithdraw : zapWithdraw
 

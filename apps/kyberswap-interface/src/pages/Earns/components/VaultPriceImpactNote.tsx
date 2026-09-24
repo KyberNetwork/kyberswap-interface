@@ -1,10 +1,28 @@
-import { translateZapMessage } from '@kyber/ui'
-import { PI_LEVEL, ZAP_MESSAGES } from '@kyber/utils'
+import { PI_LEVEL } from '@kyber/utils'
+import { t } from '@lingui/macro'
 
 import { ErrorNote, WarningNote } from 'pages/Earns/components/VaultDeposit/styles'
+import { checkPriceImpact } from 'utils/prices'
 
-/** The reading the zap flows produce: a level, a figure, and the sentence that goes with the level. */
-export type VaultPriceImpact = { level: PI_LEVEL; display: string; msg: string }
+/** How bad a route is. The levels are the zap flows' names, so the tones and notes below fit both. */
+export type VaultPriceImpact = { level: PI_LEVEL }
+
+/**
+ * A vault deposit or withdrawal is a trade between two tokens through the aggregator, so it is
+ * judged on the swap form's fixed bands — 2% and 10% of value given up — rather than on the zap
+ * flows' bands, which scale with a route's suggested slippage. That figure measures the slippage a
+ * two-sided liquidity add needs, and a vault route quotes 5 bps of it, which would put the warning
+ * at a tenth of a percent and paint an ordinary route red.
+ *
+ * A quoted route with no figure on it is still unreadable, which the swap bands say nothing about.
+ */
+export const getVaultPriceImpact = (priceImpact: number | null | undefined): VaultPriceImpact => {
+  if (priceImpact === null || priceImpact === undefined || !Number.isFinite(priceImpact))
+    return { level: PI_LEVEL.INVALID }
+
+  const { isVeryHigh, isHigh } = checkPriceImpact(priceImpact)
+  return { level: isVeryHigh ? PI_LEVEL.VERY_HIGH : isHigh ? PI_LEVEL.HIGH : PI_LEVEL.NORMAL }
+}
 
 /**
  * How loudly the reading is carried, on the zap flows' own split of the levels. It drives the note,
@@ -30,19 +48,21 @@ export const priceImpactButtonClass = (tone: PriceImpactTone) =>
   tone === 'error' ? 'bg-red text-white' : tone === 'warning' ? 'bg-warning text-white' : undefined
 
 /**
- * What the route costs in price. Both the thresholds and the wording are the zap flows' own, read
- * off `translateZapImpact` — nothing here decides when a route is bad or invents what to call it.
- *
- * The worst level is the one exception, and it still says nothing new: the zap sentence for it sends
- * the reader to Degen Mode, which a vault has no switch for, so it carries the plainer of the two
- * sentences zap already ships instead.
+ * What the route costs in price, in the swap form's words to match its bands. Only the headline
+ * carries over: everything the swap form says underneath points at Degen Mode or a Limit Order,
+ * and a vault offers neither.
  */
 const VaultPriceImpactNote = ({ result, className }: { result?: VaultPriceImpact; className?: string }) => {
-  if (!result?.msg) return null
+  const tone = getPriceImpactTone(result)
+  if (!result || !tone) return null
 
-  const Note = getPriceImpactTone(result) === 'warning' ? WarningNote : ErrorNote
+  const Note = tone === 'warning' ? WarningNote : ErrorNote
   const message =
-    result.level === PI_LEVEL.VERY_HIGH ? translateZapMessage(ZAP_MESSAGES.ZAP_IMPACT_WARNING) : result.msg
+    result.level === PI_LEVEL.INVALID
+      ? t`Unable to calculate Price Impact.`
+      : result.level === PI_LEVEL.VERY_HIGH
+      ? t`Price Impact is very high. You will lose funds!`
+      : t`Price Impact is high`
 
   return <Note className={className}>{message}</Note>
 }
