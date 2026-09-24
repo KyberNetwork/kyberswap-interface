@@ -1,10 +1,11 @@
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useVaultSupportedAssetsQuery } from 'services/vault'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { isWrappedNativeToken } from 'pages/Earns/utils'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
 
 /**
@@ -55,10 +56,21 @@ const useDefaultDepositToken = ({
 
   const [balances, isLoadingBalances] = useTokenBalancesWithLoadingIndicator(depositTokens, chainId)
 
-  return useMemo<{ token: Currency | undefined; isReady: boolean }>(() => {
-    if (!chainId) return { token: undefined, isReady: false }
+  // A vault that accounts in the chain's wrapped native is a vault denominated in the native asset,
+  // so that is what the form opens on — wrapping is a step the aggregator takes on the way in, not
+  // one to make someone start from.
+  const native = chainId ? NativeCurrencies[chainId as keyof typeof NativeCurrencies] : undefined
+  const opensOnNative = Boolean(
+    chainId && underlyingAddress && isWrappedNativeToken(underlyingAddress, chainId as keyof typeof WETH),
+  )
 
-    const native = NativeCurrencies[chainId as keyof typeof NativeCurrencies]
+  return useMemo<{ token: Currency | undefined; isReady: boolean }>(() => {
+    if (!chainId || !native) return { token: undefined, isReady: false }
+
+    // Settled before the balances are even read: the answer does not depend on them, and waiting
+    // would hold an empty form open for no reason.
+    if (opensOnNative) return { token: native, isReady: true }
+
     // Without a wallet there are no balances to weigh, so there is nothing to wait for.
     if (!account) return { token: native, isReady: true }
     // Wait on the reads themselves rather than on every key being present: one token that cannot be
@@ -70,7 +82,17 @@ const useDefaultDepositToken = ({
     const preferred = held.find(token => token.address.toLowerCase() === underlying) ?? held[0]
 
     return { token: preferred ?? native, isReady: true }
-  }, [account, chainId, isLoadingAssets, isLoadingBalances, depositTokens, balances, underlyingAddress])
+  }, [
+    account,
+    chainId,
+    native,
+    opensOnNative,
+    isLoadingAssets,
+    isLoadingBalances,
+    depositTokens,
+    balances,
+    underlyingAddress,
+  ])
 }
 
 export default useDefaultDepositToken

@@ -1,9 +1,10 @@
-import { Token as TokenSchema } from '@kyber/schema'
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { NATIVE_TOKEN_ADDRESS, Token as TokenSchema } from '@kyber/schema'
+import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { VaultApiDetailItem, VaultPositionItem, useVaultSupportedAssetsQuery } from 'services/vault'
 
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw'
@@ -17,9 +18,11 @@ import {
   useVaultSlippageAdvice,
 } from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
+import { isWrappedNativeToken } from 'pages/Earns/utils'
 import { getBoringQueueRoute, safeBigInt } from 'pages/Earns/utils/vault'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { getNativeTokenLogo } from 'utils/tokenLogo'
 import { formatUnits, parseUnits } from 'utils/viem'
 
 export enum WithdrawMode {
@@ -142,21 +145,38 @@ export const useWithdrawForm = ({
 
   // ---- any-token path: the aggregator sells the shares outright ----
 
-  // Default to the vault's own asset; the API's token shape has no `name`, which the selector's does.
+  /**
+   * Opens on the vault's own asset, except that a vault accounting in the chain's wrapped native
+   * opens on the native asset itself: the wrapper is how the vault keeps its books, not what someone
+   * wants handed back. The API's token shape has no `name`, which the selector's does.
+   */
   useEffect(() => {
     const underlying = vault.underlyingToken
-    if (!underlying?.address) return
+    if (!underlying?.address || !chainId) return
+
+    const native = NativeCurrencies[chainId as ChainId]
+    const opensOnNative = native && isWrappedNativeToken(underlying.address, chainId as keyof typeof WETH)
+
     setSwapToken(
       current =>
-        current ?? {
-          address: underlying.address,
-          symbol: underlying.symbol,
-          name: underlying.symbol,
-          decimals: underlying.decimals,
-          logo: underlying.logo,
-        },
+        current ??
+        (opensOnNative
+          ? {
+              address: NATIVE_TOKEN_ADDRESS,
+              symbol: native.symbol ?? '',
+              name: native.name ?? native.symbol ?? '',
+              decimals: native.decimals,
+              logo: getNativeTokenLogo(chainId as ChainId),
+            }
+          : {
+              address: underlying.address,
+              symbol: underlying.symbol,
+              name: underlying.symbol,
+              decimals: underlying.decimals,
+              logo: underlying.logo,
+            }),
     )
-  }, [vault.underlyingToken])
+  }, [vault.underlyingToken, chainId])
 
   const zapExtraInfo = useCallback(
     (quoteAmountOutRaw: string) => ({
