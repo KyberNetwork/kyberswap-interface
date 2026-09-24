@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Samsung Internet dark-mode probe pages</title>
+    <style>
+body { margin: 0; padding: 16px; background: #0F0F0F; color: #FFFFFF; font-family: system-ui, sans-serif; }
+h1 { font-size: 18px; margin: 0 0 4px; }
+.desc { color: #A9A9A9; font-size: 13px; margin: 0 0 12px; }
+.card { background: #1C1C1C; border-radius: 20px; padding: 24px; }
+.panel { background: #0F0F0F; border-radius: 16px; padding: 12px; margin-top: 12px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+input { background: #0F0F0F; color: #FFFFFF; border: none; font-size: 24px; width: 55%; outline: none; padding: 0; }
+.pill { display: inline-block; background: #1C1C1C; color: #A9A9A9; border-radius: 999px; padding: 8px 12px; font-size: 16px; border: 1px solid transparent; }
+.pill.blue { border-color: #08A1E7; background: rgba(8, 161, 231, 0.2); }
+.sub { color: #A9A9A9; font-size: 12px; }
+.primary { color: #31CB9E; }
+.blue-text { color: #08A1E7; font-size: 12px; font-style: italic; }
+.btn-light { display: block; width: 100%; padding: 12px; border-radius: 999px; background: rgba(49, 203, 158, 0.2); color: #31CB9E; border: none; font-size: 16px; margin-top: 16px; }
+.btn-primary { display: block; width: 100%; padding: 12px; border-radius: 999px; background: #31CB9E; color: #222222; border: none; font-size: 16px; margin-top: 8px; }
+.swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+.sw { height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1px solid #505050; }
+pre { background: #1C1C1C; color: #A9A9A9; font-size: 11px; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; margin-top: 16px; }
+a { color: #31CB9E; }
+ li { margin-bottom: 12px; }</style>
+  </head>
+  <body>
+    <h1>Samsung Internet dark-mode probe pages</h1>
+    <p class="desc">Temporary test pages. Every page paints the same colours; only the head declarations differ.</p>
+    <p class="desc">How to test: keep the phone's Dark mode ON, open each link below in Samsung Internet, wait for the grey box at the bottom to fill in, then take a full screenshot of each page. Open v0 in Chrome too, for comparison. The page whose colours match the labels in the swatches is the declaration Samsung Internet respects.</p>
+    <ol><li><a href="./v0.html">v0</a>: Control, no declaration<br /><span class="sub">No color-scheme meta, no CSS color-scheme, no media query. Expected: Samsung re-colours this page.</span></li>
+<li><a href="./v1.html">v1</a>: meta color-scheme dark + :root color-scheme dark<br /><span class="sub">What PR #3408 ships.</span></li>
+<li><a href="./v2.html">v2</a>: legacy supported-color-schemes dark<br /><span class="sub">The pre-2020 name of the same meta/property, plus color-scheme dark.</span></li>
+<li><a href="./v3.html">v3</a>: prefers-color-scheme media query only<br /><span class="sub">Every colour rule is repeated inside @media (prefers-color-scheme: dark). No meta, no color-scheme property.</span></li>
+<li><a href="./v4.html">v4</a>: meta light dark + media query<br /><span class="sub">Declares both schemes and styles the dark one through the media query, like a real light/dark site.</span></li>
+<li><a href="./v5.html">v5</a>: meta color-scheme only light (Chromium auto-dark opt-out)<br /><span class="sub">Tells the browser never to darken this page.</span></li>
+<li><a href="./v6.html">v6</a>: v1 + forced-color-adjust none + dark theme-color<br /><span class="sub">color-scheme dark plus forced-color-adjust: none on the root and a dark theme-color.</span></li></ol>
+  </body>
+</html>

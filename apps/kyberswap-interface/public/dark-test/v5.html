@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="only light" />
+    <title>v5: meta color-scheme only light (Chromium auto-dark opt-out)</title>
+    <style>:root { color-scheme: only light; }
+body { margin: 0; padding: 16px; background: #0F0F0F; color: #FFFFFF; font-family: system-ui, sans-serif; }
+h1 { font-size: 18px; margin: 0 0 4px; }
+.desc { color: #A9A9A9; font-size: 13px; margin: 0 0 12px; }
+.card { background: #1C1C1C; border-radius: 20px; padding: 24px; }
+.panel { background: #0F0F0F; border-radius: 16px; padding: 12px; margin-top: 12px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+input { background: #0F0F0F; color: #FFFFFF; border: none; font-size: 24px; width: 55%; outline: none; padding: 0; }
+.pill { display: inline-block; background: #1C1C1C; color: #A9A9A9; border-radius: 999px; padding: 8px 12px; font-size: 16px; border: 1px solid transparent; }
+.pill.blue { border-color: #08A1E7; background: rgba(8, 161, 231, 0.2); }
+.sub { color: #A9A9A9; font-size: 12px; }
+.primary { color: #31CB9E; }
+.blue-text { color: #08A1E7; font-size: 12px; font-style: italic; }
+.btn-light { display: block; width: 100%; padding: 12px; border-radius: 999px; background: rgba(49, 203, 158, 0.2); color: #31CB9E; border: none; font-size: 16px; margin-top: 16px; }
+.btn-primary { display: block; width: 100%; padding: 12px; border-radius: 999px; background: #31CB9E; color: #222222; border: none; font-size: 16px; margin-top: 8px; }
+.swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+.sw { height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1px solid #505050; }
+pre { background: #1C1C1C; color: #A9A9A9; font-size: 11px; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; margin-top: 16px; }
+a { color: #31CB9E; }
+</style>
+  </head>
+  <body>
+<h1>v5: meta color-scheme only light (Chromium auto-dark opt-out)</h1>
+<p class="desc">Tells the browser never to darken this page.</p>
+<div class="card">
+  <div class="panel">
+    <div class="row"><span class="sub">balance</span><span class="sub">0</span></div>
+    <div class="row"><input value="0" inputmode="decimal" /><span class="pill blue">NVDA</span></div>
+  </div>
+  <div class="panel">
+    <div class="row"><span class="sub">Est. Output</span><span class="sub">0</span></div>
+    <div class="row"><input value="0.0" inputmode="decimal" /><span class="pill">USDG</span></div>
+  </div>
+  <p class="blue-text">Blue italic notice text #08A1E7</p>
+  <p class="sub">Max Slippage: <span class="primary">0.05%</span></p>
+  <button class="btn-light">Connect (light button: rgba(49,203,158,.2) + #31CB9E)</button>
+  <button class="btn-primary">Primary button #31CB9E / #222222</button>
+</div>
+<div class="swatches">
+  <div class="sw" style="background:#0F0F0F;color:#fff">#0F0F0F page</div>
+  <div class="sw" style="background:#1C1C1C;color:#fff">#1C1C1C card</div>
+  <div class="sw" style="background:#292929;color:#fff">#292929 gray</div>
+  <div class="sw" style="background:#505050;color:#fff">#505050 border</div>
+  <div class="sw" style="background:#A9A9A9;color:#000">#A9A9A9 subText</div>
+  <div class="sw" style="background:#FFFFFF;color:#000">#FFFFFF text</div>
+  <div class="sw" style="background:#31CB9E;color:#000">#31CB9E primary</div>
+  <div class="sw" style="background:#08A1E7;color:#000">#08A1E7 blue</div>
+  <div class="sw" style="background:#FF537B;color:#000">#FF537B red</div>
+</div>
+<div id="canvas-probe" style="background-color: Canvas; color-scheme: light; height: 1px; overflow: hidden"></div>
+<pre id="probe">probe script did not run</pre>
+<p class="sub"><a href="./index.html">Back to the list</a></p>
+<script>
+(function () {
+  var mm = function (q) { try { return window.matchMedia(q).matches; } catch (e) { return 'n/a'; } };
+  var probe = document.getElementById('canvas-probe');
+  var lines = [
+    'variant: ' + document.title,
+    'ua: ' + navigator.userAgent,
+    'prefers-color-scheme dark: ' + mm('(prefers-color-scheme: dark)') + ' | light: ' + mm('(prefers-color-scheme: light)'),
+    'forced-colors active: ' + mm('(forced-colors: active)') + ' | inverted-colors: ' + mm('(inverted-colors: inverted)'),
+    'root color-scheme: ' + getComputedStyle(document.documentElement).colorScheme,
+    'body background (computed): ' + getComputedStyle(document.body).backgroundColor,
+    'Canvas probe (expected rgb(255, 255, 255)): ' + getComputedStyle(probe).backgroundColor,
+    'time: ' + new Date().toISOString(),
+  ];
+  document.getElementById('probe').textContent = lines.join('\n');
+})();
+</script></body>
+</html>
