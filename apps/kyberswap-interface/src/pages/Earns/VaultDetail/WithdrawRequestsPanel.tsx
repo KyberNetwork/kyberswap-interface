@@ -5,6 +5,8 @@ import { VaultApiDetailItem, useVaultSupportedAssetsQuery, useVaultWithdrawalReq
 import { useActiveWeb3React } from 'hooks'
 import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
 import { RequestsPanel } from 'pages/Earns/VaultDetail/styles'
+import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
+import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
 import { getWithdrawRequestsInProgress } from 'pages/Earns/utils/vault'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
@@ -23,12 +25,19 @@ const WithdrawRequestsPanel = ({ vault, onChanged }: { vault: VaultApiDetailItem
 
   const { data: requestsData, refetch: refetchRequests } = useVaultWithdrawalRequestsQuery(
     { chainId: chainId as number, userAddress: (account || '').toLowerCase(), vaultId: vault.vaultId },
-    { skip: !hasTarget },
+    // Requests move on the solver's clock rather than the user's: one matures, expires or is filled
+    // with nothing happening on this page.
+    { skip: !hasTarget, pollingInterval: VAULT_POLLING_INTERVAL },
   )
+
   const { data: supportedAssets } = useVaultSupportedAssetsQuery(
     { chainId: chainId as number, vaultId: vault.vaultId },
     { skip: !chainId || !vault.vaultId },
   )
+
+  // A request is created or cancelled by a transaction, and the list only changes once that is
+  // mined — the flow hands control back as soon as it is submitted.
+  useRefreshOnVaultTx(refetchRequests)
 
   const requests = useMemo(() => getWithdrawRequestsInProgress(requestsData?.requests), [requestsData?.requests])
 
