@@ -1,6 +1,7 @@
 import { useTokenPrices } from '@kyber/hooks'
 import { NATIVE_TOKEN_ADDRESS, Token as TokenSchema } from '@kyber/schema'
 import { MAX_TOKENS } from '@kyber/token-selector'
+import { translateZapImpact } from '@kyber/ui'
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -20,7 +21,6 @@ import {
 } from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { checkPriceImpact } from 'utils/prices'
 import { formatUnits } from 'utils/viem'
 
 export const PERCENT_OPTIONS = [25, 50, 75, 100] as const
@@ -356,12 +356,14 @@ export const useDepositForm = ({
   )
 
   /**
-   * How far the route moves the price, judged on the same thresholds the swap form uses. The vault
-   * has no degen mode to switch off the guard, so a bad route is flagged and relabelled rather than
-   * blocked outright — the way the zap flows do it.
+   * How far the route moves the price, read exactly as the zap flows read it: their thresholds are
+   * relative to the route's own suggested slippage, and their wording is the wording shown here.
+   * A bad route is flagged and the action relabelled rather than blocked outright.
    */
   const priceImpact = deposit.route?.zapDetails.priceImpact
-  const priceImpactResult = checkPriceImpact(priceImpact)
+  const priceImpactResult = deposit.route
+    ? translateZapImpact(priceImpact, deposit.route.zapDetails.suggestedSlippage || 100)
+    : undefined
 
   const totalUsd = deposit.route ? Number(deposit.route.zapDetails.initialAmountUsd) : undefined
 

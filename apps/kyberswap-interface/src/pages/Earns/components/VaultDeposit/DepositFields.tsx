@@ -189,7 +189,11 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
           </InfoValue>
         </InfoRow>
 
-        <VaultPriceImpactRow priceImpact={form.route?.zapDetails.priceImpact} isLoading={form.isRouteLoading} />
+        <VaultPriceImpactRow
+          priceImpact={form.route?.zapDetails.priceImpact}
+          result={form.priceImpactResult}
+          isLoading={form.isRouteLoading}
+        />
 
         <SlippageSelect
           value={form.slippage}

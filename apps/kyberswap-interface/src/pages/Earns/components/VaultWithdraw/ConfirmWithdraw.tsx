@@ -23,7 +23,11 @@ import {
   SummaryUsd,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
-import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactNote, {
+  getPriceImpactTone,
+  isPriceImpactBad,
+  priceImpactButtonClass,
+} from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
 import { WithdrawFormState } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { formatTerm } from 'pages/Earns/hooks/useCountdown'
@@ -89,7 +93,8 @@ const ConfirmWithdraw = ({
     ? formatDisplayNumber(form.zapRoute.zapDetails.finalAmountUsd, { style: 'currency', significantDigits: 4 })
     : undefined
 
-  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
+  const impactTone = getPriceImpactTone(form.priceImpactResult)
+  const isImpactBad = isPriceImpactBad(form.priceImpactResult)
 
   return (
     <>
@@ -169,7 +174,7 @@ const ConfirmWithdraw = ({
           </InfoRow>
         ) : (
           <>
-            <VaultPriceImpactRow priceImpact={form.zapRoute?.zapDetails.priceImpact} />
+            <VaultPriceImpactRow priceImpact={form.zapRoute?.zapDetails.priceImpact} result={form.priceImpactResult} />
             <InfoRow>
               <InfoLabel tooltip={maxSlippageTooltip()}>{t`Max Slippage`}</InfoLabel>
               <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
@@ -198,7 +203,7 @@ const ConfirmWithdraw = ({
 
       <ButtonGroup>
         <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>
-        <PrimaryButton className={cn(isImpactBad && 'bg-red text-white')} onClick={onSubmit} disabled={!form.isReady}>
+        <PrimaryButton className={cn(priceImpactButtonClass(impactTone))} onClick={onSubmit} disabled={!form.isReady}>
           {isImpactBad ? t`Withdraw Anyway` : t`Withdraw`}
         </PrimaryButton>
       </ButtonGroup>

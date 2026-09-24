@@ -20,7 +20,11 @@ import {
 } from 'pages/Earns/components/VaultDeposit/styles'
 import VaultFormSkeleton from 'pages/Earns/components/VaultFormSkeleton'
 import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
-import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactNote, {
+  getPriceImpactTone,
+  isPriceImpactBad,
+  priceImpactButtonClass,
+} from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
@@ -70,7 +74,8 @@ const WithdrawBody = ({
 
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
-  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
+  const impactTone = getPriceImpactTone(form.priceImpactResult)
+  const isImpactBad = isPriceImpactBad(form.priceImpactResult)
 
   const actionLabel = form.actionBlocker ?? (isImpactBad ? t`Withdraw Anyway` : t`Withdraw`)
 
@@ -130,7 +135,7 @@ const WithdrawBody = ({
             <ButtonGroup>
               <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
               <PrimaryButton
-                className={cn(isImpactBad && form.isReady && 'bg-red text-white')}
+                className={cn(form.isReady && priceImpactButtonClass(impactTone))}
                 onClick={onAction}
                 disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
               >

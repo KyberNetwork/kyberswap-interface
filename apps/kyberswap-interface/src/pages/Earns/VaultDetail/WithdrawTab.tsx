@@ -9,7 +9,11 @@ import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
 import { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import { ActionBody } from 'pages/Earns/VaultDetail/styles'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
-import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactNote, {
+  getPriceImpactTone,
+  isPriceImpactBad,
+  priceImpactButtonClass,
+} from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
@@ -56,7 +60,8 @@ const WithdrawTab = ({
 
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
-  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
+  const impactTone = getPriceImpactTone(form.priceImpactResult)
+  const isImpactBad = isPriceImpactBad(form.priceImpactResult)
 
   // Only the any-token route swaps; a native redemption goes straight to the queue.
   // The shares going in, and the token the route sells them into.
@@ -119,7 +124,7 @@ const WithdrawTab = ({
       {!blockingError ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
 
       <PrimaryButton
-        className={cn('mt-auto w-full flex-none py-2.5', isImpactBad && form.isReady && 'bg-red text-white')}
+        className={cn('mt-auto w-full flex-none py-2.5', form.isReady && priceImpactButtonClass(impactTone))}
         onClick={onAction}
         disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
       >

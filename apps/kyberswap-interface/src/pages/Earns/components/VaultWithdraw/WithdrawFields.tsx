@@ -264,7 +264,11 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
           </InfoRow>
         ) : (
           <>
-            <VaultPriceImpactRow priceImpact={form.zapRoute?.zapDetails.priceImpact} isLoading={form.isRouteLoading} />
+            <VaultPriceImpactRow
+              priceImpact={form.zapRoute?.zapDetails.priceImpact}
+              result={form.priceImpactResult}
+              isLoading={form.isRouteLoading}
+            />
             <SlippageSelect
               value={form.slippage}
               onChange={form.setSlippage}

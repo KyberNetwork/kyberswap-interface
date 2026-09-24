@@ -1,33 +1,50 @@
-import { t } from '@lingui/macro'
+import { translateZapMessage } from '@kyber/ui'
+import { PI_LEVEL, ZAP_MESSAGES } from '@kyber/utils'
 
 import { ErrorNote, WarningNote } from 'pages/Earns/components/VaultDeposit/styles'
-import { checkPriceImpact } from 'utils/prices'
 
-type PriceImpactResult = ReturnType<typeof checkPriceImpact>
+/** The reading the zap flows produce: a level, a figure, and the sentence that goes with the level. */
+export type VaultPriceImpact = { level: PI_LEVEL; display: string; msg: string }
 
 /**
- * What the route costs in price, on the same thresholds the swap form uses. The action it belongs to
- * is relabelled rather than disabled: swap can block outright because degen mode is there to unblock
- * it, and a vault has no such switch — a blocked button would be a dead end.
+ * How loudly the reading is carried, on the zap flows' own split of the levels. It drives the note,
+ * the figure beside the label and the action button together, so they never disagree about how bad
+ * a route is.
  */
-const VaultPriceImpactNote = ({ result, className }: { result: PriceImpactResult; className?: string }) => {
-  if (result.isInvalid) {
-    return <ErrorNote className={className}>{t`Unable to calculate the price impact of this route.`}</ErrorNote>
-  }
+export type PriceImpactTone = 'error' | 'warning' | undefined
 
-  if (result.isVeryHigh) {
-    return (
-      <ErrorNote className={className}>
-        {t`Price impact is very high — you will lose a significant part of this amount. Try a smaller size.`}
-      </ErrorNote>
-    )
-  }
+export const getPriceImpactTone = (result?: VaultPriceImpact): PriceImpactTone =>
+  !result
+    ? undefined
+    : result.level === PI_LEVEL.VERY_HIGH || result.level === PI_LEVEL.INVALID
+    ? 'error'
+    : result.level === PI_LEVEL.HIGH
+    ? 'warning'
+    : undefined
 
-  if (result.isHigh) {
-    return <WarningNote className={className}>{t`Price impact is higher than usual for this route.`}</WarningNote>
-  }
+/** A route this bad is named and the action relabelled, never blocked — the way the zap flows do it. */
+export const isPriceImpactBad = (result?: VaultPriceImpact) => getPriceImpactTone(result) === 'error'
 
-  return null
+/** The action stays pressable whatever the reading, so it carries the tone rather than the guard. */
+export const priceImpactButtonClass = (tone: PriceImpactTone) =>
+  tone === 'error' ? 'bg-red text-white' : tone === 'warning' ? 'bg-warning text-white' : undefined
+
+/**
+ * What the route costs in price. Both the thresholds and the wording are the zap flows' own, read
+ * off `translateZapImpact` — nothing here decides when a route is bad or invents what to call it.
+ *
+ * The worst level is the one exception, and it still says nothing new: the zap sentence for it sends
+ * the reader to Degen Mode, which a vault has no switch for, so it carries the plainer of the two
+ * sentences zap already ships instead.
+ */
+const VaultPriceImpactNote = ({ result, className }: { result?: VaultPriceImpact; className?: string }) => {
+  if (!result?.msg) return null
+
+  const Note = getPriceImpactTone(result) === 'warning' ? WarningNote : ErrorNote
+  const message =
+    result.level === PI_LEVEL.VERY_HIGH ? translateZapMessage(ZAP_MESSAGES.ZAP_IMPACT_WARNING) : result.msg
+
+  return <Note className={className}>{message}</Note>
 }
 
 export default VaultPriceImpactNote

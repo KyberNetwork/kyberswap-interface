@@ -1,4 +1,5 @@
 import { Token as TokenSchema } from '@kyber/schema'
+import { translateZapImpact } from '@kyber/ui'
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -25,7 +26,6 @@ import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { checkPriceImpact } from 'utils/prices'
 import { formatUnits, parseUnits } from 'utils/viem'
 
 export enum WithdrawMode {
@@ -245,10 +245,6 @@ export const useWithdrawForm = ({
   }, [typedValue, shareBalanceRaw, onSelectPercent])
 
   /**
-   * Only the aggregator route moves a price: a native redemption is quoted by the queue and filled
-   * at that quote. Judged on the swap form's thresholds.
-   */
-  /**
    * What the shares and the payout are worth. The queue path is quoted by the vault rather than by a
    * route, so nothing on it carries a dollar figure; the price feed supplies one for both sides.
    */
@@ -291,8 +287,16 @@ export const useWithdrawForm = ({
     zapWithdraw.amountOutRaw,
   ])
 
+  /**
+   * Only the aggregator route moves a price. The queue path quotes no route, so it has no reading at
+   * all — feeding its absent figure to the zap helper would answer "unable to calculate" and colour
+   * a redemption that never touched a pool.
+   */
   const zapPriceImpact = isNative ? undefined : zapWithdraw.route?.zapDetails.priceImpact
-  const zapPriceImpactResult = checkPriceImpact(zapPriceImpact)
+  const zapPriceImpactResult =
+    !isNative && zapWithdraw.route
+      ? translateZapImpact(zapPriceImpact, zapWithdraw.route.zapDetails.suggestedSlippage || 100)
+      : undefined
 
   const active = isNative ? nativeWithdraw : zapWithdraw
 

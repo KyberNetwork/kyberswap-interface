@@ -23,7 +23,11 @@ import {
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { DepositFormState } from 'pages/Earns/components/VaultDeposit/useDepositForm'
 import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
-import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactNote, {
+  getPriceImpactTone,
+  isPriceImpactBad,
+  priceImpactButtonClass,
+} from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -85,7 +89,8 @@ const ConfirmDeposit = ({
         )
       : undefined
 
-  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
+  const impactTone = getPriceImpactTone(form.priceImpactResult)
+  const isImpactBad = isPriceImpactBad(form.priceImpactResult)
 
   return (
     <>
@@ -145,7 +150,7 @@ const ConfirmDeposit = ({
             {minReceiveUsd ? <span className="text-subText">~{minReceiveUsd}</span> : null}
           </InfoValue>
         </InfoRow>
-        <VaultPriceImpactRow priceImpact={form.route?.zapDetails.priceImpact} />
+        <VaultPriceImpactRow priceImpact={form.route?.zapDetails.priceImpact} result={form.priceImpactResult} />
         <InfoRow>
           <InfoLabel tooltip={maxSlippageTooltip()}>{t`Max Slippage`}</InfoLabel>
           <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
@@ -164,7 +169,7 @@ const ConfirmDeposit = ({
 
       <ButtonGroup>
         <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>
-        <PrimaryButton className={cn(isImpactBad && 'bg-red text-white')} onClick={onSubmit} disabled={!form.isReady}>
+        <PrimaryButton className={cn(priceImpactButtonClass(impactTone))} onClick={onSubmit} disabled={!form.isReady}>
           {isImpactBad ? t`Deposit Anyway` : t`Deposit`}
         </PrimaryButton>
       </ButtonGroup>

@@ -12,7 +12,11 @@ import ConfirmDeposit from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import DepositFields from 'pages/Earns/components/VaultDeposit/DepositFields'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
 import { useDepositForm } from 'pages/Earns/components/VaultDeposit/useDepositForm'
-import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactNote, {
+  getPriceImpactTone,
+  isPriceImpactBad,
+  priceImpactButtonClass,
+} from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { toRouteSwaps, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
@@ -110,7 +114,8 @@ const DepositTab = ({
 
   // A bad route still goes through: it is named and the button turned, not disabled — the vault
   // has no degen mode to switch the guard off with.
-  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
+  const impactTone = getPriceImpactTone(form.priceImpactResult)
+  const isImpactBad = isPriceImpactBad(form.priceImpactResult)
   // The button names the token only when there is one to name.
   const singleSymbol = spent.length > 1 ? '' : spent[0]?.currency.symbol ?? ''
 
@@ -132,7 +137,7 @@ const DepositTab = ({
       {!form.routeError && form.hasAmount ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
 
       <PrimaryButton
-        className={cn('mt-auto w-full flex-none py-2.5', isImpactBad && form.isReady && 'bg-red text-white')}
+        className={cn('mt-auto w-full flex-none py-2.5', form.isReady && priceImpactButtonClass(impactTone))}
         onClick={onAction}
         disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
       >
