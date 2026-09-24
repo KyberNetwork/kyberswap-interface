@@ -449,6 +449,7 @@ type VirtualRowData = {
   currencyBalances: (CurrencyAmount<Currency> | undefined)[]
   selectedCurrency?: Currency | null
   otherCurrency?: Currency | null
+  scaleERC8056Balances?: boolean
   onCurrencySelect?: (currency: Currency) => void
   onImportToken?: (token: Token) => void
   onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
@@ -519,7 +520,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   const priceForUsd = data.showPriceColumn ? extra?.price ?? 0 : data.tokenPrices[token.address] || 0
   const usdBalance = priceForUsd * parseFloat(currencyBalance?.toExact() || '0')
   const customBalance =
-    currency.isToken && currencyBalance && (isSelected || otherSelected) ? (
+    data.scaleERC8056Balances && currency.isToken && currencyBalance && (isSelected || otherSelected) ? (
       <SelectedTokenBalance currency={currency} balance={currencyBalance} />
     ) : undefined
 
@@ -575,6 +576,8 @@ type TokenListProps = {
   selectedCurrency?: Currency | null
   onCurrencySelect?: (currency: Currency) => void
   otherCurrency?: Currency | null
+  /** Show the selected tokens' ERC-8056 balances in display units; only for forms whose own balance labels do the same. */
+  scaleERC8056Balances?: boolean
   onImportToken?: (token: Token) => void
   onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
   onRemoveImportedToken?: (token: Token) => void
@@ -617,6 +620,7 @@ const TokenList = ({
   selectedCurrency,
   onCurrencySelect,
   otherCurrency,
+  scaleERC8056Balances,
   onImportToken,
   onToggleFavorite,
   onRemoveImportedToken,
@@ -716,6 +720,7 @@ const TokenList = ({
       currencyBalances,
       selectedCurrency,
       otherCurrency,
+      scaleERC8056Balances,
       onCurrencySelect,
       onImportToken,
       onToggleFavorite,
@@ -745,6 +750,7 @@ const TokenList = ({
       currencyBalances,
       selectedCurrency,
       otherCurrency,
+      scaleERC8056Balances,
       onCurrencySelect,
       onImportToken,
       onToggleFavorite,

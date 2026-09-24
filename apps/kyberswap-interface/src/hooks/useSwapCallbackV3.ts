@@ -6,7 +6,7 @@ import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
-import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
+import { useERC8056DisplayBalance } from 'hooks/useERC8056Token'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -24,11 +24,10 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   const { connector, isSmartConnector } = useWeb3React()
   const walletKey = connector?.name
 
-  const { recipient: recipientAddressOrName, routeSummary, displayTypedValue } = useSwapFormContext()
+  const { recipient: recipientAddressOrName, routeSummary, displayTypedValue, outputERC8056Info } = useSwapFormContext()
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
   const isSmartSettlement = routeSummary?.isSmartSettlement
-  const outputInfo = useERC8056TokenInfo(outputAmount?.currency, chainId)
-  const displayOutputAmount = useERC8056DisplayBalance(outputInfo, outputAmount)?.toSignificant(6)
+  const displayOutputAmount = useERC8056DisplayBalance(outputERC8056Info, outputAmount)?.toSignificant(6)
 
   const [allowedSlippage] = useUserSlippageTolerance()
   const [searchParams] = useSearchParams()
