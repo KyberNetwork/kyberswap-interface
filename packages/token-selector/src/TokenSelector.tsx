@@ -1025,7 +1025,11 @@ export default function TokenSelector({
                   })}
 
                 {isLoading || isPending ? (
-                  <TokenLoader />
+                  /* Bounded and clipped like the real list below it: left to grow, nine fixed-height
+                     rows run past the dialog's footer and sit under the buttons. */
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <TokenLoader />
+                  </div>
                 ) : filteredTokens?.length > 0 && !unImportedTokens.length ? (
                   <div className="flex-1 min-h-0">
                     <AutoSizer>
