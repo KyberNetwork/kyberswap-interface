@@ -55,6 +55,14 @@ export const toDisplaySymbol = (baseToken?: { symbol?: string }, underlying?: { 
   baseToken?.symbol || underlying?.symbol || ''
 
 /**
+ * The mark beside that name, taken from whichever token supplies the name: a vault the API renames
+ * reads as a different asset than the wrapper it accounts in, so the wrapper's mark would contradict
+ * it. Nothing to show leaves `TokenLogo` to stand in with its unknown-token mark.
+ */
+export const toDisplayLogo = (baseToken?: { symbol?: string; logo?: string }, underlying?: { logo?: string }): string =>
+  baseToken?.symbol ? baseToken.logo || '' : underlying?.logo || ''
+
+/**
  * A position's growth series as chart points. A bucket the API could not value stays a gap rather
  * than becoming a zero — the series is marked to NAV and can be negative, so a zero is a real value
  * here, not an absence.
@@ -91,7 +99,7 @@ const toEpochSeconds = (iso?: string | null): number | undefined => {
 export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
   id: item.vaultId,
   token: toDisplaySymbol(item.baseToken, item.underlyingToken),
-  tokenIcon: item.underlyingToken?.logo || '',
+  tokenIcon: toDisplayLogo(item.baseToken, item.underlyingToken),
   chainId: item.chain?.id || 0,
   chainIcon: item.chain?.logo || '',
   chainName: item.chain?.name || '',
@@ -107,7 +115,7 @@ export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
 export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: VaultApiMetrics): VaultInfo => ({
   id: detail.vaultId,
   token: toDisplaySymbol(detail.baseToken, detail.underlyingToken),
-  tokenIcon: detail.underlyingToken?.logo || '',
+  tokenIcon: toDisplayLogo(detail.baseToken, detail.underlyingToken),
   chainId: detail.chain?.id || 0,
   chainIcon: detail.chain?.logo || '',
   chainName: detail.chain?.name || '',
@@ -176,7 +184,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     shareDecimals: v.shareToken?.decimals ?? 18,
     shareSymbol: v.shareToken?.symbol || '',
     token: toDisplaySymbol(v.baseToken, v.underlyingToken),
-    tokenIcon: v.underlyingToken?.logo || '',
+    tokenIcon: toDisplayLogo(v.baseToken, v.underlyingToken),
     chainId: item.chain?.id || 0,
     chainIcon: item.chain?.logo || '',
     chainName: item.chain?.name || '',
