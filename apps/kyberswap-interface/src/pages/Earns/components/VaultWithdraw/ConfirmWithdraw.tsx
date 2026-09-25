@@ -118,6 +118,17 @@ const ConfirmWithdraw = ({
         </SummaryRow>
       </div>
 
+      {form.isNative ? (
+        <div className="flex w-full flex-col gap-2">
+          <SummaryLabel>{t`You will receive:`}</SummaryLabel>
+          <SummaryRow className="bg-white-04">
+            {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={20} /> : null}
+            <SummaryAmount>{nativeOut}</SummaryAmount>
+            {minReceivedUsd ? <SummaryUsd>~ {minReceivedUsd}</SummaryUsd> : null}
+          </SummaryRow>
+        </div>
+      ) : null}
+
       {!form.isNative ? (
         <div className="flex w-full flex-col gap-2">
           <SummaryLabel>{t`Then swap:`}</SummaryLabel>
@@ -148,24 +159,20 @@ const ConfirmWithdraw = ({
       ) : null}
 
       <DetailsBox>
-        {/* The queue locks its figure into the request, so it is the amount that arrives; only the
-            aggregator route has a slippage floor under it. The label says which of the two it is. */}
-        <InfoRow>
-          <InfoLabel
-            tooltip={
-              form.isNative
-                ? t`The queue prices this redemption when you submit it and locks the amount into the request, so this is the amount that arrives.`
-                : t`The least you will receive if the price moves against you by the full slippage tolerance.`
-            }
-          >
-            {form.isNative ? t`You will receive` : t`Est. Min Received`}
-          </InfoLabel>
-          <InfoValue>
-            {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
-            {form.isNative ? nativeOut : zapMinOut}
-            {minReceivedUsd ? <span className="text-subText">~{minReceivedUsd}</span> : null}
-          </InfoValue>
-        </InfoRow>
+        {/* The queue's figure is the amount that arrives, so it is stated in a panel of its own
+            above; only the aggregator route has a floor to put among the terms. */}
+        {!form.isNative ? (
+          <InfoRow>
+            <InfoLabel
+              tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
+            >{t`Est. Min Received`}</InfoLabel>
+            <InfoValue>
+              {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
+              {zapMinOut}
+              {minReceivedUsd ? <span className="text-subText">~{minReceivedUsd}</span> : null}
+            </InfoValue>
+          </InfoRow>
+        ) : null}
 
         {form.isNative ? (
           <InfoRow>
