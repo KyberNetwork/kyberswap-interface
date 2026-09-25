@@ -11,6 +11,7 @@ import {
   useVaultPositionGrowthHistoryQuery,
 } from 'services/vault'
 
+import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -43,8 +44,6 @@ import {
   HowItWorks,
   HowItWorksLabel,
   PageWrapper,
-  PeriodTab,
-  PeriodTabs,
   ProtocolTag,
   TokenIconWrapperSm,
   TokenStack,
@@ -82,7 +81,11 @@ const PositionBalanceTitle = ({ balance }: { balance?: { amount: string; symbol:
 
 type PeriodKey = '24H' | '7D' | '30D'
 
-const PERIOD_OPTIONS: PeriodKey[] = ['24H', '7D', '30D']
+const PERIOD_OPTIONS: readonly SegmentedControlOption<PeriodKey>[] = [
+  { label: '24H', value: '24H' },
+  { label: '7D', value: '7D' },
+  { label: '30D', value: '30D' },
+]
 const PERIOD_TO_INTERVAL: Record<PeriodKey, VaultInterval> = {
   '24H': '1d',
   '7D': '7d',
@@ -264,18 +267,12 @@ const VaultDetail = () => {
                 <ChartSection>
                   <ChartHeader>
                     <ChartTitle>{t`Earning in USD`}</ChartTitle>
-                    <PeriodTabs>
-                      {PERIOD_OPTIONS.map(period => (
-                        <PeriodTab
-                          key={period}
-                          type="button"
-                          $active={earningPeriod === period}
-                          onClick={() => setEarningPeriod(period)}
-                        >
-                          {period}
-                        </PeriodTab>
-                      ))}
-                    </PeriodTabs>
+                    <SegmentedControl
+                      options={PERIOD_OPTIONS}
+                      size="xs"
+                      value={earningPeriod}
+                      onChange={setEarningPeriod}
+                    />
                   </ChartHeader>
                   <ChartBox key={`earning-${earningPeriod}`}>
                     <EarningLineChart data={earningSeries} height={chartHeight} showAxes />
@@ -289,18 +286,12 @@ const VaultDetail = () => {
                 <ChartSection>
                   <ChartHeader>
                     <PositionBalanceTitle balance={positionBalance} />
-                    <PeriodTabs>
-                      {PERIOD_OPTIONS.map(period => (
-                        <PeriodTab
-                          key={period}
-                          type="button"
-                          $active={balancePeriod === period}
-                          onClick={() => setBalancePeriod(period)}
-                        >
-                          {period}
-                        </PeriodTab>
-                      ))}
-                    </PeriodTabs>
+                    <SegmentedControl
+                      options={PERIOD_OPTIONS}
+                      size="xs"
+                      value={balancePeriod}
+                      onChange={setBalancePeriod}
+                    />
                   </ChartHeader>
                   <ChartBox key={`balance-${balancePeriod}`}>
                     <BalanceLineChart data={balanceSeries} height={chartHeight} symbol={vault?.token} showAxes />
@@ -310,18 +301,7 @@ const VaultDetail = () => {
                 <ChartSection>
                   <ChartHeader>
                     <ChartTitle>{t`TVL`}</ChartTitle>
-                    <PeriodTabs>
-                      {PERIOD_OPTIONS.map(period => (
-                        <PeriodTab
-                          key={period}
-                          type="button"
-                          $active={tvlPeriod === period}
-                          onClick={() => setTvlPeriod(period)}
-                        >
-                          {period}
-                        </PeriodTab>
-                      ))}
-                    </PeriodTabs>
+                    <SegmentedControl options={PERIOD_OPTIONS} size="xs" value={tvlPeriod} onChange={setTvlPeriod} />
                   </ChartHeader>
                   <ChartBox key={`tvl-${tvlPeriod}`}>
                     <TvlLineChart data={tvlSeries} height={chartHeight} showAxes />
@@ -332,18 +312,7 @@ const VaultDetail = () => {
               <ChartSection>
                 <ChartHeader>
                   <ChartTitle>{t`APY`}</ChartTitle>
-                  <PeriodTabs>
-                    {PERIOD_OPTIONS.map(period => (
-                      <PeriodTab
-                        key={period}
-                        type="button"
-                        $active={apyPeriod === period}
-                        onClick={() => setApyPeriod(period)}
-                      >
-                        {period}
-                      </PeriodTab>
-                    ))}
-                  </PeriodTabs>
+                  <SegmentedControl options={PERIOD_OPTIONS} size="xs" value={apyPeriod} onChange={setApyPeriod} />
                 </ChartHeader>
                 <ChartBox key={`apy-${apyPeriod}`}>
                   <ApyBarChart data={apySeries} height={chartHeight} showAxes />

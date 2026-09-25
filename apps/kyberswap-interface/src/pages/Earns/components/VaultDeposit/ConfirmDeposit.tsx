@@ -29,19 +29,21 @@ import VaultPriceImpactNote, {
   priceImpactButtonClass,
 } from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
+import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
 import { formatUnits } from 'utils/viem'
 
+/** The app's own close mark, in a button so it carries a name and reaches the keyboard. */
 const CloseButton = ({ onClose }: { onClose: () => void }) => (
   <button
     type="button"
     aria-label={t`Close`}
     onClick={onClose}
-    className="cursor-pointer border-none bg-transparent p-0 text-xl leading-5 text-subText hover:text-text"
+    className="flex cursor-pointer items-center border-none bg-transparent p-0 text-subText"
   >
-    ×
+    <CloseIcon />
   </button>
 )
 

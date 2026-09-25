@@ -157,31 +157,6 @@ export const ChartTitle = ({ className, ...rest }: HTMLAttributes<HTMLSpanElemen
   />
 )
 
-export const PeriodTabs = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex h-7 items-center gap-0.5 rounded-[20px] border border-solid border-white-08 bg-white-04 p-0.5',
-      className,
-    )}
-    {...rest}
-  />
-)
-
-type TabProps = ButtonHTMLAttributes<HTMLButtonElement> & { $active?: boolean }
-
-export const PeriodTab = ({ $active, className, ...rest }: TabProps) => (
-  <button
-    className={cn(
-      'inline-flex h-6 min-w-10 cursor-pointer items-center justify-center rounded-[20px] border-none px-3',
-      'text-xs font-medium leading-4 transition-colors duration-200 hover:text-text',
-      $active ? 'bg-white-08 text-text' : 'bg-transparent text-subText',
-      REDUCED_MOTION,
-      className,
-    )}
-    {...rest}
-  />
-)
-
 export const ChartBox = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('w-full animate-[fadeIn_0.35s_ease-out_both]', REDUCED_MOTION, className)} {...rest} />
 )
@@ -215,6 +190,8 @@ export const ActionCard = ({ className, ...rest }: HTMLAttributes<HTMLDivElement
 export const ActionTabs = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex w-full items-center border-b border-white-04', className)} {...rest} />
 )
+
+type TabProps = ButtonHTMLAttributes<HTMLButtonElement> & { $active?: boolean }
 
 export const ActionTab = ({ $active, className, ...rest }: TabProps) => (
   <button
