@@ -148,16 +148,18 @@ const ConfirmWithdraw = ({
       ) : null}
 
       <DetailsBox>
-        {/* One label for both paths, as the design has it. Only the aggregator route has a slippage
-            floor, so on the queue path the tooltip says the figure is exact. */}
+        {/* The queue locks its figure into the request, so it is the amount that arrives; only the
+            aggregator route has a slippage floor under it. The label says which of the two it is. */}
         <InfoRow>
           <InfoLabel
             tooltip={
               form.isNative
-                ? t`The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor.`
+                ? t`The queue prices this redemption when you submit it and locks the amount into the request, so this is the amount that arrives.`
                 : t`The least you will receive if the price moves against you by the full slippage tolerance.`
             }
-          >{t`Est. Min Received`}</InfoLabel>
+          >
+            {form.isNative ? t`You will receive` : t`Est. Min Received`}
+          </InfoLabel>
           <InfoValue>
             {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
             {form.isNative ? nativeOut : zapMinOut}
