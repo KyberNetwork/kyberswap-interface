@@ -1,4 +1,5 @@
 import { type HTMLAttributes, PropsWithChildren, forwardRef, useCallback, useEffect, useRef, useState } from 'react'
+import { ChevronDown } from 'react-feather'
 
 import { cn } from 'utils/cn'
 
@@ -6,13 +7,21 @@ type Props = HTMLAttributes<HTMLDivElement> &
   PropsWithChildren<{
     isOpen?: boolean
     showArrow?: boolean
-    showBackground?: boolean
+    wrapperClassName?: string
     'data-open'?: 'true' | 'false'
     'data-signal'?: 'true' | 'false'
   }>
 
 const ScrollableWithSignal = forwardRef<HTMLDivElement, Props>(function ScrollableWithSignal(
-  { children, showArrow = false, showBackground = false, className, ...rest }: Props,
+  {
+    children,
+    showArrow = false,
+    className,
+    wrapperClassName,
+    'data-open': dataOpen,
+    'data-signal': dataSignal,
+    ...rest
+  }: Props,
   forwardedRef,
 ) {
   const localRef = useRef<HTMLDivElement | null>(null)
@@ -37,23 +46,40 @@ const ScrollableWithSignal = forwardRef<HTMLDivElement, Props>(function Scrollab
   }, [])
 
   useEffect(() => {
-    updateSignal(localRef.current)
+    const target = localRef.current
+    updateSignal(target)
+
+    if (!target || typeof ResizeObserver === 'undefined') return
+
+    const observer = new ResizeObserver(() => updateSignal(target))
+    observer.observe(target)
+
+    return () => observer.disconnect()
   }, [children, updateSignal])
 
-  const isOpen = rest['data-open'] === 'true'
-  const disabledSignal = rest['data-signal'] === 'false'
+  const isOpen = dataOpen === 'true'
+  const disabledSignal = dataSignal === 'false'
 
   return (
     <div
-      ref={setRefs}
-      {...rest}
+      className={cn('ks-scrollable-with-signal relative min-h-0', wrapperClassName)}
       data-signal-visible={isOpen && !disabledSignal && hasMore ? 'true' : 'false'}
-      data-show-arrow={isOpen && showArrow ? 'true' : 'false'}
-      data-show-background={isOpen && showBackground ? 'true' : 'false'}
-      onScroll={e => updateSignal(e.currentTarget)}
-      className={cn('ks-scrollable-with-signal overflow-auto', className)}
     >
-      {children}
+      <div
+        ref={setRefs}
+        {...rest}
+        data-open={dataOpen}
+        data-signal={dataSignal}
+        onScroll={e => updateSignal(e.currentTarget)}
+        className={cn('overflow-auto', className)}
+      >
+        {children}
+      </div>
+      {showArrow && (
+        <span aria-hidden className="ks-scrollable-with-signal-arrow">
+          <ChevronDown size={14} strokeWidth={2.25} />
+        </span>
+      )}
     </div>
   )
 })

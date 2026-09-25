@@ -1,0 +1,156 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
+import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
+
+import { useActiveWeb3React } from 'hooks'
+import { parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+import type { WithdrawalInventory } from 'pages/CopyTrading/modals/WithdrawModal/useWithdrawalData'
+import {
+  UINT256_MAX_RAW,
+  getWithdrawAmountError,
+  getWithdrawPresetAmountRaw,
+  getWithdrawRequestAmountRaw,
+  validateWithdrawPreview,
+} from 'pages/CopyTrading/modals/WithdrawModal/utils'
+import { getCopyRunOwnershipMessage, getWriteAvailabilityMessage } from 'pages/CopyTrading/modals/writeAction'
+import { formatDisplayNumber } from 'utils/numbers'
+import { formatUnits, parseUnits } from 'utils/viem'
+
+type WithdrawQuoteParams = {
+  isOpen: boolean
+  copyRun: CopyRunListItem
+  wallet: WithdrawalInventory
+}
+
+const WITHDRAW_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_WITHDRAW_QUOTE']
+
+export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParams) => {
+  const { account } = useActiveWeb3React()
+  const [prepareWithdrawQuote] = preparedActionApi.usePrepareWithdrawQuoteMutation()
+
+  const [amount, setAmount] = useState('')
+  const [withdrawAll, setWithdrawAll] = useState(false)
+  const amountInitialized = useRef(false)
+
+  const ownershipMessage = getCopyRunOwnershipMessage(copyRun.ownerAddress, account)
+  const availabilityMessage = getWriteAvailabilityMessage(copyRun.withdrawQuoteAvailability, ownershipMessage)
+  const { quoteToken, quoteCurrency, stable: quoteBalance } = wallet
+  const walletBalanceRaw = useMemo(() => {
+    if (!quoteBalance?.amountDecimal) return undefined
+    try {
+      return parseUnits(quoteBalance.amountDecimal, quoteToken.decimals).toString()
+    } catch {
+      return undefined
+    }
+  }, [quoteBalance?.amountDecimal, quoteToken])
+  useEffect(() => {
+    if (!isOpen || amountInitialized.current || walletBalanceRaw === undefined) return
+    amountInitialized.current = true
+    setAmount(formatUnits(BigInt(walletBalanceRaw), quoteToken.decimals))
+    setWithdrawAll(true)
+  }, [isOpen, walletBalanceRaw, quoteToken])
+
+  const amountRaw = useMemo(() => {
+    try {
+      return parsePreparedAmount(amount, quoteToken.decimals)
+    } catch {
+      return undefined
+    }
+  }, [amount, quoteToken])
+  const amountError = getWithdrawAmountError({
+    amount,
+    amountRaw,
+    walletBalanceRaw,
+    withdrawAll,
+  })
+  const amountIsValid =
+    !!amountRaw &&
+    BigInt(amountRaw) < BigInt(UINT256_MAX_RAW) &&
+    !amountError &&
+    (!withdrawAll || (!!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n))
+  const requestAmountRaw = getWithdrawRequestAmountRaw(amountRaw, withdrawAll)
+  const presetsEnabled = !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
+  const walletBalanceText = walletBalanceRaw
+    ? formatDisplayNumber(formatUnits(BigInt(walletBalanceRaw), quoteToken.decimals), { significantDigits: 8 })
+    : '0'
+
+  const amountNumber = Number(amount)
+  const balanceNumber = Number(quoteBalance?.amountDecimal)
+  const selectedValueUsd =
+    quoteBalance?.valueUsd !== undefined &&
+    Number.isFinite(amountNumber) &&
+    amountNumber > 0 &&
+    balanceNumber > 0 &&
+    amountNumber <= balanceNumber
+      ? String((Number(quoteBalance.valueUsd) * amountNumber) / balanceNumber)
+      : undefined
+
+  const flow = usePreparedAction({
+    getExpected: () => ({
+      account: account || '',
+      callKinds: WITHDRAW_CALL_KINDS,
+      chainId: copyRun.chainId,
+      copyAccount: copyRun.copyAccount,
+      generationId: copyRun.generationId,
+      preview: 'withdrawQuote',
+    }),
+    prepare: async () => {
+      if (!account) throw new Error('Connect your wallet first.')
+      if (ownershipMessage) throw new Error(ownershipMessage)
+      if (!requestAmountRaw) throw new Error('Enter a valid withdrawal amount.')
+      const response = await prepareWithdrawQuote({
+        ownerAddress: account.toLowerCase(),
+        copyRunId: copyRun.copyRunId,
+        amountRaw: requestAmountRaw,
+      }).unwrap()
+      if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
+        const validationError = validateWithdrawPreview({
+          amountRaw: requestAmountRaw,
+          expectedQuoteToken: { address: quoteCurrency.address, decimals: quoteCurrency.decimals },
+          ownerAddress: account,
+          preview: response.data.withdrawQuote,
+        })
+        if (validationError) throw new Error(validationError)
+      }
+      return response.data
+    },
+  })
+  const { state: flowState } = flow
+
+  const setPresetAmount = (percentage: 50 | 100) => {
+    if (flowState.isPreparing || !presetsEnabled || !walletBalanceRaw) return
+    amountInitialized.current = true
+    const presetAmountRaw = getWithdrawPresetAmountRaw(walletBalanceRaw, percentage)
+    setAmount(formatUnits(BigInt(presetAmountRaw), quoteToken.decimals))
+    setWithdrawAll(percentage === 100)
+  }
+
+  const handleAmountChange = (value: string) => {
+    amountInitialized.current = true
+    setAmount(value)
+    setWithdrawAll(false)
+  }
+
+  return {
+    state: flowState,
+    flow,
+    availabilityMessage,
+    executionBlocked: !!availabilityMessage || !amountIsValid,
+    selectedValueUsd,
+    input: {
+      amount,
+      amountError,
+      isPreparing: flowState.isPreparing === true,
+      onAmountChange: handleAmountChange,
+      onHalf: () => setPresetAmount(50),
+      onMax: () => setPresetAmount(100),
+      presetsEnabled,
+      quoteCurrency,
+      selectedChainId: copyRun.chainId,
+      walletBalanceLoading: wallet.loading,
+      walletBalanceText,
+    },
+  }
+}
