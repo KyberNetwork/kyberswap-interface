@@ -39,6 +39,13 @@ const isNativeAddress = (address: string) => address.toLowerCase() === NATIVE_TO
 
 const rowAddress = (currency: Currency) => (currency.isNative ? NATIVE_TOKEN_ADDRESS : currency.wrapped.address)
 
+/** What a row is worth, priced per row rather than per route leg. A row with no price says nothing. */
+const toAmountUsd = (parsedAmount: CurrencyAmount<Currency> | undefined, price: number | undefined) => {
+  if (!parsedAmount || !price) return undefined
+  const amount = Number(parsedAmount.toExact())
+  return Number.isFinite(amount) && amount > 0 ? amount * price : undefined
+}
+
 const toSchemaToken = (row: DepositRow): TokenSchema => ({
   address: rowAddress(row.currency),
   symbol: row.currency.symbol ?? '',
@@ -221,23 +228,18 @@ export const useDepositForm = ({
     return symbols
   }, [rows])
 
-  /** What each token is worth on the way in, as the route priced it. */
-  const usdByAddress = useMemo(() => {
-    const totals: Record<string, number> = {}
-    deposit.route?.zapDetails.actions.forEach(action =>
-      action.aggregatorSwap?.swaps.forEach(swap => {
-        const key = swap.tokenIn.address.toLowerCase()
-        const usd = Number(swap.tokenIn.amountUsd)
-        if (Number.isFinite(usd)) totals[key] = (totals[key] ?? 0) + usd
-      }),
-    )
-    return totals
-  }, [deposit.route])
+  /**
+   * Every token the form can price: what each row holds, and the vault's underlying for the rate
+   * below. The route is no help for the per-row figures — it wraps a native amount into the wrapper
+   * and quotes the two as one leg, which leaves it unable to say what either row is worth.
+   */
+  const priceAddresses = useMemo(() => {
+    const addresses = rows.map(row => row.currency.wrapped.address.toLowerCase())
+    if (underlyingAddress) addresses.push(underlyingAddress.toLowerCase())
+    return Array.from(new Set(addresses))
+  }, [rows, underlyingAddress])
 
-  const { prices } = useTokenPrices({
-    addresses: underlyingAddress ? [underlyingAddress] : [],
-    chainId,
-  })
+  const { prices } = useTokenPrices({ addresses: priceAddresses, chainId })
 
   /**
    * Shares per unit of the vault's underlying, which is the pairing the vault is quoted in whatever
@@ -269,13 +271,11 @@ export const useDepositForm = ({
           percent: row.percent,
           balance,
           parsedAmount,
-          amountUsd:
-            usdByAddress[address] ??
-            (row.currency.isNative ? usdByAddress[row.currency.wrapped.address.toLowerCase()] : undefined),
+          amountUsd: toAmountUsd(parsedAmount, prices[row.currency.wrapped.address.toLowerCase()]),
           insufficientBalance: Boolean(parsedAmount && balance && parsedAmount.greaterThan(balance)),
         }
       }),
-    [rows, balances, parsedAmounts, usdByAddress],
+    [rows, balances, parsedAmounts, prices],
   )
 
   // The sequence keeps running after the transaction is broadcast, and it reads the amounts to
