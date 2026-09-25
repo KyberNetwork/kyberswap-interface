@@ -141,7 +141,8 @@ const VaultDetail = () => {
     { skip: !hasValidParams || !account, pollingInterval: VAULT_POLLING_INTERVAL },
   )
 
-  // Only a wallet that holds something has a history to plot.
+  // A wallet that holds something has a history to plot, and is adding to a stake rather than
+  // opening one.
   const hasPosition = Number(position?.shareBalance || 0) > 0
   // Waiting on the position to answer before asking for its history costs a whole round trip, and
   // the charts are the last thing on the page to fill. Both go out with it instead.
@@ -333,8 +334,9 @@ const VaultDetail = () => {
           <div className="flex w-full flex-col gap-4">
             <ActionCard>
               <ActionTabs>
+                {/* A wallet already in the vault is adding to a stake rather than opening one. */}
                 <ActionTab type="button" $active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')}>
-                  {t`Deposit`}
+                  {hasPosition ? t`Increase` : t`Deposit`}
                 </ActionTab>
                 <ActionTabDivider />
                 <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={() => setActiveTab('withdraw')}>
