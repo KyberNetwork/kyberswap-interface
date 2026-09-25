@@ -11,6 +11,7 @@ import { ReactComponent as ListViewIcon } from 'assets/svg/list_view.svg'
 import DropdownMenu from 'components/DropdownMenu'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
 import SelectedOptionsLabel from 'components/DropdownMenu/SelectedOptionsLabel'
+import { ListingPageTitle } from 'components/Listing/Page'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
@@ -51,7 +52,6 @@ import {
   VaultListMetricValue,
   VaultListRow,
   VaultListRowMain,
-  VaultPageTitle,
   VaultPageWrapper,
   ViewPositionButton,
   ViewToggleButton,
@@ -352,6 +352,7 @@ const ExploreVaultCardSkeleton = () => (
 
 const ExploreVaults = () => {
   const { account } = useActiveWeb3React()
+  const navigate = useNavigate()
   const [depositVault, setDepositVault] = useState<VaultInfo | null>(null)
   const [search, setSearch] = useState('')
   // One request per keystroke would also re-render every card and its two sparklines.
@@ -423,7 +424,9 @@ const ExploreVaults = () => {
 
   return (
     <VaultPageWrapper>
-      <VaultPageTitle>{t`Explore`}</VaultPageTitle>
+      <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)}>
+        {t`Explore`}
+      </ListingPageTitle>
 
       <FilterRow>
         <FilterControls>

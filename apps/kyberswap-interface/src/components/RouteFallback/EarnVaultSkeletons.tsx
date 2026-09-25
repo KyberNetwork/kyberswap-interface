@@ -1,4 +1,4 @@
-import { ControlSkeleton } from 'components/RouteFallback/common'
+import { ControlSkeleton, TitleRowSkeleton } from 'components/RouteFallback/common'
 import Skeleton from 'components/Skeleton'
 
 /**
@@ -74,7 +74,7 @@ const VaultCardsGridSkeleton = () => (
 
 export const EarnVaultsSkeleton = () => (
   <VaultPageWrapper>
-    <Skeleton width={120} height={32} />
+    <TitleRowSkeleton width={120} />
     <VaultFilterRowSkeleton />
     <VaultCardsGridSkeleton />
   </VaultPageWrapper>
@@ -116,7 +116,7 @@ const MyVaultCardSkeleton = () => (
 
 export const EarnMyVaultsSkeleton = () => (
   <VaultPageWrapper>
-    <Skeleton width={140} height={32} />
+    <TitleRowSkeleton width={140} />
     <VaultFilterRowSkeleton withSort={false} />
     <div className="grid grid-cols-3 gap-x-10 gap-y-8 max-lg:grid-cols-2 max-lg:gap-6 max-sm:grid-cols-1 max-sm:gap-4">
       {Array.from({ length: VAULT_ROWS }, (_, index) => (

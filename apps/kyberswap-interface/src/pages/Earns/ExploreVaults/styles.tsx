@@ -8,10 +8,6 @@ export const VaultPageWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivE
   <div className={cn('flex w-full flex-1 flex-col gap-5', className)} {...rest} />
 )
 
-export const VaultPageTitle = ({ className, ...rest }: HTMLAttributes<HTMLHeadingElement>) => (
-  <h1 className={cn('m-0 text-2xl font-medium text-text', className)} {...rest} />
-)
-
 export const FilterRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn('flex flex-wrap items-center justify-between gap-4 max-sm:flex-col max-sm:items-stretch', className)}

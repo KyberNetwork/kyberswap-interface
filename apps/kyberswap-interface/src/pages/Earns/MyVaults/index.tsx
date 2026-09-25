@@ -1,12 +1,13 @@
 import { t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { VaultPendingWithdrawalStatus, useVaultPositionsQuery } from 'services/vault'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
 import SelectedOptionsLabel from 'components/DropdownMenu/SelectedOptionsLabel'
+import { ListingPageTitle } from 'components/Listing/Page'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
@@ -39,7 +40,6 @@ import {
   TokenIconWrapper,
   VaultCard,
   VaultCardsGrid,
-  VaultPageTitle,
   VaultPageWrapper,
   WithdrawButton,
 } from 'pages/Earns/ExploreVaults/styles'
@@ -253,6 +253,7 @@ const MyVaultCardSkeleton = () => (
 
 const MyVaults = () => {
   const { account } = useActiveWeb3React()
+  const navigate = useNavigate()
   const toggleWalletModal = useWalletModalToggle()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, SEARCH_DEBOUNCE_MS)
@@ -283,7 +284,9 @@ const MyVaults = () => {
 
   return (
     <VaultPageWrapper>
-      <VaultPageTitle>{t`My Vaults`}</VaultPageTitle>
+      <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)}>
+        {t`My Vaults`}
+      </ListingPageTitle>
 
       <FilterRow>
         <MultiSelectDropdownMenu
