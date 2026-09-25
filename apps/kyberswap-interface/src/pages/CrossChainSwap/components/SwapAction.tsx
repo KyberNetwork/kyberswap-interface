@@ -2,7 +2,7 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
@@ -30,6 +30,7 @@ import { getTokenAddress } from 'utils/tokenInfo'
 
 export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {
   const {
+    gasDropEnabled,
     showPreview,
     setShowPreview,
     amountInWei,
@@ -80,7 +81,18 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     })
 
   const isFindingRoute = loading || (allLoading && !selectedQuote)
-  const isSelectedQuoteExecutable = isQuoteExecutable(selectedQuote, sender, receiver)
+  const isSelectedQuoteExecutable =
+    isQuoteExecutable(selectedQuote, sender, receiver) &&
+    !!selectedQuote &&
+    selectedQuote.quote.quoteParams.amount === amountInWei &&
+    selectedQuote.quote.quoteParams.fromChain === fromChainId &&
+    selectedQuote.quote.quoteParams.toChain === toChainId &&
+    selectedQuote.quote.quoteParams.fromToken === currencyIn &&
+    selectedQuote.quote.quoteParams.toToken === currencyOut &&
+    !!selectedQuote.quote.quoteParams.gasDrop === gasDropEnabled
+
+  const latestReview = useRef({ quote: selectedQuote, executable: isSelectedQuoteExecutable, loading })
+  latestReview.current = { quote: selectedQuote, executable: isSelectedQuoteExecutable, loading }
 
   // Restricted-token check applies only to EVM sides (the restricted list is keyed by EVM chainId).
   const restrictedCurrency =
@@ -113,7 +125,13 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     if (!isSelectedQuoteExecutable) return
 
     const hasSufficientAllowance = await revalidateAllowance()
-    if (!hasSufficientAllowance) return
+    if (
+      !hasSufficientAllowance ||
+      latestReview.current.quote !== selectedQuote ||
+      !latestReview.current.executable ||
+      latestReview.current.loading
+    )
+      return
 
     openPreview()
   }

@@ -20,6 +20,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
+import { GasDropIcon, GasDropPanel } from 'pages/CrossChainSwap/components/GasDrop'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { QuoteSelector } from 'pages/CrossChainSwap/components/QuoteSelector'
@@ -30,6 +31,7 @@ import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWit
 import { TokenPanel } from 'pages/CrossChainSwap/components/TokenPanel'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { useGasDrop } from 'pages/CrossChainSwap/hooks/useGasDrop'
 import type { NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
@@ -42,6 +44,7 @@ type CrossChainSwapProps = {
 
 const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
   const {
+    gasDropSupported,
     amount,
     setAmount,
     selectedQuote,
@@ -60,6 +63,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
     setRecipient,
     warning,
   } = useCrossChainSwap()
+  const { lowGas } = useGasDrop()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
@@ -203,6 +207,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
           <RefreshLoading
             refetchLoading={allLoading}
             clickable
+            refreshTime={60}
             disableRefresh={disable || showPreview}
             refreshOnMount={false}
             onRefresh={handleRefresh}
@@ -271,6 +276,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
         </div>
 
         <TokenPanel
+          headerAction={gasDropSupported ? <GasDropIcon /> : undefined}
           loading={loading}
           evmLayout={isEvmChain(fromChainId) && isToEvm}
           setShowBtcConnect={setShowBtcConnect}
@@ -308,6 +314,8 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
           showEvmRecipient={showEvmRecipient}
           toChainId={toChainId}
         />
+
+        {gasDropSupported && lowGas && <GasDropPanel lowGas={lowGas} />}
 
         <div className={cn('flex items-center', selectedQuote ? '' : 'min-h-7')}>
           <SlippageSetting
