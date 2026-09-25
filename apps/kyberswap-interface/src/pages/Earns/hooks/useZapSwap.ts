@@ -1,0 +1,241 @@
+import { CHAIN_ID_TO_CHAIN } from '@kyber/schema'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
+import { useCallback, useMemo, useState } from 'react'
+import { useBuildSwapRouteMutation, useGetSwapRouteQuery } from 'services/zap'
+
+import { NotificationType } from 'components/Announcement/type'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useDebounce from 'hooks/useDebounce'
+import { submitTransaction } from 'pages/Earns/utils'
+import { safeBigInt } from 'pages/Earns/utils/vault'
+import { useNotify } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE, TransactionExtraInfo } from 'state/transactions/type'
+import { friendlyError } from 'utils/errorMessage'
+
+const ROUTE_DEADLINE_SECONDS = 20 * 60
+
+/** The reason a failed query carries, if it carried one a person can read. */
+const errorMessageFrom = (error: unknown): string | undefined => {
+  const data = (error as { data?: unknown } | undefined)?.data
+  const message = (data as { message?: unknown } | undefined)?.message
+  return typeof message === 'string' && message ? message : undefined
+}
+
+/** One token the route spends. Native is the `0xEeee…` placeholder; the amount is in raw units. */
+export type ZapSwapInput = {
+  address: string
+  amountRaw: string
+}
+
+type UseZapSwapArgs = {
+  chainId: number
+  /** Everything the route spends. The aggregator takes several tokens into one output. */
+  tokensIn?: ZapSwapInput[]
+  tokenOutAddress?: string
+  /**
+   * The amount as a currency, for the allowance check. Only for a flow that spends one token; a
+   * flow spending several owns its own allowances, one per token.
+   */
+  approvalAmount?: CurrencyAmount<Currency>
+  /** Slippage in basis points. */
+  slippage: number
+  transactionType: TRANSACTION_TYPE
+  /** Called with the built route's quoted output, in raw units, to describe the transaction. */
+  buildExtraInfo?: (quoteAmountOutRaw: string) => TransactionExtraInfo
+  errorTitle: string
+  /** Hold the quote steady while the user is reviewing or signing it. */
+  pausePolling?: boolean
+}
+
+/**
+ * One aggregator route and the transaction that executes it. Vault deposits swap into the share
+ * token and withdrawals to another token swap out of it, so both run through here.
+ */
+export const useZapSwap = ({
+  chainId,
+  tokensIn,
+  tokenOutAddress,
+  approvalAmount,
+  slippage,
+  transactionType,
+  buildExtraInfo,
+  errorTitle,
+  pausePolling,
+}: UseZapSwapArgs) => {
+  const { account } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
+  const notify = useNotify()
+  const addTransactionWithType = useTransactionAdder()
+  const [buildSwapRoute] = useBuildSwapRouteMutation()
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [txHash, setTxHash] = useState<string | null>(null)
+
+  /**
+   * Addresses and amounts travel as one string so the debounce cannot hand the endpoint a list of
+   * addresses paired with the previous list of amounts — it rejects a pair of unequal length. A row
+   * the user has not filled in yet is left out rather than quoted at zero.
+   */
+  const tokensKey = (tokensIn || [])
+    .filter(token => token.address && token.amountRaw && token.amountRaw !== '0')
+    .map(token => `${token.address}:${token.amountRaw}`)
+    .join(',')
+  const debouncedTokensKey = useDebounce(tokensKey, 400)
+
+  const routeParams = useMemo(() => {
+    if (!tokenOutAddress || !debouncedTokensKey) return undefined
+    const entries = debouncedTokensKey.split(',').map(entry => entry.split(':'))
+    return new URLSearchParams({
+      tokens_in: entries.map(([address]) => address).join(','),
+      amounts_in: entries.map(([, amount]) => amount).join(','),
+      token_out: tokenOutAddress,
+      slippage: String(slippage),
+    }).toString()
+  }, [debouncedTokensKey, tokenOutAddress, slippage])
+
+  const {
+    // `currentData`, not `data`: the latter keeps the last result from *any* arguments, so changing
+    // the amount would leave the previous quote — and a submittable route behind it — on screen
+    // until the new one lands.
+    currentData: routeResponse,
+    isFetching: isRouteLoading,
+    error: routeQueryError,
+    refetch: refetchRoute,
+  } = useGetSwapRouteQuery(
+    { chainName: CHAIN_ID_TO_CHAIN[chainId as keyof typeof CHAIN_ID_TO_CHAIN], params: routeParams || '' },
+    { skip: !routeParams, pollingInterval: pausePolling ? 0 : 15_000 },
+  )
+
+  /**
+   * A skipped query keeps handing back whatever it last fetched, so the response counts only while
+   * there is a request behind it. Without this, clearing the amount leaves the previous quote — its
+   * output, its rate, its price impact — sitting on screen against an empty field.
+   */
+  const response = routeParams ? routeResponse : undefined
+  const route = response?.data
+  /** The inputs are debounced before they reach the query, so between a keystroke and the next quote
+   *  the cached route belongs to a different amount. Acting on it would send one amount while the
+   *  summary shows another. A background poll re-fetching the same inputs leaves the cached route
+   *  valid, so it does not count as stale. */
+  const isRouteStale = tokensKey !== debouncedTokensKey
+
+  // The endpoint answers `message: "OK"` on success, so only a missing route counts as an error.
+  // It states its own reason either in the body of a failed response or in the payload of one that
+  // came back without a route, and that reason says more than a generic refusal.
+  const routeError = !routeParams
+    ? undefined
+    : routeQueryError
+    ? errorMessageFrom(routeQueryError) || t`Could not find a route for these tokens.`
+    : response && !route
+    ? response.message || t`Could not find a route for these tokens.`
+    : undefined
+
+  /** What the route delivers, summed over its swaps into the output token. */
+  const amountOutRaw = useMemo(() => {
+    if (!route || !tokenOutAddress) return undefined
+    const target = tokenOutAddress.toLowerCase()
+    const total = route.zapDetails.actions
+      .flatMap(action => action.aggregatorSwap?.swaps || [])
+      .filter(swap => swap.tokenOut.address.toLowerCase() === target)
+      .reduce((sum, swap) => sum + safeBigInt(swap.tokenOut.amount), 0n)
+    return total > 0n ? total : undefined
+  }, [route, tokenOutAddress])
+
+  /** Worst case at the slippage the route was quoted with. */
+  const minAmountOutRaw = useMemo(
+    () => (amountOutRaw === undefined ? undefined : (amountOutRaw * BigInt(10000 - slippage)) / 10000n),
+    [amountOutRaw, slippage],
+  )
+
+  // The approve step re-reads the allowance on chain before prompting, so the cached state must not
+  // be the thing that decides whether a prompt is shown.
+  const [approvalState, approve] = useApproveCallback({
+    amount: approvalAmount,
+    spender: route?.allowanceHubAddress,
+    forceApprove: true,
+  })
+
+  /** Returns the transaction hash so a step sequence can wait for its receipt. */
+  const submit = useCallback(async (): Promise<string | undefined> => {
+    if (!account || !route) return undefined
+
+    setSubmitError(null)
+    setIsSubmitting(true)
+
+    try {
+      const built = await buildSwapRoute({
+        chainName: CHAIN_ID_TO_CHAIN[chainId as keyof typeof CHAIN_ID_TO_CHAIN],
+        sender: account,
+        recipient: account,
+        route: route.route,
+        deadline: Math.floor(Date.now() / 1000) + ROUTE_DEADLINE_SECONDS,
+        source: 'kyberswap',
+      }).unwrap()
+
+      const buildData = built.data
+      if (!buildData?.callData) throw new Error(built.message || 'Failed to build the transaction')
+
+      const { txHash: hash, error } = await submitTransaction({
+        account,
+        chainId: chainId as ChainId,
+        txData: { to: buildData.routerAddress, data: buildData.callData, value: buildData.value },
+        isSmartConnector,
+      })
+
+      if (error || !hash) throw error || new Error('Transaction was not submitted')
+
+      setTxHash(hash)
+      addTransactionWithType({
+        hash,
+        type: transactionType,
+        extraInfo: buildExtraInfo?.(buildData.quoteAmountOut || '0'),
+      })
+      return hash
+    } catch (error) {
+      const message = friendlyError(error as Error)
+      setSubmitError(message)
+      notify({ title: errorTitle, summary: message, type: NotificationType.ERROR }, 8000)
+      return undefined
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [
+    account,
+    route,
+    buildSwapRoute,
+    chainId,
+    isSmartConnector,
+    addTransactionWithType,
+    transactionType,
+    buildExtraInfo,
+    notify,
+    errorTitle,
+  ])
+
+  const reset = useCallback(() => {
+    setSubmitError(null)
+    setTxHash(null)
+  }, [])
+
+  return {
+    route,
+    amountOutRaw,
+    minAmountOutRaw,
+    routeError,
+    isRouteLoading,
+    isRouteStale,
+    refetchRoute,
+    approvalState,
+    approve,
+    needsApproval: approvalState === ApprovalState.NOT_APPROVED,
+    submit,
+    isSubmitting,
+    submitError,
+    txHash,
+    reset,
+  }
+}

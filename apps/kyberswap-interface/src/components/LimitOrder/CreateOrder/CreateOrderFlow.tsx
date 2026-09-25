@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { Trans, t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 
 import CreateOrderConfirmModal from 'components/LimitOrder/CreateOrder/CreateOrderConfirmModal'
 import type { useCreateLimitOrder } from 'components/LimitOrder/CreateOrder/useCreateLimitOrder'
-import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
-import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
+import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
 import { LimitOrderCreateContext, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
+import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { currencyId } from 'utils/currencyId'
@@ -22,7 +23,7 @@ type CreateOrderFlowProps = {
 const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderFlowProps) => {
   const navigate = useNavigate()
   const { currencyIn, currencyOut, chainId } = order
-  const [processingOrder, setProcessingOrder] = useState(DEFAULT_PROCESSING_ORDER)
+  const processingState = useProcessingState<ProcessingOrderStep>()
 
   const viewCreatedOrder = () => {
     const currencyPair =
@@ -35,9 +36,11 @@ const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderF
     navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}${currencyPair}?${search}`)
   }
 
-  const processing = useProcessingOrder({
-    processingOrder,
-    setProcessingOrder,
+  const processing = useProcessingSteps<ProcessingOrderStep>({
+    ...processingState,
+    approveStep: 'approve',
+    actionStep: 'create',
+    wrapStep: 'wrap',
     ...createOrder.processing,
     onStart: () => {
       createOrder.processing.onStart?.()
@@ -56,11 +59,12 @@ const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderF
         warnings={createOrder.validation.warnings}
       />
 
-      <ProcessingOrderModal
+      <ProcessingStepsModal
         chainId={chainId}
-        currencyIn={currencyIn}
         processing={processing}
-        onViewOrder={viewCreatedOrder}
+        title={t`Processing Order`}
+        getStepLabel={getLimitOrderStepLabel({ chainId, currencyIn })}
+        successAction={{ label: <Trans>My Orders</Trans>, onClick: viewCreatedOrder }}
       />
     </>
   )

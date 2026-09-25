@@ -1,0 +1,223 @@
+import { t } from '@lingui/macro'
+import { VaultApiDetailItem } from 'services/vault'
+
+import { ReactComponent as SwapArrowIcon } from 'assets/svg/earn/ic_swap_arrow.svg'
+import TokenLogo from 'components/TokenLogo'
+import { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
+import { maxSlippageTooltip } from 'pages/Earns/components/VaultDeposit/SlippageSelect'
+import {
+  ButtonGroup,
+  DetailsBox,
+  FieldNote,
+  InfoLabel,
+  InfoRow,
+  InfoValue,
+  ModalHeader,
+  ModalTitle,
+  ModalTitleRow,
+  OutlinedButton,
+  PrimaryButton,
+  SummaryAmount,
+  SummaryLabel,
+  SummaryRow,
+  SummaryUsd,
+} from 'pages/Earns/components/VaultDeposit/styles'
+import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
+import VaultPriceImpactNote, {
+  getPriceImpactTone,
+  isPriceImpactBad,
+  priceImpactButtonClass,
+} from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
+import { WithdrawFormState } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
+import { formatTerm } from 'pages/Earns/hooks/useCountdown'
+import { cn } from 'utils/cn'
+import { formatDisplayNumber } from 'utils/numbers'
+import { formatSlippage } from 'utils/slippage'
+import { formatUnits } from 'utils/viem'
+
+/** Review step: what leaves the vault, what comes back, and on what terms. */
+const ConfirmWithdraw = ({
+  vault,
+  form,
+  onBack,
+  onClose,
+  onSubmit,
+}: {
+  vault: VaultApiDetailItem
+  form: WithdrawFormState
+  onBack: () => void
+  onClose: () => void
+  /** Hands over to the step sequence, which keeps its own modal open until the tx confirms. */
+  onSubmit: () => void
+}) => {
+  const shareLogo = vault.shareToken?.logo
+  const sharesIn = form.shares
+    ? formatDisplayNumber(formatUnits(form.shares, form.shareDecimals), { significantDigits: 6 })
+    : '--'
+
+  const nativeOut =
+    form.nativeAmountOut !== undefined && form.nativeAsset
+      ? `${formatDisplayNumber(formatUnits(form.nativeAmountOut, form.nativeAsset.decimals), {
+          significantDigits: 6,
+        })} ${form.nativeAsset.symbol}`
+      : '--'
+
+  const zapOut =
+    form.zapAmountOutRaw !== undefined && form.swapToken
+      ? `${formatDisplayNumber(formatUnits(form.zapAmountOutRaw, form.swapToken.decimals), {
+          significantDigits: 6,
+        })} ${form.swapToken.symbol}`
+      : '--'
+
+  /** The token the chosen path pays out in: the queue's asset, or the one the route sells into. */
+  const outToken = form.isNative ? form.nativeAsset : form.swapToken
+
+  const zapMinOut =
+    form.zapMinAmountOutRaw !== undefined && form.swapToken
+      ? `${formatDisplayNumber(formatUnits(form.zapMinAmountOutRaw, form.swapToken.decimals), {
+          significantDigits: 6,
+        })} ${form.swapToken.symbol}`
+      : '--'
+
+  const minReceivedUsd =
+    form.minReceivedUsd === undefined
+      ? undefined
+      : formatDisplayNumber(form.minReceivedUsd, { style: 'currency', significantDigits: 4 })
+
+  const sharesUsd =
+    form.sharesUsd === undefined
+      ? undefined
+      : formatDisplayNumber(form.sharesUsd, { style: 'currency', significantDigits: 4 })
+  const zapOutUsd = form.zapRoute
+    ? formatDisplayNumber(form.zapRoute.zapDetails.finalAmountUsd, { style: 'currency', significantDigits: 4 })
+    : undefined
+
+  const impactTone = getPriceImpactTone(form.priceImpactResult)
+  const isImpactBad = isPriceImpactBad(form.priceImpactResult)
+
+  return (
+    <>
+      <ModalHeader>
+        <ModalTitleRow>
+          <ModalTitle>{t`Confirm Withdraw`}</ModalTitle>
+          <CloseButton onClose={onClose} />
+        </ModalTitleRow>
+      </ModalHeader>
+
+      <VaultIdentityRow vault={vault} />
+
+      <div className="flex w-full flex-col gap-2">
+        <SummaryLabel>{t`You are withdrawing:`}</SummaryLabel>
+        <SummaryRow>
+          {shareLogo ? <TokenLogo src={shareLogo} alt={form.shareSymbol} size={20} /> : null}
+          <SummaryAmount>
+            {sharesIn} {form.shareSymbol}
+          </SummaryAmount>
+          {sharesUsd ? <SummaryUsd>~ {sharesUsd}</SummaryUsd> : null}
+        </SummaryRow>
+      </div>
+
+      {form.isNative ? (
+        <div className="flex w-full flex-col gap-2">
+          <SummaryLabel>{t`You will receive:`}</SummaryLabel>
+          <SummaryRow className="bg-white-04">
+            {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={20} /> : null}
+            <SummaryAmount>{nativeOut}</SummaryAmount>
+            {minReceivedUsd ? <SummaryUsd>~ {minReceivedUsd}</SummaryUsd> : null}
+          </SummaryRow>
+        </div>
+      ) : null}
+
+      {!form.isNative ? (
+        <div className="flex w-full flex-col gap-2">
+          <SummaryLabel>{t`Then swap:`}</SummaryLabel>
+          <SummaryRow className="items-center justify-between gap-3 py-3">
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="flex items-center gap-2">
+                {shareLogo ? <TokenLogo src={shareLogo} alt={form.shareSymbol} size={20} /> : null}
+                <SummaryAmount>
+                  {sharesIn} {form.shareSymbol}
+                </SummaryAmount>
+              </span>
+              {sharesUsd ? <SummaryUsd>~ {sharesUsd}</SummaryUsd> : null}
+            </span>
+            <span className="flex size-5 shrink-0 -rotate-90 items-center justify-center rounded-full border border-white-08 text-subText">
+              <SwapArrowIcon width={12} height={12} />
+            </span>
+            <span className="flex min-w-0 flex-col items-end gap-0.5">
+              <span className="flex items-center gap-2">
+                {form.swapToken?.logo ? (
+                  <TokenLogo src={form.swapToken.logo} alt={form.swapToken.symbol} size={20} />
+                ) : null}
+                <SummaryAmount>{zapOut}</SummaryAmount>
+              </span>
+              {zapOutUsd ? <SummaryUsd>~ {zapOutUsd}</SummaryUsd> : null}
+            </span>
+          </SummaryRow>
+        </div>
+      ) : null}
+
+      <DetailsBox>
+        {/* The queue's figure is the amount that arrives, so it is stated in a panel of its own
+            above; only the aggregator route has a floor to put among the terms. */}
+        {!form.isNative ? (
+          <InfoRow>
+            <InfoLabel
+              tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
+            >{t`Est. Min Received`}</InfoLabel>
+            <InfoValue>
+              {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
+              {zapMinOut}
+              {minReceivedUsd ? <span className="text-subText">~{minReceivedUsd}</span> : null}
+            </InfoValue>
+          </InfoRow>
+        ) : null}
+
+        {form.isNative ? (
+          <InfoRow>
+            <InfoLabel
+              tooltip={t`How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule.`}
+            >{t`Processing Time`}</InfoLabel>
+            <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
+          </InfoRow>
+        ) : (
+          <>
+            <VaultPriceImpactRow priceImpact={form.zapRoute?.zapDetails.priceImpact} result={form.priceImpactResult} />
+            <InfoRow>
+              <InfoLabel tooltip={maxSlippageTooltip()}>{t`Max Slippage`}</InfoLabel>
+              <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoLabel
+                tooltip={t`Estimated network fee for this transaction. What you actually pay depends on network conditions.`}
+              >{t`Est. Gas Fee`}</InfoLabel>
+              <InfoValue>
+                {form.zapRoute
+                  ? formatDisplayNumber(form.zapRoute.gasUsd, { style: 'currency', significantDigits: 4 })
+                  : '--'}
+              </InfoValue>
+            </InfoRow>
+          </>
+        )}
+      </DetailsBox>
+
+      {form.isNative ? (
+        <FieldNote className="text-gray">
+          {t`When completed, tokens are automatically sent to your wallet, no need to claim.`}
+        </FieldNote>
+      ) : null}
+
+      <VaultPriceImpactNote result={form.priceImpactResult} isDegenMode={form.isDegenMode} />
+
+      <ButtonGroup>
+        <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>
+        <PrimaryButton className={cn(priceImpactButtonClass(impactTone))} onClick={onSubmit} disabled={!form.isReady}>
+          {isImpactBad ? t`Withdraw Anyway` : t`Withdraw`}
+        </PrimaryButton>
+      </ButtonGroup>
+    </>
+  )
+}
+
+export default ConfirmWithdraw

@@ -9,14 +9,14 @@ import { useSignOrder } from 'components/LimitOrder/CreateOrder/useSignOrder'
 import { useWarningCreateOrder } from 'components/LimitOrder/CreateOrder/useWarningCreateOrder'
 import { useValidateInputError } from 'components/LimitOrder/Form/useValidateInputError'
 import { SummaryNotifyOrderPlaced } from 'components/LimitOrder/MyOrders/SummaryNotify'
-import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
-import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
+import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/steps'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { CreateOrderParams, LimitOrderCreateContext } from 'components/LimitOrder/types'
 import { calcUsdPrices, getPayloadCreateOrder } from 'components/LimitOrder/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
+import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -123,7 +123,7 @@ export const useCreateLimitOrder = ({
     }
   }
 
-  const checkApprovalManually = useLimitOrderApproval({
+  const checkApprovalManually = useCheckAllowance({
     account,
     amount: parsedApprovalAmount,
     chainId,
@@ -283,7 +283,6 @@ export const useCreateLimitOrder = ({
       approveCallback,
       checkApprovalManually,
       onWrap,
-      finalStep: 'create' as const,
       onFinalStep: async () => !!(await submitCreateOrderWithTracking()),
       onError: trackOrderFailed,
       onStart: () => limitOrderTracking.trackCreatePlaceOrderClick(order),

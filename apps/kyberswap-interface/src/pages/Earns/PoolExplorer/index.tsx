@@ -1,23 +1,15 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { usePoolsExplorerQuery } from 'services/earn'
 
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
-import {
-  ListingPageDisclaimer,
-  ListingPageNavigateButton,
-  ListingPageTitle,
-  ListingPageWrapper,
-} from 'components/Listing/Page'
+import { ListingPageDisclaimer, ListingPageTitle, ListingPageWrapper } from 'components/Listing/Page'
 import Pagination from 'components/Pagination'
 import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { Stack } from 'components/Stack'
 import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
-import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import Filter from 'pages/Earns/PoolExplorer/Filter'
@@ -33,7 +25,6 @@ import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 
 export enum SortBy {
   APR = 'apr',
@@ -65,8 +56,6 @@ const PoolExplorer = () => {
   const { data: poolData, isError, isFetching } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const pendingSearchRef = useRef('')
-
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const showRewards = useMemo(() => {
     const pools = poolData?.data?.pools || []
@@ -246,16 +235,6 @@ const PoolExplorer = () => {
         totalItems={poolData?.data?.pagination?.totalItems}
         isFetching={isFetching}
       />
-
-      {upToLarge && (
-        <ListingPageNavigateButton
-          mobileFullWidth
-          icon={<IconUserEarnPosition />}
-          text={t`My Positions`}
-          to={APP_PATHS.EARN_POSITIONS}
-          data-testid="earn-pool-my-positions"
-        />
-      )}
 
       <PoolTableWrapper data-testid="earn-pool-table">
         <div>
