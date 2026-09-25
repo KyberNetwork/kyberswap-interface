@@ -1,4 +1,3 @@
-import { HTMLMotionProps, motion } from 'framer-motion'
 import { ButtonHTMLAttributes, ElementType, HTMLAttributes } from 'react'
 
 import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from 'pages/Earns/components/EarnLayout/constants'
@@ -166,15 +165,35 @@ export const BreadcrumbsSeparator = ({ className, ...rest }: HTMLAttributes<HTML
   <span className={cn('shrink-0 text-sm text-subText', className)} {...rest} />
 )
 
-export const MobileDrawerOverlay = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
-  <motion.div className={cn('fixed inset-0 z-[9998] bg-black/60', className)} {...rest} />
+type DrawerProps = HTMLAttributes<HTMLDivElement> & { $open: boolean }
+
+/**
+ * The drawer stays mounted and slides on a CSS transition rather than entering and leaving the tree.
+ * Navigating away suspends this subtree while the next page's chunk loads, which stops a JS
+ * animation mid-flight — and a library that removes the node only once its exit animation reports
+ * back would then leave the drawer on screen for good, with nothing listening to close it.
+ */
+export const MobileDrawerOverlay = ({ $open, className, ...rest }: DrawerProps) => (
+  <div
+    aria-hidden={!$open}
+    className={cn(
+      'fixed inset-0 z-[9998] bg-black/60 transition-opacity duration-200',
+      $open ? 'opacity-100' : 'pointer-events-none opacity-0',
+      className,
+    )}
+    {...rest}
+  />
 )
 
-export const MobileDrawerPanel = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
-  <motion.div
+export const MobileDrawerPanel = ({ $open, className, ...rest }: DrawerProps) => (
+  <div
+    aria-hidden={!$open}
     className={cn(
       'fixed inset-y-0 left-0 z-[9999] flex w-[260px] max-w-[85vw] flex-col overflow-y-auto bg-background',
       'shadow-[4px_0_16px_rgb(var(--ks-black-rgb)/0.4)]',
+      // `duration-[250ms]` would set animation-duration as well; this one only times the slide.
+      'transition-transform ease-out [transition-duration:250ms]',
+      $open ? 'translate-x-0' : 'pointer-events-none -translate-x-full',
       className,
     )}
     {...rest}
