@@ -1,11 +1,10 @@
 import { Trans, t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import type { PoolQueryParams } from 'services/earn/types'
 
-import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
 import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_highlighted.svg'
 import { ReactComponent as IconLowVolatility } from 'assets/svg/earn/ic_pool_low_volatility.svg'
@@ -15,12 +14,10 @@ import { ButtonOutlined } from 'components/Button'
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
 import { default as MultiSelectDropdownMenu } from 'components/DropdownMenu/MultiSelect'
 import SelectedOptionsLabel from 'components/DropdownMenu/SelectedOptionsLabel'
-import { ListingPageNavigateButton } from 'components/Listing/Page'
 import { ListingFilterTag, ListingFilterTagContainer } from 'components/Listing/components'
 import Search from 'components/Search'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { HeadSection } from 'pages/Earns/PoolExplorer/styles'
 import useSupportedDexesAndChains, {
@@ -80,7 +77,6 @@ const Filter = ({
   const { trackingHandler } = useTracking()
   const { i18n } = useLingui()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
@@ -99,6 +95,15 @@ const Filter = ({
     }
     prevIsFetchingRef.current = Boolean(isFetching)
   }, [isFetching, totalItems, trackingHandler])
+
+  /** One action behind two shapes of the same button — the icon up in the tags, the words below. */
+  const openCreatePool = useCallback(() => {
+    trackingHandler(TRACKING_EVENT_TYPE.CREATE_POOL_CLICKED, {
+      chain: filters.chainIds,
+      active_category: tagToCategoryName(filters.tag || ''),
+    })
+    onOpenCreatePool?.()
+  }, [filters.chainIds, filters.tag, onOpenCreatePool, trackingHandler])
 
   const selectedProtocolsLabel = useMemo(() => {
     const arrValue = filters.protocol?.split(',').filter(Boolean)
@@ -297,14 +302,24 @@ const Filter = ({
             )
           })}
         </ListingFilterTagContainer>
-        {!upToLarge && (
-          <ListingPageNavigateButton
-            icon={<MyPositionsIcon />}
-            text={t`My Positions`}
-            to={APP_PATHS.EARN_POSITIONS}
-            data-testid="earn-pool-my-positions"
-          />
-        )}
+        {/* Room for the words only on the wide layout; the narrow one carries the button in full
+            under the search, where a 36px target beside the tags would be easy to miss. */}
+        <MouseoverTooltipDesktopOnly
+          text={t`Can't find the right pool? Create New Pool yourself`}
+          placement="bottom"
+          width="200px"
+        >
+          <ButtonOutlined
+            color="var(--ks-primary)"
+            className="size-9 shrink-0 p-0 max-sm:hidden"
+            borderRadius="12px"
+            aria-label={t`Create Pool`}
+            data-testid="earn-pool-create-button"
+            onClick={openCreatePool}
+          >
+            <Plus size={18} />
+          </ButtonOutlined>
+        </MouseoverTooltipDesktopOnly>
       </HeadSection>
       <Stack className="flex-row justify-between gap-4 max-md:flex-col">
         <HStack className="flex-wrap gap-4">
@@ -349,30 +364,24 @@ const Filter = ({
             data-testid="earn-pool-filter-interval"
           />
         </HStack>
-        <HStack className="flex-wrap items-center gap-3 max-md:items-stretch">
+        <HStack className="flex-wrap items-center justify-end gap-3 max-md:items-stretch">
           <Search
             placeholder={t`Search by token symbol or pool/token address`}
             searchValue={search}
             allowClear
+            collapsible
+            // Wide enough for the placeholder to finish; the row has the space to give it.
+            expandedWidth="420px"
+            className="rounded-xl"
             onSearch={val => setSearch(val)}
-            style={{ height: '36px', width: upToMedium ? '100%' : '280px' }}
+            style={{ height: '36px' }}
           />
           <ButtonOutlined
             color="var(--ks-primary)"
-            className="gap-1 px-4 py-0"
-            borderRadius="16px"
-            height="32px"
-            data-testid="earn-pool-create-button"
-            onClick={() => {
-              trackingHandler(TRACKING_EVENT_TYPE.CREATE_POOL_CLICKED, {
-                chain: filters.chainIds,
-                active_category: tagToCategoryName(filters.tag || ''),
-              })
-              onOpenCreatePool?.()
-            }}
-            style={{
-              width: upToMedium ? '100%' : 'fit-content',
-            }}
+            className="h-9 w-full gap-1 px-4 py-0 sm:hidden"
+            borderRadius="12px"
+            data-testid="earn-pool-create-button-mobile"
+            onClick={openCreatePool}
           >
             <Plus size={16} />
             <Trans>Create Pool</Trans>
