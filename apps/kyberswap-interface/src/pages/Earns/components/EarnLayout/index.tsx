@@ -1,8 +1,9 @@
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { ReactNode, Suspense, useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
+import RouteFallback from 'components/RouteFallback'
 import { EARN_SIDEBAR_COLLAPSED_KEY, readStoredSidebarCollapsed } from 'pages/Earns/components/EarnLayout/constants'
 import { EarnContentArea, EarnLayoutContainer } from 'pages/Earns/components/EarnLayout/styles'
 import EarnSidebar, { EarnBreadcrumbs } from 'pages/Earns/components/EarnSidebar'
@@ -70,7 +71,10 @@ const EarnLayout = ({ children }: { children?: ReactNode }) => {
       {!isMobile && <EarnSidebar collapsed={collapsed} onToggle={handleToggleCollapsed} />}
       <EarnContentArea>
         <EarnBreadcrumbs onOpenDrawer={handleOpenDrawer} />
-        {children ?? <Outlet />}
+        {/* The pages under this layout are lazy, and React suspends at the nearest boundary. Without
+            one here the app's own boundary takes over and swaps the sidebar for a drawing of itself
+            every time a link in it is followed. */}
+        <Suspense fallback={<RouteFallback insideShell />}>{children ?? <Outlet />}</Suspense>
       </EarnContentArea>
       {drawerPortal}
     </EarnLayoutContainer>
