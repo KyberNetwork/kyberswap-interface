@@ -38,11 +38,21 @@ export type InventoryRawRow = {
   symbol?: string;
 };
 
-/** Zero balances arrive as the literal "0x", which `BigInt` rejects. */
+const MAX_UINT256 = (1n << 256n) - 1n;
+
+/**
+ * Zero balances arrive as the literal "0x", which `BigInt` rejects.
+ *
+ * A value past `uint256` is not a balance either: the service has hex-encoded more than the 32-byte
+ * word `balanceOf` answers with (some proxied tokens return extra words, and the raw buffer arrives
+ * whole). It reads as zero like any other malformed row, since the SDK refuses to build an amount
+ * from it and one such row must not take a screen down with it.
+ */
 export const parseRawAmount = (value: string): bigint => {
   if (!value || value === '0x' || value === '0X') return 0n;
   try {
-    return BigInt(value);
+    const amount = BigInt(value);
+    return amount > MAX_UINT256 ? 0n : amount;
   } catch {
     return 0n;
   }
