@@ -23,6 +23,8 @@ interface TokenSelectorModalProps {
   selectedCurrency?: Currency | null
   onCurrencySelect?: (currency: Currency) => void
   otherSelectedCurrency?: Currency | null
+  /** Show the selected tokens' ERC-8056 balances in display units; only for forms whose own balance labels do the same. */
+  scaleERC8056Balances?: boolean
   showPinnedTokens?: boolean
   filterWrap?: boolean
   title?: string
@@ -47,6 +49,7 @@ const TokenSelectorModal = ({
   onCurrencySelect,
   selectedCurrency,
   otherSelectedCurrency,
+  scaleERC8056Balances,
   showPinnedTokens,
   filterWrap,
   title,
@@ -166,6 +169,7 @@ const TokenSelectorModal = ({
             onCurrencySelect={handleCurrencySelect}
             selectedCurrency={selectedCurrency}
             otherSelectedCurrency={otherSelectedCurrency}
+            scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
             onImportToken={onImportToken}
             filterWrap={filterWrap}
