@@ -48,11 +48,20 @@ export const priceImpactButtonClass = (tone: PriceImpactTone) =>
   tone === 'error' ? 'bg-red text-white' : tone === 'warning' ? 'bg-warning text-white' : undefined
 
 /**
- * What the route costs in price, in the swap form's words to match its bands. Only the headline
- * carries over: everything the swap form says underneath points at Degen Mode or a Limit Order,
- * and a vault offers neither.
+ * What the route costs in price, in the swap form's words to match its bands. A reading bad enough
+ * to need Degen Mode says so underneath, as the swap form does; the swap form's other line points at
+ * a Limit Order, which a vault has no equivalent of.
  */
-const VaultPriceImpactNote = ({ result, className }: { result?: VaultPriceImpact; className?: string }) => {
+const VaultPriceImpactNote = ({
+  result,
+  isDegenMode,
+  className,
+}: {
+  result?: VaultPriceImpact
+  /** Whether the setting that would let this route through is already on. */
+  isDegenMode?: boolean
+  className?: string
+}) => {
   const tone = getPriceImpactTone(result)
   if (!result || !tone) return null
 
@@ -64,7 +73,19 @@ const VaultPriceImpactNote = ({ result, className }: { result?: VaultPriceImpact
       ? t`Price Impact is very high. You will lose funds!`
       : t`Price Impact is high`
 
-  return <Note className={className}>{message}</Note>
+  // The zap flows' own two sentences, word for word.
+  const degenNote = !isPriceImpactBad(result)
+    ? null
+    : isDegenMode
+    ? t`You have turned on Degen Mode from settings. Trades with very high price impact can be executed`
+    : t`To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.`
+
+  return (
+    <Note className={className}>
+      {message}
+      {degenNote ? <span className="mt-1 block opacity-80">{degenNote}</span> : null}
+    </Note>
+  )
 }
 
 export default VaultPriceImpactNote

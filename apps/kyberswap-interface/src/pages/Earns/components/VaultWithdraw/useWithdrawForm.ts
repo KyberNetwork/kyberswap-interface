@@ -9,7 +9,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw'
 import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
-import { getVaultPriceImpact } from 'pages/Earns/components/VaultPriceImpactNote'
+import { getVaultPriceImpact, isPriceImpactBad } from 'pages/Earns/components/VaultPriceImpactNote'
 import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
 import {
@@ -23,6 +23,7 @@ import { getBoringQueueRoute, safeBigInt } from 'pages/Earns/utils/vault'
 import { formatVaultAmounts } from 'pages/Earns/utils/vaultFormat'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useDegenModeManager } from 'state/user/hooks'
 import { getNativeTokenLogo } from 'utils/tokenLogo'
 import { formatUnits, parseUnits } from 'utils/viem'
 
@@ -372,6 +373,13 @@ export const useWithdrawForm = ({
     spender: isNative ? queueAddress : zapWithdraw.route?.allowanceHubAddress,
   })
 
+  /**
+   * A route this bad needs Degen Mode before it can be signed, the way the zap flows ask for it: the
+   * action points at the setting rather than refusing outright.
+   */
+  const [isDegenMode] = useDegenModeManager()
+  const needsDegenMode = isPriceImpactBad(zapPriceImpactResult) && !isDegenMode
+
   /** The shares the run is about to spend, for the step list to name once it has gone through. */
   const amountSummary = useMemo(
     () =>
@@ -415,6 +423,8 @@ export const useWithdrawForm = ({
     setSwapToken,
     priceImpact: zapPriceImpact,
     priceImpactResult: zapPriceImpactResult,
+    isDegenMode,
+    needsDegenMode,
     isSlippageResolving: slippageAdvice.isResolving,
     slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, zapWithdraw.route?.zapDetails.suggestedSlippage),
     suggestedSlippage: getVaultSuggestedSlippage(slippageAdvice, zapWithdraw.route?.zapDetails.suggestedSlippage),

@@ -11,7 +11,7 @@ import { useActiveWeb3React } from 'hooks'
 import { VaultDepositInput, useVaultDeposit } from 'pages/Earns/VaultDetail/hooks/useVaultDeposit'
 import useDefaultDepositToken from 'pages/Earns/components/VaultDeposit/useDefaultDepositToken'
 import { useDepositApprovals } from 'pages/Earns/components/VaultDeposit/useDepositApprovals'
-import { getVaultPriceImpact } from 'pages/Earns/components/VaultPriceImpactNote'
+import { getVaultPriceImpact, isPriceImpactBad } from 'pages/Earns/components/VaultPriceImpactNote'
 import { VAULT_ACTION_STEP, VaultStep, vaultApproveStep } from 'pages/Earns/components/vaultSteps'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
 import {
@@ -21,6 +21,7 @@ import {
 } from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { formatVaultAmounts } from 'pages/Earns/utils/vaultFormat'
 import { tryParseAmount } from 'state/swap/hooks'
+import { useDegenModeManager } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { formatUnits } from 'utils/viem'
 
@@ -367,10 +368,17 @@ export const useDepositForm = ({
 
   /**
    * How far the route moves the price. A bad route is flagged and the action relabelled rather than
-   * blocked outright: the vault has no degen mode to unblock it with.
+   * disabled; Degen Mode is what lets it through.
    */
   const priceImpact = deposit.route?.zapDetails.priceImpact
   const priceImpactResult = deposit.route ? getVaultPriceImpact(priceImpact) : undefined
+
+  /**
+   * A route this bad needs Degen Mode before it can be signed, the way the zap flows ask for it: the
+   * action points at the setting rather than refusing outright.
+   */
+  const [isDegenMode] = useDegenModeManager()
+  const needsDegenMode = isPriceImpactBad(priceImpactResult) && !isDegenMode
 
   const totalUsd = deposit.route ? Number(deposit.route.zapDetails.initialAmountUsd) : undefined
 
@@ -405,6 +413,8 @@ export const useDepositForm = ({
     routeError: deposit.routeError,
     priceImpact,
     priceImpactResult,
+    isDegenMode,
+    needsDegenMode,
     isSlippageResolving: slippageAdvice.isResolving,
     slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, deposit.route?.zapDetails.suggestedSlippage),
     suggestedSlippage: getVaultSuggestedSlippage(slippageAdvice, deposit.route?.zapDetails.suggestedSlippage),

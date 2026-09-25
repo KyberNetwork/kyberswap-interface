@@ -8,6 +8,7 @@ import { useProcessingState, useProcessingSteps } from 'components/ProcessingSte
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import { ActionBody } from 'pages/Earns/VaultDetail/styles'
+import { useVaultDegenPrompt } from 'pages/Earns/components/VaultDegenPrompt'
 import ConfirmDeposit from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import DepositFields from 'pages/Earns/components/VaultDeposit/DepositFields'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
@@ -36,6 +37,7 @@ const DepositTab = ({
   onRouteChange: (summary: VaultRouteSummary | null) => void
 }) => {
   const toggleWalletModal = useWalletModalToggle()
+  const { ask: askForDegenMode } = useVaultDegenPrompt()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
   const [actionSummary, setActionSummary] = useState('')
@@ -117,8 +119,8 @@ const DepositTab = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(routeSummary)])
 
-  // A bad route still goes through: it is named and the button turned, not disabled — the vault
-  // has no degen mode to switch the guard off with.
+  // A bad route is named and the button turned rather than disabled: what stands between it and a
+  // signature is Degen Mode, which the button points at.
   const impactTone = getPriceImpactTone(form.priceImpactResult)
   const isImpactBad = isPriceImpactBad(form.priceImpactResult)
   // The button names the token only when there is one to name.
@@ -130,6 +132,9 @@ const DepositTab = ({
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
     if (form.wrongChain && form.chainId) return changeNetwork(form.chainId)
+    // A route the form judges bad waits on Degen Mode; the button points at the setting instead of
+    // signing, the way the zap flows do.
+    if (form.needsDegenMode) return askForDegenMode()
     return setConfirming(true)
   }
 
@@ -139,7 +144,9 @@ const DepositTab = ({
 
       {form.routeError && form.hasAmount ? <ErrorNote>{form.routeError}</ErrorNote> : null}
 
-      {!form.routeError && form.hasAmount ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
+      {!form.routeError && form.hasAmount ? (
+        <VaultPriceImpactNote result={form.priceImpactResult} isDegenMode={form.isDegenMode} />
+      ) : null}
 
       <PrimaryButton
         className={cn('mt-auto w-full flex-none py-2.5', form.isReady && priceImpactButtonClass(impactTone))}

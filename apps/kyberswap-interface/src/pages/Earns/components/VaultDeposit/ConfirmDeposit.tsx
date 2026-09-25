@@ -167,7 +167,7 @@ const ConfirmDeposit = ({
         </InfoRow>
       </DetailsBox>
 
-      <VaultPriceImpactNote result={form.priceImpactResult} />
+      <VaultPriceImpactNote result={form.priceImpactResult} isDegenMode={form.isDegenMode} />
 
       <ButtonGroup>
         <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>

@@ -7,6 +7,7 @@ import { useProcessingState, useProcessingSteps } from 'components/ProcessingSte
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import WithdrawRequestsPanel from 'pages/Earns/VaultDetail/WithdrawRequestsPanel'
+import { VaultDegenPromptProvider, useVaultDegenPrompt } from 'pages/Earns/components/VaultDegenPrompt'
 import { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import {
   ButtonGroup,
@@ -26,6 +27,7 @@ import VaultPriceImpactNote, {
   priceImpactButtonClass,
 } from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
+import VaultSettingsMenu from 'pages/Earns/components/VaultSettingsMenu'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
@@ -46,6 +48,7 @@ const WithdrawBody = ({
 }) => {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const { ask: askForDegenMode } = useVaultDegenPrompt()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
   const [actionSummary, setActionSummary] = useState('')
@@ -77,8 +80,8 @@ const WithdrawBody = ({
     },
   })
 
-  // A bad route still goes through: it is named and the button turned, not disabled — the vault
-  // has no degen mode to switch the guard off with.
+  // A bad route is named and the button turned rather than disabled: what stands between it and a
+  // signature is Degen Mode, which the button points at.
   const impactTone = getPriceImpactTone(form.priceImpactResult)
   const isImpactBad = isPriceImpactBad(form.priceImpactResult)
 
@@ -87,6 +90,9 @@ const WithdrawBody = ({
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
     if (form.wrongChain && form.chainId) return changeNetwork(form.chainId)
+    // A route the form judges bad waits on Degen Mode; the button points at the setting instead of
+    // signing, the way the zap flows do.
+    if (form.needsDegenMode) return askForDegenMode()
     return setConfirming(true)
   }
 
@@ -108,7 +114,10 @@ const WithdrawBody = ({
             <ModalHeader>
               <ModalTitleRow>
                 <ModalTitle>{t`Withdraw`}</ModalTitle>
-                <CloseButton onClose={onClose} />
+                <div className="relative flex items-center gap-2">
+                  <VaultSettingsMenu />
+                  <CloseButton onClose={onClose} />
+                </div>
               </ModalTitleRow>
             </ModalHeader>
 
@@ -118,7 +127,9 @@ const WithdrawBody = ({
 
             {blockingError ? <ErrorNote>{blockingError}</ErrorNote> : null}
 
-            {!blockingError ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
+            {!blockingError ? (
+              <VaultPriceImpactNote result={form.priceImpactResult} isDegenMode={form.isDegenMode} />
+            ) : null}
 
             <ButtonGroup>
               <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
@@ -175,7 +186,9 @@ const VaultWithdrawModal = ({
   return (
     <Modal isOpen={Boolean(target)} onDismiss={onClose} maxWidth={480} width="480px" bgColor="transparent">
       {vault ? (
-        <WithdrawBody vault={vault} onClose={onClose} onWithdrawn={onWithdrawn} />
+        <VaultDegenPromptProvider>
+          <WithdrawBody vault={vault} onClose={onClose} onWithdrawn={onWithdrawn} />
+        </VaultDegenPromptProvider>
       ) : (
         <ModalWrapper>
           <VaultFormSkeleton kind="withdraw" onClose={onClose} />

@@ -53,6 +53,8 @@ import {
   VaultNameMuted,
 } from 'pages/Earns/VaultDetail/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
+import { VaultDegenPromptProvider } from 'pages/Earns/components/VaultDegenPrompt'
+import VaultSettingsMenu from 'pages/Earns/components/VaultSettingsMenu'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
 import {
@@ -327,41 +329,48 @@ const VaultDetail = () => {
           </ChartsCard>
         </ChartsColumn>
 
-        <div className="flex w-full flex-col gap-4">
-          <ActionCard>
-            <ActionTabs>
-              <ActionTab type="button" $active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')}>
-                {t`Deposit`}
-              </ActionTab>
-              <ActionTabDivider />
-              <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={() => setActiveTab('withdraw')}>
-                {t`Withdraw`}
-              </ActionTab>
-              <ActionTabDivider />
-            </ActionTabs>
-            {activeTab === 'deposit' ? (
-              <DepositTab
-                key={`deposit-${detail.vaultId}`}
-                vault={detail}
-                onDeposited={refetchPosition}
-                onRouteChange={setRouteSummary}
-              />
-            ) : (
-              <WithdrawTab
-                key={`withdraw-${detail.vaultId}`}
-                vault={detail}
-                position={position}
-                onRequested={refetchPosition}
-                onRouteChange={setRouteSummary}
-              />
-            )}
-          </ActionCard>
+        <VaultDegenPromptProvider>
+          <div className="flex w-full flex-col gap-4">
+            <ActionCard>
+              <ActionTabs>
+                <ActionTab type="button" $active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')}>
+                  {t`Deposit`}
+                </ActionTab>
+                <ActionTabDivider />
+                <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={() => setActiveTab('withdraw')}>
+                  {t`Withdraw`}
+                </ActionTab>
+                <ActionTabDivider />
 
-          {/* Belongs to the position rather than to the form beside it: a request made days ago is
+                {/* The gear rides the tab row, where the zap flows keep theirs. */}
+                <div className="relative ml-auto pr-3">
+                  <VaultSettingsMenu />
+                </div>
+              </ActionTabs>
+              {activeTab === 'deposit' ? (
+                <DepositTab
+                  key={`deposit-${detail.vaultId}`}
+                  vault={detail}
+                  onDeposited={refetchPosition}
+                  onRouteChange={setRouteSummary}
+                />
+              ) : (
+                <WithdrawTab
+                  key={`withdraw-${detail.vaultId}`}
+                  vault={detail}
+                  position={position}
+                  onRequested={refetchPosition}
+                  onRouteChange={setRouteSummary}
+                />
+              )}
+            </ActionCard>
+
+            {/* Belongs to the position rather than to the form beside it: a request made days ago is
               still in flight while the wallet is topping the vault up, so it stays on screen on both
               tabs and takes itself off once there is nothing left to report. */}
-          <WithdrawRequestsPanel vault={detail} onChanged={refetchPosition} />
-        </div>
+            <WithdrawRequestsPanel vault={detail} onChanged={refetchPosition} />
+          </div>
+        </VaultDegenPromptProvider>
       </ContentGrid>
     </PageWrapper>
   )

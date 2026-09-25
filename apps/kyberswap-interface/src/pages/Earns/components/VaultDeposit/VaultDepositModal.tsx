@@ -5,6 +5,7 @@ import { VaultApiDetailItem, useVaultDetailQuery } from 'services/vault'
 import Modal from 'components/Modal'
 import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { VaultDegenPromptProvider, useVaultDegenPrompt } from 'pages/Earns/components/VaultDegenPrompt'
 import ConfirmDeposit, { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import DepositFields from 'pages/Earns/components/VaultDeposit/DepositFields'
 import {
@@ -26,6 +27,7 @@ import VaultPriceImpactNote, {
   priceImpactButtonClass,
 } from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
+import VaultSettingsMenu from 'pages/Earns/components/VaultSettingsMenu'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
@@ -42,6 +44,7 @@ const DepositBody = ({
   onDeposited?: () => void
 }) => {
   const toggleWalletModal = useWalletModalToggle()
+  const { ask: askForDegenMode } = useVaultDegenPrompt()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
   const [actionSummary, setActionSummary] = useState('')
@@ -67,8 +70,8 @@ const DepositBody = ({
     },
   })
 
-  // A bad route still goes through: it is named and the button turned, not disabled — the vault
-  // has no degen mode to switch the guard off with.
+  // A bad route is named and the button turned rather than disabled: what stands between it and a
+  // signature is Degen Mode, which the button points at.
   const impactTone = getPriceImpactTone(form.priceImpactResult)
   const isImpactBad = isPriceImpactBad(form.priceImpactResult)
 
@@ -77,6 +80,9 @@ const DepositBody = ({
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
     if (form.wrongChain && form.chainId) return changeNetwork(form.chainId)
+    // A route the form judges bad waits on Degen Mode; the button points at the setting instead of
+    // signing, the way the zap flows do.
+    if (form.needsDegenMode) return askForDegenMode()
     return setConfirming(true)
   }
 
@@ -96,7 +102,10 @@ const DepositBody = ({
             <ModalHeader>
               <ModalTitleRow>
                 <ModalTitle>{t`Deposit`}</ModalTitle>
-                <CloseButton onClose={onClose} />
+                <div className="relative flex items-center gap-2">
+                  <VaultSettingsMenu />
+                  <CloseButton onClose={onClose} />
+                </div>
               </ModalTitleRow>
             </ModalHeader>
 
@@ -106,7 +115,9 @@ const DepositBody = ({
 
             {form.routeError && form.hasAmount ? <ErrorNote>{form.routeError}</ErrorNote> : null}
 
-            {!form.routeError && form.hasAmount ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
+            {!form.routeError && form.hasAmount ? (
+              <VaultPriceImpactNote result={form.priceImpactResult} isDegenMode={form.isDegenMode} />
+            ) : null}
 
             <ButtonGroup>
               <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
@@ -155,7 +166,9 @@ const VaultDepositModal = ({
   return (
     <Modal isOpen={Boolean(target)} onDismiss={onClose} maxWidth={480} width="480px" bgColor="transparent">
       {vault ? (
-        <DepositBody vault={vault} onClose={onClose} onDeposited={onDeposited} />
+        <VaultDegenPromptProvider>
+          <DepositBody vault={vault} onClose={onClose} onDeposited={onDeposited} />
+        </VaultDegenPromptProvider>
       ) : (
         <ModalWrapper>
           <VaultFormSkeleton kind="deposit" onClose={onClose} />
