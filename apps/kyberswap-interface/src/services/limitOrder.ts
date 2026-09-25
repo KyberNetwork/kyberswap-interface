@@ -43,6 +43,9 @@ type ListOrdersResponse = {
   orders?: LimitOrder[]
   pagination?: {
     totalItems?: number
+    hasMore?: boolean
+    /** Only sent when `hasMore` is true, and only when the backend has a cursor secret configured. */
+    nextCursor?: string
   }
 }
 
@@ -53,6 +56,18 @@ export type ListOrdersParams = {
   query?: string
   page?: number
   pageSize: number
+  /**
+   * Opaque keyset cursor, accepted on history statuses only (closed / filled / cancelled / expired).
+   * Combining it with `page` > 1 is rejected, so the query string drops `page` whenever it is set.
+   */
+  cursor?: string
+}
+
+export type ListOrdersResult = {
+  orders: LimitOrder[]
+  totalOrder: number
+  hasMore: boolean
+  nextCursor?: string
 }
 
 type TokenPairOrdersResponse = {
@@ -140,6 +155,46 @@ const normalizeSupportedLimitOrders = (orders: LimitOrder[] = []) =>
     return accumulator
   }, [])
 
+/**
+ * Query string for `GET /v1/orders`. Two rules the backend enforces:
+ * - `cursor` cannot travel with `page` > 1, so `page` is dropped whenever a cursor is set.
+ * - an absent `chainIds` means "every chain" and is the backend's cheapest plan (6 index branches
+ *   instead of 6 per chain), so an empty array sends nothing rather than enumerating the chains.
+ */
+export const buildListOrdersSearchParams = ({ chainIds, ...params }: ListOrdersParams): URLSearchParams => {
+  const searchParams = new URLSearchParams()
+  const hasCursor = !!params.cursor
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined) return
+    if (key === 'page' && hasCursor) return
+    searchParams.append(key, value.toString())
+  })
+  chainIds.forEach(chainId => {
+    searchParams.append('chainIds', chainId.toString())
+  })
+
+  return searchParams
+}
+
+/**
+ * Orders on chains this build does not support are dropped, so the backend total is reduced by the
+ * number dropped from this page — otherwise the pager would offer pages that render empty.
+ */
+export const transformListOrdersResponse = ({ data }: ApiEnvelope<ListOrdersResponse>): ListOrdersResult => {
+  const rawOrders = data.orders || []
+  const orders = normalizeSupportedLimitOrders(rawOrders)
+  const totalOrder = Math.max((data.pagination?.totalItems || 0) - (rawOrders.length - orders.length), orders.length)
+
+  return {
+    orders,
+    totalOrder,
+    // A backend without cursor paging sends no `hasMore`, which reads as "this is the last page".
+    hasMore: data.pagination?.hasMore ?? false,
+    nextCursor: data.pagination?.nextCursor,
+  }
+}
+
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
@@ -166,28 +221,11 @@ const limitOrderApi = createApi({
         return { contract: data.latest?.toLowerCase() ?? '', features }
       },
     }),
-    getListOrders: builder.query<{ orders: LimitOrder[]; totalOrder: number }, ListOrdersParams>({
-      query: ({ chainIds, ...params }) => {
-        const searchParams = new URLSearchParams()
-        Object.entries(params).forEach(([key, value]) => {
-          if (value === undefined) return
-          searchParams.append(key, value.toString())
-        })
-        chainIds.forEach(chainId => {
-          searchParams.append('chainIds', chainId.toString())
-        })
-        return { url: `${LIMIT_ORDER_API_READ}/v1/orders?${searchParams.toString()}` }
-      },
-      transformResponse: ({ data }: ApiEnvelope<ListOrdersResponse>) => {
-        const rawOrders = data.orders || []
-        const orders = normalizeSupportedLimitOrders(rawOrders)
-        const totalOrder = Math.max(
-          (data.pagination?.totalItems || 0) - (rawOrders.length - orders.length),
-          orders.length,
-        )
-
-        return { orders, totalOrder }
-      },
+    getListOrders: builder.query<ListOrdersResult, ListOrdersParams>({
+      query: params => ({
+        url: `${LIMIT_ORDER_API_READ}/v1/orders?${buildListOrdersSearchParams(params).toString()}`,
+      }),
+      transformResponse: transformListOrdersResponse,
       providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST],
     }),
     getOrdersByTokenPair: builder.query<
