@@ -22,7 +22,12 @@ export const SidebarContainer = ({
       className={cn(
         'flex shrink-0 flex-col gap-4 whitespace-nowrap px-3 pb-3 pt-6',
         'transition-[width,min-width] duration-200',
-        $inDrawer ? 'w-full min-w-0 overflow-visible' : 'overflow-hidden max-md:hidden',
+        $inDrawer
+          ? 'w-full min-w-0 overflow-visible'
+          : // `self-start` is what makes it sticky at all: a stretched flex item is as tall as the
+            // page and has nowhere to travel. It scrolls with the page until its top reaches the
+            // viewport, then holds, and carries its own scrollbar on a viewport too short for it.
+            'sticky top-0 max-h-dvh self-start overflow-y-auto overflow-x-hidden max-md:hidden',
         className,
       )}
       style={$inDrawer ? style : { width, minWidth: width, ...style }}
