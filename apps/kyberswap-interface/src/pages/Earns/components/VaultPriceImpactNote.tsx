@@ -43,9 +43,12 @@ export const getPriceImpactTone = (result?: VaultPriceImpact): PriceImpactTone =
 /** A route this bad is named and the action relabelled, never blocked — the way the zap flows do it. */
 export const isPriceImpactBad = (result?: VaultPriceImpact) => getPriceImpactTone(result) === 'error'
 
-/** The action stays pressable whatever the reading, so it carries the tone rather than the guard. */
-export const priceImpactButtonClass = (tone: PriceImpactTone) =>
-  tone === 'error' ? 'bg-red text-white' : tone === 'warning' ? 'bg-warning text-white' : undefined
+/**
+ * Only the reading that stands between the form and a signature turns the button. A high one is
+ * named in the note and beside the figure, and leaving the button alone keeps the colour meaning the
+ * one thing: this will not go through as it is.
+ */
+export const priceImpactButtonClass = (tone: PriceImpactTone) => (tone === 'error' ? 'bg-red text-white' : undefined)
 
 /**
  * What the route costs in price, in the swap form's words to match its bands. A reading bad enough
