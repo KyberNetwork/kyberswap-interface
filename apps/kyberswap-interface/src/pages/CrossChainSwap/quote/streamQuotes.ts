@@ -72,7 +72,8 @@ const getStreamingUrl = ({
     toToken: getCurrencyAddress(params.toToken),
     toTokenDecimals: params.toToken.decimals.toString(),
     toAddress: params.recipient,
-    fee: params.feeBps.toString(),
+    // Internal stream testing waives the UI fee for every source.
+    fee: '0',
     integrator: 'kyberswap',
     stream: 'true',
     slippage: params.slippage.toString(),
@@ -239,7 +240,7 @@ export const streamQuotes = async ({
               gasFeeUsd: data.gasFeeUsd,
               contractAddress: data.contractAddress,
               rawQuote: data.rawQuote,
-              protocolFee: data.protocolFee,
+              protocolFee: data.protocolFee ?? 0,
               protocolFeeString: data.protocolFeeString,
               platformFeePercent: data.platformFeePercent,
             },

@@ -28,6 +28,7 @@ import {
 import {
   NormalizedProvider,
   getKyberCrossBridgeProviders,
+  getKyberCrossRoutePlan,
   mapRouteStateToSwapStatus,
   normalizeProvider,
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
@@ -132,16 +133,19 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     const normalizedQuote = quote.quote
     const quoteParams = normalizedQuote.quoteParams
     const rawQuote = normalizedQuote.rawQuote as KyberCrossRawQuote
-    const routePlan = rawQuote.data?.route_plans?.[0]
+    const quoteData = rawQuote.data
+    const routePlan = getKyberCrossRoutePlan(rawQuote)
 
-    if (!routePlan) {
+    if (!quoteData || !routePlan) {
       throw new Error('Missing KyberCross route plan')
     }
 
     const routeProvider = routePlan.bridge.provider
     const normalizedRouteProvider = normalizeProvider(routeProvider)
-    const buildResponse = await kyberCrossApi.build(routePlan)
-    const buildTx = buildResponse.data.tx
+    const build =
+      'route_plans' in quoteData ? (await kyberCrossApi.build(quoteData.route_plans[0])).data : quoteData.build
+
+    const buildTx = build.tx
 
     const originChainId = quoteParams.fromChain as ChainId
     const originChain = chainIdToViemChain[originChainId]

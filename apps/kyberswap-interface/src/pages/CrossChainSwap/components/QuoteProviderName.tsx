@@ -1,6 +1,7 @@
 import React from 'react'
 
 import type { KyberCrossRawQuote } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
+import { getKyberCrossRoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { CrossChainSource, CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
@@ -10,7 +11,7 @@ const KYBER_CROSS_ADAPTER_NAME = 'kybercross'
 const getKyberCrossBridgeProviderName = (quote: Quote): string | undefined => {
   const rawQuote = quote.quote.rawQuote as KyberCrossRawQuote | undefined
 
-  return rawQuote?.data?.route_plans?.[0]?.bridge?.provider
+  return getKyberCrossRoutePlan(rawQuote)?.bridge.provider
 }
 
 const getQuoteProviders = (quote: Quote): CrossChainSource[] => {

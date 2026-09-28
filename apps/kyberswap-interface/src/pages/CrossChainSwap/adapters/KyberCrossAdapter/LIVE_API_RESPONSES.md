@@ -45,6 +45,44 @@ Failed requests observed:
 }
 ```
 
+## Aggregator PRE stream (2026-09-28)
+
+`GET https://pre-crosschain-aggregator.kyberengineering.io/api/v1/quotes?stream=true`
+returns KyberCross events with `provider: "kybercross"` and this raw quote shape:
+
+```text
+rawQuote.data.route_plan: { id, expires_at, bridge: { provider, ... }, ... }
+rawQuote.data.build: { expires_at, tx: { to, data, value } }
+```
+
+The singular route is a summary: it omits the full bridge metadata needed to rebuild.
+Stream execution uses the supplied `build.tx`; direct execution builds `route_plans[0]`.
+Both paths use the same allowance checks, simulation, transaction submission, and status API.
+Provider display reads either route shape.
+
+Internal stream testing sends `fee=0` for all sources in a single request.
+Provider/bridge fees remain backend-owned. The observed KyberCross events contain
+`platformFeePercent: 0` and omit `protocolFee` (normalized to zero).
+
+Live quote checks succeeded for Ethereum USDC → Base USDC (Across) and Base ETH →
+Arbitrum USDC (Near Intents), using `includedSources=KyberCross`. These were quote-only
+requests; no wallet transaction was submitted. Near Intents stream metadata omitted the
+deposit address, so the transaction ID falls back to its source hash; status lookup uses
+the source hash in both cases.
+
+Direct and stream requests were compared again at 16:20 ICT with matching tokens,
+amounts, sender/recipient, slippage, and zero UI fee. All four requests returned HTTP 200:
+
+| Pair                      | Direct request ID                      | Stream KyberCross request ID           |
+| ------------------------- | -------------------------------------- | -------------------------------------- |
+| Ethereum USDC → Base USDC | `406e2a9e-aca7-4937-9b5f-93deaadbde50` | `51ac88bc-5c8f-49eb-917d-65550fb6a440` |
+| Base ETH → Arbitrum USDC  | `8cd3584f-e442-481d-b8f6-f8dbcc7c5b34` | `cfdb2b17-cad0-4694-8c31-9b5687feb115` |
+
+Both direct responses had `data.route_plans`, `ks_allowance_hub_address`, and
+`bridge.metadata`, with no built transaction. Both stream responses had
+`rawQuote.data.route_plan` and `build.tx`, with no `bridge.metadata`.
+All four selected Across in this comparison; provider selection can vary between requests.
+
 ## `POST /api/v1/quotes`
 
 The frontend sends chain/token metadata, sender and recipient addresses, amount, slippage, and optional bridge filters. Internal testing uses `partner_fee_bps: 0` and omits the partner fee recipient. `all_route_plans` exists in the response contract checks but is not currently sent by the frontend.
