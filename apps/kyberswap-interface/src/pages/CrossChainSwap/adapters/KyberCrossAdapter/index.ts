@@ -81,6 +81,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       amount: params.amount,
       slippage_bps: params.slippage,
       partner_fee_bps: params.feeBps,
+      all_route_plans: true,
       include_bridges: getKyberCrossBridgeProviders(params.includedSources),
       exclude_bridges: getKyberCrossBridgeProviders(params.excludedSources),
     }
