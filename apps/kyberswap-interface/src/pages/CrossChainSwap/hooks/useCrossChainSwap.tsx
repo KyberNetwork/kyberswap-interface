@@ -23,7 +23,7 @@ import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
 import { getPairInfo } from 'pages/CrossChainSwap/quote/getPairInfo'
 import { PairCategory, isEvmCurrency } from 'pages/CrossChainSwap/quote/utils'
-import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
+import { CrossChainSwapAdapterRegistry, Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
 import {
   BTC_DEFAULT_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER,
@@ -61,7 +61,7 @@ const RegistryContext = createContext<
       allLoading: boolean
       quotes: Quote[]
       selectedQuote: Quote | null
-      setSelectedAdapter: (quote: string | null) => void
+      setSelectedQuoteId: (quote: string | null) => void
       amountInWei: string | undefined
       nearTokens: NearToken[]
       getQuote: () => Promise<void>
@@ -272,18 +272,18 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const [quotes, setQuotes] = useState<Quote[]>([])
 
-  const [selectedAdapter, setSelectedAdapter] = useState<string | null>(null)
+  const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null)
   const walletClient = useGatedWalletClient()
   const [slippage] = useUserSlippageTolerance()
   const [checkSameAsset] = useLazyCheckSameAssetQuery()
 
   const selectedQuote = useMemo(() => {
-    return quotes.find(q => q.adapter.getName() === selectedAdapter) || quotes[0] || null
-  }, [quotes, selectedAdapter])
+    return quotes.find(q => getQuoteId(q) === selectedQuoteId) || quotes[0] || null
+  }, [quotes, selectedQuoteId])
 
-  // reset selected adapter when from or to chain changes
+  // reset selected quote when from or to chain changes
   useEffect(() => {
-    setSelectedAdapter(null)
+    setSelectedQuoteId(null)
   }, [currencyIn, currencyOut, fromChainId, toChainId])
 
   const [category, setCategory] = useState<PairCategory>('commonPair')
@@ -382,7 +382,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       requestIdRef.current += 1
       abortControllerRef.current.abort()
       setQuotes([])
-      setSelectedAdapter(null)
+      setSelectedQuoteId(null)
       setLoading(false)
       setAllLoading(false)
       return
@@ -492,7 +492,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         disable,
         getQuote,
         selectedQuote,
-        setSelectedAdapter,
+        setSelectedQuoteId,
         registry,
         fromChainId,
         toChainId,

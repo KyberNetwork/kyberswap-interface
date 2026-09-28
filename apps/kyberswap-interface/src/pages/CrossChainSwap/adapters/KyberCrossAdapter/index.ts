@@ -87,23 +87,23 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     }
 
     const quoteResponse = await kyberCrossApi.getQuote(request, signal)
-    const routePlan = quoteResponse.data.route_plans[0]
+    return this.normalizeQuote(params, {
+      request_id: quoteResponse.request_id,
+      data: quoteResponse.data,
+      isNativeToken: (params.fromToken as Currency).isNative,
+    })
+  }
 
-    if (!routePlan) {
-      throw new Error('No KyberCross route plans found')
-    }
+  private normalizeQuote(params: QuoteParams, rawQuote: KyberCrossRawQuote): NormalizedQuote {
+    const data = rawQuote.data
+    const routePlan = data?.route_plans[0]
+    if (!data || !routePlan) throw new Error('No KyberCross route plans found')
 
     const outputAmount = BigInt(routePlan.expected_output_amount)
     const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
     const inputUsd = params.tokenInUsd * +formattedInputAmount
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
-    const isNativeToken = (params.fromToken as Currency).isNative
-    const rawQuote: KyberCrossRawQuote = {
-      request_id: quoteResponse.request_id,
-      data: quoteResponse.data,
-      isNativeToken,
-    }
 
     return {
       quoteParams: params,
@@ -115,11 +115,28 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       timeEstimate: routePlan.bridge.expected_fill_time_sec || 0,
       priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
       gasFeeUsd: 0,
-      contractAddress: isNativeToken ? ZERO_ADDRESS : quoteResponse.data.ks_allowance_hub_address,
+      contractAddress: rawQuote.isNativeToken ? ZERO_ADDRESS : data.ks_allowance_hub_address,
       rawQuote,
       protocolFee: 0,
-      platformFeePercent: (params.feeBps * 100) / 10_000,
+      platformFeePercent: params.feeBps / 100,
     }
+  }
+
+  getRouteQuotes(quote: NormalizedQuote, isReadOnly: boolean): Quote[] {
+    const rawQuote = quote.rawQuote as KyberCrossRawQuote
+    const data = rawQuote.data
+    if (!data?.route_plans.length) throw new Error('No KyberCross route plans found')
+
+    return data.route_plans.map(routePlan => ({
+      id: `${this.getName()}:${routePlan.id}`,
+      adapter: this,
+      isReadOnly,
+      // Each selectable quote owns only its route, including the route used for build and execution.
+      quote: this.normalizeQuote(quote.quoteParams, {
+        ...rawQuote,
+        data: { ...data, route_plans: [routePlan] },
+      }),
+    }))
   }
 
   async executeSwap(
