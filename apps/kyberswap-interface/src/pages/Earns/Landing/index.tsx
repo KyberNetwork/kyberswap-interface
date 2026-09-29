@@ -10,6 +10,7 @@ import LowVolatilityIcon from 'assets/svg/earn/low-volatility.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
+import { NewTag } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -187,7 +188,10 @@ const EarnLanding = () => {
                   </HeaderIconCircle>
                 </HeaderIconWrapper>
                 <HeaderTextBlock>
-                  <SectionTitleLink to={APP_PATHS.EARN_VAULTS}>{t`Partner Vaults`}</SectionTitleLink>
+                  <div className="flex items-center">
+                    <SectionTitleLink to={APP_PATHS.EARN_VAULTS}>{t`Partner Vaults`}</SectionTitleLink>
+                    <NewTag />
+                  </div>
                   <span className="text-sm leading-5 text-subText">
                     {t`Auto-compounding, single-asset strategies managed by partners (starting with ether.fi).`}
                   </span>
