@@ -289,14 +289,26 @@ export const StopLossFailureDetail = ({
 
 const SEVEN_DAYS_IN_SECONDS = 7 * 24 * 60 * 60
 
-/** Relative wording inside a week, an absolute date beyond it. */
-export const formatExpiry = (deadlineInSeconds: number) => {
+/** Relative wording inside a week; beyond it, an absolute date with its time split out as a second line. */
+export const formatExpiry = (deadlineInSeconds: number): { label: string; time?: string } => {
   const expiry = dayjs.unix(deadlineInSeconds)
   const secondsLeft = expiry.diff(dayjs(), 'second')
 
-  if (secondsLeft <= 0) return t`Expired`
-  if (secondsLeft >= SEVEN_DAYS_IN_SECONDS) return expiry.format('DD/MM/YYYY HH:mm')
+  if (secondsLeft <= 0) return { label: t`Expired` }
+  if (secondsLeft >= SEVEN_DAYS_IN_SECONDS) return { label: expiry.format('DD/MM/YYYY'), time: expiry.format('HH:mm') }
 
   const remaining = formatTimeDuration(secondsLeft)
-  return t`in ${remaining}`
+  return { label: t`in ${remaining}` }
+}
+
+/** The date sits above its time; relative and expired wording have no time and stay on one line. */
+export const ExpiryCell = ({ deadline }: { deadline: number }) => {
+  const { label, time } = formatExpiry(deadline)
+
+  return (
+    <Stack className="min-w-0 gap-0.5 font-medium" data-testid="stop-loss-order-expiry">
+      <span className="truncate text-sm text-subText">{label}</span>
+      {time && <span className="truncate text-xs text-gray">{time}</span>}
+    </Stack>
+  )
 }

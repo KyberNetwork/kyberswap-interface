@@ -9,10 +9,10 @@ import { StopLossRowLayout, StopLossRowWrapper } from 'components/StopLoss/MyOrd
 import {
   AmountCell,
   DistanceCell,
+  ExpiryCell,
   PairCell,
   StatusCell,
   StopLossFailureDetail,
-  formatExpiry,
 } from 'components/StopLoss/MyOrders/components'
 import { useStopLossOraclePrice } from 'components/StopLoss/hooks/useStopLossOraclePrice'
 import { StopLossDisplayStatus, StopLossOrder } from 'components/StopLoss/types'
@@ -126,12 +126,9 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
           <div className="max-sm:hidden">
             <DistanceCell percent={distancePercent} />
           </div>
-          <span
-            className="truncate text-sm font-medium text-subText max-sm:hidden"
-            data-testid="stop-loss-order-expiry"
-          >
-            {formatExpiry(order.deadline)}
-          </span>
+          <div className="max-sm:hidden">
+            <ExpiryCell deadline={order.deadline} />
+          </div>
         </>
       ) : (
         <>

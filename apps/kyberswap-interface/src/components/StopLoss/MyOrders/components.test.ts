@@ -29,21 +29,22 @@ describe('formatExpiry', () => {
     ['in an hour', 1 * HOUR],
     ['in 3 days', 3 * DAY],
     ['a day short of the cutoff', 6 * DAY],
-  ])('uses relative wording %s', (_label, offset) => {
+  ])('uses relative wording with no time line %s', (_label, offset) => {
     const result = formatExpiry(at(offset))
-    expect(result).toMatch(/^in /)
+    expect(result.label).toMatch(/^in /)
+    expect(result.time).toBeUndefined()
   })
 
   it.each([
     ['exactly a week out', 7 * DAY],
     ['a month out', 30 * DAY],
-  ])('switches to an absolute date %s', (_label, offset) => {
-    const expected = dayjs.unix(at(offset)).format('DD/MM/YYYY HH:mm')
-    expect(formatExpiry(at(offset))).toBe(expected)
+  ])('switches to an absolute date with its time split out %s', (_label, offset) => {
+    const expiry = dayjs.unix(at(offset))
+    expect(formatExpiry(at(offset))).toEqual({ label: expiry.format('DD/MM/YYYY'), time: expiry.format('HH:mm') })
   })
 
   it('reports an elapsed deadline as expired rather than a negative duration', () => {
-    expect(formatExpiry(at(-HOUR))).toBe('Expired')
-    expect(formatExpiry(at(0))).toBe('Expired')
+    expect(formatExpiry(at(-HOUR))).toEqual({ label: 'Expired' })
+    expect(formatExpiry(at(0))).toEqual({ label: 'Expired' })
   })
 })
