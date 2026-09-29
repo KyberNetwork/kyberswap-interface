@@ -118,7 +118,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       inputUsd,
       outputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
-      timeEstimate: routePlan.bridge.expected_fill_time_sec || 0,
+      timeEstimate: routePlan.estimated_duration_sec ?? 0,
       priceImpact:
         !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd - (gasDrop?.amountUsd || 0)) * 100) / inputUsd,
       gasFeeUsd: 0,

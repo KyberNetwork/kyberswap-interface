@@ -511,6 +511,7 @@ describe('KyberCross route options', () => {
     },
     expected_output_amount: output,
     min_output_amount: output,
+    estimated_duration_sec: time,
     bridge: {
       provider: 'relay',
       lane_id: id,
@@ -519,13 +520,15 @@ describe('KyberCross route options', () => {
       input_amount: params.amount,
       expected_output_amount: output,
       min_output_amount: output,
-      expected_fill_time_sec: time,
+      expected_fill_time_sec: 3,
       metadata: { execution_mode: 'deposit_address', deposit_address: address },
     },
   })
 
   it('shows every route and builds the chosen non-first route, including routes from the same bridge', async () => {
     const routes = [createRoute('first', '98000000', 20), createRoute('second', '99000000', 40)]
+    routes[0].tags = ['FASTEST']
+    routes[1].tags = ['RECOMMENDED', 'BEST_OUTPUT']
     const apiQuote = vi.spyOn(kyberCrossApi, 'getQuote').mockResolvedValue({
       success: true,
       request_id: 'request',
@@ -560,6 +563,10 @@ describe('KyberCross route options', () => {
     const quotes = onQuotes.mock.calls[0][0]
     expect(quotes.map(getQuoteId)).toEqual(['KyberCross:second', 'KyberCross:first'])
     expect(quotes.map(q => q.isReadOnly)).toEqual([true, true])
+    expect(quotes.map(q => q.quote.rawQuote.data.route_plans[0].tags)).toEqual([
+      ['RECOMMENDED', 'BEST_OUTPUT'],
+      ['FASTEST'],
+    ])
     expect(
       quotes.map(q => [q.quote.formattedOutputAmount, q.quote.outputUsd, q.quote.priceImpact, q.quote.timeEstimate]),
     ).toEqual([

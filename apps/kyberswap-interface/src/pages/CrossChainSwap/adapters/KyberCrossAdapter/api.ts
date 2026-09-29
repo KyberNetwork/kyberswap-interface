@@ -179,6 +179,8 @@ type BridgePlan = {
 
 export type RoutePlan = {
   id: string
+  estimated_duration_sec?: number
+  tags?: string[]
   request: RoutePlanRequestSnapshot
   flow_type: FlowType
   expected_output_amount: UIntString
