@@ -85,6 +85,11 @@ const AddressCopy = ({ chainId, address }: { chainId: ChainId; address: string }
 
 type TokenRowProps = {
   showFavoriteIcon?: boolean
+  /**
+   * Whether this row may be favorited. A row that cannot keeps the toggle's width, so a list holding
+   * both kinds stays in one column.
+   */
+  canFavorite?: boolean
   currency: Currency
   currencyBalance?: CurrencyAmount<Currency>
   onSelect?: (currency: Currency) => void
@@ -154,6 +159,7 @@ export const TokenRow = ({
   onToggleFavorite,
   onRemoveImportedToken,
   showFavoriteIcon = true,
+  canFavorite = true,
   customName,
   customBalance,
   usdBalance,
@@ -211,15 +217,18 @@ export const TokenRow = ({
   const rowInner = (
     <>
       <HStack className={cn('min-w-0 flex-1 items-center gap-2', isImport && 'opacity-50')}>
-        {showFavoriteIcon && (
-          <Star
-            onClick={e => onToggleFavorite?.(e, currency)}
-            data-active={isFavorite}
-            data-testid="button-favorite-token"
-            role="button"
-            className="size-4 shrink-0 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
-          />
-        )}
+        {showFavoriteIcon &&
+          (canFavorite ? (
+            <Star
+              onClick={e => onToggleFavorite?.(e, currency)}
+              data-active={isFavorite}
+              data-testid="button-favorite-token"
+              role="button"
+              className="size-4 shrink-0 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
+            />
+          ) : (
+            <div className="size-4 shrink-0" />
+          ))}
 
         <div className="shrink-0">
           <CurrencyLogo currency={currency} size="24px" />
@@ -542,6 +551,9 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         customBalance={customBalance}
         isSelected={isSelected}
         showFavoriteIcon={data.showFavoriteIcon}
+        // Favoriting is for tokens the user has taken on; a row that still has to be imported offers
+        // the import and nothing else.
+        canFavorite={!needsImport}
         onSelect={data.onCurrencySelect}
         otherSelected={otherSelected}
         onShowTokenInfo={data.onShowTokenInfo}
