@@ -47,7 +47,7 @@ Failed requests observed:
 
 ## `POST /api/v1/quotes`
 
-The frontend sends chain/token metadata, sender and recipient addresses, amount, slippage, and optional bridge filters. Internal testing uses `partner_fee_bps: 0` and omits the partner fee recipient. `all_route_plans` exists in the response contract checks but is not currently sent by the frontend.
+The frontend sends chain/token metadata, sender and recipient addresses, amount, slippage, and optional bridge filters. Internal testing uses `partner_fee_bps: 0` and omits the partner fee recipient. The request sets `all_route_plans: true` to receive multiple route plans; each returned route plan becomes a separate option in Route Options, sorted by net output. The selected option owns the route used for execution.
 
 Representative FE request:
 
@@ -65,6 +65,7 @@ Representative FE request:
   "amount": "10000000",
   "slippage_bps": 50,
   "partner_fee_bps": 0,
+  "all_route_plans": true,
   "include_bridges": ["across", "relay"],
   "exclude_bridges": ["cctp_v2_fast"]
 }
@@ -139,7 +140,9 @@ Observed bridge metadata variants:
 
 Frontend-owned behavior:
 
-- It selects `route_plans[0]`.
+- Each route plan is normalized into its own selectable quote with its output, price impact, time estimate, and bridge provider.
+- Each option retains only its own route in `rawQuote.data.route_plans`, so display and execution use the selected plan.
+- Selection uses the route ID rather than adapter name. If a refresh replaces that ID, selection falls back to the best current quote.
 - `expected_output_amount` becomes the estimated output.
 - `ks_allowance_hub_address` is used for ERC-20 approval.
 - The selected route plan is retained unchanged and submitted to `/builds`.

@@ -2,10 +2,13 @@ import type { NormalizedQuote, SwapProvider } from 'pages/CrossChainSwap/adapter
 import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 
 export interface Quote {
+  id?: string
   adapter: SwapProvider
   quote: NormalizedQuote
   isReadOnly: boolean
 }
+
+export const getQuoteId = (quote: Quote): string => quote.id ?? quote.adapter.getName()
 
 export class CrossChainSwapAdapterRegistry {
   private adapters: Map<string, SwapProvider> = new Map()
