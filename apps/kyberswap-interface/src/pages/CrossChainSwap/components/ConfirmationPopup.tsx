@@ -442,8 +442,8 @@ export const ConfirmationPopup = ({ quote: initialQuote, isOpen, onDismiss }: Co
             {priceImpactInfo?.message && <div className="mt-4" />}
             <PiWarning quote={selectedQuote} />
 
-            <span className="my-4 flex items-center text-xs italic text-gray">
-              <span className="mr-1">
+            <span className="my-4 flex items-center gap-1.5 text-xs italic text-gray">
+              <span>
                 <Trans>Routed via</Trans>
               </span>
               <QuoteProviderName quote={selectedQuote} />
