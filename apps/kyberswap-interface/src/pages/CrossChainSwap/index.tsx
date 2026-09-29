@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 import { AutoColumn } from 'components/Column'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import RefreshLoading from 'components/RefreshLoading'
+import SegmentedControl from 'components/SegmentedControl'
 import Skeleton from 'components/Skeleton'
 import { Stack } from 'components/Stack'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
@@ -37,11 +38,13 @@ import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type CrossChainSwapProps = {
-  onQuoteChange?: (quote: Quote) => void
+  onQuoteChange?: (quote: Quote | null) => void
 }
 
 const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
   const {
+    quoteMode,
+    setQuoteMode,
     amount,
     setAmount,
     selectedQuote,
@@ -140,9 +143,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
   })
 
   useEffect(() => {
-    if (selectedQuote) {
-      onQuoteChange?.(selectedQuote)
-    }
+    onQuoteChange?.(selectedQuote)
   }, [onQuoteChange, selectedQuote])
 
   useEffect(() => {
@@ -172,6 +173,24 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
   return (
     <Stack className="gap-4">
       {termAndPolicyModal}
+
+      <SegmentedControl
+        options={[
+          {
+            label: (
+              <span className="inline-flex items-center gap-1.5">
+                KyberCross
+                <span className="rounded bg-red-20 px-1 text-xs text-red">New</span>
+              </span>
+            ),
+            value: 'direct',
+          },
+          { label: 'Aggregator Stream', value: 'stream' },
+        ]}
+        size="sm"
+        value={quoteMode}
+        onChange={showPreview ? undefined : setQuoteMode}
+      />
 
       <AutoColumn className="gap-3">
         <TokenPanel

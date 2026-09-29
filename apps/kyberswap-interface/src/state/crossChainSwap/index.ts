@@ -6,7 +6,10 @@ import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 const MAX_CROSS_CHAIN_TRANSACTIONS = 120
 
+export type CrossChainQuoteMode = 'direct' | 'stream'
+
 export interface CrossChainSwapState {
+  quoteMode: CrossChainQuoteMode
   transactions: NormalizedTxResponse[]
   excludedSources: string[]
 }
@@ -14,10 +17,17 @@ export interface CrossChainSwapState {
 const slice = createSlice({
   name: 'crossChainSwap',
   initialState: {
+    quoteMode: 'direct',
     transactions: [] as NormalizedTxResponse[],
     excludedSources: [] as string[],
   } as CrossChainSwapState,
   reducers: {
+    updateQuoteMode: (state, { payload }: { payload: CrossChainQuoteMode }) => {
+      if (state.quoteMode === payload) return
+      state.quoteMode = payload
+      // Direct filters bridge providers; stream filters aggregator sources.
+      state.excludedSources = []
+    },
     updateTransactions: (state, { payload }: { payload: NormalizedTxResponse[] }) => {
       state.transactions = payload
     },
@@ -41,7 +51,9 @@ const slice = createSlice({
   },
 })
 
-export const { updateTransactions, updateTransactionStatus, updateExcludedSources } = slice.actions
+export const { updateTransactions, updateTransactionStatus, updateExcludedSources, updateQuoteMode } = slice.actions
+
+export const useCrossChainQuoteMode = () => useAppSelector(state => state.crossChainSwap.quoteMode || 'direct')
 export default slice.reducer
 
 export const useCrossChainTransactions = (): [
