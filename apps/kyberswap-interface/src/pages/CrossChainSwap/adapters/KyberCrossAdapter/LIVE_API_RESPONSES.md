@@ -192,6 +192,8 @@ Frontend-owned behavior:
 
 - Each route plan is normalized into its own selectable quote with its output, price impact, time estimate, and bridge provider.
 - Each option retains only its own route in `rawQuote.data.route_plans`, so display and execution use the selected plan.
+- Route duration uses `estimated_duration_sec` at the route root, not `bridge.expected_fill_time_sec`.
+- Route Options displays the API-provided `tags`: `RECOMMENDED`, `FASTEST`, and `BEST_OUTPUT`. Multiple tags can appear on a route; unknown tags are ignored.
 - Selection uses the route ID rather than adapter name. If a refresh replaces that ID, selection falls back to the best current quote.
 - `expected_output_amount` becomes the estimated output.
 - `ks_allowance_hub_address` is used for ERC-20 approval.

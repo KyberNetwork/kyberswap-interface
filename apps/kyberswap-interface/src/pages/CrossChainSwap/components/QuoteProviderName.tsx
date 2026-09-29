@@ -33,14 +33,16 @@ export const QuoteProviderName = ({ quote }: { quote: Quote }) => {
   const providers = getQuoteProviders(quote)
 
   return (
-    <>
+    <span className="inline-flex items-center gap-1.5">
       {providers.map((provider, index) => (
         <React.Fragment key={`${provider.getName()}-${index}`}>
-          {index > 0 && <span className="mx-1">x</span>}
-          {provider.getIcon && <img src={provider.getIcon()} alt={provider.getName()} width={14} height={14} />}
-          <span className="ml-1">{provider.getName()}</span>
+          {index > 0 && <span>x</span>}
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
+            {provider.getIcon && <img src={provider.getIcon()} alt="" width={14} height={14} className="shrink-0" />}
+            <span>{provider.getName()}</span>
+          </span>
         </React.Fragment>
       ))}
-    </>
+    </span>
   )
 }
