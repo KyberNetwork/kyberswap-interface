@@ -11,7 +11,7 @@ import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_sma
 import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
-import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
+import { DropdownTextAnchor, NewLabel, NewTag, StyledNavLink } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { MEDIA_WIDTHS } from 'theme'
@@ -119,7 +119,10 @@ const EarnNavGroup = ({ dropdownAlign }: Props) => {
           >
             <div className="flex items-center gap-3">
               <ExploreVaultsIcon width={16} height={16} />
-              {t`Explore Vaults`}
+              <div className="flex items-center">
+                {t`Explore Vaults`}
+                <NewTag />
+              </div>
             </div>
           </StyledNavLink>
 
