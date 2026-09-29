@@ -84,22 +84,24 @@ export const CopyCapitalCard = ({
 export const WithdrawCard = ({
   availability,
   tokensAvailability,
+  hasBalance,
   onWithdraw,
 }: {
   availability?: AdvisoryActionAvailability
   tokensAvailability?: AdvisoryActionAvailability
+  hasBalance: boolean
   onWithdraw: () => void
 }) => {
-  const disabled = !canAttemptPreparation(availability) && !canAttemptPreparation(tokensAvailability)
+  let disabledReason: string | undefined
+  if (!hasBalance) {
+    disabledReason = 'No withdrawable balance is available.'
+  } else if (!canAttemptPreparation(availability) && !canAttemptPreparation(tokensAvailability)) {
+    disabledReason = getPreparedReasonMessage(availability?.reason || tokensAvailability?.reason)
+  }
   return (
     <SidePanelCard title="Advanced">
       <p className="text-sm text-subText">Withdraw tokens directly to your wallet.</p>
-      <ButtonLight
-        type="button"
-        disabled={disabled}
-        title={disabled ? getPreparedReasonMessage(availability?.reason || tokensAvailability?.reason) : undefined}
-        onClick={onWithdraw}
-      >
+      <ButtonLight type="button" disabled={!!disabledReason} title={disabledReason} onClick={onWithdraw}>
         Withdraw
       </ButtonLight>
     </SidePanelCard>
