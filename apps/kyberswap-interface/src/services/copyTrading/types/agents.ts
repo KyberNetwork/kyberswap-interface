@@ -103,6 +103,7 @@ export type StrategyExecutionItem = {
 
 export type AgentCard = {
   agentId: string
+  myCopyRunId?: string
   chainId: number
   leaderAddress: Address
   displayName: string

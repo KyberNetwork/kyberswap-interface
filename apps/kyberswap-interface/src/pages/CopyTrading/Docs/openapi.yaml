@@ -17,6 +17,8 @@ tags:
   - name: ActionStatusService
   - name: Transaction Preparation
     description: Prepare authoritative Copy Trade contract calls for wallet-owned execution.
+  - name: Admin Agents
+    description: VPN-only agent registry inventory and metadata/visibility controls.
 basePath: /api/v1
 schemes:
   - https
@@ -55,6 +57,7 @@ paths:
             $ref: '#/definitions/rpcStatus'
       parameters:
         - name: chainId
+          description: Optional chain filter; omit to aggregate every enabled chain.
           in: query
           required: false
           type: string
@@ -90,6 +93,7 @@ paths:
             $ref: '#/definitions/rpcStatus'
       parameters:
         - name: chainId
+          description: Optional chain filter; omit to rank agents across every enabled chain.
           in: query
           required: false
           type: string
@@ -139,6 +143,11 @@ paths:
             - SORT_ORDER_ASC
             - SORT_ORDER_DESC
           default: SORT_ORDER_UNSPECIFIED
+        - name: ownerAddress
+          description: Optional current owner used to enrich each row with my_copy_run_id.
+          in: query
+          required: false
+          type: string
       tags:
         - Leaderboard
   /agents:
@@ -1572,6 +1581,88 @@ paths:
             $ref: '#/definitions/TransactionPreparationServicePrepareClosePositionBody'
       tags:
         - Transaction Preparation
+  /admin/agents:
+    get:
+      operationId: listAdminAgents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListAdminAgentsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: listingState
+          in: query
+          required: false
+          type: string
+          enum:
+            - ADMIN_AGENT_LISTING_STATE_UNSPECIFIED
+            - ADMIN_AGENT_LISTING_STATE_LISTED
+            - ADMIN_AGENT_LISTING_STATE_SUSPENDED
+            - ADMIN_AGENT_LISTING_STATE_HIDDEN
+          default: ADMIN_AGENT_LISTING_STATE_UNSPECIFIED
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Admin Agents
+    post:
+      operationId: createAdminAgent
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CreateAdminAgentResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1CreateAdminAgentRequest'
+      tags:
+        - Admin Agents
+  /admin/agents/{agentId}:
+    patch:
+      operationId: updateAdminAgent
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1UpdateAdminAgentResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AgentAdminServiceUpdateAdminAgentBody'
+      tags:
+        - Admin Agents
 definitions:
   ActionStatusServiceGetSubmittedActionStatusBody:
     type: object
@@ -1585,6 +1676,17 @@ definitions:
     description: |-
       GetSubmittedActionStatusRequest can be repeated after process or browser resume.
       Previous receipt explains reorg changes but never supplies canonical proof.
+  AgentAdminServiceUpdateAdminAgentBody:
+    type: object
+    properties:
+      details:
+        $ref: '#/definitions/v1AdminAgentDetails'
+      updateMask:
+        type: string
+    description: |-
+      UpdateAdminAgentRequest uses field-mask paths relative to the request's
+      details message (for example, details.display_name or details.listing_state).
+      Identity paths are deliberately absent and rejected by the transport.
   TransactionPreparationServicePrepareAddCapitalBody:
     type: object
     properties:
@@ -2320,6 +2422,98 @@ definitions:
       newAllocatedCapital:
         $ref: '#/definitions/v1RawAmountMetric'
     description: AddCapitalPreview contains direct-transfer and net-allocation values.
+  v1AdminAgent:
+    type: object
+    properties:
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      leaderAddress:
+        type: string
+      details:
+        $ref: '#/definitions/v1AdminAgentDetails'
+      isActive:
+        type: boolean
+      adminManagedFields:
+        type: array
+        items:
+          type: string
+      updatedAt:
+        type: string
+        format: date-time
+      listingStateOwner:
+        $ref: '#/definitions/v1AdminAgentListingStateOwner'
+  v1AdminAgentDetails:
+    type: object
+    properties:
+      displayName:
+        type: string
+      avatarUrl:
+        type: string
+      bio:
+        type: string
+      modelName:
+        type: string
+      isVerified:
+        type: boolean
+      strategyExecutionItems:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AdminAgentStrategyExecutionItem'
+      badges:
+        type: array
+        items:
+          type: string
+      tags:
+        type: array
+        items:
+          type: string
+      listingState:
+        $ref: '#/definitions/v1AdminAgentListingState'
+    description: |-
+      AdminAgentDetails contains mutable display and discovery metadata. Identity
+      fields intentionally do not appear here and can never be changed by PATCH.
+  v1AdminAgentListingState:
+    type: string
+    enum:
+      - ADMIN_AGENT_LISTING_STATE_UNSPECIFIED
+      - ADMIN_AGENT_LISTING_STATE_LISTED
+      - ADMIN_AGENT_LISTING_STATE_SUSPENDED
+      - ADMIN_AGENT_LISTING_STATE_HIDDEN
+    default: ADMIN_AGENT_LISTING_STATE_UNSPECIFIED
+    description: |-
+      AdminAgentListingState is the public-discovery membership selected by an
+      operator. It does not deactivate an agent or delete user copy-run data.
+  v1AdminAgentListingStateOwner:
+    type: string
+    enum:
+      - ADMIN_AGENT_LISTING_STATE_OWNER_UNSPECIFIED
+      - ADMIN_AGENT_LISTING_STATE_OWNER_CONFIG
+      - ADMIN_AGENT_LISTING_STATE_OWNER_ADMIN
+    default: ADMIN_AGENT_LISTING_STATE_OWNER_UNSPECIFIED
+    description: |-
+      AdminAgentListingStateOwner identifies who currently owns the effective
+      listing state. An admin override survives a later config reconciliation.
+  v1AdminAgentPagination:
+    type: object
+    properties:
+      nextCursor:
+        type: string
+      hasMore:
+        type: boolean
+      limit:
+        type: integer
+        format: int32
+  v1AdminAgentStrategyExecutionItem:
+    type: object
+    properties:
+      label:
+        type: string
+      description:
+        type: string
   v1AdvisoryActionAvailability:
     type: object
     properties:
@@ -2463,6 +2657,13 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/v1GenerationScopedAgentFeePolicy'
+      myCopyRunId:
+        type: string
+        description: |-
+          Current owner's admitted active or closing copy run for this agent. The
+          field is omitted when no owner_address was supplied or the owner has no
+          current run, so clients can render Copy versus My copy without another
+          owner-scoped lookup.
     description: AgentCard is a row in leaderboard and agent discovery.
   v1AgentMetrics:
     type: object
@@ -3311,6 +3512,25 @@ definitions:
         type: string
         format: date-time
     description: CountMetric preserves an integer count and independent availability.
+  v1CreateAdminAgentRequest:
+    type: object
+    properties:
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      leaderAddress:
+        type: string
+      details:
+        $ref: '#/definitions/v1AdminAgentDetails'
+  v1CreateAdminAgentResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1AdminAgent'
+      changed:
+        type: boolean
   v1CursorPagination:
     type: object
     properties:
@@ -3657,6 +3877,16 @@ definitions:
       lifetimeVolumeUsd:
         $ref: '#/definitions/v1DecimalMetric'
     description: LeaderboardSummary contains aggregate leaderboard totals.
+  v1ListAdminAgentsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AdminAgent'
+      pagination:
+        $ref: '#/definitions/v1AdminAgentPagination'
   v1ListAgentActionLogsResponse:
     type: object
     properties:
@@ -5073,6 +5303,13 @@ definitions:
     description: |-
       TradeSide identifies an immutable trade direction in structured activity
       and alert-feed contexts.
+  v1UpdateAdminAgentResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1AdminAgent'
+      changed:
+        type: boolean
   v1WalletBalanceRow:
     type: object
     properties:

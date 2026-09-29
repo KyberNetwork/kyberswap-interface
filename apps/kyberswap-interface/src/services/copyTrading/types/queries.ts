@@ -34,6 +34,7 @@ export type LeaderboardFilters = {
 export type LeaderboardSummaryQuery = LeaderboardFilters
 export type LeaderboardQuery = CursorQuery &
   LeaderboardFilters & {
+    ownerAddress?: string
     sortBy?: LeaderboardSortBy
     sortOrder?: SortOrder
   }
