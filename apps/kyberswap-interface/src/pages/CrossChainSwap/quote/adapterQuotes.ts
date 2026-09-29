@@ -5,6 +5,7 @@ import {
   QuoteParams,
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
+import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { getSourceFilters, streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
@@ -150,7 +151,11 @@ export const getFallbackQuotes = async ({
         const quote = await getAdapterQuote(adapter, quoteParams, signal)
         if (signal.aborted) throw new Error('Cancelled')
 
-        fallbackQuotes.push({ adapter, quote, isReadOnly })
+        const routeQuotes =
+          adapter instanceof KyberCrossAdapter
+            ? adapter.getRouteQuotes(quote, isReadOnly)
+            : [{ adapter, quote, isReadOnly }]
+        fallbackQuotes.push(...routeQuotes)
         onQuotes(sortQuotesByNetOutput(fallbackQuotes))
         onQuoteReady()
       } catch (error) {

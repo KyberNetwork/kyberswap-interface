@@ -32,7 +32,7 @@ import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndP
 import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import type { NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
-import { Quote } from 'pages/CrossChainSwap/registry'
+import { Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -45,7 +45,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
     amount,
     setAmount,
     selectedQuote,
-    setSelectedAdapter,
+    setSelectedQuoteId,
     fromChainId,
     toChainId,
     currencyIn,
@@ -319,7 +319,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
                   quotes={quotes}
                   selectedQuote={selectedQuote}
                   onChange={newSelectedQuote => {
-                    setSelectedAdapter(newSelectedQuote.adapter.getName())
+                    setSelectedQuoteId(getQuoteId(newSelectedQuote))
                     onQuoteChange?.(newSelectedQuote)
                   }}
                   tokenOut={currencyOut}
