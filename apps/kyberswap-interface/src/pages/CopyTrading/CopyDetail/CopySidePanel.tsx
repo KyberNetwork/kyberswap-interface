@@ -166,6 +166,12 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
 
   const inventoryComplete =
     inventoryResponse?.complete === true && pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT'
+  const hasWithdrawableBalance =
+    inventoryComplete &&
+    walletAssets.some(asset => {
+      const amount = Number(asset.amountDecimal)
+      return Number.isFinite(amount) && amount > 0
+    })
   const terminalStatus = run.status === 'stopped' || run.status === 'closed' ? run.status : undefined
   const isTerminal = !!terminalStatus
 
@@ -229,6 +235,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       {(run.withdrawQuoteAvailability || run.withdrawTokensAvailability) && (
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.withdraw}>
           <WithdrawCard
+            hasBalance={hasWithdrawableBalance}
             tokensAvailability={run.withdrawTokensAvailability}
             availability={run.withdrawQuoteAvailability}
             onWithdraw={() => openWithdraw(run)}
