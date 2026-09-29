@@ -71,18 +71,22 @@ export const WithdrawalOptions = ({
   ]
   const assets =
     preview?.tokens !== undefined
-      ? preview.tokens.map(asset => ({
-          address: asset.token?.address,
-          symbol: asset.token?.symbol,
-          amount: withMetricFallback(formatPreparedAmount(asset.balance, asset.token)),
-          valueUsd: isValuationRenderable(asset.currentValuation) ? asset.currentValuation?.valueUsd : undefined,
-        }))
-      : walletAssets.map(asset => ({
-          address: asset.tokenAddress,
-          symbol: asset.token?.symbol,
-          amount: `${formatTokenAmount(asset.amountDecimal)}${asset.token?.symbol ? ` ${asset.token.symbol}` : ''}`,
-          valueUsd: asset.valueUsd,
-        }))
+      ? preview.tokens
+          .filter(asset => Number(asset.balance?.valueRaw) !== 0)
+          .map(asset => ({
+            address: asset.token?.address,
+            symbol: asset.token?.symbol,
+            amount: withMetricFallback(formatPreparedAmount(asset.balance, asset.token)),
+            valueUsd: isValuationRenderable(asset.currentValuation) ? asset.currentValuation?.valueUsd : undefined,
+          }))
+      : walletAssets
+          .filter(asset => Number(asset.amountDecimal) !== 0)
+          .map(asset => ({
+            address: asset.tokenAddress,
+            symbol: asset.token?.symbol,
+            amount: `${formatTokenAmount(asset.amountDecimal)}${asset.token?.symbol ? ` ${asset.token.symbol}` : ''}`,
+            valueUsd: asset.valueUsd,
+          }))
   const total = metricValue(preview?.totalCurrentValueUsd)
   const rebates = metricValue(preview?.cashbackForfeitedUsd)
   return (
@@ -139,8 +143,8 @@ export const WithdrawalOptions = ({
                             <span className={tokenValueClassName}>{formatUsd(asset.valueUsd)}</span>
                           </div>
                         ))}
-                        {!assets.length && !display.loading && (
-                          <span className="py-2 text-sm text-subText">Token preview unavailable</span>
+                        {!assets.length && !display.loading && !isInventoryLoading && (
+                          <span className="py-2 text-sm text-subText">No tokens available to withdraw.</span>
                         )}
                       </Stack>
                     )}
