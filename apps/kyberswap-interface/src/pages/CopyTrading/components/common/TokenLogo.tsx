@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Logo from 'components/Logo'
+import { useAllTokens } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 export type CopyTradingTokenLogoToken = {
@@ -21,6 +22,10 @@ type CopyTradingTokenLogoProps = {
 
 const CopyTradingTokenLogo = ({ fallbackChainId, size = '20px', token }: CopyTradingTokenLogoProps) => {
   const chainId = Number(token?.chainId) || fallbackChainId
+
+  const tokens = useAllTokens(true, chainId)
+  const logoURI = token?.logoUrl || tokens[token?.address?.toLowerCase() || '']?.logoURI
+
   const currency = useMemo(() => {
     if (!token?.address || !chainId) return undefined
 
@@ -29,14 +34,14 @@ const CopyTradingTokenLogo = ({ fallbackChainId, size = '20px', token }: CopyTra
         address: token.address,
         chainId,
         decimals: token.decimals ?? 0,
-        logoURI: token.logoUrl,
+        logoURI,
         name: token.name || token.symbol || 'Token',
         symbol: token.symbol || 'Token',
       })
     } catch {
       return undefined
     }
-  }, [chainId, token?.address, token?.decimals, token?.logoUrl, token?.name, token?.symbol])
+  }, [chainId, logoURI, token?.address, token?.decimals, token?.name, token?.symbol])
 
   return (
     <span className="inline-flex shrink-0" style={{ width: size, height: size }}>
@@ -44,7 +49,7 @@ const CopyTradingTokenLogo = ({ fallbackChainId, size = '20px', token }: CopyTra
         <CurrencyLogo currency={currency} size={size} />
       ) : (
         <Logo
-          srcs={token?.logoUrl ? [token.logoUrl] : []}
+          srcs={logoURI ? [logoURI] : []}
           alt={`${token?.symbol || 'Token'} logo`}
           className="rounded-full object-contain"
           style={{ width: size, height: size }}
