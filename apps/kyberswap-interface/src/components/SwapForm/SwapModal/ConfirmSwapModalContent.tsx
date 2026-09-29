@@ -29,6 +29,7 @@ import { TransactionErrorContent } from 'components/TransactionConfirmationModal
 import { APP_PATHS } from 'constants/index'
 import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
+import { getERC8056DisplayAmount, getERC8056DisplayPrice } from 'hooks/useERC8056Token'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
@@ -118,7 +119,7 @@ export default function ConfirmSwapModalContent({
   onSwap,
 }: Props) {
   const theme = useTheme()
-  const { routeSummary, slippage, isAdvancedMode } = useSwapFormContext()
+  const { routeSummary, slippage, isAdvancedMode, inputERC8056Info, outputERC8056Info } = useSwapFormContext()
   const [hasAcceptedNewAmount, setHasAcceptedNewAmount] = useState(false)
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
   const [isDegenMode] = useDegenModeManager()
@@ -233,14 +234,16 @@ export default function ConfirmSwapModalContent({
     const { amountIn, amountOut, gasUsd } = buildResult.data
     const parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
     const parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
-    const executionPrice = new Price(
-      parsedAmountIn.currency,
-      parsedAmountOut.currency,
-      parsedAmountIn.quotient,
-      parsedAmountOut.quotient,
+    const executionPrice = getERC8056DisplayPrice(
+      new Price(parsedAmountIn.currency, parsedAmountOut.currency, parsedAmountIn.quotient, parsedAmountOut.quotient),
+      inputERC8056Info,
+      outputERC8056Info,
     )
     // Min amount out is calculated from get route api amount out.
-    const minimumAmountOut = minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage)
+    const minimumAmountOut = getERC8056DisplayAmount(
+      outputERC8056Info,
+      minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage),
+    )
 
     return {
       isLoading: isBuildingRoute,
@@ -261,12 +264,16 @@ export default function ConfirmSwapModalContent({
   let amountOutUsdFromBuild: string | undefined
   if (routeSummary) {
     parsedAmountIn = routeSummary.parsedAmountIn
-    parsedAmountOut = routeSummary.parsedAmountOut
+    // Output amounts below are display-only, so an ERC-8056 output token shows them in display units.
+    parsedAmountOut = getERC8056DisplayAmount(outputERC8056Info, routeSummary.parsedAmountOut)
     amountInUsd = routeSummary.amountInUsd
 
     if (buildResult?.data) {
       const { amountOut } = buildResult.data
-      parsedAmountOutFromBuild = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
+      parsedAmountOutFromBuild = getERC8056DisplayAmount(
+        outputERC8056Info,
+        toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut),
+      )
 
       amountOutUsdFromBuild = buildResult.data.amountOutUsd
       amountInUsd = buildResult.data.amountInUsd

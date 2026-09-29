@@ -19,8 +19,8 @@ import { ChargeFeeBy } from 'types/route'
 import { RouteSide, routeAmountIn, routeTokenAddress, routeTokenDecimals } from 'utils/nativeErc20'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
-const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
-const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec58Af5130'
+const SWAP_FEE_RECEIVER_ADDRESS = '0x1111115af63bfbcc151e5753e2ea1a29c79d2f01'
+const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x1111115e73933b2168F41112F828EbD2FC7c5d05'
 
 export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined

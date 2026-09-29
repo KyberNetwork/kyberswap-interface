@@ -79,6 +79,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       }
       customChainId={customChainId}
       trackingSource="swap"
+      scaleERC8056Balances
     />
   )
 }

@@ -263,6 +263,14 @@ describe('parseRawAmount', () => {
   it('falls back to zero on malformed input instead of throwing', () => {
     expect(parseRawAmount('not-a-number')).toBe(0n)
   })
+
+  it('reads a value past uint256 as zero, since no balance can be one', () => {
+    // Venus vETH answers `balanceOf` with 96 bytes; the service hex-encodes the whole buffer, so a
+    // real 0x2892 arrives with 128 zero digits behind it — far past what the SDK accepts.
+    expect(parseRawAmount(`0x2892${'0'.repeat(128)}`)).toBe(0n)
+    expect(parseRawAmount(`0x1${'0'.repeat(64)}`)).toBe(0n)
+    expect(parseRawAmount(`0x${'f'.repeat(64)}`)).toBe((1n << 256n) - 1n)
+  })
 })
 
 describe('adaptRow', () => {

@@ -43,7 +43,7 @@ import {
 } from './styled'
 
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, TokenInfo, ZIndex } from '../../constants'
-import { isSameTokenAddress, toRoutableAmount } from '../../utils'
+import { toRoutableAmount, toWidgetTokenAddress } from '../../utils'
 import SelectCurrency from '../SelectCurrency'
 import { Web3Provider, useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import useSwap from '../../hooks/useSwap'
@@ -379,7 +379,7 @@ const Widget = ({
           <SelectCurrency
             selectedToken={tokenIn}
             onChange={token => {
-              if (isSameTokenAddress(chainId, token.address, tokenOut)) setTokenOut(tokenIn)
+              if (toWidgetTokenAddress(chainId, token.address) === tokenOut) setTokenOut(tokenIn)
               setTokenIn(token.address)
               setShowModal(null)
               onSourceTokenChange?.(token)
@@ -396,7 +396,7 @@ const Widget = ({
           <SelectCurrency
             selectedToken={tokenOut}
             onChange={token => {
-              if (isSameTokenAddress(chainId, token.address, tokenIn)) setTokenIn(tokenOut)
+              if (toWidgetTokenAddress(chainId, token.address) === tokenIn) setTokenIn(tokenOut)
               setTokenOut(token.address)
               setShowModal(null)
               onDestinationTokenChange?.(token)

@@ -1,13 +1,12 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import WalletIcon from 'components/Icons/Wallet'
-import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
-import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
+import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
 import RateComparison, { MARKET_DIFF_WARNING_THRESHOLD } from 'components/LimitOrder/TakeOrder/RateComparison'
 import TakeOrderActionButtons from 'components/LimitOrder/TakeOrder/TakeOrderActionButtons'
 import { useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
@@ -30,6 +29,8 @@ import {
 } from 'components/LimitOrder/types'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
+import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
+import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -97,7 +98,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const [fillAmount, setFillAmount] = useState('')
   const [showInvertedRate, setShowInvertedRate] = useState(false)
   const [estimatedGasUsd, setEstimatedGasUsd] = useState('')
-  const [processingState, setProcessingState] = useState(DEFAULT_PROCESSING_ORDER)
+  const processingState = useProcessingState<ProcessingOrderStep>()
 
   const context = useMemo<LimitOrderTakeContext>(() => {
     const rawOrder = order.rawOrder
@@ -122,9 +123,10 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     context,
     fillAmount,
   })
-  const processing = useProcessingOrder({
-    processingOrder: processingState,
-    setProcessingOrder: setProcessingState,
+  const processing = useProcessingSteps<ProcessingOrderStep>({
+    ...processingState,
+    approveStep: 'approve',
+    actionStep: 'fill',
     ...takeOrder.processing,
   })
   const isConfirmOpen = isOpen && !processing.state.show
@@ -418,16 +420,17 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
           </Stack>
         </Stack>
       </Modal>
-      <ProcessingOrderModal
+      <ProcessingStepsModal
         chainId={context.order.chainId}
-        currencyIn={context.payCurrency}
         processing={{
           ...processing,
           dismiss: dismissProcessingPanel,
           retryStep: handleRetryStep,
         }}
+        title={t`Processing Order`}
+        getStepLabel={getLimitOrderStepLabel({ chainId: context.order.chainId, currencyIn: context.payCurrency })}
+        successAction={{ label: <Trans>My Orders</Trans>, onClick: handleViewOrder }}
         onUserDismiss={trackProcessingPanelDismiss}
-        onViewOrder={handleViewOrder}
       />
     </>
   )

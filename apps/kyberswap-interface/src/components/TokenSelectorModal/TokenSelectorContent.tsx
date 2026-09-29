@@ -104,6 +104,8 @@ interface TokenSelectorContentProps {
   selectedCurrency?: Currency | null
   onCurrencySelect?: (currency: Currency) => void
   otherSelectedCurrency?: Currency | null
+  /** Show the selected tokens' ERC-8056 balances in display units; only for forms whose own balance labels do the same. */
+  scaleERC8056Balances?: boolean
   showPinnedTokens?: boolean
   onImportToken?: (token: Token) => void
   customChainId?: ChainId
@@ -261,6 +263,7 @@ export const TokenSelectorContent = ({
   selectedCurrency,
   onCurrencySelect,
   otherSelectedCurrency,
+  scaleERC8056Balances,
   showPinnedTokens,
   onDismiss,
   isOpen,
@@ -1257,6 +1260,7 @@ export const TokenSelectorContent = ({
               onToggleFavorite={handleClickFavorite}
               onCurrencySelect={handleCurrencySelect}
               otherCurrency={otherSelectedCurrency}
+              scaleERC8056Balances={scaleERC8056Balances}
               selectedCurrency={selectedCurrency}
               onImportToken={onImportToken}
               loadMoreRows={handleLoadMore}

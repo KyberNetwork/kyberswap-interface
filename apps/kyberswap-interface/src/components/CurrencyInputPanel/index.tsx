@@ -353,6 +353,8 @@ interface CurrencyInputPanelProps {
   selectClassName?: string
   customChainId?: ChainId
   trackingSource?: string
+  /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
+  scaleERC8056Balances?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -396,6 +398,7 @@ export default function CurrencyInputPanel({
   selectClassName,
   customChainId,
   trackingSource,
+  scaleERC8056Balances,
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -496,6 +499,7 @@ export default function CurrencyInputPanel({
             onCurrencySelect={onCurrencySelect}
             selectedCurrency={currency}
             otherSelectedCurrency={otherCurrency}
+            scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
             filterWrap={filterWrap}
             customChainId={customChainId}

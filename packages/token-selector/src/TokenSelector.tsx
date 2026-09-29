@@ -73,6 +73,7 @@ interface TokenSelectorProps {
   setTokensIn?: (tokens: Token[]) => void;
   setAmountsIn?: (amounts: string) => void;
   onTokenSelect?: (token: Token) => void;
+  excludedTokenAddresses?: string[];
   isTokenRestricted?: (token: Token) => boolean;
   onRestrictedToken?: (token: Token) => void;
   mode: TOKEN_SELECT_MODE;
@@ -311,6 +312,7 @@ export default function TokenSelector({
   setTokensIn,
   setAmountsIn,
   onTokenSelect,
+  excludedTokenAddresses,
   isTokenRestricted,
   onRestrictedToken,
   onConnectWallet,
@@ -339,6 +341,13 @@ export default function TokenSelector({
   const allTokens = useMemo(
     () => [...tokens, ...importedTokens, ...discoveredTokens],
     [tokens, importedTokens, discoveredTokens],
+  );
+
+  // Joined so a caller handing over a fresh array on every render does not rebuild the list.
+  const excludedKey = (excludedTokenAddresses ?? []).join(",").toLowerCase();
+  const excludedAddresses = useMemo(
+    () => new Set(excludedKey ? excludedKey.split(",") : []),
+    [excludedKey],
   );
 
   const wrappedNativeAddress = chainId
@@ -413,8 +422,11 @@ export default function TokenSelector({
     const nativeTokenLower = NATIVE_TOKEN_ADDRESS.toLowerCase();
     const selectedTokenLower = selectedTokenAddress?.toLowerCase();
 
-    const sourceTokens =
-      tabSelected === TOKEN_TAB.ALL ? allTokens : importedTokens;
+    const sourceTokens = (
+      tabSelected === TOKEN_TAB.ALL ? allTokens : importedTokens
+    ).filter(
+      (token: Token) => !excludedAddresses.has(token.address.toLowerCase()),
+    );
 
     return sourceTokens
       .map((token: Token) => {
@@ -494,6 +506,7 @@ export default function TokenSelector({
     allTokens,
     importedTokens,
     discoveredAddresses,
+    excludedAddresses,
     tokensIn,
     tokenBalances,
     mode,
@@ -806,13 +819,13 @@ export default function TokenSelector({
       return;
     }
     // Skip fetching unimported tokens when chainId is not provided (positionsOnly mode)
-    if (isAddress(search) && chainId) {
+    if (isAddress(search) && chainId && !excludedAddresses.has(search)) {
       fetchTokenInfo(search, chainId).then((res) => {
         setUnImportedTokens(res);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredTokens, chainId, debouncedSearchTerm]);
+  }, [filteredTokens, chainId, debouncedSearchTerm, excludedAddresses]);
 
   useEffect(() => {
     const tokensInSet = new Set(tokensIn.map((t) => t.address.toLowerCase()));
@@ -1012,7 +1025,11 @@ export default function TokenSelector({
                   })}
 
                 {isLoading || isPending ? (
-                  <TokenLoader />
+                  /* Bounded and clipped like the real list below it: left to grow, nine fixed-height
+                     rows run past the dialog's footer and sit under the buttons. */
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <TokenLoader />
+                  </div>
                 ) : filteredTokens?.length > 0 && !unImportedTokens.length ? (
                   <div className="flex-1 min-h-0">
                     <AutoSizer>
