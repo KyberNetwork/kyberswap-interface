@@ -8,7 +8,6 @@ import {
   StopLossOraclePrice,
   StopLossOrder,
   StopLossOrderStatus,
-  StopLossSupportedToken,
   StopLossTypedData,
 } from 'components/StopLoss/types'
 import { parseStopLossOrders } from 'components/StopLoss/utils'
@@ -19,7 +18,6 @@ import { RTK_QUERY_TAGS } from 'constants/index'
 // naming the offending fields.
 type ApiEnvelope<T> = { code: number; message: string; data: T }
 
-type SupportedTokensResponse = { chainId: number; tokens: StopLossSupportedToken[] }
 type ListOrdersResponse = { orders: unknown[]; pagination?: { totalItems?: number } }
 type PublicConfigResponse = { config?: { smartIntentAddress?: string } }
 
@@ -61,12 +59,6 @@ const stopLossApi = createApi({
       transformResponse: (response: ApiEnvelope<PublicConfigResponse>) => ({
         smartIntentAddress: response?.data?.config?.smartIntentAddress ?? '',
       }),
-    }),
-
-    // Tokens with an oracle feed on this chain. Addresses only — symbols come from the app token list.
-    getStopLossSupportedTokens: builder.query<StopLossSupportedToken[], ChainId>({
-      query: chainId => ({ url: `${ORDERS_PATH}/supported-tokens`, params: { chainId } }),
-      transformResponse: (response: ApiEnvelope<SupportedTokensResponse>) => response?.data?.tokens ?? [],
     }),
 
     getStopLossOrders: builder.query<StopLossListResult, StopLossListParams>({
@@ -153,7 +145,6 @@ const stopLossApi = createApi({
 
 export const {
   useGetStopLossConfigQuery,
-  useGetStopLossSupportedTokensQuery,
   useGetStopLossOrdersQuery,
   useGetStopLossOraclePriceQuery,
   useEstimateStopLossFeeMutation,

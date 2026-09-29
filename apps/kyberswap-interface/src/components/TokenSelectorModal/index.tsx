@@ -36,6 +36,8 @@ interface TokenSelectorModalProps {
   showDiscoveryTabs?: boolean
   /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
   onSelectChain?: (chainId: ChainId) => void
+  /** List only tokens with a Chainlink price feed. */
+  requireChainlinkOracle?: boolean
 }
 
 enum TokenSelectorModalView {
@@ -59,6 +61,7 @@ const TokenSelectorModal = ({
   trackingSource,
   showDiscoveryTabs,
   onSelectChain,
+  requireChainlinkOracle,
 }: TokenSelectorModalProps) => {
   const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
   // A cross-chain token confirmed from the import flow, pending its Switch-Chain confirm.
@@ -180,6 +183,7 @@ const TokenSelectorModal = ({
             onShowTokenInfo={setTokenToShowInfo}
             showDiscoveryTabs={showDiscoveryTabs}
             onSelectChain={onSelectChain}
+            requireChainlinkOracle={requireChainlinkOracle}
           />
         </div>
         {modalView === TokenSelectorModalView.importToken && importToken && !tokenToShowInfo ? (

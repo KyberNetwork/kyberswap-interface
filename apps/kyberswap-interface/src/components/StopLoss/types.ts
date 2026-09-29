@@ -118,13 +118,6 @@ export type StopLossFee = {
   gas: { percentage: number; usd: number; wei: string | number }
 }
 
-export type StopLossSupportedToken = {
-  address: string
-  decimals: number
-  source: string
-  pythPriceId?: string
-}
-
 export type StopLossOraclePrice = {
   chainId: ChainId
   base: string

@@ -33,3 +33,12 @@ export type TokenSort = { field: TokenSortField; dir: 'asc' | 'desc' }
 export type TokenMetricColumn = Extract<TokenSortField, 'volume24h' | 'fdv'>
 
 export const TOKEN_METRIC_COLUMNS: TokenMetricColumn[] = ['volume24h', 'fdv']
+
+/**
+ * Narrows the lists the selector fetches. Sent as query params, so each page comes back already
+ * filtered instead of being thinned out after it arrives.
+ */
+export type TokenSearchFilters = {
+  /** Only tokens with a Chainlink price feed. */
+  hasChainlinkOracle?: boolean
+}

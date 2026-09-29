@@ -5,7 +5,7 @@ import { fetchTokenCatalogTokens } from 'services/tokenCatalog'
 
 import { TRENDING_PAGE_SIZE, isTrendingSupportedChain } from 'components/TokenSelectorModal/constants'
 import { mapCatalogTokens } from 'components/TokenSelectorModal/hooks/catalog'
-import { TokenRowExtraMap, TokenSort } from 'components/TokenSelectorModal/types'
+import { TokenRowExtraMap, TokenSearchFilters, TokenSort } from 'components/TokenSelectorModal/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 /** Server-side `sort` param: KyberScore by default, or the column the user picked. */
@@ -26,11 +26,17 @@ type UseTrendingTokensResult = {
  * sort restarts pagination from page 1 (the sort param is part of the query key). Price / 24h-change
  * / volume / FDV come straight from each token's `metrics`.
  */
-export const useTrendingTokens = (chainId: ChainId, sort: TokenSort | null, active = true): UseTrendingTokensResult => {
+export const useTrendingTokens = (
+  chainId: ChainId,
+  sort: TokenSort | null,
+  active = true,
+  filters?: TokenSearchFilters,
+): UseTrendingTokensResult => {
   const sortParam = toSortParam(sort)
+  const hasChainlinkOracle = filters?.hasChainlinkOracle || undefined
 
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['token-selector-trending', chainId, sortParam],
+    queryKey: ['token-selector-trending', chainId, sortParam, hasChainlinkOracle],
     enabled: active && isTrendingSupportedChain(chainId),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
@@ -40,6 +46,7 @@ export const useTrendingTokens = (chainId: ChainId, sort: TokenSort | null, acti
         sort: sortParam,
         page: pageParam,
         pageSize: TRENDING_PAGE_SIZE,
+        hasChainlinkOracle,
       }),
     getNextPageParam: (lastPage, allPages) => {
       const lastCount = lastPage?.data?.tokens?.length ?? 0

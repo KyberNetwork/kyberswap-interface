@@ -15,6 +15,8 @@ export type LimitOrderTokenPanelProps = {
   events?: TokenSectionEvents
   /** Rendered inside the panel, under the amount row — for a note about the token chosen here. */
   footer?: ReactNode
+  /** The token selector lists only tokens with a Chainlink price feed. */
+  requireChainlinkOracle?: boolean
 }
 
 type TokenSectionTokens = {
@@ -48,12 +50,14 @@ export const LimitOrderInputTokenPanel = ({
   estimateUsd = DEFAULT_ESTIMATE_USD,
   events = {},
   footer,
+  requireChainlinkOracle,
 }: LimitOrderTokenPanelProps) => {
   const { currencyIn, currencyOut, inputAmount = '' } = tokens
 
   return (
     <CurrencyInputPanel
       footer={footer}
+      requireChainlinkOracle={requireChainlinkOracle}
       value={inputAmount}
       positionMax="top"
       onUserInput={events.onInputAmountChange}

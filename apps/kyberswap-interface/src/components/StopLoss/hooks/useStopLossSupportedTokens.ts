@@ -1,29 +1,21 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { useGetStopLossSupportedTokensQuery } from 'services/stopLoss'
 
-import { StopLossSupportedToken } from 'components/StopLoss/types'
 import { isSupportStopLoss } from 'constants/networks'
-
-const EMPTY_TOKENS: StopLossSupportedToken[] = []
+import { useChainlinkOracleTokens } from 'hooks/useChainlinkOracleTokens'
 
 /**
- * Tokens that carry an oracle feed on a chain — the set a stop-loss can monitor. The response holds
- * addresses only, so symbols and logos still come from the app token list.
+ * Tokens a stop-loss can monitor on a chain: those with a Chainlink price feed, which is what the
+ * trigger is evaluated against.
  */
 export const useStopLossSupportedTokens = (chainId: ChainId, options?: { skip?: boolean }) => {
   const chainSupportsStopLoss = isSupportStopLoss(chainId)
-  const { data, isLoading, isError } = useGetStopLossSupportedTokensQuery(chainId, {
+  const { addresses, hasOracle, isLoading, isError } = useChainlinkOracleTokens(chainId, {
     skip: !chainSupportsStopLoss || options?.skip,
   })
 
-  const tokens = data ?? EMPTY_TOKENS
-
-  const addresses = useMemo(() => new Set(tokens.map(token => token.address.toLowerCase())), [tokens])
-
   return {
-    tokens,
-    addresses,
+    hasOracle,
     isLoading,
     isError,
     /**
@@ -35,13 +27,10 @@ export const useStopLossSupportedTokens = (chainId: ChainId, options?: { skip?: 
   }
 }
 
-/**
- * Whether a token can be monitored. Native currency resolves to its wrapped address because that is
- * what the signed order sells.
- */
+/** Whether a token can be monitored. Native currency resolves to its wrapped token, which the order sells. */
 export const useIsStopLossEligibleToken = (currency?: Currency) => {
   // Without a currency there is no chain to ask about, so the placeholder must not reach the network.
-  const { addresses, isLoading, isError } = useStopLossSupportedTokens(
+  const { hasOracle, isLoading, isError } = useStopLossSupportedTokens(
     (currency?.chainId as ChainId) ?? ChainId.MAINNET,
     { skip: !currency },
   )
@@ -51,6 +40,6 @@ export const useIsStopLossEligibleToken = (currency?: Currency) => {
     if (isLoading) return { isEligible: false, isLoading: true }
     // An unanswered request is not evidence the token lacks a feed, so it must not read as ineligible.
     if (isError) return { isEligible: true, isLoading: false }
-    return { isEligible: addresses.has(currency.wrapped.address.toLowerCase()), isLoading: false }
-  }, [currency, addresses, isLoading, isError])
+    return { isEligible: hasOracle(currency), isLoading: false }
+  }, [currency, hasOracle, isLoading, isError])
 }

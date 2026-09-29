@@ -44,6 +44,8 @@ const StopLossReceiveSection = ({
       showPinnedTokens
       maxCurrencySymbolLength={6}
       filterWrap
+      // The trigger prices the sell token in this one, so the receive side needs a Chainlink feed too.
+      requireChainlinkOracle
       label={
         <div className="text-xs font-medium text-subText">
           <Trans>You Receive</Trans>

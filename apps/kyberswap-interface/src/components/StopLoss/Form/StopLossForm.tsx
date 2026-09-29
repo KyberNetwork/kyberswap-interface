@@ -173,6 +173,8 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
             onInputTokenSelect: onSelectSellToken,
           }}
           footer={validation.sellTokenWarning ? <FieldWarning>{validation.sellTokenWarning}</FieldWarning> : undefined}
+          // The trigger is evaluated against a Chainlink feed, so a token without one cannot be monitored.
+          requireChainlinkOracle
         />
 
         <TriggerPriceSection
