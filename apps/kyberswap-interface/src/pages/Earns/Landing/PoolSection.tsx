@@ -48,7 +48,7 @@ const LargeSkeleton = () => (
 const SectionLink = ({ to, testId, children }: { to: LinkProps['to']; testId?: string; children: React.ReactNode }) => (
   <Link
     to={to}
-    className="w-fit text-xl font-medium text-text no-underline hover:text-primary hover:underline"
+    className="w-fit text-xl font-medium text-text no-underline hover:text-text"
     data-testid={testId ? `${testId}-title` : undefined}
   >
     {children}
