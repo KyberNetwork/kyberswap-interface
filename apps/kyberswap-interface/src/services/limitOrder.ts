@@ -181,7 +181,10 @@ export const buildListOrdersSearchParams = ({ chainIds, ...params }: ListOrdersP
  * Orders on chains this build does not support are dropped, so the backend total is reduced by the
  * number dropped from this page — otherwise the pager would offer pages that render empty.
  */
-export const transformListOrdersResponse = ({ data }: ApiEnvelope<ListOrdersResponse>): ListOrdersResult => {
+export const transformListOrdersResponse = (
+  { data }: ApiEnvelope<ListOrdersResponse>,
+  { page = 1, pageSize }: Pick<ListOrdersParams, 'page' | 'pageSize'>,
+): ListOrdersResult => {
   const rawOrders = data.orders || []
   const orders = normalizeSupportedLimitOrders(rawOrders)
   const totalOrder = Math.max((data.pagination?.totalItems || 0) - (rawOrders.length - orders.length), orders.length)
@@ -189,8 +192,8 @@ export const transformListOrdersResponse = ({ data }: ApiEnvelope<ListOrdersResp
   return {
     orders,
     totalOrder,
-    // A backend without cursor paging sends no `hasMore`, which reads as "this is the last page".
-    hasMore: data.pagination?.hasMore ?? false,
+    // Legacy responses omit `hasMore`; count raw rows because filtering does not change backend offsets.
+    hasMore: data.pagination?.hasMore ?? page * pageSize < (data.pagination?.totalItems ?? 0),
     nextCursor: data.pagination?.nextCursor,
   }
 }
@@ -225,7 +228,8 @@ const limitOrderApi = createApi({
       query: params => ({
         url: `${LIMIT_ORDER_API_READ}/v1/orders?${buildListOrdersSearchParams(params).toString()}`,
       }),
-      transformResponse: transformListOrdersResponse,
+      transformResponse: (response: ApiEnvelope<ListOrdersResponse>, _meta, params) =>
+        transformListOrdersResponse(response, params),
       providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST],
     }),
     getOrdersByTokenPair: builder.query<

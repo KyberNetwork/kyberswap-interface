@@ -132,6 +132,7 @@ const MyOrders = () => {
 
   const {
     data: listOrdersData,
+    currentData: currentListOrdersData,
     isFetching,
     isError: isOrdersError,
     error: ordersError,
@@ -151,14 +152,15 @@ const MyOrders = () => {
 
   const orders = listOrdersData?.orders ?? EMPTY_LIMIT_ORDERS
   const totalOrder = listOrdersData?.totalOrder ?? 0
-  const hasMoreOrders = listOrdersData?.hasMore ?? false
+  const hasMoreOrders = currentListOrdersData?.hasMore ?? false
   const hasOrders = orders.length > 0
   const canGoPreviousPage = canGoToPreviousHistoryPage(pager)
-  const canGoNextPage = canGoToNextHistoryPage(pager, hasMoreOrders, PAGE_SIZE)
+  const hasNextHistoryPage = canGoToNextHistoryPage(pager, hasMoreOrders, PAGE_SIZE)
+  // RTK Query retains the previous page's `data` while the current page is loading.
+  const canGoNextPage = !isFetching && !isOrdersError && hasNextHistoryPage
   const showPagination = isTabActive && hasOrders && totalOrder > PAGE_SIZE
-  // Staying visible while `canGoPreviousPage` is the way back out of a history page that came back
-  // empty — a keyset walk has no page numbers to jump to instead.
-  const showHistoryPagination = !isTabActive && (canGoPreviousPage || (hasOrders && canGoNextPage))
+  // A page can be empty after filtering unsupported chains even when the backend has more orders.
+  const showHistoryPagination = !isTabActive && (canGoPreviousPage || hasNextHistoryPage)
   const showCancelAll = hasOrders && isTabActive
   const showNoOrders = !hasOrders && (isOrdersLoaded || isOrdersError || !account)
 
@@ -242,7 +244,7 @@ const MyOrders = () => {
   const onNextHistoryPage = () => {
     if (!canGoNextPage) return
     // Without a cursor the backend still serves the next numbered page, inside its 1,000-row window.
-    setPager(state => goToNextHistoryPage(state, listOrdersData?.nextCursor))
+    setPager(state => goToNextHistoryPage(state, currentListOrdersData?.nextCursor))
   }
 
   const onPreviousHistoryPage = () => {
