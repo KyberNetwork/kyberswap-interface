@@ -7,6 +7,7 @@ import { ReactComponent as ExploreVaultsIcon } from 'assets/svg/earn/ic_explore_
 import { ReactComponent as FeaturedVaultIcon } from 'assets/svg/earn/ic_featured_vault.svg'
 import { ReactComponent as SmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
+import { NewTag } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import {
   BreadcrumbsContainer,
@@ -36,6 +37,7 @@ type NavItem = {
 type NavGroup = {
   label: string
   items: NavItem[]
+  isNew?: boolean
 }
 
 /**
@@ -70,6 +72,7 @@ const useEarnNavGroups = (): NavGroup[] => {
       },
       {
         label: t`Partner Vaults`,
+        isNew: true,
         items: [
           {
             label: t`Explore Vaults`,
@@ -143,7 +146,12 @@ const EarnSidebar = ({ collapsed, onToggle, onNavigate, inDrawer }: EarnSidebarP
           <Fragment key={group.label}>
             {collapsed && idx > 0 && <GroupDivider />}
             <SidebarGroup>
-              {!collapsed && <SidebarGroupLabel $active={isGroupActive}>{group.label}</SidebarGroupLabel>}
+              {!collapsed && (
+                <SidebarGroupLabel $active={isGroupActive}>
+                  {group.label}
+                  {group.isNew && <NewTag />}
+                </SidebarGroupLabel>
+              )}
               {group.items.map(item => {
                 const Icon = item.icon
                 const active = isItemMatch(item, pathname)
