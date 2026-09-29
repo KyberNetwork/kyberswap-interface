@@ -28,6 +28,7 @@ import {
 import {
   NormalizedProvider,
   getKyberCrossBridgeProviders,
+  getKyberCrossRoutePlan,
   mapRouteStateToSwapStatus,
   normalizeProvider,
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
@@ -96,8 +97,8 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
 
   private normalizeQuote(params: QuoteParams, rawQuote: KyberCrossRawQuote): NormalizedQuote {
     const data = rawQuote.data
-    const routePlan = data?.route_plans[0]
-    if (!data || !routePlan) throw new Error('No KyberCross route plans found')
+    if (!data || !('route_plans' in data) || !data.route_plans[0]) throw new Error('No KyberCross route plans found')
+    const routePlan = data.route_plans[0]
 
     const outputAmount = BigInt(routePlan.expected_output_amount)
     const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
@@ -125,7 +126,8 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
   getRouteQuotes(quote: NormalizedQuote, isReadOnly: boolean): Quote[] {
     const rawQuote = quote.rawQuote as KyberCrossRawQuote
     const data = rawQuote.data
-    if (!data?.route_plans.length) throw new Error('No KyberCross route plans found')
+    if (!data || !('route_plans' in data) || !data.route_plans.length)
+      throw new Error('No KyberCross route plans found')
 
     return data.route_plans.map(routePlan => ({
       id: `${this.getName()}:${routePlan.id}`,
@@ -150,16 +152,19 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     const normalizedQuote = quote.quote
     const quoteParams = normalizedQuote.quoteParams
     const rawQuote = normalizedQuote.rawQuote as KyberCrossRawQuote
-    const routePlan = rawQuote.data?.route_plans?.[0]
+    const quoteData = rawQuote.data
+    const routePlan = getKyberCrossRoutePlan(rawQuote)
 
-    if (!routePlan) {
+    if (!quoteData || !routePlan) {
       throw new Error('Missing KyberCross route plan')
     }
 
     const routeProvider = routePlan.bridge.provider
     const normalizedRouteProvider = normalizeProvider(routeProvider)
-    const buildResponse = await kyberCrossApi.build(routePlan)
-    const buildTx = buildResponse.data.tx
+    const build =
+      'route_plans' in quoteData ? (await kyberCrossApi.build(quoteData.route_plans[0])).data : quoteData.build
+
+    const buildTx = build.tx
 
     const originChainId = quoteParams.fromChain as ChainId
     const originChain = chainIdToViemChain[originChainId]
