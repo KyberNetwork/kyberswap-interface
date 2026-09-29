@@ -35,6 +35,7 @@ const discoveryApi = copyTradingBaseApi.injectEndpoints({
       query: query => ({
         url: '/leaderboard',
         params: cleanParams({
+          ownerAddress: query?.ownerAddress,
           chainId: query?.chainId,
           search: query?.search,
           strategyCategory: query?.strategy ? 'STRATEGY_CATEGORY_' + query.strategy.toUpperCase() : undefined,

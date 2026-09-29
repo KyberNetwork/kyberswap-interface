@@ -21,7 +21,7 @@ import { useCopyTradingContext } from 'pages/CopyTrading/context'
 const PAGE_SIZE = 5
 
 const AgentList = () => {
-  const { selectedChainId } = useCopyTradingContext()
+  const { ownerAddress, selectedChainId } = useCopyTradingContext()
 
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<LeaderboardSortBy>()
@@ -53,10 +53,20 @@ const AgentList = () => {
     })
   const [getLeaderboard] = discoveryApi.useLazyGetLeaderboardQuery()
   const leaderboardPage = useCursorPageQuery({
-    queryKey: ['copy-trading', 'leaderboard', selectedChainId, selectedStrategy, normalizedSearch, sortBy, sortOrder],
+    queryKey: [
+      'copy-trading',
+      'leaderboard',
+      ownerAddress,
+      selectedChainId,
+      selectedStrategy,
+      normalizedSearch,
+      sortBy,
+      sortOrder,
+    ],
     queryFn: cursor =>
       getLeaderboard({
         ...summaryQuery,
+        ownerAddress,
         sortBy,
         sortOrder,
         cursor,

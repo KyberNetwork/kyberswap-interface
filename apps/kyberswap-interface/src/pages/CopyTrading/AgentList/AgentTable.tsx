@@ -1,8 +1,6 @@
-import { type HTMLAttributes, useMemo } from 'react'
+import { type HTMLAttributes } from 'react'
 import { Link } from 'react-router-dom'
-import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentCard } from 'services/copyTrading/types/agents'
-import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -64,31 +62,8 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
 
 const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
   const copyTradingPath = useCopyTradingRoutes()
-  const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
+  const { chains, ownerAddress } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
-
-  // TODO: Use the API update for complete copied-state lookup. The first 100 open runs can miss older active copies.
-  // Keep the current lookup until that update is available; do not add client-side cursor traversal here.
-  const { currentData: openCopyRuns } = copyRunApi.useGetCopyRunsQuery(
-    {
-      ownerAddress: ownerAddress || '',
-      view: 'open',
-      chainId: selectedChainId,
-      sortBy: 'started_at',
-      sortOrder: 'desc',
-      limit: 100,
-    },
-    { pollingInterval: 10_000, skip: !ownerAddress },
-  )
-
-  const latestRunsByAgentId = useMemo(
-    () =>
-      (openCopyRuns?.data || []).reduce<Record<string, CopyRunListItem>>((latestRuns, run) => {
-        if (!latestRuns[run.agentId]) latestRuns[run.agentId] = run
-        return latestRuns
-      }, {}),
-    [openCopyRuns?.data],
-  )
 
   return (
     <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
@@ -160,8 +135,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           loading={loading}
         >
           {agents.map(agent => {
-            const latestRun = latestRunsByAgentId[agent.agentId]
-            const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
+            const myCopyRunId = ownerAddress ? agent.myCopyRunId : undefined
             const { canStart: canStartCopy, reason: unavailableReason } = resolveStartCopyEligibility(
               chains.find(chain => chain.chainId === agent.chainId),
               agent,
@@ -182,10 +156,10 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                 <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
                 <TableCell className="text-right">{formatCount(agent.stats.openPositions)}</TableCell>
                 <TableCell className="flex items-center justify-center">
-                  {copiedRun ? (
+                  {myCopyRunId ? (
                     <ButtonLight
                       as={Link}
-                      to={copyTradingPath('my-copies/' + copiedRun.copyRunId, copiedRun.chainId)}
+                      to={copyTradingPath('my-copies/' + myCopyRunId, agent.chainId)}
                       padding="6px 12px"
                       className="w-fit whitespace-nowrap"
                     >
@@ -220,8 +194,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
         loading={loading}
       >
         {agents.map(agent => {
-          const latestRun = latestRunsByAgentId[agent.agentId]
-          const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
+          const myCopyRunId = ownerAddress ? agent.myCopyRunId : undefined
           const { canStart: canStartCopy, reason: unavailableReason } = resolveStartCopyEligibility(
             chains.find(chain => chain.chainId === agent.chainId),
             agent,
@@ -235,10 +208,10 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId, agent.chainId)} />
               <div className="flex items-center gap-3 p-3">
                 <AgentCell agent={agent} className="flex-1 gap-3" />
-                {copiedRun ? (
+                {myCopyRunId ? (
                   <ButtonLight
                     as={Link}
-                    to={copyTradingPath('my-copies/' + copiedRun.copyRunId, copiedRun.chainId)}
+                    to={copyTradingPath('my-copies/' + myCopyRunId, agent.chainId)}
                     padding="6px 12px"
                     className="w-fit shrink-0 whitespace-nowrap"
                   >

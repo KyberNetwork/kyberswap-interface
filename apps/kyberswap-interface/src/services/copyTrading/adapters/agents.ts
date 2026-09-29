@@ -69,6 +69,7 @@ export type ApiAgentMetrics = {
 
 type ApiAgentCard = {
   agentId?: string
+  myCopyRunId?: string
   chainId?: string
   leaderAddress?: string
   displayName?: string
@@ -181,6 +182,7 @@ export const toAgentStats = (metrics?: ApiAgentMetrics): AgentStats => ({
 
 const toAgentCard = (agent: ApiAgentCard): AgentCard => ({
   agentId: agent.agentId || '',
+  myCopyRunId: agent.myCopyRunId,
   chainId: chainIdNumber(agent.chainId),
   leaderAddress: (agent.leaderAddress || '') as Address,
   displayName: agent.displayName || agent.agentId || '',

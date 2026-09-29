@@ -1,12 +1,77 @@
 # Copy Trade API frontend integration catalog
 
 Use this catalog to integrate frontend applications with the public HTTPS/JSON
-API. Use the endpoint reference for request fields, action availability,
+API and internal admin tools with the VPN-only admin API. Use the endpoint
+reference for request fields, agent registry management, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: September 22, 2026.
+Last updated: September 29, 2026.
 
 ## Changelog
+
+### September 29, 2026: all-chain leaderboard and corrected position reporting
+
+[API PR #97](https://github.com/KyberNetwork/copy-trade-api/pull/97) is merged
+at `f5a6e11e6e33cb51ab23f63863bdd6e5a40dfee2`. Deployment of the API,
+[operator PR #205](https://github.com/KyberNetwork/copy-trade-operator/pull/205),
+and companion configuration was confirmed by the service maintainer. The
+contracts below were checked against the merged source and generated OpenAPI;
+this catalog update is not a live-data convergence audit.
+
+Frontend integration changes:
+
+1. Regenerate the client from the merged
+   [OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/f5a6e11e6e33cb51ab23f63863bdd6e5a40dfee2/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
+   The HTTP operation count remains **38: 35 public and 3 VPN-only admin**.
+2. Omit `chainId` on `/leaderboard/summary`, `/leaderboard`, and `/agents` for
+   all enabled chains. Keep one global cursor sequence and use the returned
+   row's `chainId` for chain-specific UI and actions.
+3. Send the connected wallet as `ownerAddress` on `/leaderboard`. Render
+   **My copy** when a row has `myCopyRunId`; otherwise render **Copy** with the
+   normal Start availability checks. Reset the cursor and owner-specific cache
+   on wallet change or disconnect. See [Copy and My copy buttons](#copy-and-my-copy-buttons).
+4. Display leader and follower execution prices from `entryValuation.priceUsd`
+   and `exitValuation.priceUsd`. The backend corrects follower prices for fees;
+   remove any frontend fee multiplier or reconstruction from net token amounts.
+   See [Entry and exit execution prices](#entry-and-exit-execution-prices).
+5. Keep **estimated** and **received** rebates distinct. Formula 3 corrects
+   beta-5 cashback estimates; older supported generations can still use
+   formula 2. Use the returned values and statuses rather than hard-coding a
+   formula. See [Estimated and received rebates](#estimated-and-received-rebates).
+6. Render valid stale Total Return values with their status. Historical prices
+   up to 12 hours old can now support a valuation; missing evidence can still
+   make a value unavailable. Existing rows recover in the background.
+7. After Stop or full withdrawal, follow action-status guidance and refresh
+   copy-run lists. Faster balance-proof continuation does not bypass chain
+   confirmations or make History membership immediate. See
+   [History after Stop or withdrawal](#history-after-stop-or-withdrawal).
+
+The price and rebate corrections use existing response fields. Fee accounting,
+actual received rebates, and realized P&L remain server-owned. No frontend
+backfill or transaction replay is required.
+
+### September 25, 2026: VPN-only agent registry APIs
+
+Documented the admin registry contract introduced by
+[PR #87](https://github.com/KyberNetwork/copy-trade-api/pull/87), verified against
+the checked-in protobuf, generated OpenAPI, handlers, and repository behavior.
+The generated surface now contains **38 operations: 35 public operations and
+3 VPN-only admin operations**. This catalog update does not verify deployment.
+
+- List all registered agents, including new, inactive, suspended, and hidden
+  agents, using `GET /admin/agents`.
+- Register a new aggregate agent with `POST /admin/agents`; explicitly choose
+  whether it is listed, suspended, or hidden.
+- Edit display details and visibility with `PATCH /admin/agents/{agentId}` and
+  an explicit `updateMask`. Agent ID, chain, and leader address are immutable.
+- Admin access relies on the VPN-only ingress; no application API key or
+  bearer token is required. Admin responses are `Cache-Control: no-store`.
+- Hiding an agent removes public discovery access, but must not hide its
+  existing user copy runs or prevent their supported actions. Render those
+  pages from owner/copy-run responses, including their `agentSnapshot`.
+
+See [Admin agent registry](#admin-agent-registry-vpn-only) for route prefixes,
+request/response examples, field-mask rules, and visibility behavior.
 
 ### September 22, 2026: display readiness for every submitted action
 
@@ -1136,6 +1201,9 @@ API base path:
 https://pre-copy-trade-api.kyberengineering.io/api/v1
 ```
 
+These are public API addresses. Admin tools must use the environment's
+VPN-only API base; see [Admin access and paths](#admin-access-and-paths).
+
 ## Frontend contract notes
 
 Use the current fields below for frontend integration. The September 10
@@ -1175,6 +1243,8 @@ This catalog is an integration guide. The machine-readable contract remains:
   shared action guidance.
 - [`aggregate_action_status.proto`](../proto/aggregate/v1/aggregate_action_status.proto) for
   submitted transaction observation.
+- [`aggregate_admin.proto`](../proto/aggregate/v1/aggregate_admin.proto) for
+  VPN-only agent registration, inventory, details, and visibility management.
 - [`aggregate.swagger.yaml`](../proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
   for the generated HTTP/OpenAPI surface.
 
@@ -1344,7 +1414,7 @@ tab, chart, drawer, or drilldown is opened.
 | ------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | App bootstrap / network selector      | `GET /chains`                                                                                       | None                                                                                                                         | None                                                                                                               |
 | Explore / leaderboard header          | `GET /leaderboard/summary`                                                                          | None                                                                                                                         | None                                                                                                               |
-| Leaderboard table                     | `GET /leaderboard`                                                                                  | Load the next cursor page                                                                                                    | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                                     |
+| Leaderboard table                     | `GET /leaderboard`, with `ownerAddress` when connected                                                | Load the next cursor page; open `myCopyRunId` for **My copy**                                                                 | **Copy**: `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy` with the selected generation              |
 | Agent discovery/search                | `GET /agents`                                                                                       | Load the next cursor page                                                                                                    | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                                     |
 | Agent profile header and KPI cards    | `GET /agents/{agentId}`, optionally `GET /agents/{agentId}/stats`                                   | None                                                                                                                         | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                                     |
 | Agent performance chart               | `GET /agents/{agentId}/performance`                                                                 | Additional cursor pages or a new request when series/window changes                                                          | None                                                                                                               |
@@ -1447,6 +1517,10 @@ route is missing.
 Common screen requests:
 
 ```text
+# All-chain summary and connected-wallet leaderboard
+GET /leaderboard/summary
+GET /leaderboard?ownerAddress={ownerAddress}&sortBy=LEADERBOARD_SORT_FIELD_ROI_PCT&sortOrder=SORT_ORDER_DESC&limit=25
+
 # Base leaderboard, highest ROI first
 GET /leaderboard?chainId=8453&sortBy=LEADERBOARD_SORT_FIELD_ROI_PCT&sortOrder=SORT_ORDER_DESC&limit=25
 
@@ -1532,7 +1606,7 @@ analytics event, or error-report payload.
 
 ### Envelopes
 
-A single-resource **read** response:
+A single-resource public **read** response:
 
 ```json
 {
@@ -1548,7 +1622,7 @@ A single-resource **read** response:
 }
 ```
 
-A list **read** response:
+A public list **read** response:
 
 ```json
 {
@@ -1572,6 +1646,9 @@ Default-valued JSON fields may be omitted. In particular:
 POST responses use `{ "data": ... }` without `meta` or cursor pagination.
 Prepared actions carry their own `preparedAt`, `reprepareAfter`, and
 `evidence`.
+
+Admin reads also omit `meta`. Admin POST/PATCH responses add `changed` beside
+`data`; see [Admin response fields](#admin-response-fields).
 
 ### Response metadata
 
@@ -1755,6 +1832,19 @@ time-weighted returns. They can differ from ROI when capital changes over
 time. Label the percentage chart **Return**, and label `roiPct` **ROI**.
 Preserve the server's earned return history across full withdrawals and later
 funding; do not reset or annualize it.
+
+Historical Return can recover without a new trade or wallet action. The backend
+now accepts a valid settlement observation at or before the valuation boundary
+when it is at most 12 hours old. An accepted older mark retains its provenance
+and can produce `METRIC_STATUS_STALE`; it is not made current by the browser's
+refresh. Missing, invalid, future, or over-age evidence remains unavailable.
+This historical-price rule does not define the freshness window for live prices.
+
+Render a returned stale `totalPnlPct` or `PerformancePoint.valuePct` with a stale
+indication. If it is unavailable, keep independently available `totalPnlUsd` and
+other fields visible. Background price recovery can update stopped runs too;
+`UNAVAILABLE` is not a permanent failure and must not become a fabricated zero.
+History membership does not depend on these financial values becoming available.
 
 ### Valuations
 
@@ -2328,7 +2418,7 @@ review rather than silently rewriting that attempt.
 | Method | Path                   | Parameters                                                         | `data`               |
 | ------ | ---------------------- | ------------------------------------------------------------------ | -------------------- |
 | GET    | `/leaderboard/summary` | `chainId?`, `search?`, `strategyCategory?`                         | `LeaderboardSummary` |
-| GET    | `/leaderboard`         | Previous filters plus `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `AgentCard[]`        |
+| GET    | `/leaderboard`         | Previous filters plus `ownerAddress?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `AgentCard[]`        |
 | GET    | `/agents`              | `chainId?`, `search?`, `strategyCategory?`, `cursor?`, `limit?`    | `AgentCard[]`        |
 
 Leaderboard sort fields:
@@ -2349,12 +2439,20 @@ Filter behavior:
 
 | Parameter          | Supported values and behavior                                                                                  |
 | ------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `chainId`          | Optional positive chain ID. Omit for all configured chains.                                                    |
+| `chainId`          | Optional positive chain ID. Omit for all enabled chains. Explicit `0` or a negative value is invalid.           |
+| `ownerAddress`     | Leaderboard only. Optional connected-owner EVM address; enriches rows with `myCopyRunId` without filtering the agent list. Omit when disconnected. |
 | `search`           | Optional, trimmed and case-insensitive, maximum 256 Unicode characters.                                        |
 | `strategyCategory` | Optional `FOCUSED`, `DIVERSIFIED`, or `ACTIVE` enum. Categories overlap; an agent can appear in more than one. |
 | `sortBy`           | Leaderboard only. Omit for ROI.                                                                            |
 | `sortOrder`        | Leaderboard only. Omit for descending.                                                                         |
 | `limit`, `cursor`  | Standard cursor pagination.                                                                                    |
+
+All-chain requests use one globally sorted and paginated result. Do not fetch
+one page per chain and merge or re-sort those pages in the browser. Apply the
+same chain, search, and strategy filters to the table and summary; the
+`totalCopierCount` exception described below still applies. `/agents` remains
+the discovery list and has different qualification/order rules from the
+leaderboard. Neither `/agents` nor `/leaderboard/summary` accepts `ownerAddress`.
 
 Key `AgentCard` fields:
 
@@ -2365,6 +2463,7 @@ Key `AgentCard` fields:
 - `flatFeeRatePct`
 - `startCopyAvailability`
 - `startCopyAvailabilities[]` and `feePolicies[]`, keyed by `generationId`
+- optional `myCopyRunId` on owner-enriched leaderboard rows
 
 Use the per-generation arrays for Start selection and fee display. The scalar
 fields are convenience values for an unambiguous creation generation; see
@@ -2398,6 +2497,63 @@ differ from the response-level `asOf`.
 distinct owner wallets across configured agents and intentionally ignores
 leaderboard filters, including `chainId`, search, and strategy category. Every
 metric still has its own status and can be unavailable independently.
+
+#### Copy and My copy buttons
+
+With a connected wallet, request the existing leaderboard once with
+`ownerAddress`. The response includes the owner's association alongside each
+agent; no second owner-list request is needed just to label these buttons.
+
+```text
+GET /leaderboard?ownerAddress=0x0000000000000000000000000000000000000001&limit=25
+```
+
+Illustrative identity/button fields from two rows; metrics and other card fields
+are omitted from this example:
+
+```json
+{
+  "data": [
+    {
+      "agentId": "agt_example_base",
+      "chainId": "8453",
+      "myCopyRunId": "copy_run_example"
+    },
+    {
+      "agentId": "agt_example_ethereum",
+      "chainId": "1"
+    }
+  ],
+  "pagination": { "limit": 25 },
+  "meta": { "status": "DATA_STATUS_CURRENT" }
+}
+```
+
+| Row/request state | Frontend behavior |
+| --- | --- |
+| Connected owner and `myCopyRunId` is present | Show **My copy**. Open the detail using `GET /users/{ownerAddress}/copy-runs/{myCopyRunId}` and the row's chain context. |
+| Connected owner and `myCopyRunId` is absent | Show **Copy**, subject to the selected generation's Start availability and normal preparation checks. |
+| No connected owner was sent | The association is unknown. Use the disconnected-wallet flow; do not interpret omission as a checked absence of existing runs. |
+
+The ID selects the newest admitted active or closing run for that owner, agent,
+and chain, ordered by start time and then run ID for ties. Selection is across
+the agent's generations; this is one shortcut, not the full set of historical
+runs or every row in the Open tab.
+Stopped, closed, and non-admitted runs do not qualify. There is no additional
+copy-status field on the card; read the selected run for its current status and
+actions. An absent ID is not proof that the wallet has never copied the agent,
+and it is not permission to start copying.
+
+Use the lowercase owner address in the leaderboard cache key along with chain,
+filters, and sort. On wallet switch/disconnect, discard the previous owner's
+rows and cursor, cancel or ignore in-flight responses for that owner, and fetch
+page one again. The backend cursor is bound to the normalized owner. Copy-run
+association is looked up on each page request, so it can change while the metric
+ordering remains pinned. Refresh the leaderboard after Start or Stop changes.
+
+Keep My Copies independent of public leaderboard membership. Hidden agents can
+be absent here while their existing copy runs remain readable; use owner routes
+and `agentSnapshot` as described in [Visibility and existing copy runs](#visibility-and-existing-copy-runs).
 
 ### Agent profile, performance, and positions
 
@@ -2542,6 +2698,72 @@ status-bearing `valueUsd` and `valuePct`, and optional
 the time-weighted chart return, not `roiPct`. Use each value's own status.
 For per-trade P&L, the trade and position identifiers are suitable for opening
 the related detail, while the point timestamp remains the chart order key.
+
+#### Entry and exit execution prices
+
+Use the existing valuation objects on both `AgentPositionSummary` and follower
+`PositionSummary`:
+
+| UI value | Response field | Rendering rule |
+| --- | --- | --- |
+| Entry price | `entryValuation.priceUsd` | Display the server's execution price with the valuation's `DATA_STATUS_*`. |
+| Exit price | `exitValuation.priceUsd` | Render for a closed position when its valuation status permits. Partial sells alone do not make it final. |
+| Current market price | `currentValuation.priceUsd` | Independent current mark; it does not replace either execution price. |
+
+There are no new top-level `entryPriceUsd` or `exitPriceUsd` fields. Execution
+prices are materialized in the backend and can be corrected by background
+replay. Available execution valuations use `priceSource: "operator_execution"`;
+their timestamps describe execution evidence, not the time the page was loaded.
+Keep rendering their individual statuses while retained data catches up.
+
+Amounts are normalized using each token's decimals before calculating ratios:
+
+- Leader entry uses opening quote spent divided by base bought. Leader exit
+  uses total quote received divided by total base sold.
+- Follower entry uses opening quote spent divided by **gross base bought**,
+  including the upfront-fee portion. Dividing by only the net base delivered to
+  the follower incorrectly makes the entry look more expensive.
+- Follower exit uses summed **gross quote received / gross base sold** when
+  every sell has both gross amounts. Gross base means actual router consumption
+  after unused input is returned. If a historical sell lacks either gross
+  amount, the backend consistently uses net amounts for the whole position's
+  exit price; it does not mix gross and net events in one ratio.
+
+Render the backend result rather than implementing those ratios in the UI.
+`exitValuation.valueUsd` still represents actual net quote received, while its
+unit price can use gross execution amounts. Fees, actual rebates, realized P&L,
+and received quantities retain their existing accounting. Do not reconstruct
+P&L from the corrected entry/exit prices or subtract fees a second time.
+
+#### Estimated and received rebates
+
+Follower position rows expose separate status-bearing metrics:
+
+| Field | Meaning and label |
+| --- | --- |
+| `estimatedCashbackUsd` | **Estimated remaining rebate** for unsold inventory. It depends on the effective account policy and selected price, and is not guaranteed proceeds. |
+| `cashbackReceivedUsd` | **Received rebate** from canonical settled events. It can be nonzero after a partial sell while an estimate remains for the unsold balance. |
+
+On a closed position, the remaining estimate is
+`METRIC_STATUS_NOT_APPLICABLE`; use `cashbackReceivedUsd` for the actual rebate.
+Do not carry the last open-position estimate forward as a settled amount or
+sum it into the received field. A valid zero estimate is different from
+`METRIC_STATUS_UNAVAILABLE`; display stale estimates with a stale indication.
+
+The beta-5 formula-3 cap is the maximum **refundable** share of the upfront fee.
+For an illustrative six-decimal quote-token settlement with an upfront quote
+portion of `0.124633`, a 97% cap and no profit fee produce `0.120894` cashback
+and `0.003739` retained protocol fee. These are separate amounts. The old
+estimate applied formula-2 semantics to beta-5 and reversed them in this
+example. Formula 2 remains correct for its supported legacy generation. Market
+movement and execution can still make an estimate differ from the settlement.
+
+Use the returned metrics, not an agent-wide advertised fee or a hard-coded
+formula. Account policy details come from the [account-effective cashback
+policy](#account-effective-cashback-policy). For run-level displays, History-list
+`rebatesUsd` contains actual closed-position rebates, while detail
+`feeBreakdown.rebatesUsd` combines actual closed-position and estimated open
+rebates. Those fields are not interchangeable.
 
 ### Owner dashboard and copy runs
 
@@ -2699,6 +2921,26 @@ and reserve `realizedPnlUsd`, `flatFeesCapturedUsd`, `cashbackReceivedUsd`,
 `netFeeCostUsd`, `estimatedCashbackPendingUsd`, and `observedCapitalInUsd`.
 Regenerate clients and don't use legacy accessors or synthesize replacements.
 
+#### History after Stop or withdrawal
+
+A mined transaction does not immediately establish History membership. Both
+Stop and withdrawal wait for canonical source coverage; Stop may also wait for
+downstream liquidations. For context, a chain configured with a 12-block safety
+depth and roughly 12-second blocks can need about 144 seconds for coverage
+alone. This is not a frontend timeout or a fixed API completion guarantee.
+
+Full-withdrawal proof now continues successful unfinished zero-balance pages at
+the configured poll cadence (5 seconds in pre-release). It does not shorten the
+confirmation window or promise that a run moves to History in 5 seconds. A
+withdrawal that leaves relevant balances, incomplete source coverage, or failed
+source reads continues to wait or retry according to backend policy.
+
+Follow `actions:status` and `guidance.retryAfterMs`, then refresh the run detail
+and both Open/History lists as appropriate. Let the returned view/status decide
+tab membership. Financial fields such as Total Return can still be unavailable
+after a run appears in History; their recovery is independent of closure.
+Full withdrawal does not create synthetic sell events or closed-position rows.
+
 #### Account-effective cashback policy
 
 Fetch the policy only when the selected-run UI needs its fee/cashback detail:
@@ -2745,11 +2987,12 @@ interface CopyRunCashbackPolicy {
 }
 ```
 
-The currently pinned operator emits `cashbackFormulaVersion = 2` for supported
-policy outcomes. Unsupported historical-generation policy can legitimately
-omit it. Treat the value as an explicit contract field, not a frontend
-constant, because formula identity is independent from policy scope and
-selection version.
+The deployed beta-5 generation advertises `cashbackFormulaVersion = 3`; the
+supported legacy generation retains version `2`. Unsupported
+historical-generation policy can legitimately omit it. Formula identity is
+independent of scope and selection version. Do not infer it from a generation
+name or treat all generations as version 3. Render the server-computed estimates
+and actual rebates using [Estimated and received rebates](#estimated-and-received-rebates).
 
 Use these rendering rules:
 
@@ -2995,6 +3238,235 @@ public error fields are optional aggregate display evidence. Never size a sell
 from the error text or a locally accumulated ratio. Use the exact
 `currentRatioRaw` values and current FIFO count returned immediately before
 preparation.
+
+## Admin agent registry (VPN only)
+
+Use these endpoints for an internal agent-management UI. They manage the
+aggregate registry and display metadata. Registering an agent here does not
+deploy a leader contract, register it on-chain, or submit a transaction.
+
+### Admin access and paths
+
+The access boundary is the VPN-only ingress. No application API key, bearer
+token, wallet signature, or wallet session is required. The admin routes must
+remain unavailable through an unrestricted public ingress.
+
+Paths below are relative to the configured admin API base. The generated
+OpenAPI uses `basePath: /api/v1`, so the service HTTP path is
+`/api/v1/admin/agents`. If the VPN ingress exposes `/admin/agents` directly, use
+its configured prefix rewrite. Set `ADMIN_API_BASE` to the VPN-only base for
+the environment, including any API prefix; do not assume the public base is
+the admin entry point.
+
+| Method | Path | Purpose | Success response |
+| --- | --- | --- | --- |
+| GET | `/admin/agents` | List registry entries with optional filters. | `200`, `{ "data": [...], "pagination": {...} }` |
+| POST | `/admin/agents` | Register an immutable identity and initial details. | `200`, `{ "data": {...}, "changed": true }` |
+| PATCH | `/admin/agents/{agentId}` | Update selected details or listing state. | `200`, `{ "data": {...}, "changed": boolean }` |
+
+There is no admin single-agent GET, DELETE, or bulk-update operation. All
+admin responses, including errors, are no-store. Refresh the registry list
+after mutations rather than reusing a cached public agent list.
+
+### List registered agents
+
+`GET /admin/agents` includes entries regardless of operational activation,
+public listing, or metric readiness. New agents can appear here before their
+public metrics have synchronized.
+
+| Query field | Rules |
+| --- | --- |
+| `chainId` | Optional positive chain ID; omit for all registered chains. |
+| `listingState` | Optional symbolic enum from the visibility table below. Omitted or `ADMIN_AGENT_LISTING_STATE_UNSPECIFIED` means all states. |
+| `limit` | Integer `1..100`; omitted or `0` uses `50`. |
+| `cursor` | Opaque signed `pagination.nextCursor` from the preceding response; at most 4,096 bytes. |
+
+Results are ordered by `agentId` ascending. Keep the same filters when using a
+cursor. Restart from the first page after changing a filter or receiving an
+invalid/expired cursor. Admin cursors cannot be used on public agent routes;
+there are no search or client-selected sort parameters on this endpoint.
+
+```sh
+curl --get "${ADMIN_API_BASE}/admin/agents" \
+  --data-urlencode 'chainId=8453' \
+  --data-urlencode 'listingState=ADMIN_AGENT_LISTING_STATE_HIDDEN' \
+  --data-urlencode 'limit=50'
+```
+
+### Register a new agent
+
+`POST /admin/agents` requires `agentId`, `chainId`, `leaderAddress`, `details`,
+and `details.listingState`. The chain must already be configured and enabled.
+The identity must be new: both the agent ID and the chain/leader pair are
+unique. Registration is not an upsert.
+
+- `agentId` must match `^agt_[a-zA-Z0-9_-]+$`. Choose a stable ID and preserve it.
+- `chainId` is a positive protobuf `int64`; use a decimal string in JSON.
+- `leaderAddress` must match `^0x[0-9a-f]{40}$`; use the actual leader address
+  on the selected chain, not a controller or follower account.
+- Choose `LISTED` to publish or `HIDDEN` to stage the new registry entry. New
+  rows are operationally active (`isActive: true`), but public readiness still
+  depends on normal source synchronization and action availability.
+
+Example body for `POST /admin/agents` (synthetic identity and metadata):
+
+```json
+{
+  "agentId": "agt_base_example",
+  "chainId": "8453",
+  "leaderAddress": "0x1111111111111111111111111111111111111111",
+  "details": {
+    "displayName": "Example Agent",
+    "bio": "Agent description for the management UI.",
+    "isVerified": false,
+    "tags": ["example"],
+    "listingState": "ADMIN_AGENT_LISTING_STATE_HIDDEN"
+  }
+}
+```
+
+Creation returns the registry entry immediately and schedules background
+metadata/metric work. Success does not establish that Start Copy is ready.
+Check the normal public availability fields after publishing the agent.
+A repeated registration returns `409`, even if its payload is identical; if
+the first response was lost, inspect the admin inventory before retrying.
+
+### Edit details and visibility
+
+`PATCH /admin/agents/{agentId}` requires a `details` object and a nonempty
+`updateMask`. Put the identity only in the URL. Sending `agentId`, `chainId`, or
+`leaderAddress` anywhere in the JSON body is rejected, even if unchanged.
+`isActive`, `listingStateOwner`, `adminManagedFields`, and `updatedAt` are also
+not writable through this API.
+
+`updateMask` uses protobuf FieldMask JSON encoding: a **comma-separated string
+of lower-camel-case paths**, such as
+`"details.displayName,details.listingState"`. Do not send an array or a
+`{"paths": [...]}` object. Protobuf clients use the corresponding snake-case
+paths, such as `details.display_name`.
+
+| Mutable `details` field / JSON mask suffix | Validation |
+| --- | --- |
+| `displayName` | Optional trimmed string, at most 256 UTF-8 bytes. |
+| `avatarUrl` | Optional absolute HTTP(S) URL without credentials, at most 2,048 bytes. |
+| `bio` | Optional trimmed string, at most 4,096 bytes. |
+| `modelName` | Optional trimmed string, at most 256 bytes. |
+| `isVerified` | Optional boolean; explicit `false` differs from clearing the value. |
+| `strategyExecutionItems` | At most 64 objects with nonempty, trimmed `label` (64 bytes) and `description` (512 bytes). |
+| `badges` | At most 64 unique, nonempty, trimmed strings, each at most 64 bytes. |
+| `tags` | Same limits as `badges`; order is preserved. |
+| `listingState` | One of the three explicit states below; cannot be cleared or set to `UNSPECIFIED`. |
+
+Only masked fields change. Unmasked fields remain unchanged even if included
+in `details`. Selecting a nullable text field and sending `""` or omitting it
+clears its override value. Selecting `isVerified` and omitting it clears its
+optional value; send `false` to explicitly mark it unverified. Masked arrays
+replace the entire list; `[]` or omission clears it. Clearing metadata does
+not relinquish admin ownership of that field. Do not send duplicate, wildcard,
+identity, or unsupported paths.
+
+Example body for `PATCH /admin/agents/agt_base_example`:
+
+```json
+{
+  "details": {
+    "displayName": "Updated Example Agent",
+    "bio": "",
+    "tags": [],
+    "isVerified": false
+  },
+  "updateMask": "details.displayName,details.bio,details.tags,details.isVerified"
+}
+```
+
+Hide an agent:
+
+```json
+{
+  "details": {
+    "listingState": "ADMIN_AGENT_LISTING_STATE_HIDDEN"
+  },
+  "updateMask": "details.listingState"
+}
+```
+
+To publish it again, send the same mask with
+`ADMIN_AGENT_LISTING_STATE_LISTED`.
+
+### Visibility and existing copy runs
+
+| `details.listingState` | Behavior |
+| --- | --- |
+| `ADMIN_AGENT_LISTING_STATE_LISTED` | Eligible for public discovery, subject to activation, chain, and endpoint-specific readiness rules. |
+| `ADMIN_AGENT_LISTING_STATE_SUSPENDED` | Excluded from public agent discovery and direct public agent reads. This state alone does not pause on-chain copying. |
+| `ADMIN_AGENT_LISTING_STATE_HIDDEN` | Excluded from public agent discovery and direct public agent reads. Existing user copy-run data remains available. |
+
+Listing state is independent of `isActive`. Neither hiding nor suspending an
+agent deletes copy runs, stops a follower account, or changes ownership.
+Existing owner-scoped copy-run reads, positions, history, and supported
+preparation routes remain usable, subject to their normal action checks.
+
+For My Copies and copy-run details, render the returned `agentSnapshot` and
+copy-run fields. **Do not filter user copy runs by membership in `GET /agents`
+or require `GET /agents/{agentId}` to succeed before showing them.** A public
+agent `404` after hiding is expected and must not remove a copy run or disable
+its recovery controls. Use copy-run/account-specific availability and
+preparation routes for existing actions.
+
+### Admin response fields
+
+List responses contain `data: AdminAgent[]` and `pagination`; mutation
+responses contain `data: AdminAgent` and `changed`. These envelopes do not
+include public-read `meta` or transaction-preparation fields. Normalize
+omitted empty arrays to `[]`; an omitted `changed` or `hasMore` means `false`.
+
+| `AdminAgent` field | Meaning |
+| --- | --- |
+| `agentId`, `chainId`, `leaderAddress` | Immutable registry identity; `chainId` is a decimal string. |
+| `details` | Current metadata and explicit listing state. Optional scalar metadata can be absent. |
+| `isActive` | Operational activation, separate from visibility; read-only here. |
+| `listingStateOwner` | `ADMIN_AGENT_LISTING_STATE_OWNER_CONFIG` or `ADMIN_AGENT_LISTING_STATE_OWNER_ADMIN`. An admin listing override survives later configuration reconciliation. |
+| `adminManagedFields` | Admin-owned field names in snake case, without the `details.` prefix, for example `display_name` and `listing_state`. Configuration/enrichment must not overwrite these overrides. |
+| `updatedAt` | Registry update timestamp in RFC3339 format. |
+
+`changed` includes changes to managed-field ownership. A PATCH that repeats a
+displayed value can therefore return `true` when first taking admin ownership;
+a subsequent identical update returns `false`. These APIs do not expose a
+reset-to-config ownership operation.
+
+Example mutation response (synthetic):
+
+```json
+{
+  "data": {
+    "agentId": "agt_base_example",
+    "chainId": "8453",
+    "leaderAddress": "0x1111111111111111111111111111111111111111",
+    "details": {
+      "displayName": "Example Agent",
+      "listingState": "ADMIN_AGENT_LISTING_STATE_HIDDEN"
+    },
+    "isActive": true,
+    "adminManagedFields": ["display_name", "listing_state"],
+    "updatedAt": "2026-09-25T07:00:00Z",
+    "listingStateOwner": "ADMIN_AGENT_LISTING_STATE_OWNER_ADMIN"
+  },
+  "changed": true
+}
+```
+
+### Admin errors
+
+| HTTP status | Typical cause / client behavior |
+| --- | --- |
+| `400` | Invalid identity, disabled/unconfigured registration chain, invalid metadata/enum, missing or invalid mask, immutable-field edit, or invalid/expired cursor. Correct the request; restart invalid pagination without a cursor. |
+| `404` | PATCH target is not registered. Refresh admin inventory. A `404` on the public host may instead indicate that its ingress does not expose admin routes. |
+| `409` | Agent ID or chain/leader identity already exists. Inspect inventory and use PATCH for mutable details. |
+| `503` | Admin service unavailable. Retry with backoff; for a registration whose outcome is uncertain, check inventory first. |
+
+Errors use the common gRPC-gateway error body described under
+[Error handling](#error-handling). VPN/ingress denials occur before the
+application and may use a different response body.
 
 ## Transaction preparation
 
@@ -5348,6 +5820,23 @@ changed inclusion. Never reuse a successfully submitted preparation.
 Use the [action response examples](#action-response-examples) in frontend
 component and request-state tests. No live transaction is needed for these cases:
 
+- An all-chain leaderboard omits `chainId` and uses one global cursor; selecting
+  a chain restarts the query rather than filtering the current page locally.
+- An owner-enriched row with `myCopyRunId` opens that run. An omitted field
+  follows Copy/Connect behavior without inventing a run ID or bypassing Start
+  availability.
+- Switching or disconnecting the wallet clears owner-specific leaderboard
+  data and cursors; a late response for the previous owner is ignored.
+- A hidden agent's copy run remains visible through owner APIs and its embedded
+  snapshot, even when the public agent route returns 404.
+- Entry/exit prices come from the valuation objects without frontend fee
+  adjustment. An open partially sold position does not require an exit valuation.
+- A closed position renders actual received rebate, with remaining estimated
+  cashback marked not applicable. Unavailable estimates never become zero.
+- A stale Total Return renders with its status while independently available
+  dollar P&L remains visible. Missing Return does not hide a History row.
+- A successful withdrawal can remain Closing during source confirmation;
+  neither receipt success nor the 5-second continuation cadence forces History.
 - `/chains` initializes Start Copy and Add Capital without hard-coded token
   values or a preliminary preparation request.
 - A token with only `chainId`, `address`, and `decimals` keeps funding usable.
@@ -5443,11 +5932,23 @@ authority.
 
 ## Complete HTTP operation index
 
-The HTTP surface contains **35 operations**:
+The generated HTTP surface contains **38 operations**. The public API retains
+**35 operations**:
 
 - 27 GET reads;
 - 7 transaction-preparation POSTs, including `:prepareWithdrawTokens`;
 - 1 submitted-status POST: `/users/{ownerAddress}/actions:status`.
+
+The remaining **3 operations are VPN-only admin routes**:
+
+```text
+GET   /admin/agents
+POST  /admin/agents
+PATCH /admin/agents/{agentId}
+```
+
+These have a separate access boundary; see
+[Admin agent registry](#admin-agent-registry-vpn-only).
 
 Targeted reads added after the original read surface include:
 

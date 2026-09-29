@@ -161,13 +161,14 @@ them unless product explicitly approves a UI change:
 ### Agent ownership and Copy CTA
 
 - One owner can have at most one active Copy Run per Agent.
-- Leaderboard copied state comes from the current owner's selected-chain Open
-  Copy Runs sorted by startedAt descending. The lookup currently reads only
-  the first 100 runs; active copies beyond that page may show Copy instead of
-  My Copy. Complete lookup is deferred pending an API update.
+- Leaderboard requests include the connected owner's `ownerAddress`.
+  Rows with `myCopyRunId` show My Copy and link to that run on the row's chain,
+  including active or closing runs selected by the backend. No separate Open
+  Copy Runs lookup is needed. Rows without an ID keep the advisory-gated Copy
+  action. Wallet changes/disconnect scope the query cache and reset pagination.
 - Agent Profile requests the Agent-filtered Open Copy Runs using startedAt
   descending and limit=1.
-- The latest run produces My Copy only when its status is ACTIVE. Any other
+- On Agent Profile, the latest run produces My Copy only when its status is ACTIVE. Any other
   latest status keeps the advisory-gated Copy action.
 - Start Copy completion uses submitted-action status for the confirmed
   transaction and reads copyRunId from its result. Agent CTA ownership reads
@@ -456,10 +457,6 @@ Cross-flow decisions:
 Product flows are implemented. Remaining maintenance, validation and product
 work:
 
-- TODO (2026-09-22): Update the Leaderboard copied-state lookup when the API
-  supports complete ownership lookup beyond the first 100 Open Copy Runs.
-  Keep the current implementation while waiting; client-side cursor traversal
-  is not planned for this follow-up.
 - Controlled positive E2E for All Tokens withdrawal on active and stopped runs,
   including repeated independent withdrawals, zero balances, expiry, and
   post-receipt submitted-status convergence.
