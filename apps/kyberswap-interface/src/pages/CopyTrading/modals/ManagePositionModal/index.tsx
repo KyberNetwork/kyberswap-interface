@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
@@ -7,7 +8,9 @@ import type { PendingSellObligation } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import {
   ManagePositionForm,
@@ -27,7 +30,7 @@ import {
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import { getApiErrorMessage } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { getApiErrorMessage, validatePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { getWritePrimaryActionLabel, isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -54,7 +57,9 @@ const ManagePositionModal = ({
   const copyTradingPath = useCopyTradingRoutes()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
+  const modalInstanceId = useId()
   const toggleWalletModal = useWalletModalToggle()
+
   const [prepareManualSell] = preparedActionApi.usePrepareManualSellMutation()
   const [prepareClosePosition] = preparedActionApi.usePrepareClosePositionMutation()
   const [getObligations] = copyAccountApi.useLazyGetPendingSellObligationsQuery()
@@ -62,6 +67,8 @@ const ManagePositionModal = ({
   const [obligations, setObligations] = useState<PendingSellObligation[]>()
   const [obligationsError, setObligationsError] = useState<string>()
   const [slippage, setSlippage] = useState(DEFAULT_PREPARED_ACTION_SLIPPAGE)
+  const debouncedSlippage = useDebounce(slippage, 300)
+  const slippageDebouncing = slippage !== debouncedSlippage
   const obligationsRequestId = useRef(0)
 
   const flowConfig = POSITION_SELL_FLOW_CONFIG[positionFlow]
@@ -69,14 +76,18 @@ const ManagePositionModal = ({
   const usesStopCopyContext = flowConfig.sellContext === 'POSITION_SELL_CONTEXT_STOP_COPY'
   const requiresObligations = !usesStopCopyContext
   const usesClosePreparation = flowConfig.preparation === 'closePosition'
+
   const userPositionId = position.userPositionId
   const positionId = position.positionId
   const copyRunId = position.copyRunId
   const copyAccount = position.copyAccount
+
+  const accountConnected = !!account
   const onExpectedChain = chainId === position.chainId
 
   const loadObligations = useCallback(async () => {
     const requestId = ++obligationsRequestId.current
+
     setObligations(undefined)
     setObligationsError(undefined)
 
@@ -102,6 +113,15 @@ const ManagePositionModal = ({
     }
   }, [isOpen, loadObligations, requiresObligations])
 
+  const identityMissing = !copyRunId || !positionId || !userPositionId || (requiresObligations && !copyAccount)
+  const obligationsLoading = requiresObligations && obligations === undefined && !obligationsError
+  const obligationsUnavailable =
+    requiresObligations && obligations !== undefined && !isValidWadRatio(obligations[0]?.currentRatioRaw)
+  const unavailableMessage =
+    (identityMissing ? MISSING_IDENTITY_MESSAGE : undefined) ||
+    obligationsError ||
+    (obligationsUnavailable ? NO_PENDING_OBLIGATION_MESSAGE : undefined)
+
   const prepareClose = async (account: string, copyRunId: string, userPositionId: string, slippageBps: number) => {
     const response = await prepareClosePosition({
       ownerAddress: account,
@@ -125,6 +145,7 @@ const ManagePositionModal = ({
 
   const prepareManual = async (account: string, copyRunId: string, userPositionId: string, slippageBps: number) => {
     if (!copyAccount || !obligations) throw new Error('Skipped sell actions are unavailable.')
+
     const currentObligation = obligations[0]
     const response = await prepareManualSell({
       ownerAddress: account,
@@ -151,7 +172,7 @@ const ManagePositionModal = ({
     return response.data
   }
 
-  const preparePositionSell = async () => {
+  const preparePositionSell = async (sellSlippage = slippage) => {
     if (!account || !copyRunId || !userPositionId) throw new Error(MISSING_IDENTITY_MESSAGE)
     if (requiresObligations && (!copyAccount || !obligations)) {
       throw new Error('Wait for skipped sell actions to finish loading.')
@@ -160,23 +181,71 @@ const ManagePositionModal = ({
       throw new Error(NO_PENDING_OBLIGATION_MESSAGE)
     }
 
-    const args = [account, copyRunId, userPositionId, Math.round(slippage * 100)] as const
+    const args = [account, copyRunId, userPositionId, Math.round(sellSlippage * 100)] as const
     return usesClosePreparation ? prepareClose(...args) : prepareManual(...args)
   }
 
+  const getExpected = () => ({
+    account: account?.toLowerCase() || '',
+    callKinds: preparationConfig.callKinds,
+    chainId: position.chainId,
+    copyAccount,
+    generationId,
+    positionSellContext: flowConfig.sellContext,
+    preview: preparationConfig.preview,
+  })
+
   const flow = usePreparedAction({
-    getExpected: () => ({
-      account: account || '',
-      callKinds: preparationConfig.callKinds,
-      chainId: position.chainId,
-      copyAccount,
-      generationId,
-      positionSellContext: flowConfig.sellContext,
-      preview: preparationConfig.preview,
-    }),
+    getExpected,
     prepare: preparePositionSell,
   })
   const { state: flowState } = flow
+  const isPreparing = flowState.isPreparing === true
+
+  const previewEnabled = isOpen && flowState.phase === 'idle' && !!account && !obligationsLoading && !unavailableMessage
+
+  // Display-only preparation; Review still prepares a fresh executable quote.
+  const previewQuery = useQuery({
+    queryKey: ['position-sell-preview', modalInstanceId, userPositionId, positionFlow, debouncedSlippage],
+    enabled: previewEnabled && !slippageDebouncing,
+    queryFn: async () => {
+      const action = await preparePositionSell(debouncedSlippage)
+      if (action.status !== 'PREPARED_ACTION_STATUS_READY') {
+        throw new Error(
+          action.failureDetails?.message || action.guidance?.message || getPreparedReasonMessage(action.reason),
+        )
+      }
+
+      const error = validatePreparedAction(action, getExpected())
+      if (error) throw new Error(error)
+
+      return action[preparationConfig.preview]
+    },
+    // Refetch when returning to the form or finishing an obligations reload.
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+  })
+  const previewLoading = obligationsLoading || (previewEnabled && (slippageDebouncing || previewQuery.isFetching))
+
+  const primaryActionLabel = getWritePrimaryActionLabel({
+    accountConnected,
+    loading: obligationsLoading,
+    loadingLabel: 'Loading Sell Actions',
+    onExpectedChain,
+    readyLabel: 'Review ' + flowConfig.actionLabel,
+    unavailable: Boolean(unavailableMessage),
+    unavailableLabel: flowConfig.actionLabel + ' Unavailable',
+  })
+  const primaryActionLoading = isPreparing || (accountConnected && onExpectedChain && previewLoading)
+  const primaryActionDisabled = isWritePrimaryActionDisabled({
+    accountConnected,
+    executionBlocked: previewLoading || !!unavailableMessage,
+    interactionLocked: isPreparing,
+    onExpectedChain,
+  })
 
   const dismiss = () => {
     flow.reset()
@@ -202,34 +271,9 @@ const ManagePositionModal = ({
     navigate(copyTradingPath(flowConfig.destination, position.chainId))
   }
 
-  const accountConnected = !!account
-  const isPreparing = flowState.isPreparing === true
-  const identityMissing = !copyRunId || !positionId || !userPositionId || (requiresObligations && !copyAccount)
-  const obligationsLoading = requiresObligations && obligations === undefined && !obligationsError
-  const obligationsUnavailable =
-    requiresObligations && obligations !== undefined && !isValidWadRatio(obligations[0]?.currentRatioRaw)
-  const unavailableMessage =
-    (identityMissing ? MISSING_IDENTITY_MESSAGE : undefined) ||
-    obligationsError ||
-    (obligationsUnavailable ? NO_PENDING_OBLIGATION_MESSAGE : undefined)
-  const primaryActionLabel = getWritePrimaryActionLabel({
-    accountConnected,
-    loading: obligationsLoading,
-    loadingLabel: 'Loading Sell Actions',
-    onExpectedChain,
-    readyLabel: 'Review ' + flowConfig.actionLabel,
-    unavailable: Boolean(unavailableMessage),
-    unavailableLabel: flowConfig.actionLabel + ' Unavailable',
-  })
   const preview = flowState.action?.[preparationConfig.preview]
   const reviewPreparing = flowState.phase === 'review' && isPreparing
-  const primaryActionLoading = isPreparing || (accountConnected && onExpectedChain && obligationsLoading)
-  const primaryActionDisabled = isWritePrimaryActionDisabled({
-    accountConnected,
-    executionBlocked: obligationsLoading || !!unavailableMessage,
-    interactionLocked: isPreparing,
-    onExpectedChain,
-  })
+
   const modalTitle = (
     <ManagePositionTitle
       actionLabel={flowConfig.actionLabel}
@@ -276,6 +320,11 @@ const ManagePositionModal = ({
         onPrimaryAction={handlePrimaryAction}
         onSlippageChange={setSlippage}
         position={position}
+        preview={previewEnabled && !previewQuery.error ? previewQuery.data : undefined}
+        previewError={
+          previewEnabled && !previewLoading && previewQuery.error ? getApiErrorMessage(previewQuery.error) : undefined
+        }
+        previewLoading={previewLoading}
         primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         primaryActionLoading={primaryActionLoading}

@@ -2,7 +2,6 @@ import { AlertTriangle, ArrowDown } from 'react-feather'
 import type { PendingSellObligation } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PositionSellPreview, PreparedToken, RawAmountMetric } from 'services/copyTrading/types/preparedActions'
-import type { Metric } from 'services/copyTrading/types/primitives'
 
 import Skeleton from 'components/Skeleton'
 import TextSkeleton from 'components/Skeleton/TextSkeleton'
@@ -21,14 +20,6 @@ import {
   withMetricFallback,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { formatDateTime } from 'utils/time'
-
-const isMetricAvailable = (metric?: Metric) =>
-  metric?.status !== 'METRIC_STATUS_UNAVAILABLE' &&
-  metric?.status !== 'METRIC_STATUS_NOT_APPLICABLE' &&
-  metric?.status !== 'METRIC_STATUS_UNSPECIFIED'
-
-const formatSkippedSellRatio = (metric?: Metric) =>
-  isMetricAvailable(metric) ? withMetricFallback(formatWadPercent(metric?.valueRaw)) : 'N/A'
 
 const formatSkipReason = (value?: string) =>
   value
@@ -129,11 +120,6 @@ export const ManagePositionReview = ({
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Upfront Fee Returned"
-          value={withMetricFallback(formatPreparedAmount(preview?.upfrontFeeReleasedBase, baseToken))}
-        />
-        <ReviewRow
-          isLoading={showSkeleton}
           label="Estimated Cashback"
           value={withMetricFallback(formatPreparedAmount(preview?.cashback, preview?.quoteToken))}
         />
@@ -153,6 +139,9 @@ type ManagePositionFormProps = {
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
   position: PositionSummary
+  preview?: PositionSellPreview
+  previewError?: string
+  previewLoading: boolean
   pendingSellObligations?: PendingSellObligation[]
   pendingSellObligationsError?: string
   pendingSellObligationsLoading: boolean
@@ -200,6 +189,9 @@ const PositionSellSummary = ({
   pendingSellObligationsError,
   pendingSellObligationsLoading,
   position,
+  preview,
+  previewError,
+  previewLoading,
   showClosePositionSummary,
 }: Pick<
   ManagePositionFormProps,
@@ -207,6 +199,9 @@ const PositionSellSummary = ({
   | 'pendingSellObligationsError'
   | 'pendingSellObligationsLoading'
   | 'position'
+  | 'preview'
+  | 'previewError'
+  | 'previewLoading'
   | 'showClosePositionSummary'
 >) => {
   const token: PreparedToken = {
@@ -222,65 +217,82 @@ const PositionSellSummary = ({
     </>
   )
 
-  if (showClosePositionSummary) {
-    return (
-      <Stack className="gap-2 rounded-xl bg-white-04 p-4">
-        <PositionTrade position={position} />
-        <Stack className="gap-2">
-          <span className="text-sm font-medium text-text">Stopped Copy Position:</span>
-          <ReviewRow label="Portion To Close" value="100%" />
-          <ReviewRow label="Remaining" value={remaining} />
-        </Stack>
-      </Stack>
-    )
-  }
+  const sellAmount = withMetricFallback(
+    formatPreparedAmount(preview?.sellBase, getPreparedBaseToken(position, preview?.baseToken)),
+  )
+  const sellRatio = formatWadPercent(preview?.sellRatioRaw)
+  const estimatedOutput = formatPreparedAmount(preview?.swapQuote?.expectedQuote, preview?.quoteToken)
 
-  const usesPendingSellActions =
-    pendingSellObligationsLoading || pendingSellObligations !== undefined || pendingSellObligationsError !== undefined
-  const expectedSkippedActionCount = Number(position.metrics.skippedSellCount?.value)
+  const skippedActionSkeletonCount = Math.max(1, Number(position.metrics.skippedSellCount?.value) || 0)
+  const noPendingSellActions =
+    !pendingSellObligationsLoading && !pendingSellObligationsError && pendingSellObligations?.length === 0
 
   return (
     <Stack className="gap-3">
       <Stack className="gap-2 rounded-xl bg-white-04 p-4">
         <PositionTrade position={position} />
-        <Stack className="gap-2">
-          <span className="text-sm font-medium text-text">Skipped Actions:</span>
-          {pendingSellObligationsLoading &&
-            Array.from({ length: expectedSkippedActionCount }, (_, index) => (
-              <ReviewRow
-                key={index}
-                label={<TextSkeleton width={112} size="sm" />}
-                value={<TextSkeleton className="ml-auto" width={80} size="sm" />}
-              />
-            ))}
-          {pendingSellObligations?.map((obligation, index) => (
-            <ReviewRow
-              key={obligation.leaderPositionEventId || index}
-              label={formatDateTime(obligation.skippedAt)}
-              value={
-                <span className="block truncate text-subText">
+        {showClosePositionSummary ? (
+          <span className="text-sm font-medium text-text">Stopped Copy Position</span>
+        ) : (
+          <Stack className="gap-2">
+            <span className="text-sm font-medium text-text">Skipped Actions:</span>
+            <Stack as="ul" className="list-disc gap-2 pl-4 text-sm text-subText">
+              {noPendingSellActions && <li>No skipped sell actions.</li>}
+              {pendingSellObligationsLoading &&
+                Array.from({ length: skippedActionSkeletonCount }, (_, index) => (
+                  <li key={index}>
+                    <div className="flex items-center gap-2">
+                      <TextSkeleton width={112} size="sm" />
+                      <TextSkeleton width={80} size="sm" />
+                    </div>
+                  </li>
+                ))}
+              {pendingSellObligations?.map((obligation, index) => (
+                <li key={obligation.leaderPositionEventId || index}>
+                  {formatDateTime(obligation.skippedAt)}
+                  {' · '}
                   <span className="text-primary">
                     {withMetricFallback(formatWadPercent(obligation.currentRatioRaw))} sell
                   </span>
                   {' · ' + (obligation.publicErrorMessage || formatSkipReason(obligation.publicErrorCode))}
-                </span>
-              }
-            />
-          ))}
-          {!usesPendingSellActions && (
-            <ReviewRow label="Latest Reason" value={formatSkipReason(position.latestSkipPublicErrorCode)} />
-          )}
-          {pendingSellObligationsError && (
-            <p className="text-sm text-red" role="alert">
-              Unable to load skipped sell actions.
-            </p>
-          )}
-        </Stack>
+                </li>
+              ))}
+            </Stack>
+            {pendingSellObligationsError && (
+              <p className="text-sm text-red" role="alert">
+                Unable to load skipped sell actions.
+              </p>
+            )}
+          </Stack>
+        )}
+        <ReviewRow label="Remaining" value={remaining} />
       </Stack>
 
       <ReviewSection>
-        <ReviewRow label="Total Skipped" value={formatSkippedSellRatio(position.metrics.cumulativeSkippedRatio)} />
-        <ReviewRow label="Remaining" value={remaining} />
+        <ReviewRow
+          isLoading={previewLoading}
+          label="Sell Amount"
+          value={
+            <span className="flex min-w-0 items-center justify-end gap-2">
+              <span className="truncate" title={sellAmount}>
+                {sellAmount}
+              </span>
+              {sellRatio !== '—' && (
+                <span className="shrink-0 rounded bg-primary-12 px-1.5 py-0.5 text-xs text-primary">{sellRatio}</span>
+              )}
+            </span>
+          }
+        />
+        <ReviewRow
+          isLoading={previewLoading}
+          label="Estimated Output"
+          value={estimatedOutput === '—' ? withMetricFallback(estimatedOutput) : `~${estimatedOutput}`}
+        />
+        {previewError && (
+          <p className="text-sm text-red" role="alert">
+            {previewError}
+          </p>
+        )}
       </ReviewSection>
     </Stack>
   )
@@ -292,6 +304,9 @@ export const ManagePositionForm = ({
   onPrimaryAction,
   onSlippageChange,
   position,
+  preview,
+  previewError,
+  previewLoading,
   pendingSellObligations,
   pendingSellObligationsError,
   pendingSellObligationsLoading,
@@ -308,6 +323,9 @@ export const ManagePositionForm = ({
       pendingSellObligationsError={pendingSellObligationsError}
       pendingSellObligationsLoading={pendingSellObligationsLoading}
       position={position}
+      preview={preview}
+      previewError={previewError}
+      previewLoading={previewLoading}
       showClosePositionSummary={showClosePositionSummary}
     />
 
