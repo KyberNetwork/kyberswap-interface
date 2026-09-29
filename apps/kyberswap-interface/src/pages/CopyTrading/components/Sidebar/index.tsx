@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronUp } from 'react-feather'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { ChevronDown, ChevronUp, Globe } from 'react-feather'
+import { useLocation } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
@@ -44,7 +44,7 @@ type MyCopiesSectionProps = {
 
 type NetworksSectionProps = {
   chains: Chain[]
-  onSelectChain: (chainId: number) => void
+  onSelectChain: () => void
   selectedChainId?: number
 }
 
@@ -54,7 +54,7 @@ type SidebarContentProps = {
   agents: AgentCard[]
   chains: Chain[]
   expandedAgents: boolean
-  onSelectChain: (chainId: number) => void
+  onSelectChain: () => void
   onToggleAgents: () => void
   route: SidebarRouteState
   selectedChainId?: number
@@ -204,19 +204,33 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
 }
 
 const NetworksSection = ({ chains, onSelectChain, selectedChainId }: NetworksSectionProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
+
   return (
     <SidebarSection title="Networks" count={chains.length}>
       <Stack className="gap-1">
+        <SidebarMenuItem
+          to={copyTradingPath('', 'all')}
+          active={selectedChainId === undefined}
+          activeStyle="text"
+          layout="row"
+          colorByActive
+          onClick={onSelectChain}
+        >
+          <Globe className="size-5 shrink-0" />
+          <span>All Chains</span>
+        </SidebarMenuItem>
         {chains.map(chain => {
           const active = selectedChainId === chain.chainId
 
           return (
             <SidebarMenuItem
               key={chain.chainId}
+              to={copyTradingPath('', chain.chainId)}
               active={active}
               activeStyle="text"
               layout="row"
-              onClick={() => onSelectChain(chain.chainId)}
+              onClick={onSelectChain}
             >
               <img src={chain.iconUrl} alt="" className="size-5 rounded-full" />
               <span className={cn('truncate text-sm', active ? 'text-primary' : 'text-subText')}>{chain.name}</span>
@@ -258,7 +272,6 @@ const Sidebar = () => {
   const copyTradingPath = useCopyTradingRoutes()
   const basePath = copyTradingPath()
   const location = useLocation()
-  const navigate = useNavigate()
   const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
   const [expandedAgents, setExpandedAgents] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -267,7 +280,7 @@ const Sidebar = () => {
 
   const { currentData: leaderboard } = discoveryApi.useGetLeaderboardQuery(
     { chainId: selectedChainId, limit: SIDEBAR_ITEM_LIMIT },
-    { pollingInterval: 10_000, skip: selectedChainId === undefined },
+    { pollingInterval: 10_000 },
   )
   const { currentData: openCopies, refetch: refetchOpenCopies } = copyRunApi.useGetCopyRunsQuery(
     {
@@ -306,10 +319,9 @@ const Sidebar = () => {
   const profileAgentName = breadcrumbAgent?.data.displayName || agentById.get(route.activeAgentCode)?.displayName || '' // Agent Profile
   const breadcrumbs = getBreadcrumbs(basePath, route, detailAgentName, profileAgentName)
 
-  const selectChain = (chainId: number) => {
+  const selectChain = () => {
     setExpandedAgents(false)
     setMobileOpen(false)
-    navigate(copyTradingPath('', chainId))
   }
 
   const sidebarContentProps: SidebarContentProps = {

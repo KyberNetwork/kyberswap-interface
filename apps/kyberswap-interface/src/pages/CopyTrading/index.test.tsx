@@ -37,7 +37,8 @@ function Probe() {
   const { agentCode, copyId } = useParams()
   return (
     <span>
-      {selectedChainId}:{agentCode || copyId || 'list'}:{path('history')}:{path('my-copies/run-2', 1)}
+      {selectedChainId ?? 'all'}:{agentCode || copyId || 'list'}:{path('history')}:{path('my-copies/run-2', 1)}:
+      {path('', 'all')}
     </span>
   )
 }
@@ -77,6 +78,18 @@ beforeEach(() => {
 
 describe('Copy Trading route boundary', () => {
   it.each([
+    '/copy-trading',
+    '/copy-trading/',
+    '/copy-trading/all',
+    '/copy-trading/all/my-copies',
+    '/copy-trading/all/history',
+  ])('mounts %s with all chains and preserves chain-specific entity links', url => {
+    const router = routerAt(url)
+    expect(render(router)).toContain('all:list:/copy-trading/all/history:/copy-trading/ethereum/my-copies/run-2')
+    router.dispose()
+  })
+
+  it.each([
     ['/copy-trading/base', 'list'],
     ['/copy-trading/base/my-copies', 'list'],
     ['/copy-trading/base/history', 'list'],
@@ -86,6 +99,7 @@ describe('Copy Trading route boundary', () => {
   ])('mounts %s with the chain and nested params from the URL', (url, id) => {
     const router = routerAt(url)
     expect(render(router)).toContain(`8453:${id}:/copy-trading/base/history:/copy-trading/ethereum/my-copies/run-2`)
+    expect(render(router)).toContain(':/copy-trading/all</span>')
     router.dispose()
   })
 
@@ -98,18 +112,25 @@ describe('Copy Trading route boundary', () => {
     expect(render(router)).toContain('8453:list')
     await router.navigate(1)
     expect(render(router)).toContain('1:list')
+    await router.navigate('/copy-trading/all')
+    expect(render(router)).toContain('all:list')
+    await router.navigate(-1)
+    expect(render(router)).toContain('1:list')
     router.dispose()
   })
 
-  it('waits for the catalog before mounting any chain-scoped page', () => {
-    discovery.data = undefined
-    discovery.isFetching = true
-    const router = routerAt('/copy-trading/base/agent-1')
-    expect(render(router)).toContain('Loading chains')
-    discovery.isFetching = false
-    expect(render(router)).toContain('Read error')
-    router.dispose()
-  })
+  it.each(['/copy-trading/base/agent-1', '/copy-trading/all', '/copy-trading'])(
+    'waits for the catalog before mounting %s',
+    url => {
+      discovery.data = undefined
+      discovery.isFetching = true
+      const router = routerAt(url)
+      expect(render(router)).toContain('Loading chains')
+      discovery.isFetching = false
+      expect(render(router)).toContain('Read error')
+      router.dispose()
+    },
+  )
 
   it.each([1, 8453])('keeps the page available when chain %s omits its quote token', chainId => {
     const complete = discovery.data

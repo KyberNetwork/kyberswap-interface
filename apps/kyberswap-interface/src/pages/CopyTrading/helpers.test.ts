@@ -128,23 +128,26 @@ describe('detail page read recovery', () => {
     expect(agent.refetch).toHaveBeenCalledOnce()
   })
 
-  it('canonicalizes an agent or copy URL to the entity chain before rendering actions', () => {
-    mocks.context.mockReturnValue({ ...chainContext, selectedChainId: 1, ownerAddress: 'owner-1' })
-    expect(AgentProfile()).toMatchObject({
-      type: 'navigate',
-      props: {
-        replace: true,
-        to: { pathname: '/copy-trading/base/agent-1', search: '?profileTab=history', hash: '#detail' },
-      },
-    })
-    expect(CopyDetail({ backPath: 'history' })).toMatchObject({
-      type: 'navigate',
-      props: {
-        replace: true,
-        to: { pathname: '/copy-trading/base/history/run-1', search: '?profileTab=history', hash: '#detail' },
-      },
-    })
-  })
+  it.each([1, undefined])(
+    'canonicalizes an agent or copy URL from chain %s before rendering actions',
+    selectedChainId => {
+      mocks.context.mockReturnValue({ ...chainContext, selectedChainId, ownerAddress: 'owner-1' })
+      expect(AgentProfile()).toMatchObject({
+        type: 'navigate',
+        props: {
+          replace: true,
+          to: { pathname: '/copy-trading/base/agent-1', search: '?profileTab=history', hash: '#detail' },
+        },
+      })
+      expect(CopyDetail({ backPath: 'history' })).toMatchObject({
+        type: 'navigate',
+        props: {
+          replace: true,
+          to: { pathname: '/copy-trading/base/history/run-1', search: '?profileTab=history', hash: '#detail' },
+        },
+      })
+    },
+  )
 
   it('keeps owner lookup failures retryable without treating the public Agent as unavailable', () => {
     const copyRuns = query(undefined, { status: 403 })
