@@ -8,8 +8,9 @@ export const getCopyTradingPath = (chain: string | number, path = '') =>
 // Resolve only against the shared catalog. Refetches must not reset a URL-selected chain.
 export const resolveCopyTradingRoute = (pathname: string, chains: Chain[]) => {
   const [segment, ...rest] = pathname.slice(APP_PATHS.COPY_TRADING.length).split('/').filter(Boolean)
+  if (!segment || segment === 'all') return { allChains: true }
   const defaultChain = chains.find(chain => chain.isEnabled)
-  if (!segment || segment === 'my-copies' || segment === 'history') {
+  if (segment === 'my-copies' || segment === 'history') {
     return {
       redirect: defaultChain
         ? getCopyTradingPath(defaultChain.slug, [segment, ...rest].filter(Boolean).join('/'))

@@ -67,6 +67,9 @@ exist:
 - Canonical routes are `/copy-trading/{chainSlug}/...`; the slug comes from
   the shared chain catalog. URL resolution owns `selectedChainId`; context only
   exposes the resolved value, with no separate selection state or sync effect.
+- All Chains uses `/copy-trading/all`; `/copy-trading` also renders the all-chain
+  leaderboard. Both omit `chainId` from discovery queries. Sidebar network
+  selection uses `all` explicitly, while entity links retain their own chain.
 - The route boundary waits for initial chain discovery. Missing quote tokens
   do not block pages; the shared token hook supplies configured per-chain
   fallbacks. Internal forms do not own missing-token loading or Retry controls.

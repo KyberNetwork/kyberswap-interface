@@ -27,13 +27,22 @@ describe('Copy Trading chain URLs', () => {
     expect(resolveCopyTradingRoute('/copy-trading/base', updated).chain?.chainId).toBe(8453)
   })
 
-  it('uses an enabled default only when the URL has no chain', () => {
-    expect(resolveCopyTradingRoute('/copy-trading', [{ ...chains[0], isEnabled: false }, chains[1]]).redirect).toBe(
-      '/copy-trading/base',
-    )
+  it.each(['/copy-trading', '/copy-trading/', '/copy-trading/all', '/copy-trading/all/history'])(
+    'resolves %s without selecting a default chain',
+    pathname => {
+      expect(resolveCopyTradingRoute(pathname, chains)).toEqual({ allChains: true })
+      expect(resolveCopyTradingRoute(pathname, [])).toEqual({ allChains: true })
+    },
+  )
+
+  it('preserves the default chain for legacy copy links', () => {
     expect(resolveCopyTradingRoute('/copy-trading/my-copies/run-1', chains).redirect).toBe(
       '/copy-trading/ethereum/my-copies/run-1',
     )
+  })
+
+  it('builds explicit all-chain links', () => {
+    expect(getCopyTradingPath('all')).toBe('/copy-trading/all')
   })
 
   it('preserves legacy agent links for chain canonicalization by Agent Profile', () => {

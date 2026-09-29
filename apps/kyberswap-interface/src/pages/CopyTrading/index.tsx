@@ -40,7 +40,7 @@ const CopyTrading = () => {
     navigate(location, { replace: true, state: null })
   }, [location, navigate])
 
-  const { chain, redirect } = resolveCopyTradingRoute(location.pathname, chainOptions)
+  const { chain, redirect, allChains } = resolveCopyTradingRoute(location.pathname, chainOptions)
   if (!chains && chainsLoading)
     return (
       <CopyTradingPage>
@@ -55,7 +55,7 @@ const CopyTrading = () => {
         state={location.state}
       />
     )
-  if (!chain)
+  if (!chains || (!chain && !allChains))
     return (
       <CopyTradingPage>
         <CopyTradingReadError resourceUnavailable={!!chains} onRetry={refetchChains} />
@@ -64,8 +64,8 @@ const CopyTrading = () => {
 
   return (
     <CopyTradingProvider
-      key={chain.chainId}
-      selectedChainId={chain.chainId}
+      key={chain?.chainId ?? 'all'}
+      selectedChainId={chain?.chainId}
       chains={chainOptions}
       ownerAddress={ownerAddress}
     >
@@ -73,6 +73,7 @@ const CopyTrading = () => {
         <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
           <Sidebar />
           <Routes>
+            <Route index element={<AgentList />} />
             <Route path=":chain">
               <Route index element={<AgentList />} />
               <Route path="my-copies" element={<MyCopiesView />} />
@@ -80,7 +81,7 @@ const CopyTrading = () => {
               <Route path="history" element={<CopyHistoryView />} />
               <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
               <Route path=":agentCode" element={<AgentProfile />} />
-              <Route path="*" element={<Navigate to={getCopyTradingPath(chain.slug)} replace />} />
+              <Route path="*" element={<Navigate to={getCopyTradingPath(chain?.slug ?? 'all')} replace />} />
             </Route>
           </Routes>
         </div>

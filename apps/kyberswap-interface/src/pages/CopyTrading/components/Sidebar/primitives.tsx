@@ -2,11 +2,12 @@ import type { PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Center, Stack } from 'components/Stack'
+import { APP_PATHS } from 'constants/index'
 import { cn } from 'utils/cn'
 
 export const getSidebarRouteState = (pathname: string, basePath: string) => {
   pathname = pathname.replace(/\/$/, '')
-  const isLeaderboardPage = pathname === basePath
+  const isLeaderboardPage = pathname === basePath || pathname === APP_PATHS.COPY_TRADING
   const isCopiesPage = pathname === basePath + '/my-copies' || pathname.startsWith(basePath + '/my-copies/')
   const isMyCopiesDetailPage = pathname.startsWith(basePath + '/my-copies/')
   const isHistoryPage = pathname === basePath + '/history'

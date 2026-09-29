@@ -5,7 +5,7 @@ import type { Address } from 'services/copyTrading/types/primitives'
 type CopyTradingContextValue = {
   chains: Chain[]
   ownerAddress?: Address
-  selectedChainId: number
+  selectedChainId?: number
 }
 
 const CopyTradingContext = createContext<CopyTradingContextValue | undefined>(undefined)
@@ -13,7 +13,7 @@ const CopyTradingContext = createContext<CopyTradingContextValue | undefined>(un
 type CopyTradingProviderProps = PropsWithChildren<{
   chains: Chain[]
   ownerAddress?: Address
-  selectedChainId: number
+  selectedChainId?: number
 }>
 
 export const CopyTradingProvider = ({ chains, children, ownerAddress, selectedChainId }: CopyTradingProviderProps) => {
