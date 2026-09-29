@@ -12,6 +12,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { friendlyError } from 'utils/errorMessage'
+import { hasNativeErc20Interface } from 'utils/nativeErc20'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { encodeFunctionData } from 'utils/viem'
@@ -56,6 +57,12 @@ export default function useWrapCallback(
     // immediately and skips the aggregator route path even before an account connects; only
     // `execute` (which sends the transaction) requires an account.
     if (!wethAddress || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
+
+    // Chains whose native asset already exposes an ERC-20 interface deploy no wrapper contract, so
+    // there is nothing to call. The currency for such an asset is never native, which alone keeps
+    // the branches below from matching, but offering a wrap here would send a transaction to a
+    // contract with no such function.
+    if (hasNativeErc20Interface(chainId)) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 

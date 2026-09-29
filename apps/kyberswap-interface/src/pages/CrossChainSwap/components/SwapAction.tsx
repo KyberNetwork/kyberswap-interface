@@ -80,7 +80,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     })
 
   const isFindingRoute = loading || (allLoading && !selectedQuote)
-  const isSelectedQuoteExecutable = isQuoteExecutable(selectedQuote, isFromEvm ? account : sender, receiver)
+  const isSelectedQuoteExecutable = isQuoteExecutable(selectedQuote, sender, receiver)
 
   // Restricted-token check applies only to EVM sides (the restricted list is keyed by EVM chainId).
   const restrictedCurrency =

@@ -140,7 +140,7 @@ const config: Config = {
         blue: 'rgb(var(--ks-blue-rgb) / <alpha-value>)',
         blue1: 'var(--ks-blue1)',
         blue2: 'var(--ks-blue2)',
-        blue3: 'var(--ks-blue3)',
+        blue3: 'rgb(var(--ks-blue3-rgb) / <alpha-value>)',
         darkBlue: 'var(--ks-darkBlue)',
 
         // shadow colors (used interpolated into box-shadow shorthands)
@@ -193,6 +193,11 @@ const config: Config = {
           '50%': {
             filter: 'drop-shadow(0 0 8px rgba(255, 178, 55, 0.8)) drop-shadow(0 0 12px rgba(255, 178, 55, 0.4))',
           },
+        },
+        // Plain reveal for content that arrives in place, such as a chart filling its box.
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
         },
         fadeInUp: {
           from: { opacity: '0', transform: 'translateY(4px)' },

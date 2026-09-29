@@ -230,7 +230,7 @@ export const NetworkInfo: {
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/robinhood.svg",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
-    scanLink: "https://robinhoodchain.blockscout.com",
+    scanLink: "https://robin.etherscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.mainnet.chain.robinhood.com",
     wrappedToken: {
@@ -332,9 +332,11 @@ export const POSITION_MANAGER_CONTRACT: {
   },
   [PoolType.DEX_PANCAKE_INFINITY_CL]: {
     56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
+    4663: "0xeaEA9253A0b75B936a965DbD35B2a3F01831DE74",
   },
   [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
     56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
+    4663: "0xeaEA9253A0b75B936a965DbD35B2a3F01831DE74",
   },
 };
 

@@ -15,8 +15,18 @@ import Info from '../../assets/info.svg'
 import DropdownIcon from '../../assets/dropdown.svg'
 import InfoHelper from '../InfoHelper'
 import unknownTokenImg from '../../assets/unknown-token.svg?url'
+import { isNativeErc20Chain } from '../../utils'
 import { friendlyError } from '../../utils/errorMessage'
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto'
+import {
+  calculateGasMargin,
+  encodeUint256,
+  estimateGas,
+  getFunctionSelector,
+  isTransactionSuccessful,
+} from '@kyber/utils/crypto'
+
+const WETH_DEPOSIT_SELECTOR = getFunctionSelector('deposit()')
+const WETH_WITHDRAW_SELECTOR = getFunctionSelector('withdraw(uint256)')
 
 const Success = styled(SuccessSVG)`
   color: ${({ theme }) => theme.success};
@@ -205,12 +215,15 @@ function Confirmation({
 
   let minAmountOut = '--'
 
+  const wrappable = !isNativeErc20Chain(chainId)
   const isWrap =
+    wrappable &&
     trade.routeSummary.tokenIn.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() &&
-    trade.routeSummary.tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+    trade.routeSummary.tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId]?.address?.toLowerCase()
   const isUnwrap =
+    wrappable &&
     trade.routeSummary.tokenOut.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() &&
-    trade.routeSummary.tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+    trade.routeSummary.tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId]?.address?.toLowerCase()
 
   if (amountOut && !isWrap && !isUnwrap) {
     minAmountOut = (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()
@@ -252,73 +265,57 @@ function Confirmation({
       setTxHash('')
       setTxError('')
 
+      const wrapContract = WRAPPED_NATIVE_TOKEN[chainId].address
+      const amountInHex = '0x' + BigInt(trade.routeSummary.amountIn).toString(16)
+
+      let estimateGasOption: { from: string; to: string; value: string; data: string }
+
       if (isWrap) {
-        //if (!wethContract) return
-        //const estimateGas = await wethContract.estimateGas.deposit({
-        //  value: BigInt(trade.routeSummary.amountIn).toString(16),
-        //})
-        //const txReceipt = await wethContract.deposit({
-        //  value: BigInt(trade.routeSummary.amountIn).toString(16),
-        //  gasLimit: calculateGasMargin(estimateGas),
-        //})
-        //
-        //setTxHash(txReceipt?.hash || '')
-        //onSubmitTx?.(txReceipt?.hash || '', txReceipt)
-        //setAttempTx(false)
+        estimateGasOption = {
+          from: connectedAccount.address || '',
+          to: wrapContract,
+          value: amountInHex,
+          data: '0x' + WETH_DEPOSIT_SELECTOR,
+        }
+      } else if (isUnwrap) {
+        estimateGasOption = {
+          from: connectedAccount.address || '',
+          to: wrapContract,
+          value: '0x0',
+          data: '0x' + WETH_WITHDRAW_SELECTOR + encodeUint256(BigInt(trade.routeSummary.amountIn)),
+        }
+      } else {
+        const date = new Date()
+        date.setMinutes(date.getMinutes() + (deadline || 20))
 
-        // TODO
-        return
-      }
-
-      if (isUnwrap) {
-        //if (!wethContract) return
-        //const estimateGas = await wethContract.estimateGas.withdraw(
-        //  BigNumber.from(trade.routeSummary.amountIn).toHexString(),
-        //)
-        //const txReceipt = await wethContract.withdraw(BigNumber.from(trade.routeSummary.amountIn).toHexString(), {
-        //  gasLimit: calculateGasMargin(estimateGas),
-        //})
-        //
-        //setTxHash(txReceipt?.hash || '')
-        //onSubmitTx?.(txReceipt?.hash || '', txReceipt)
-        //setAttempTx(false)
-
-        // TODO
-
-        return
-      }
-
-      const date = new Date()
-      date.setMinutes(date.getMinutes() + (deadline || 20))
-
-      const buildRes = await fetch(
-        `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/route/build`,
-        {
-          method: 'POST',
-          headers: {
-            'x-client-id': client,
+        const buildRes = await fetch(
+          `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/route/build`,
+          {
+            method: 'POST',
+            headers: {
+              'x-client-id': client,
+            },
+            body: JSON.stringify({
+              routeSummary: trade.routeSummary,
+              deadline: Math.floor(date.getTime() / 1000),
+              slippageTolerance: slippage,
+              sender: connectedAccount.address,
+              recipient: connectedAccount.address,
+              source: client,
+            }),
           },
-          body: JSON.stringify({
-            routeSummary: trade.routeSummary,
-            deadline: Math.floor(date.getTime() / 1000),
-            slippageTolerance: slippage,
-            sender: connectedAccount.address,
-            recipient: connectedAccount.address,
-            source: client,
-          }),
-        },
-      ).then(r => r.json())
+        ).then(r => r.json())
 
-      if (!buildRes.data) {
-        throw new Error('Build route failed: ' + JSON.stringify(buildRes.details))
-      }
+        if (!buildRes.data) {
+          throw new Error('Build route failed: ' + JSON.stringify(buildRes.details))
+        }
 
-      const estimateGasOption = {
-        from: connectedAccount.address || '',
-        to: trade.routerAddress,
-        value:
-          '0x' + BigInt(tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? trade.routeSummary.amountIn : 0).toString(16),
-        data: buildRes.data.data as string,
+        estimateGasOption = {
+          from: connectedAccount.address || '',
+          to: trade.routerAddress,
+          value: tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? amountInHex : '0x0',
+          data: buildRes.data.data as string,
+        }
       }
 
       const gasEstimated = await estimateGas(rpcTarget, estimateGasOption)

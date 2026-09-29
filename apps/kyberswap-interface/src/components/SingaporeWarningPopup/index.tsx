@@ -86,7 +86,7 @@ export default function SingaporeWarningPopup() {
             B
           </span>
           <span className="mt-0 text-sm leading-[22px] text-text sm:mt-0.5 sm:text-base sm:leading-6">
-            <Trans>Neither Kyber Network nor any entity affiliated therewith</Trans>:
+            <Trans>Neither KyberSwap nor any entity affiliated therewith</Trans>:
           </span>
         </div>
 

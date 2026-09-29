@@ -12,6 +12,7 @@ import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { getCookieValue } from 'utils/cookie'
+import { amountFromRoute, routeTokenDecimals } from 'utils/nativeErc20'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 export type BuildRouteResult =
@@ -100,7 +101,9 @@ const useBuildRoute = (args: Args) => {
       referral: refCode,
       // for calculating price impact only
       chainId,
-      tokenInDecimals: currencyIn?.decimals,
+      // Must describe the units `routeSummary` actually carries, which is what the quote was asked
+      // for: the input side may be denominated in the native interface.
+      tokenInDecimals: currencyIn && routeTokenDecimals(currencyIn, 'in'),
       tokenOutDecimals: currencyOut?.decimals,
     }
 
@@ -117,8 +120,12 @@ const useBuildRoute = (args: Args) => {
         authentication: isEnableAuthenAggregator,
       }).unwrap()
       if (!response?.data?.data) throw new Error('Building route failed')
+      // The response echoes `amountIn` in the units it was given. Read it back into the input
+      // currency's own units here so every consumer of the build result works in one scale.
       return {
-        data: response.data,
+        data: currencyIn
+          ? { ...response.data, amountIn: amountFromRoute(response.data.amountIn, currencyIn, 'in') }
+          : response.data,
       }
     } catch (e) {
       if (Array.isArray(e?.data?.errorEntities)) {
@@ -144,7 +151,7 @@ const useBuildRoute = (args: Args) => {
     buildRoute,
     isEnableAuthenAggregator,
     permit,
-    currencyIn?.decimals,
+    currencyIn,
     currencyOut?.decimals,
   ])
 

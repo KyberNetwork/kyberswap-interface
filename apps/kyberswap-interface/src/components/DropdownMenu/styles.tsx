@@ -181,21 +181,12 @@ DropdownContent.displayName = 'DropdownContent'
 export const DropdownContentItem = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex cursor-pointer items-center justify-start gap-2 rounded-xl p-2 capitalize hover:bg-tableHeader [&.selected]:bg-primary-20 [&.selected]:text-primary',
+      'flex w-full cursor-pointer items-center justify-start gap-2 rounded-xl p-2 capitalize',
+      'hover:bg-tableHeader [&.selected]:bg-primary-20 [&.selected]:text-primary',
       className,
     )}
     {...rest}
   >
     {children}
   </div>
-)
-
-export const MultiSelectDropdownContentItem = ({
-  children,
-  className,
-  ...rest
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <DropdownContentItem className={cn('w-full justify-start', className)} {...rest}>
-    {children}
-  </DropdownContentItem>
 )

@@ -16,6 +16,5 @@ export default {
   collectFeeSupported: true,
   isForkFrom: CoreProtocol.AlgebraV19,
   showVersion: true,
-  farmingSupported: false,
   smartExitDexType: undefined,
 }

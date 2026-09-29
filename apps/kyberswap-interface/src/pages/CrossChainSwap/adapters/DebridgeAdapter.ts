@@ -2,9 +2,11 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { getPublicClient } from '@wagmi/core'
 import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 import { WalletClient, formatUnits } from 'viem'
 
+import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import {
@@ -140,7 +142,9 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const fixFee = r.fixFee
 
     const wrappedAddress = NativeCurrencies[params.fromChain as ChainId].wrapped.address
-    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] })
+    // The quote is still usable without a native price — it only costs the protocol-fee USD figure —
+    // so a price outage must not take the whole route down with it.
+    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] }).catch(() => null)
     const nativePrice = getMidPrice(priceRes?.data?.[params.fromChain]?.[wrappedAddress]) ?? 0
 
     const nativeDecimals = params.fromChain === 'solana' ? 9 : NativeCurrencies[params.fromChain as ChainId].decimals
@@ -288,6 +292,21 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
+    if (typeof p.sourceChain === 'number') {
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: p.sourceChain,
+      })
+      const receipt = await publicClient?.getTransactionReceipt({
+        hash: p.sourceTxHash as `0x${string}`,
+      })
+      if (receipt?.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
+      }
+    }
+
     const r = await fetch(`${DEBRIDGE_STATS_API}/Orders/${p.id}`).then(res => res.json())
 
     // Extract actual output amount from takeOfferWithMetadata if available

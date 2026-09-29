@@ -352,7 +352,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const abortControllerRef = useRef(new AbortController())
   const requestIdRef = useRef(0)
 
-  const evmWalletAddress = walletClient?.data?.account?.address
+  // Quote ownership follows the active account. The gated client can resolve
+  // later (or fail independently) and is only required when executing.
+  const evmWalletAddress = account
 
   const resolveAddress = (chain: Chain | undefined, role: 'sender' | 'receiver') => {
     const recipientAddress = role === 'receiver' ? recipient : undefined

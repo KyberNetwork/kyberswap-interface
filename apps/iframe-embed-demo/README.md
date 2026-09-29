@@ -24,6 +24,15 @@ By default the iframe loads production (`https://kyberswap.com`). Override the t
 http://localhost:5173/?ks=http://localhost:8080
 ```
 
+A chain production does not serve yet needs a deployment that has it — otherwise `/partner-swap`
+falls back to Ethereum and the tab looks like it does nothing. Point at that PR's preview, or at
+pre-release:
+
+```
+http://localhost:5173/?ks=https://kyberswap-interface-<pr-number>.pr.kyberengineering.io
+http://localhost:5173/?ks=https://pre-release.kyberswap.com
+```
+
 `frame-ancestors` is only emitted when KyberSwap is served by its **nginx container** (production,
 staging, or a local Docker build of `apps/kyberswap-interface`). A KyberSwap started with `pnpm dev`
 sends no such header and frames everywhere.

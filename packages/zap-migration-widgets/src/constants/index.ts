@@ -20,6 +20,9 @@ export const DEFAULT_PRICE_RANGE = {
 
 export const FULL_PRICE_RANGE = 'Full Range';
 
+// How often the zap quote is re-priced while the form is open
+export const ROUTE_REFRESH_INTERVAL = 15_000;
+
 export const PRICE_RANGE_PRESETS = {
   [POOL_CATEGORY.STABLE_PAIR]: [FULL_PRICE_RANGE, 0.01, 0.001, 0.0005],
   [POOL_CATEGORY.CORRELATED_PAIR]: [FULL_PRICE_RANGE, 0.05, 0.01, 0.001],

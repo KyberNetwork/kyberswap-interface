@@ -20,6 +20,7 @@ export enum ChainId {
   Sonic = 146,
   Monad = 143,
   Robinhood = 4663,
+  Arc = 5042,
 }
 
 export const chainId = z.nativeEnum(ChainId);

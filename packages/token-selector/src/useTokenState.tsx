@@ -9,18 +9,22 @@ import {
   useState,
 } from "react";
 
-import { useTokenBalances } from "@kyber/hooks";
+import { useTokenBalances, useWalletInventory } from "@kyber/hooks";
 import { API_URLS, Token } from "@kyber/schema";
-import { fetchTokenInfo } from "@kyber/utils";
+import { fetchTokenInfo, toZapInputToken } from "@kyber/utils";
 
+import { useDiscoveredTokens } from "@/discoveredTokens";
 import { getCachedTokens, setCachedTokens } from "@/tokenCache";
 
 const TOKEN_API = `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens`;
+const EMPTY_ADDRESSES: string[] = [];
 const IMPORTED_TOKENS_KEY = "@kyber/token-selector:importedTokens";
 
 interface TokenState {
   tokens: Token[];
   importedTokens: Token[];
+  /** Held tokens on neither the list nor the imports; only with the wallet inventory enabled. */
+  discoveredTokens: Token[];
   tokenBalances: { [key: string]: bigint };
   isLoading: boolean;
   importToken: (token: Token) => void;
@@ -31,6 +35,7 @@ interface TokenState {
 const initState: TokenState = {
   tokens: [],
   importedTokens: [],
+  discoveredTokens: [],
   tokenBalances: {},
   isLoading: false,
   importToken: () => {},
@@ -46,12 +51,18 @@ export const TokenContextProvider = ({
   account,
   additionalTokenAddresses,
   externalTokenBalances,
+  liveTokenBalances,
+  enableWalletInventory = false,
 }: {
   children: ReactNode;
   chainId?: number; // Optional - when not provided (e.g., positionsOnly mode), tokens and balances won't be fetched
   account?: string;
   additionalTokenAddresses?: string;
   externalTokenBalances?: { [key: string]: bigint };
+  /** Chain reads that outrank the balance source for the tokens they name; see TokenOptions. */
+  liveTokenBalances?: { [address: string]: bigint };
+  /** Opt in to the wallet-inventory balance source; see TokenSelectorModalProps. */
+  enableWalletInventory?: boolean;
 }) => {
   const [importedTokens, setImportedTokens] = useState<Token[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -61,18 +72,59 @@ export const TokenContextProvider = ({
     promise: Promise<void>;
   } | null>(null);
 
-  // Use external balances if provided, otherwise fetch internally
-  // Skip fetching balances when chainId is not provided (positionsOnly mode)
+  // Balance source, in order: balances handed in from outside; the wallet inventory once it can
+  // answer for the wallet; otherwise the balanceOf multicall over the list. The multicall is handed
+  // no addresses and no account while the inventory answers, so it neither polls nor fires a request
+  // whose result would be thrown away.
+  const inventory = useWalletInventory(
+    chainId,
+    account,
+    enableWalletInventory && !externalTokenBalances && !!chainId,
+  );
+  // A walk in flight does not retire the multicall: the wallet is walked page by page, and no row
+  // waits on that to show a balance.
+  const inventoryOwns = inventory.status === "ready";
+  const useMulticall = !externalTokenBalances && !!chainId && !inventoryOwns;
+  const multicallAddresses = useMemo(
+    () =>
+      useMulticall
+        ? [...tokens, ...importedTokens].map((item) => item.address)
+        : EMPTY_ADDRESSES,
+    [useMulticall, tokens, importedTokens],
+  );
   const { balances: internalBalances, loading: tokenBalancesLoading } =
     useTokenBalances(
       chainId as number,
-      externalTokenBalances || !chainId
-        ? []
-        : [...tokens, ...importedTokens].map((item) => item.address),
-      externalTokenBalances || !chainId ? undefined : account,
+      multicallAddresses,
+      useMulticall ? account : undefined,
     );
 
-  const tokenBalances = externalTokenBalances || internalBalances;
+  // Joined so a caller rebuilding the object every render does not re-key the whole list; the merge
+  // reads the key back, which is exactly the value it was memoized on.
+  const liveKey = Object.entries(liveTokenBalances ?? {})
+    .map(([address, value]) => `${address.toLowerCase()}:${value}`)
+    .sort()
+    .join(",");
+  const tokenBalances = useMemo(() => {
+    const source =
+      externalTokenBalances || inventory.balances || internalBalances;
+    if (!liveKey) return source;
+    // A chain read is at the head block, so it stands over an index that may still be catching up.
+    const merged = { ...source };
+    liveKey.split(",").forEach((entry) => {
+      const separator = entry.lastIndexOf(":");
+      merged[entry.slice(0, separator)] = BigInt(entry.slice(separator + 1));
+    });
+    return merged;
+  }, [externalTokenBalances, inventory.balances, internalBalances, liveKey]);
+  const balancesLoading = useMulticall && tokenBalancesLoading;
+
+  const discoveredTokens = useDiscoveredTokens({
+    chainId,
+    holdings: inventory.holdings,
+    tokens,
+    importedTokens,
+  });
 
   const fetchImportedTokens = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -213,7 +265,11 @@ export const TokenContextProvider = ({
         let mergedTokens = [...defaultTokens];
 
         if (extraTokenResults.length) {
-          const allExtraTokens = extraTokenResults.flat();
+          // A pool can hold the native sentinel; where the native asset is also an ERC-20 token it
+          // reads as that token, which the list already carries, so the asset is listed once.
+          const allExtraTokens = extraTokenResults
+            .flat()
+            .map((token) => toZapInputToken(chainId, token));
           const existingAddresses = new Set(
             mergedTokens.map((t) => t.address.toLowerCase()),
           );
@@ -262,13 +318,13 @@ export const TokenContextProvider = ({
     fetchTokens();
   }, [fetchTokens]);
 
-  const isLoadingFinal =
-    isLoading || (!externalTokenBalances && tokenBalancesLoading);
+  const isLoadingFinal = isLoading || balancesLoading;
 
   const contextValue = useMemo(
     () => ({
       tokens,
       importedTokens,
+      discoveredTokens,
       tokenBalances,
       isLoading: isLoadingFinal,
       importToken,
@@ -278,6 +334,7 @@ export const TokenContextProvider = ({
     [
       tokens,
       importedTokens,
+      discoveredTokens,
       tokenBalances,
       isLoadingFinal,
       importToken,

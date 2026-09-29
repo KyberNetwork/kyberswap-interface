@@ -20,6 +20,7 @@ import { WrapType } from 'hooks/useWrapCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
+import { paysNativeOnSwap } from 'utils/nativeErc20'
 
 enum AllowanceType {
   EXACT = 'EXACT',
@@ -107,15 +108,24 @@ const SwapActionButton: React.FC<Props> = ({
     [trackingHandler, networkInfo?.name],
   )
 
-  const [approval, approveCallback, currentAllowance] = useApproveCallback({
-    amount: parsedAmountFromTypedValue,
+  // Where the native asset has a built-in ERC-20 interface, a swap is paid through the native one, so
+  // the router never calls `transferFrom` and there is nothing to approve or permit. Other surfaces
+  // (limit orders, zap) still move the token by allowance and keep the normal flow.
+  const paysNative = paysNativeOnSwap(currencyIn)
+
+  const [rawApproval, approveCallback, currentAllowance] = useApproveCallback({
+    amount: paysNative ? undefined : parsedAmountFromTypedValue,
     spender: routeSummary?.routerAddress,
     onApprovalError: handleApprovalError,
   })
+  const approval = paysNative ? ApprovalState.APPROVED : rawApproval
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 
-  const { permitState, permitCallback } = usePermit(parsedAmountFromTypedValue, routeSummary?.routerAddress)
+  const { permitState, permitCallback } = usePermit(
+    paysNative ? undefined : parsedAmountFromTypedValue,
+    routeSummary?.routerAddress,
+  )
 
   useEffect(() => {
     if (approval === ApprovalState.PENDING) {

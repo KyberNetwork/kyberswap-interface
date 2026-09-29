@@ -9,6 +9,7 @@ import {
   isAddress,
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
+import { isPaidAsNative } from '@kyber/utils/liquidity/zap';
 
 export enum APPROVAL_STATE {
   UNKNOWN = 'unknown',
@@ -52,6 +53,13 @@ export const useErc20Approvals = ({
   tokenSymbols?: string[];
   dexName?: string;
 }) => {
+  // A native input is paid as transaction value, never transferred, so it needs no allowance. That covers
+  // the sentinel, and a native asset's own ERC-20 form where the chain has one. It stays in the state map
+  // as approved, since callers read the map to tell a ready input from one still awaiting approval.
+  const needsNoAllowance = (address: string) =>
+    address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() ||
+    (chainId !== undefined && isPaidAsNative(chainId, address));
+
   const [loading, setLoading] = useState(false);
   const [approvalStates, setApprovalStates] = useState<{
     [address: string]: APPROVAL_STATE;
@@ -59,8 +67,7 @@ export const useErc20Approvals = ({
     addreses.reduce((acc, token) => {
       return {
         ...acc,
-        [token]:
-          token.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.UNKNOWN,
+        [token]: needsNoAllowance(token) ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.UNKNOWN,
       };
     }, {}),
   );
@@ -167,7 +174,7 @@ export const useErc20Approvals = ({
       setLoading(true);
       Promise.all(
         addreses.map(async (address, index) => {
-          if (address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()) return APPROVAL_STATE.APPROVED;
+          if (needsNoAllowance(address)) return APPROVAL_STATE.APPROVED;
 
           const amountToApprove = BigInt(amounts[index]);
           return await checkApproval({

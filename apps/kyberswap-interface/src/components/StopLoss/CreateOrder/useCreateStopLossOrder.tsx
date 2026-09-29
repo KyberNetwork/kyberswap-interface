@@ -11,8 +11,7 @@ import {
 } from 'services/stopLoss'
 
 import { NotificationType } from 'components/Announcement/type'
-import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
-import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
+import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/steps'
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { DEFAULT_MAX_FEES_PERCENTAGE, DEFAULT_MAX_GAS_PERCENTAGE } from 'components/StopLoss/constants'
 import { useStopLossTracking } from 'components/StopLoss/hooks/useStopLossTracking'
@@ -20,6 +19,7 @@ import { StopLossFee, StopLossOrder, StopLossOrderStatus } from 'components/Stop
 import { buildStopLossPayload, stripEmptyEip712Salt } from 'components/StopLoss/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
+import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -134,7 +134,7 @@ export const useCreateStopLossOrder = ({
     [parsedApprovalAmount, committedAmount],
   )
 
-  const checkApprovalManually = useLimitOrderApproval({
+  const checkApprovalManually = useCheckAllowance({
     account,
     amount: parsedApprovalAmount,
     chainId,
@@ -259,7 +259,6 @@ export const useCreateStopLossOrder = ({
       approveCallback,
       checkApprovalManually,
       onWrap,
-      finalStep: 'create' as const,
       onFinalStep: submit,
       steps: processingSteps,
     },

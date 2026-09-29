@@ -72,7 +72,7 @@ const FarmingMarker = ({ pool }: { pool: ParsedEarnPool }) => {
   )
 }
 
-const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
+const PoolAprInfo = ({ pool, 'data-testid': dataTestId }: { pool: ParsedEarnPool; 'data-testid'?: string }) => {
   return (
     <HStack className="flex-nowrap items-center gap-1">
       {pool.activeApr ? (
@@ -81,7 +81,9 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="active" />}
         >
-          <span className="text-primary">{formatAprNumber(pool.activeApr + (pool.bonusApr || 0))}%</span>
+          <span className="text-primary" data-testid={dataTestId} data-apr-type="active">
+            {formatAprNumber(pool.activeApr + (pool.bonusApr || 0))}%
+          </span>
         </MouseoverTooltipDesktopOnly>
       ) : (
         <MouseoverTooltipDesktopOnly
@@ -89,7 +91,9 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="total" />}
         >
-          <span className="text-blue">{formatAprNumber(pool.allApr)}%</span>
+          <span className="text-blue" data-testid={dataTestId} data-apr-type="total">
+            {formatAprNumber(pool.allApr)}%
+          </span>
         </MouseoverTooltipDesktopOnly>
       )}
 

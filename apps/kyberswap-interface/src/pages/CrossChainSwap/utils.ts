@@ -10,8 +10,8 @@ import {
 } from 'pages/CrossChainSwap/adapters/types'
 import type { Quote } from 'pages/CrossChainSwap/registry'
 
-export const CROSS_CHAIN_FEE_RECEIVER = '0x0891617fe27647731d6f1e764092b2f9f06130A0'
-export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = 'D6tN4c5vpMqh4eFdHBUCEo7QLiw6DQy8f4NwqABZuJEf'
+export const CROSS_CHAIN_FEE_RECEIVER = '0x1111115af63bfbcc151e5753e2ea1a29c79d2f01'
+export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = '3htqHCEhYzU9cs3hKpAs7fZLA8QNFJ2g9n7QPRPHnfRq'
 
 // Use a fake address when the user wallet is not connected. Signing with this address will be rejected.
 export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
@@ -46,6 +46,7 @@ export const CANONICAL_TOKENS: Record<string, Record<number, string>> = {
     [ChainId.BERA]: '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
     [ChainId.HYPEREVM]: '0x1fbccdc677c10671ee50b46c61f0f7d135112450',
     [ChainId.ROBINHOOD]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
+    [ChainId.ARC]: '0x128cC466B61f542da60c70e3aA11c10e19B84EDB',
   },
   BNB: {
     [ChainId.BSCMAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',

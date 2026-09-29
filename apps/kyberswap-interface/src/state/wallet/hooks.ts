@@ -1,5 +1,4 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ERC20_ABI } from 'constants/abis'
@@ -13,6 +12,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils/address'
+import { nativeBalanceAmount } from 'utils/nativeErc20'
 import { isTokenNative } from 'utils/tokenInfo'
 
 const EMPTY_OBJECT: any = {}
@@ -42,7 +42,7 @@ function useETHBalance(): CurrencyAmount<Currency> | undefined {
   const value: string | undefined = result?.result?.[0]?.toString?.()
 
   return useMemo(() => {
-    if (value) return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(value))
+    if (value) return nativeBalanceAmount(value, chainId)
     return undefined
   }, [value, chainId])
 }
@@ -87,8 +87,20 @@ export function useTokenBalancesWithLoadingIndicator(
   const { account, chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
+  // Issue the calls in address order, de-duplicated: wagmi keys the multicall query on the contracts
+  // array, so a caller that re-orders its token list (the token selector re-sorts its rows as balances
+  // land) re-keys the query and refetches every chunk. The result is an address map, so the order the
+  // calls go out in is invisible to callers.
   const tokens = useMemo(() => {
-    return tokenParams?.[0]?.chainId === chainId ? tokenParams : EMPTY_ARRAY
+    if (tokenParams?.[0]?.chainId !== chainId) return EMPTY_ARRAY as Token[]
+    const seen = new Set<string>()
+    return tokenParams
+      .filter(token => {
+        if (!token || seen.has(token.address)) return false
+        seen.add(token.address)
+        return true
+      })
+      .sort((tokenA, tokenB) => (tokenA.address < tokenB.address ? -1 : tokenA.address > tokenB.address ? 1 : 0))
   }, [tokenParams, chainId])
 
   const isFetchOtherChain = chainId !== currentChain
@@ -162,6 +174,7 @@ export function useCurrencyBalances(
 
   const tokenBalances = useTokenBalances(tokens, chainId)
   const ethBalance = useNativeBalance(chainId)
+
   return useMemo(
     () =>
       currencies?.map(currency => {
@@ -196,11 +209,16 @@ export function useAllTokenBalances(
 }
 
 // return list token has balance
-export const useTokensHasBalance = (includesImportToken = false) => {
+// `enabled=false` skips the per-block balanceOf multicall over the whole token map (for callers that
+// have another balance source) while keeping the return shape stable.
+export const useTokensHasBalance = (includesImportToken = false, enabled = true) => {
   const { chainId } = useActiveWeb3React()
   const whitelistTokens = useAllTokens()
 
-  const currencies: Token[] = useMemo(() => Object.values(whitelistTokens), [whitelistTokens])
+  const currencies: Token[] = useMemo(
+    () => (enabled ? Object.values(whitelistTokens) : (EMPTY_ARRAY as Token[])),
+    [whitelistTokens, enabled],
+  )
   const [currencyBalances, loadingBalance] = useTokenBalancesWithLoadingIndicator(currencies)
 
   const ethBalance = useNativeBalance()
@@ -209,6 +227,12 @@ export const useTokensHasBalance = (includesImportToken = false) => {
   const tokensHasBalanceAddresses = useMemo(() => tokensHasBalance.map(e => e.wrapped.address), [tokensHasBalance])
 
   useEffect(() => {
+    // Disabled means another source owns this surface: hold no list at all, so nothing here
+    // subscribes to prices and the null total-guard below still holds when the hook is re-enabled.
+    if (!enabled) {
+      setTokensHasBalance(EMPTY_ARRAY as Currency[])
+      return
+    }
     if (!loadingBalance && ethBalance) {
       // call once per chain
       const list: Currency[] = currencies.filter(currency => {
@@ -218,12 +242,16 @@ export const useTokensHasBalance = (includesImportToken = false) => {
         )
         return includesImportToken && !(currency as WrappedTokenInfo).isWhitelisted ? true : hasBalance
       })
-      if (!ethBalance.equalTo(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], '0'))) {
-        list.push(NativeCurrencies[chainId])
+      // Where the native asset is itself an ERC-20 token the filter above already kept it, and both
+      // entries read the same balance — listing it again would double it in the wallet's total.
+      const nativeCurrency = NativeCurrencies[chainId]
+      const nativeAlreadyListed = list.some(currency => currency.equals(nativeCurrency))
+      if (!nativeAlreadyListed && !ethBalance.equalTo(CurrencyAmount.fromRawAmount(nativeCurrency, '0'))) {
+        list.push(nativeCurrency)
       }
       setTokensHasBalance(list)
     }
-  }, [loadingBalance, currencies, currencyBalances, ethBalance, chainId, includesImportToken])
+  }, [enabled, loadingBalance, currencies, currencyBalances, ethBalance, chainId, includesImportToken])
 
   const tokensPrices = useTokenPrices(tokensHasBalanceAddresses)
 
@@ -240,7 +268,9 @@ export const useTokensHasBalance = (includesImportToken = false) => {
 
   // sort by usd
   const tokensHasBalanceSorted = useMemo(() => {
-    return (tokensHasBalance as Token[]).sort((a, b) => {
+    // Copy before sorting: `tokensHasBalance` is React state, and sorting it in place mutates the
+    // value other memos in this hook are already holding.
+    return [...(tokensHasBalance as Token[])].sort((a, b) => {
       const addressA = a.wrapped.address
       const addressB = b.wrapped.address
 
@@ -252,7 +282,9 @@ export const useTokensHasBalance = (includesImportToken = false) => {
 
       const usdA = parseFloat(tokenBalanceA ?? '0') * usdPriceA
       const usdB = parseFloat(tokenBalanceB ?? '0') * usdPriceB
-      return usdA > usdB ? -1 : 1
+      // Return 0 on a tie: an always-nonzero comparator is inconsistent, so equal-value rows would
+      // shuffle on every re-sort.
+      return usdB - usdA
     })
   }, [tokensHasBalance, tokensPrices, currencyBalances, ethBalance])
 

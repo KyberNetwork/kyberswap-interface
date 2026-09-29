@@ -3,6 +3,7 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, 
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZERO_ADDRESS, ZapRouteDetail, univ3Types } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
+import { toZapPayments } from '@kyber/utils/liquidity/zap';
 
 import { ERROR_MESSAGE } from '@/constants';
 import useInitialTokensIn from '@/hooks/useInitialTokensIn';
@@ -237,28 +238,23 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const getZapRoute = useCallback(() => {
     if (zapRouteDisabled || !slippage || initializing || buildData) return;
 
-    let formattedAmountsInWeis = '';
+    let payments = { tokensIn: '', amountsIn: '' };
 
-    const {
-      tokensIn: listValidTokensIn,
-      amountsIn: listValidAmountsIn,
-      tokenAddresses: validTokenInAddresses,
-    } = parseTokensAndAmounts(tokensIn, amountsIn);
+    const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
     try {
-      formattedAmountsInWeis = listValidTokensIn
-        .map((token: Token, index: number) => parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString())
-        .join(',');
+      payments = toZapPayments(
+        chainId,
+        listValidTokensIn.map((token: Token) => token.address),
+        listValidTokensIn.map((token: Token, index: number) =>
+          parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString(),
+        ),
+      );
     } catch (error) {
       console.log(error);
     }
 
-    if (
-      !validTokenInAddresses ||
-      !formattedAmountsInWeis ||
-      formattedAmountsInWeis === '0' ||
-      formattedAmountsInWeis === '00'
-    ) {
+    if (!payments.tokensIn || !payments.amountsIn.split(',').some(amount => BigInt(amount) > 0n)) {
       // No valid input → clear info and abort any in-flight request
       abortControllerRef.current?.abort();
       setLoading(false);
@@ -286,8 +282,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
             'position.tickLower': debounceTickLower,
           }
         : { 'position.id': account || ZERO_ADDRESS }),
-      tokensIn: validTokenInAddresses,
-      amountsIn: formattedAmountsInWeis,
+      tokensIn: payments.tokensIn,
+      amountsIn: payments.amountsIn,
       slippage,
       ...(positionId ? { 'position.id': positionId } : {}),
       ...(feeAddress ? { feeAddress, feePcm } : {}),

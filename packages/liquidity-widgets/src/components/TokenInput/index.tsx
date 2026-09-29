@@ -22,6 +22,7 @@ export default function TokenInput({ className }: { className?: string }) {
     onConnectWallet,
     onOpenZapMigration,
     onEvent,
+    enableWalletInventory,
   } = useWidgetStore([
     'theme',
     'chainId',
@@ -32,6 +33,7 @@ export default function TokenInput({ className }: { className?: string }) {
     'onConnectWallet',
     'onOpenZapMigration',
     'onEvent',
+    'enableWalletInventory',
   ]);
   const { pool } = usePoolStore(['pool']);
   const { tickLower, tickUpper, tokensIn, amountsIn, setTokensIn, setAmountsIn, slippage } = useZapState();
@@ -141,6 +143,7 @@ export default function TokenInput({ className }: { className?: string }) {
       {openTokenSelectModal && (
         <TokenSelectorModal
           chainId={chainId}
+          enableWalletInventory={enableWalletInventory}
           onClose={onCloseTokenSelectModal}
           wallet={{
             account: connectedAccount?.address,

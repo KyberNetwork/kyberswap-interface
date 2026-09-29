@@ -128,7 +128,9 @@ export const getQuotes = async (options: QuoteRunnerParams) => {
   } catch (error) {
     if ((error as Error).message === 'Cancelled' || options.signal.aborted) throw new Error('Cancelled')
     console.error('Failed to get quotes from streaming API:', error)
+    throw error
   }
 
-  await getFallbackQuotes(options)
+  // Direct cross-chain quote fallback is deprecated; respect the aggregator source configuration.
+  // await getFallbackQuotes(options)
 }

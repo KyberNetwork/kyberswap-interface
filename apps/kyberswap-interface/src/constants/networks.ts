@@ -1,9 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
-import { ENV_KEY, type EnvKeys } from './env'
 import {
   arbitrum,
+  arc,
   avax,
   base,
   bera,
@@ -21,14 +21,17 @@ import {
   monad,
   optimism,
   plasma,
+  rise,
   robinhood,
   ronin,
   scroll,
   sonic,
   unichain,
   zksync,
-} from './networks/index'
-import { NetworkInfo } from './networks/type'
+} from 'constants/networks/index'
+import { NetworkInfo } from 'constants/networks/type'
+
+import { ENV_KEY, type EnvKeys } from './env'
 
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in ChainId]: NetworkInfo }
 
@@ -57,6 +60,8 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MONAD]: monad,
   [ChainId.MEGAETH]: megaeth,
   [ChainId.ROBINHOOD]: robinhood,
+  [ChainId.RISE]: rise,
+  [ChainId.ARC]: arc,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -118,6 +123,8 @@ export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MONAD,
   ChainId.MEGAETH,
   ChainId.ROBINHOOD,
+  ChainId.RISE,
+  ChainId.ARC,
 ]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {

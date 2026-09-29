@@ -44,6 +44,7 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import { useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { isInventoryChain } from 'state/walletInventory/store'
 import { ChargeFeeBy } from 'types/route'
 import { isAddress } from 'utils/address'
 
@@ -370,6 +371,7 @@ export default function TipLinkGeneratorModal({ isOpen, onDismiss }: { isOpen: b
         <Portal>
           <TokenSelectorModal
             chainId={chainId as unknown as SchemaChainId}
+            enableWalletInventory={isInventoryChain(chainId)}
             title={t`Select a token`}
             onClose={() => setTokenSelectorTarget(null)}
             wallet={{

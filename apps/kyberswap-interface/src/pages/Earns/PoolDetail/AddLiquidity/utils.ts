@@ -1,6 +1,7 @@
 import {
   AddLiquidityAction,
   NATIVE_TOKEN_ADDRESS,
+  NATIVE_TOKEN_DECIMALS,
   NETWORKS_INFO,
   PartnerFeeAction,
   Pool,
@@ -87,6 +88,12 @@ export const getZapFeePercent = (route?: ZapRouteDetail | null) => {
   return (((protocolFeePcm ?? 0) + (partnerFeePcm ?? 0)) / 100_000) * 100
 }
 
+// A pool can hold the native sentinel while describing that side by the asset's ERC-20 form, as Arc's
+// USDC pools do. The route still reports such a leg in the native interface's decimals, so the leg's own
+// address decides how its amount is read.
+const legDecimals = (leg: { address: string } | undefined, token: Token) =>
+  leg?.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() ? NATIVE_TOKEN_DECIMALS : token.decimals
+
 export const getOutputTokenItems = (pool?: Pool | null, zapRoute?: ZapRouteDetail | null) => {
   const addLiquidityAction = zapRoute?.zapDetails.actions.find(
     (action): action is AddLiquidityAction => action.type === ZapAction.ADD_LIQUIDITY,
@@ -97,12 +104,18 @@ export const getOutputTokenItems = (pool?: Pool | null, zapRoute?: ZapRouteDetai
   return [
     {
       token: pool.token0,
-      amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token0.amount, pool.token0.decimals),
+      amount: parseRouteAmount(
+        addLiquidityAction?.addLiquidity.token0.amount,
+        legDecimals(addLiquidityAction?.addLiquidity.token0, pool.token0),
+      ),
       usdValue: Number(addLiquidityAction?.addLiquidity.token0.amountUsd || 0),
     },
     {
       token: pool.token1,
-      amount: parseRouteAmount(addLiquidityAction?.addLiquidity.token1.amount, pool.token1.decimals),
+      amount: parseRouteAmount(
+        addLiquidityAction?.addLiquidity.token1.amount,
+        legDecimals(addLiquidityAction?.addLiquidity.token1, pool.token1),
+      ),
       usdValue: Number(addLiquidityAction?.addLiquidity.token1.amountUsd || 0),
     },
   ]
@@ -252,28 +265,6 @@ export const getSecurityWarnings = ({
 export const getSlippageStorageKey = (token0Symbol: string, token1Symbol: string, chainId: number, feeTier: number) => {
   const sortedSymbols = [token0Symbol, token1Symbol].sort()
   return `kyber_liquidity_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`
-}
-
-export type SlippageNotice = {
-  message: string
-}
-
-export const getSlippageNotice = (slippage?: number, suggestedSlippage?: number): SlippageNotice | null => {
-  if (slippage === undefined || !suggestedSlippage || suggestedSlippage <= 0) return null
-
-  if (slippage < suggestedSlippage / 2) {
-    return {
-      message: 'Your slippage is set lower than usual, increasing the risk of transaction failure.',
-    }
-  }
-
-  if (slippage > 2 * suggestedSlippage) {
-    return {
-      message: 'Your slippage is set higher than usual, which may cause unexpected losses.',
-    }
-  }
-
-  return null
 }
 
 export const getStatusErrorMessage = (message?: string | null) => {

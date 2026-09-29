@@ -5,11 +5,12 @@ import { useSearchParams } from 'react-router-dom'
 import { ErrorWarning } from 'components/ErrorWarning'
 import RefreshLoading from 'components/RefreshLoading'
 import { HStack, Stack } from 'components/Stack'
-import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { useFeeERC8056Info, useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { TextHelper } from 'components/Text'
 import TradePrice from 'components/TradePrice'
 import { BIPS_BASE } from 'constants/trade'
+import { getERC8056DisplayAmount, getERC8056DisplayPrice } from 'hooks/useERC8056Token'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
@@ -95,8 +96,12 @@ export const SwapFeeLabel = () => {
 const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
   const theme = useTheme()
   const { routeSummary } = useSwapFormContext()
+  const feeERC8056Info = useFeeERC8056Info()
 
-  const { formattedAmount: feeAmount = '', currencyAmount, currency } = routeSummary?.fee || {}
+  const { currencyAmount, currency } = routeSummary?.fee || {}
+  const feeAmount = currencyAmount
+    ? formatDisplayNumber(getERC8056DisplayAmount(feeERC8056Info, currencyAmount), { significantDigits: 6 })
+    : ''
   const feeTokenAddress = currency?.wrapped.address
   const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currency?.chainId)
   const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0
@@ -192,6 +197,7 @@ const TradeSummary: React.FC<Props> = ({
   isFeeTampered,
 }) => {
   const [alreadyVisible, setAlreadyVisible] = useState(false)
+  const { inputERC8056Info, outputERC8056Info } = useSwapFormContext()
   const { parsedAmountOut, priceImpact } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
 
@@ -204,7 +210,10 @@ const TradeSummary: React.FC<Props> = ({
   const hidden = !alreadyVisible
   const priceImpactResult = checkPriceImpact(priceImpact)
 
-  const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
+  const minimumAmountOut = getERC8056DisplayAmount(
+    outputERC8056Info,
+    parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined,
+  )
   const currencyOut = parsedAmountOut?.currency
   const minimumAmountOutStr =
     minimumAmountOut && currencyOut ? (
@@ -235,7 +244,10 @@ const TradeSummary: React.FC<Props> = ({
               disableRefresh={disableRefresh}
               clickable
             />
-            <TradePrice price={routeSummary?.executionPrice} className="text-text" />
+            <TradePrice
+              price={getERC8056DisplayPrice(routeSummary?.executionPrice, inputERC8056Info, outputERC8056Info)}
+              className="text-text"
+            />
           </div>
         </HStack>
         <HStack className="w-full items-center justify-between">

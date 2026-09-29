@@ -2,6 +2,7 @@ import { keepPreviousData } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 
+import { useActiveWeb3React } from 'hooks'
 import { ContractRef } from 'hooks/useContract'
 import { useBlockNumberFor } from 'state/application/hooks'
 import { ListenerOptions } from 'state/multicall/actions'
@@ -195,11 +196,15 @@ export function useMultipleContractSingleData(
   callInputs?: OptionalMethodInputs,
   options?: ListenerOptions,
 ): CallState[] {
+  // This hook takes no per-call chainId: it always reads on the chain the app is on, and pins it
+  // explicitly. Left off, wagmi falls back to the chain the *wallet* is connected to, which is not always
+  // the same one — a wallet that refused a switch, or one still sitting on the chain it was last left on —
+  // and the addresses below only exist on the app's chain.
+  const { chainId } = useActiveWeb3React()
   const fnItem = useMemo(() => findFunctionItem(abi, methodName), [abi, methodName])
   const argsValid = isValidMethodArgs(callInputs)
   const staleTime = staleTimeFrom(options)
-  // No per-call chainId; this hook always reads on the active chain.
-  const blockNumber = useBlockNumberFor(undefined)
+  const blockNumber = useBlockNumberFor(chainId)
   const blockNumberArg = staleTime === Infinity || blockNumber === undefined ? undefined : BigInt(blockNumber)
 
   const validityMask = useMemo(() => addresses.map(addr => !!addr && argsValid), [addresses, argsValid])
@@ -214,11 +219,12 @@ export function useMultipleContractSingleData(
               abi,
               functionName: methodName,
               args: ((callInputs ?? []) as readonly unknown[]) || [],
+              chainId: chainId as number,
             }
           : null,
       )
       .filter((c): c is NonNullable<typeof c> => c !== null)
-  }, [addresses, abi, fnItem, argsValid, methodName, callInputs])
+  }, [addresses, abi, fnItem, argsValid, methodName, callInputs, chainId])
 
   const { data } = useReadContracts({
     contracts: contractCalls,

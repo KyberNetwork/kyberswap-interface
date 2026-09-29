@@ -8,6 +8,19 @@ export interface NativeToken {
   readonly name: string
   readonly logo: string
   readonly decimal: number
+  /**
+   * Set on chains where the native asset also exposes a built-in ERC-20 interface backed by the same
+   * balance, so no wrapped-native contract exists (Arc, where USDC is native). On those chains the
+   * app treats `WETH[chainId]` as the canonical currency and never lists the native sentinel, while
+   * swaps may still pay through the native interface to skip approvals — see `utils/nativeErc20`.
+   */
+  readonly erc20Interface?: {
+    /**
+     * Whether swaps pay through the native interface — sending the sentinel as `tokenIn` with a
+     * `msg.value`, so the router needs no allowance.
+     */
+    readonly payNativeOnSwap: boolean
+  }
 }
 
 export interface NetworkInfo {

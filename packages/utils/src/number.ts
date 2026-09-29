@@ -54,6 +54,51 @@ export function formatTokenAmount(amountInWei: bigint, decimals: number, signifi
   });
 }
 
+const trimTrailingZeros = (digits: string) => digits.replace(/0+$/, '');
+
+export interface PlainDecimal {
+  negative: boolean;
+  /** Digits before the point, leading zeros stripped; '0' when the value is below one. */
+  integerDigits: string;
+  /** Digits after the point, trailing zeros stripped; '' when the value is a whole number. */
+  fractionDigits: string;
+}
+
+const NUMERIC_INPUT = /^([+-])?(\d*)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/;
+
+/**
+ * Split a decimal value into its digits, expanding any exponent so every later step is plain string
+ * slicing. Returns null for anything that is not a finite number.
+ */
+export function toPlainDecimal(value: string | number | bigint): PlainDecimal | null {
+  if (typeof value === 'bigint') {
+    const negative = value < 0n;
+    return { negative, integerDigits: (negative ? -value : value).toString(), fractionDigits: '' };
+  }
+
+  const raw = typeof value === 'number' ? (Number.isFinite(value) ? value.toString() : '') : value.trim();
+  const match = raw ? NUMERIC_INPUT.exec(raw) : null;
+  if (!match) return null;
+
+  const [, sign, intInput = '', fracInput = '', expInput] = match;
+  if (!intInput && !fracInput) return null;
+
+  let digits = intInput + fracInput;
+  let pointIndex = intInput.length + (expInput ? Number(expInput) : 0);
+  if (pointIndex < 0) {
+    digits = '0'.repeat(-pointIndex) + digits;
+    pointIndex = 0;
+  } else if (pointIndex > digits.length) {
+    digits += '0'.repeat(pointIndex - digits.length);
+  }
+
+  return {
+    negative: sign === '-',
+    integerDigits: digits.slice(0, pointIndex).replace(/^0+/, '') || '0',
+    fractionDigits: trimTrailingZeros(digits.slice(pointIndex)),
+  };
+}
+
 const subscriptMap: { [key: string]: string } = {
   '0': '₀',
   '1': '₁',
@@ -89,7 +134,9 @@ export const formatDisplayNumber = (
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult;
 
   if (v < 1 && v > 0) {
-    const decimal = value.toString().split('.')[1] || '0';
+    // Parsed rather than read off `toString()`, which yields exponent notation below 1e-6 and would
+    // otherwise feed the exponent's own characters into the digit slicing below.
+    const decimal = toPlainDecimal(value)?.fractionDigits || '0';
     const numberOfLeadingZeros = -Math.floor(Math.log10(v) + 1);
     const slicedDecimal = decimal
       .replace(/^0+/, '')

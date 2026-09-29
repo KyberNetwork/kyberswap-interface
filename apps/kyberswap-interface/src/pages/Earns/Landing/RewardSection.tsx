@@ -5,7 +5,7 @@ import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import ScrambleNumber from 'components/ScrambleNumber'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { RewardsNavigateButton } from 'pages/Earns/Landing/styles'
+import { HeroRewardRow, RewardsNavigateButton } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
@@ -37,14 +37,18 @@ const RewardSection = () => {
   }
 
   return (
-    <div className={cn('flex justify-center', upToSmall ? 'flex-col items-center gap-7' : 'flex-row items-end gap-4')}>
+    <HeroRewardRow data-testid="earn-overview-rewards">
       <div className={cn('flex items-center', upToSmall ? 'flex-col gap-4' : 'flex-row gap-5')}>
         <span className={cn('relative top-px uppercase text-subText', upToSmall ? 'text-lg' : 'text-base')}>
           {t`Total rewards`}
         </span>
         {/* Fixed-width centered slot so the value appearing never reflows the label/button. The digits
             scramble then lock to the real number — same string length + tabular-nums = constant width. */}
-        <div className="inline-flex min-w-[140px] items-center justify-center text-[28px]">
+        <div
+          className="inline-flex min-w-[140px] items-center justify-center text-[28px]"
+          data-testid="earn-overview-total-rewards"
+          data-loading={isLoadingRewardInfo}
+        >
           {!isLoadingRewardInfo && (
             <ScrambleNumber
               value={totalRewardUsdValue}
@@ -53,11 +57,11 @@ const RewardSection = () => {
           )}
         </div>
       </div>
-      <RewardsNavigateButton to={btnPath} onClick={handleClickBtn}>
+      <RewardsNavigateButton to={btnPath} onClick={handleClickBtn} data-testid="earn-overview-rewards-action">
         <span className="text-sm font-medium uppercase text-primary">{btnText}</span>
-        <img src={PlayIcon} alt={t`Play icon`} width={36} height={36} />
+        <img src={PlayIcon} alt={t`Play icon`} width={upToSmall ? 24 : 28} height={upToSmall ? 24 : 28} />
       </RewardsNavigateButton>
-    </div>
+    </HeroRewardRow>
   )
 }
 

@@ -25,12 +25,14 @@ import PreviewPoolInfo from '@/components/Preview/PreviewPoolInfo';
 import UpdatedPosition from '@/components/Preview/UpdatedPosition';
 import Warning from '@/components/Preview/Warning';
 import useOnSuccess from '@/hooks/useOnSuccess';
+import usePositionSnapshot from '@/hooks/usePositionSnapshot';
 import useTxStatus from '@/hooks/useTxStatus';
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
+import { OnSuccessProps } from '@/types/index';
 
 export function Preview({
   onSubmitTx,
@@ -46,6 +48,7 @@ export function Preview({
       sourceDexLogo: string;
       destinationPool: string;
       destinationDexLogo: string;
+      position?: OnSuccessProps['position'];
     },
   ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
@@ -81,8 +84,10 @@ export function Preview({
   // Use currentTxHash (which tracks replacements) for displaying to user
   const displayTxHash = currentTxHash || txHash;
 
+  const buildPositionSnapshot = usePositionSnapshot();
+
   // Call onSuccess when transaction is successful
-  useOnSuccess({ txHash: txHash || '', txStatus });
+  useOnSuccess({ txHash: txHash || '', txStatus, buildPositionSnapshot });
 
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
@@ -138,6 +143,7 @@ export function Preview({
           sourceDexLogo: DEXES_INFO[sourcePool.poolType].icon,
           destinationPool: `${targetPool.token0.symbol}/${targetPool.token1.symbol}`,
           destinationDexLogo: DEXES_INFO[targetPool.poolType].icon,
+          position: buildPositionSnapshot() ?? undefined,
         },
       );
       setTxHash(txHash);

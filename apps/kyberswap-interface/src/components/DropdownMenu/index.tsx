@@ -34,9 +34,9 @@ type DropdownMenuProps = {
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   usePortal?: boolean
-  /** Names the trigger; each option becomes `${dataTestId}-option-${value}`. */
-  dataTestId?: string
   onChange: (value: string | number) => void
+  /** When set, the trigger and each option get `<testid>-trigger` / `<testid>-option` (+ `data-value`). */
+  'data-testid'?: string
 }
 
 const DropdownMenu = ({
@@ -51,8 +51,8 @@ const DropdownMenu = ({
   mobileFullWidth = false,
   mobileHalfWidth = false,
   usePortal = false,
-  dataTestId,
   onChange,
+  'data-testid': dataTestId,
 }: DropdownMenuProps) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -133,13 +133,7 @@ const DropdownMenu = ({
   }
 
   const dropdownContent = (
-    <DropdownContentWrapper
-      ref={contentRef}
-      $usePortal={usePortal}
-      style={usePortal ? position : undefined}
-      // A portalled menu is not a descendant of its trigger, so options carry the trigger's name.
-      data-testid={dataTestId && `${dataTestId}-menu`}
-    >
+    <DropdownContentWrapper ref={contentRef} $usePortal={usePortal} style={usePortal ? position : undefined}>
       <ScrollIndicator $visible={canScrollUp} onClick={() => handleScrollClick('up')}>
         <ChevronUp size={16} />
       </ScrollIndicator>
@@ -148,8 +142,9 @@ const DropdownMenu = ({
           <DropdownContentItem
             key={option.value}
             onClick={() => handleSelectItem(option.value)}
-            data-testid={dataTestId && `${dataTestId}-option-${option.value}`}
             className={option.value === value ? 'selected' : ''}
+            data-testid={dataTestId ? `${dataTestId}-option` : undefined}
+            data-value={option.value}
           >
             {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
             {option.label}
@@ -168,6 +163,7 @@ const DropdownMenu = ({
       mobileHalfWidth={mobileHalfWidth}
       fullWidth={fullWidth}
       ref={ref}
+      data-testid={dataTestId}
     >
       <MouseoverTooltipDesktopOnly text={!open && tooltip} placement="top" width="260px">
         <DropdownTitleWrapper
@@ -175,7 +171,7 @@ const DropdownMenu = ({
           background={background}
           highlight={flatten && open}
           onClick={handleOpenChange}
-          data-testid={dataTestId}
+          data-testid={dataTestId ? `${dataTestId}-trigger` : undefined}
         >
           <DropdownTitle justifyContent={alignItems} width={width} fullWidth={fullWidth && !width}>
             {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}

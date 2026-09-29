@@ -7,6 +7,7 @@ import {
   ZapRouteDetail,
   univ3Types,
 } from '@kyber/schema'
+import { toZapPayments } from '@kyber/utils'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { parseUnits } from 'utils/viem'
@@ -44,6 +45,73 @@ export type BuildZapInApiResponse = {
   message?: string
 }
 
+/** Aggregator route into or out of a single token — used by the partner-vault deposit flow,
+ *  where `token_out` is the vault's share token and the route mints through the vault's teller. */
+export type SwapRouteAction = {
+  type: string
+  aggregatorSwap?: {
+    swaps: {
+      tokenIn: { address: string; amount: string; amountUsd: string }
+      tokenOut: { address: string; amount: string; amountUsd: string }
+    }[]
+  }
+  refund?: { tokens: { address: string; amount: string; amountUsd: string }[] }
+}
+
+export type SwapRouteDetail = {
+  zapDetails: {
+    initialAmountUsd: string
+    finalAmountUsd: string
+    priceImpact: number
+    suggestedSlippage: number
+    actions: SwapRouteAction[]
+  }
+  route: string
+  routerAddress: string
+  /** Spender to approve — the router pulls tokens through this hub. */
+  allowanceHubAddress: string
+  routerV3Address: string
+  gas: string
+  gasUsd: string
+}
+
+export type GetSwapRouteApiArgs = {
+  chainName: string
+  params: string
+  clientId?: string
+}
+
+export type SwapRouteApiResponse = {
+  data?: SwapRouteDetail
+  message?: string
+}
+
+export type BuildSwapRouteApiArgs = {
+  chainName: string
+  sender: string
+  recipient: string
+  route: string
+  deadline: number
+  source?: string
+}
+
+export type BuildSwapRouteData = {
+  routerAddress: string
+  callData: string
+  value: string
+  tokenTarget: string
+  quoteAmountOut: string
+  minAmountOut: string
+  amountOutUsd: string
+  allowanceHubAddress: string
+  routerV3Address: string
+}
+
+export type BuildSwapRouteApiResponse = {
+  data?: BuildSwapRouteData
+  message?: string
+}
+
 const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
   const rawAmounts = amountsIn.split(',')
   const validTokens: Token[] = []
@@ -62,7 +130,6 @@ const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
   return {
     tokensIn: validTokens,
     amountsIn: validAmounts,
-    tokenAddresses: validTokens.map(token => token.address).join(','),
   }
 }
 
@@ -91,20 +158,20 @@ export const prepareGetZapInRouteRequest = ({
   account?: string
   source?: string
 }) => {
-  const {
-    tokensIn: parsedTokens,
-    amountsIn: parsedAmounts,
-    tokenAddresses,
-  } = parseTokensAndAmounts(tokensIn, amountsIn)
+  const { tokensIn: parsedTokens, amountsIn: parsedAmounts } = parseTokensAndAmounts(tokensIn, amountsIn)
 
-  if (!parsedTokens.length || !tokenAddresses) {
+  if (!parsedTokens.length) {
     return { data: null, error: 'Missing valid zap input' }
   }
 
-  let amountsInWei: string[]
+  let payments: ReturnType<typeof toZapPayments>
 
   try {
-    amountsInWei = parsedTokens.map((token, index) => parseUnits(parsedAmounts[index], token.decimals).toString())
+    payments = toZapPayments(
+      chainId,
+      parsedTokens.map(token => token.address),
+      parsedTokens.map((token, index) => parseUnits(parsedAmounts[index], token.decimals).toString()),
+    )
   } catch (error) {
     return {
       data: null,
@@ -112,7 +179,7 @@ export const prepareGetZapInRouteRequest = ({
     }
   }
 
-  if (!amountsInWei.some(amount => amount !== '0')) {
+  if (!payments.amountsIn.split(',').some(amount => amount !== '0')) {
     return { data: null, error: 'Missing valid zap input' }
   }
 
@@ -127,8 +194,8 @@ export const prepareGetZapInRouteRequest = ({
   params.set('pool.token0', pool.token0.address)
   params.set('pool.token1', pool.token1.address)
   params.set('pool.fee', String(pool.fee * 10_000))
-  params.set('tokensIn', tokenAddresses)
-  params.set('amountsIn', amountsInWei.join(','))
+  params.set('tokensIn', payments.tokensIn)
+  params.set('amountsIn', payments.amountsIn)
   params.set('slippage', String(slippage))
 
   if (
@@ -216,9 +283,27 @@ const zapApi = createApi({
         body,
       }),
     }),
+
+    getSwapRoute: builder.query<SwapRouteApiResponse, GetSwapRouteApiArgs>({
+      query: ({ chainName, params, clientId }) => ({
+        url: `/${chainName}/api/v1/swap/route?${params}`,
+        headers: {
+          'X-Client-Id': clientId || 'kyberswap',
+        },
+      }),
+    }),
+
+    buildSwapRoute: builder.mutation<BuildSwapRouteApiResponse, BuildSwapRouteApiArgs>({
+      query: ({ chainName, ...body }) => ({
+        url: `/${chainName}/api/v1/swap/route/build`,
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 })
 
-export const { useBuildZapInRouteMutation, useGetZapInRouteQuery } = zapApi
+export const { useBuildZapInRouteMutation, useGetZapInRouteQuery, useGetSwapRouteQuery, useBuildSwapRouteMutation } =
+  zapApi
 
 export default zapApi

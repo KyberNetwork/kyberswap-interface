@@ -1,23 +1,15 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import { usePoolsExplorerQuery } from 'services/earn'
 
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
-import {
-  ListingPageDisclaimer,
-  ListingPageNavigateButton,
-  ListingPageTitle,
-  ListingPageWrapper,
-} from 'components/Listing/Page'
+import { ListingPageDisclaimer, ListingPageTitle, ListingPageWrapper } from 'components/Listing/Page'
 import Pagination from 'components/Pagination'
 import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { Stack } from 'components/Stack'
 import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
-import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import Filter from 'pages/Earns/PoolExplorer/Filter'
@@ -33,7 +25,6 @@ import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 
 export enum SortBy {
   APR = 'apr',
@@ -65,8 +56,6 @@ const PoolExplorer = () => {
   const { data: poolData, isError, isFetching } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const pendingSearchRef = useRef('')
-
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const showRewards = useMemo(() => {
     const pools = poolData?.data?.pools || []
@@ -213,7 +202,7 @@ const PoolExplorer = () => {
   }, [])
 
   return (
-    <ListingPageWrapper>
+    <ListingPageWrapper data-testid="earn-pool-explorer-page">
       {zapInWidget}
       {zapMigrationWidget}
       {zapCreatePoolWidget}
@@ -224,7 +213,12 @@ const PoolExplorer = () => {
         Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
       </HiddenH2>
       <Stack className="gap-2">
-        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)} titleAs="span">
+        <ListingPageTitle
+          backLabel="Go back"
+          onBack={() => navigate(-1)}
+          titleAs="span"
+          data-testid="earn-pool-explorer-title"
+        >
           {t`Earning with Smart Liquidity Providing`}
         </ListingPageTitle>
         <span className="italic text-subText">
@@ -242,16 +236,7 @@ const PoolExplorer = () => {
         isFetching={isFetching}
       />
 
-      {upToLarge && (
-        <ListingPageNavigateButton
-          mobileFullWidth
-          icon={<IconUserEarnPosition />}
-          text={t`My Positions`}
-          to={APP_PATHS.EARN_POSITIONS}
-        />
-      )}
-
-      <PoolTableWrapper>
+      <PoolTableWrapper data-testid="earn-pool-table">
         <div>
           <TableHeader
             onSortChange={onSortChange}
@@ -272,6 +257,7 @@ const PoolExplorer = () => {
             totalCount={poolData?.data?.pagination?.totalItems || 0}
             currentPage={filters.page || 1}
             pageSize={filters.limit || 10}
+            data-testid="earn-pool-pagination"
           />
         )}
       </PoolTableWrapper>
@@ -282,7 +268,7 @@ const PoolExplorer = () => {
         onSubmit={openZapCreatePoolWidget}
       />
 
-      <ListingPageDisclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</ListingPageDisclaimer>
+      <ListingPageDisclaimer>{t`KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns.`}</ListingPageDisclaimer>
     </ListingPageWrapper>
   )
 }

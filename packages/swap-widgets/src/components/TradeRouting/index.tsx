@@ -107,11 +107,15 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                           )
                         })(
                           <>
-                            {dex?.logoURL ? (
-                              <img src={dex?.logoURL} alt="" className="img--sm" />
-                            ) : (
-                              <i className="img--sm" />
-                            )}
+                            <img
+                              src={dex?.logoURL || unknownTokenImg}
+                              alt=""
+                              className="img--sm"
+                              onError={({ currentTarget }) => {
+                                currentTarget.onerror = null // prevents looping
+                                currentTarget.src = unknownTokenImg
+                              }}
+                            />
                             {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
                           </>,
                         )

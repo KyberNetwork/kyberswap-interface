@@ -106,7 +106,6 @@ export const OtherChainTokens = ({
                   padding="6px 12px"
                   fontWeight={500}
                   fontSize="14px"
-                  className={cn(isDimmed && 'opacity-50')}
                   onClick={event => {
                     event.stopPropagation()
                     onSelect(token)

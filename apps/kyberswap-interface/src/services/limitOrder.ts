@@ -89,7 +89,7 @@ export type CreateOrderBody = {
   clientId?: string | null
 }
 
-export type CreateOrderSignatureBody = Omit<CreateOrderBody, 'salt' | 'signature' | 'clientId'>
+export type CreateOrderSignatureBody = Omit<CreateOrderBody, 'salt' | 'signature'>
 
 export type CreateOrderSignatureResponse = {
   domain: unknown
@@ -263,10 +263,17 @@ const limitOrderApi = createApi({
       ],
     }),
     createOrderSignature: builder.mutation<CreateOrderSignatureResponse, CreateOrderSignatureBody>({
-      query: body => ({
+      // The backend resolves the fee recipient from x-client-id and bakes it into the
+      // message the maker signs, then re-derives it when the order is submitted. This
+      // header must therefore match the one sent by createOrder, or the signature the
+      // user produces here will not verify and the order will be rejected.
+      query: ({ clientId, ...body }) => ({
         url: `${LIMIT_ORDER_API_WRITE}/v1/orders/sign-message`,
         body,
         method: 'POST',
+        headers: {
+          'x-client-id': clientId || 'kyberswap',
+        },
       }),
       transformResponse,
     }),

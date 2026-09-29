@@ -1,4 +1,4 @@
-import { SUPPORTED_NETWORKS } from './networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 
 export const KYBERSWAP_DOMAIN = 'kyberswap.com'
 /** Canonical production base URL (no trailing slash). Use this instead of hardcoding the domain. */
@@ -61,17 +61,30 @@ export const APP_PATHS = {
   EARN_POSITIONS: '/earn/positions',
   EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:exchange',
   EARN_SMART_EXIT: '/earn/smart-exit',
+  EARN_VAULTS: '/earn/vaults',
+  EARN_MY_VAULTS: '/earn/my-vaults',
+  EARN_VAULT_DETAIL: '/earn/vault/:chainId/:vaultId',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
   RECAP_2025: '/2025-journey',
 } as const
 
-export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/Kyber - Terms of Use - 17 April 2025.pdf',
-  PRIVACY_POLICY: '/files/Kyber - Privacy Policy - 20 November 2023.pdf',
-  // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1744873065000,
+export const PRIVACY_POLICY_PATH = '/files/Kyber - Privacy Policy - 20 November 2023.pdf'
+
+export const TERMS_OF_USE = {
+  file: '/files/KyberSwap - Terms of Use - 01 September 2026.pdf',
+  /**
+   * Identity of the published document, compared against the version the user has accepted. Bumping
+   * it asks every user to accept again, so it changes only when a new document is published.
+   */
+  version: 1788206400000,
+  /**
+   * The date the document is published under, shown as its "Last updated" label. Held apart from
+   * `version`, which lands on a different calendar day. Read in UTC so every viewer sees the one
+   * date the label is written for.
+   */
+  publishedAt: Date.UTC(2026, 8, 1),
 }
 
 export const EIP712Domain = [

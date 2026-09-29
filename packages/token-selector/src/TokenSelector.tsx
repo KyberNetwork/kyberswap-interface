@@ -17,11 +17,14 @@ import {
 
 import { useLingui } from "@lingui/react";
 
-import { Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
+import { TokenPriceMap, useTokenPrices } from "@kyber/hooks";
+import { ChainId, Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
 import { Button, Input, TokenLogo, TokenSymbol } from "@kyber/ui";
 import { fetchTokenInfo } from "@kyber/utils";
+import { formatBalance } from "@kyber/utils/balance";
 import { isAddress } from "@kyber/utils/crypto";
-import { formatUnits } from "@kyber/utils/number";
+import { formatDisplayNumber, formatUnits } from "@kyber/utils/number";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 import Check from "@/assets/check.svg?react";
 import Info from "@/assets/info.svg?react";
@@ -35,6 +38,7 @@ import {
   TOKEN_SELECT_MODE,
   TokenSelectorVariant,
 } from "@/types";
+import { getNetworkInfo } from "@/TokenInfo/utils";
 import UserPositions, { TokenLoader } from "@/UserPositions";
 import { useTokenState } from "@/useTokenState";
 
@@ -69,6 +73,7 @@ interface TokenSelectorProps {
   setTokensIn?: (tokens: Token[]) => void;
   setAmountsIn?: (amounts: string) => void;
   onTokenSelect?: (token: Token) => void;
+  excludedTokenAddresses?: string[];
   isTokenRestricted?: (token: Token) => boolean;
   onRestrictedToken?: (token: Token) => void;
   mode: TOKEN_SELECT_MODE;
@@ -100,6 +105,12 @@ interface TokenSelectorProps {
 
 const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, "T");
 
+const NATIVE_TOKEN_LOWER = NATIVE_TOKEN_ADDRESS.toLowerCase();
+const EMPTY_ADDRESSES: string[] = [];
+
+const formatUsdValue = (value: number) =>
+  formatDisplayNumber(value, { style: "currency", significantDigits: 4 });
+
 const TOKEN_ROW_HEIGHT = 52;
 // Restricted rows are taller to fit the "not available in your jurisdiction" line.
 const RESTRICTED_TOKEN_ROW_HEIGHT = 88;
@@ -112,9 +123,14 @@ interface TokenRowData {
   modalTokensInAddress: Set<string>;
   onClickToken: (token: CustomizeToken) => void;
   onRemoveImportedToken: (e: React.MouseEvent, token: Token) => void;
+  onImportToken: (token: Token) => void;
   onShowTokenInfo: (e: React.MouseEvent, token: Token) => void;
   isTokenRestricted?: (token: Token) => boolean;
   warnedAddresses: Set<string>;
+  /** USD mid price per lowercased address; only held tokens are priced. */
+  tokenPrices: TokenPriceMap;
+  /** The native token is priced through its wrapped counterpart when it has no entry of its own. */
+  wrappedNativeAddress?: string;
   i18n: ReturnType<typeof useLingui>["i18n"];
 }
 
@@ -131,13 +147,31 @@ const TokenRow = memo(function TokenRow({
     modalTokensInAddress,
     onClickToken,
     onRemoveImportedToken,
+    onImportToken,
     onShowTokenInfo,
     warnedAddresses,
+    tokenPrices,
+    wrappedNativeAddress,
     i18n,
   } = data;
 
   const token = tokens[index];
   if (!token) return null;
+
+  const tokenAddrLower = token.address?.toLowerCase();
+  const price =
+    tokenPrices[tokenAddrLower] ||
+    (tokenAddrLower === NATIVE_TOKEN_LOWER && wrappedNativeAddress
+      ? tokenPrices[wrappedNativeAddress]
+      : 0) ||
+    0;
+  const usdValue = price * parseFloat(token.balance);
+  // `token.balance` is the exact amount, which the sort and the USD value need; the row shows a
+  // form trimmed to fit its column, with the exact one on the title.
+  const displayBalance = formatBalance(token.balance);
+
+  // A discovered token is not on the list yet: the row is dimmed and clicking it starts the import.
+  const discovered = !!token.discovered;
 
   const isSelected =
     mode === TOKEN_SELECT_MODE.SELECT &&
@@ -158,7 +192,7 @@ const TokenRow = memo(function TokenRow({
                 maxWidth={120}
               />
               <p className="text-xs text-subText">
-                {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
+                {tabSelected === TOKEN_TAB.ALL ? token.name : displayBalance}
               </p>
             </div>
           </div>
@@ -173,18 +207,27 @@ const TokenRow = memo(function TokenRow({
   return (
     <div
       style={style}
-      className={`flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-[#0f0f0f] ${
-        isSelected ? "bg-[#1d7a5f26]" : ""
+      className={`flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-accent-100 ${
+        isSelected ? "bg-accent-200" : ""
       } ${token.disabled ? "!bg-stroke !cursor-not-allowed brightness-50" : ""}`}
-      onClick={() => !token.disabled && onClickToken(token)}
+      onClick={() => {
+        if (token.disabled) return;
+        if (discovered) onImportToken(token);
+        else onClickToken(token);
+      }}
     >
-      <div className="flex items-center gap-3">
+      <div
+        className={cn(
+          "flex min-w-0 items-center gap-3",
+          discovered && "opacity-50",
+        )}
+      >
         {mode === TOKEN_SELECT_MODE.ADD && (
           <div
-            className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer ${
+            className={`w-4 h-4 shrink-0 rounded-[4px] flex items-center justify-center cursor-pointer ${
               modalTokensInAddress.has(token.address?.toLowerCase())
-                ? "bg-emerald-400"
-                : "bg-gray-700"
+                ? "bg-accent"
+                : "bg-stroke"
             }`}
           >
             {modalTokensInAddress.has(token.address?.toLowerCase()) && (
@@ -193,22 +236,45 @@ const TokenRow = memo(function TokenRow({
           </div>
         )}
         <TokenLogo src={token.logo} size={24} />
-        <div>
+        <div className="min-w-0">
           <TokenSymbol
             className="leading-6"
             symbol={token.symbol}
             maxWidth={120}
           />
           <p
-            className={`${tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""} text-subText`}
+            className={cn(
+              "truncate text-subText",
+              tabSelected === TOKEN_TAB.ALL && "text-xs",
+            )}
+            title={tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
           >
-            {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
+            {tabSelected === TOKEN_TAB.ALL ? token.name : displayBalance}
+            {tabSelected === TOKEN_TAB.IMPORTED && usdValue > 0 && (
+              <span className="ml-1 text-xs text-accent">
+                {formatUsdValue(usdValue)}
+              </span>
+            )}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2 justify-end">
+      <div className="flex shrink-0 items-center justify-end gap-2">
         {tabSelected === TOKEN_TAB.ALL ? (
-          <span>{token.balance}</span>
+          <div
+            className={cn(
+              "flex flex-col items-end",
+              discovered && "opacity-50",
+            )}
+          >
+            <span className="tabular-nums" title={token.balance}>
+              {displayBalance}
+            </span>
+            {usdValue > 0 && (
+              <span className="text-xs text-accent">
+                {formatUsdValue(usdValue)}
+              </span>
+            )}
+          </div>
         ) : (
           <TrashIcon
             className="w-[18px] text-subText hover:text-text !cursor-pointer"
@@ -246,6 +312,7 @@ export default function TokenSelector({
   setTokensIn,
   setAmountsIn,
   onTokenSelect,
+  excludedTokenAddresses,
   isTokenRestricted,
   onRestrictedToken,
   onConnectWallet,
@@ -260,16 +327,52 @@ export default function TokenSelector({
   const { i18n } = useLingui();
   const {
     importedTokens,
+    discoveredTokens,
     tokens,
     removeImportedToken,
     tokenBalances,
     isLoading,
   } = useTokenState();
 
-  const allTokens = useMemo(
-    () => [...tokens, ...importedTokens],
-    [tokens, importedTokens],
+  const discoveredAddresses = useMemo(
+    () => new Set(discoveredTokens.map((token) => token.address.toLowerCase())),
+    [discoveredTokens],
   );
+  const allTokens = useMemo(
+    () => [...tokens, ...importedTokens, ...discoveredTokens],
+    [tokens, importedTokens, discoveredTokens],
+  );
+
+  // Joined so a caller handing over a fresh array on every render does not rebuild the list.
+  const excludedKey = (excludedTokenAddresses ?? []).join(",").toLowerCase();
+  const excludedAddresses = useMemo(
+    () => new Set(excludedKey ? excludedKey.split(",") : []),
+    [excludedKey],
+  );
+
+  const wrappedNativeAddress = chainId
+    ? getNetworkInfo(chainId as ChainId)?.wrappedToken.address.toLowerCase()
+    : undefined;
+
+  // Only a held token can show a non-zero USD value, so only those are priced rather than the whole
+  // list. The wrapped native token rides along whenever the native one is held (see TokenRowData).
+  const heldAddresses = useMemo(() => {
+    const held = allTokens
+      .map((token) => token.address.toLowerCase())
+      .filter((address) => (tokenBalances[address] ?? 0n) > 0n);
+    if (
+      wrappedNativeAddress &&
+      held.includes(NATIVE_TOKEN_LOWER) &&
+      !held.includes(wrappedNativeAddress)
+    ) {
+      held.push(wrappedNativeAddress);
+    }
+    return held.length ? held : EMPTY_ADDRESSES;
+  }, [allTokens, tokenBalances, wrappedNativeAddress]);
+  const { prices: tokenPrices } = useTokenPrices({
+    chainId,
+    addresses: heldAddresses,
+  });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
@@ -319,8 +422,11 @@ export default function TokenSelector({
     const nativeTokenLower = NATIVE_TOKEN_ADDRESS.toLowerCase();
     const selectedTokenLower = selectedTokenAddress?.toLowerCase();
 
-    const sourceTokens =
-      tabSelected === TOKEN_TAB.ALL ? allTokens : importedTokens;
+    const sourceTokens = (
+      tabSelected === TOKEN_TAB.ALL ? allTokens : importedTokens
+    ).filter(
+      (token: Token) => !excludedAddresses.has(token.address.toLowerCase()),
+    );
 
     return sourceTokens
       .map((token: Token) => {
@@ -334,7 +440,8 @@ export default function TokenSelector({
 
         return {
           ...token,
-          balance: formatUnits(balanceInWei, token?.decimals, 8),
+          balance: formatUnits(balanceInWei, token?.decimals),
+          discovered: discoveredAddresses.has(tokenAddrLower),
           disabled:
             mode === TOKEN_SELECT_MODE.ADD ||
             !isInTokensIn ||
@@ -382,13 +489,24 @@ export default function TokenSelector({
           return bSelectedPriority - aSelectedPriority;
         }
         if (b.inPair !== a.inPair) return b.inPair - a.inPair;
-        return parseFloat(b.balance) - parseFloat(a.balance);
+        // Held tokens lead; among them the listed ones lead the discovered ones whatever the amounts,
+        // since an airdropped impersonation is minted large on purpose.
+        const aBalance = parseFloat(a.balance);
+        const bBalance = parseFloat(b.balance);
+        const aHeld = aBalance > 0;
+        const bHeld = bBalance > 0;
+        if (aHeld !== bHeld) return aHeld ? -1 : 1;
+        if (aHeld && !!a.discovered !== !!b.discovered)
+          return a.discovered ? 1 : -1;
+        return bBalance - aBalance;
       });
   }, [
     modalTabSelected,
     tabSelected,
     allTokens,
     importedTokens,
+    discoveredAddresses,
+    excludedAddresses,
     tokensIn,
     tokenBalances,
     mode,
@@ -570,9 +688,12 @@ export default function TokenSelector({
     [setTokenToShow],
   );
 
-  const handleImportToken = (token: Token) => {
-    setTokenToImport(token);
-  };
+  const handleImportToken = useCallback(
+    (token: Token) => {
+      setTokenToImport(token);
+    },
+    [setTokenToImport],
+  );
 
   // Memoized data for virtualized token list
   const tokenListData = useMemo<TokenRowData>(
@@ -584,9 +705,12 @@ export default function TokenSelector({
       modalTokensInAddress,
       onClickToken: handleClickToken,
       onRemoveImportedToken: handleRemoveImportedToken,
+      onImportToken: handleImportToken,
       onShowTokenInfo: handleShowTokenInfo,
       isTokenRestricted,
       warnedAddresses: warnedRestricted,
+      tokenPrices,
+      wrappedNativeAddress,
       i18n,
     }),
     [
@@ -597,9 +721,12 @@ export default function TokenSelector({
       modalTokensInAddress,
       handleClickToken,
       handleRemoveImportedToken,
+      handleImportToken,
       handleShowTokenInfo,
       isTokenRestricted,
       warnedRestricted,
+      tokenPrices,
+      wrappedNativeAddress,
       i18n,
     ],
   );
@@ -685,14 +812,20 @@ export default function TokenSelector({
   useEffect(() => {
     const search = debouncedSearchTerm.toLowerCase().trim();
 
+    // A list match that lands after the address lookup (the wallet's holdings, the chain's list)
+    // takes the address lookup's place.
+    if (filteredTokens.length) {
+      setUnImportedTokens((prev) => (prev.length ? [] : prev));
+      return;
+    }
     // Skip fetching unimported tokens when chainId is not provided (positionsOnly mode)
-    if (!filteredTokens.length && isAddress(search) && chainId) {
+    if (isAddress(search) && chainId && !excludedAddresses.has(search)) {
       fetchTokenInfo(search, chainId).then((res) => {
         setUnImportedTokens(res);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredTokens, chainId, debouncedSearchTerm]);
+  }, [filteredTokens, chainId, debouncedSearchTerm, excludedAddresses]);
 
   useEffect(() => {
     const tokensInSet = new Set(tokensIn.map((t) => t.address.toLowerCase()));
@@ -716,7 +849,7 @@ export default function TokenSelector({
     showUserPositions && onSelectLiquiditySource && !positionsOnly;
 
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden text-white">
+    <div className="flex h-full w-full flex-col overflow-hidden text-text">
       <div className="flex shrink-0 flex-col gap-4 px-6 py-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl">
@@ -781,7 +914,7 @@ export default function TokenSelector({
               placeholder={i18n._(
                 "Search by token name, token symbol or address",
               )}
-              className="h-11 rounded-full border-[1.5px] border-[#0f0f0f] bg-[#0f0f0f] py-2 pl-4 pr-10 text-white outline-none placeholder-subText focus:border-success"
+              className="h-11 rounded-full border-[1.5px] border-transparent bg-black/20 py-2 pl-4 pr-10 text-text outline-none placeholder-subText focus:border-accent"
               value={searchTerm}
               onChange={handleChangeSearch}
             />
@@ -838,13 +971,13 @@ export default function TokenSelector({
                                   symbol={token.symbol}
                                   maxWidth={120}
                                 />
-                                <p className="text-xs text-[#6C7284]">
+                                <p className="text-xs text-subText">
                                   {token.name}
                                 </p>
                               </div>
                               <Button
                                 disabled
-                                className="h-fit rounded-full !bg-accent px-3 py-2 font-normal !text-[#222222] !cursor-not-allowed"
+                                className="h-fit rounded-full !bg-accent px-3 py-2 font-normal !text-textRevert !cursor-not-allowed"
                               >
                                 {i18n._("Import")}
                               </Button>
@@ -862,7 +995,7 @@ export default function TokenSelector({
                     return (
                       <div
                         key={`${token.symbol}-${index}`}
-                        className="flex items-center justify-between px-6 py-2 text-red hover:bg-[#0f0f0f]"
+                        className="flex items-center justify-between px-6 py-2 text-red hover:bg-accent-100"
                       >
                         <div className="flex items-center gap-2">
                           <TokenLogo src={token.logo} size={24} />
@@ -871,10 +1004,10 @@ export default function TokenSelector({
                             symbol={token.symbol}
                             maxWidth={120}
                           />
-                          <p className="text-xs text-[#6C7284]">{token.name}</p>
+                          <p className="text-xs text-subText">{token.name}</p>
                         </div>
                         <Button
-                          className="h-fit rounded-full !bg-accent px-3 py-2 font-normal !text-[#222222] hover:brightness-75"
+                          className="h-fit rounded-full !bg-accent px-3 py-2 font-normal !text-textRevert hover:brightness-75"
                           onClick={() => {
                             if (restricted) {
                               setWarnedRestricted((prev) =>
@@ -892,7 +1025,11 @@ export default function TokenSelector({
                   })}
 
                 {isLoading || isPending ? (
-                  <TokenLoader />
+                  /* Bounded and clipped like the real list below it: left to grow, nine fixed-height
+                     rows run past the dialog's footer and sit under the buttons. */
+                  <div className="flex-1 min-h-0 overflow-hidden">
+                    <TokenLoader />
+                  </div>
                 ) : filteredTokens?.length > 0 && !unImportedTokens.length ? (
                   <div className="flex-1 min-h-0">
                     <AutoSizer>
@@ -1070,16 +1207,16 @@ const TokenFeature = memo(function TokenFeature({
 
   return (
     <>
-      <div className="border-b border-[#505050]">
-        <div className="flex gap-4 px-6 pb-3">
+      <div className="border-b border-stroke">
+        <div className="flex gap-4 px-6">
           <div
-            className={`text-sm hover:brightness-75 font-medium cursor-pointer ${tabSelected === TOKEN_TAB.ALL ? "text-accent" : ""}`}
+            className={`-mb-px cursor-pointer border-b-2 pb-2 text-sm font-medium transition-colors ${tabSelected === TOKEN_TAB.ALL ? "border-accent text-accent" : "border-transparent text-text hover:text-accent"}`}
             onClick={() => setTabSelected(TOKEN_TAB.ALL)}
           >
             {i18n._("All")}
           </div>
           <div
-            className={`text-sm hover:brightness-75 font-medium cursor-pointer ${tabSelected === TOKEN_TAB.IMPORTED ? "text-accent" : ""}`}
+            className={`-mb-px cursor-pointer border-b-2 pb-2 text-sm font-medium transition-colors ${tabSelected === TOKEN_TAB.IMPORTED ? "border-accent text-accent" : "border-transparent text-text hover:text-accent"}`}
             onClick={() => setTabSelected(TOKEN_TAB.IMPORTED)}
           >
             {i18n._("Imported")}

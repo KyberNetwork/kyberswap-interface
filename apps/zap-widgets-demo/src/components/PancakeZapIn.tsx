@@ -25,6 +25,28 @@ import { useCallback, useState } from "react";
 import { useAccount, useChainId, useWalletClient } from "wagmi";
 import { Zap } from "@/App";
 
+const PRESETS: {
+  label: string;
+  chainId: number;
+  poolAddress: string;
+  poolType: ZapInDex;
+}[] = [
+  {
+    label: "BSC · Infinity CL",
+    chainId: 56,
+    poolAddress:
+      "0x752e76950f6167b8dbb0495b957d264d61724dfa26e3dd6fad1ba820862ce9cf",
+    poolType: ZapInDex.DEX_PANCAKE_INFINITY_CL,
+  },
+  {
+    label: "Robinhood · Infinity CL",
+    chainId: 4663,
+    poolAddress:
+      "0xaa254ce70f5e07a9c8c27a579e1d1c43f962cd0b38c91bac2a4c2db28aca1daf",
+    poolType: ZapInDex.DEX_PANCAKE_INFINITY_CL,
+  },
+];
+
 const ZapIn = () => {
   const { address: account } = useAccount();
   const chainId = useChainId();
@@ -117,6 +139,18 @@ const ZapIn = () => {
     [params.initAmounts, params.initDepositTokens]
   );
 
+  const handleSelectPreset = useCallback((preset: (typeof PRESETS)[number]) => {
+    setParams((p) => ({
+      ...p,
+      chainId: preset.chainId,
+      poolAddress: preset.poolAddress,
+      poolType: preset.poolType,
+      positionId: "",
+      initDepositTokens: "",
+      initAmounts: "",
+    }));
+  }, []);
+
   const widgetProps = {
     chainId: params.chainId ? Number(params.chainId) : 0,
     positionId: params.positionId || undefined,
@@ -156,6 +190,34 @@ const ZapIn = () => {
         </CardHeader>
 
         <CardContent className="space-y-2">
+          {/* Presets */}
+          <div className="space-y-1">
+            <Label>Presets</Label>
+            <RadioGroup
+              className="grid grid-cols-3 gap-2 max-md:grid-cols-2"
+              value={params.poolAddress}
+              onValueChange={(value) => {
+                const preset = PRESETS.find((p) => p.poolAddress === value);
+                if (preset) handleSelectPreset(preset);
+              }}
+            >
+              {PRESETS.map((preset) => (
+                <div
+                  className="flex items-center space-x-2"
+                  key={preset.poolAddress}
+                >
+                  <RadioGroupItem
+                    value={preset.poolAddress}
+                    id={preset.poolAddress}
+                  />
+                  <Label className="text-xs" htmlFor={preset.poolAddress}>
+                    {preset.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+
           <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1 max-md:gap-2">
             {/* Chain Id */}
             <div className="space-y-1">

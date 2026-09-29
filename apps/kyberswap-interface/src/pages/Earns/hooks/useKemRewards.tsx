@@ -14,7 +14,7 @@ import ClaimAllModal, { RewardTabType } from 'pages/Earns/components/ClaimAllMod
 import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
 import PositionClaimModal from 'pages/Earns/components/PositionClaimModal'
 import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
-import { EARN_CHAINS, EarnChain, Exchange } from 'pages/Earns/constants'
+import { EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClaimMerklRewards from 'pages/Earns/hooks/useClaimMerklRewards'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
@@ -178,14 +178,6 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   }, [account])
 
   const handleClaim = useCallback(async () => {
-    if (!EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) {
-      notify({
-        title: t`Error`,
-        type: NotificationType.ERROR,
-        summary: t`Farming is not supported on this chain`,
-      })
-      return
-    }
     if (!account || !claimInfo || !claimInfo.dex) return
 
     const positionManagerContract = getNftManagerContractAddress(claimInfo.dex, chainId)
@@ -256,7 +248,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, isSmartConnector, notify])
 
   const handleClaimAll = useCallback(async () => {
-    if (!account || !chainId || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
+    if (!account || !chainId) return
 
     const encodeData = await batchClaimEncodeData({
       owner: account,

@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_TOKENS, NATIVE_TOKEN_ADDRESS, TokenInfo } from '../constants'
+import { isNativeErc20Interface } from '../utils'
 import { getCachedTokens, setCachedTokens } from '../utils/tokenCache'
 import { useActiveWeb3 } from './useWeb3Provider'
 
@@ -168,10 +169,15 @@ export const useTokens = () => {
   const { chainId } = useActiveWeb3()
 
   return useMemo(
-    () => [
-      ...importedTokens.filter(item => item.chainId === chainId).map(item => ({ ...item, isImport: true })),
-      ...tokenList,
-    ],
+    () =>
+      [
+        ...importedTokens.filter(item => item.chainId === chainId).map(item => ({ ...item, isImport: true })),
+        ...tokenList,
+      ]
+        // Where the native asset is itself an ERC-20 contract, that contract reaches the same balance
+        // the native interface does, and consumers already show the native one. Listing it here as
+        // well would put one asset in the picker twice, under two different decimals.
+        .filter(item => !isNativeErc20Interface(chainId, item.address)),
     [tokenList, importedTokens, chainId],
   )
 }

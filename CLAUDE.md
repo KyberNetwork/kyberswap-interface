@@ -45,6 +45,7 @@ pnpm build
 - TypeScript strict mode, no unjustified `any`
 - Components: `PascalCase.tsx`, Hooks: `useCamelCase.ts`, Utils: `camelCase.ts`
 - Import order: external libs → `@kyberswap/*` → local imports → types → styles
+- **Always prefer absolute imports** over relative imports when possible. Use path aliases (e.g., `components/...`, `utils/...`, `hooks/...`) instead of relative paths (e.g., `../../components/...`).
 
 ## Comments
 

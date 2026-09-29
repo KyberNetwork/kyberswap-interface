@@ -21,7 +21,8 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
-  const { theme, position, pool, poolType, connectedAccount, onConnectWallet } = useZapOutContext(s => s);
+  const { theme, position, pool, poolType, connectedAccount, onConnectWallet, enableWalletInventory } =
+    useZapOutContext(s => s);
 
   const loading = !position || !pool;
   const [showTokenSelect, setShowTokenSelect] = useState(false);
@@ -65,6 +66,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
       {showTokenSelect && (
         <TokenSelectorModal
           chainId={chainId}
+          enableWalletInventory={enableWalletInventory}
           title="Select Token Out"
           onClose={() => setShowTokenSelect(false)}
           wallet={{

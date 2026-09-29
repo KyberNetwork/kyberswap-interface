@@ -88,9 +88,9 @@ export default function PoolStat() {
               logo: token1.logo || '',
             },
             apr: {
-              fees: (poolStat?.apr24h || 0) + (poolStat?.bonusApr || 0),
+              fees: poolStat?.apr24h || 0,
               eg: poolStat?.kemEGApr24h || 0,
-              lm: poolStat?.kemLMApr24h || 0,
+              reward: (poolStat?.kemLMApr24h || 0) + (poolStat?.bonusApr || 0),
             },
           }}
         />

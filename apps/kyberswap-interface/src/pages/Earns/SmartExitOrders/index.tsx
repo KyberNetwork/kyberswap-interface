@@ -11,7 +11,7 @@ import {
 } from 'services/smartExit'
 
 import { ReactComponent as IconListSmartExit } from 'assets/svg/earn/ic_list_smart_exit.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import {
@@ -27,6 +27,7 @@ import RefetchIndicator from 'components/RefetchIndicator'
 import SmartExitListSkeleton from 'components/RouteFallback/SmartExitListSkeleton'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
 import OrderItem from 'pages/Earns/SmartExitOrders/OrderItem'
@@ -52,6 +53,7 @@ const SMART_EXIT_ORDERS_PAGE_SIZE = 10
 const SmartExit = () => {
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
+  const isRestoringWallet = useIsWalletRestoring()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -132,6 +134,7 @@ const SmartExit = () => {
     handlePageChange,
     shouldShowEmptyState,
   } = useSmartExitOrdersData({ account, filters, pageSize: SMART_EXIT_ORDERS_PAGE_SIZE, updateFilters })
+  const isInitialLoading = isRestoringWallet || tableLoading
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   // Fetch all active orders to get position IDs that should be excluded from position selector
@@ -184,7 +187,7 @@ const SmartExit = () => {
         </ListingPageTitle>
         <ListingPageNavigateButton
           mobileFullWidth
-          icon={<IconUserEarnPosition />}
+          icon={<MyPositionsIcon />}
           text={t`My Positions`}
           to={APP_PATHS.EARN_POSITIONS}
         />
@@ -234,9 +237,9 @@ const SmartExit = () => {
         )}
 
         <div className="relative">
-          <RefetchIndicator visible={overlayLoading} />
+          <RefetchIndicator visible={overlayLoading && !isInitialLoading} />
 
-          {tableLoading ? (
+          {isInitialLoading ? (
             <SmartExitListSkeleton />
           ) : shouldShowEmptyState ? (
             <div className="flex flex-col items-center justify-center gap-4 px-4 py-16">
@@ -280,7 +283,7 @@ const SmartExit = () => {
 
         <Pagination
           onPageChange={handlePageChange}
-          totalCount={tableLoading ? 0 : totalItems}
+          totalCount={isInitialLoading ? 0 : totalItems}
           currentPage={currentPage}
           pageSize={SMART_EXIT_ORDERS_PAGE_SIZE}
         />

@@ -6,8 +6,10 @@ import aggregatorStatsApi from 'services/aggregatorStats'
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import AboutBackground from 'assets/images/about_background.png'
 import KNCGraphic from 'assets/images/knc-graphic.png'
+import arcIcon from 'assets/networks/arc.svg'
 import megaEthIcon from 'assets/networks/megaeth.svg'
 import monadIcon from 'assets/networks/monad.svg'
+import riseIcon from 'assets/networks/rise.svg'
 import robinhoodIcon from 'assets/networks/robinhood.svg'
 import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
 import BSC from 'assets/svg/about_icon_bsc.svg'
@@ -334,6 +336,14 @@ function AboutKyberSwap() {
                 <HStack className="items-center justify-center gap-4">
                   <img src={robinhoodIcon} alt="Robinhood" width="80px" />
                   <span>Robinhood</span>
+                </HStack>
+                <HStack className="items-center justify-center gap-4">
+                  <img src={riseIcon} alt="RISE" width="80px" />
+                  <span>RISE</span>
+                </HStack>
+                <HStack className="items-center justify-center gap-4">
+                  <img src={arcIcon} alt="Arc" width="80px" />
+                  <span>Arc</span>
                 </HStack>
               </div>
             </Stack>

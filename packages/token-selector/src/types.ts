@@ -50,6 +50,17 @@ export interface TokenOptions {
   token1Address?: string;
   /** External token balances (optional - if not provided, will fetch internally) */
   tokenBalances?: { [key: string]: bigint };
+  /**
+   * Balances the caller reads from the chain itself, by lowercased address, laid over whichever
+   * source the list uses. The wallet inventory is an index and can sit a block or more behind, so a
+   * caller that already reads a token live keeps its own field and that token's row in agreement.
+   */
+  liveTokenBalances?: { [address: string]: bigint };
+  /**
+   * Addresses kept out of every list, the search and the address lookup, so the token cannot be
+   * picked at all (e.g. a vault's own share token, which it neither takes in nor pays out).
+   */
+  excludedTokenAddresses?: string[];
   /** Returns true if the token is geo-restricted and must not be selectable */
   isTokenRestricted?: (token: Token) => boolean;
   /** Called when a restricted token is clicked (e.g. to show a warning); selection is aborted */
@@ -233,6 +244,12 @@ export interface TokenSelectorModalProps {
   positionOptions?: PositionOptions;
   /** Optional analytics callback (e.g. for TOKEN_SEARCHED events) */
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void;
+  /**
+   * Use KyberSwap's wallet-inventory service (one request for everything the wallet holds) as the
+   * balance source on the chains it indexes; a balanceOf multicall over the token list serves the
+   * rest. Off by default. Ignored when `tokenOptions.tokenBalances` supplies balances from outside.
+   */
+  enableWalletInventory?: boolean;
 }
 
 // Internal token with additional UI state
@@ -241,6 +258,8 @@ export interface CustomizeToken extends Token {
   selected: number;
   inPair: number;
   disabled: boolean;
+  /** Held but on neither the list nor the imports; rendered dimmed, imports on click. */
+  discovered?: boolean;
   // Pre-normalized fields for efficient search filtering
   _searchName?: string;
   _searchSymbol?: string;

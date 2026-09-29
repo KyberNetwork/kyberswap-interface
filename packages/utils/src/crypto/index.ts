@@ -1,7 +1,7 @@
 import { keccak256 } from 'js-sha3';
 
 import { directRpcFetch, ethCall, getBalance, rpcFetch } from '@kyber/rpc-client/fetch';
-import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { ChainId, NATIVE_TOKEN_ADDRESS, NATIVE_TOKEN_DECIMALS, NETWORKS_INFO } from '@kyber/schema';
 
 export * from './address';
 
@@ -228,6 +228,16 @@ export function formatUnits(value: string | number, decimals = 18): string {
  * Get token balances for multiple tokens.
  * Uses RPC client with automatic rotation for better reliability.
  */
+/**
+ * How many native-interface units make one unit of the native asset's ERC-20 form, where a chain has
+ * one; 1 elsewhere. A native amount finer than this is never moved by a pool, which holds the ERC-20
+ * form, so it is the step both a balance and a payment in native units must fall on.
+ */
+export const nativeErc20Scale = (chainId: ChainId): bigint => {
+  const { nativeIsErc20, wrappedToken } = NETWORKS_INFO[chainId];
+  return nativeIsErc20 ? 10n ** BigInt(NATIVE_TOKEN_DECIMALS - wrappedToken.decimals) : 1n;
+};
+
 export const getTokenBalances = async ({
   tokenAddresses,
   chainId,
@@ -271,7 +281,11 @@ export const getTokenBalances = async ({
       }),
       {} as Record<string, bigint>,
     );
-    balancesMap[NATIVE_TOKEN_ADDRESS.toLowerCase()] = nativeBalance;
+    // The native sentinel is denominated in the native interface's units everywhere it is used —
+    // `eth_getBalance`, the token catalog, and the zap service all read it at those decimals — so the
+    // balance stays in them, less any remainder no ERC-20 form of the asset could carry.
+    const unit = nativeErc20Scale(chainId);
+    balancesMap[NATIVE_TOKEN_ADDRESS.toLowerCase()] = nativeBalance - (nativeBalance % unit);
 
     return balancesMap;
   } catch (error) {

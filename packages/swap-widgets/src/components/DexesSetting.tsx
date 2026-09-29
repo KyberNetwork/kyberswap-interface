@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import unknownTokenImg from '../assets/unknown-token.svg?url'
 import { Dex } from '../hooks/useSwap'
 import { Input } from './SelectCurrency'
 
@@ -165,7 +166,16 @@ function DexesSetting({
                   }}
                 />
                 <ImageWrapper>
-                  <img src={item.logoURL} alt="logo" />
+                  {/* The dex catalog leaves `logoURL` empty for some sources, and a bare empty `src`
+                      renders as a broken image. */}
+                  <img
+                    src={item.logoURL || unknownTokenImg}
+                    alt="logo"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null // prevents looping
+                      currentTarget.src = unknownTokenImg
+                    }}
+                  />
                 </ImageWrapper>
                 <SourceName>{item.name}</SourceName>
               </Row>

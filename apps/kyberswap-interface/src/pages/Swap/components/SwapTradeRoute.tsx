@@ -1,4 +1,4 @@
-import { type Currency, type CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, type Currency, type CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
@@ -9,6 +9,7 @@ import { ShieldChecked } from 'components/Icons'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { ClickTooltip } from 'components/Tooltip'
+import { getERC8056DisplayAmount, useERC8056TokenInfo } from 'hooks/useERC8056Token'
 import { ExternalLink } from 'theme'
 import { type SwapRouteV2, type SwapRouteV3 } from 'utils/aggregationRouting'
 import { cn } from 'utils/cn'
@@ -52,13 +53,22 @@ const SwapTradeRoute = ({
   currencyIn,
   currencyOut,
   defaultCollapsed = false,
-  inputAmount,
-  outputAmount,
+  inputAmount: rawInputAmount,
+  outputAmount: rawOutputAmount,
   isSmartSettlement = false,
   scrollOnExpand = true,
   onExpand,
 }: SwapTradeRouteProps) => {
   const panelRef = useRef<HTMLDivElement>(null)
+
+  // Amounts are labels only, so an ERC-8056 token shows them in display units like the swap form.
+  const inputInfo = useERC8056TokenInfo(currencyIn, currencyIn?.chainId ?? ChainId.MAINNET)
+  const outputInfo = useERC8056TokenInfo(currencyOut, currencyOut?.chainId ?? ChainId.MAINNET)
+  const inputAmount = useMemo(() => getERC8056DisplayAmount(inputInfo, rawInputAmount), [inputInfo, rawInputAmount])
+  const outputAmount = useMemo(
+    () => getERC8056DisplayAmount(outputInfo, rawOutputAmount),
+    [outputInfo, rawOutputAmount],
+  )
 
   const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
 

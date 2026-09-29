@@ -1,10 +1,15 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
-import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
+import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
+import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
+import {
+  ProcessingStepStatus,
+  useProcessingState,
+  useProcessingSteps,
+} from 'components/ProcessingSteps/useProcessingSteps'
 import StopLossConfirmModal from 'components/StopLoss/CreateOrder/StopLossConfirmModal'
 import { useCreateStopLossOrder } from 'components/StopLoss/CreateOrder/useCreateStopLossOrder'
 import { StopLossWarning } from 'components/StopLoss/Form/useStopLossWarnings'
@@ -48,7 +53,7 @@ const StopLossOrderFlow = ({
   createOrder,
 }: Props) => {
   const navigate = useNavigate()
-  const [processingOrder, setProcessingOrder] = useState(DEFAULT_PROCESSING_ORDER)
+  const processingState = useProcessingState<ProcessingOrderStep>()
 
   const { fee, refreshFee, needsWrap } = createOrder
 
@@ -57,17 +62,27 @@ const StopLossOrderFlow = ({
     if (isOpen) refreshFee()
   }, [isOpen, refreshFee])
 
-  const processing = useProcessingOrder({
-    processingOrder,
-    setProcessingOrder,
+  const { chainId } = createOrder.processing
+
+  const processing = useProcessingSteps<ProcessingOrderStep>({
+    ...processingState,
+    approveStep: 'approve',
+    actionStep: 'create',
+    wrapStep: 'wrap',
     ...createOrder.processing,
     onStart: onDismiss,
   })
 
-  const viewOrders = () => {
-    const chainId = createOrder.processing.chainId
-    navigate(`${APP_PATHS.STOP_LOSS}/${NETWORKS_INFO[chainId].route}`)
+  const limitOrderStepLabel = getLimitOrderStepLabel({ chainId, currencyIn })
+  // Only the signing step names the kind of order; wrap and approve read the same as a limit order.
+  const getStepLabel = (step: ProcessingOrderStep, status: ProcessingStepStatus) => {
+    if (step !== 'create') return limitOrderStepLabel(step, status)
+    if (status === 'active') return t`Signing stop-loss`
+    if (status === 'success') return t`Stop-loss order placed`
+    return t`Sign stop-loss`
   }
+
+  const viewOrders = () => navigate(`${APP_PATHS.STOP_LOSS}/${NETWORKS_INFO[chainId].route}`)
 
   return (
     <>
@@ -91,18 +106,12 @@ const StopLossOrderFlow = ({
         onSubmit={processing.start}
       />
 
-      <ProcessingOrderModal
-        chainId={createOrder.processing.chainId}
-        currencyIn={currencyIn}
+      <ProcessingStepsModal
+        chainId={chainId}
         processing={processing}
-        onViewOrder={viewOrders}
         title={t`Processing Stop-Loss Order`}
-        finalStepLabels={{
-          idle: t`Sign stop-loss`,
-          active: t`Signing stop-loss`,
-          success: t`Stop-loss order placed`,
-        }}
-        viewOrderLabel={<Trans>View order</Trans>}
+        getStepLabel={getStepLabel}
+        successAction={{ label: <Trans>View order</Trans>, onClick: viewOrders }}
       />
     </>
   )

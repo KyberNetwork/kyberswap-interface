@@ -199,8 +199,9 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
         connection,
       )
       .catch(e => {
-        console.log(e)
-        setTxError(e?.message)
+        const errorMessage =
+          (typeof e === 'string' ? e : e?.message) || t`An error occurred. Refresh the page and try again.`
+        setTxError(errorMessage)
         setSubmittingTx(false)
         trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_FAILED, {
           from_token: currencyIn?.symbol,
@@ -209,7 +210,7 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
           from_chain_name: getChainName(fromChainId),
           to_chain: toChainId,
           to_chain_name: getChainName(toChainId),
-          error_message: e?.message,
+          error_message: errorMessage,
           routing_source: selectedQuote.adapter.getName(),
         })
       })

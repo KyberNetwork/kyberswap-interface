@@ -8,7 +8,7 @@ import {
 } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
-import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
+import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/steps'
 import {
   addFee,
   getAvailablePayAmount,
@@ -19,12 +19,12 @@ import {
   isExceedsAvailableAmount,
   subtractFee,
 } from 'components/LimitOrder/TakeOrder/utils'
-import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
 import { LimitOrderTakeContext } from 'components/LimitOrder/types'
 import { getErrorMessage } from 'components/LimitOrder/utils'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
+import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -109,13 +109,12 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
     forceApprove: true,
   })
 
-  const checkApprovalManually = useLimitOrderApproval({
+  const checkApprovalManually = useCheckAllowance({
     account,
     amount: requiredPayAmount,
     chainId,
     currency: payCurrency,
     spender: contractAddress,
-    passWhenInvalidInput: true,
   })
 
   const buildFillOrderBody = useCallback(async (): Promise<FillOrderBody> => {
@@ -226,7 +225,6 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
       approveCallback: () => approveCallback(requiredPayAmount),
       checkApprovalManually,
       steps: TAKE_ORDER_PROCESSING_STEPS,
-      finalStep: 'fill' as const,
       onFinalStep: submitFillOrder,
       onError: (error: unknown, step: ProcessingOrderStep) => {
         const title = step === 'approve' ? t`Approve Error` : t`Fill Order Error`

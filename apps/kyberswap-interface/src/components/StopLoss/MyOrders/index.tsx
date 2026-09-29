@@ -231,7 +231,7 @@ const StopLossOrders = () => {
             // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
             // last option off whenever the table is short. A portalled menu escapes that box.
             usePortal
-            dataTestId="stop-loss-status-filter"
+            data-testid="stop-loss-status-filter"
             // Only the History tab has sub-statuses; the Active list has a single bucket.
             onChange={value => {
               if (isActiveTab) return
@@ -245,7 +245,7 @@ const StopLossOrders = () => {
             width={130}
             mobileHalfWidth
             usePortal
-            dataTestId="stop-loss-chain-filter"
+            data-testid="stop-loss-chain-filter"
             onChange={value => {
               setSelectedChainValue(String(value))
               setCurPage(1)

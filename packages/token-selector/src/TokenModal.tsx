@@ -70,6 +70,7 @@ const TokenModal = ({
     selectedTokenAddress,
     token0Address = "",
     token1Address = "",
+    excludedTokenAddresses,
     isTokenRestricted,
     onRestrictedToken,
   } = tokenOptions ?? {};
@@ -141,6 +142,7 @@ const TokenModal = ({
       const clonedTokensIn = [...tokensIn];
       clonedTokensIn.push(tokenToImport);
       setTokensIn(clonedTokensIn);
+      setSelectedTokens(clonedTokensIn);
       setAmountsIn(`${amountsIn},`);
     }
     setTokenToImport(null);
@@ -162,10 +164,7 @@ const TokenModal = ({
     <Dialog onOpenChange={onClose} open={true}>
       <DialogContent
         containerClassName="ks-token-selector"
-        className={
-          `h-[80vh] overflow-hidden !border-0 bg-layer2 p-0 !max-h-[min(80vh,640px)] ` +
-          `${tokenToImport ? "max-w-[420px]" : "max-w-[436px]"}`
-        }
+        className="h-[80vh] max-w-[436px] overflow-hidden !border-0 bg-layer1 p-0 !max-h-[min(80vh,640px)]"
         skipClose
         aria-describedby={undefined}
       >
@@ -208,6 +207,7 @@ const TokenModal = ({
             filterChains={filterChains}
             variant={variant}
             onTokenSelect={onTokenSelect}
+            excludedTokenAddresses={excludedTokenAddresses}
             isTokenRestricted={isTokenRestricted}
             onRestrictedToken={onRestrictedToken}
             onConnectWallet={onConnectWallet}
