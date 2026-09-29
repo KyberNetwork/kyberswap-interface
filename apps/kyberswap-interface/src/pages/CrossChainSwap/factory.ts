@@ -1,3 +1,5 @@
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
+
 import {
   AcrossAdapter,
   DeBridgeAdapter,
@@ -15,7 +17,7 @@ import { BungeeAdapter } from './adapters/BungeeAdapter'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
-import { ENABLE_CROSS_CHAIN_STREAM_API, normalizeAdapterName } from './utils'
+import { normalizeAdapterName } from './utils'
 
 export type CrossChainSource = Pick<SwapProvider, 'getName'> & Partial<Pick<SwapProvider, 'getIcon' | 'canSupport'>>
 
@@ -110,8 +112,8 @@ export class CrossChainSwapFactory {
     )
   }
 
-  static getSelectableSources(): CrossChainSource[] {
-    if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+  static getSelectableSources(quoteMode: CrossChainQuoteMode): CrossChainSource[] {
+    if (quoteMode === 'direct') {
       return CrossChainSwapFactory.getKyberCrossBridgeSources()
     }
 
@@ -119,8 +121,8 @@ export class CrossChainSwapFactory {
   }
 
   // Direct client quote adapters. When stream is disabled, KyberCross owns quote routing.
-  static getClientQuoteAdapters(): SwapProvider[] {
-    if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+  static getClientQuoteAdapters(quoteMode: CrossChainQuoteMode): SwapProvider[] {
+    if (quoteMode === 'direct') {
       return [CrossChainSwapFactory.getOrCreateAdapter('kybercross')]
     }
 
