@@ -16,7 +16,7 @@ import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProvider
 import { formatTime } from 'pages/CrossChainSwap/components/Summary'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
-import { Quote } from 'pages/CrossChainSwap/registry'
+import { Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -67,13 +67,13 @@ export const QuoteSelector = ({
             const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
             return (
               <QuoteRow
-                key={quote.adapter.getName()}
-                selected={selectedQuote.adapter.getName() === quote.adapter.getName()}
+                key={getQuoteId(quote)}
+                selected={getQuoteId(selectedQuote) === getQuoteId(quote)}
                 role="button"
                 onClick={() => {
                   onChange(quote)
                   setShow(false)
-                  if (quote.adapter.getName() !== selectedQuote.adapter.getName()) {
+                  if (getQuoteId(quote) !== getQuoteId(selectedQuote)) {
                     trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTE_VIEWED, {
                       routing_source: quote.adapter.getName(),
                       amount_out: quote.quote.formattedOutputAmount,
