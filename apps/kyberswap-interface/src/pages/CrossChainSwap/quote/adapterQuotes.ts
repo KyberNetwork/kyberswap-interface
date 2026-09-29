@@ -11,12 +11,13 @@ import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { getSourceFilters, streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
 import { PairCategory, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
-import { ENABLE_CROSS_CHAIN_STREAM_API } from 'pages/CrossChainSwap/utils'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 
 const DEFAULT_QUOTE_TIMEOUT_MS = 10_000
 const KYBERCROSS_QUOTE_TIMEOUT_MS = 60_000
 
 type QuoteRunnerParams = {
+  quoteMode: CrossChainQuoteMode
   params: QuoteParams | NearQuoteParams
   category: PairCategory
   currencyIn: Currency
@@ -105,12 +106,12 @@ export const getSameChainQuote = async ({
 }
 
 export const getFallbackQuotes = async ({
+  quoteMode,
   params,
   category,
   currencyIn,
   currencyOut,
   excludedSources,
-  registry,
   signal,
   isReadOnly,
   onQuotes,
@@ -119,7 +120,7 @@ export const getFallbackQuotes = async ({
   console.log('Falling back to client-side adapter getQuote...')
 
   const fallbackQuotes: Quote[] = []
-  const clientQuoteAdapters = CrossChainSwapFactory.getClientQuoteAdapters()
+  const clientQuoteAdapters = CrossChainSwapFactory.getClientQuoteAdapters(quoteMode)
   let clientAdapters = clientQuoteAdapters.filter(adapter => !excludedSources.includes(adapter.getName()))
   if (clientAdapters.length === 0) clientAdapters = clientQuoteAdapters
 
@@ -137,7 +138,7 @@ export const getFallbackQuotes = async ({
         if (!adapter.canSupport(category, currencyIn, currencyOut)) return
 
         const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
-          registry,
+          quoteMode,
           excludedSources,
           category,
           currencyIn,
@@ -174,7 +175,7 @@ export const getQuotes = async (options: QuoteRunnerParams) => {
     return
   }
 
-  if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+  if (options.quoteMode === 'direct') {
     await getFallbackQuotes(options)
     return
   }

@@ -14,7 +14,7 @@ import {
   SourceList,
   SourceName,
 } from 'pages/Swap/components/LiquiditySourcesPanel/components'
-import { updateExcludedSources } from 'state/crossChainSwap'
+import { updateExcludedSources, useCrossChainQuoteMode } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 type Props = {
@@ -27,7 +27,8 @@ const CrossChainSwapSources = ({ onBack }: Props) => {
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
 
-  const sources = useMemo(() => CrossChainSwapFactory.getSelectableSources(), [])
+  const quoteMode = useCrossChainQuoteMode()
+  const sources = useMemo(() => CrossChainSwapFactory.getSelectableSources(quoteMode), [quoteMode])
   const sourceNames = useMemo(() => sources.map(item => item.getName()), [sources])
   const storedExcludedSources = useAppSelector(state => state.crossChainSwap.excludedSources || [])
   const excludedSources = useMemo(

@@ -3,7 +3,7 @@ import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/ada
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { PairCategory, getCurrencyAddress, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
-import { ENABLE_CROSS_CHAIN_STREAM_API } from 'pages/CrossChainSwap/utils'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 
 const SSE_EVENT = {
   INIT: 'init',
@@ -29,14 +29,14 @@ type StreamQuotesParams = {
 }
 
 export const getSourceFilters = (
-  registry: CrossChainSwapAdapterRegistry,
+  quoteMode: CrossChainQuoteMode,
   excludedSources: string[],
   category: PairCategory,
   currencyIn: Currency,
   currencyOut: Currency,
 ) => {
-  const selectableSources = CrossChainSwapFactory.getSelectableSources()
-  const filterSourcesBySupport = ENABLE_CROSS_CHAIN_STREAM_API
+  const selectableSources = CrossChainSwapFactory.getSelectableSources(quoteMode)
+  const filterSourcesBySupport = quoteMode === 'stream'
   const supportedSources = filterSourcesBySupport
     ? selectableSources.filter(source => source.canSupport?.(category, currencyIn, currencyOut) ?? true)
     : selectableSources
@@ -60,8 +60,7 @@ const getStreamingUrl = ({
   currencyIn,
   currencyOut,
   excludedSources,
-  registry,
-}: Pick<StreamQuotesParams, 'params' | 'category' | 'currencyIn' | 'currencyOut' | 'excludedSources' | 'registry'>) => {
+}: Pick<StreamQuotesParams, 'params' | 'category' | 'currencyIn' | 'currencyOut' | 'excludedSources'>) => {
   const queryParams = new URLSearchParams({
     fromChain: params.fromChain.toString(),
     fromToken: getCurrencyAddress(params.fromToken),
@@ -72,7 +71,8 @@ const getStreamingUrl = ({
     toToken: getCurrencyAddress(params.toToken),
     toTokenDecimals: params.toToken.decimals.toString(),
     toAddress: params.recipient,
-    fee: params.feeBps.toString(),
+    // Internal stream testing waives the UI fee for every source.
+    fee: '0',
     integrator: 'kyberswap',
     stream: 'true',
     slippage: params.slippage.toString(),
@@ -81,7 +81,7 @@ const getStreamingUrl = ({
   })
 
   const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
-    registry,
+    'stream',
     excludedSources,
     category,
     currencyIn,
@@ -109,7 +109,6 @@ export const streamQuotes = async ({
   onQuotes,
   onSoftTimeout,
 }: StreamQuotesParams) => {
-  if (!ENABLE_CROSS_CHAIN_STREAM_API) throw new Error('Cross-chain streaming API is disabled')
   if (signal.aborted) throw new Error('Cancelled')
 
   const quotes: Quote[] = []
@@ -127,10 +126,9 @@ export const streamQuotes = async ({
   }, SOFT_TIMEOUT_MS)
 
   try {
-    const response = await fetch(
-      getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources, registry }),
-      { signal },
-    )
+    const response = await fetch(getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources }), {
+      signal,
+    })
     if (!response.ok) {
       console.error('Streaming API error response status:', response.status)
       throw new Error(`HTTP error! status: ${response.status}`)
@@ -239,7 +237,7 @@ export const streamQuotes = async ({
               gasFeeUsd: data.gasFeeUsd,
               contractAddress: data.contractAddress,
               rawQuote: data.rawQuote,
-              protocolFee: data.protocolFee,
+              protocolFee: data.protocolFee ?? 0,
               protocolFeeString: data.protocolFeeString,
               platformFeePercent: data.platformFeePercent,
             },

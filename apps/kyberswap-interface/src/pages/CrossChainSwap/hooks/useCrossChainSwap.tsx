@@ -30,7 +30,8 @@ import {
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
   SOLANA_NATIVE,
 } from 'pages/CrossChainSwap/utils'
-import { useAppSelector } from 'state/hooks'
+import { type CrossChainQuoteMode, updateQuoteMode, useCrossChainQuoteMode } from 'state/crossChainSwap'
+import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
 const getDefaultTokenForChain = (chain: string | null | undefined) => {
@@ -47,6 +48,8 @@ CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
 
 const RegistryContext = createContext<
   | {
+      quoteMode: CrossChainQuoteMode
+      setQuoteMode: (mode: CrossChainQuoteMode) => void
       showPreview: boolean
       setShowPreview: (show: boolean) => void
       disable: boolean
@@ -88,6 +91,8 @@ const RegistryContext = createContext<
 >(undefined)
 
 export const CrossChainSwapRegistryProvider = ({ children }: { children: React.ReactNode }) => {
+  const quoteMode = useCrossChainQuoteMode()
+  const dispatch = useAppDispatch()
   const excluded = useAppSelector(state => state.crossChainSwap.excludedSources)
   const excludedSources = useMemo(() => {
     return excluded || []
@@ -344,6 +349,20 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   useEffect(() => () => abortControllerRef.current.abort(), [])
 
+  const setQuoteMode = useCallback(
+    (mode: CrossChainQuoteMode) => {
+      if (mode === quoteMode || showPreview) return
+      requestIdRef.current += 1
+      abortControllerRef.current.abort()
+      setQuotes([])
+      setSelectedQuoteId(null)
+      setLoading(true)
+      setAllLoading(false)
+      dispatch(updateQuoteMode(mode))
+    },
+    [dispatch, quoteMode, showPreview],
+  )
+
   // Quote ownership follows the active account. The gated client can resolve
   // later (or fail independently) and is only required when executing.
   const evmWalletAddress = account
@@ -413,6 +432,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       )
 
       await getQuotes({
+        quoteMode,
         params: {
           feeBps: pairInfo.feeBps,
           tokenInUsd: pairInfo.tokenInUsd,
@@ -472,11 +492,14 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     connection,
     excludedSources,
     checkSameAsset,
+    quoteMode,
   ])
 
   return (
     <RegistryContext.Provider
       value={{
+        quoteMode,
+        setQuoteMode,
         showPreview,
         setShowPreview,
         disable,

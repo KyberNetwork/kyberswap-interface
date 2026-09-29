@@ -8,6 +8,7 @@ import { type RoutePlan, kyberCrossApi } from 'pages/CrossChainSwap/adapters/Kyb
 import * as kyberCrossExecution from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/service'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { getFallbackQuotes, getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
+import { getSourceFilters } from 'pages/CrossChainSwap/quote/streamQuotes'
 import { CrossChainSwapAdapterRegistry, type Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
 
 vi.mock('@lifi/sdk', async importOriginal => ({
@@ -18,15 +19,6 @@ vi.mock('@lifi/sdk', async importOriginal => ({
 vi.mock('constants/env', async importOriginal => ({
   ...(await importOriginal<typeof import('constants/env')>()),
   CROSSCHAIN_AGGREGATOR_API: 'https://aggregator.test',
-}))
-
-const quoteMode = vi.hoisted(() => ({ streaming: true }))
-
-vi.mock('pages/CrossChainSwap/utils', async importOriginal => ({
-  ...(await importOriginal<typeof import('pages/CrossChainSwap/utils')>()),
-  get ENABLE_CROSS_CHAIN_STREAM_API() {
-    return quoteMode.streaming
-  },
 }))
 
 const fromToken = { decimals: 18, symbol: 'ETH' } as Currency
@@ -86,7 +78,11 @@ const createAdapter = (getQuote: SwapProvider['getQuote'], name = 'KyberCross'):
   canSupport: () => true,
 })
 
-const setup = (params: QuoteParams = baseParams, adapterName = 'Symbiosis') => {
+const setup = (
+  params: QuoteParams = baseParams,
+  adapterName = 'Symbiosis',
+  quoteMode: 'direct' | 'stream' = 'stream',
+) => {
   const getQuote = vi.fn()
   const adapter = createAdapter(getQuote, adapterName)
   const registry = new CrossChainSwapAdapterRegistry()
@@ -94,8 +90,9 @@ const setup = (params: QuoteParams = baseParams, adapterName = 'Symbiosis') => {
   const onQuotes = vi.fn()
   const onQuoteReady = vi.fn()
 
-  const run = () =>
+  const run = (mode = quoteMode) =>
     getQuotes({
+      quoteMode: mode,
       params,
       category: 'commonPair',
       currencyIn: fromToken,
@@ -130,16 +127,14 @@ const quoteEvent = () =>
   })}\n\n`
 
 afterEach(() => {
-  quoteMode.streaming = true
   vi.restoreAllMocks()
   vi.useRealTimers()
 })
 
 describe('getQuotes', () => {
   it('uses local adapters when streaming is disabled', async () => {
-    quoteMode.streaming = false
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(createResponse(createReader()))
-    const { adapter, getQuote, onQuotes, run } = setup(baseParams, 'KyberCross')
+    const { adapter, getQuote, onQuotes, run } = setup(baseParams, 'KyberCross', 'direct')
     vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters').mockReturnValue([adapter])
     getQuote.mockResolvedValue(normalizedQuote)
 
@@ -148,6 +143,67 @@ describe('getQuotes', () => {
     expect(fetch).not.toHaveBeenCalled()
     expect(getQuote).toHaveBeenCalledOnce()
     expect(onQuotes).toHaveBeenCalledWith([{ adapter, quote: normalizedQuote, isReadOnly: false }])
+  })
+
+  it('switches direct to stream and back without changing the token pair', async () => {
+    const { adapter, getQuote, onQuotes, run } = setup()
+    vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters').mockReturnValue([adapter])
+    getQuote.mockResolvedValue(normalizedQuote)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      createResponse(createReader({ done: false, value: encoder.encode(quoteEvent()) })),
+    )
+
+    await run('direct')
+    await run('stream')
+    await run('direct')
+
+    expect(getQuote).toHaveBeenCalledTimes(2)
+    expect(fetch).toHaveBeenCalledOnce()
+    const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string)
+    expect(url.searchParams.get('fee')).toBe('0')
+    expect(url.searchParams.get('fromChain')).toBe(baseParams.fromChain.toString())
+    expect(url.searchParams.get('toChain')).toBe(baseParams.toChain.toString())
+    expect(onQuotes).toHaveBeenCalledTimes(3)
+  })
+
+  it('discards a pending stream quote when its request is cancelled', async () => {
+    let resolveRead!: (value: ReadableStreamReadResult<Uint8Array>) => void
+    let markReadStarted!: () => void
+    const readStarted = new Promise<void>(resolve => {
+      markReadStarted = resolve
+    })
+    const reader = createReader()
+    reader.read.mockImplementationOnce(
+      () =>
+        new Promise(resolve => {
+          resolveRead = resolve
+          markReadStarted()
+        }),
+    )
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(createResponse(reader))
+    const registry = new CrossChainSwapAdapterRegistry()
+    registry.registerAdapter(createAdapter(vi.fn(), 'Symbiosis'))
+    const controller = new AbortController()
+    const onQuotes = vi.fn()
+    const pending = getQuotes({
+      quoteMode: 'stream',
+      params: baseParams,
+      category: 'commonPair',
+      currencyIn: fromToken,
+      currencyOut: toToken,
+      excludedSources: [],
+      registry,
+      signal: controller.signal,
+      isReadOnly: false,
+      onQuotes,
+      onQuoteReady: vi.fn(),
+    })
+    await readStarted
+    controller.abort()
+    resolveRead({ done: false, value: encoder.encode(quoteEvent()) })
+
+    await expect(pending).rejects.toThrow('Cancelled')
+    expect(onQuotes).not.toHaveBeenCalled()
   })
 
   it('does not call a local adapter when the aggregator returns no quotes', async () => {
@@ -225,6 +281,7 @@ const runFallbackQuotes = (adapter: SwapProvider, signal: AbortSignal) => {
   const onQuotes = vi.fn()
   const onQuoteReady = vi.fn()
   const promise = getFallbackQuotes({
+    quoteMode: 'direct',
     params: baseParams,
     category: 'commonPair',
     currencyIn: fromToken,
@@ -241,6 +298,20 @@ const runFallbackQuotes = (adapter: SwapProvider, signal: AbortSignal) => {
 }
 
 describe('CrossChainSwapFactory', () => {
+  it('uses bridge filters for direct mode and adapter filters for stream mode', () => {
+    const direct = getSourceFilters('direct', ['Relay'], 'commonPair', fromToken, toToken)
+    const stream = getSourceFilters('stream', ['KyberCross'], 'commonPair', fromToken, toToken)
+    expect(direct.selectableSources.map(source => source.getName())).toContain('CCIP')
+    expect(direct.selectableSources.map(source => source.getName())).not.toContain('KyberCross')
+    expect(direct.excludedSourceNames).toContain('Relay')
+    expect(stream.selectableSources.map(source => source.getName())).toContain('KyberCross')
+    expect(stream.selectableSources.map(source => source.getName())).not.toContain('CCIP')
+    expect(stream.excludedSourceNames).toContain('KyberCross')
+    expect(CrossChainSwapFactory.getClientQuoteAdapters('direct').map(adapter => adapter.getName())).toEqual([
+      'KyberCross',
+    ])
+  })
+
   it.each([
     ['ccip', 'CCIP'],
     ['cctp_v2', 'CCTP V2'],
@@ -421,7 +492,6 @@ describe('KyberCross route options', () => {
   })
 
   it('shows every route and builds the chosen non-first route, including routes from the same bridge', async () => {
-    quoteMode.streaming = false
     const routes = [createRoute('first', '98000000', 20), createRoute('second', '99000000', 40)]
     const apiQuote = vi.spyOn(kyberCrossApi, 'getQuote').mockResolvedValue({
       success: true,
@@ -436,6 +506,7 @@ describe('KyberCross route options', () => {
     const onQuotes = vi.fn<[Quote[]], void>()
 
     await getQuotes({
+      quoteMode: 'direct',
       params,
       registry,
       category: 'stablePair',
@@ -480,6 +551,57 @@ describe('KyberCross route options', () => {
     expect(build).toHaveBeenCalledWith(routes[1])
     expect(result).toMatchObject({ routeId: 'second', outputAmount: '99000000', bridgeProvider: 'relay' })
     expect(routes).toHaveLength(2)
+  })
+
+  it('executes a streamed KyberCross transaction without rebuilding the route summary', async () => {
+    const build = vi.spyOn(kyberCrossApi, 'build')
+    const buildTx = { to: address, data: '0x1234', value: '0' } as const
+    const txHash = `0x${'1'.repeat(64)}` as const
+    const execute = vi.spyOn(kyberCrossExecution, 'executeKyberCross').mockResolvedValue(txHash)
+    const adapter = new KyberCrossAdapter()
+    const registry = new CrossChainSwapAdapterRegistry()
+    registry.registerAdapter(adapter)
+    const event = `event: quote\ndata: ${JSON.stringify({
+      provider: 'kybercross',
+      outputAmount: '99000000',
+      formattedOutputAmount: '99',
+      inputUsd: 100,
+      outputUsd: 99,
+      rate: 0.99,
+      timeEstimate: 30,
+      priceImpact: 1,
+      gasFeeUsd: 0,
+      contractAddress: address,
+      platformFeePercent: 0,
+      quoteParams: { amount: params.amount, feeBps: 0, slippage: 50 },
+      rawQuote: {
+        data: { route_plan: { id: 'stream-route', bridge: { provider: 'across' } }, build: { tx: buildTx } },
+      },
+    })}\n\n`
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      createResponse(createReader({ done: false, value: encoder.encode(event) })),
+    )
+    const onQuotes = vi.fn<[Quote[]], void>()
+    await getQuotes({
+      quoteMode: 'stream',
+      params,
+      registry,
+      category: 'stablePair',
+      currencyIn: params.fromToken,
+      currencyOut: params.toToken,
+      excludedSources: [],
+      signal: new AbortController().signal,
+      isReadOnly: false,
+      onQuotes,
+      onQuoteReady: vi.fn(),
+    })
+
+    const quote = onQuotes.mock.calls[0][0][0]
+    expect(quote.quote.protocolFee).toBe(0)
+    const result = await adapter.executeSwap(quote, {} as WalletClient)
+    expect(build).not.toHaveBeenCalled()
+    expect(execute).toHaveBeenCalledWith(expect.objectContaining({ buildTx, inputAmount: BigInt(params.amount) }))
+    expect(result).toMatchObject({ routeId: 'stream-route', outputAmount: '99000000', sourceTxHash: txHash })
   })
 
   it('rejects an empty route list', async () => {

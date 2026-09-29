@@ -4,10 +4,12 @@ import { ChevronRight } from 'react-feather'
 
 import { SettingsAction, SettingsLabel, SettingsRow } from 'components/TransactionSettings/components'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { useCrossChainQuoteMode } from 'state/crossChainSwap'
 import { useAppSelector } from 'state/hooks'
 
 export const CrossChainSourceSetting = ({ onClick }: { onClick: () => void }) => {
-  const sources = useMemo(() => CrossChainSwapFactory.getSelectableSources(), [])
+  const quoteMode = useCrossChainQuoteMode()
+  const sources = useMemo(() => CrossChainSwapFactory.getSelectableSources(quoteMode), [quoteMode])
   const sourceNames = useMemo(() => sources.map(item => item.getName()), [sources])
   const storedExcludedSources = useAppSelector(state => state.crossChainSwap.excludedSources || [])
   const excludedSources = useMemo(

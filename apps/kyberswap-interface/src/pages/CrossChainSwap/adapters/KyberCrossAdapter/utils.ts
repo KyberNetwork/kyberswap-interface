@@ -1,6 +1,12 @@
 import type { SwapStatus } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { BridgeProvider, TrackingExecution } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
+import type { KyberCrossRawQuote } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
 import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
+
+export const getKyberCrossRoutePlan = (rawQuote?: KyberCrossRawQuote) => {
+  const data = rawQuote?.data
+  return data && ('route_plans' in data ? data.route_plans[0] : data.route_plan)
+}
 
 export enum NormalizedProvider {
   Across = 'across',
