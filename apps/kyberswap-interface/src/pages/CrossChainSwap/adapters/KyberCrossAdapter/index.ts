@@ -32,7 +32,6 @@ import {
   normalizeProvider,
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { Quote } from 'pages/CrossChainSwap/registry'
-import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
 // ============================================
 // KyberCrossAdapter
@@ -66,6 +65,9 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
   }
 
   async getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote> {
+    // KyberCross internal testing uses zero UI fees.
+    params = { ...params, feeBps: 0 }
+
     const request: QuoteRequest = {
       from_chain: getKyberCrossChainName(params.fromChain),
       from_token: getKyberCrossTokenAddress(params.fromToken as Currency),
@@ -81,10 +83,6 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       partner_fee_bps: params.feeBps,
       include_bridges: getKyberCrossBridgeProviders(params.includedSources),
       exclude_bridges: getKyberCrossBridgeProviders(params.excludedSources),
-    }
-
-    if (params.feeBps > 0) {
-      request.partner_fee_recipient = CROSS_CHAIN_FEE_RECEIVER as Address
     }
 
     const quoteResponse = await kyberCrossApi.getQuote(request, signal)

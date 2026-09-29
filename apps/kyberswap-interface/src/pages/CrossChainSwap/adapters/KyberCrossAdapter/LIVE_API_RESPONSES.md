@@ -47,7 +47,7 @@ Failed requests observed:
 
 ## `POST /api/v1/quotes`
 
-The frontend sends chain/token metadata, sender and recipient addresses, amount, slippage, optional partner fee, and optional bridge filters. `all_route_plans` exists in the response contract checks but is not currently sent by the frontend.
+The frontend sends chain/token metadata, sender and recipient addresses, amount, slippage, and optional bridge filters. Internal testing uses `partner_fee_bps: 0` and omits the partner fee recipient. `all_route_plans` exists in the response contract checks but is not currently sent by the frontend.
 
 Representative FE request:
 
@@ -64,8 +64,7 @@ Representative FE request:
   "refund_address": "0x1111...1111",
   "amount": "10000000",
   "slippage_bps": 50,
-  "partner_fee_bps": 10,
-  "partner_fee_recipient": "0x2222...2222",
+  "partner_fee_bps": 0,
   "include_bridges": ["across", "relay"],
   "exclude_bridges": ["cctp_v2_fast"]
 }
