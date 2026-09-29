@@ -218,10 +218,7 @@ export const HeaderTextBlock = ({ className, ...rest }: HTMLAttributes<HTMLDivEl
 /** A section's heading is its navigation control, so the panel around it stays non-interactive and
  *  the pools and vaults inside keep their own single focus stop. */
 export const SectionTitleLink = ({ className, ...rest }: LinkProps) => (
-  <Link
-    className={cn('w-fit text-lg font-medium text-text no-underline hover:text-primary hover:underline', className)}
-    {...rest}
-  />
+  <Link className={cn('w-fit text-lg font-medium text-text no-underline hover:text-text', className)} {...rest} />
 )
 
 export const SectionDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
