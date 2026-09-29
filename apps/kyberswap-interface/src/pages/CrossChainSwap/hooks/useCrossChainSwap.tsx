@@ -108,14 +108,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const { nearTokens } = useNearTokens()
 
   const { chainId, account } = useActiveWeb3React()
-  const defaultFrom = !account ? NonEvmChain.Bitcoin : chainId?.toString() || ''
-  const from = rawFrom || defaultFrom
-  const defaultTo = useMemo(() => {
-    const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
-    if (lastChainId && lastChainId !== from) return lastChainId
-    return !account || from === NonEvmChain.Bitcoin ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
-  }, [account, from])
-  const to = rawTo || defaultTo
+  const from = rawFrom || ChainId.MAINNET.toString()
+  const to = rawTo || ChainId.ARBITRUM.toString()
   const tokenIn = rawTokenIn || getDefaultTokenForChain(from)
   const tokenOut = rawTokenOut || getDefaultTokenForChain(to)
 
@@ -251,10 +245,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isToSolana) return solanaTokensOut.find(token => token.id === tokenOut)
     throw new Error('Network is not supported')
   }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, solanaTokensOut, toChainId, isToSolana])
-
-  useEffect(() => {
-    localStorage.setItem('crossChainSwapLastChainOut', toChainId?.toString() || '')
-  }, [toChainId])
 
   const inputAmount = useMemo(
     () =>
