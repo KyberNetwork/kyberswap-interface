@@ -46,10 +46,10 @@ export const useStopLossWarnings = ({
     /**
      * Two destinations, because they answer different questions.
      *
-     * `formWarnings` say the pair or chain cannot take a stop-loss at all — nothing the user types
-     * fixes them, and they block the CTA, so the review modal that would otherwise carry them can
-     * never be opened. `reviewWarnings` belong to the review step, right before signing; one marked
-     * `blocking` also disables the confirm button there.
+     * `formWarnings` explain why the CTA is blocked — the chain cannot take a stop-loss at all, or the
+     * trigger is on the wrong side of the market — so the review modal never opens on them.
+     * `reviewWarnings` belong to the review step, right before signing; one marked `blocking` also
+     * disables the confirm button there.
      */
     const formWarnings: StopLossWarning[] = []
     const reviewWarnings: StopLossWarning[] = []
@@ -77,11 +77,12 @@ export const useStopLossWarnings = ({
     }
 
     /**
-     * A trigger at or above the market both makes this a sell-above order and would fire at once.
-     * The form stays usable so the user can open the review and read why; the block sits there.
+     * A trigger at or above the market both makes this a sell-above order and would fire at once. The
+     * review repeats the block: the oracle price keeps polling while it is open, so a trigger that was
+     * below the market when the form let it through can cross it before the order is signed.
      */
     if (triggerAtOrAboveMarket) {
-      reviewWarnings.push({
+      const triggerWarning: StopLossWarning = {
         type: 'warn',
         blocking: true,
         message: (
@@ -90,7 +91,10 @@ export const useStopLossWarnings = ({
             instead.
           </Trans>
         ),
-      })
+      }
+      formWarnings.push(triggerWarning)
+      reviewWarnings.push(triggerWarning)
+      shouldDisableAction = true
     } else if (triggerPercent !== undefined && Math.abs(triggerPercent) < TRIGGER_CLOSE_TO_MARKET_PERCENT) {
       reviewWarnings.push({
         type: 'warn',
