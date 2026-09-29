@@ -165,13 +165,7 @@ export const CopyRunAgentCell = ({ className, run }: CopyRunAgentCellProps) => {
   )
 }
 
-export const AgentIdentity = ({
-  agent,
-  copyStatus,
-}: {
-  agent: AgentCard | AgentProfile
-  copyStatus?: CopyRunStatus
-}) => {
+export const AgentIdentity = ({ agent, copyStatus }: { agent: Agent; copyStatus?: CopyRunStatus }) => {
   const displayName = getAgentDisplayName(agent)
 
   return (

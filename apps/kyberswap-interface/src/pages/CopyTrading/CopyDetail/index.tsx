@@ -12,14 +12,18 @@ import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
 import CopySidePanel from 'pages/CopyTrading/CopyDetail/CopySidePanel'
 import { copyDetailResponsiveOrder } from 'pages/CopyTrading/CopyDetail/responsiveOrder'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
-import { AgentIdentity } from 'pages/CopyTrading/components/common/agentIdentity'
+import { AgentIdentity, CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import {
   CopyTradingPage,
   ResponsiveDetailGrid,
   ResponsiveDetailItem,
   StickySideColumn,
 } from 'pages/CopyTrading/components/common/layout'
-import { CopyTradingReadError, OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
+import {
+  CopyRunStatusBadge,
+  CopyTradingReadError,
+  OwnerWalletRequired,
+} from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
@@ -33,7 +37,7 @@ import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRout
 import { formatDateTime } from 'utils/time'
 
 type CopyDetailContentProps = {
-  agent: AgentProfile
+  agent?: AgentProfile
   run: CopyRunSummary
 }
 
@@ -167,23 +171,16 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     refetch: refetchCopyRun,
   } = copyRunApi.useGetCopyRunQuery(copyRunQuery, { pollingInterval: 10_000, skip: !copyId || !ownerAddress })
 
-  const {
-    currentData: agent,
-    isFetching: isAgentFetching,
-    isLoading: isAgentLoading,
-    isUninitialized: isAgentUninitialized,
-    error: agentError,
-    refetch: refetchAgent,
-  } = agentApi.useGetAgentQuery(
+  const { currentData: agent } = agentApi.useGetAgentQuery(
     { agentId: copyRun?.data.agentId || '' },
     { pollingInterval: 10_000, skip: !copyRun?.data.agentId },
   )
 
   const run = copyRun?.data
   const profile = agent?.data
+  const identity = profile || run?.agentSnapshot
   const backLabel = backPath === 'history' ? 'History' : 'My Copies'
   const copyRunPending = !run && (isFetching || isLoading || isUninitialized)
-  const agentPending = !!run && !profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)
 
   if (run && run.chainId !== selectedChainId) {
     return (
@@ -214,10 +211,9 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     )
   }
 
-  const resourceUnavailable =
-    !copyId || isMissingOrForbiddenError(copyRunError) || isMissingOrForbiddenError(agentError)
+  const resourceUnavailable = !copyId || isMissingOrForbiddenError(copyRunError)
 
-  if (!resourceUnavailable && (copyRunPending || agentPending)) {
+  if (!resourceUnavailable && copyRunPending) {
     return (
       <CopyTradingPage>
         <LocalLoader />
@@ -225,14 +221,13 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     )
   }
 
-  if (resourceUnavailable || !run || !profile) {
+  if (resourceUnavailable || !run) {
     return (
       <CopyTradingPage backTo={{ label: backLabel, to: copyTradingPath(backPath) }}>
         <CopyTradingReadError
           resourceUnavailable={resourceUnavailable}
           onRetry={() => {
             if (!run) void refetchCopyRun()
-            else if (!profile) void refetchAgent()
           }}
         />
       </CopyTradingPage>
@@ -241,7 +236,14 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: copyTradingPath(backPath) }}>
-      <AgentIdentity agent={profile} copyStatus={run.status === 'active' ? undefined : run.status} />
+      {identity ? (
+        <AgentIdentity agent={identity} copyStatus={run.status === 'active' ? undefined : run.status} />
+      ) : (
+        <HStack className="items-center gap-4">
+          <CopyRunAgentCell run={run} />
+          {run.status !== 'active' && <CopyRunStatusBadge status={run.status} />}
+        </HStack>
+      )}
       <CopyDetailContent key={run.copyRunId} agent={profile} run={run} />
     </CopyTradingPage>
   )

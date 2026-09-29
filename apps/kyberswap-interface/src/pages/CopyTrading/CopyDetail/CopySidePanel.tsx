@@ -135,7 +135,7 @@ const RemainingInWalletCard = ({
 }
 
 type CopySidePanelProps = {
-  agent: AgentProfile
+  agent?: AgentProfile
   run: CopyRunSummary
 }
 
@@ -183,7 +183,8 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
     'Current Copying'
   )
 
-  const secondaryCard = run.status === 'active' ? <StrategyExecutionCard items={agent.strategyExecutionItems} /> : null
+  const secondaryCard =
+    run.status === 'active' && agent ? <StrategyExecutionCard items={agent.strategyExecutionItems} /> : null
 
   const capitalCard = (
     <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.capital}>
@@ -205,7 +206,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
 
   const agentRiskCard = (
     <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.risk}>
-      <RiskCard maxDrawdownPct={agent.stats.maxDrawdownPct} winRatePct={run.copyRunWinRatePct} />
+      <RiskCard maxDrawdownPct={agent?.stats.maxDrawdownPct} winRatePct={run.copyRunWinRatePct} />
     </ResponsiveDetailItem>
   )
 
@@ -239,7 +240,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
           {secondaryCard}
         </ResponsiveDetailItem>
       )}
-      {!isTerminal && (
+      {!isTerminal && agent && (
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.tokens}>
           <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
         </ResponsiveDetailItem>
