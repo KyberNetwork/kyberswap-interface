@@ -57,10 +57,14 @@ vi.mock('pages/CopyTrading/components/common/layout', () => ({
   StickySideColumn: 'sidebar',
 }))
 vi.mock('pages/CopyTrading/components/common/status', () => ({
+  CopyRunStatusBadge: 'copy-status',
   CopyTradingReadError: 'read-error',
   OwnerWalletRequired: 'wallet-required',
 }))
-vi.mock('pages/CopyTrading/components/common/agentIdentity', () => ({ AgentIdentity: 'agent' }))
+vi.mock('pages/CopyTrading/components/common/agentIdentity', () => ({
+  AgentIdentity: 'agent',
+  CopyRunAgentCell: 'copy-run-agent',
+}))
 vi.mock('pages/CopyTrading/components/common/DetailTabBar', () => ({ DetailTabBar: 'tabs' }))
 vi.mock('pages/CopyTrading/components/Leaderboard', () => ({ default: 'leaderboard' }))
 vi.mock('pages/CopyTrading/AgentProfile/AgentInstruction', () => ({ default: 'instruction' }))
@@ -154,15 +158,23 @@ describe('detail page read recovery', () => {
     expect(agent.refetch).not.toHaveBeenCalled()
   })
 
-  it('retries only the Agent read when Copy Detail already has its run', () => {
-    const agent = query(undefined, { status: 503 })
-    const copyRun = mocks.copyRun()
-    mocks.agent.mockReturnValue(agent)
+  it.each([403, 404, 503, 'FETCH_ERROR'])('renders Copy Detail when the Agent read fails with %s', status => {
+    mocks.agent.mockReturnValue(query(undefined, { status }))
     const page = CopyDetail({ backPath: 'history' })
-    expect(page.props.children.type).toBe('read-error')
-    page.props.children.props.onRetry()
-    expect(agent.refetch).toHaveBeenCalledOnce()
-    expect(copyRun.refetch).not.toHaveBeenCalled()
+    expect(page.props.children[0].props.children[0]).toMatchObject({
+      type: 'copy-run-agent',
+      props: { run: run.data },
+    })
+    expect(page.props.children[1].props).toMatchObject({ run: run.data, agent: undefined })
+  })
+
+  it('uses the run snapshot while Agent Detail is loading', () => {
+    const agentSnapshot = { agentId: 'agent-1', displayName: 'Saved agent' }
+    mocks.copyRun.mockReturnValue(query({ data: { ...run.data, agentSnapshot } }))
+    mocks.agent.mockReturnValue({ ...query(), isFetching: true })
+    const page = CopyDetail({ backPath: 'my-copies' })
+    expect(page.props.children[0]).toMatchObject({ type: 'agent', props: { agent: agentSnapshot } })
+    expect(page.props.children[1].props.run.copyRunId).toBe('run-1')
   })
 
   it.each([403, 404])('keeps missing/forbidden resources (%s) on the page with only the header Back to', status => {
@@ -173,11 +185,6 @@ describe('detail page read recovery', () => {
         backTo: { label: 'Leaderboard', to: APP_PATHS.COPY_TRADING + '/base' },
         children: { type: 'read-error', props: { resourceUnavailable: true } },
       },
-    })
-    // The dependent Agent read has the same recovery as the Copy Run read.
-    expect(CopyDetail({ backPath: 'my-copies' }).props.children.props).toEqual({
-      resourceUnavailable: true,
-      onRetry: expect.any(Function),
     })
     mocks.agent.mockReturnValue(query(profile))
     mocks.copyRun.mockReturnValue(query(undefined, { status }))
@@ -221,6 +228,8 @@ describe('detail page read recovery', () => {
   it('preserves the loader for initial reads and wallet restoration', () => {
     mocks.agent.mockReturnValue({ ...query(), isFetching: true })
     expect(AgentProfile().props.children.type).toBe('loader')
+    expect(CopyDetail({ backPath: 'my-copies' }).props.children[1].props.run).toBe(run.data)
+    mocks.copyRun.mockReturnValue({ ...query(), isFetching: true })
     expect(CopyDetail({ backPath: 'my-copies' }).props.children.type).toBe('loader')
     mocks.restoring.mockReturnValue(true)
     mocks.agent.mockReturnValue(query(undefined, { status: 503 }))
