@@ -360,8 +360,8 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
       </AutoColumn>
 
       {selectedQuote ? (
-        <div className="flex items-center text-xs italic text-gray">
-          <span className="mr-1">
+        <div className="flex items-center gap-1.5 text-xs italic text-gray">
+          <span>
             <Trans>Routed via</Trans>
           </span>
           <QuoteProviderName quote={selectedQuote} />
