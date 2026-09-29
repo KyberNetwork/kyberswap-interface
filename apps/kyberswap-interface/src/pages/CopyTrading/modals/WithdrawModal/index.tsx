@@ -85,7 +85,11 @@ const WithdrawModal = ({
       title="Withdraw tokens"
       review={
         mode === 'all' ? (
-          <WithdrawTokensReview preview={tokens.state.action?.withdrawTokens} chainId={copyRun.chainId} />
+          <WithdrawTokensReview
+            preview={tokens.state.action?.withdrawTokens}
+            chainId={copyRun.chainId}
+            agentName={copyRun.agentSnapshot?.displayName}
+          />
         ) : (
           <WithdrawQuoteReview
             preview={quote.state.action?.withdrawQuote}
