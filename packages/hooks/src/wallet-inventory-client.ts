@@ -18,6 +18,10 @@ export const WALLET_INVENTORY_CHAINS: number[] = [
   ChainId.Bsc,
   ChainId.Arbitrum,
   ChainId.Robinhood,
+  ChainId.Optimism,
+  ChainId.PolygonPos,
+  ChainId.Avalanche,
+  ChainId.Monad,
   HYPEREVM,
 ];
 
