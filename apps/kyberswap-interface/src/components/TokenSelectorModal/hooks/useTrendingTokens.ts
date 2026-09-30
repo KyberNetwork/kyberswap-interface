@@ -33,10 +33,10 @@ export const useTrendingTokens = (
   filters?: TokenSearchFilters,
 ): UseTrendingTokensResult => {
   const sortParam = toSortParam(sort)
-  const hasChainlinkOracle = filters?.hasChainlinkOracle || undefined
+  const oracleTokenFilter = filters?.oracleTokenFilter
 
   const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['token-selector-trending', chainId, sortParam, hasChainlinkOracle],
+    queryKey: ['token-selector-trending', chainId, sortParam, oracleTokenFilter],
     enabled: active && isTrendingSupportedChain(chainId),
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
@@ -46,7 +46,7 @@ export const useTrendingTokens = (
         sort: sortParam,
         page: pageParam,
         pageSize: TRENDING_PAGE_SIZE,
-        hasChainlinkOracle,
+        ...(oracleTokenFilter && { [oracleTokenFilter]: true }),
       }),
     getNextPageParam: (lastPage, allPages) => {
       const lastCount = lastPage?.data?.tokens?.length ?? 0

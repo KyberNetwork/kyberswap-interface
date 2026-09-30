@@ -357,8 +357,8 @@ interface CurrencyInputPanelProps {
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
-  /** The token selector lists only tokens with a Chainlink price feed. */
-  requireChainlinkOracle?: boolean
+  /** The token selector lists only tokens the chain's stop-loss oracle can price. */
+  requireOracle?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -404,7 +404,7 @@ export default function CurrencyInputPanel({
   customChainId,
   trackingSource,
   scaleERC8056Balances,
-  requireChainlinkOracle,
+  requireOracle,
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -512,7 +512,7 @@ export default function CurrencyInputPanel({
             filterWrap={filterWrap}
             customChainId={customChainId}
             trackingSource={trackingSource}
-            requireChainlinkOracle={requireChainlinkOracle}
+            requireOracle={requireOracle}
           />
         )}
       </InputPanel>

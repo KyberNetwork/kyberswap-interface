@@ -25,10 +25,10 @@ export const useNewTokens = (
 ): { tokens: WrappedTokenInfo[]; extras: TokenRowExtraMap; loading: boolean } => {
   const chainIdsParam = chainIds.join(',')
   const sortParam = toSortParam(sort)
-  const hasChainlinkOracle = filters?.hasChainlinkOracle || undefined
+  const oracleTokenFilter = filters?.oracleTokenFilter
 
   const { data, isLoading } = useQuery({
-    queryKey: ['token-selector-new-tokens', chainIdsParam, sortParam ?? 'default', hasChainlinkOracle],
+    queryKey: ['token-selector-new-tokens', chainIdsParam, sortParam ?? 'default', oracleTokenFilter],
     enabled: active && chainIds.length > 0,
     queryFn: () =>
       fetchTokenCatalogTokens({
@@ -37,7 +37,7 @@ export const useNewTokens = (
         page: 1,
         pageSize: NEW_TOKEN_MAX_DISPLAY,
         sort: sortParam,
-        hasChainlinkOracle,
+        ...(oracleTokenFilter && { [oracleTokenFilter]: true }),
       }),
     // Changing the sort starts a new query; keep the current rows on screen while the new order loads
     // (same chain only) so the list re-sorts in place instead of flashing the skeleton.

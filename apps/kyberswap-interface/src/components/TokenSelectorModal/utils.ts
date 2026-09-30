@@ -36,10 +36,11 @@ type TokenPriceMap = {
 type TokenSearchParams = {
   query: string
   isWhitelisted?: boolean
-  hasChainlinkOracle?: boolean
   pageSize: number
   page: number
   chainIds: string
+  /** An oracle's token-list filter, named by the chain's oracle config (`hasPythOracle`, …). */
+  [oracleTokenFilter: string]: string | number | boolean | undefined
 }
 
 type UseAddressRpcTokenSearchParams = {
@@ -75,7 +76,7 @@ const fetchTokenSearchPage = async (
     page,
     pageSize: TOKEN_SEARCH_PAGE_SIZE,
     ...(!search && { isWhitelisted: true }),
-    ...(filters?.hasChainlinkOracle && { hasChainlinkOracle: true }),
+    ...(filters?.oracleTokenFilter && { [filters.oracleTokenFilter]: true }),
   }
   const response = await axios.get(`${KS_SETTING_API}/v1/tokens?${toSearchParams(params).toString()}`)
   const { tokens = [] } = response.data.data

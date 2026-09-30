@@ -74,9 +74,9 @@ import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useBalanceWait } from 'hooks/useBalanceWait'
-import { useChainlinkOracleTokens } from 'hooks/useChainlinkOracleTokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
+import { useOracleTokens } from 'hooks/useOracleTokens'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
 import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -120,8 +120,11 @@ interface TokenSelectorContentProps {
   showDiscoveryTabs?: boolean
   /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
   onSelectChain?: (chainId: ChainId) => void
-  /** List only tokens with a Chainlink price feed, on whichever chain the selector is showing. */
-  requireChainlinkOracle?: boolean
+  /**
+   * List only tokens the stop-loss oracle can price, on whichever chain the selector is showing — the
+   * oracle, and so the filter that finds its feeds, comes from that chain's oracle config.
+   */
+  requireOracle?: boolean
 }
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
@@ -280,7 +283,7 @@ export const TokenSelectorContent = ({
   onShowTokenInfo,
   showDiscoveryTabs = true,
   onSelectChain,
-  requireChainlinkOracle = false,
+  requireOracle = false,
 }: TokenSelectorContentProps) => {
   const { chainId: web3ChainId, account } = useActiveWeb3React()
   const anchorChainId = customChainId || web3ChainId
@@ -307,18 +310,19 @@ export const TokenSelectorContent = ({
   // in memory (whitelist, imports, favorites, held tokens) are screened against the feed list here.
   const {
     hasOracle,
+    tokenFilter: oracleTokenFilter,
     isReady: isOracleListReady,
     isLoading: isOracleListLoading,
-  } = useChainlinkOracleTokens(primaryChainId, { skip: !requireChainlinkOracle })
+  } = useOracleTokens(primaryChainId, { skip: !requireOracle })
   const searchFilters = useMemo<TokenSearchFilters | undefined>(
-    () => (requireChainlinkOracle ? { hasChainlinkOracle: true } : undefined),
-    [requireChainlinkOracle],
+    () => (requireOracle && oracleTokenFilter ? { oracleTokenFilter } : undefined),
+    [requireOracle, oracleTokenFilter],
   )
   // Screens nothing until the feed list is known: the list shows a skeleton while it loads, and a
   // failed request must not leave the selector empty.
   const passesOracleFilter = useCallback(
-    (token: Currency | undefined) => !requireChainlinkOracle || !isOracleListReady || hasOracle(token),
-    [requireChainlinkOracle, isOracleListReady, hasOracle],
+    (token: Currency | undefined) => !requireOracle || !isOracleListReady || hasOracle(token),
+    [requireOracle, isOracleListReady, hasOracle],
   )
 
   const visibleTabs = useMemo(
@@ -430,7 +434,7 @@ export const TokenSelectorContent = ({
     isFetching: isFetchingTokenSearch,
     isLoading: isLoadingTokenSearch,
   } = useInfiniteQuery({
-    queryKey: ['currency-search-tokens', selectedChainId, debouncedQuery, requireChainlinkOracle],
+    queryKey: ['currency-search-tokens', selectedChainId, debouncedQuery, searchFilters?.oracleTokenFilter],
     initialPageParam: 1,
     enabled: !!debouncedQuery && isAllTab,
     queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList, searchFilters),
@@ -468,7 +472,7 @@ export const TokenSelectorContent = ({
     hasTokenSearchResults: !!tokenSearchResults.length,
     // A token the API does not know has no feed on record either, so an on-chain lookup — and the
     // other-chain hits it brings, which no feed list here covers — could only offer dead ends.
-    enabled: !requireChainlinkOracle,
+    enabled: !requireOracle,
   })
 
   // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
@@ -771,7 +775,7 @@ export const TokenSelectorContent = ({
   // Show skeleton rows while a tab's whole list is loading from the API, or while the feed list the
   // oracle filter screens it against is.
   const isListLoading =
-    (requireChainlinkOracle && isOracleListLoading) ||
+    (requireOracle && isOracleListLoading) ||
     (isAllTab && (debouncedQuery ? isLoadingTokenSearch : Object.keys(defaultTokens).length === 0)) ||
     (isNewTab && newLoading && !newTokens.length) ||
     (isTrendingTab && trendingLoading && !trendingTokens.length)
@@ -1152,7 +1156,7 @@ export const TokenSelectorContent = ({
   const subtitle = getTabSubtitle(activeTab)
   // Every list in oracle-only mode is screened, so an empty one — searched or not — is down to the
   // filter, and says so instead of naming the tab.
-  const emptyMessage = requireChainlinkOracle ? (
+  const emptyMessage = requireOracle ? (
     <Trans>No supported tokens found. Stop-loss only supports tokens with an oracle price feed.</Trans>
   ) : debouncedQuery ? undefined : activeTab === TokenSelectorTab.Trending ? (
     <Trans>No trending tokens right recently. Check back later.</Trans>
@@ -1223,7 +1227,7 @@ export const TokenSelectorContent = ({
           )}
         </HStack>
 
-        {requireChainlinkOracle && (
+        {requireOracle && (
           <HStack
             className="items-start gap-1.5 text-xs font-medium text-subText"
             data-testid="token-selector-oracle-note"

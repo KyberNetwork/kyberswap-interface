@@ -204,15 +204,16 @@ const ksSettingApi = createApi({
       }),
     }),
     /**
-     * Lowercased addresses of every token on the chain with a Chainlink price feed, whitelisted or
-     * not. The endpoint caps `pageSize` at 100, so a longer list is read page by page.
+     * Lowercased addresses of every token on the chain that `tokenFilter` keeps, whitelisted or not —
+     * the filter names an oracle's price feeds (`hasChainlinkOracle`, `hasPythOracle`, …). The endpoint
+     * caps `pageSize` at 100, so a longer list is read page by page.
      */
-    getChainlinkOracleTokens: builder.query<string[], ChainId>({
-      queryFn: async (chainId, _api, _extra, fetchWithBQ) => {
+    getOracleTokens: builder.query<string[], { chainId: ChainId; tokenFilter: string }>({
+      queryFn: async ({ chainId, tokenFilter }, _api, _extra, fetchWithBQ) => {
         const fetchPage = async (page: number) => {
           const result = await fetchWithBQ({
             url: '/tokens',
-            params: { chainIds: chainId, hasChainlinkOracle: true, page, pageSize: ORACLE_TOKENS_PAGE_SIZE },
+            params: { chainIds: chainId, [tokenFilter]: true, page, pageSize: ORACLE_TOKENS_PAGE_SIZE },
           })
           const body = result.data as TokenListResponse | undefined
           if (result.error || !body?.data?.tokens) {
@@ -249,7 +250,7 @@ export const {
   useGetChainsConfigurationQuery,
   useGetTokenByAddressesQuery,
   useLazySearchTokensBySymbolQuery,
-  useGetChainlinkOracleTokensQuery,
+  useGetOracleTokensQuery,
 } = ksSettingApi
 
 export default ksSettingApi

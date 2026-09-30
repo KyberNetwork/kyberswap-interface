@@ -2,15 +2,15 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
 import { isSupportStopLoss } from 'constants/networks'
-import { useChainlinkOracleTokens } from 'hooks/useChainlinkOracleTokens'
+import { useOracleTokens } from 'hooks/useOracleTokens'
 
 /**
- * Tokens a stop-loss can monitor on a chain: those with a Chainlink price feed, which is what the
- * trigger is evaluated against.
+ * Tokens a stop-loss can monitor on a chain: those with a price feed from the chain's oracle, which is
+ * what the trigger is evaluated against.
  */
 export const useStopLossSupportedTokens = (chainId: ChainId, options?: { skip?: boolean }) => {
   const chainSupportsStopLoss = isSupportStopLoss(chainId)
-  const { addresses, hasOracle, isLoading, isError } = useChainlinkOracleTokens(chainId, {
+  const { addresses, hasOracle, isLoading, isError } = useOracleTokens(chainId, {
     skip: !chainSupportsStopLoss || options?.skip,
   })
 

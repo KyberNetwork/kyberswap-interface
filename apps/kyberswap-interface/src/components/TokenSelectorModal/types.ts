@@ -39,6 +39,6 @@ export const TOKEN_METRIC_COLUMNS: TokenMetricColumn[] = ['volume24h', 'fdv']
  * filtered instead of being thinned out after it arrives.
  */
 export type TokenSearchFilters = {
-  /** Only tokens with a Chainlink price feed. */
-  hasChainlinkOracle?: boolean
+  /** Only tokens with a feed from one oracle: the token-list param naming it, sent as `<param>=true`. */
+  oracleTokenFilter?: string
 }

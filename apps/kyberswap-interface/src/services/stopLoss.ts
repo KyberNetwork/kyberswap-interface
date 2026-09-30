@@ -5,6 +5,7 @@ import {
   StopLossConfig,
   StopLossCorePayload,
   StopLossFee,
+  StopLossOracleConfig,
   StopLossOraclePrice,
   StopLossOrder,
   StopLossOrderStatus,
@@ -132,6 +133,12 @@ const stopLossApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_STOP_LOSS_ORDER_LIST],
     }),
 
+    // Which oracle the chain's triggers run on, and the token-list filter that finds the tokens it prices.
+    getStopLossOracleConfig: builder.query<StopLossOracleConfig, ChainId>({
+      query: chainId => ({ url: `${ORDERS_PATH}/oracle-config`, params: { chainId } }),
+      transformResponse: (response: ApiEnvelope<StopLossOracleConfig>) => response?.data,
+    }),
+
     // The exact cross-rate the trigger is evaluated against, so the form shows what actually fires.
     getStopLossOraclePrice: builder.query<StopLossOraclePrice, StopLossOraclePriceParams>({
       query: ({ chainId, base, quote }) => ({
@@ -146,6 +153,7 @@ const stopLossApi = createApi({
 export const {
   useGetStopLossConfigQuery,
   useGetStopLossOrdersQuery,
+  useGetStopLossOracleConfigQuery,
   useGetStopLossOraclePriceQuery,
   useEstimateStopLossFeeMutation,
   useGetStopLossSignMessageMutation,

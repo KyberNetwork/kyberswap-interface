@@ -132,6 +132,15 @@ export type StopLossOraclePrice = {
   source: string
 }
 
+/** The oracle a chain evaluates triggers against, which differs from chain to chain. */
+export type StopLossOracleConfig = {
+  chainId: ChainId
+  /** e.g. `CHAINLINK`, `PYTH`. */
+  oracle: string
+  /** The token-list query param that keeps only tokens this oracle prices, e.g. `hasPythOracle`. */
+  tokenFilter: string
+}
+
 /** Contract the user approves tokenIn to, and the EIP-712 verifying contract. */
 export type StopLossConfig = {
   smartIntentAddress: string
