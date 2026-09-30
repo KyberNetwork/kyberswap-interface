@@ -282,7 +282,14 @@ const ManagePositionModal = ({
     />
   )
 
-  const review = <ManagePositionReview isLoading={reviewPreparing} position={position} preview={preview} />
+  const review = (
+    <ManagePositionReview
+      isLoading={reviewPreparing}
+      onRefresh={() => void flow.prepare()}
+      position={position}
+      preview={preview}
+    />
+  )
 
   const successActions = (
     <PreparedActionSuccessActions
