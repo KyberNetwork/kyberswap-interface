@@ -69,6 +69,7 @@ describe('transformListOrdersResponse', () => {
         orders: [makeOrder(1, ChainId.MAINNET)],
         pagination: { totalItems: 1001, hasMore: true, nextCursor: 'opaque-cursor' },
       }),
+      baseParams,
     )
 
     expect(result.hasMore).toBe(true)
@@ -76,8 +77,8 @@ describe('transformListOrdersResponse', () => {
     expect(result.totalOrder).toBe(1001)
   })
 
-  it('reads a backend without cursor paging as the last page', () => {
-    const result = transformListOrdersResponse(envelope({ orders: [makeOrder(1, ChainId.MAINNET)] }))
+  it('does not offer another page when pagination metadata is missing', () => {
+    const result = transformListOrdersResponse(envelope({ orders: [makeOrder(1, ChainId.MAINNET)] }), baseParams)
 
     expect(result.hasMore).toBe(false)
     expect(result.nextCursor).toBeUndefined()
@@ -86,6 +87,7 @@ describe('transformListOrdersResponse', () => {
   it('keeps hasMore true when the backend has no cursor secret to hand one out', () => {
     const result = transformListOrdersResponse(
       envelope({ orders: [makeOrder(1, ChainId.MAINNET)], pagination: { totalItems: 20, hasMore: true } }),
+      baseParams,
     )
 
     expect(result.hasMore).toBe(true)
@@ -98,6 +100,7 @@ describe('transformListOrdersResponse', () => {
         orders: [makeOrder(1, ChainId.MAINNET), makeOrder(2, 999999), makeOrder(3, ChainId.BSCMAINNET)],
         pagination: { totalItems: 30 },
       }),
+      baseParams,
     )
 
     expect(result.orders.map(order => order.id)).toEqual([1, 3])
@@ -107,19 +110,23 @@ describe('transformListOrdersResponse', () => {
   it('never reports a total below the orders it kept', () => {
     const result = transformListOrdersResponse(
       envelope({ orders: [makeOrder(1, ChainId.MAINNET), makeOrder(2, ChainId.BSCMAINNET)] }),
+      baseParams,
     )
 
     expect(result.totalOrder).toBe(2)
   })
 
   it('handles an empty payload', () => {
-    const result = transformListOrdersResponse(envelope({}))
+    const result = transformListOrdersResponse(envelope({}), baseParams)
 
     expect(result).toEqual({ orders: [], totalOrder: 0, hasMore: false, nextCursor: undefined })
   })
 
   it('normalizes a string chainId to a number', () => {
-    const result = transformListOrdersResponse(envelope({ orders: [{ id: 1, chainId: '1' } as unknown as LimitOrder] }))
+    const result = transformListOrdersResponse(
+      envelope({ orders: [{ id: 1, chainId: '1' } as unknown as LimitOrder] }),
+      baseParams,
+    )
 
     expect(result.orders[0].chainId).toBe(1)
   })

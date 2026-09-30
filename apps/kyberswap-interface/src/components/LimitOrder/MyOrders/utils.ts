@@ -8,8 +8,6 @@ import { NativeCurrencies } from 'constants/tokens'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
-export const PAGE_SIZE = 10
-
 export const LIST_ORDER_TABS = [LimitOrderStatus.ACTIVE, LimitOrderStatus.CLOSED] as const
 
 type ListOrderTab = (typeof LIST_ORDER_TABS)[number]

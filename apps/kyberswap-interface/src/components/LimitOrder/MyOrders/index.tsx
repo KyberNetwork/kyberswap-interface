@@ -24,26 +24,27 @@ import {
 import { useMyOrdersNotifications } from 'components/LimitOrder/MyOrders/useMyOrdersNotifications'
 import {
   LIST_ORDER_TABS,
-  PAGE_SIZE,
   getActiveTabByOrderType,
   getOrderTypeOptions,
   getOrdersApiSearchKeyword,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
+import {
+  LIMIT_ORDERS_PAGE_SIZE,
+  getInitialListOrdersArgs,
+  useSupportedLimitOrderChains,
+} from 'components/LimitOrder/listOrdersArgs'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { isActiveStatus } from 'components/LimitOrder/utils'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
 import SearchInput from 'components/SearchInput'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useChainsConfig from 'hooks/useChainsConfig'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import usePageLocation from 'hooks/usePageLocation'
 import useTab from 'hooks/useTab'
-import { sortChainOptionsByPriority } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 
 const ALL_CHAINS_VALUE = 'all'
 const EMPTY_LIMIT_ORDERS: LimitOrder[] = []
@@ -61,7 +62,8 @@ const MyOrders = () => {
   const limitOrderTracking = useLimitOrderTracking()
   const { isEmbeddedSwap } = usePageLocation()
   const { chainId, networkName } = useLimitOrderContext()
-  const { supportedChains } = useChainsConfig()
+  const { options: supportedLimitOrderChainOptions, chainIds: supportedLimitOrderChains } =
+    useSupportedLimitOrderChains()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const invalidateTag = useInvalidateTagLimitOrder()
@@ -92,24 +94,8 @@ const MyOrders = () => {
     [orderTypeOptions],
   )
 
-  const supportedLimitOrderChainOptions = useMemo<MenuOption[]>(
-    () =>
-      supportedChains
-        .filter(chain => isSupportLimitOrder(chain.chainId))
-        .map(chain => ({
-          label: chain.name,
-          value: chain.chainId.toString(),
-          icon: chain.icon,
-        }))
-        .sort(sortChainOptionsByPriority),
-    [supportedChains],
-  )
   const chainOptions = useMemo<MenuOption[]>(
     () => [{ label: t`All Chains`, value: ALL_CHAINS_VALUE }, ...supportedLimitOrderChainOptions],
-    [supportedLimitOrderChainOptions],
-  )
-  const supportedLimitOrderChains = useMemo(
-    () => supportedLimitOrderChainOptions.map(option => Number(option.value) as ChainId),
     [supportedLimitOrderChainOptions],
   )
 
@@ -139,12 +125,10 @@ const MyOrders = () => {
     isSuccess: isOrdersLoaded,
   } = useGetListOrdersQuery(
     {
-      chainIds: apiChainIds,
-      maker: account,
+      ...getInitialListOrdersArgs(apiChainIds, account),
       status: orderType,
       query: ordersApiSearchKeyword,
       page: curPage,
-      pageSize: PAGE_SIZE,
       cursor,
     },
     { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
@@ -155,10 +139,10 @@ const MyOrders = () => {
   const hasMoreOrders = currentListOrdersData?.hasMore ?? false
   const hasOrders = orders.length > 0
   const canGoPreviousPage = canGoToPreviousHistoryPage(pager)
-  const hasNextHistoryPage = canGoToNextHistoryPage(pager, hasMoreOrders, PAGE_SIZE)
+  const hasNextHistoryPage = canGoToNextHistoryPage(pager, hasMoreOrders, LIMIT_ORDERS_PAGE_SIZE)
   // RTK Query retains the previous page's `data` while the current page is loading.
   const canGoNextPage = !isFetching && !isOrdersError && hasNextHistoryPage
-  const showPagination = isTabActive && hasOrders && totalOrder > PAGE_SIZE
+  const showPagination = isTabActive && hasOrders && totalOrder > LIMIT_ORDERS_PAGE_SIZE
   // A page can be empty after filtering unsupported chains even when the backend has more orders.
   const showHistoryPagination = !isTabActive && (canGoPreviousPage || hasNextHistoryPage)
   const showCancelAll = hasOrders && isTabActive
@@ -372,7 +356,7 @@ const MyOrders = () => {
             onPageChange={onPageChange}
             totalCount={totalOrder}
             currentPage={curPage}
-            pageSize={PAGE_SIZE}
+            pageSize={LIMIT_ORDERS_PAGE_SIZE}
             style={{ padding: '0' }}
           />
         </div>
