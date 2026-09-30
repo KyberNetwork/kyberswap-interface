@@ -16,6 +16,10 @@ export type UseStopLossFormStateProps = {
   currencyOut: Currency | undefined
 }
 
+/** A custom date is absolute; a preset counts `expire` seconds on from `start`. */
+const resolveExpiredAt = (start: number, expire: number, customDateExpire: Date | undefined) =>
+  customDateExpire?.getTime() || start + expire * 1000
+
 /**
  * Owns everything on the stop-loss card except the tokens and sell amount, which come from the shared
  * swap state so switching between Swap, Limit and Stop Loss keeps them. The card's own inputs live in
@@ -151,9 +155,23 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
     [inputAmount, triggerPrice, currencyOut],
   )
 
-  // Anchored to the moment the expiry was chosen. Reading the clock on every render would give this a
-  // new value each time, which cascades into anything memoised on it.
-  const expiredAt = useMemo(() => customDateExpire?.getTime() || Date.now() + expire * 1000, [customDateExpire, expire])
+  /**
+   * A preset expiry counts from `expiryStart`, which `startExpiry` resets as each order goes to review:
+   * every order gets its full window, and the review shows exactly the deadline that gets signed.
+   * Reading the clock on every render instead would give `expiredAt` a new value each time, which
+   * cascades into anything memoised on it.
+   */
+  const [expiryStart, setExpiryStart] = useState(Date.now)
+  const expiredAt = useMemo(
+    () => resolveExpiredAt(expiryStart, expire, customDateExpire),
+    [expiryStart, expire, customDateExpire],
+  )
+  /** Returns the deadline it produces, for callers that need it before the next render. */
+  const startExpiry = useCallback(() => {
+    const now = Date.now()
+    setExpiryStart(now)
+    return resolveExpiredAt(now, expire, customDateExpire)
+  }, [expire, customDateExpire])
   const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
 
   return {
@@ -181,6 +199,7 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
     onChangeTriggerPercent,
     onSetMarketPrice,
     onChangeExpire,
+    startExpiry,
     onSelectCurrencyIn,
     onSelectCurrencyOut,
     onResetForm,

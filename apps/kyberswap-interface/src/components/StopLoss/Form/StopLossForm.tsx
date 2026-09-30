@@ -265,6 +265,7 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
             data-testid="stop-loss-place-order-button"
             disabled={disableAction}
             onClick={() => {
+              const expiredAt = form.startExpiry()
               tracking.trackReviewOpened({
                 currencyIn,
                 currencyOut,
@@ -273,7 +274,7 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
                 triggerPrice: form.triggerPrice,
                 triggerPercent: form.triggerPercent,
                 slippage: form.slippage,
-                expiredAt: form.expiredAt,
+                expiredAt,
               })
               setShowReview(true)
             }}
