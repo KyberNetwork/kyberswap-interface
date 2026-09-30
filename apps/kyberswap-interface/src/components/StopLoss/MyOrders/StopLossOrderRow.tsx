@@ -109,7 +109,7 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
       />
 
       <span
-        className="truncate text-sm font-medium text-blue1 max-sm:hidden"
+        className="truncate text-sm font-medium text-blue3 max-sm:hidden"
         data-testid="stop-loss-order-trigger-price"
       >
         {formatPairPrice(triggerPrice, receiveCurrency?.symbol)}
