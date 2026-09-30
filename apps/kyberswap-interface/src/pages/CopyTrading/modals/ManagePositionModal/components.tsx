@@ -1,4 +1,5 @@
-import { AlertTriangle, ArrowDown } from 'react-feather'
+import { useState } from 'react'
+import { AlertTriangle, ArrowDown, Repeat, RotateCw } from 'react-feather'
 import type { PendingSellObligation } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PositionSellPreview, PreparedToken, RawAmountMetric } from 'services/copyTrading/types/preparedActions'
@@ -20,6 +21,8 @@ import {
   withMetricFallback,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { formatDateTime } from 'utils/time'
+
+const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
 
 const formatSkipReason = (value?: string) =>
   value
@@ -65,17 +68,26 @@ const getPreparedBaseToken = (position: PositionSummary, token?: PreparedToken):
 
 export const ManagePositionReview = ({
   isLoading,
+  onRefresh,
   position,
   preview,
 }: {
   isLoading: boolean
+  onRefresh: () => void
   position: PositionSummary
   preview?: PositionSellPreview
 }) => {
+  const [invertedRate, setInvertedRate] = useState(false)
+
   const showSkeleton = isLoading && !preview
   const baseToken = getPreparedBaseToken(position, preview?.baseToken)
   const rate = withMetricFallback(
-    formatPreparedRate(preview?.sellBase, baseToken, preview?.swapQuote?.expectedQuote, preview?.quoteToken),
+    formatPreparedRate(
+      invertedRate ? preview?.swapQuote?.expectedQuote : preview?.sellBase,
+      invertedRate ? preview?.quoteToken : baseToken,
+      invertedRate ? preview?.sellBase : preview?.swapQuote?.expectedQuote,
+      invertedRate ? baseToken : preview?.quoteToken,
+    ),
   )
 
   return (
@@ -101,10 +113,30 @@ export const ManagePositionReview = ({
       </Stack>
 
       <div className="flex min-w-0 items-center gap-1 text-sm">
+        <button
+          type="button"
+          className="mr-1 flex shrink-0 items-center text-subText hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label="Refresh rate"
+          title="Refresh rate"
+          disabled={isLoading}
+          onClick={onRefresh}
+        >
+          <RotateCw size={14} className={isLoading ? 'animate-spin' : undefined} />
+        </button>
         <span className="shrink-0 font-medium text-subText">Rate:</span>
         <span className="truncate font-medium text-text">
           {showSkeleton ? <Skeleton width={96} height={16} variant="darkSubtle" /> : rate}
         </span>
+        <button
+          type="button"
+          className="ml-1 flex shrink-0 items-center text-subText hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label="Invert rate"
+          title="Invert rate"
+          disabled={isLoading || rate === 'N/A'}
+          onClick={() => setInvertedRate(value => !value)}
+        >
+          <Repeat size={14} />
+        </button>
       </div>
 
       <ReviewSection>
@@ -120,8 +152,8 @@ export const ManagePositionReview = ({
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Estimated Cashback"
-          value={withMetricFallback(formatPreparedAmount(preview?.cashback, preview?.quoteToken))}
+          label="Cashback"
+          value={withApproximateMetricFallback(formatPreparedAmount(preview?.cashback, preview?.quoteToken))}
         />
         <ReviewRow
           isLoading={showSkeleton}
@@ -287,6 +319,11 @@ const PositionSellSummary = ({
           isLoading={previewLoading}
           label="Estimated Output"
           value={estimatedOutput === '—' ? withMetricFallback(estimatedOutput) : `~${estimatedOutput}`}
+        />
+        <ReviewRow
+          isLoading={previewLoading}
+          label="Cashback"
+          value={withApproximateMetricFallback(formatPreparedAmount(preview?.cashback, preview?.quoteToken))}
         />
         {previewError && (
           <p className="text-sm text-red" role="alert">
