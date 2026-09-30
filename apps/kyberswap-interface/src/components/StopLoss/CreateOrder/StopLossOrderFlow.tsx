@@ -15,6 +15,7 @@ import { useCreateStopLossOrder } from 'components/StopLoss/CreateOrder/useCreat
 import { StopLossWarning } from 'components/StopLoss/Form/useStopLossWarnings'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { currencyId } from 'utils/currencyId'
 
 type Props = {
   isOpen: boolean
@@ -82,7 +83,13 @@ const StopLossOrderFlow = ({
     return t`Sign stop-loss`
   }
 
-  const viewOrders = () => navigate(`${APP_PATHS.STOP_LOSS}/${NETWORKS_INFO[chainId].route}`)
+  // Keeps the pair in the path, as Limit Order's "My Orders" does: a bare chain route falls back to
+  // the chain's default pair and would swap out the tokens the user just placed an order on.
+  const viewOrders = () => {
+    const pair =
+      currencyIn && currencyOut ? `/${currencyId(currencyIn, chainId)}-to-${currencyId(currencyOut, chainId)}` : ''
+    navigate(`${APP_PATHS.STOP_LOSS}/${NETWORKS_INFO[chainId].route}${pair}`)
+  }
 
   return (
     <>
