@@ -57,6 +57,8 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
         placeholder="0"
         value={displayValue}
         onUserInput={value => {
+          // A drop of 100% or more puts the trigger at zero or below, which no price can reach.
+          if (Number(value) <= -100) return
           setDraft(value)
           if (value && value !== '-' && !value.endsWith('.')) onChange(value)
         }}
