@@ -14,7 +14,7 @@ import {
   useState,
 } from 'react'
 import { isMobile } from 'react-device-detect'
-import { X } from 'react-feather'
+import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 
 import InfoHelper from 'components/InfoHelper'
@@ -1150,16 +1150,19 @@ export const TokenSelectorContent = ({
   }, [trackingDebouncedQuery, trackingSource, primaryChainId, trackingHandler])
 
   const subtitle = getTabSubtitle(activeTab)
-  const emptyMessage =
-    activeTab === TokenSelectorTab.Trending ? (
-      <Trans>No trending tokens right recently. Check back later.</Trans>
-    ) : activeTab === TokenSelectorTab.New ? (
-      <Trans>No newly whitelisted token recently.</Trans>
-    ) : activeTab === TokenSelectorTab.Imported ? (
-      <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
-    ) : activeTab === TokenSelectorTab.Favorites ? (
-      <Trans>You have no saved tokens yet.</Trans>
-    ) : undefined
+  // Every list in oracle-only mode is screened, so an empty one — searched or not — is down to the
+  // filter, and says so instead of naming the tab.
+  const emptyMessage = requireChainlinkOracle ? (
+    <Trans>No supported tokens found. Stop-loss only supports tokens with an oracle price feed.</Trans>
+  ) : debouncedQuery ? undefined : activeTab === TokenSelectorTab.Trending ? (
+    <Trans>No trending tokens right recently. Check back later.</Trans>
+  ) : activeTab === TokenSelectorTab.New ? (
+    <Trans>No newly whitelisted token recently.</Trans>
+  ) : activeTab === TokenSelectorTab.Imported ? (
+    <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
+  ) : activeTab === TokenSelectorTab.Favorites ? (
+    <Trans>You have no saved tokens yet.</Trans>
+  ) : undefined
 
   return (
     <ContentWrapper data-testid="token-selector-modal">
@@ -1219,6 +1222,18 @@ export const TokenSelectorContent = ({
             <ChainSelector chains={rankedChains} selectedChainId={selectedChainId} onChange={handleChainChange} />
           )}
         </HStack>
+
+        {requireChainlinkOracle && (
+          <HStack
+            className="items-start gap-1.5 text-xs font-medium text-subText"
+            data-testid="token-selector-oracle-note"
+          >
+            <Info size={14} className="mt-px shrink-0" />
+            <span>
+              <Trans>Only tokens with an oracle price feed are shown. Stop-loss triggers on that price.</Trans>
+            </span>
+          </HStack>
+        )}
 
         {showPinnedTokens && (
           <div
@@ -1334,7 +1349,7 @@ export const TokenSelectorContent = ({
                   onSelect={handleOtherChainSelect}
                 />
               ) : (
-                <NoResult message={debouncedQuery ? undefined : emptyMessage} />
+                <NoResult message={emptyMessage} />
               )}
             </Stack>
           )}
