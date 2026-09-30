@@ -64,6 +64,7 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
     {
       label: 'Net Fees',
       value: formatUsd(run.feeBreakdown?.netFeesUsd),
+      valueClassName: 'text-text',
       valueTooltip: (
         <dl className="grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-3 text-sm">
           <dt className="text-subText">Fee charged</dt>
@@ -237,7 +238,11 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: copyTradingPath(backPath) }}>
       {identity ? (
-        <AgentIdentity agent={identity} copyStatus={run.status === 'active' ? undefined : run.status} />
+        <AgentIdentity
+          agent={identity}
+          copyStatus={run.status === 'active' ? undefined : run.status}
+          copyView={backPath === 'history' ? 'history' : 'open'}
+        />
       ) : (
         <HStack className="items-center gap-4">
           <CopyRunAgentCell run={run} />
