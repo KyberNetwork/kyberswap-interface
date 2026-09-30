@@ -185,14 +185,14 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
             label: (
               <span className="inline-flex items-center gap-1.5">
                 KyberCross
-                <span className="rounded bg-red-20 px-1 text-xs text-red">New</span>
+                <span className="rounded bg-primary-20 px-1 text-xs text-primary">Beta</span>
               </span>
             ),
             value: 'direct',
           },
-          { label: 'Aggregator Stream', value: 'stream' },
+          { label: 'Aggregator', value: 'stream' },
         ]}
-        size="sm"
+        size="md"
         value={quoteMode}
         onChange={showPreview ? undefined : setQuoteMode}
       />
