@@ -44,7 +44,7 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1360px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(140px,1.1fr)_minmax(0,0.9fr)_minmax(88px,0.8fr)_minmax(140px,0.8fr)]',
+        'min-w-[1480px] grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(140px,1.1fr)_minmax(0,0.9fr)_minmax(88px,0.8fr)_minmax(140px,0.8fr)]',
         className,
       )}
       {...props}
@@ -97,6 +97,7 @@ const ActiveSubscriptionsTable = ({
       <ScrollArea className="relative hidden max-h-[480px] lg:block">
         <ActiveSubscriptionsGrid header className="sticky top-0 z-20">
           <HeaderCell>Agent</HeaderCell>
+          <HeaderCell className="justify-end text-right">Value</HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
             className="justify-end text-right"
@@ -132,7 +133,7 @@ const ActiveSubscriptionsTable = ({
         </ActiveSubscriptionsGrid>
 
         <TableBody
-          className="min-w-[1360px]"
+          className="min-w-[1480px]"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
           emptyMessage={pagination.error ? 'Unable to load active copies' : 'No active copies found'}
@@ -145,6 +146,7 @@ const ActiveSubscriptionsTable = ({
                 to={copyTradingPath('my-copies/' + subscription.copyRunId, subscription.chainId)}
               />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
+              <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
               <TableCell className={cn('text-right', getSignedMetricClassName(subscription.roiPct))}>
                 {percent(subscription.roiPct)}
               </TableCell>
@@ -190,21 +192,15 @@ const ActiveSubscriptionsTable = ({
             </div>
 
             <TableCardGrid>
-              <TableCardField label="ROI" valueClassName={getSignedMetricClassName(subscription.roiPct)}>
+              <TableCardField label="Value">{formatUsd(subscription.portfolioValueUsd)}</TableCardField>
+              <TableCardField align="right" label="ROI" valueClassName={getSignedMetricClassName(subscription.roiPct)}>
                 {percent(subscription.roiPct)}
               </TableCardField>
-              <TableCardField
-                align="right"
-                label="Win Rate"
-                valueClassName={getWinRateClassName(subscription.copyRunWinRatePct)}
-              >
-                {percent(subscription.copyRunWinRatePct)}
-              </TableCardField>
               <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
-              <TableCardField align="right" label="Positions">
-                {formatCount(subscription.openPositionCount)}
+              <TableCardField align="right" label="Capital In">
+                {formatUsd(subscription.capitalInUsd)}
               </TableCardField>
-              <TableCardField label="Capital In">{formatUsd(subscription.capitalInUsd)}</TableCardField>
+              <TableCardField label="Positions">{formatCount(subscription.openPositionCount)}</TableCardField>
               <TableCardField
                 align="right"
                 label="Unrealised PnL"

@@ -10,7 +10,6 @@ import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Center, HStack } from 'components/Stack'
 import { copyDetailResponsiveOrder } from 'pages/CopyTrading/CopyDetail/responsiveOrder'
 import {
-  RiskCard,
   StrategyExecutionCard,
   WhitelistedTokensCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards/AgentProfileCards'
@@ -71,7 +70,7 @@ const RemainingInWalletCard = ({
   collapsible = true,
   complete,
   headerRight,
-  initialExpanded = false,
+  initialExpanded = true,
   loading,
   title,
   totalValueUsd,
@@ -210,12 +209,6 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
     </ResponsiveDetailItem>
   )
 
-  const agentRiskCard = (
-    <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.risk}>
-      <RiskCard maxDrawdownPct={agent?.stats.maxDrawdownPct} winRatePct={run.copyRunWinRatePct} />
-    </ResponsiveDetailItem>
-  )
-
   const remainingInWallet = (
     <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.wallet}>
       <RemainingInWalletCard
@@ -230,7 +223,6 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   return (
     <ResponsiveDetailContents>
       {capitalCard}
-      {agentRiskCard}
       {remainingInWallet}
       {(run.withdrawQuoteAvailability || run.withdrawTokensAvailability) && (
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.withdraw}>

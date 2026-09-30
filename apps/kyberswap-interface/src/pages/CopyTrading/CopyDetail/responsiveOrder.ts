@@ -3,7 +3,6 @@
  */
 export const copyDetailResponsiveOrder = {
   capital: 1,
-  risk: 2,
   wallet: 3,
   withdraw: 4,
   mainContent: 5,
