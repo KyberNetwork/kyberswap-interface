@@ -74,6 +74,16 @@ export const useStopLossWarnings = ({
         <Trans>Cannot receive {currencyOut.symbol} — no oracle price feed for the receive token.</Trans>
       )
       shouldDisableAction = true
+    } else if (currencyIn && currencyOut && currencyIn.wrapped.equals(currencyOut.wrapped)) {
+      // A native coin and its wrapped token are one asset, so the order would sell a token for itself.
+      // The selectors never offer the pair; this catches one that arrives through the URL or is carried
+      // over from Swap, where wrapping is a legitimate trade.
+      receiveTokenWarning = (
+        <Trans>
+          Cannot receive {currencyOut.symbol} when selling {currencyIn.symbol} — they are the same asset.
+        </Trans>
+      )
+      shouldDisableAction = true
     }
 
     /**

@@ -634,17 +634,18 @@ export const TokenSelectorContent = ({
   // Quick-select pills: always lead with the chain's native token, then fill the rest from config /
   // favorites (dropping any native duplicate). Capped at 5 (4 on mobile) when the Favorites tab exists
   // to hold the overflow; uncapped otherwise (see the discovery-off note below). The native lead is
-  // never hidden by the wrap filter — only by a non-matching text search, or by the oracle filter
-  // when its wrapped token has no feed.
+  // hidden by a non-matching text search and by the same rules as every listed row — the wrap filter
+  // (the other side already holds its wrapped token) and the oracle filter (its wrapped token has no
+  // feed).
   const quickSelectTokens = useMemo(() => {
     const native = NativeCurrencies[primaryChainId] as Currency | undefined
     const nativeMatchesSearch =
       !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
-    const nativeLead = nativeMatchesSearch && native && passesOracleFilter(native) ? [native] : []
+    const nativeLead = nativeMatchesSearch && native && isListable(native) ? [native] : []
     const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
     const list = [...nativeLead, ...rest]
     return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
-  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, passesOracleFilter])
+  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, isListable])
 
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
@@ -966,7 +967,7 @@ export const TokenSelectorContent = ({
       if (e.key !== 'Enter') return
       const s = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[primaryChainId]
-      if ((s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) && passesOracleFilter(native)) {
+      if ((s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) && isListable(native)) {
         handleCurrencySelect(native)
         return
       }
@@ -995,7 +996,7 @@ export const TokenSelectorContent = ({
       tokenImports,
       onImportToken,
       impersonators,
-      passesOracleFilter,
+      isListable,
     ],
   )
 
