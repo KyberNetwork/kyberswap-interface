@@ -4,6 +4,7 @@ import type { PendingSellObligation } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PositionSellPreview, PreparedToken, RawAmountMetric } from 'services/copyTrading/types/preparedActions'
 
+import { ErrorWarning } from 'components/ErrorWarning'
 import Skeleton from 'components/Skeleton'
 import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Stack } from 'components/Stack'
@@ -20,6 +21,7 @@ import {
   formatWadPercent,
   withMetricFallback,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { ButtonText } from 'theme/components'
 import { formatDateTime } from 'utils/time'
 
 const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
@@ -169,6 +171,7 @@ type ManagePositionFormProps = {
   isPreparing: boolean
   onCancel: () => void
   onPrimaryAction: () => void
+  onPreviewRetry: () => void
   onSlippageChange: (slippage: number) => void
   position: PositionSummary
   preview?: PositionSellPreview
@@ -222,7 +225,6 @@ const PositionSellSummary = ({
   pendingSellObligationsLoading,
   position,
   preview,
-  previewError,
   previewLoading,
   showClosePositionSummary,
 }: Pick<
@@ -232,7 +234,6 @@ const PositionSellSummary = ({
   | 'pendingSellObligationsLoading'
   | 'position'
   | 'preview'
-  | 'previewError'
   | 'previewLoading'
   | 'showClosePositionSummary'
 >) => {
@@ -325,11 +326,6 @@ const PositionSellSummary = ({
           label="Cashback"
           value={withApproximateMetricFallback(formatPreparedAmount(preview?.cashback, preview?.quoteToken))}
         />
-        {previewError && (
-          <p className="text-sm text-red" role="alert">
-            {previewError}
-          </p>
-        )}
       </ReviewSection>
     </Stack>
   )
@@ -339,6 +335,7 @@ export const ManagePositionForm = ({
   isPreparing,
   onCancel,
   onPrimaryAction,
+  onPreviewRetry,
   onSlippageChange,
   position,
   preview,
@@ -361,10 +358,25 @@ export const ManagePositionForm = ({
       pendingSellObligationsLoading={pendingSellObligationsLoading}
       position={position}
       preview={preview}
-      previewError={previewError}
       previewLoading={previewLoading}
       showClosePositionSummary={showClosePositionSummary}
     />
+
+    {previewError && (
+      <ErrorWarning
+        type="info"
+        title={previewError}
+        action={
+          <ButtonText
+            className="shrink-0 gap-1 text-xs font-semibold text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={onPreviewRetry}
+          >
+            <RotateCw size={13} />
+            Retry
+          </ButtonText>
+        }
+      />
+    )}
 
     <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
 

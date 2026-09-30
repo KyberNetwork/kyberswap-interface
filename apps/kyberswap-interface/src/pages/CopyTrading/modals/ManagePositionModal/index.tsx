@@ -325,6 +325,7 @@ const ManagePositionModal = ({
         isPreparing={isPreparing}
         onCancel={dismiss}
         onPrimaryAction={handlePrimaryAction}
+        onPreviewRetry={() => void previewQuery.refetch()}
         onSlippageChange={setSlippage}
         position={position}
         preview={previewEnabled && !previewQuery.error ? previewQuery.data : undefined}
