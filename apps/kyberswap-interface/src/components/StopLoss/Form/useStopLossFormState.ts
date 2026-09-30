@@ -56,13 +56,6 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
     chainId,
   )
 
-  /** How far the trigger sits below the market price, negative while it is a valid stop-loss. */
-  const triggerPercent = useMemo(() => {
-    const price = Number(triggerPrice)
-    if (!marketPrice || !price || !Number.isFinite(price)) return undefined
-    return ((price - marketPrice) / marketPrice) * 100
-  }, [triggerPrice, marketPrice])
-
   /**
    * The seed and the Market button both fill the field with the price rounded to the input's own
    * precision, which lands a hair either side of the live price. Comparing against the lower of the
@@ -73,6 +66,18 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
     if (!marketPrice || !price || !Number.isFinite(price)) return false
     return price >= Math.min(marketPrice, Number(formatPriceInputValue(marketPrice)))
   }, [triggerPrice, marketPrice])
+
+  /**
+   * How far the trigger sits below the market price, negative while it is a valid stop-loss. A trigger
+   * the rule above counts as at market reads 0 even when rounding left it a hair under the live price,
+   * so no "below" figure ever sits next to the warning that blocks it for not being below.
+   */
+  const triggerPercent = useMemo(() => {
+    const price = Number(triggerPrice)
+    if (!marketPrice || !price || !Number.isFinite(price)) return undefined
+    const percent = ((price - marketPrice) / marketPrice) * 100
+    return triggerAtOrAboveMarket ? Math.max(percent, 0) : percent
+  }, [triggerPrice, marketPrice, triggerAtOrAboveMarket])
 
   const onChangeTriggerPrice = setTriggerPrice
 
