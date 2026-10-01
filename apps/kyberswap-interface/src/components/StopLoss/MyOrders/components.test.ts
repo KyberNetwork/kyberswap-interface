@@ -3,7 +3,7 @@ import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { formatExpiry } from 'components/StopLoss/MyOrders/components'
+import { formatDistanceMagnitude, formatExpiry } from 'components/StopLoss/MyOrders/components'
 
 // The app entry extends these before any route renders; mirror that so the helper behaves the same.
 dayjs.extend(duration)
@@ -46,5 +46,24 @@ describe('formatExpiry', () => {
   it('reports an elapsed deadline as expired rather than a negative duration', () => {
     expect(formatExpiry(at(-HOUR))).toEqual({ label: 'Expired' })
     expect(formatExpiry(at(0))).toEqual({ label: 'Expired' })
+  })
+})
+
+describe('formatDistanceMagnitude', () => {
+  it('shows one decimal, keeping the trailing zero', () => {
+    expect(formatDistanceMagnitude(-6.62)).toBe('6.6')
+    expect(formatDistanceMagnitude(-10)).toBe('10.0')
+    expect(formatDistanceMagnitude(-0.2858)).toBe('0.3')
+    expect(formatDistanceMagnitude(0.1504)).toBe('0.2')
+  })
+
+  it('keeps the first significant digit of a distance that one decimal would round to zero', () => {
+    expect(formatDistanceMagnitude(-0.023)).toBe('0.02')
+    expect(formatDistanceMagnitude(-0.00344)).toBe('0.003')
+    expect(formatDistanceMagnitude(-0.000092)).toBe('0.0₄9')
+  })
+
+  it('reads zero only for a trigger exactly at the market', () => {
+    expect(formatDistanceMagnitude(0)).toBe('0.0')
   })
 })

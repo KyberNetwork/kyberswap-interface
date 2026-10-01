@@ -228,6 +228,19 @@ const distanceStyles = cva('text-sm font-medium', {
 })
 
 /**
+ * The distance's size as shown, without its sign. One decimal, always, so the column lines up —
+ * formatDisplayNumber would drop the trailing zero. A distance too small to survive that rounding keeps
+ * its first significant digit instead, in the form's notation (0.003, 0.0₄9), so a trigger merely close
+ * to the market never reads as exactly at it.
+ */
+export const formatDistanceMagnitude = (percent: number) => {
+  const magnitude = Math.abs(percent)
+  const rounded = Math.round(magnitude * 10) / 10
+  if (rounded === 0 && magnitude > 0) return formatDisplayNumber(magnitude, { fractionDigits: 1 })
+  return rounded.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+}
+
+/**
  * How much room is left before the trigger fires. The arrow follows the sign: a trigger that has risen
  * above the market is about to fire, which is the opposite of the same magnitude below it.
  */
@@ -239,17 +252,14 @@ export const DistanceCell = ({ percent }: { percent?: number }) => {
       </span>
     )
 
-  // Rounded once and used for both the figure and its colour, so a distance shown as "10.0%" is never
-  // coloured as if it were still under 10.
+  // Rounded as the figure is, so a distance shown as "10.0%" is never coloured as if it were still under 10.
   const magnitude = Math.round(Math.abs(percent) * 10) / 10
   // A trigger at or above the market is imminent no matter how far past it has gone.
   const proximity = percent >= 0 ? 'imminent' : magnitude >= 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
 
   return (
     <span className={distanceStyles({ proximity })} data-testid="stop-loss-order-distance">
-      {/* Always one decimal, so the column lines up; formatDisplayNumber drops trailing zeros. */}
-      {percent >= 0 ? '↑' : '↓'}{' '}
-      {magnitude.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+      {percent >= 0 ? '↑' : '↓'} {formatDistanceMagnitude(percent)}%
     </span>
   )
 }
