@@ -57,6 +57,8 @@ export const useStopLossWarnings = ({
     // own box rather than in a notice at the bottom of the form.
     let sellTokenWarning: ReactNode
     let receiveTokenWarning: ReactNode
+    // The token with no feed, which names the blocked CTA and points the user at the supported list.
+    let unavailableToken: Currency | undefined
     let shouldDisableAction = false
     let shouldWarningAction = false
 
@@ -68,11 +70,13 @@ export const useStopLossWarnings = ({
       shouldDisableAction = true
     } else if (currencyIn && !loadingEligibility && !isEligible) {
       sellTokenWarning = <Trans>Stop-loss is not available for {currencyIn.symbol} — no oracle price feed.</Trans>
+      unavailableToken = currencyIn
       shouldDisableAction = true
     } else if (currencyOut && !loadingReceiveEligibility && !isReceiveEligible) {
       receiveTokenWarning = (
         <Trans>Cannot receive {currencyOut.symbol} — no oracle price feed for the receive token.</Trans>
       )
+      unavailableToken = currencyOut
       shouldDisableAction = true
     } else if (currencyIn && currencyOut && currencyIn.wrapped.equals(currencyOut.wrapped)) {
       // A native coin and its wrapped token are one asset, so the order would sell a token for itself.
@@ -123,6 +127,7 @@ export const useStopLossWarnings = ({
       reviewWarnings,
       sellTokenWarning,
       receiveTokenWarning,
+      unavailableToken,
       shouldDisableAction,
       shouldWarningAction,
       hasIneligibleToken: !!currencyIn && !loadingEligibility && !isEligible && hasEligibleTokens,

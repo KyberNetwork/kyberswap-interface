@@ -191,6 +191,7 @@ type AmountInputControlsProps = {
   account?: string | null
   currency?: Currency | null
   disabledInput?: boolean
+  readOnlyInput?: boolean
   error?: boolean
   estimatedUsd?: string
   lockIcon?: boolean
@@ -206,6 +207,7 @@ const AmountInputControls = ({
   account,
   currency,
   disabledInput,
+  readOnlyInput,
   error,
   estimatedUsd,
   lockIcon,
@@ -226,6 +228,7 @@ const AmountInputControls = ({
         data-testid="token-amount-input"
         value={value}
         disabled={disabledInput}
+        readOnly={readOnlyInput}
         maxLength={maxLength}
         onUserInput={onUserInput}
         onFocus={onFocus}
@@ -312,6 +315,8 @@ const PoolLockContent = (
   </div>
 )
 
+export type CurrencyInputPanelFooter = ReactNode | ((openTokenSelector: () => void) => ReactNode)
+
 interface CurrencyInputPanelProps {
   value: string
   onMax?: () => void
@@ -321,8 +326,11 @@ interface CurrencyInputPanelProps {
   onClickSelect?: () => void
   positionMax?: 'inline' | 'top'
   label?: ReactNode
-  /** Rendered inside the panel, under the amount row — for a note that belongs to this field. */
-  footer?: ReactNode
+  /**
+   * Rendered inside the panel, under the amount row — for a note that belongs to this field. As a
+   * function it is handed a callback that opens this panel's token selector, for a note that offers one.
+   */
+  footer?: CurrencyInputPanelFooter
   positionLabel?: 'in' | 'out'
   onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
@@ -331,6 +339,8 @@ interface CurrencyInputPanelProps {
   hideBalance?: boolean
   hideInput?: boolean
   disabledInput?: boolean
+  /** Shows a computed figure at full contrast: not editable, without the dimmed disabled look. */
+  readOnlyInput?: boolean
   otherCurrency?: Currency | null
   id: string
   dataTestId?: string
@@ -380,6 +390,7 @@ export default function CurrencyInputPanel({
   hideBalance = false,
   hideInput = false,
   disabledInput = false,
+  readOnlyInput = false,
   otherCurrency,
   id,
   dataTestId,
@@ -449,6 +460,7 @@ export default function CurrencyInputPanel({
                 account={account}
                 currency={currency}
                 disabledInput={disabledInput}
+                readOnlyInput={readOnlyInput}
                 error={error}
                 estimatedUsd={estimatedUsd}
                 lockIcon={lockIcon}
@@ -498,7 +510,7 @@ export default function CurrencyInputPanel({
             )}
           </InputRow>
 
-          {footer}
+          {typeof footer === 'function' ? footer(() => setModalOpen(true)) : footer}
         </Container>
         {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
           <TokenSelectorModal

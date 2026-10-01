@@ -2,14 +2,15 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 
-import CurrencyLogo from 'components/CurrencyLogo'
 import NumericalInput from 'components/NumericalInput'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopLoss/constants'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
+  sellCurrency?: Currency
   receiveCurrency?: Currency
   triggerPrice: string
   /** Signed distance from the market price; negative once the trigger is a valid stop-loss. */
@@ -70,7 +71,12 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
   )
 }
 
+/**
+ * Laid out like the limit-order Rate block, so the two forms read alike; the rate shown beside Market
+ * is the oracle price the trigger is evaluated against, not the app's USD-ratio price.
+ */
 const TriggerPriceSection = ({
+  sellCurrency,
   receiveCurrency,
   triggerPrice,
   triggerPercent,
@@ -84,20 +90,29 @@ const TriggerPriceSection = ({
 
   return (
     <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4" data-testid="stop-loss-trigger-section">
-      <HStack className="items-center justify-between gap-3">
-        <span className="text-sm font-medium text-subText">
-          <Trans>Sell when price drop to</Trans>
+      <HStack className="min-h-7 items-center justify-between gap-3">
+        <span className="whitespace-nowrap text-sm font-medium text-subText">
+          <Trans>Rate</Trans>
         </span>
-        {marketPrice ? (
+        <HStack className="min-w-0 items-center justify-end gap-2">
           <button
             type="button"
             data-testid="stop-loss-market-price-button"
-            className="shrink-0 text-sm font-medium text-primary transition hover:brightness-90"
+            className="shrink-0 rounded-lg bg-primary/10 px-2 py-1 text-sm font-medium text-primary transition enabled:hover:brightness-90 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!marketPrice}
             onClick={onSetMarketPrice}
           >
             <Trans>Market</Trans>
           </button>
-        ) : null}
+          {marketPrice && sellCurrency && receiveCurrency ? (
+            <span className="min-w-0 truncate text-sm font-medium text-text" data-testid="stop-loss-market-rate">
+              1 {sellCurrency.symbol} = {formatDisplayNumber(marketPrice, { significantDigits: 6 })}{' '}
+              {receiveCurrency.symbol}
+            </span>
+          ) : isLoadingPrice ? (
+            <Skeleton height={20} width={160} />
+          ) : null}
+        </HStack>
       </HStack>
 
       <HStack className="min-h-8 min-w-0 items-center gap-2">
@@ -110,15 +125,11 @@ const TriggerPriceSection = ({
             onUserInput={onChangeTriggerPrice}
           />
         </div>
-        {/* The trigger is quoted in the receive token, so that token names the unit — the same shape
-            the limit-order rate row uses. */}
-        {receiveCurrency && (
-          <HStack className="min-w-0 shrink-0 items-center gap-1.5">
-            <CurrencyLogo currency={receiveCurrency} size="20px" />
-            <span className="max-w-[92px] shrink-0 truncate text-lg font-medium text-subText">
-              {receiveCurrency.symbol}
-            </span>
-          </HStack>
+        {/* Receive token per sell token, written the way the limit-order rate row writes its unit. */}
+        {sellCurrency && receiveCurrency && (
+          <span className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText">
+            {receiveCurrency.symbol}/{sellCurrency.symbol}
+          </span>
         )}
       </HStack>
 

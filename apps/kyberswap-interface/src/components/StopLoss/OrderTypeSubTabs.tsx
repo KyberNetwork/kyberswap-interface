@@ -56,7 +56,7 @@ const OrderTypeSubTabs = () => {
             // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
             'cursor-pointer border-0 bg-transparent px-3 py-1 uppercase first:pl-0 hover:text-text',
             index < TABS.length - 1 && 'border-r border-darkBorder',
-            path === activePath ? 'text-primary' : 'text-subText',
+            path === activePath ? 'text-primary' : 'text-gray',
           )}
         >
           {label}

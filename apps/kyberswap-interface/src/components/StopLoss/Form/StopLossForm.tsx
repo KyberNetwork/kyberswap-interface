@@ -39,11 +39,35 @@ type StopLossFormProps = {
   currencyOut?: Currency
 }
 
-/** A note about the field it sits in, so it reads as part of that input rather than of the form. */
-const FieldWarning = ({ children }: { children: ReactNode }) => (
+/** Flags the token button of a field whose token cannot be used for a stop-loss. */
+const UNUSABLE_TOKEN_SELECT_CLASS = 'border-warning'
+
+/**
+ * A note about the field it sits in, so it reads as part of that input rather than of the form. A
+ * token with no feed is fixed by picking another, so that note links to the list of ones that work.
+ */
+const FieldWarning = ({
+  children,
+  onViewSupportedTokens,
+}: {
+  children: ReactNode
+  onViewSupportedTokens?: () => void
+}) => (
   <HStack className="items-start gap-1.5 text-xs font-medium text-warning" data-testid="stop-loss-field-warning">
     <AlertTriangle size={14} className="mt-px shrink-0" />
-    <span>{children}</span>
+    <Stack className="gap-0.5">
+      <span>{children}</span>
+      {onViewSupportedTokens && (
+        <button
+          type="button"
+          data-testid="stop-loss-view-supported-tokens"
+          className="w-fit cursor-pointer border-0 bg-transparent p-0 text-left text-primary hover:brightness-110"
+          onClick={onViewSupportedTokens}
+        >
+          <Trans>View supported tokens</Trans>
+        </button>
+      )}
+    </Stack>
   </HStack>
 )
 
@@ -138,8 +162,13 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
   const disableAction =
     !!restrictedCurrency || isMissingAmount || isMissingTrigger || insufficientBalance || validation.shouldDisableAction
 
+  const unavailableToken = validation.unavailableToken
+  const isReceiveTokenUnavailable = !!unavailableToken && !!currencyOut && unavailableToken.equals(currencyOut)
+
   const actionLabel = restrictedCurrency ? (
     restrictedTokenMessage(restrictedCurrency.symbol)
+  ) : unavailableToken ? (
+    <Trans>Stop-loss not available for {unavailableToken.symbol}</Trans>
   ) : isMissingAmount ? (
     <Trans>Enter an amount</Trans>
   ) : isMissingTrigger ? (
@@ -172,12 +201,20 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
             },
             onInputTokenSelect: onSelectSellToken,
           }}
-          footer={validation.sellTokenWarning ? <FieldWarning>{validation.sellTokenWarning}</FieldWarning> : undefined}
+          footer={
+            validation.sellTokenWarning
+              ? openTokenSelector => (
+                  <FieldWarning onViewSupportedTokens={openTokenSelector}>{validation.sellTokenWarning}</FieldWarning>
+                )
+              : undefined
+          }
+          selectClassName={validation.sellTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
           // The trigger is evaluated against the chain's oracle, so a token it has no feed for cannot be monitored.
           requireOracle
         />
 
         <TriggerPriceSection
+          sellCurrency={currencyIn}
           receiveCurrency={currencyOut}
           triggerPrice={form.triggerPrice}
           triggerPercent={form.triggerPercent}
@@ -196,8 +233,15 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
           triggerPrice={form.triggerPrice}
           onSelectCurrency={onSelectReceiveToken}
           warning={
-            validation.receiveTokenWarning ? <FieldWarning>{validation.receiveTokenWarning}</FieldWarning> : undefined
+            validation.receiveTokenWarning
+              ? openTokenSelector => (
+                  <FieldWarning onViewSupportedTokens={isReceiveTokenUnavailable ? openTokenSelector : undefined}>
+                    {validation.receiveTokenWarning}
+                  </FieldWarning>
+                )
+              : undefined
           }
+          selectClassName={validation.receiveTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
         />
 
         {/* The two headers sit side by side, but an open panel spans the whole row: half the form is
