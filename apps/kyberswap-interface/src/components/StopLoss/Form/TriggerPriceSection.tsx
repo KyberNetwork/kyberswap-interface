@@ -1,7 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
+import { Repeat } from 'react-feather'
 
+import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
@@ -88,6 +90,37 @@ const TriggerPriceSection = ({
 }: Props) => {
   const isBelowMarket = triggerPercent !== undefined && triggerPercent < 0
 
+  /**
+   * Flips how the rate reads, as the limit-order Rate block does — the header rate, the trigger field
+   * and its unit — while the order itself still triggers on the sell token priced in the receive token.
+   * The percent chips and the oracle line keep that direction, since "below" is defined by it.
+   */
+  const [showInverted, setShowInverted] = useState(false)
+  // What the user is typing into the inverted field, kept as typed: re-deriving it from the trigger on
+  // every keystroke would reformat or erase partial input such as "0.000".
+  const [invertedDraft, setInvertedDraft] = useState<string>()
+
+  // Trailing zeros dropped both ways, so a round number typed on one side does not read as 2000.0000 on the other.
+  const invertedTrigger =
+    Number(triggerPrice) > 0 ? removeTrailingZero(formatPriceInputValue(1 / Number(triggerPrice))) : ''
+  const rateValue = showInverted ? invertedDraft ?? invertedTrigger : triggerPrice
+  const onRateInput = (value: string) => {
+    if (!showInverted) {
+      onChangeTriggerPrice(value)
+      return
+    }
+    setInvertedDraft(value)
+    if (!value) {
+      onChangeTriggerPrice('')
+      return
+    }
+    const parsed = Number(value)
+    if (Number.isFinite(parsed) && parsed > 0)
+      onChangeTriggerPrice(removeTrailingZero(formatPriceInputValue(1 / parsed)))
+  }
+
+  const [baseCurrency, quoteCurrency] = showInverted ? [receiveCurrency, sellCurrency] : [sellCurrency, receiveCurrency]
+
   return (
     <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4" data-testid="stop-loss-trigger-section">
       <HStack className="min-h-7 items-center justify-between gap-3">
@@ -104,10 +137,11 @@ const TriggerPriceSection = ({
           >
             <Trans>Market</Trans>
           </button>
-          {marketPrice && sellCurrency && receiveCurrency ? (
+          {marketPrice && baseCurrency && quoteCurrency ? (
             <span className="min-w-0 truncate text-sm font-medium text-text" data-testid="stop-loss-market-rate">
-              1 {sellCurrency.symbol} = {formatDisplayNumber(marketPrice, { significantDigits: 6 })}{' '}
-              {receiveCurrency.symbol}
+              1 {baseCurrency.symbol} ={' '}
+              {formatDisplayNumber(showInverted ? 1 / marketPrice : marketPrice, { significantDigits: 6 })}{' '}
+              {quoteCurrency.symbol}
             </span>
           ) : isLoadingPrice ? (
             <Skeleton height={20} width={160} />
@@ -121,15 +155,30 @@ const TriggerPriceSection = ({
             maxLength={50}
             className="bg-transparent text-xl font-medium text-primary"
             data-testid="stop-loss-trigger-price"
-            value={triggerPrice}
-            onUserInput={onChangeTriggerPrice}
+            value={rateValue}
+            onUserInput={onRateInput}
+            onBlur={() => setInvertedDraft(undefined)}
           />
         </div>
-        {/* Receive token per sell token, written the way the limit-order rate row writes its unit. */}
-        {sellCurrency && receiveCurrency && (
-          <span className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText">
-            {receiveCurrency.symbol}/{sellCurrency.symbol}
-          </span>
+        {/* Quote token per base token, written the way the limit-order rate row writes its unit. */}
+        {baseCurrency && quoteCurrency && (
+          <HStack className="min-w-0 shrink-0 items-center gap-1.5">
+            <span className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText">
+              {quoteCurrency.symbol}/{baseCurrency.symbol}
+            </span>
+            <button
+              type="button"
+              aria-label={t`Invert rate`}
+              data-testid="stop-loss-invert-rate"
+              className="flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText transition hover:brightness-75"
+              onClick={() => {
+                setInvertedDraft(undefined)
+                setShowInverted(value => !value)
+              }}
+            >
+              <Repeat size={14} />
+            </button>
+          </HStack>
         )}
       </HStack>
 
