@@ -19,9 +19,8 @@ import usePageLocation from 'hooks/usePageLocation'
 import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
 import { cn } from 'utils/cn'
-import { getTradeProductPath } from 'utils/routes'
 
-const ORDER_LIST_TABS = [
+export const ORDER_LIST_TABS = [
   {
     id: LimitOrderTab.ORDER_BOOK,
     label: (
@@ -52,7 +51,7 @@ const ORDER_LIST_TABS = [
   { id: LimitOrderTab.PRICE, label: <Trans>Price</Trans> },
 ] as const
 
-type OrderListTabItem = (typeof ORDER_LIST_TABS)[number]
+export type OrderListTabItem = (typeof ORDER_LIST_TABS)[number]
 
 type TabSelectorProps = {
   activeTab: LimitOrderTab
@@ -60,13 +59,15 @@ type TabSelectorProps = {
   tabs: readonly OrderListTabItem[]
 }
 
-const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
+export const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
   const { account } = useActiveWeb3React()
   const { chainId } = useLimitOrderContext()
 
+  // The count only ever badges the My Order(s) tab, so a bar without it has nothing to poll for.
+  const showsMyOrders = tabs.some(tab => tab.id === LimitOrderTab.MY_ORDER)
   const { data: numberOfInsufficientFundOrders } = useGetNumberOfInsufficientFundOrdersQuery(
     { chainId, maker: account || '' },
-    { skip: !account, pollingInterval: 10_000 },
+    { skip: !account || !showsMyOrders, pollingInterval: 10_000 },
   )
 
   return (
@@ -123,10 +124,9 @@ const OrderList = () => {
   const { chainId, syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
   const navigate = useNavigate()
-  const { pathname, search } = useLocation()
+  const { search } = useLocation()
   const { network, currency } = useParams<{ network: string; currency?: string }>()
 
-  const isStopLossPage = getTradeProductPath(pathname) === APP_PATHS.STOP_LOSS
   // Partner embeds have no :network segment and no stop-loss route, so offering the tab there would
   // navigate the iframe to a malformed path in the host app.
   const { isEmbeddedSwap } = usePageLocation()
@@ -146,38 +146,32 @@ const OrderList = () => {
 
   const { activeTab, setActiveTab } = useTab<LimitOrderTab>({
     tabs: tabIds,
-    defaultTab: isStopLossPage ? LimitOrderTab.STOP_LOSS : LimitOrderTab.ORDER_BOOK,
+    defaultTab: LimitOrderTab.ORDER_BOOK,
     syncQuery: syncOrderListTabWithQuery,
   })
-  const currentTab = activeTab || (isStopLossPage ? LimitOrderTab.STOP_LOSS : LimitOrderTab.ORDER_BOOK)
+  const currentTab = activeTab || LimitOrderTab.ORDER_BOOK
 
   /**
-   * Each order type owns a route, so picking the other product's tab has to move the page as well as
-   * the panel — otherwise the card and the list below it would be showing different products.
+   * Stop-loss orders live on their own route, beside the stop-loss form, so that tab moves the page
+   * rather than the panel — otherwise the card and the list beside it would be showing different
+   * products.
    */
   const onSelectTab = (tab: LimitOrderTab) => {
-    // Price is product-neutral, so selecting it must not drag the user off the route they are on and
-    // discard the form they were filling in.
-    if (tab === LimitOrderTab.PRICE) {
+    if (tab !== LimitOrderTab.STOP_LOSS) {
       setActiveTab(tab)
       return
     }
 
-    const wantsStopLoss = tab === LimitOrderTab.STOP_LOSS
-    if (wantsStopLoss !== isStopLossPage) {
-      const nextProduct = wantsStopLoss ? APP_PATHS.STOP_LOSS : APP_PATHS.LIMIT
-      const nextSearch = new URLSearchParams(search)
-      nextSearch.set('tab', tab)
-      // Keeps the current panel on screen while the destination chunk loads — see OrderTypeSubTabs.
-      startTransition(() => {
-        navigate({
-          pathname: `${nextProduct}/${network || ''}${currency ? `/${currency}` : ''}`,
-          search: nextSearch.toString(),
-        })
+    // `tab` names a panel of this page, so it must not ride along to the stop-loss one.
+    const nextSearch = new URLSearchParams(search)
+    nextSearch.delete('tab')
+    // Keeps the current panel on screen while the destination chunk loads — see OrderTypeSubTabs.
+    startTransition(() => {
+      navigate({
+        pathname: `${APP_PATHS.STOP_LOSS}/${network || ''}${currency ? `/${currency}` : ''}`,
+        search: nextSearch.toString(),
       })
-      return
-    }
-    setActiveTab(tab)
+    })
   }
 
   return (

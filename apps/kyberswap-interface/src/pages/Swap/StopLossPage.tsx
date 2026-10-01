@@ -3,7 +3,7 @@ import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
 import { TAB } from 'pages/Swap/layout/Tabs'
-import { OrderList, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
+import { StopLossRightPanel, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
 
 /**
  * Stop-loss is a sub-tab of Limit Order on its own route, so it keeps the Limit Order top-level tab
@@ -15,7 +15,7 @@ const StopLossPage = () => {
   const { currencies } = useCurrenciesByPage()
 
   return (
-    <SwapLayout controller={controller} rightPanel={<OrderList />}>
+    <SwapLayout controller={controller} rightPanel={<StopLossRightPanel />}>
       {activeTab === TAB.LIMIT && <StopLossForm />}
       {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (

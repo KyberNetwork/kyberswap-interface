@@ -9,6 +9,7 @@ import { lazy } from 'react'
  * the route skeleton — a visible flash on a switch the UI presents as a tab.
  */
 export const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
+export const StopLossRightPanel = lazy(() => import('components/StopLoss/RightPanel'))
 export const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
 export const TokenInfo = lazy(() => import('components/TokenInfo'))
 export const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/LiquiditySourcesPanel'))
