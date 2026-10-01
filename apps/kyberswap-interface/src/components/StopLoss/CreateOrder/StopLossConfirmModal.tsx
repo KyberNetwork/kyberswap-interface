@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 import { AlertTriangle, ArrowRight, Info } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
-import CurrencyLogo from 'components/CurrencyLogo'
 import Modal from 'components/Modal'
 import { Center, HStack, Stack } from 'components/Stack'
 import { StopLossWarning } from 'components/StopLoss/Form/useStopLossWarnings'
@@ -107,17 +106,14 @@ const StopLossConfirmModal = ({
         </HStack>
 
         <Stack className="gap-4">
-          <HStack className="items-center justify-between gap-3 rounded-xl bg-buttonGray p-3">
+          <HStack className="items-center justify-between gap-3 rounded-xl bg-[#272727] p-3">
             <Stack className="min-w-0 gap-2">
               <span className="text-sm text-subText">
                 <Trans>You Sell</Trans>
               </span>
-              <HStack className="min-w-0 items-center gap-1.5">
-                <CurrencyLogo currency={currencyIn} size="20px" />
-                <span className="truncate text-xl font-medium text-text" data-testid="stop-loss-confirm-sell-amount">
-                  {formatDisplayNumber(inputAmount, { significantDigits: 6 })} {currencyIn?.symbol}
-                </span>
-              </HStack>
+              <span className="truncate text-xl font-medium text-text" data-testid="stop-loss-confirm-sell-amount">
+                {formatDisplayNumber(inputAmount, { significantDigits: 6 })} {currencyIn?.symbol}
+              </span>
               {estimatedUsdIn && (
                 <span className="text-sm text-subText" data-testid="stop-loss-confirm-sell-usd">
                   ~{estimatedUsdIn}
@@ -133,12 +129,9 @@ const StopLossConfirmModal = ({
               <span className="text-sm text-subText">
                 <Trans>Est. Receive</Trans>
               </span>
-              <HStack className="min-w-0 items-center gap-1.5">
-                <CurrencyLogo currency={currencyOut} size="20px" />
-                <span className="truncate text-xl font-medium text-text" data-testid="stop-loss-confirm-receive-amount">
-                  ~{formatDisplayNumber(estimatedOutput, { significantDigits: 6 })} {currencyOut?.symbol}
-                </span>
-              </HStack>
+              <span className="truncate text-xl font-medium text-text" data-testid="stop-loss-confirm-receive-amount">
+                ~{formatDisplayNumber(estimatedOutput, { significantDigits: 6 })} {currencyOut?.symbol}
+              </span>
               {estimatedUsdOut && (
                 <span className="text-sm text-subText" data-testid="stop-loss-confirm-receive-usd">
                   ~{estimatedUsdOut}
