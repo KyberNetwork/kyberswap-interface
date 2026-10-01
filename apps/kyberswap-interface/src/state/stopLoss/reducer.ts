@@ -1,6 +1,6 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit'
 
-import { DEFAULT_STOP_LOSS_SLIPPAGE, STOP_LOSS_DEFAULT_EXPIRE } from 'components/StopLoss/constants'
+import { STOP_LOSS_DEFAULT_EXPIRE } from 'components/StopLoss/constants'
 
 /**
  * The stop-loss card's own inputs. The pair and the sell amount are not here — those live in the swap
@@ -12,8 +12,11 @@ import { DEFAULT_STOP_LOSS_SLIPPAGE, STOP_LOSS_DEFAULT_EXPIRE } from 'components
  */
 export type StopLossFormState = {
   triggerPrice: string
-  /** Basis points. */
-  slippage: number
+  /**
+   * Basis points, once the user has picked one. Until then the form applies the swap form's suggestion
+   * for the pair's category, which moves with the pair instead of carrying one pair's figure to the next.
+   */
+  slippage: number | undefined
   /** Seconds from now, used whenever `customDateExpire` is unset. */
   expire: number
   /** Unix ms. A timestamp rather than a Date so the store stays serialisable. */
@@ -22,7 +25,7 @@ export type StopLossFormState = {
 
 export const DEFAULT_STOP_LOSS_FORM_STATE: StopLossFormState = {
   triggerPrice: '',
-  slippage: DEFAULT_STOP_LOSS_SLIPPAGE,
+  slippage: undefined,
   expire: STOP_LOSS_DEFAULT_EXPIRE,
   customDateExpire: undefined,
 }

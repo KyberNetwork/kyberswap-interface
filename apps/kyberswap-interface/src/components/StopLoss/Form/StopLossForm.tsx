@@ -17,12 +17,7 @@ import TriggerPriceSection from 'components/StopLoss/Form/TriggerPriceSection'
 import { useStopLossFormState } from 'components/StopLoss/Form/useStopLossFormState'
 import { useStopLossWarnings } from 'components/StopLoss/Form/useStopLossWarnings'
 import OrderTypeSubTabs from 'components/StopLoss/OrderTypeSubTabs'
-import {
-  STOP_LOSS_SLIPPAGE_HIGH_THRESHOLD,
-  STOP_LOSS_SLIPPAGE_LOW_THRESHOLD,
-  STOP_LOSS_SLIPPAGE_PRESETS,
-  getStopLossExpiryPresets,
-} from 'components/StopLoss/constants'
+import { getStopLossExpiryPresets } from 'components/StopLoss/constants'
 import { useStopLossTracking } from 'components/StopLoss/hooks/useStopLossTracking'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
@@ -33,7 +28,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
-import { formatSlippage } from 'utils/slippage'
+import { SLIPPAGE_STATUS } from 'utils/slippage'
 
 type StopLossFormProps = {
   currencyIn?: Currency
@@ -155,9 +150,6 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
     form.onSelectCurrencyOut(currency)
   }
 
-  const lowSlippageThreshold = formatSlippage(STOP_LOSS_SLIPPAGE_LOW_THRESHOLD)
-  const highSlippageThreshold = formatSlippage(STOP_LOSS_SLIPPAGE_HIGH_THRESHOLD)
-
   const isMissingAmount = !form.inputAmount || Number(form.inputAmount) === 0
   const isMissingTrigger = !form.triggerPrice || Number(form.triggerPrice) === 0
   const disableAction =
@@ -262,16 +254,18 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
             tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
             gridCells={{ header: 'col-start-1 row-start-1 min-w-0', panel: 'col-span-full row-start-2' }}
             slippage={{ value: form.slippage, onChange: form.setSlippage }}
+            // The swap form's numbers for this pair's category; the wording stays the stop-loss's own, since
+            // the setting is measured against the oracle at execution rather than a fresh quote.
             slippageInfo={{
-              default: STOP_LOSS_SLIPPAGE_PRESETS[0],
-              presets: STOP_LOSS_SLIPPAGE_PRESETS,
-              isLow: form.slippage < STOP_LOSS_SLIPPAGE_LOW_THRESHOLD,
-              isHigh: form.slippage > STOP_LOSS_SLIPPAGE_HIGH_THRESHOLD,
+              default: form.defaultSlippage,
+              presets: form.slippagePresets,
+              isLow: form.slippageStatus === SLIPPAGE_STATUS.LOW,
+              isHigh: form.slippageStatus === SLIPPAGE_STATUS.HIGH,
               message:
-                form.slippage < STOP_LOSS_SLIPPAGE_LOW_THRESHOLD
-                  ? t`Slippage below ${lowSlippageThreshold} may cause your stop-loss to fail during volatile markets — the conditions it exists for.`
-                  : form.slippage > STOP_LOSS_SLIPPAGE_HIGH_THRESHOLD
-                  ? t`Slippage above ${highSlippageThreshold} means your order could fill meaningfully below the market price at the moment it executes.`
+                form.slippageStatus === SLIPPAGE_STATUS.LOW
+                  ? t`Slippage this low may cause your stop-loss to fail during volatile markets — the conditions it exists for.`
+                  : form.slippageStatus === SLIPPAGE_STATUS.HIGH
+                  ? t`Slippage this high means your order could fill meaningfully below the market price at the moment it executes.`
                   : '',
             }}
           />

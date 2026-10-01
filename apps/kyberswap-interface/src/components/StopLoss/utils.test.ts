@@ -303,8 +303,8 @@ describe('getStopLossRecreateDraft', () => {
     expect(getStopLossRecreateDraft(reversed, DEFAULT_EXPIRE).expire).toBe(DEFAULT_EXPIRE)
   })
 
-  it('falls back to the default slippage when the order carries none', () => {
-    expect(getStopLossRecreateDraft({ ...ORDER, slippage: 0 }, DEFAULT_EXPIRE).slippage).toBe(50)
+  it("leaves the slippage unset when the order carries none, so the pair's suggestion applies", () => {
+    expect(getStopLossRecreateDraft({ ...ORDER, slippage: 0 }, DEFAULT_EXPIRE).slippage).toBeUndefined()
   })
 
   it('yields an empty trigger when the condition is missing rather than throwing', () => {

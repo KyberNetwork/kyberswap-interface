@@ -4,11 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { calcOutput, formatPriceInputValue } from 'components/LimitOrder/utils'
 import { useStopLossOraclePrice } from 'components/StopLoss/hooks/useStopLossOraclePrice'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY, PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { resetStopLossForm, updateStopLossForm } from 'state/stopLoss/reducer'
+import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
+import { checkRangeSlippage } from 'utils/slippage'
 import { formatTimeDuration } from 'utils/time'
 
 export type UseStopLossFormStateProps = {
@@ -31,7 +34,21 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
   const { setCurrencyIn, setCurrencyOut, setInputValue, switchCurrency } = useLimitActionHandlers()
 
   const dispatch = useAppDispatch()
-  const { triggerPrice, slippage, expire, customDateExpire: customDateExpireMs } = useAppSelector(s => s.stopLoss)
+  const {
+    triggerPrice,
+    slippage: pickedSlippage,
+    expire,
+    customDateExpire: customDateExpireMs,
+  } = useAppSelector(s => s.stopLoss)
+
+  // The swap form's suggestion, presets and warning bands for this pair's category, so the two forms
+  // agree on what a reasonable slippage is.
+  const pairCategory = usePairCategory(chainId)
+  const defaultSlippage = useDefaultSlippageByPair(chainId)
+  const slippage = pickedSlippage ?? defaultSlippage
+  const slippagePresets =
+    pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY : DEFAULT_SLIPPAGES
+  const slippageStatus = checkRangeSlippage(slippage, pairCategory)
   const customDateExpire = useMemo(
     () => (customDateExpireMs === undefined ? undefined : new Date(customDateExpireMs)),
     [customDateExpireMs],
@@ -203,6 +220,9 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
     tradeInfo,
     estimatedOutput,
     slippage,
+    defaultSlippage,
+    slippagePresets,
+    slippageStatus,
     expire,
     customDateExpire,
     expiryExpanded,

@@ -2,17 +2,6 @@ import { t } from '@lingui/macro'
 
 import { TIMES_IN_SECS } from 'constants/index'
 
-/**
- * A stop-loss fires while the market is moving against the user, so its presets and low-side warning
- * are those of a high-volatility pair: a tighter setting reverts the settlement exactly when the order
- * is most needed, and a failed execution is not retried. The high-side warning follows the swap form's
- * band for pairs that default to the same 0.5%, which flags anything above 2%.
- */
-export const DEFAULT_STOP_LOSS_SLIPPAGE = 50
-export const STOP_LOSS_SLIPPAGE_PRESETS = [50, 150, 300, 500]
-export const STOP_LOSS_SLIPPAGE_LOW_THRESHOLD = 50
-export const STOP_LOSS_SLIPPAGE_HIGH_THRESHOLD = 200
-
 export const STOP_LOSS_DEFAULT_EXPIRE = 30 * TIMES_IN_SECS.ONE_DAY
 
 /**

@@ -1,6 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 
-import { DEFAULT_STOP_LOSS_SLIPPAGE } from 'components/StopLoss/constants'
 import {
   StopLossCorePayload,
   StopLossDisplayStatus,
@@ -99,11 +98,12 @@ export const getStopLossFailureReason = (_order: StopLossOrder): string => 'insu
 export const getStopLossRecreateDraft = (
   order: StopLossOrder,
   defaultExpire: number,
-): { triggerPrice: string; slippage: number; expire: number } => {
+): { triggerPrice: string; slippage: number | undefined; expire: number } => {
   const duration = order.deadline - order.createdAt
   return {
     triggerPrice: getStopLossTriggerPrice(order),
-    slippage: Number.isFinite(order.slippage) && order.slippage > 0 ? order.slippage : DEFAULT_STOP_LOSS_SLIPPAGE,
+    // Without a usable figure the form falls back to the pair's suggested slippage.
+    slippage: Number.isFinite(order.slippage) && order.slippage > 0 ? order.slippage : undefined,
     expire: Number.isFinite(duration) && duration > 0 ? duration : defaultExpire,
   }
 }
