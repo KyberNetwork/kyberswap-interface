@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { startTransition, useMemo } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useMemo } from 'react'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
@@ -8,14 +7,10 @@ import MyOrders from 'components/LimitOrder/MyOrders'
 import OrderBook from 'components/LimitOrder/OrderBook'
 import { LimitOrderTab } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
-import StopLossOrders from 'components/StopLoss/MyOrders'
 import TokenPriceChart from 'components/TokenPriceChart'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
-import { isSupportStopLoss } from 'constants/networks'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import usePageLocation from 'hooks/usePageLocation'
 import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
 import { cn } from 'utils/cn'
@@ -35,19 +30,6 @@ export const ORDER_LIST_TABS = [
     ),
   },
   { id: LimitOrderTab.MY_ORDER, label: <Trans>My Order(s)</Trans> },
-  {
-    id: LimitOrderTab.STOP_LOSS,
-    label: (
-      <>
-        <span className="max-sm:hidden">
-          <Trans>Stop Loss Order(s)</Trans>
-        </span>
-        <span className="sm:hidden">
-          <Trans>Stop Loss</Trans>
-        </span>
-      </>
-    ),
-  },
   { id: LimitOrderTab.PRICE, label: <Trans>Price</Trans> },
 ] as const
 
@@ -123,24 +105,11 @@ export const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps)
 const OrderList = () => {
   const { chainId, syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
-  const navigate = useNavigate()
-  const { search } = useLocation()
-  const { network, currency } = useParams<{ network: string; currency?: string }>()
-
-  // Partner embeds have no :network segment and no stop-loss route, so offering the tab there would
-  // navigate the iframe to a malformed path in the host app.
-  const { isEmbeddedSwap } = usePageLocation()
-  const stopLossSupported = isSupportStopLoss(chainId) && !isEmbeddedSwap
 
   const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[chainId])
   const tabs = useMemo(
-    () =>
-      ORDER_LIST_TABS.filter(
-        tab =>
-          (hasSupportedTokenPriceChart || tab.id !== LimitOrderTab.PRICE) &&
-          (stopLossSupported || tab.id !== LimitOrderTab.STOP_LOSS),
-      ),
-    [hasSupportedTokenPriceChart, stopLossSupported],
+    () => ORDER_LIST_TABS.filter(tab => hasSupportedTokenPriceChart || tab.id !== LimitOrderTab.PRICE),
+    [hasSupportedTokenPriceChart],
   )
   const tabIds = useMemo(() => tabs.map(tab => tab.id), [tabs])
 
@@ -151,37 +120,13 @@ const OrderList = () => {
   })
   const currentTab = activeTab || LimitOrderTab.ORDER_BOOK
 
-  /**
-   * Stop-loss orders live on their own route, beside the stop-loss form, so that tab moves the page
-   * rather than the panel — otherwise the card and the list beside it would be showing different
-   * products.
-   */
-  const onSelectTab = (tab: LimitOrderTab) => {
-    if (tab !== LimitOrderTab.STOP_LOSS) {
-      setActiveTab(tab)
-      return
-    }
-
-    // `tab` names a panel of this page, so it must not ride along to the stop-loss one.
-    const nextSearch = new URLSearchParams(search)
-    nextSearch.delete('tab')
-    // Keeps the current panel on screen while the destination chunk loads — see OrderTypeSubTabs.
-    startTransition(() => {
-      navigate({
-        pathname: `${APP_PATHS.STOP_LOSS}/${network || ''}${currency ? `/${currency}` : ''}`,
-        search: nextSearch.toString(),
-      })
-    })
-  }
-
   return (
     <Stack className="w-full gap-0 overflow-hidden rounded-xl border border-darkBorder max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none">
-      <TabSelector setActiveTab={onSelectTab} activeTab={currentTab} tabs={tabs} />
+      <TabSelector setActiveTab={setActiveTab} activeTab={currentTab} tabs={tabs} />
 
       <Stack className="border-t border-darkBorder">
         {currentTab === LimitOrderTab.ORDER_BOOK && <OrderBook />}
         {currentTab === LimitOrderTab.MY_ORDER && <MyOrders />}
-        {currentTab === LimitOrderTab.STOP_LOSS && <StopLossOrders />}
         {currentTab === LimitOrderTab.PRICE && <TokenPriceChart flatten tokens={[currencyIn, currencyOut]} />}
       </Stack>
     </Stack>
