@@ -3,17 +3,19 @@ import { Trans, t } from '@lingui/macro'
 import { cva } from 'class-variance-authority'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
-import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Trash } from 'react-feather'
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, ExternalLink as LinkIcon, Trash } from 'react-feather'
 
 import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stoploss_recreate.svg'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
 import { StopLossDisplayStatus } from 'components/StopLoss/types'
-import { getTriggerProximity } from 'components/StopLoss/utils'
+import { StopLossFill, StopLossFillSummary, getTriggerProximity } from 'components/StopLoss/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
+import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatTimeDuration } from 'utils/time'
 
@@ -372,43 +374,109 @@ export const StopLossFailureDetail = ({
   </HStack>
 )
 
+const formatFillAmount = (value: number | undefined) =>
+  value === undefined ? '-' : formatDisplayNumber(value, { significantDigits: 6 })
+
+/** Positive when the fill landed below the trigger. */
+const getTriggerGapPercent = (price: number | undefined, triggerPrice: number) =>
+  price && triggerPrice ? ((triggerPrice - price) / triggerPrice) * 100 : undefined
+
+const formatTriggerGap = (gapPercent: number) => formatDisplayNumber(Math.abs(gapPercent), { fractionDigits: 2 })
+
 /**
  * What an executed order actually did, opening under its row like the failure detail. The gap to the
  * trigger is worth stating: the fill follows the oracle at execution, which a fast market can carry
- * well past the trigger.
+ * well past the trigger. An order settled in several fills gets the totals first, then each fill with
+ * its own transaction — the row's link reaches only the latest.
  */
 export const StopLossExecutionDetail = ({
-  sellAmount,
+  chainId,
+  fills,
+  summary,
   sellSymbol,
-  executionPrice,
-  receivedAmount,
   receiveSymbol,
-  triggerGapPercent,
+  triggerPrice,
 }: {
-  sellAmount: string
+  chainId: ChainId
+  fills: StopLossFill[]
+  summary: StopLossFillSummary
   sellSymbol: string
-  executionPrice: string
-  receivedAmount: string
   receiveSymbol: string
-  /** Positive when the fill landed below the trigger. */
-  triggerGapPercent?: number
+  triggerPrice: number
 }) => {
-  const gap =
-    triggerGapPercent === undefined
-      ? undefined
-      : formatDisplayNumber(Math.abs(triggerGapPercent), { fractionDigits: 2 })
+  const sold = formatFillAmount(summary.amountIn)
+  const received = formatFillAmount(summary.amountOut)
+  const price = formatFillAmount(summary.price)
+  const gapPercent = getTriggerGapPercent(summary.price, triggerPrice)
+  const gap = gapPercent === undefined ? undefined : formatTriggerGap(gapPercent)
+
+  if (fills.length > 1) {
+    const fillCount = fills.length
+    return (
+      <Stack className={cn(DETAIL_CLASS, 'gap-2')} data-testid="stop-loss-order-execution-detail">
+        <span>
+          <Trans>
+            Sold <span className="text-text">{sold}</span> {sellSymbol} in {fillCount} fills at ~{price} {receiveSymbol}{' '}
+            per {sellSymbol} on average. You received <span className="text-text">{received}</span> {receiveSymbol}.
+          </Trans>
+        </span>
+        {/* One grid for every fill, so their figures line up in columns; a phone wraps each fill instead. */}
+        <ol className="grid grid-cols-[repeat(4,max-content)_1fr] items-center gap-x-4 gap-y-1 max-sm:flex max-sm:flex-col">
+          {fills.map((fill, index) => {
+            const fillNumber = index + 1
+            const fillGapPercent = getTriggerGapPercent(fill.price, triggerPrice)
+            const fillGap = fillGapPercent === undefined ? undefined : formatTriggerGap(fillGapPercent)
+            return (
+              <li
+                key={fill.hash}
+                className="contents max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-x-3 max-sm:gap-y-0.5"
+                data-testid="stop-loss-order-fill"
+              >
+                <span className="text-gray">
+                  <Trans>Fill {fillNumber}</Trans>
+                </span>
+                <span>
+                  <span className="text-text">{formatFillAmount(fill.amountIn)}</span> {sellSymbol} →{' '}
+                  <span className="text-text">{formatFillAmount(fill.amountOut)}</span> {receiveSymbol}
+                </span>
+                <span>~{formatFillAmount(fill.price)}</span>
+                {/* Rendered even when empty, so a fill without a price keeps its link in the last column. */}
+                <span>
+                  {fillGap !== undefined &&
+                    fillGapPercent !== undefined &&
+                    (fillGapPercent >= 0 ? (
+                      <Trans>{fillGap}% below trigger</Trans>
+                    ) : (
+                      <Trans>{fillGap}% above trigger</Trans>
+                    ))}
+                </span>
+                <ExternalLink
+                  href={getEtherscanLink(chainId, fill.hash, 'transaction')}
+                  aria-label={t`View transaction`}
+                  data-testid="stop-loss-order-fill-tx-link"
+                  className="flex w-fit items-center text-subText hover:text-text hover:no-underline"
+                >
+                  <LinkIcon size={12} />
+                </ExternalLink>
+              </li>
+            )
+          })}
+        </ol>
+      </Stack>
+    )
+  }
 
   return (
     <Stack className={cn(DETAIL_CLASS, 'gap-1')} data-testid="stop-loss-order-execution-detail">
       <span>
         <Trans>
-          Sold <span className="text-text">{sellAmount}</span> {sellSymbol} at ~{executionPrice} {receiveSymbol} per{' '}
-          {sellSymbol}. You received <span className="text-text">{receivedAmount}</span> {receiveSymbol}.
+          Sold <span className="text-text">{sold}</span> {sellSymbol} at ~{price} {receiveSymbol} per {sellSymbol}. You
+          received <span className="text-text">{received}</span> {receiveSymbol}.
         </Trans>
       </span>
-      {gap !== undefined && triggerGapPercent !== undefined && (
+      {gap !== undefined && gapPercent !== undefined && (
         <span data-testid="stop-loss-order-execution-gap">
-          {triggerGapPercent >= 0 ? (
+          {gapPercent >= 0 ? (
             <Trans>Executed {gap}% below trigger.</Trans>
           ) : (
             <Trans>Executed {gap}% above trigger.</Trans>

@@ -177,33 +177,121 @@ export const buildStopLossPayload = ({
 })
 
 /**
- * Reads the received amount from an execution.
+ * Reads one side of an execution's settled amount, in the token's human units.
  *
  * `amountOut.amount` is documented as raw units while its sibling `amountIn.amount` is human-readable,
  * and a whole number is valid under either reading — the two differ by 10^decimals, so guessing wrong
  * shows a settlement figure off by orders of magnitude. The execution carries `amountUsd` and a
  * per-token `priceUsd`, which together say which reading the number must be.
  */
+const resolveExecutionAmount = (
+  execution: StopLossExecution | undefined,
+  side: 'amountIn' | 'amountOut',
+  token: string,
+  decimals: number | undefined,
+): number | undefined => {
+  const field = execution?.extraData?.[side]
+  const value = field?.amount
+  if (!value || decimals === undefined || !/^\d+(\.\d+)?$/.test(value)) return undefined
+
+  const asHuman = Number(value)
+  if (!Number.isFinite(asHuman)) return undefined
+  // A raw amount is an integer, so a fraction settles the reading on its own.
+  if (value.includes('.')) return asHuman
+  const asRaw = asHuman / 10 ** decimals
+
+  const amountUsd = Number(field?.amountUsd)
+  const priceUsd = Number(
+    execution?.extraData?.tokensInfo?.find(info => info.address?.toLowerCase() === token.toLowerCase())?.priceUsd,
+  )
+  // Without both references the documented reading is all there is to go on.
+  if (!Number.isFinite(amountUsd) || amountUsd <= 0 || !Number.isFinite(priceUsd) || priceUsd <= 0) {
+    return side === 'amountOut' ? asRaw : asHuman
+  }
+
+  return Math.abs(asRaw * priceUsd - amountUsd) <= Math.abs(asHuman * priceUsd - amountUsd) ? asRaw : asHuman
+}
+
+/** What one execution received, in tokenOut's human units. */
 export const resolveExecutionAmountOut = (
   execution: StopLossExecution | undefined,
   tokenOut: string,
   decimals: number | undefined,
-): number | undefined => {
-  const raw = execution?.extraData?.amountOut?.amount
-  if (!raw || decimals === undefined || !/^\d+(\.\d+)?$/.test(raw)) return undefined
+) => resolveExecutionAmount(execution, 'amountOut', tokenOut, decimals)
 
-  const asHuman = Number(raw)
-  if (!Number.isFinite(asHuman)) return undefined
-  const asRaw = asHuman / 10 ** decimals
+/** What one execution sold, in tokenIn's human units. */
+export const resolveExecutionAmountIn = (
+  execution: StopLossExecution | undefined,
+  tokenIn: string,
+  decimals: number | undefined,
+) => resolveExecutionAmount(execution, 'amountIn', tokenIn, decimals)
 
-  const amountUsd = Number(execution?.extraData?.amountOut?.amountUsd)
-  const priceUsd = Number(
-    execution?.extraData?.tokensInfo?.find(token => token.address?.toLowerCase() === tokenOut.toLowerCase())?.priceUsd,
-  )
-  // Without both references the documented reading is all there is to go on.
-  if (!Number.isFinite(amountUsd) || amountUsd <= 0 || !Number.isFinite(priceUsd) || priceUsd <= 0) return asRaw
+/** One settlement that went through. Amounts are in human units; any the execution does not report are unset. */
+export type StopLossFill = {
+  hash: string
+  amountIn?: number
+  amountOut?: number
+  /** tokenIn priced in tokenOut by the oracle when this fill settled. */
+  price?: number
+}
 
-  return Math.abs(asRaw * priceUsd - amountUsd) <= Math.abs(asHuman * priceUsd - amountUsd) ? asRaw : asHuman
+/**
+ * Every settlement of the order that went through, oldest first. A stop-loss settles in one today, but
+ * an order keeps a list of executions, so nothing that shows them assumes there is only one.
+ */
+export const getStopLossFills = (
+  order: StopLossOrder,
+  tokenInDecimals: number | undefined,
+  tokenOutDecimals: number | undefined,
+): StopLossFill[] =>
+  (order.executions ?? [])
+    .filter(execution => execution.status === StopLossExecutionStatus.SUCCESS)
+    .sort((a, b) => a.executionNum - b.executionNum)
+    .map(execution => {
+      const price = Number(execution.extraData?.oraclePrice)
+      return {
+        hash: execution.hash,
+        amountIn: resolveExecutionAmountIn(execution, order.tokenIn, tokenInDecimals),
+        amountOut: resolveExecutionAmountOut(execution, order.tokenOut, tokenOutDecimals),
+        price: Number.isFinite(price) && price > 0 ? price : undefined,
+      }
+    })
+
+export type StopLossFillSummary = { amountIn?: number; amountOut?: number; price?: number }
+
+/** The total, or nothing when any part is unknown — a partial sum would understate the order. */
+const sumIfComplete = (values: Array<number | undefined>) => {
+  let total = 0
+  for (const value of values) {
+    if (value === undefined) return undefined
+    total += value
+  }
+  return total
+}
+
+/**
+ * The fills taken together. `orderAmountIn` is for a caller that knows the whole order went, as it
+ * does once executed: the order's own amount is exact, where each execution reports its share in an
+ * ambiguous format. The price weighs each fill's price by what it sold, and falls back to a plain mean
+ * when the sizes are not all known.
+ */
+export const summarizeStopLossFills = (fills: StopLossFill[], orderAmountIn?: number): StopLossFillSummary => {
+  if (!fills.length) return {}
+
+  const amountIn = orderAmountIn ?? sumIfComplete(fills.map(fill => fill.amountIn))
+  const amountOut = sumIfComplete(fills.map(fill => fill.amountOut))
+
+  let price: number | undefined
+  if (fills.every(fill => fill.price !== undefined)) {
+    const sizes = fills.map(fill => fill.amountIn)
+    const totalSize = sumIfComplete(sizes)
+    price =
+      totalSize && sizes.every(size => size !== undefined && size > 0)
+        ? fills.reduce((total, fill) => total + (fill.price ?? 0) * (fill.amountIn ?? 0), 0) / totalSize
+        : fills.reduce((total, fill) => total + (fill.price ?? 0), 0) / fills.length
+  }
+
+  return { amountIn, amountOut, price }
 }
 
 const isRawAmount = (value: unknown): value is string => typeof value === 'string' && /^\d+$/.test(value)

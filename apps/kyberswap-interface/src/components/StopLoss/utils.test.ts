@@ -13,13 +13,16 @@ import {
   buildStopLossPayload,
   clampStopLossDeadline,
   getStopLossDisplayStatus,
+  getStopLossFills,
   getStopLossRecreateDraft,
   getTriggerProximity,
   isActiveStopLossStatus,
   parseStopLossOrder,
   parseStopLossOrders,
+  resolveExecutionAmountIn,
   resolveExecutionAmountOut,
   stripEmptyEip712Salt,
+  summarizeStopLossFills,
 } from 'components/StopLoss/utils'
 import { NativeCurrencies } from 'constants/tokens'
 
@@ -263,6 +266,114 @@ describe('resolveExecutionAmountOut', () => {
 
   it('returns nothing when the token decimals are unknown', () => {
     expect(resolveExecutionAmountOut(withExtra('176235015'), USDC_OUT, undefined)).toBeUndefined()
+  })
+})
+
+describe('resolveExecutionAmountIn', () => {
+  const WETH_IN = '0x4200000000000000000000000000000000000006'
+  const sold = (amount: string, amountUsd?: string, priceUsd?: string): StopLossExecution => ({
+    ...execution(StopLossExecutionStatus.SUCCESS),
+    extraData: {
+      amountIn: { amount, amountUsd },
+      tokensInfo: priceUsd ? [{ address: WETH_IN, priceUsd, decimal: 18 }] : undefined,
+    },
+  })
+
+  it('falls back to the documented human reading when there is nothing to check against', () => {
+    expect(resolveExecutionAmountIn(sold('2'), WETH_IN, 18)).toBe(2)
+  })
+
+  it('reads a raw value as raw when the USD figure agrees', () => {
+    expect(resolveExecutionAmountIn(sold('100000000000000000', '250', '2500'), WETH_IN, 18)).toBeCloseTo(0.1, 10)
+  })
+
+  it('reads a fraction as human, since no raw amount has one', () => {
+    expect(resolveExecutionAmountIn(sold('0.25'), WETH_IN, 18)).toBe(0.25)
+    expect(resolveExecutionAmountOut({ ...sold('0'), extraData: { amountOut: { amount: '12.5' } } }, WETH_IN, 6)).toBe(
+      12.5,
+    )
+  })
+})
+
+describe('getStopLossFills', () => {
+  const fill = (
+    executionNum: number,
+    status: StopLossExecutionStatus,
+    amountIn: string,
+    amountOut: string,
+    price: string,
+  ) => ({
+    ...execution(status, executionNum),
+    hash: `0xfill${executionNum}`,
+    extraData: { amountIn: { amount: amountIn }, amountOut: { amount: amountOut }, oraclePrice: price },
+  })
+
+  it('keeps only the executions that went through, oldest first', () => {
+    const order: StopLossOrder = {
+      ...ORDER,
+      executions: [
+        fill(2, StopLossExecutionStatus.SUCCESS, '0.06', '144000000', '2400'),
+        fill(0, StopLossExecutionStatus.SUCCESS, '0.04', '95200000', '2380'),
+        fill(1, StopLossExecutionStatus.FAILED, '0.06', '0', '2390'),
+      ],
+    }
+    expect(getStopLossFills(order, 18, 6)).toEqual([
+      { hash: '0xfill0', amountIn: 0.04, amountOut: 95.2, price: 2380 },
+      { hash: '0xfill2', amountIn: 0.06, amountOut: 144, price: 2400 },
+    ])
+  })
+
+  it('has no fills before an execution succeeds', () => {
+    expect(getStopLossFills(ORDER, 18, 6)).toEqual([])
+    expect(getStopLossFills({ ...ORDER, executions: [execution(StopLossExecutionStatus.PENDING)] }, 18, 6)).toEqual([])
+  })
+
+  it('leaves a price the execution does not report unset', () => {
+    const order = { ...ORDER, executions: [fill(0, StopLossExecutionStatus.SUCCESS, '0.1', '240000000', '')] }
+    expect(getStopLossFills(order, 18, 6)[0].price).toBeUndefined()
+  })
+})
+
+describe('summarizeStopLossFills', () => {
+  it('reads a single fill as is', () => {
+    expect(summarizeStopLossFills([{ hash: 'a', amountIn: 0.1, amountOut: 240, price: 2400 }])).toEqual({
+      amountIn: 0.1,
+      amountOut: 240,
+      price: 2400,
+    })
+  })
+
+  it('totals the fills and weighs their prices by what each sold', () => {
+    const summary = summarizeStopLossFills([
+      { hash: 'a', amountIn: 0.04, amountOut: 95.2, price: 2380 },
+      { hash: 'b', amountIn: 0.06, amountOut: 144, price: 2400 },
+    ])
+    expect(summary.amountIn).toBeCloseTo(0.1, 10)
+    expect(summary.amountOut).toBeCloseTo(239.2, 10)
+    expect(summary.price).toBeCloseTo(2392, 10)
+  })
+
+  it("prefers the order's own amount for the total sold", () => {
+    const fills = [
+      { hash: 'a', amountIn: 0.04, amountOut: 95.2, price: 2380 },
+      { hash: 'b', amountIn: 0.06, amountOut: 144, price: 2400 },
+    ]
+    expect(summarizeStopLossFills(fills, 0.1).amountIn).toBe(0.1)
+  })
+
+  it('gives no total when a fill does not report its part, rather than an understated one', () => {
+    const summary = summarizeStopLossFills([
+      { hash: 'a', amountOut: 95.2, price: 2380 },
+      { hash: 'b', amountIn: 0.06, price: 2400 },
+    ])
+    expect(summary.amountIn).toBeUndefined()
+    expect(summary.amountOut).toBeUndefined()
+    // Sizes unknown, so the prices are averaged plainly.
+    expect(summary.price).toBe(2390)
+  })
+
+  it('is empty without fills', () => {
+    expect(summarizeStopLossFills([])).toEqual({})
   })
 })
 

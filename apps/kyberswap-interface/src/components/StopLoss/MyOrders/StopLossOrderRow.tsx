@@ -20,12 +20,12 @@ import {
 import { useStopLossOraclePrice } from 'components/StopLoss/hooks/useStopLossOraclePrice'
 import { StopLossDisplayStatus, StopLossOrder } from 'components/StopLoss/types'
 import {
-  getLatestExecution,
   getStopLossDisplayStatus,
   getStopLossExecutionTxHash,
   getStopLossFailureReason,
+  getStopLossFills,
   getStopLossTriggerPrice,
-  resolveExecutionAmountOut,
+  summarizeStopLossFills,
 } from 'components/StopLoss/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useCurrencyV2 } from 'hooks/useTokens'
@@ -81,26 +81,26 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
   const distancePercent =
     currentPrice && Number(triggerPrice) ? ((Number(triggerPrice) - currentPrice) / currentPrice) * 100 : undefined
 
-  const execution = getLatestExecution(order)
-  const executionPrice = execution?.extraData?.oraclePrice
-  const receivedAmount = resolveExecutionAmountOut(execution, order.tokenOut, receiveCurrency?.decimals)
+  // Every fill counts towards the execution price and the received total, however many the order took.
+  const fills = getStopLossFills(order, sellCurrency?.decimals, receiveCurrency?.decimals)
+  const isExecuted = status === StopLossDisplayStatus.EXECUTED
+  const fillSummary = summarizeStopLossFills(
+    fills,
+    // An executed order sold all of it, so its own amount is the exact total.
+    isExecuted && sellCurrencyAmount ? Number(sellCurrencyAmount.toExact()) : undefined,
+  )
+  const executionPrice = fillSummary.price
+  const receivedAmount = fillSummary.amountOut
 
   const txHash = getStopLossExecutionTxHash(order)
-  const showTxLink = status === StopLossDisplayStatus.EXECUTED && !!txHash
+  const showTxLink = isExecuted && !!txHash
 
   const isFailed = status === StopLossDisplayStatus.FAILED
-  // An executed row only has a story to tell once the execution carries both its price and its fill.
-  const hasExecutionDetail =
-    status === StopLossDisplayStatus.EXECUTED && !!executionPrice && receivedAmount !== undefined
+  // An executed row only has a story to tell once its fills carry both their prices and what they received.
+  const hasExecutionDetail = isExecuted && executionPrice !== undefined && receivedAmount !== undefined
   const canExpand = isFailed || hasExecutionDetail
   const [expanded, setExpanded] = useState(false)
   const recreate = () => onRecreate(order, sellCurrencyAmount?.toExact() ?? '')
-
-  /** Positive when the fill landed below the trigger. */
-  const triggerGapPercent =
-    executionPrice && Number(triggerPrice)
-      ? ((Number(triggerPrice) - Number(executionPrice)) / Number(triggerPrice)) * 100
-      : undefined
 
   return (
     <div
@@ -231,12 +231,12 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
               />
             ) : (
               <StopLossExecutionDetail
-                sellAmount={sellCurrencyAmount?.toSignificant(6) ?? '-'}
+                chainId={order.chainId}
+                fills={fills}
+                summary={fillSummary}
                 sellSymbol={sellCurrency?.symbol || '-'}
-                executionPrice={formatPairPrice(executionPrice)}
-                receivedAmount={formatDisplayNumber(receivedAmount, { significantDigits: 6 })}
                 receiveSymbol={receiveCurrency?.symbol || '-'}
-                triggerGapPercent={triggerGapPercent}
+                triggerPrice={Number(triggerPrice)}
               />
             )}
           </div>
