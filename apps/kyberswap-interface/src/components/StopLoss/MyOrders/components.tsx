@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { cva } from 'class-variance-authority'
 import dayjs from 'dayjs'
@@ -10,6 +10,8 @@ import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
 import { StopLossDisplayStatus } from 'components/StopLoss/types'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { NETWORKS_INFO } from 'constants/networks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatTimeDuration } from 'utils/time'
@@ -156,6 +158,18 @@ export const StopLossEmptyOrders = ({
  * address instead would miss: the service returns addresses lower-cased, while the whitelist map is
  * keyed by checksummed ones.
  */
+/** The list holds the wallet's orders on every chain, so each row names its own. */
+export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
+  const { name, icon } = NETWORKS_INFO[chainId]
+  return (
+    <span className="flex items-center justify-center" data-testid="stop-loss-order-chain">
+      <MouseoverTooltip text={name} placement="top" width="fit-content">
+        <img className="size-5" src={icon} alt={name} />
+      </MouseoverTooltip>
+    </span>
+  )
+}
+
 export const PairCell = ({
   sellCurrency,
   receiveCurrency,
@@ -184,12 +198,17 @@ export const AmountCell = ({
   className?: string
   dataTestId?: string
 }) => (
+  // `max-w-full` lets the lines truncate when a caller aligns them with `items-end`: a flex item that is
+  // not stretched sizes to its content and would otherwise spill into the neighbouring column.
   <Stack className={cn('min-w-0 gap-0.5', className)}>
-    <span className="truncate text-sm font-medium text-text" data-testid={dataTestId}>
+    <span className="max-w-full truncate text-sm font-medium text-text" data-testid={dataTestId}>
       {value}
     </span>
     {subValue !== undefined && (
-      <span className="truncate text-xs font-medium text-subText" data-testid={dataTestId && `${dataTestId}-usd`}>
+      <span
+        className="max-w-full truncate text-xs font-medium text-subText"
+        data-testid={dataTestId && `${dataTestId}-usd`}
+      >
         {subValue}
       </span>
     )}

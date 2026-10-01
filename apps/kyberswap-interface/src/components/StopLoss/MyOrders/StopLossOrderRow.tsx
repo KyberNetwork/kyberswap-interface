@@ -9,6 +9,7 @@ import { Stack } from 'components/Stack'
 import { StopLossRowLayout, StopLossRowWrapper } from 'components/StopLoss/MyOrders/TableHeader'
 import {
   AmountCell,
+  ChainCell,
   DistanceCell,
   ExpiryCell,
   PairCell,
@@ -113,10 +114,12 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
         layout={isActiveTab ? StopLossRowLayout.ACTIVE : StopLossRowLayout.HISTORY}
         className="min-h-14 px-4 py-2"
       >
+        <ChainCell chainId={order.chainId} />
+
         <PairCell sellCurrency={sellCurrency ?? undefined} receiveCurrency={receiveCurrency ?? undefined} />
 
         <AmountCell
-          className="max-sm:col-start-2 max-sm:items-end"
+          className="max-sm:col-start-3 max-sm:items-end"
           dataTestId="stop-loss-order-sell-amount"
           value={sellAmount}
           subValue={
