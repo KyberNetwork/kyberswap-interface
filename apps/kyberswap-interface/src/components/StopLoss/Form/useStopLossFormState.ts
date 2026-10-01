@@ -28,7 +28,7 @@ const resolveExpiredAt = (start: number, expire: number, customDateExpire: Date 
 export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFormStateProps) => {
   const { chainId } = useActiveWeb3React()
   const { inputAmount } = useLimitState()
-  const { setCurrencyIn, setCurrencyOut, setInputValue } = useLimitActionHandlers()
+  const { setCurrencyIn, setCurrencyOut, setInputValue, switchCurrency } = useLimitActionHandlers()
 
   const dispatch = useAppDispatch()
   const { triggerPrice, slippage, expire, customDateExpire: customDateExpireMs } = useAppSelector(s => s.stopLoss)
@@ -161,6 +161,19 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
   )
 
   /**
+   * Turns the pair around, as the limit-order form does: the receive token becomes the one sold, and
+   * the estimate becomes the amount. The trigger does not carry over — inverted, it would sit above
+   * the reversed market, a take-profit rather than a stop-loss — so it is cleared and reseeded from the
+   * new pair's feed, as when a token is picked.
+   */
+  const onSwitchPair = useCallback(() => {
+    switchCurrency()
+    setInputValue(estimatedOutput)
+    setTriggerPrice('')
+    autoFilledTrigger.current = false
+  }, [switchCurrency, setInputValue, estimatedOutput, setTriggerPrice])
+
+  /**
    * A preset expiry counts from `expiryStart`, which `startExpiry` resets as each order goes to review:
    * every order gets its full window, and the review shows exactly the deadline that gets signed.
    * Reading the clock on every render instead would give `expiredAt` a new value each time, which
@@ -207,6 +220,7 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
     startExpiry,
     onSelectCurrencyIn,
     onSelectCurrencyOut,
+    onSwitchPair,
     onResetForm,
   }
 }

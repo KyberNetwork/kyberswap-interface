@@ -24,6 +24,7 @@ import {
   getStopLossExpiryPresets,
 } from 'components/StopLoss/constants'
 import { useStopLossTracking } from 'components/StopLoss/hooks/useStopLossTracking'
+import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
@@ -224,6 +225,11 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
           onChangeTriggerPercent={form.onChangeTriggerPercent}
           onSetMarketPrice={form.onSetMarketPrice}
         />
+
+        {/* Sits 8px from both boxes, as in the limit-order form. */}
+        <HStack className="-my-2 justify-center" data-testid="stop-loss-switch-pair">
+          <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.onSwitchPair} />
+        </HStack>
 
         <StopLossReceiveSection
           sellCurrency={currencyIn}
