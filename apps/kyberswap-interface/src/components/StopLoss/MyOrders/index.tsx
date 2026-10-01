@@ -38,8 +38,6 @@ const PAGE_SIZE = 10
  * count that disagrees with them.
  */
 const FETCH_SIZE = 100
-/** The service signs at most 100 ids into one CancelBatchOrders message. */
-const BATCH_CANCEL_LIMIT = 100
 const ALL_CLOSED_VALUE = 'all_closed'
 const ALL_CHAINS_VALUE = 'all'
 const EMPTY_ORDERS: StopLossOrder[] = []
@@ -69,6 +67,7 @@ const StopLossOrders = () => {
   const [selectedChainValue, setSelectedChainValue] = useState<string>(String(chainId))
   const [curPage, setCurPage] = useState(1)
   const [cancelTargets, setCancelTargets] = useState<StopLossOrder[]>([])
+  const [isCancelAll, setIsCancelAll] = useState(false)
   const [cancellingIds, setCancellingIds] = useState<number[]>([])
 
   // Follow the wallet when the user switches network, or the list keeps showing the previous chain
@@ -146,10 +145,9 @@ const StopLossOrders = () => {
   const page = Math.min(curPage, pageCount)
   const orders = useMemo(() => filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE), [filteredOrders, page])
 
-  // USD sub-lines come from the per-chain price slice, and a batch cancel is bound to one chain; both
-  // fall back to the wallet's chain while the All Chains filter is on.
+  // USD sub-lines come from the per-chain price slice, which falls back to the wallet's chain while the
+  // All Chains filter is on.
   const priceChainId = isAllChains ? chainId : (Number(selectedChainValue) as ChainId)
-  const batchChainId = priceChainId
   const priceAddresses = useMemo(
     () =>
       Array.from(new Set(orders.filter(order => order.chainId === priceChainId).flatMap(o => [o.tokenIn, o.tokenOut]))),
@@ -165,24 +163,18 @@ const StopLossOrders = () => {
   const showNoOrders = !hasOrders && (isLoaded || isError || !account)
 
   /**
-   * One signature covers one chain and at most 100 ids, so Cancel All can only ever reach the open
-   * orders of a single chain. Under the All Chains filter that is a subset of what is on screen, which
-   * the modal has to say out loud rather than silently leaving the rest behind.
+   * Every open order in view, across chains under the All Chains filter. One signature still covers a
+   * single chain, so the cancel modal asks which chain to clear.
    */
   const cancellableOrders = useMemo(() => {
     if (!isActiveTab) return EMPTY_ORDERS
-    return allOrders
-      .filter(
-        order =>
-          // Matches what the Active tab lists, not the raw `Open` set: a failed order keeps that
-          // status until its deadline, and counting it here would offer to cancel rows the user is
-          // not looking at.
-          isActiveStopLossStatus(getStopLossDisplayStatus(order)) &&
-          order.chainId === batchChainId &&
-          !cancellingIds.includes(order.id),
-      )
-      .slice(0, BATCH_CANCEL_LIMIT)
-  }, [allOrders, isActiveTab, batchChainId, cancellingIds])
+    return allOrders.filter(
+      order =>
+        // Matches what the Active tab lists, not the raw `Open` set: a failed order keeps that status
+        // until its deadline, and counting it here would offer to cancel rows the user is not looking at.
+        isActiveStopLossStatus(getStopLossDisplayStatus(order)) && !cancellingIds.includes(order.id),
+    )
+  }, [allOrders, isActiveTab, cancellingIds])
 
   const onChangeKeyword = (value: string) => {
     const next = new URLSearchParams(searchParams)
@@ -222,7 +214,12 @@ const StopLossOrders = () => {
         />
         {cancellableOrders.length > 0 && (
           <div className="flex shrink-0 items-center px-4">
-            <CancelAllButton onClick={() => setCancelTargets(cancellableOrders)} />
+            <CancelAllButton
+              onClick={() => {
+                setIsCancelAll(true)
+                setCancelTargets(cancellableOrders)
+              }}
+            />
           </div>
         )}
       </div>
@@ -280,7 +277,10 @@ const StopLossOrders = () => {
             isActiveTab={isActiveTab}
             priceUsd={order.chainId === priceChainId ? priceUsd : undefined}
             isCancelling={cancellingIds.includes(order.id)}
-            onCancel={target => setCancelTargets([target])}
+            onCancel={target => {
+              setIsCancelAll(false)
+              setCancelTargets([target])
+            }}
             onRecreate={onRecreate}
           />
         ))}
@@ -291,11 +291,7 @@ const StopLossOrders = () => {
 
       <CancelStopLossModal
         orders={cancelTargets}
-        chainName={NETWORKS_INFO[batchChainId]?.name}
-        hasOtherChains={
-          isAllChains &&
-          allOrders.some(o => isActiveStopLossStatus(getStopLossDisplayStatus(o)) && o.chainId !== batchChainId)
-        }
+        isCancelAll={isCancelAll}
         onDismiss={() => setCancelTargets([])}
         onCancelled={orderIds => setCancellingIds(ids => [...ids, ...orderIds])}
       />

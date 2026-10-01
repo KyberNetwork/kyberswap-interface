@@ -1,5 +1,6 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   useBatchCancelStopLossOrdersMutation,
   useCancelStopLossOrderMutation,
@@ -9,6 +10,7 @@ import {
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ChainFilter } from 'components/LimitOrder/CancelOrder/components'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { useStopLossTracking } from 'components/StopLoss/hooks/useStopLossTracking'
@@ -22,19 +24,38 @@ import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
+/** The service signs at most 100 ids into one CancelBatchOrders message. */
+const BATCH_CANCEL_LIMIT = 100
+
 type Props = {
-  /** One order for a row cancel, or the whole active set for Cancel All. Empty closes the modal. */
+  /** One order for a row cancel, or every cancellable order on screen for Cancel All. Empty closes the modal. */
   orders: StopLossOrder[]
-  /** Named in the batch copy, because one signature can only reach one chain. */
-  chainName?: string
-  /** True when open orders on other chains are on screen but outside this batch. */
-  hasOtherChains?: boolean
+  isCancelAll: boolean
   onDismiss: () => void
   onCancelled: (orderIds: number[]) => void
 }
 
-const CancelStopLossModal = ({ orders, chainName, hasOtherChains, onDismiss, onCancelled }: Props) => {
-  const { account } = useActiveWeb3React()
+/** The only way a stop-loss is cancelled: a signed message, so there is nothing to choose between. */
+const GaslessCancelNote = ({ isCancelAll }: { isCancelAll: boolean }) => (
+  <Stack
+    className="gap-1 rounded-xl border border-primary-50 bg-primary-20 px-4 py-3"
+    data-testid="stop-loss-cancel-method"
+  >
+    <span className="text-sm font-medium text-text">
+      {isCancelAll ? <Trans>Gas-less Cancel All Orders</Trans> : <Trans>Gas-less Cancel</Trans>}
+    </span>
+    <span className="text-xs italic text-subText">
+      {isCancelAll ? (
+        <Trans>Cancel by signing a message, without paying gas. You can recreate the orders anytime.</Trans>
+      ) : (
+        <Trans>Cancel by signing a message, without paying gas. You can recreate the order anytime.</Trans>
+      )}
+    </span>
+  </Stack>
+)
+
+const CancelStopLossModal = ({ orders, isCancelAll, onDismiss, onCancelled }: Props) => {
+  const { account, chainId: walletChainId } = useActiveWeb3React()
   const notify = useNotify()
   const tracking = useStopLossTracking()
 
@@ -45,12 +66,35 @@ const CancelStopLossModal = ({ orders, chainName, hasOtherChains, onDismiss, onC
 
   const [isCancelling, setIsCancelling] = useState(false)
   const [error, setError] = useState('')
+  const [pickedChainId, setPickedChainId] = useState<ChainId>()
 
-  const isBatch = orders.length > 1
-  const order = orders[0]
+  /**
+   * One signature reaches one chain, so Cancel All asks which chain to clear rather than leaving the
+   * others behind unannounced. Busiest chain first; the wallet's chain is preselected when it has
+   * orders, since signing there needs no network switch.
+   */
+  const chainOptions = useMemo(() => {
+    const counts = new Map<ChainId, number>()
+    orders.forEach(order => counts.set(order.chainId, (counts.get(order.chainId) || 0) + 1))
+    return Array.from(counts.entries())
+      .map(([chainId, count]) => ({ chainId, count }))
+      .sort((a, b) => b.count - a.count)
+  }, [orders])
+  const selectedChainId =
+    pickedChainId ?? chainOptions.find(option => option.chainId === walletChainId)?.chainId ?? chainOptions[0]?.chainId
+  const selectedOrders = useMemo(
+    () =>
+      isCancelAll ? orders.filter(order => order.chainId === selectedChainId).slice(0, BATCH_CANCEL_LIMIT) : orders,
+    [isCancelAll, orders, selectedChainId],
+  )
+  const showChainPicker = isCancelAll && chainOptions.length > 1
+
+  const isBatch = selectedOrders.length > 1
+  const order = selectedOrders[0]
 
   const handleDismiss = () => {
     setError('')
+    setPickedChainId(undefined)
     onDismiss()
   }
 
@@ -60,12 +104,12 @@ const CancelStopLossModal = ({ orders, chainName, hasOtherChains, onDismiss, onC
     setError('')
 
     try {
-      // A batch covers one chain and one order type, so it is keyed off the first order's chain.
+      // A batch covers one chain and one order type, which the chain picker guarantees.
       const chainId = order.chainId
       let cancelledIds: number[]
 
       if (isBatch) {
-        const orderIds = orders.map(o => o.id)
+        const orderIds = selectedOrders.map(o => o.id)
         const params = { chainId, userWallet: account, orderIds }
         const typedData = await getBatchSignMessage(params).unwrap()
         const rawSignature = await signTypedDataRaw({
@@ -111,7 +155,7 @@ const CancelStopLossModal = ({ orders, chainName, hasOtherChains, onDismiss, onC
           },
           10000,
         )
-        orders.filter(o => cancelledIds.includes(o.id)).forEach(tracking.trackOrderCancelled)
+        selectedOrders.filter(o => cancelledIds.includes(o.id)).forEach(tracking.trackOrderCancelled)
         onCancelled(cancelledIds)
       }
       handleDismiss()
@@ -122,55 +166,71 @@ const CancelStopLossModal = ({ orders, chainName, hasOtherChains, onDismiss, onC
     }
   }
 
-  const orderCount = orders.length
+  const orderCount = selectedOrders.length
 
   return (
-    <Modal isOpen={orders.length > 0} onDismiss={handleDismiss} maxWidth={420} borderRadius={16}>
+    <Modal isOpen={orders.length > 0} onDismiss={handleDismiss} maxWidth={480} borderRadius={16}>
       <Stack className="w-full gap-5 p-5 max-sm:p-4" data-testid="stop-loss-cancel-modal">
         <HStack className="items-center justify-between gap-4">
           <div className="text-xl font-medium text-text" data-testid="stop-loss-cancel-title">
-            {isBatch ? <Trans>Cancel All Stop-Loss Orders</Trans> : <Trans>Cancel Stop-Loss Order</Trans>}
+            {isCancelAll ? <Trans>Bulk Cancellation</Trans> : <Trans>Cancel Stop-Loss Order</Trans>}
           </div>
           <CloseIcon onClick={handleDismiss} data-testid="stop-loss-cancel-close" />
         </HStack>
 
-        <span className="text-sm font-medium text-subText" data-testid="stop-loss-cancel-description">
-          {isBatch ? (
-            <Trans>
-              Cancel {orderCount} stop-loss orders on {chainName} with a single signature? You can recreate them
-              anytime, and cancelling costs no gas.
-            </Trans>
+        {showChainPicker && (
+          <ChainFilter
+            options={chainOptions}
+            selectedChainId={selectedChainId}
+            totalOrders={orders.length}
+            disabled={isCancelling}
+            onChange={chainId => {
+              setError('')
+              setPickedChainId(chainId)
+            }}
+          />
+        )}
+
+        <span className="font-medium text-text" data-testid="stop-loss-cancel-description">
+          {isCancelAll ? (
+            <Trans>Are you sure you want to cancel {orderCount} stop-loss orders?</Trans>
           ) : (
-            <Trans>Cancel this stop-loss order? You can recreate it anytime, and cancelling costs no gas.</Trans>
+            <Trans>Are you sure you want to cancel this stop-loss order?</Trans>
           )}
         </span>
 
-        {isBatch && hasOtherChains && (
-          <span className="text-xs font-medium italic text-warning" data-testid="stop-loss-cancel-other-chains-note">
-            <Trans>Orders on other chains are not included — one signature covers a single chain.</Trans>
+        <GaslessCancelNote isCancelAll={isCancelAll} />
+
+        {error && (
+          <span className="text-xs leading-4 text-red" data-testid="stop-loss-cancel-error">
+            {error}
           </span>
         )}
 
-        <span className="min-h-4 text-xs leading-4 text-red" data-testid="stop-loss-cancel-error">
-          {error}
-        </span>
-
         <HStack className="gap-3">
-          <ButtonOutlined
-            onClick={handleDismiss}
-            className="flex-1"
-            disabled={isCancelling}
-            data-testid="stop-loss-cancel-keep-button"
-          >
-            <Trans>Keep Order</Trans>
-          </ButtonOutlined>
+          {showChainPicker && (
+            <ButtonOutlined
+              onClick={handleDismiss}
+              className="flex-1"
+              disabled={isCancelling}
+              data-testid="stop-loss-cancel-back-button"
+            >
+              <Trans>Back</Trans>
+            </ButtonOutlined>
+          )}
           <ButtonPrimary
             onClick={onConfirm}
             className="flex-1"
-            disabled={isCancelling}
+            disabled={isCancelling || !order}
             data-testid="stop-loss-cancel-confirm-button"
           >
-            {isCancelling ? <Trans>Cancelling...</Trans> : <Trans>Gas-less Cancel</Trans>}
+            {isCancelling ? (
+              <Trans>Cancelling...</Trans>
+            ) : isCancelAll ? (
+              <Trans>Cancel Orders</Trans>
+            ) : (
+              <Trans>Cancel Order</Trans>
+            )}
           </ButtonPrimary>
         </HStack>
       </Stack>
