@@ -74,6 +74,20 @@ const ACTIVE_DISPLAY_STATUSES = [StopLossDisplayStatus.ACTIVE, StopLossDisplaySt
  */
 export const isActiveStopLossStatus = (status: StopLossDisplayStatus) => ACTIVE_DISPLAY_STATUSES.includes(status)
 
+export type TriggerProximity = 'far' | 'near' | 'imminent'
+
+/**
+ * How close a trigger is to firing, from its signed distance to the market in percent — the colour the
+ * order list and the form give that distance. Judged on the distance rounded to one decimal, as it is
+ * shown, so a distance that reads "10.0%" is never treated as still under 10. A trigger at or above the
+ * market is imminent no matter how far past it has gone.
+ */
+export const getTriggerProximity = (percent: number): TriggerProximity => {
+  if (percent >= 0) return 'imminent'
+  const magnitude = Math.round(Math.abs(percent) * 10) / 10
+  return magnitude >= 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
+}
+
 /** Trigger price as a human decimal string, tokenOut per tokenIn. */
 export const getStopLossTriggerPrice = (order: StopLossOrder) => order.condition?.field?.value?.lte ?? ''
 

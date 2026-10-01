@@ -7,7 +7,9 @@ import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder
 import NumericalInput from 'components/NumericalInput'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import { triggerProximityText } from 'components/StopLoss/MyOrders/components'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopLoss/constants'
+import { getTriggerProximity } from 'components/StopLoss/utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -208,7 +210,10 @@ const TriggerPriceSection = ({
             {receiveCurrency?.symbol}
           </span>
           {isBelowMarket && (
-            <span className="text-red" data-testid="stop-loss-trigger-distance">
+            <span
+              className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}
+              data-testid="stop-loss-trigger-distance"
+            >
               ↓ {formatPercentMagnitude(Math.abs(triggerPercent))} <Trans>below</Trans>
             </span>
           )}

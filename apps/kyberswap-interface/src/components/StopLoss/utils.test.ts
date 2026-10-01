@@ -14,6 +14,7 @@ import {
   clampStopLossDeadline,
   getStopLossDisplayStatus,
   getStopLossRecreateDraft,
+  getTriggerProximity,
   isActiveStopLossStatus,
   parseStopLossOrder,
   parseStopLossOrders,
@@ -104,6 +105,27 @@ describe('isActiveStopLossStatus', () => {
     expect(isActiveStopLossStatus(StopLossDisplayStatus.EXECUTED)).toBe(false)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.CANCELLED)).toBe(false)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.EXPIRED)).toBe(false)
+  })
+})
+
+describe('getTriggerProximity', () => {
+  it('grades a trigger below the market by how far it sits', () => {
+    expect(getTriggerProximity(-20)).toBe('far')
+    expect(getTriggerProximity(-10)).toBe('far')
+    expect(getTriggerProximity(-6.6)).toBe('near')
+    expect(getTriggerProximity(-5)).toBe('near')
+    expect(getTriggerProximity(-4.9)).toBe('imminent')
+    expect(getTriggerProximity(-0.0001)).toBe('imminent')
+  })
+
+  it('judges the distance as displayed, so 9.96% reads and grades as 10.0%', () => {
+    expect(getTriggerProximity(-9.96)).toBe('far')
+    expect(getTriggerProximity(-4.96)).toBe('near')
+  })
+
+  it('treats a trigger at or above the market as imminent', () => {
+    expect(getTriggerProximity(0)).toBe('imminent')
+    expect(getTriggerProximity(25)).toBe('imminent')
   })
 })
 

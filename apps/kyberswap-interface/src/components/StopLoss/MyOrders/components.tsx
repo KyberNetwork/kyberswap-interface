@@ -10,6 +10,7 @@ import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
 import { StopLossDisplayStatus } from 'components/StopLoss/types'
+import { getTriggerProximity } from 'components/StopLoss/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { cn } from 'utils/cn'
@@ -215,7 +216,8 @@ export const AmountCell = ({
   </Stack>
 )
 
-const distanceStyles = cva('text-sm font-medium', {
+/** The colour a trigger distance takes, in the order list and on the form alike. */
+export const triggerProximityText = cva('', {
   variants: {
     proximity: {
       far: 'text-green2',
@@ -247,18 +249,16 @@ export const formatDistanceMagnitude = (percent: number) => {
 export const DistanceCell = ({ percent }: { percent?: number }) => {
   if (percent === undefined)
     return (
-      <span className={distanceStyles({ proximity: 'unknown' })} data-testid="stop-loss-order-distance">
+      <span className={cn('text-sm font-medium', triggerProximityText())} data-testid="stop-loss-order-distance">
         -
       </span>
     )
 
-  // Rounded as the figure is, so a distance shown as "10.0%" is never coloured as if it were still under 10.
-  const magnitude = Math.round(Math.abs(percent) * 10) / 10
-  // A trigger at or above the market is imminent no matter how far past it has gone.
-  const proximity = percent >= 0 ? 'imminent' : magnitude >= 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
-
   return (
-    <span className={distanceStyles({ proximity })} data-testid="stop-loss-order-distance">
+    <span
+      className={cn('text-sm font-medium', triggerProximityText({ proximity: getTriggerProximity(percent) }))}
+      data-testid="stop-loss-order-distance"
+    >
       {percent >= 0 ? '↑' : '↓'} {formatDistanceMagnitude(percent)}%
     </span>
   )
