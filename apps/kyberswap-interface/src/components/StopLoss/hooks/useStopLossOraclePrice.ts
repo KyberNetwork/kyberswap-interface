@@ -32,7 +32,9 @@ export const useStopLossOraclePrice = (base?: Currency, quote?: Currency, chainI
     baseAddress.toLowerCase() !== quoteAddress.toLowerCase() &&
     isSupportStopLoss(resolvedChainId)
 
-  const { data, isLoading, isError } = useGetStopLossOraclePriceQuery(
+  // `currentData`, not `data`: `data` keeps the previous pair's price while the new pair loads, and a
+  // trigger seeded or measured against it would belong to the wrong market.
+  const { currentData, isError } = useGetStopLossOraclePriceQuery(
     { chainId: resolvedChainId as ChainId, base: baseAddress ?? '', quote: quoteAddress ?? '' },
     { skip: !canQuery, pollingInterval: POLL_INTERVAL },
   )
@@ -40,15 +42,15 @@ export const useStopLossOraclePrice = (base?: Currency, quote?: Currency, chainI
   return useMemo(
     () => ({
       /** Full-precision decimal string, safe to display or hand back to the service. */
-      price: data?.price,
+      price: currentData?.price,
       /** Lossy convenience value for percentage maths only. */
-      priceNumber: oraclePriceToNumber(data?.price),
-      updatedAt: data?.updatedAt,
-      source: data?.source,
-      isLoading: canQuery && isLoading,
+      priceNumber: oraclePriceToNumber(currentData?.price),
+      updatedAt: currentData?.updatedAt,
+      source: currentData?.source,
+      isLoading: canQuery && !currentData && !isError,
       /** True once the pair is known to have no configured feed. */
       hasNoFeed: canQuery && isError,
     }),
-    [data, isLoading, isError, canQuery],
+    [currentData, isError, canQuery],
   )
 }
