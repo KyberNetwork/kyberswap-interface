@@ -43,7 +43,7 @@ const StopLossTableHeader = ({ isActiveTab }: { isActiveTab?: boolean }) => (
   <StopLossRowWrapper
     layout={isActiveTab ? StopLossRowLayout.ACTIVE : StopLossRowLayout.HISTORY}
     data-testid="stop-loss-table-header"
-    className="cursor-default bg-background px-4 py-3 text-xs font-medium uppercase tracking-[0.04em] text-subText"
+    className="cursor-default bg-raisedBlack px-4 py-3 text-xs font-medium uppercase tracking-[0.04em] text-gray"
   >
     <span>
       <Trans>Pair</Trans>

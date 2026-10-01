@@ -3,11 +3,10 @@ import { Trans, t } from '@lingui/macro'
 import { cva } from 'class-variance-authority'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
-import { AlertTriangle, ChevronDown, Trash } from 'react-feather'
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Trash } from 'react-feather'
 
 import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stoploss_recreate.svg'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
-import { ButtonOutlined } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
 import { StopLossDisplayStatus } from 'components/StopLoss/types'
@@ -61,14 +60,63 @@ export const StopLossTabSelector = ({
  * which is what takes it off screen.
  */
 export const CancelAllButton = ({ onClick }: { onClick: () => void }) => (
-  <ButtonOutlined
+  <button
+    type="button"
     onClick={onClick}
     data-testid="stop-loss-cancel-all-button"
-    className="w-fit gap-1.5 !border-red-35 px-3 py-1 text-sm !text-red"
+    className="flex w-fit cursor-pointer items-center gap-1.5 rounded-[10px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text"
   >
     <Trash size={14} />
     <Trans>Cancel All</Trans>
-  </ButtonOutlined>
+  </button>
+)
+
+const pagerArrowClass = (enabled: boolean) =>
+  cn(
+    'flex size-7 items-center justify-center rounded-full border-0 transition',
+    enabled
+      ? 'cursor-pointer bg-primary-10 text-primary hover:brightness-110'
+      : 'cursor-not-allowed bg-white-04 text-border',
+  )
+
+/** Previous, the current page and next — the compact pager the order table ends with. */
+export const StopLossPager = ({
+  page,
+  pageCount,
+  onPageChange,
+}: {
+  page: number
+  pageCount: number
+  onPageChange: (page: number) => void
+}) => (
+  <HStack className="items-center justify-end gap-2 bg-raisedBlack px-4 py-2" data-testid="stop-loss-pagination">
+    <button
+      type="button"
+      aria-label={t`Previous page`}
+      data-testid="stop-loss-pagination-previous"
+      disabled={page <= 1}
+      className={pagerArrowClass(page > 1)}
+      onClick={() => onPageChange(page - 1)}
+    >
+      <ChevronLeft size={16} />
+    </button>
+    <span
+      className="flex h-7 min-w-7 items-center justify-center rounded-lg bg-buttonBlack px-2 text-sm font-medium text-subText"
+      data-testid="stop-loss-pagination-page"
+    >
+      {page}
+    </span>
+    <button
+      type="button"
+      aria-label={t`Next page`}
+      data-testid="stop-loss-pagination-next"
+      disabled={page >= pageCount}
+      className={pagerArrowClass(page < pageCount)}
+      onClick={() => onPageChange(page + 1)}
+    >
+      <ChevronRight size={16} />
+    </button>
+  </HStack>
 )
 
 export const StopLossEmptyOrders = ({
@@ -117,10 +165,10 @@ export const PairCell = ({
 }) => (
   <HStack className="min-w-0 items-center gap-1.5 text-sm font-medium text-text" data-testid="stop-loss-order-pair">
     <CurrencyLogo currency={sellCurrency} size="16px" />
-    <span className="truncate">{sellCurrency?.symbol || '--'}</span>
+    <span className="truncate">{sellCurrency?.symbol || '-'}</span>
     <span className="shrink-0 text-subText">→</span>
     <CurrencyLogo currency={receiveCurrency} size="16px" />
-    <span className="truncate">{receiveCurrency?.symbol || '--'}</span>
+    <span className="truncate">{receiveCurrency?.symbol || '-'}</span>
   </HStack>
 )
 
@@ -151,8 +199,8 @@ export const AmountCell = ({
 const distanceStyles = cva('text-sm font-medium', {
   variants: {
     proximity: {
-      far: 'text-primary',
-      near: 'text-warning',
+      far: 'text-green2',
+      near: 'text-darkOrange',
       imminent: 'text-red',
       unknown: 'text-subText',
     },
@@ -168,30 +216,34 @@ export const DistanceCell = ({ percent }: { percent?: number }) => {
   if (percent === undefined)
     return (
       <span className={distanceStyles({ proximity: 'unknown' })} data-testid="stop-loss-order-distance">
-        --
+        -
       </span>
     )
 
-  const magnitude = Math.abs(percent)
+  // Rounded once and used for both the figure and its colour, so a distance shown as "10.0%" is never
+  // coloured as if it were still under 10.
+  const magnitude = Math.round(Math.abs(percent) * 10) / 10
   // A trigger at or above the market is imminent no matter how far past it has gone.
-  const proximity = percent >= 0 ? 'imminent' : magnitude > 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
+  const proximity = percent >= 0 ? 'imminent' : magnitude >= 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
 
   return (
     <span className={distanceStyles({ proximity })} data-testid="stop-loss-order-distance">
-      {percent >= 0 ? '↑' : '↓'} {formatDisplayNumber(magnitude, { fractionDigits: 1 })}%
+      {/* Always one decimal, so the column lines up; formatDisplayNumber drops trailing zeros. */}
+      {percent >= 0 ? '↑' : '↓'}{' '}
+      {magnitude.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
     </span>
   )
 }
 
-const statusStyles = cva('block text-sm font-medium', {
+const statusStyles = cva('block text-xs font-medium', {
   variants: {
     status: {
       [StopLossDisplayStatus.ACTIVE]: 'text-primary',
       [StopLossDisplayStatus.TRIGGERED]: 'text-warning',
-      [StopLossDisplayStatus.EXECUTED]: 'text-primary',
+      [StopLossDisplayStatus.EXECUTED]: 'text-green2',
       [StopLossDisplayStatus.FAILED]: 'text-red',
-      [StopLossDisplayStatus.CANCELLED]: 'text-subText',
-      [StopLossDisplayStatus.EXPIRED]: 'text-subText',
+      [StopLossDisplayStatus.CANCELLED]: 'text-gray',
+      [StopLossDisplayStatus.EXPIRED]: 'text-gray',
     },
   },
 })
@@ -214,7 +266,8 @@ export const formatStopLossStatus = (status: StopLossDisplayStatus) => {
 }
 
 /**
- * Only a failure carries anything to expand — the other statuses say everything they have in one word.
+ * Only an executed or failed order carries anything to expand — the other statuses say everything they
+ * have in one word.
  */
 export const StatusCell = ({
   status,
@@ -251,7 +304,9 @@ export const StatusCell = ({
   )
 }
 
-/** The failure detail that drops out of a Failed row, spanning the whole table width. */
+const DETAIL_CLASS = 'border-t border-white-04 px-4 pb-3 pt-2 text-xs font-medium text-subText'
+
+/** The failure detail that opens under a Failed row, spanning the whole table width. */
 export const StopLossFailureDetail = ({
   sellSymbol,
   reason,
@@ -262,10 +317,10 @@ export const StopLossFailureDetail = ({
   onRecreate: () => void
 }) => (
   <HStack
-    className="col-span-full mt-3 items-center justify-between gap-4 border-t border-darkBorder pt-3 max-sm:flex-col max-sm:items-start"
+    className={cn(DETAIL_CLASS, 'items-center justify-between gap-4 max-sm:flex-col max-sm:items-start')}
     data-testid="stop-loss-order-failure-detail"
   >
-    <Stack className="gap-1 text-sm font-medium text-subText">
+    <Stack className="gap-1">
       <span>
         <Trans>
           Your stop-loss triggered but the swap could not complete. Your <span className="text-text">{sellSymbol}</span>{' '}
@@ -276,16 +331,64 @@ export const StopLossFailureDetail = ({
         <Trans>Reason</Trans>: {reason}
       </span>
     </Stack>
-    <ButtonOutlined
+    <button
+      type="button"
       onClick={onRecreate}
       data-testid="stop-loss-order-failure-recreate"
-      className="w-fit shrink-0 gap-1.5 !border-primary-50 px-3 py-1 text-sm !text-primary"
+      className="flex w-fit shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-primary-20 px-3 py-1 text-xs font-medium text-primary transition hover:brightness-110"
     >
       <RecreateIcon className="size-3.5" />
       <Trans>Recreate</Trans>
-    </ButtonOutlined>
+    </button>
   </HStack>
 )
+
+/**
+ * What an executed order actually did, opening under its row like the failure detail. The gap to the
+ * trigger is worth stating: the fill follows the oracle at execution, which a fast market can carry
+ * well past the trigger.
+ */
+export const StopLossExecutionDetail = ({
+  sellAmount,
+  sellSymbol,
+  executionPrice,
+  receivedAmount,
+  receiveSymbol,
+  triggerGapPercent,
+}: {
+  sellAmount: string
+  sellSymbol: string
+  executionPrice: string
+  receivedAmount: string
+  receiveSymbol: string
+  /** Positive when the fill landed below the trigger. */
+  triggerGapPercent?: number
+}) => {
+  const gap =
+    triggerGapPercent === undefined
+      ? undefined
+      : formatDisplayNumber(Math.abs(triggerGapPercent), { fractionDigits: 2 })
+
+  return (
+    <Stack className={cn(DETAIL_CLASS, 'gap-1')} data-testid="stop-loss-order-execution-detail">
+      <span>
+        <Trans>
+          Sold <span className="text-text">{sellAmount}</span> {sellSymbol} at ~{executionPrice} {receiveSymbol} per{' '}
+          {sellSymbol}. You received <span className="text-text">{receivedAmount}</span> {receiveSymbol}.
+        </Trans>
+      </span>
+      {gap !== undefined && triggerGapPercent !== undefined && (
+        <span data-testid="stop-loss-order-execution-gap">
+          {triggerGapPercent >= 0 ? (
+            <Trans>Executed {gap}% below trigger.</Trans>
+          ) : (
+            <Trans>Executed {gap}% above trigger.</Trans>
+          )}
+        </span>
+      )}
+    </Stack>
+  )
+}
 
 const SEVEN_DAYS_IN_SECONDS = 7 * 24 * 60 * 60
 

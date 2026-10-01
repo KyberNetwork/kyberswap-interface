@@ -13,7 +13,7 @@ import { useLimitState } from 'state/limit/hooks'
 
 /** The shell both cards share; on phones each runs edge to edge, like the limit-order panel. */
 const CARD_CLASS =
-  'w-full gap-0 overflow-hidden rounded-xl border border-darkBorder max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none'
+  'w-full gap-0 overflow-hidden rounded-xl border border-background bg-buttonBlack max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none'
 
 // Price leads: it is what the trigger is set against. The order book is the limit-order market for
 // the same pair.
