@@ -25,6 +25,7 @@ import { APP_PATHS } from 'constants/index'
 import { isSupportStopLoss } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useAppDispatch } from 'state/hooks'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { updateStopLossForm } from 'state/stopLoss/reducer'
@@ -59,6 +60,7 @@ const StopLossOrders = () => {
   const { setInputValue } = useLimitActionHandlers()
   const dispatch = useAppDispatch()
   const tracking = useStopLossTracking()
+  const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [isActiveTab, setIsActiveTab] = useState(true)
@@ -191,15 +193,22 @@ const StopLossOrders = () => {
    */
   const onRecreate = (order: StopLossOrder, sellAmount: string) => {
     tracking.trackRecreateClicked(order, getStopLossDisplayStatus(order))
-    setInputValue(sellAmount)
-    dispatch(
-      updateStopLossForm({
-        ...getStopLossRecreateDraft(order, STOP_LOSS_DEFAULT_EXPIRE),
-        // The staged expiry is a duration, so any custom date left over from a previous draft must go.
-        customDateExpire: undefined,
-      }),
-    )
-    navigate(`${APP_PATHS.STOP_LOSS}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${order.tokenOut}`)
+    const stageDraft = () => {
+      setInputValue(sellAmount)
+      dispatch(
+        updateStopLossForm({
+          ...getStopLossRecreateDraft(order, STOP_LOSS_DEFAULT_EXPIRE),
+          // The staged expiry is a duration, so any custom date left over from a previous draft must go.
+          customDateExpire: undefined,
+        }),
+      )
+      navigate(`${APP_PATHS.STOP_LOSS}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${order.tokenOut}`)
+    }
+    // A route naming another chain is only followed on page load; later it is rewritten to the wallet's
+    // chain, pair and all. An order from elsewhere therefore switches the wallet first, and a declined
+    // switch leaves the form untouched.
+    if (order.chainId === chainId) stageDraft()
+    else changeNetwork(order.chainId, stageDraft)
   }
 
   return (
