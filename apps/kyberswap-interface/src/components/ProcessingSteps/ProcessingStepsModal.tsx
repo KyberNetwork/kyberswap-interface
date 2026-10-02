@@ -88,10 +88,12 @@ const ProcessingStepsBody = <Step extends string>({
   }, [account, dismiss])
 
   return (
-    <Stack className="w-full gap-5 p-5">
+    <Stack className="w-full gap-5 p-5" data-testid="processing-order-modal">
       <HStack className="items-center justify-between gap-4">
-        <div className="text-xl font-medium text-text">{title}</div>
-        <CloseIcon onClick={onDismiss} />
+        <div className="text-xl font-medium text-text" data-testid="processing-order-title">
+          {title}
+        </div>
+        <CloseIcon onClick={onDismiss} data-testid="processing-order-close" />
       </HStack>
 
       <Stack className="gap-3">
@@ -104,7 +106,12 @@ const ProcessingStepsBody = <Step extends string>({
               completedSteps: state.completedSteps,
             })
             return (
-              <HStack key={step} className="min-h-8 w-full items-center gap-2">
+              <HStack
+                key={step}
+                className="min-h-8 w-full items-center gap-2"
+                data-testid={`processing-step-${step}`}
+                data-status={status}
+              >
                 <StepIcon index={index} status={status} />
                 <span
                   className={cn(
@@ -118,7 +125,11 @@ const ProcessingStepsBody = <Step extends string>({
                   {getStepLabel(step, status)}
                 </span>
                 {status === 'error' && state.canRetry && retryStep && (
-                  <ButtonLight onClick={() => retryStep(step)} className="w-auto gap-1 px-2 py-1 text-xs">
+                  <ButtonLight
+                    onClick={() => retryStep(step)}
+                    className="w-auto gap-1 px-2 py-1 text-xs"
+                    data-testid="processing-step-retry"
+                  >
                     <RotateCw size={14} />
                     {t`Retry`}
                   </ButtonLight>
@@ -139,12 +150,12 @@ const ProcessingStepsBody = <Step extends string>({
         )}
 
         {isComplete && (
-          <HStack className="gap-3">
-            <ButtonOutlined onClick={onDismiss} className="flex-1">
+          <HStack className="gap-3" data-testid="processing-order-complete">
+            <ButtonOutlined onClick={onDismiss} className="flex-1" data-testid="processing-order-close-button">
               <Trans>Close</Trans>
             </ButtonOutlined>
             {successAction && (
-              <ButtonPrimary onClick={onSuccessAction} className="flex-1">
+              <ButtonPrimary onClick={onSuccessAction} className="flex-1" data-testid="processing-order-view-button">
                 {successAction.label}
               </ButtonPrimary>
             )}

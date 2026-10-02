@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
 import { type MainTab, TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
+import { getTradeProductPath } from 'utils/routes'
 
 export type TradeController = {
   activeMainTab: TAB
@@ -31,9 +31,11 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
     const outputCurrency = searchParams.get('outputCurrency')
 
     if (inputCurrency || outputCurrency) {
-      if (pathname.includes(APP_PATHS.LIMIT))
-        navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
-      else navigate(`/swap/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
+      navigate(
+        `${getTradeProductPath(pathname)}/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${
+          outputCurrency || ''
+        }`,
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, chainId, navigate])

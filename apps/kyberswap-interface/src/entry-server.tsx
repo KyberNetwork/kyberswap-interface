@@ -38,7 +38,11 @@ const DEFAULT_NETWORK_ROUTE = NETWORKS_INFO[ChainId.MAINNET].route
 const ROOT_SOURCE_ROUTE = `${APP_PATHS.SWAP}/${DEFAULT_NETWORK_ROUTE}`
 
 const distinctPageRoutes = SITEMAP_PAGE_ROUTES.filter(
-  route => route !== '/' && !route.startsWith(`${APP_PATHS.SWAP}/`) && !route.startsWith(`${APP_PATHS.LIMIT}/`),
+  route =>
+    route !== '/' &&
+    !route.startsWith(`${APP_PATHS.SWAP}/`) &&
+    !route.startsWith(`${APP_PATHS.LIMIT}/`) &&
+    !route.startsWith(`${APP_PATHS.STOP_LOSS}/`),
 )
 
 export const prerenderManifest = {
@@ -64,6 +68,11 @@ export const prerenderManifest = {
       sourceRoute: `${APP_PATHS.LIMIT}/${DEFAULT_NETWORK_ROUTE}`,
       outputPath: 'limit/index.html',
     },
+    {
+      product: 'stop-loss',
+      sourceRoute: `${APP_PATHS.STOP_LOSS}/${DEFAULT_NETWORK_ROUTE}`,
+      outputPath: 'stop-loss/index.html',
+    },
   ],
   ogSkeletons: [
     {
@@ -81,7 +90,7 @@ export const prerenderManifest = {
 } as const
 
 const getRouteNetworkSlug = (url: string) => {
-  const productPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.BUY, APP_PATHS.SELL].find(path =>
+  const productPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.STOP_LOSS, APP_PATHS.BUY, APP_PATHS.SELL].find(path =>
     url.startsWith(`${path}/`),
   )
   return productPath ? url.slice(productPath.length + 1).split(/[/?#]/, 1)[0] : undefined

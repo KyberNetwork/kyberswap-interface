@@ -12,6 +12,7 @@ const usePageLocation = () => {
     isPartnerSwap ||
     isUserSwap ||
     location.pathname.startsWith(APP_PATHS.LIMIT) ||
+    location.pathname.startsWith(APP_PATHS.STOP_LOSS) ||
     location.pathname.startsWith(APP_PATHS.CROSS_CHAIN)
 
   return {

@@ -109,6 +109,6 @@ const tokenChartApi = createApi({
   }),
 })
 
-export const { useLazyTokenPriceChartQuery, useTokenPriceChartQuery } = tokenChartApi
+export const { useTokenPriceChartQuery } = tokenChartApi
 
 export default tokenChartApi

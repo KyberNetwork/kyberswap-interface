@@ -15,7 +15,7 @@ import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
 import { cn } from 'utils/cn'
 
-const ORDER_LIST_TABS = [
+export const ORDER_LIST_TABS = [
   {
     id: LimitOrderTab.ORDER_BOOK,
     label: (
@@ -33,7 +33,7 @@ const ORDER_LIST_TABS = [
   { id: LimitOrderTab.PRICE, label: <Trans>Price</Trans> },
 ] as const
 
-type OrderListTabItem = (typeof ORDER_LIST_TABS)[number]
+export type OrderListTabItem = (typeof ORDER_LIST_TABS)[number]
 
 type TabSelectorProps = {
   activeTab: LimitOrderTab
@@ -41,18 +41,20 @@ type TabSelectorProps = {
   tabs: readonly OrderListTabItem[]
 }
 
-const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
+export const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
   const { account } = useActiveWeb3React()
   const { chainId } = useLimitOrderContext()
 
+  // The count only ever badges the My Order(s) tab, so a bar without it has nothing to poll for.
+  const showsMyOrders = tabs.some(tab => tab.id === LimitOrderTab.MY_ORDER)
   const { data: numberOfInsufficientFundOrders } = useGetNumberOfInsufficientFundOrdersQuery(
     { chainId, maker: account || '' },
-    { skip: !account, pollingInterval: 10_000 },
+    { skip: !account || !showsMyOrders, pollingInterval: 10_000 },
   )
 
   return (
     <HStack className="items-center gap-3 bg-background pr-4">
-      <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
+      <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist" data-testid="order-list-tabs">
         {tabs.map((tab, index) => {
           const active = tab.id === activeTab
           const isLast = index === tabs.length - 1
@@ -63,6 +65,7 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
               onClick={() => setActiveTab(tab.id)}
               role="tab"
               type="button"
+              data-testid={`order-list-tab-${tab.id}`}
               className={cn(
                 'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1 border-0 px-4 py-3 text-sm font-medium',
                 !isLast && 'border-r border-darkBorder',
@@ -83,7 +86,10 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
                     </Trans>
                   }
                 >
-                  <span className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning">
+                  <span
+                    className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning"
+                    data-testid="order-list-insufficient-funds-badge"
+                  >
                     {numberOfInsufficientFundOrders}
                   </span>
                 </MouseoverTooltip>

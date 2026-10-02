@@ -14,7 +14,7 @@ import {
   useState,
 } from 'react'
 import { isMobile } from 'react-device-detect'
-import { X } from 'react-feather'
+import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 
 import InfoHelper from 'components/InfoHelper'
@@ -53,6 +53,7 @@ import {
   TOKEN_METRIC_COLUMNS,
   TokenMetricColumn,
   TokenRowExtraMap,
+  TokenSearchFilters,
   TokenSort,
   TokenSortField,
   tokenRowKey,
@@ -75,6 +76,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useBalanceWait } from 'hooks/useBalanceWait'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
+import { useOracleTokens } from 'hooks/useOracleTokens'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
 import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -118,6 +120,11 @@ interface TokenSelectorContentProps {
   showDiscoveryTabs?: boolean
   /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
   onSelectChain?: (chainId: ChainId) => void
+  /**
+   * List only tokens the stop-loss oracle can price, on whichever chain the selector is showing — the
+   * oracle, and so the filter that finds its feeds, comes from that chain's oracle config.
+   */
+  requireOracle?: boolean
 }
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
@@ -276,6 +283,7 @@ export const TokenSelectorContent = ({
   onShowTokenInfo,
   showDiscoveryTabs = true,
   onSelectChain,
+  requireOracle = false,
 }: TokenSelectorContentProps) => {
   const { chainId: web3ChainId, account } = useActiveWeb3React()
   const anchorChainId = customChainId || web3ChainId
@@ -297,6 +305,25 @@ export const TokenSelectorContent = ({
   const primaryChainId = selectedChainId
   const chainIdList = useMemo(() => [selectedChainId], [selectedChainId])
   const trendingSupported = isTrendingSupportedChain(primaryChainId)
+
+  // The lists fetched from an API are narrowed by the server through `searchFilters`; the ones held
+  // in memory (whitelist, imports, favorites, held tokens) are screened against the feed list here.
+  const {
+    hasOracle,
+    tokenFilter: oracleTokenFilter,
+    isReady: isOracleListReady,
+    isLoading: isOracleListLoading,
+  } = useOracleTokens(primaryChainId, { skip: !requireOracle })
+  const searchFilters = useMemo<TokenSearchFilters | undefined>(
+    () => (requireOracle && oracleTokenFilter ? { oracleTokenFilter } : undefined),
+    [requireOracle, oracleTokenFilter],
+  )
+  // Screens nothing until the feed list is known: the list shows a skeleton while it loads, and a
+  // failed request must not leave the selector empty.
+  const passesOracleFilter = useCallback(
+    (token: Currency | undefined) => !requireOracle || !isOracleListReady || hasOracle(token),
+    [requireOracle, isOracleListReady, hasOracle],
+  )
 
   const visibleTabs = useMemo(
     () => TOKEN_SELECTOR_TAB_ORDER.filter(tab => tab !== TokenSelectorTab.Trending || trendingSupported),
@@ -375,12 +402,12 @@ export const TokenSelectorContent = ({
     loading: trendingLoading,
     hasMore: trendingHasMore,
     fetchMore: fetchMoreTrending,
-  } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab)
+  } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab, searchFilters)
   const {
     tokens: newTokens,
     extras: newExtras,
     loading: newLoading,
-  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab)
+  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab, searchFilters)
 
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
@@ -394,6 +421,10 @@ export const TokenSelectorContent = ({
     },
     [primaryChainId, otherSelectedCurrency, filterWrap],
   )
+  const isListable = useCallback(
+    (token: Currency | undefined) => filterWrapFunc(token) && passesOracleFilter(token),
+    [filterWrapFunc, passesOracleFilter],
+  )
 
   const {
     data: tokenSearchData,
@@ -403,10 +434,10 @@ export const TokenSelectorContent = ({
     isFetching: isFetchingTokenSearch,
     isLoading: isLoadingTokenSearch,
   } = useInfiniteQuery({
-    queryKey: ['currency-search-tokens', selectedChainId, debouncedQuery],
+    queryKey: ['currency-search-tokens', selectedChainId, debouncedQuery, searchFilters?.oracleTokenFilter],
     initialPageParam: 1,
     enabled: !!debouncedQuery && isAllTab,
-    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList),
+    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList, searchFilters),
     getNextPageParam: (lastPage, allPages) =>
       debouncedQuery && !isQueryValidEVMAddress && lastPage.length === TOKEN_SEARCH_PAGE_SIZE
         ? allPages.length + 1
@@ -439,6 +470,9 @@ export const TokenSelectorContent = ({
     isFetchedTokenSearch,
     isFetchingTokenSearch,
     hasTokenSearchResults: !!tokenSearchResults.length,
+    // A token the API does not know has no feed on record either, so an on-chain lookup — and the
+    // other-chain hits it brings, which no feed list here covers — could only offer dead ends.
+    enabled: !requireOracle,
   })
 
   // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
@@ -499,9 +533,10 @@ export const TokenSelectorContent = ({
       ? [...tokenSearchResults, currentChainRpcToken, ...searchDiscoveryMatches, ...searchImportMatches]
       : Object.values(defaultTokens)
     // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
-    // search hit) have no balance to show here either.
+    // search hit) have no balance to show here either, and neither do rows the oracle filter hides.
     return source.filter(
-      (token): token is Token => !!token && !isTokenNative(token) && token.chainId === primaryChainId,
+      (token): token is Token =>
+        !!token && !isTokenNative(token) && token.chainId === primaryChainId && passesOracleFilter(token),
     )
   }, [
     isTrendingTab,
@@ -517,6 +552,7 @@ export const TokenSelectorContent = ({
     searchImportMatches,
     defaultTokens,
     primaryChainId,
+    passesOracleFilter,
   ])
 
   const balanceTokensWithDiscoveries = useMemo(
@@ -559,9 +595,9 @@ export const TokenSelectorContent = ({
         searchDiscoveryMatches,
         heldAddresses,
         impersonators,
-      ).filter(filterWrapFunc)
+      ).filter(isListable)
     }
-    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
+    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(isListable)
   }, [
     isAllTab,
     debouncedQuery,
@@ -573,7 +609,7 @@ export const TokenSelectorContent = ({
     defaultTokens,
     discoveryTokens,
     tokenComparator,
-    filterWrapFunc,
+    isListable,
     impersonators,
   ])
 
@@ -583,9 +619,9 @@ export const TokenSelectorContent = ({
       const filtered = debouncedQuery
         ? (filterTokens(primaryChainId, tokens as Token[], debouncedQuery) as Currency[])
         : tokens
-      return filtered.filter(filterWrapFunc)
+      return filtered.filter(isListable)
     },
-    [debouncedQuery, primaryChainId, filterWrapFunc],
+    [debouncedQuery, primaryChainId, isListable],
   )
 
   // Filter to the current chain synchronously so stale pills from the previous chain never render
@@ -598,16 +634,18 @@ export const TokenSelectorContent = ({
   // Quick-select pills: always lead with the chain's native token, then fill the rest from config /
   // favorites (dropping any native duplicate). Capped at 5 (4 on mobile) when the Favorites tab exists
   // to hold the overflow; uncapped otherwise (see the discovery-off note below). The native lead is
-  // only hidden by a non-matching text search — never by the wrap filter — so it's always present.
+  // hidden by a non-matching text search and by the same rules as every listed row — the wrap filter
+  // (the other side already holds its wrapped token) and the oracle filter (its wrapped token has no
+  // feed).
   const quickSelectTokens = useMemo(() => {
     const native = NativeCurrencies[primaryChainId] as Currency | undefined
     const nativeMatchesSearch =
       !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
-    const nativeLead = nativeMatchesSearch && native ? [native] : []
+    const nativeLead = nativeMatchesSearch && native && isListable(native) ? [native] : []
     const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
     const list = [...nativeLead, ...rest]
     return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
-  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth])
+  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, isListable])
 
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
@@ -735,8 +773,10 @@ export const TokenSelectorContent = ({
     sortByFdv,
   ])
 
-  // Show skeleton rows while a tab's whole list is loading from the API.
+  // Show skeleton rows while a tab's whole list is loading from the API, or while the feed list the
+  // oracle filter screens it against is.
   const isListLoading =
+    (requireOracle && isOracleListLoading) ||
     (isAllTab && (debouncedQuery ? isLoadingTokenSearch : Object.keys(defaultTokens).length === 0)) ||
     (isNewTab && newLoading && !newTokens.length) ||
     (isTrendingTab && trendingLoading && !trendingTokens.length)
@@ -927,7 +967,7 @@ export const TokenSelectorContent = ({
       if (e.key !== 'Enter') return
       const s = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[primaryChainId]
-      if (s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) {
+      if ((s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) && isListable(native)) {
         handleCurrencySelect(native)
         return
       }
@@ -948,7 +988,16 @@ export const TokenSelectorContent = ({
         handleCurrencySelect(candidate)
       }
     },
-    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken, impersonators],
+    [
+      visibleCurrencies,
+      handleCurrencySelect,
+      searchQuery,
+      primaryChainId,
+      tokenImports,
+      onImportToken,
+      impersonators,
+      isListable,
+    ],
   )
 
   const handleClickFavorite = useCallback(
@@ -1106,16 +1155,19 @@ export const TokenSelectorContent = ({
   }, [trackingDebouncedQuery, trackingSource, primaryChainId, trackingHandler])
 
   const subtitle = getTabSubtitle(activeTab)
-  const emptyMessage =
-    activeTab === TokenSelectorTab.Trending ? (
-      <Trans>No trending tokens right recently. Check back later.</Trans>
-    ) : activeTab === TokenSelectorTab.New ? (
-      <Trans>No newly whitelisted token recently.</Trans>
-    ) : activeTab === TokenSelectorTab.Imported ? (
-      <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
-    ) : activeTab === TokenSelectorTab.Favorites ? (
-      <Trans>You have no saved tokens yet.</Trans>
-    ) : undefined
+  // Every list in oracle-only mode is screened, so an empty one — searched or not — is down to the
+  // filter, and says so instead of naming the tab.
+  const emptyMessage = requireOracle ? (
+    <Trans>No supported tokens found. Stop-loss only supports tokens with an oracle price feed.</Trans>
+  ) : debouncedQuery ? undefined : activeTab === TokenSelectorTab.Trending ? (
+    <Trans>No trending tokens right recently. Check back later.</Trans>
+  ) : activeTab === TokenSelectorTab.New ? (
+    <Trans>No newly whitelisted token recently.</Trans>
+  ) : activeTab === TokenSelectorTab.Imported ? (
+    <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
+  ) : activeTab === TokenSelectorTab.Favorites ? (
+    <Trans>You have no saved tokens yet.</Trans>
+  ) : undefined
 
   return (
     <ContentWrapper data-testid="token-selector-modal">
@@ -1175,6 +1227,18 @@ export const TokenSelectorContent = ({
             <ChainSelector chains={rankedChains} selectedChainId={selectedChainId} onChange={handleChainChange} />
           )}
         </HStack>
+
+        {requireOracle && (
+          <HStack
+            className="items-start gap-1.5 text-xs font-medium text-subText"
+            data-testid="token-selector-oracle-note"
+          >
+            <Info size={14} className="mt-px shrink-0" />
+            <span>
+              <Trans>Only tokens with an oracle price feed are shown. Stop-loss triggers on that price.</Trans>
+            </span>
+          </HStack>
+        )}
 
         {showPinnedTokens && (
           <div
@@ -1290,7 +1354,7 @@ export const TokenSelectorContent = ({
                   onSelect={handleOtherChainSelect}
                 />
               ) : (
-                <NoResult message={debouncedQuery ? undefined : emptyMessage} />
+                <NoResult message={emptyMessage} />
               )}
             </Stack>
           )}

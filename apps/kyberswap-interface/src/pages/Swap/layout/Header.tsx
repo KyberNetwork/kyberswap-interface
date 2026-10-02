@@ -26,7 +26,9 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
   const { pathname } = useLocation()
 
   const selectedTab = activeMainTab || activeTab
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT
+  // Stop-loss lives under the Limit Order top-level tab, so it must be excluded before the limit copy applies.
+  const isStopLossPage = pathname.startsWith(APP_PATHS.STOP_LOSS)
+  const isLimitPage = !isStopLossPage && (pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT)
   const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
 
@@ -46,6 +48,16 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
                 your price.
               </HiddenH2>
               <span className="text-xs font-medium text-subText">{t`Buy or sell tokens at customized prices`}</span>
+            </>
+          )}
+          {isStopLossPage && (
+            <>
+              <HiddenH1>Sell automatically when the price drops.</HiddenH1>
+              <HiddenH2>
+                Set a trigger price and KyberSwap sells at the best available market price when the oracle price reaches
+                it. Free to place, and your tokens stay in your wallet until it executes.
+              </HiddenH2>
+              <span className="text-xs font-medium text-subText">{t`Protect your positions from sudden price drops`}</span>
             </>
           )}
           {isSwapPage && (

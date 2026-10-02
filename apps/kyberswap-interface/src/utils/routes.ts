@@ -6,6 +6,13 @@ const SWAP_LIKE_PATHS = [APP_PATHS.SWAP, APP_PATHS.BUY, APP_PATHS.SELL]
 
 export const isSwapLikePath = (pathname: string) => SWAP_LIKE_PATHS.some(path => isPathOrChild(pathname, path))
 
+// Trade products addressed as `{product}/{network}/{tokenIn}-to-{tokenOut}`. Swap owns every other trade path.
+const TRADE_PRODUCT_PATHS = [APP_PATHS.LIMIT, APP_PATHS.STOP_LOSS] as const
+
+/** Resolves which trade product a pathname belongs to, so token selection keeps the user on that product. */
+export const getTradeProductPath = (pathname: string) =>
+  TRADE_PRODUCT_PATHS.find(path => isPathOrChild(pathname, path)) ?? APP_PATHS.SWAP
+
 export enum SwapIntent {
   BUY = 'buy',
   SELL = 'sell',
@@ -26,8 +33,11 @@ export const getSyncedNetworkPathname = (pathname: string, networkParam: string,
     return `${APP_PATHS.SWAP}/${networkRoute}`
   }
 
-  if (syncedPathname.startsWith(`${APP_PATHS.LIMIT}/${networkRoute}/`)) {
-    return `${APP_PATHS.LIMIT}/${networkRoute}`
+  const selfCanonicalProductPath = TRADE_PRODUCT_PATHS.find(path =>
+    syncedPathname.startsWith(`${path}/${networkRoute}/`),
+  )
+  if (selfCanonicalProductPath) {
+    return `${selfCanonicalProductPath}/${networkRoute}`
   }
 
   return syncedPathname

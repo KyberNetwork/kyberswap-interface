@@ -273,6 +273,9 @@ const MyOrders = () => {
             value={orderType}
             width={130}
             mobileHalfWidth
+            // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
+            // last options off whenever the table is short. A portalled menu escapes that box.
+            usePortal
             onChange={onSelectOrderType}
           />
           <DropdownMenu

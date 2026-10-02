@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-// Representative route trees must complete the same async static render used by distinct pages and the two
+// Representative route trees must complete the same async static render used by distinct pages and the
 // shared product shells. This waits for React.lazy route chunks and validates real content, not only fallback UI.
 const ROUTES = [
-  // Limit Orders - per chain
+  // Limit Orders and Stop Loss - per chain
   '/limit/base',
+  '/stop-loss/base',
   // Cross-chain and Earn
   '/cross-chain',
   '/earn',
@@ -45,7 +46,7 @@ describe('SSR render smoke', () => {
     expect(lineaHtml).not.toMatch(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/swap\/ethereum")[^>]*>/)
   })
 
-  it('prerenders only distinct pages and two shared product shells', async () => {
+  it('prerenders only distinct pages and the shared product shells', async () => {
     const { prerenderManifest } = await import('entry-server')
 
     expect(prerenderManifest.rootPage).toEqual({
@@ -56,11 +57,13 @@ describe('SSR render smoke', () => {
     expect(prerenderManifest.tradeShells).toEqual([
       { outputPath: 'swap/index.html', product: 'swap', sourceRoute: '/swap/ethereum' },
       { outputPath: 'limit/index.html', product: 'limit', sourceRoute: '/limit/ethereum' },
+      { outputPath: 'stop-loss/index.html', product: 'stop-loss', sourceRoute: '/stop-loss/ethereum' },
     ])
     expect(prerenderManifest.distinctPages).toHaveLength(11)
     expect(
       prerenderManifest.distinctPages.every(
-        ({ pathname }) => !pathname.startsWith('/swap/') && !pathname.startsWith('/limit/'),
+        ({ pathname }) =>
+          !pathname.startsWith('/swap/') && !pathname.startsWith('/limit/') && !pathname.startsWith('/stop-loss/'),
       ),
     ).toBe(true)
   })
