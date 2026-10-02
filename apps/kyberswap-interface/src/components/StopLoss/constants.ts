@@ -16,6 +16,13 @@ export const getStopLossExpiryPresets = () => [
   { value: 36500 * TIMES_IN_SECS.ONE_DAY, label: t`Forever` },
 ]
 
+/**
+ * How much looser than the swap form a stop-loss's slippage runs, applied to the swap form's suggestion,
+ * presets and warning bands for the pair's category alike. The order fills in the market that tripped
+ * it, which is usually moving fast, so a swap-tight tolerance risks a failed execution at the worst time.
+ */
+export const STOP_LOSS_SLIPPAGE_MULTIPLIER = 2
+
 /** Below this distance the trigger is close enough to fire on ordinary price noise. */
 export const TRIGGER_CLOSE_TO_MARKET_PERCENT = 2
 

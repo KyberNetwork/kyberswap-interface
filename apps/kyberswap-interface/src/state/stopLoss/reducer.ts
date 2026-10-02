@@ -13,8 +13,9 @@ import { STOP_LOSS_DEFAULT_EXPIRE } from 'components/StopLoss/constants'
 export type StopLossFormState = {
   triggerPrice: string
   /**
-   * Basis points, once the user has picked one. Until then the form applies the swap form's suggestion
-   * for the pair's category, which moves with the pair instead of carrying one pair's figure to the next.
+   * Basis points, once the user has picked one. Until then the form applies a suggestion derived from the
+   * swap form's for the pair's category, which moves with the pair instead of carrying one pair's figure
+   * to the next.
    */
   slippage: number | undefined
   /** Seconds from now, used whenever `customDateExpire` is unset. */

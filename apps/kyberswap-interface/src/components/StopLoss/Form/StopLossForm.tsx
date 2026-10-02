@@ -254,8 +254,9 @@ const StopLossForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp
             tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
             gridCells={{ header: 'col-start-1 row-start-1 min-w-0', panel: 'col-span-full row-start-2' }}
             slippage={{ value: form.slippage, onChange: form.setSlippage }}
-            // The swap form's numbers for this pair's category; the wording stays the stop-loss's own, since
-            // the setting is measured against the oracle at execution rather than a fresh quote.
+            // The swap form's numbers for this pair's category, scaled for a stop-loss; the wording stays the
+            // stop-loss's own, since the setting is measured against the oracle at execution rather than a
+            // fresh quote.
             slippageInfo={{
               default: form.defaultSlippage,
               presets: form.slippagePresets,

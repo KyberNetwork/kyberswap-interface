@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { calcOutput, formatPriceInputValue } from 'components/LimitOrder/utils'
+import { STOP_LOSS_SLIPPAGE_MULTIPLIER } from 'components/StopLoss/constants'
 import { useStopLossOraclePrice } from 'components/StopLoss/hooks/useStopLossOraclePrice'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY, PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
@@ -41,14 +42,20 @@ export const useStopLossFormState = ({ currencyIn, currencyOut }: UseStopLossFor
     customDateExpire: customDateExpireMs,
   } = useAppSelector(s => s.stopLoss)
 
-  // The swap form's suggestion, presets and warning bands for this pair's category, so the two forms
-  // agree on what a reasonable slippage is.
+  // The swap form's suggestion, presets and warning bands for this pair's category, each scaled by the
+  // same multiplier so the stop-loss stays in step with swap as either changes.
   const pairCategory = usePairCategory(chainId)
-  const defaultSlippage = useDefaultSlippageByPair(chainId)
+  const defaultSlippage = useDefaultSlippageByPair(chainId) * STOP_LOSS_SLIPPAGE_MULTIPLIER
   const slippage = pickedSlippage ?? defaultSlippage
-  const slippagePresets =
-    pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY : DEFAULT_SLIPPAGES
-  const slippageStatus = checkRangeSlippage(slippage, pairCategory)
+  const slippagePresets = useMemo(
+    () =>
+      (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY : DEFAULT_SLIPPAGES).map(
+        preset => preset * STOP_LOSS_SLIPPAGE_MULTIPLIER,
+      ),
+    [pairCategory],
+  )
+  // Scaling the value down against swap's bands is the same as scaling the bands up.
+  const slippageStatus = checkRangeSlippage(slippage / STOP_LOSS_SLIPPAGE_MULTIPLIER, pairCategory)
   const customDateExpire = useMemo(
     () => (customDateExpireMs === undefined ? undefined : new Date(customDateExpireMs)),
     [customDateExpireMs],
