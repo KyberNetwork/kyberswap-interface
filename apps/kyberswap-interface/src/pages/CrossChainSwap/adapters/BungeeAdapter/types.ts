@@ -86,15 +86,24 @@ export type SocketTxRoute = {
     tokenAddress: string
     userAddress: string
   } | null
-  txData?: {
-    kind?: 'evm_tx' | string
-    object?: {
-      chainId?: number
-      to?: `0x${string}`
-      value?: string
-      data?: `0x${string}`
-    }
-  }
+  txData?:
+    | {
+        kind?: 'evm_tx'
+        object?: {
+          chainId?: number
+          to?: `0x${string}`
+          value?: string
+          data?: `0x${string}`
+        }
+      }
+    | {
+        kind: 'btc_deposit'
+        object?: {
+          chainId?: number
+          depositAddress?: string
+          amount?: string
+        }
+      }
   statusCheck?: {
     endpoint: string
     method: string
