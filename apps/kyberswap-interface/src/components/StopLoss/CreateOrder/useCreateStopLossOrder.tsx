@@ -1,12 +1,11 @@
 import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import {
   useCreateStopLossOrderMutation,
   useEstimateStopLossFeeMutation,
+  useGetStopLossActiveMakingAmountQuery,
   useGetStopLossConfigQuery,
-  useGetStopLossOrdersQuery,
   useGetStopLossSignMessageMutation,
 } from 'services/stopLoss'
 
@@ -15,7 +14,7 @@ import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/steps
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { DEFAULT_MAX_FEES_PERCENTAGE, DEFAULT_MAX_GAS_PERCENTAGE } from 'components/StopLoss/constants'
 import { useStopLossTracking } from 'components/StopLoss/hooks/useStopLossTracking'
-import { StopLossFee, StopLossOrder, StopLossOrderStatus } from 'components/StopLoss/types'
+import { StopLossFee } from 'components/StopLoss/types'
 import { buildStopLossPayload, stripEmptyEip712Salt } from 'components/StopLoss/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
@@ -26,8 +25,6 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
-
-const EMPTY_OPEN_ORDERS: StopLossOrder[] = []
 
 type Props = {
   currencyIn?: Currency
@@ -57,17 +54,6 @@ export const useCreateStopLossOrder = ({
   const [estimateFee] = useEstimateStopLossFeeMutation()
   const [getSignMessage] = useGetStopLossSignMessageMutation()
   const [submitOrder] = useCreateStopLossOrderMutation()
-
-  // Open orders and the limit-order commitment both eat into the same ERC-20 approval.
-  const { data: openOrdersData } = useGetStopLossOrdersQuery(
-    { userWallet: account || '', chainIds: [chainId], status: StopLossOrderStatus.OPEN, page: 1, pageSize: 100 },
-    { skip: !account },
-  )
-  const openOrders = openOrdersData?.orders ?? EMPTY_OPEN_ORDERS
-  const { data: activeLimitOrderAmount } = useGetTotalActiveMakingAmountQuery(
-    { chainId, makerAsset: currencyIn?.wrapped.address, account },
-    { skip: !currencyIn || !account },
-  )
 
   const { data: config } = useGetStopLossConfigQuery(chainId)
   // Both the contract that pulls tokenIn and the EIP-712 verifying contract.
@@ -106,20 +92,24 @@ export const useCreateStopLossOrder = ({
   })
 
   /**
-   * Existing open orders on the same token already lay claim to part of the allowance, and both order
-   * types draw on the same approval. Ignoring that lets a second order skip approval and leaves the two
-   * competing for an allowance only one can spend.
+   * The wallet's open stop-loss orders on this token already lay claim to part of the smartIntent
+   * allowance. Ignoring that lets a second order skip approval and leaves the two competing for an
+   * allowance only one can spend. Limit orders are not counted: they draw on an approval to a different
+   * spender.
    */
+  const { data: activeMakingAmount } = useGetStopLossActiveMakingAmountQuery(
+    { chainId, userWallet: account || '', tokenIn: approvalCurrency?.address ?? '' },
+    { skip: !account || !approvalCurrency },
+  )
   const committedAmount = useMemo(() => {
-    if (!approvalCurrency) return undefined
-    const openSameToken = openOrders.filter(
-      order => order.tokenIn.toLowerCase() === approvalCurrency.address.toLowerCase(),
-    )
-    const total = openSameToken.reduce((sum, order) => sum + BigInt(order.amountIn), 0n)
-    const limitOrderTotal = activeLimitOrderAmount ? BigInt(activeLimitOrderAmount) : 0n
-    const combined = total + limitOrderTotal
-    return combined > 0n ? CurrencyAmount.fromRawAmount(approvalCurrency, combined.toString()) : undefined
-  }, [approvalCurrency, openOrders, activeLimitOrderAmount])
+    if (!approvalCurrency || !activeMakingAmount || activeMakingAmount === '0') return undefined
+    // A malformed or out-of-range figure would throw inside the SDK, so it counts as nothing committed.
+    try {
+      return CurrencyAmount.fromRawAmount(approvalCurrency, activeMakingAmount)
+    } catch {
+      return undefined
+    }
+  }, [approvalCurrency, activeMakingAmount])
 
   const hasEnoughAllowance = useCallback(
     (allowance: TokenAmount) => {

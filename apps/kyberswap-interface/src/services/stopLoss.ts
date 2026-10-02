@@ -47,6 +47,8 @@ export type StopLossBatchCancelResult = {
 
 export type StopLossOraclePriceParams = { chainId: ChainId; base: string; quote: string }
 
+export type StopLossActiveMakingAmountParams = { chainId: ChainId; userWallet: string; tokenIn: string }
+
 const ORDERS_PATH = '/v1/orders/stop-loss'
 
 const stopLossApi = createApi({
@@ -133,6 +135,15 @@ const stopLossApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_STOP_LOSS_ORDER_LIST],
     }),
 
+    // What the wallet's open stop-loss orders on a token add up to, raw — the share of the smartIntent
+    // allowance they will draw when they fire. Tagged with the list so placing or cancelling refreshes it.
+    getStopLossActiveMakingAmount: builder.query<string, StopLossActiveMakingAmountParams>({
+      query: params => ({ url: `${ORDERS_PATH}/active-making-amount`, params }),
+      transformResponse: (response: ApiEnvelope<{ activeMakingAmount?: string }>) =>
+        response?.data?.activeMakingAmount || '0',
+      providesTags: [RTK_QUERY_TAGS.GET_STOP_LOSS_ORDER_LIST],
+    }),
+
     // Which oracle the chain's triggers run on, and the token-list filter that finds the tokens it prices.
     getStopLossOracleConfig: builder.query<StopLossOracleConfig, ChainId>({
       query: chainId => ({ url: `${ORDERS_PATH}/oracle-config`, params: { chainId } }),
@@ -153,6 +164,7 @@ const stopLossApi = createApi({
 export const {
   useGetStopLossConfigQuery,
   useGetStopLossOrdersQuery,
+  useGetStopLossActiveMakingAmountQuery,
   useGetStopLossOracleConfigQuery,
   useGetStopLossOraclePriceQuery,
   useEstimateStopLossFeeMutation,
