@@ -5,27 +5,29 @@ import dayjs from 'dayjs'
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
-import {
+import tokenChartApi, {
   TOKEN_CHART_CANDLE_INTERVAL_MS,
   type TokenChartCandle,
   type TokenChartQueryParams,
   type TokenChartTimeFrame,
   getTokenChartFromBucketMs,
-  useLazyTokenPriceChartQuery,
   useTokenPriceChartQuery,
 } from 'services/tokenChart'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
+import type { PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { useStableCoins } from 'hooks/useTokens'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import { useAppDispatch } from 'state/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import type { DisplayCandle } from './TokenPriceChartCanvas'
 
@@ -58,9 +60,12 @@ const countRecentTransactions = (candles: TokenChartCandle[], count: number) => 
 type TokenPriceChartProps = {
   tokens?: Array<Currency | undefined>
   flatten?: boolean
+  /** Prices the tokens in this currency instead of the chain's USD stablecoin. */
+  quoteCurrency?: Currency
+  markerOverlay?: PriceMarkerOverlay
 }
 
-const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
+const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay }: TokenPriceChartProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -68,18 +73,16 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const chainId = tokens?.find(Boolean)?.chainId || ChainId.MAINNET
   const { isStableCoin } = useStableCoins(chainId)
 
+  const stableToken = PRICE_CHART_QUOTES[chainId]
+  const quoteToken = quoteCurrency ?? stableToken
+  const quoteKey = quoteToken ? getCurrencyKey(quoteToken) : ''
+
   const filteredTokens = useMemo(() => {
     return (tokens ?? []).reduce<Currency[]>((result, token) => {
-      if (!token) return result
-
-      const currencyKey = getCurrencyKey(token)
-      const quoteStableToken = PRICE_CHART_QUOTES[token.chainId]
-      const quoteStableTokenKey = quoteStableToken ? getCurrencyKey(quoteStableToken) : ''
-      if (currencyKey === quoteStableTokenKey) return result
-
+      if (!token || getCurrencyKey(token) === quoteKey) return result
       return result.concat(token)
     }, [])
-  }, [tokens])
+  }, [tokens, quoteKey])
 
   const defaultActiveTabIndex = Math.max(
     filteredTokens.findIndex(token => !token.isNative && !isStableCoin(token.wrapped.address)),
@@ -95,10 +98,25 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const activeToken = filteredTokens[resolvedActiveTabIndex] ?? filteredTokens[0]
   const activeTokenAddress = activeToken?.wrapped.address.toLowerCase()
 
-  const stableToken = PRICE_CHART_QUOTES[chainId]
   const stableAddress = stableToken?.wrapped.address.toLowerCase()
+  const quoteAddress = quoteToken?.wrapped.address.toLowerCase()
   const fromBucketMs = useMemo(() => getTokenChartFromBucketMs({ timeFrame }), [timeFrame])
-  const chartRequestKey = `${chainId}:${activeTokenAddress}:${stableAddress}:${timeFrame}`
+  const chartRequestKey = `${chainId}:${activeTokenAddress}:${quoteAddress}:${timeFrame}`
+
+  // Only the chain's USD chart quote reads as dollars. The stablecoin list is not USD-only (EURC), so
+  // every other quote carries its own symbol.
+  const isUsdQuote = !quoteToken || (!!stableToken && quoteKey === getCurrencyKey(stableToken))
+  const quoteSymbol = quoteToken?.symbol
+  const formatValue = useMemo(
+    () =>
+      isUsdQuote
+        ? formatPrice
+        : (value?: number) =>
+            value === undefined || !Number.isFinite(value)
+              ? '--'
+              : `${formatDisplayNumber(value, { significantDigits: 6 })} ${quoteSymbol ?? ''}`.trim(),
+    [isUsdQuote, quoteSymbol],
+  )
 
   useEffect(() => {
     setActiveTabIndex(defaultActiveTabIndex)
@@ -108,13 +126,13 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
     setIsExpanded(!upToSmall)
   }, [upToSmall])
 
-  const [fetchTokenChart] = useLazyTokenPriceChartQuery()
+  const dispatch = useAppDispatch()
 
   const initialQueryParams: TokenChartQueryParams = {
     chainId,
     tokenAddress: activeTokenAddress as string,
     stableAddress,
-    quoteAddress: stableAddress,
+    quoteAddress,
     timeFrame,
     fromBucketMs,
   }
@@ -128,9 +146,14 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
     isLoading,
   } = useInfiniteQuery({
     queryKey: ['token-price-chart', chartRequestKey, fromBucketMs],
-    enabled: Boolean(activeTokenAddress && stableAddress),
+    enabled: Boolean(activeTokenAddress && stableAddress && quoteAddress),
     initialPageParam: initialQueryParams,
-    queryFn: async ({ pageParam }) => fetchTokenChart(pageParam).unwrap(),
+    // React Query owns these pages, so the request carries no RTK subscription. One tied to this
+    // component is dropped when it remounts mid-fetch, and RTK then aborts the request it is waiting on.
+    queryFn: async ({ pageParam }) =>
+      dispatch(
+        tokenChartApi.endpoints.tokenPriceChart.initiate(pageParam, { subscribe: false, forceRefetch: true }),
+      ).unwrap(),
     getNextPageParam: lastPage => {
       if (!lastPage?.candles.length) return undefined
 
@@ -153,7 +176,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
       timeFrame: '1h',
       fromBucketMs: getTokenChartFromBucketMs({ timeFrame: '1h' }),
     },
-    { skip: !activeTokenAddress || !stableAddress },
+    { skip: !activeTokenAddress || !stableAddress || !quoteAddress },
   )
 
   const handleLoadMore = async () => {
@@ -186,7 +209,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const shouldHideChartForNoActivity = shouldUseActivityState && countRecentTransactions(activityCandles, 24 * 7) < 1
   const shouldShowLowActivityWarning = shouldUseActivityState && countRecentTransactions(activityCandles, 24) < 5
 
-  if (!activeToken || !stableToken) return null
+  if (!activeToken || !stableToken || !quoteToken) return null
 
   const settlementPriceTooltip = (
     <Stack className="items-start gap-1">
@@ -235,7 +258,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
               >
                 <CurrencyLogo currency={token} size="20px" />
                 <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
-                  {token.symbol}/{stableToken?.symbol}
+                  {token.symbol}/{quoteToken.symbol}
                 </span>
               </button>
             )
@@ -271,7 +294,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
               <Stack>
                 {currentPrice !== undefined && (
                   <HStack className="flex-nowrap items-baseline gap-2">
-                    <span className="text-xl font-medium text-text">{formatPrice(currentPrice)}</span>
+                    <span className="text-xl font-medium text-text">{formatValue(currentPrice)}</span>
 
                     {hasPriceChange && (
                       <>
@@ -322,11 +345,13 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
               >
                 <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
                   <TokenPriceChartCanvas
-                    key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
+                    key={`${activeTokenAddress}:${quoteAddress}:${timeFrame}`}
                     chartData={chartData}
                     canLoadMore={hasNextPage}
                     onLoadMore={handleLoadMore}
                     timeFrame={timeFrame}
+                    formatValue={formatValue}
+                    markerOverlay={markerOverlay}
                   />
                 </Suspense>
               </PoolChartState>

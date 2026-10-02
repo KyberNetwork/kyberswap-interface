@@ -6,7 +6,7 @@ import { ORDER_LIST_TABS, TabSelector } from 'components/LimitOrder/OrderList'
 import { LimitOrderTab } from 'components/LimitOrder/types'
 import { Stack } from 'components/Stack'
 import StopLossOrders from 'components/StopLoss/MyOrders'
-import TokenPriceChart from 'components/TokenPriceChart'
+import StopLossPriceChart from 'components/StopLoss/PriceChart'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
@@ -50,7 +50,7 @@ const StopLossRightPanel = () => {
         <TabSelector activeTab={currentTab} setActiveTab={setActiveTab} tabs={tabs} />
         <Stack className="border-t border-darkBorder">
           {currentTab === LimitOrderTab.PRICE ? (
-            <TokenPriceChart flatten tokens={[currencyIn, currencyOut]} />
+            <StopLossPriceChart currencyIn={currencyIn} currencyOut={currencyOut} />
           ) : (
             <OrderBook />
           )}
