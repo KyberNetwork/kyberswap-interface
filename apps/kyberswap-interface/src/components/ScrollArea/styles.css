@@ -1,0 +1,45 @@
+/* Overrides the app-level hidden-scrollbar reset only for explicit ScrollArea instances. */
+.ks-scroll-area {
+  --ks-scrollbar-track: var(--ks-background);
+
+  color-scheme: dark;
+  overflow: auto;
+  scrollbar-width: auto;
+}
+
+.ks-scroll-area::-webkit-scrollbar {
+  background: var(--ks-scrollbar-track);
+  display: block;
+}
+
+.ks-scroll-area::-webkit-scrollbar-track,
+.ks-scroll-area::-webkit-scrollbar-corner {
+  background: var(--ks-scrollbar-track);
+}
+
+.ks-scroll-area[data-scrollbar-size='sm'] {
+  --ks-scroll-area-size: 4px;
+
+  scrollbar-width: thin;
+}
+
+.ks-scroll-area[data-scrollbar-size='md'] {
+  --ks-scroll-area-size: 6px;
+
+  scrollbar-width: auto;
+}
+
+.ks-scroll-area[data-scrollbar='horizontal']::-webkit-scrollbar {
+  width: 0;
+  height: var(--ks-scrollbar-height, var(--ks-scroll-area-size));
+}
+
+.ks-scroll-area[data-scrollbar='vertical']::-webkit-scrollbar {
+  width: var(--ks-scrollbar-width, var(--ks-scroll-area-size));
+  height: 0;
+}
+
+.ks-scroll-area[data-scrollbar='both']::-webkit-scrollbar {
+  width: var(--ks-scrollbar-width, var(--ks-scroll-area-size));
+  height: var(--ks-scrollbar-height, var(--ks-scroll-area-size));
+}
