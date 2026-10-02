@@ -32,6 +32,8 @@ import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdra
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
+import { useVaultWithdrawTracking } from 'pages/Earns/hooks/useVaultFlowTracking'
+import { VaultTrackingSource, VaultTrackingSourceContext } from 'pages/Earns/hooks/useVaultTracking'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 
@@ -66,11 +68,14 @@ const WithdrawBody = ({
     pausePolling: isConfirming || processingState.state.show,
   })
 
+  const tracking = useVaultWithdrawTracking({ vault, form })
+
   const processing = useProcessingSteps<VaultStep>({
     ...processingState,
-    ...form.processing,
+    ...tracking.processing,
     // Taken before the run, since finishing it clears the form the amounts are read from.
     onStart: () => {
+      tracking.trackConfirmed()
       setActionSummary(form.amountSummary)
       setConfirming(false)
     },
@@ -93,6 +98,7 @@ const WithdrawBody = ({
     // A route the form judges bad waits on Degen Mode; the button points at the setting instead of
     // signing, the way the zap flows do.
     if (form.needsDegenMode) return askForDegenMode()
+    tracking.trackReviewOpened()
     return setConfirming(true)
   }
 
@@ -169,10 +175,13 @@ const WithdrawBody = ({
 /** Withdraw flow opened from a vault card, where the vault detail is not already loaded. */
 const VaultWithdrawModal = ({
   target,
+  source,
   onClose,
   onWithdrawn,
 }: {
   target: VaultWithdrawTarget | null
+  /** The surface the card sits on, reported on every event of the flow. */
+  source: VaultTrackingSource
   onClose: () => void
   onWithdrawn?: () => void
 }) => {
@@ -186,9 +195,11 @@ const VaultWithdrawModal = ({
   return (
     <Modal isOpen={Boolean(target)} onDismiss={onClose} maxWidth={480} width="480px" bgColor="transparent">
       {vault ? (
-        <VaultDegenPromptProvider>
-          <WithdrawBody vault={vault} onClose={onClose} onWithdrawn={onWithdrawn} />
-        </VaultDegenPromptProvider>
+        <VaultTrackingSourceContext.Provider value={source}>
+          <VaultDegenPromptProvider>
+            <WithdrawBody vault={vault} onClose={onClose} onWithdrawn={onWithdrawn} />
+          </VaultDegenPromptProvider>
+        </VaultTrackingSourceContext.Provider>
       ) : (
         <ModalWrapper>
           <VaultFormSkeleton kind="withdraw" onClose={onClose} />

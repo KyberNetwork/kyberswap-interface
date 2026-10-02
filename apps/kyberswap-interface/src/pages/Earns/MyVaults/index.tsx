@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { VaultPendingWithdrawalStatus, useVaultPositionsQuery } from 'services/vault'
@@ -52,6 +52,7 @@ import VaultWithdrawModal from 'pages/Earns/components/VaultWithdraw/VaultWithdr
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
+import { useVaultCardTracking } from 'pages/Earns/hooks/useVaultTracking'
 import { buildVaultDetailPath, safeBigInt, toUserVaultPosition } from 'pages/Earns/utils/vault'
 import { formatVaultApy, formatVaultTvl } from 'pages/Earns/utils/vaultFormat'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -261,6 +262,22 @@ const MyVaults = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [depositVault, setDepositVault] = useState<UserVaultPosition | null>(null)
   const [withdrawVault, setWithdrawVault] = useState<UserVaultPosition | null>(null)
+  const { trackDepositClick, trackWithdrawClick } = useVaultCardTracking('my_vaults')
+
+  const onDeposit = useCallback(
+    (vault: UserVaultPosition) => {
+      trackDepositClick(vault)
+      setDepositVault(vault)
+    },
+    [trackDepositClick],
+  )
+  const onWithdraw = useCallback(
+    (vault: UserVaultPosition) => {
+      trackWithdrawClick(vault)
+      setWithdrawVault(vault)
+    },
+    [trackWithdrawClick],
+  )
 
   const { data, isLoading, refetch } = useVaultPositionsQuery(
     {
@@ -332,8 +349,8 @@ const MyVaults = () => {
                 <MyVaultCard
                   key={vault.id}
                   vault={vault}
-                  onDeposit={setDepositVault}
-                  onWithdraw={setWithdrawVault}
+                  onDeposit={onDeposit}
+                  onWithdraw={onWithdraw}
                   revealIndex={index}
                 />
               ))}
@@ -344,12 +361,14 @@ const MyVaults = () => {
 
       <VaultDepositModal
         target={depositVault ? { chainId: depositVault.chainId, vaultId: depositVault.vaultId } : null}
+        source="my_vaults"
         onClose={() => setDepositVault(null)}
         onDeposited={refetch}
       />
 
       <VaultWithdrawModal
         target={withdrawVault ? { chainId: withdrawVault.chainId, vaultId: withdrawVault.vaultId } : null}
+        source="my_vaults"
         onClose={() => setWithdrawVault(null)}
         onWithdrawn={refetch}
       />

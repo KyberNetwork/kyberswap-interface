@@ -98,6 +98,7 @@ const toEpochSeconds = (iso?: string | null): number | undefined => {
 
 export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
   id: item.vaultId,
+  vaultAddress: item.vaultAddress || '',
   token: toDisplaySymbol(item.baseToken, item.underlyingToken),
   tokenIcon: toDisplayLogo(item.baseToken, item.underlyingToken),
   chainId: item.chain?.id || 0,
@@ -114,6 +115,7 @@ export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
 
 export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: VaultApiMetrics): VaultInfo => ({
   id: detail.vaultId,
+  vaultAddress: detail.vaultAddress || '',
   token: toDisplaySymbol(detail.baseToken, detail.underlyingToken),
   tokenIcon: toDisplayLogo(detail.baseToken, detail.underlyingToken),
   chainId: detail.chain?.id || 0,
@@ -180,6 +182,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
   return {
     id: v.id,
     vaultId: v.id,
+    vaultAddress: v.address || '',
     shareBalanceRaw: item.shareBalanceRaw || '0',
     shareDecimals: v.shareToken?.decimals ?? 18,
     shareSymbol: v.shareToken?.symbol || '',
@@ -197,6 +200,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     tvlHistory: [],
     balance: Number(item.underlyingEquivalent) || 0,
     balanceUsd: toOwnedUsd(item),
+    shareBalanceUsd: Number(item.usdValue) || 0,
     earned: toVaultEarnings(item),
     earnedUsd: toVaultEarningsUsd(item),
     pendingWithdrawal:

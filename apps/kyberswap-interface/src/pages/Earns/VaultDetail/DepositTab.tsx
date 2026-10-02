@@ -20,6 +20,7 @@ import VaultPriceImpactNote, {
 } from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
+import { useVaultDepositTracking } from 'pages/Earns/hooks/useVaultFlowTracking'
 import { toRouteSwaps, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
@@ -49,11 +50,14 @@ const DepositTab = ({
     pausePolling: isConfirming || processingState.state.show,
   })
 
+  const tracking = useVaultDepositTracking({ vault, form })
+
   const processing = useProcessingSteps<VaultStep>({
     ...processingState,
-    ...form.processing,
+    ...tracking.processing,
     // Taken before the run, since finishing it clears the form the amounts are read from.
     onStart: () => {
+      tracking.trackConfirmed()
       setActionSummary(form.amountSummary)
       setConfirming(false)
     },
@@ -132,9 +136,12 @@ const DepositTab = ({
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
     if (form.wrongChain && form.chainId) return changeNetwork(form.chainId)
+    // The form is already open here, so this button is the click into the deposit funnel.
+    tracking.trackClicked()
     // A route the form judges bad waits on Degen Mode; the button points at the setting instead of
     // signing, the way the zap flows do.
     if (form.needsDegenMode) return askForDegenMode()
+    tracking.trackReviewOpened()
     return setConfirming(true)
   }
 

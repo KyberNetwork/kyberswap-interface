@@ -7,6 +7,7 @@ import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
 import { RequestsPanel } from 'pages/Earns/VaultDetail/styles'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
+import { useVaultTracking, vaultTargetFromDetail } from 'pages/Earns/hooks/useVaultTracking'
 import { getWithdrawRequestsInProgress } from 'pages/Earns/utils/vault'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
@@ -55,6 +56,9 @@ const WithdrawRequestsPanel = ({ vault, onChanged }: { vault: VaultApiDetailItem
   )
   const prices = useTokenPrices(priceAddresses, chainId as ChainId)
 
+  const trackingTarget = useMemo(() => vaultTargetFromDetail(vault), [vault])
+  const { props: trackingProps } = useVaultTracking(trackingTarget)
+
   if (!chainId || !requests.length) return null
 
   return (
@@ -69,6 +73,7 @@ const WithdrawRequestsPanel = ({ vault, onChanged }: { vault: VaultApiDetailItem
           decimals: vault.shareToken?.decimals ?? 18,
         }}
         prices={prices}
+        trackingProps={trackingProps}
         onCancelled={() => {
           refetchRequests()
           onChanged()

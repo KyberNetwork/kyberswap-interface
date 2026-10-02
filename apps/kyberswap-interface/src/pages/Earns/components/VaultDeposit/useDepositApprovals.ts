@@ -7,6 +7,7 @@ import { useApproveCallback } from 'hooks/useApproveCallback'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import type { VaultDepositInput } from 'pages/Earns/VaultDetail/hooks/useVaultDeposit'
 import { VaultStep, vaultApproveStep } from 'pages/Earns/components/vaultSteps'
+import { VAULT_DEPOSIT_APPROVAL_TRACKING } from 'pages/Earns/hooks/useVaultTracking'
 
 type ApprovalSlotArgs = {
   input?: VaultDepositInput
@@ -21,6 +22,7 @@ const useApprovalSlot = ({ input, spender, chainId, account }: ApprovalSlotArgs)
     amount: input?.parsedAmount,
     spender,
     forceApprove: true,
+    trackingPayload: VAULT_DEPOSIT_APPROVAL_TRACKING,
   })
   const checkApprovalManually = useCheckAllowance({
     account,

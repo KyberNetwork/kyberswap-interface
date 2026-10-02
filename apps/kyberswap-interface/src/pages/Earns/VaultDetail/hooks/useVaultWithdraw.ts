@@ -1,13 +1,14 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { VaultWithdrawRequest } from 'services/vault'
+import { VaultWithdrawRequest, VaultWithdrawRequestStatus } from 'services/vault'
 
 import { NotificationType } from 'components/Announcement/type'
 import BORING_ON_CHAIN_QUEUE_ABI from 'constants/abis/earn/boringOnChainQueue.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { VAULT_WITHDRAW_APPROVAL_TRACKING } from 'pages/Earns/hooks/useVaultTracking'
 import { submitTransaction } from 'pages/Earns/utils'
 import { getWithdrawRequestCancellation, safeBigInt } from 'pages/Earns/utils/vault'
 import { useNotify } from 'state/application/hooks'
@@ -59,6 +60,7 @@ export const useVaultWithdraw = ({
     amount: approvalAmount,
     spender: queueAddress,
     forceApprove: true,
+    trackingPayload: VAULT_WITHDRAW_APPROVAL_TRACKING,
   })
 
   const reset = useCallback(() => {
@@ -66,65 +68,74 @@ export const useVaultWithdraw = ({
     setTxHash(null)
   }, [])
 
-  /** Returns the transaction hash so a step sequence can wait for its receipt. */
-  const requestWithdraw = useCallback(async (): Promise<string | undefined> => {
-    if (!account || !queueAddress || !assetOut || !shares || shares <= 0n) return undefined
-    if (discount === undefined || secondsToDeadline === undefined) return undefined
+  /**
+   * Returns the transaction hash so a step sequence can wait for its receipt. A failure is reported
+   * here and then rethrown, so the sequence can tell a refusal from any other failure.
+   *
+   * `trackingPayload` rides on the transaction, for the events sent once its receipt is in.
+   */
+  const requestWithdraw = useCallback(
+    async (trackingPayload?: Record<string, unknown>): Promise<string | undefined> => {
+      if (!account || !queueAddress || !assetOut || !shares || shares <= 0n) return undefined
+      if (discount === undefined || secondsToDeadline === undefined) return undefined
 
-    setSubmitError(null)
-    setIsSubmitting(true)
+      setSubmitError(null)
+      setIsSubmitting(true)
 
-    try {
-      const data = encodeFunctionData({
-        abi: BORING_ON_CHAIN_QUEUE_ABI as Abi,
-        functionName: 'requestOnChainWithdraw',
-        args: [assetOut as Address, shares, discount, secondsToDeadline],
-      })
+      try {
+        const data = encodeFunctionData({
+          abi: BORING_ON_CHAIN_QUEUE_ABI as Abi,
+          functionName: 'requestOnChainWithdraw',
+          args: [assetOut as Address, shares, discount, secondsToDeadline],
+        })
 
-      const { txHash: hash, error } = await submitTransaction({
-        account,
-        chainId: chainId as ChainId,
-        txData: { to: queueAddress, data, value: '0' },
-        isSmartConnector,
-      })
+        const { txHash: hash, error } = await submitTransaction({
+          account,
+          chainId: chainId as ChainId,
+          txData: { to: queueAddress, data, value: '0' },
+          isSmartConnector,
+        })
 
-      if (error || !hash) throw error || new Error('Transaction was not submitted')
+        if (error || !hash) throw error || new Error('Transaction was not submitted')
 
-      setTxHash(hash)
-      addTransactionWithType({
-        hash,
-        type: TRANSACTION_TYPE.EARN_VAULT_WITHDRAW_REQUEST,
-        extraInfo: {
-          tokenAddress: shareToken?.address ?? '',
-          tokenSymbol: shareToken?.symbol ?? '',
-          tokenAmount: approvalAmount?.toSignificant(6) ?? '',
-          contract: queueAddress,
-        },
-      })
-      return hash
-    } catch (error) {
-      const message = friendlyError(error as Error)
-      setSubmitError(message)
-      notify({ title: t`Withdrawal request failed`, summary: message, type: NotificationType.ERROR }, 8000)
-      return undefined
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [
-    account,
-    queueAddress,
-    assetOut,
-    shares,
-    discount,
-    secondsToDeadline,
-    chainId,
-    isSmartConnector,
-    addTransactionWithType,
-    shareToken?.address,
-    shareToken?.symbol,
-    approvalAmount,
-    notify,
-  ])
+        setTxHash(hash)
+        addTransactionWithType({
+          hash,
+          type: TRANSACTION_TYPE.EARN_VAULT_WITHDRAW_REQUEST,
+          extraInfo: {
+            tokenAddress: shareToken?.address ?? '',
+            tokenSymbol: shareToken?.symbol ?? '',
+            tokenAmount: approvalAmount?.toSignificant(6) ?? '',
+            contract: queueAddress,
+            trackingPayload,
+          },
+        })
+        return hash
+      } catch (error) {
+        const message = friendlyError(error as Error)
+        setSubmitError(message)
+        notify({ title: t`Withdrawal request failed`, summary: message, type: NotificationType.ERROR }, 8000)
+        throw error
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [
+      account,
+      queueAddress,
+      assetOut,
+      shares,
+      discount,
+      secondsToDeadline,
+      chainId,
+      isSmartConnector,
+      addTransactionWithType,
+      shareToken?.address,
+      shareToken?.symbol,
+      approvalAmount,
+      notify,
+    ],
+  )
 
   return {
     approvalState,
@@ -147,11 +158,14 @@ export const useCancelWithdrawRequest = ({
   chainId,
   shareSymbol,
   shareDecimals,
+  trackingProps,
   onSubmitted,
 }: {
   chainId: number
   shareSymbol: string
   shareDecimals: number
+  /** Names the vault on the cancellation's tracking event, sent once its receipt is in. */
+  trackingProps?: Record<string, unknown>
   onSubmitted?: () => void
 }) => {
   const { account, chainId: walletChainId } = useActiveWeb3React()
@@ -215,6 +229,12 @@ export const useCancelWithdrawRequest = ({
           extraInfo: {
             summary: `${formatUnits(safeBigInt(request.escrowedSharesRaw), shareDecimals)} ${shareSymbol}`,
             contract: cancellation.contractAddress,
+            trackingPayload: trackingProps && {
+              ...trackingProps,
+              request_id: request.requestId,
+              // A request still open is waiting on a solver however the API labels that wait.
+              request_status: request.status === VaultWithdrawRequestStatus.EXPIRED ? 'expired' : 'pending',
+            },
           },
         })
         onSubmitted?.()
@@ -236,6 +256,7 @@ export const useCancelWithdrawRequest = ({
       addTransactionWithType,
       shareSymbol,
       shareDecimals,
+      trackingProps,
       onSubmitted,
       notify,
     ],
