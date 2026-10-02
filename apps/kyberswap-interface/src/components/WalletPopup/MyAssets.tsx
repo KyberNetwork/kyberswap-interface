@@ -38,6 +38,7 @@ export default function MyAssets({
   loadingTokens,
   usdBalances,
   currencyBalances,
+  inventoryNativeBalance,
   hasNetworkIssue,
   hideBalance,
   hiddenTokens,
@@ -48,6 +49,8 @@ export default function MyAssets({
   hasNetworkIssue: boolean
   usdBalances: { [address: string]: number }
   currencyBalances: { [address: string]: TokenAmount | undefined }
+  /** The native balance the inventory holds; shown until the chain's own read lands. */
+  inventoryNativeBalance?: CurrencyAmount<Currency>
   hideBalance: boolean
   /** Held tokens that are neither whitelisted nor imported; listed after the vetted ones, not totalled. */
   hiddenTokens: WrappedTokenInfo[]
@@ -78,7 +81,9 @@ export default function MyAssets({
   useEnsureTokenMetadata(chainId, visibleHidden)
   const [importTarget, setImportTarget] = useState<Token | null>(null)
   const closeImport = () => setImportTarget(null)
-  const nativeBalance = useNativeBalance()
+  const liveNativeBalance = useNativeBalance()
+  // The chain read is fresher and wins; until it lands the row shows what the walk carried.
+  const nativeBalance = liveNativeBalance ?? inventoryNativeBalance
   // The native row is displayed off the live per-block read; bound the wait so a read that never
   // lands leaves the row reading as unknown rather than on a loader for good.
   const waitingForNative = useBalanceWait(nativeBalance, !!account)

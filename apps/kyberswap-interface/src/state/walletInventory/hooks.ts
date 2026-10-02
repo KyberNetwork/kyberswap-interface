@@ -2,7 +2,6 @@ import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useSyncExternalStore } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
-import { useNativeBalance } from 'state/wallet/hooks'
 import {
   TokenMetadata,
   ensureTokenMetadata,
@@ -49,11 +48,7 @@ export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInv
   const entry = useMemo(() => (key ? readEntry(key) : undefined), [key, storeVersion])
   /* eslint-enable react-hooks/exhaustive-deps */
 
-  // Read live per block. Identity changes every block even when the value does not, so the resolver is
-  // keyed on the value to avoid rebuilding rows for a balance that did not move.
-  const nativeRawBalance = useNativeBalance(resolvedChain)?.quotient.toString()
-
-  return useMemo(() => resolveInventory(entry, subscribed, nativeRawBalance), [entry, subscribed, nativeRawBalance])
+  return useMemo(() => resolveInventory(entry, subscribed), [entry, subscribed])
 }
 
 /**
