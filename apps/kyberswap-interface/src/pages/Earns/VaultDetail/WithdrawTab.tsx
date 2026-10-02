@@ -19,6 +19,7 @@ import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdra
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
+import { useVaultWithdrawTracking } from 'pages/Earns/hooks/useVaultFlowTracking'
 import { toRouteSwaps, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
@@ -50,11 +51,14 @@ const WithdrawTab = ({
     pausePolling: isConfirming || processingState.state.show,
   })
 
+  const tracking = useVaultWithdrawTracking({ vault, form })
+
   const processing = useProcessingSteps<VaultStep>({
     ...processingState,
-    ...form.processing,
+    ...tracking.processing,
     // Taken before the run, since finishing it clears the form the amounts are read from.
     onStart: () => {
+      tracking.trackConfirmed()
       setActionSummary(form.amountSummary)
       setConfirming(false)
     },
@@ -119,6 +123,7 @@ const WithdrawTab = ({
     // A route the form judges bad waits on Degen Mode; the button points at the setting instead of
     // signing, the way the zap flows do.
     if (form.needsDegenMode) return askForDegenMode()
+    tracking.trackReviewOpened()
     return setConfirming(true)
   }
 

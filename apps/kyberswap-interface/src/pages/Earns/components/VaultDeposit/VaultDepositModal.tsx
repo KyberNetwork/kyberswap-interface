@@ -29,6 +29,8 @@ import VaultPriceImpactNote, {
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import VaultSettingsMenu from 'pages/Earns/components/VaultSettingsMenu'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
+import { useVaultDepositTracking } from 'pages/Earns/hooks/useVaultFlowTracking'
+import { VaultTrackingSource, VaultTrackingSourceContext } from 'pages/Earns/hooks/useVaultTracking'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 
@@ -56,11 +58,14 @@ const DepositBody = ({
     pausePolling: isConfirming || processingState.state.show,
   })
 
+  const tracking = useVaultDepositTracking({ vault, form })
+
   const processing = useProcessingSteps<VaultStep>({
     ...processingState,
-    ...form.processing,
+    ...tracking.processing,
     // Taken before the run, since finishing it clears the form the amounts are read from.
     onStart: () => {
+      tracking.trackConfirmed()
       setActionSummary(form.amountSummary)
       setConfirming(false)
     },
@@ -83,6 +88,7 @@ const DepositBody = ({
     // A route the form judges bad waits on Degen Mode; the button points at the setting instead of
     // signing, the way the zap flows do.
     if (form.needsDegenMode) return askForDegenMode()
+    tracking.trackReviewOpened()
     return setConfirming(true)
   }
 
@@ -149,10 +155,13 @@ const DepositBody = ({
 /** Deposit flow opened from a vault card, where the vault detail is not already loaded. */
 const VaultDepositModal = ({
   target,
+  source,
   onClose,
   onDeposited,
 }: {
   target: VaultDepositTarget | null
+  /** The surface the card sits on, reported on every event of the flow. */
+  source: VaultTrackingSource
   onClose: () => void
   onDeposited?: () => void
 }) => {
@@ -166,9 +175,11 @@ const VaultDepositModal = ({
   return (
     <Modal isOpen={Boolean(target)} onDismiss={onClose} maxWidth={480} width="480px" bgColor="transparent">
       {vault ? (
-        <VaultDegenPromptProvider>
-          <DepositBody vault={vault} onClose={onClose} onDeposited={onDeposited} />
-        </VaultDegenPromptProvider>
+        <VaultTrackingSourceContext.Provider value={source}>
+          <VaultDegenPromptProvider>
+            <DepositBody vault={vault} onClose={onClose} onDeposited={onDeposited} />
+          </VaultDegenPromptProvider>
+        </VaultTrackingSourceContext.Provider>
       ) : (
         <ModalWrapper>
           <VaultFormSkeleton kind="deposit" onClose={onClose} />

@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useCallback, useRef, useState } from 'react'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ApprovalState, ApprovalStatus } from 'hooks/useApproveCallback'
 import { wait } from 'utils/retry'
+import { didUserReject } from 'utils/walletError'
 
 export type ProcessingStepStatus = 'idle' | 'active' | 'success' | 'error'
 
@@ -27,6 +28,16 @@ export type ProcessingController<Step extends string> = {
   start: () => void
   dismiss: () => void
   retryStep: (step: Step) => void
+}
+
+/**
+ * Why a step failed. `unconfirmed` means a transaction went out but its outcome could not be read in
+ * time, so it may still land; `failed` covers everything that is neither a refusal nor a revert.
+ */
+export type ProcessingStepFailure = {
+  reason: 'rejected' | 'reverted' | 'unconfirmed' | 'failed'
+  /** What was thrown, when the step failed by throwing. */
+  error?: unknown
 }
 
 /** One token's allowance, tied to the step that grants it. */
@@ -70,7 +81,8 @@ type UseProcessingStepsProps<Step extends string> = {
    */
   onFinalStep: () => Promise<boolean | string | undefined>
 
-  onError?: (error: unknown, step: Step) => void
+  /** Fired each time a step fails, with the reason. A step dropped because the run was dismissed is not a failure. */
+  onStepFailed?: (step: Step, failure: ProcessingStepFailure) => void
   onStart?: () => void
   /** Fired once every step has succeeded. */
   onComplete?: () => void
@@ -127,7 +139,7 @@ export const useProcessingSteps = <Step extends string>({
   onWrap,
   onWrapSuccess,
   onFinalStep,
-  onError,
+  onStepFailed,
   onStart,
   onComplete,
 }: UseProcessingStepsProps<Step>): ProcessingController<Step> => {
@@ -168,6 +180,17 @@ export const useProcessingSteps = <Step extends string>({
     })
   }
 
+  const failStep = (step: Step, failure: ProcessingStepFailure, canRetry = true) => {
+    onStepFailed?.(step, failure)
+    markStepError(step, canRetry)
+  }
+
+  /** A thrown error is a refusal when the wallet says so, and a plain failure otherwise. */
+  const thrownFailure = (error: unknown): ProcessingStepFailure => ({
+    reason: didUserReject(error) ? 'rejected' : 'failed',
+    error,
+  })
+
   const dismiss = useCallback(() => {
     runIdRef.current += 1
     isRunningRef.current = false
@@ -207,13 +230,13 @@ export const useProcessingSteps = <Step extends string>({
     try {
       const hash = await onWrap?.()
       if (!hash) {
-        markStepError(step)
+        failStep(step, { reason: 'failed' })
         return false
       }
 
       const outcome = await waitForReceipt(hash)
       if (outcome !== 'mined') {
-        markStepError(step, outcome === 'reverted')
+        failStep(step, { reason: outcome === 'reverted' ? 'reverted' : 'unconfirmed' }, outcome === 'reverted')
         return false
       }
 
@@ -221,8 +244,7 @@ export const useProcessingSteps = <Step extends string>({
       markStepSuccess(step)
       return true
     } catch (error) {
-      onError?.(error, step)
-      markStepError(step)
+      failStep(step, thrownFailure(error))
       return false
     }
   }
@@ -239,7 +261,7 @@ export const useProcessingSteps = <Step extends string>({
         const status = await allowance.approveCallback()
         // SKIPPED means nothing was sent, and the live allowance has just said one is needed.
         if (status !== ApprovalStatus.SUBMITTED) {
-          markStepError(step)
+          failStep(step, { reason: status === ApprovalStatus.REJECTED ? 'rejected' : 'failed' })
           return false
         }
       }
@@ -249,11 +271,12 @@ export const useProcessingSteps = <Step extends string>({
         return true
       }
 
-      markStepError(step)
+      // The wait also gives up when the run is dismissed or restarted, which is not the approval failing.
+      if (!isCurrentRun(runId)) return false
+      failStep(step, { reason: 'unconfirmed' })
       return false
     } catch (error) {
-      onError?.(error, step)
-      markStepError(step)
+      failStep(step, thrownFailure(error))
       return false
     }
   }
@@ -262,7 +285,7 @@ export const useProcessingSteps = <Step extends string>({
     try {
       const result = await onFinalStep()
       if (!result) {
-        markStepError(step)
+        failStep(step, { reason: 'failed' })
         return false
       }
 
@@ -271,7 +294,7 @@ export const useProcessingSteps = <Step extends string>({
         const outcome = await waitForReceipt(result)
         if (outcome !== 'mined') {
           // An unread receipt is not a failed transaction: retrying would send a second one.
-          markStepError(step, outcome === 'reverted')
+          failStep(step, { reason: outcome === 'reverted' ? 'reverted' : 'unconfirmed' }, outcome === 'reverted')
           return false
         }
       }
@@ -279,8 +302,7 @@ export const useProcessingSteps = <Step extends string>({
       markStepSuccess(step)
       return true
     } catch (error) {
-      onError?.(error, step)
-      markStepError(step)
+      failStep(step, thrownFailure(error))
       return false
     }
   }

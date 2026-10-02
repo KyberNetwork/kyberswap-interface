@@ -43,6 +43,8 @@ type UseApproveCallbackArgs = {
   spender?: string
   forceApprove?: boolean
   onApprovalError?: (error: ApprovalError) => void
+  /** Carried on the approval transaction into its `Token Approval Completed` event. */
+  trackingPayload?: Record<string, unknown>
 }
 
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
@@ -51,6 +53,7 @@ export function useApproveCallback({
   spender,
   forceApprove = false,
   onApprovalError,
+  trackingPayload,
 }: UseApproveCallbackArgs): [
   ApprovalState,
   (customAllowance?: CurrencyAmount<Currency>) => Promise<ApprovalStatus>,
@@ -192,6 +195,7 @@ export function useApproveCallback({
               tokenSymbol: token.symbol ?? '',
               tokenAddress: token.address,
               contract: spender,
+              trackingPayload,
             },
           })
           return ApprovalStatus.SUBMITTED
@@ -229,6 +233,7 @@ export function useApproveCallback({
       onApprovalError,
       isSmartConnector,
       chainId,
+      trackingPayload,
     ],
   )
 

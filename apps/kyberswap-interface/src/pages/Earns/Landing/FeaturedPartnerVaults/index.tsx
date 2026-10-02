@@ -12,6 +12,7 @@ import {
 } from 'pages/Earns/Landing/FeaturedPartnerVaults/styles'
 import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
+import { useVaultCardTracking } from 'pages/Earns/hooks/useVaultTracking'
 import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -36,6 +37,7 @@ const VaultItemSkeleton = () => (
 
 const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boolean }) => {
   const [depositVault, setDepositVault] = useState<{ chainId: number; vaultId: string } | null>(null)
+  const { trackDepositClick } = useVaultCardTracking('landing')
 
   const { data, isLoading } = useVaultListQuery({
     pageSize: FEATURED_COUNT,
@@ -83,7 +85,12 @@ const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boole
                         {t`managed by`} {vault.partner}
                       </span>
                     </VaultProtocolTag>
-                    <VaultDepositButton onClick={() => setDepositVault({ chainId: vault.chainId, vaultId: vault.id })}>
+                    <VaultDepositButton
+                      onClick={() => {
+                        trackDepositClick(vault)
+                        setDepositVault({ chainId: vault.chainId, vaultId: vault.id })
+                      }}
+                    >
                       {t`+ Deposit`}
                     </VaultDepositButton>
                   </div>
@@ -92,7 +99,7 @@ const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boole
             })}
       </PartnerVaultsList>
 
-      <VaultDepositModal target={depositVault} onClose={() => setDepositVault(null)} />
+      <VaultDepositModal target={depositVault} source="landing" onClose={() => setDepositVault(null)} />
     </>
   )
 }

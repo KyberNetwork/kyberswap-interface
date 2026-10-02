@@ -17,6 +17,7 @@ export enum VaultViewMode {
 
 export interface VaultInfo {
   id: string
+  vaultAddress: string
   token: string
   tokenIcon: string
   chainId: number
@@ -47,6 +48,8 @@ export interface UserVaultPosition extends VaultInfo {
   shareSymbol: string
   balance: number
   balanceUsd: number
+  /** The shares still in the wallet, priced: what a withdrawal can spend, without the queue's part. */
+  shareBalanceUsd: number
   /** Cumulative yield in underlying-token units. */
   earned?: number
   /** The same yield priced in USD, so the two read as one figure. */

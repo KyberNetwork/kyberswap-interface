@@ -40,6 +40,8 @@ type UseZapSwapArgs = {
    * flow spending several owns its own allowances, one per token.
    */
   approvalAmount?: CurrencyAmount<Currency>
+  /** Carried on that approval into its tracking events. */
+  approvalTrackingPayload?: Record<string, unknown>
   /** Slippage in basis points. */
   slippage: number
   transactionType: TRANSACTION_TYPE
@@ -59,6 +61,7 @@ export const useZapSwap = ({
   tokensIn,
   tokenOutAddress,
   approvalAmount,
+  approvalTrackingPayload,
   slippage,
   transactionType,
   buildExtraInfo,
@@ -157,64 +160,73 @@ export const useZapSwap = ({
     amount: approvalAmount,
     spender: route?.allowanceHubAddress,
     forceApprove: true,
+    trackingPayload: approvalTrackingPayload,
   })
 
-  /** Returns the transaction hash so a step sequence can wait for its receipt. */
-  const submit = useCallback(async (): Promise<string | undefined> => {
-    if (!account || !route) return undefined
+  /**
+   * Returns the transaction hash so a step sequence can wait for its receipt. A failure is reported
+   * here and then rethrown, so the sequence can tell a refusal from any other failure.
+   *
+   * `trackingPayload` rides on the transaction, for the events sent once its receipt is in.
+   */
+  const submit = useCallback(
+    async (trackingPayload?: Record<string, unknown>): Promise<string | undefined> => {
+      if (!account || !route) return undefined
 
-    setSubmitError(null)
-    setIsSubmitting(true)
+      setSubmitError(null)
+      setIsSubmitting(true)
 
-    try {
-      const built = await buildSwapRoute({
-        chainName: CHAIN_ID_TO_CHAIN[chainId as keyof typeof CHAIN_ID_TO_CHAIN],
-        sender: account,
-        recipient: account,
-        route: route.route,
-        deadline: Math.floor(Date.now() / 1000) + ROUTE_DEADLINE_SECONDS,
-        source: 'kyberswap',
-      }).unwrap()
+      try {
+        const built = await buildSwapRoute({
+          chainName: CHAIN_ID_TO_CHAIN[chainId as keyof typeof CHAIN_ID_TO_CHAIN],
+          sender: account,
+          recipient: account,
+          route: route.route,
+          deadline: Math.floor(Date.now() / 1000) + ROUTE_DEADLINE_SECONDS,
+          source: 'kyberswap',
+        }).unwrap()
 
-      const buildData = built.data
-      if (!buildData?.callData) throw new Error(built.message || 'Failed to build the transaction')
+        const buildData = built.data
+        if (!buildData?.callData) throw new Error(built.message || 'Failed to build the transaction')
 
-      const { txHash: hash, error } = await submitTransaction({
-        account,
-        chainId: chainId as ChainId,
-        txData: { to: buildData.routerAddress, data: buildData.callData, value: buildData.value },
-        isSmartConnector,
-      })
+        const { txHash: hash, error } = await submitTransaction({
+          account,
+          chainId: chainId as ChainId,
+          txData: { to: buildData.routerAddress, data: buildData.callData, value: buildData.value },
+          isSmartConnector,
+        })
 
-      if (error || !hash) throw error || new Error('Transaction was not submitted')
+        if (error || !hash) throw error || new Error('Transaction was not submitted')
 
-      setTxHash(hash)
-      addTransactionWithType({
-        hash,
-        type: transactionType,
-        extraInfo: buildExtraInfo?.(buildData.quoteAmountOut || '0'),
-      })
-      return hash
-    } catch (error) {
-      const message = friendlyError(error as Error)
-      setSubmitError(message)
-      notify({ title: errorTitle, summary: message, type: NotificationType.ERROR }, 8000)
-      return undefined
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [
-    account,
-    route,
-    buildSwapRoute,
-    chainId,
-    isSmartConnector,
-    addTransactionWithType,
-    transactionType,
-    buildExtraInfo,
-    notify,
-    errorTitle,
-  ])
+        setTxHash(hash)
+        addTransactionWithType({
+          hash,
+          type: transactionType,
+          extraInfo: { ...buildExtraInfo?.(buildData.quoteAmountOut || '0'), trackingPayload },
+        })
+        return hash
+      } catch (error) {
+        const message = friendlyError(error as Error)
+        setSubmitError(message)
+        notify({ title: errorTitle, summary: message, type: NotificationType.ERROR }, 8000)
+        throw error
+      } finally {
+        setIsSubmitting(false)
+      }
+    },
+    [
+      account,
+      route,
+      buildSwapRoute,
+      chainId,
+      isSmartConnector,
+      addTransactionWithType,
+      transactionType,
+      buildExtraInfo,
+      notify,
+      errorTitle,
+    ],
+  )
 
   const reset = useCallback(() => {
     setSubmitError(null)

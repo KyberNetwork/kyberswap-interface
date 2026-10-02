@@ -228,6 +228,7 @@ const WithdrawRequestList = ({
   assets,
   shareToken,
   prices,
+  trackingProps,
   onCancelled,
 }: {
   chainId: number
@@ -238,12 +239,15 @@ const WithdrawRequestList = ({
   shareToken: { address?: string; symbol: string; decimals: number }
   /** Keyed on the lowercased address, for the dollar figure beside every amount. */
   prices: { [address: string]: number }
+  /** Names the vault on a cancellation's tracking event. */
+  trackingProps?: Record<string, unknown>
   onCancelled: () => void
 }) => {
   const { cancelRequest, cancellingRequestId } = useCancelWithdrawRequest({
     chainId,
     shareSymbol: shareToken.symbol,
     shareDecimals: shareToken.decimals,
+    trackingProps,
     onSubmitted: onCancelled,
   })
 
