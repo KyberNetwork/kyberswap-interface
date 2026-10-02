@@ -2,13 +2,14 @@ import { ChainId as SchemaChainId } from '@kyber/schema'
 import TokenSelectorModal, { TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { t } from '@lingui/macro'
 import Portal from '@reach/portal'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { VaultApiDetailItem } from 'services/vault'
 
 import { ReactComponent as SharesIcon } from 'assets/svg/earn/ic_featured_vault.svg'
 import TokenLogo from 'components/TokenLogo'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 /**
  * Amount field and terms for both withdrawal routes: selling the shares through the aggregator, or
@@ -40,6 +41,8 @@ import {
 import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
 import { PERCENT_OPTIONS, WithdrawFormState, WithdrawMode } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { formatTerm } from 'pages/Earns/hooks/useCountdown'
+import { toWithdrawMethod } from 'pages/Earns/hooks/useVaultFlowTracking'
+import { useVaultTracking, vaultTargetFromDetail } from 'pages/Earns/hooks/useVaultTracking'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { isInventoryChain } from 'state/walletInventory/store'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -52,6 +55,20 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
   const toggleWalletModal = useWalletModalToggle()
 
   useOnClickOutside(assetMenuRef, () => setAssetMenuOpen(false))
+
+  const trackingTarget = useMemo(() => vaultTargetFromDetail(vault), [vault])
+  const { track } = useVaultTracking(trackingTarget)
+
+  /** Only a switch is reported; the method a withdrawal opens on rides on its review instead. */
+  const selectMode = (next: WithdrawMode) => {
+    if (next !== form.mode) {
+      track(TRACKING_EVENT_TYPE.VAULT_WITHDRAW_METHOD_SELECTED, {
+        withdraw_method: toWithdrawMethod(next),
+        previous_method: toWithdrawMethod(form.mode),
+      })
+    }
+    form.onSelectMode(next)
+  }
 
   const shareLogo = vault.shareToken?.logo
   const balanceText = formatDisplayNumber(formatUnits(form.shareBalanceRaw, form.shareDecimals), {
@@ -142,11 +159,11 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
           <SegmentedTabs>
             <SegmentedTab
               $active={form.mode === WithdrawMode.ANY_TOKEN}
-              onClick={() => form.onSelectMode(WithdrawMode.ANY_TOKEN)}
+              onClick={() => selectMode(WithdrawMode.ANY_TOKEN)}
             >
               {t`Withdraw to any token`}
             </SegmentedTab>
-            <SegmentedTab $active={form.isNative} onClick={() => form.onSelectMode(WithdrawMode.NATIVE)}>
+            <SegmentedTab $active={form.isNative} onClick={() => selectMode(WithdrawMode.NATIVE)}>
               {t`Native withdraw`}
             </SegmentedTab>
           </SegmentedTabs>

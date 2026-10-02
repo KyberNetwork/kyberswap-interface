@@ -15,6 +15,7 @@ import SegmentedControl, { type SegmentedControlOption } from 'components/Segmen
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApyBarChart, BalanceLineChart, EarningLineChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import DepositTab from 'pages/Earns/VaultDetail/DepositTab'
 import VaultDetailPageSkeleton from 'pages/Earns/VaultDetail/PageSkeleton'
@@ -57,6 +58,7 @@ import { VaultDegenPromptProvider } from 'pages/Earns/components/VaultDegenPromp
 import VaultSettingsMenu from 'pages/Earns/components/VaultSettingsMenu'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
+import { VaultTrackingSourceContext, useVaultTracking, vaultTargetFromDetail } from 'pages/Earns/hooks/useVaultTracking'
 import {
   VaultDetailTab,
   toBalanceSeries,
@@ -166,6 +168,20 @@ const VaultDetail = () => {
   )
 
   const vault = useMemo(() => (detail ? toVaultInfoFromDetail(detail) : undefined), [detail])
+
+  const trackingTarget = useMemo(() => (detail ? vaultTargetFromDetail(detail) : undefined), [detail])
+  const { track } = useVaultTracking(trackingTarget, 'details')
+
+  // The Withdraw tab is the click into the withdraw funnel here; the deposit form is open from the start.
+  const openWithdrawTab = () => {
+    if (activeTab !== 'withdraw') {
+      track(TRACKING_EVENT_TYPE.VAULT_WITHDRAW_CLICKED, {
+        share_balance_usd: Number(position?.usdValue) || 0,
+        has_pending_withdrawal: (position?.pendingWithdrawalSummary?.count ?? 0) > 0,
+      })
+    }
+    setActiveTab('withdraw')
+  }
 
   // The balance chart is denominated in the vault's base token; the shares behind it sit in its heading.
   const positionBalance = useMemo(() => {
@@ -330,49 +346,51 @@ const VaultDetail = () => {
           </ChartsCard>
         </ChartsColumn>
 
-        <VaultDegenPromptProvider>
-          <div className="flex w-full flex-col gap-4">
-            <ActionCard>
-              <ActionTabs>
-                {/* A wallet already in the vault is adding to a stake rather than opening one. */}
-                <ActionTab type="button" $active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')}>
-                  {hasPosition ? t`Increase` : t`Deposit`}
-                </ActionTab>
-                <ActionTabDivider />
-                <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={() => setActiveTab('withdraw')}>
-                  {t`Withdraw`}
-                </ActionTab>
-                <ActionTabDivider />
+        <VaultTrackingSourceContext.Provider value="details">
+          <VaultDegenPromptProvider>
+            <div className="flex w-full flex-col gap-4">
+              <ActionCard>
+                <ActionTabs>
+                  {/* A wallet already in the vault is adding to a stake rather than opening one. */}
+                  <ActionTab type="button" $active={activeTab === 'deposit'} onClick={() => setActiveTab('deposit')}>
+                    {hasPosition ? t`Increase` : t`Deposit`}
+                  </ActionTab>
+                  <ActionTabDivider />
+                  <ActionTab type="button" $active={activeTab === 'withdraw'} onClick={openWithdrawTab}>
+                    {t`Withdraw`}
+                  </ActionTab>
+                  <ActionTabDivider />
 
-                {/* The gear rides the tab row, where the zap flows keep theirs. */}
-                <div className="relative ml-auto pr-3">
-                  <VaultSettingsMenu />
-                </div>
-              </ActionTabs>
-              {activeTab === 'deposit' ? (
-                <DepositTab
-                  key={`deposit-${detail.vaultId}`}
-                  vault={detail}
-                  onDeposited={refetchPosition}
-                  onRouteChange={setRouteSummary}
-                />
-              ) : (
-                <WithdrawTab
-                  key={`withdraw-${detail.vaultId}`}
-                  vault={detail}
-                  position={position}
-                  onRequested={refetchPosition}
-                  onRouteChange={setRouteSummary}
-                />
-              )}
-            </ActionCard>
+                  {/* The gear rides the tab row, where the zap flows keep theirs. */}
+                  <div className="relative ml-auto pr-3">
+                    <VaultSettingsMenu />
+                  </div>
+                </ActionTabs>
+                {activeTab === 'deposit' ? (
+                  <DepositTab
+                    key={`deposit-${detail.vaultId}`}
+                    vault={detail}
+                    onDeposited={refetchPosition}
+                    onRouteChange={setRouteSummary}
+                  />
+                ) : (
+                  <WithdrawTab
+                    key={`withdraw-${detail.vaultId}`}
+                    vault={detail}
+                    position={position}
+                    onRequested={refetchPosition}
+                    onRouteChange={setRouteSummary}
+                  />
+                )}
+              </ActionCard>
 
-            {/* Belongs to the position rather than to the form beside it: a request made days ago is
-              still in flight while the wallet is topping the vault up, so it stays on screen on both
-              tabs and takes itself off once there is nothing left to report. */}
-            <WithdrawRequestsPanel vault={detail} onChanged={refetchPosition} />
-          </div>
-        </VaultDegenPromptProvider>
+              {/* Belongs to the position rather than to the form beside it: a request made days ago is
+                still in flight while the wallet is topping the vault up, so it stays on screen on both
+                tabs and takes itself off once there is nothing left to report. */}
+              <WithdrawRequestsPanel vault={detail} onChanged={refetchPosition} />
+            </div>
+          </VaultDegenPromptProvider>
+        </VaultTrackingSourceContext.Provider>
       </ContentGrid>
     </PageWrapper>
   )

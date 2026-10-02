@@ -333,6 +333,20 @@ export enum TRACKING_EVENT_TYPE {
   EARN_SMART_EXIT_FAILED,
   EARN_SMART_EXIT_CANCELLED,
 
+  // Earn: Partner Vaults
+  VAULT_DEPOSIT_CLICKED,
+  VAULT_DEPOSIT_REVIEW_OPENED,
+  VAULT_DEPOSIT_CONFIRMED,
+  VAULT_DEPOSIT_COMPLETED,
+  VAULT_DEPOSIT_FAILED,
+  VAULT_WITHDRAW_CLICKED,
+  VAULT_WITHDRAW_METHOD_SELECTED,
+  VAULT_WITHDRAW_REVIEW_OPENED,
+  VAULT_WITHDRAW_CONFIRMED,
+  VAULT_WITHDRAW_COMPLETED,
+  VAULT_WITHDRAW_FAILED,
+  VAULT_WITHDRAW_REQUEST_CANCELLED,
+
   // Earn: Pool Discovery
   POOL_CATEGORY_SELECTED,
   POOL_FILTER_APPLIED,
@@ -481,6 +495,15 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.TS_TOKEN_SELECTED: {
           formoTrack('Token Selector - Token Selected', payload)
+          break
+        }
+        // The vault funnels open on a vault card, which takes the click before any wallet is connected.
+        case TRACKING_EVENT_TYPE.VAULT_DEPOSIT_CLICKED: {
+          formoTrack('Vault Deposit Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_WITHDRAW_CLICKED: {
+          formoTrack('Vault Withdraw Clicked', payload)
           break
         }
       }
@@ -1810,6 +1833,48 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.EARN_SMART_EXIT_CANCELLED: {
           formoTrack('Earn Smart Exit Cancelled', payload)
+          break
+        }
+
+        // Earn: Partner Vaults
+        case TRACKING_EVENT_TYPE.VAULT_DEPOSIT_REVIEW_OPENED: {
+          formoTrack('Vault Deposit Review Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_DEPOSIT_CONFIRMED: {
+          formoTrack('Vault Deposit Confirmed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_DEPOSIT_COMPLETED: {
+          formoTrack('Vault Deposit Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_DEPOSIT_FAILED: {
+          formoTrack('Vault Deposit Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_WITHDRAW_METHOD_SELECTED: {
+          formoTrack('Vault Withdraw Method Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_WITHDRAW_REVIEW_OPENED: {
+          formoTrack('Vault Withdraw Review Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_WITHDRAW_CONFIRMED: {
+          formoTrack('Vault Withdraw Confirmed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_WITHDRAW_COMPLETED: {
+          formoTrack('Vault Withdraw Completed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_WITHDRAW_FAILED: {
+          formoTrack('Vault Withdraw Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.VAULT_WITHDRAW_REQUEST_CANCELLED: {
+          formoTrack('Vault Withdraw Request Cancelled', payload)
           break
         }
 

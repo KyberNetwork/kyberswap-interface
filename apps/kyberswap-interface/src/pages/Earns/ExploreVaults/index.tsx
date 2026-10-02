@@ -61,6 +61,7 @@ import { VaultInfo, VaultSortBy, VaultViewMode } from 'pages/Earns/ExploreVaults
 import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
 import { VAULT_CHAIN_OPTIONS, VAULT_PROTOCOL_OPTIONS } from 'pages/Earns/constants/vaultFilters'
+import { useVaultCardTracking } from 'pages/Earns/hooks/useVaultTracking'
 import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
 import { formatVaultApy, formatVaultTvl } from 'pages/Earns/utils/vaultFormat'
 import { MEDIA_WIDTHS } from 'theme'
@@ -354,6 +355,14 @@ const ExploreVaults = () => {
   const { account } = useActiveWeb3React()
   const navigate = useNavigate()
   const [depositVault, setDepositVault] = useState<VaultInfo | null>(null)
+  const { trackDepositClick } = useVaultCardTracking('explore')
+  const onDeposit = useCallback(
+    (vault: VaultInfo) => {
+      trackDepositClick(vault)
+      setDepositVault(vault)
+    },
+    [trackDepositClick],
+  )
   const [search, setSearch] = useState('')
   // One request per keystroke would also re-render every card and its two sparklines.
   const debouncedSearch = useDebounce(search, SEARCH_DEBOUNCE_MS)
@@ -524,7 +533,7 @@ const ExploreVaults = () => {
                       key={vault.id}
                       vault={vault}
                       hasPosition={userVaultIds.has(vault.id)}
-                      onDeposit={setDepositVault}
+                      onDeposit={onDeposit}
                       revealIndex={view.stagger ? index : undefined}
                     />
                   ))}
@@ -538,7 +547,7 @@ const ExploreVaults = () => {
                       key={vault.id}
                       vault={vault}
                       hasPosition={userVaultIds.has(vault.id)}
-                      onDeposit={setDepositVault}
+                      onDeposit={onDeposit}
                       revealIndex={view.stagger ? index : undefined}
                     />
                   ))}
@@ -551,6 +560,7 @@ const ExploreVaults = () => {
 
       <VaultDepositModal
         target={depositVault ? { chainId: depositVault.chainId, vaultId: depositVault.id } : null}
+        source="explore"
         onClose={() => setDepositVault(null)}
       />
     </VaultPageWrapper>

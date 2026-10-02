@@ -17,6 +17,7 @@ import {
   getVaultSuggestedSlippage,
   useVaultSlippageAdvice,
 } from 'pages/Earns/hooks/useVaultSlippageAdvice'
+import { VAULT_WITHDRAW_APPROVAL_TRACKING } from 'pages/Earns/hooks/useVaultTracking'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { isWrappedNativeToken } from 'pages/Earns/utils'
 import { getBoringQueueRoute, safeBigInt } from 'pages/Earns/utils/vault'
@@ -202,6 +203,7 @@ export const useWithdrawForm = ({
         : undefined,
     tokenOutAddress: swapToken?.address,
     approvalAmount,
+    approvalTrackingPayload: VAULT_WITHDRAW_APPROVAL_TRACKING,
     slippage,
     transactionType: TRANSACTION_TYPE.EARN_VAULT_WITHDRAW,
     errorTitle: t`Withdrawal failed`,
@@ -414,6 +416,7 @@ export const useWithdrawForm = ({
     nativeAsset,
     nativeAssetAddress,
     setNativeAssetAddress,
+    queueAddress,
     queueLimits,
     nativeAmountOut,
     isLoadingPreview,
