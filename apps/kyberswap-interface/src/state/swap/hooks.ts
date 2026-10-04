@@ -56,14 +56,22 @@ export function useSwapActionHandlers(): {
         const newFrom =
           isWhitelisted || currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.address.toLowerCase()
         f = newFrom
-        if (newFrom === toCurrency || currency.symbol?.toLowerCase() === toCurrency) {
+        if (
+          newFrom === toCurrency ||
+          currency.symbol?.toLowerCase() === toCurrency ||
+          (!currency.isNative && currency.address.toLowerCase() === toCurrency)
+        ) {
           to = fromCurrency
         }
       } else {
         const newTo =
           isWhitelisted || currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.address.toLowerCase()
         to = newTo
-        if (newTo === f || currency?.symbol?.toLowerCase() === fromCurrency) {
+        if (
+          newTo === f ||
+          currency.symbol?.toLowerCase() === fromCurrency ||
+          (!currency.isNative && currency.address.toLowerCase() === fromCurrency)
+        ) {
           f = toCurrency
         }
       }
