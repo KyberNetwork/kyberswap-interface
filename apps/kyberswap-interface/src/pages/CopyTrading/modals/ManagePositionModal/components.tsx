@@ -26,11 +26,13 @@ import { formatDateTime } from 'utils/time'
 
 const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
 
-const formatSkipReason = (value?: string) =>
+const formatSkipReason = (value?: string, message?: string) =>
   value
     ?.replace(/^.*_ERROR_/, '')
     .replaceAll('_', ' ')
-    .toLowerCase() || 'N/A'
+    .toLowerCase() ||
+  message ||
+  'N/A'
 
 type TokenAmountPanelProps = {
   amount?: RawAmountMetric
@@ -269,7 +271,7 @@ const PositionSellSummary = ({
         ) : (
           <Stack className="gap-2">
             <span className="text-sm font-medium text-text">Skipped Actions:</span>
-            <Stack as="ul" className="list-disc gap-2 pl-4 text-sm text-subText">
+            <Stack as="ul" className="min-w-0 list-disc gap-2 pl-4 text-sm text-subText">
               {noPendingSellActions && <li>No skipped sell actions.</li>}
               {pendingSellObligationsLoading &&
                 Array.from({ length: skippedActionSkeletonCount }, (_, index) => (
@@ -281,13 +283,21 @@ const PositionSellSummary = ({
                   </li>
                 ))}
               {pendingSellObligations?.map((obligation, index) => (
-                <li key={obligation.leaderPositionEventId || index}>
-                  {formatDateTime(obligation.skippedAt)}
-                  {' · '}
-                  <span className="text-primary">
-                    {withMetricFallback(formatWadPercent(obligation.currentRatioRaw))} sell
-                  </span>
-                  {' · ' + (obligation.publicErrorMessage || formatSkipReason(obligation.publicErrorCode))}
+                <li key={obligation.leaderPositionEventId || index} className="min-w-0">
+                  <div className="flex min-w-0 items-center gap-1 whitespace-nowrap">
+                    <span className="shrink-0">{formatDateTime(obligation.skippedAt)}</span>
+                    <span className="shrink-0">·</span>
+                    <span className="shrink-0 text-primary">
+                      {withMetricFallback(formatWadPercent(obligation.currentRatioRaw))} sell
+                    </span>
+                    <span className="shrink-0">·</span>
+                    <span
+                      className="min-w-0 truncate"
+                      title={obligation.publicErrorMessage || formatSkipReason(obligation.publicErrorCode)}
+                    >
+                      {formatSkipReason(obligation.publicErrorCode, obligation.publicErrorMessage)}
+                    </span>
+                  </div>
                 </li>
               ))}
             </Stack>
