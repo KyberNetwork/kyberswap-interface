@@ -11,6 +11,7 @@ export type AlertFeedItemViewModel = {
   agentName: string
   agentTokenSymbol?: string
   activityTone: ActivityTone
+  capital?: ActivityRow['capital']
   indicatorTone: ActivityTone
   key: string
   manualSellCopyRunId?: string
@@ -38,7 +39,7 @@ const toneFromSide = (side?: TradeSide): ActivityTone => {
   return 'neutral'
 }
 
-const formatRawTokenAmount = (valueRaw?: string, decimals?: number) => {
+export const formatRawTokenAmount = (valueRaw?: string, decimals?: number) => {
   if (!valueRaw || decimals === undefined) return undefined
 
   try {
@@ -99,6 +100,7 @@ export const getAlertFeedItemViewModel = (activity: ActivityRow): AlertFeedItemV
     agentFallback: leaderAction && leader?.baseToken?.symbol ? undefined : alert?.fallbackAgentSummaryEn,
     agentName: getAgentName(activity),
     agentTokenSymbol: leader?.baseToken?.symbol,
+    capital: activity.capital,
     indicatorTone,
     key: alert?.alertId || activity.activityId,
     manualSellCopyRunId: user?.status === 'skipped' && userSide === 'sell' ? activity.copyRunId : undefined,
