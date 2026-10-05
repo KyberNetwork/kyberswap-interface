@@ -3320,6 +3320,7 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       capitalOutUsd:
         $ref: '#/definitions/v1DecimalMetric'
+        description: Same Amount Out display contract as CopyRunSummary.capital_out_usd.
       portfolioValueUsd:
         $ref: '#/definitions/v1DecimalMetric'
       unrealizedPnlUsd:
@@ -3425,6 +3426,11 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       capitalOutUsd:
         $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Amount Out display. For a proven closed run without remaining positions
+          or an in-kind withdrawal, includes quote still held plus prior quote
+          withdrawals, derived from canonical deposits and finalized realized PnL.
+          Other runs expose recorded withdrawals. This is not a withdrawal receipt.
       portfolioValueUsd:
         $ref: '#/definitions/v1DecimalMetric'
       unrealizedPnlUsd:
@@ -3808,8 +3814,10 @@ definitions:
         $ref: '#/definitions/v1PinnedStableBalance'
     description: |-
       GetCopyAccountWalletInventoryResponse is the current wallet inventory
-      envelope. The total is never a page subtotal and is unavailable when
-      complete is false or any nonzero asset cannot be valued authoritatively.
+      envelope. The value sums available asset valuations, including the pinned
+      stable balance exactly once. Unpriced rows remain unavailable and contribute
+      nothing to this subtotal; an entirely unpriced complete inventory sums to 0.
+      Incomplete inventory or invalid balances still make the subtotal unavailable.
   v1GetLeaderboardSummaryResponse:
     type: object
     properties:
@@ -5398,13 +5406,19 @@ definitions:
         type: string
       totalCurrentValueUsd:
         $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Sum of available valuations in this exact-balance selected batch. Unpriced
+          rows stay unavailable; the subtotal is 0 when no selected row is valued.
+          A missing balance proof still makes the subtotal unavailable.
       cashbackForfeitedUsd:
         $ref: '#/definitions/v1DecimalMetric'
         description: |-
           Estimated rebate at risk for selected nonquote tokens with positive
           exact-block balances. Uses the shared copy-run pending-rebate estimator,
           restricted to those tokens. A proven quote-only or zero-nonquote selection
-          is current 0; an unresolved indexed selection is unavailable. Withdrawal
+          is current 0. Residual tokens whose positions are all completely settled
+          are also current 0 when position coverage reaches the action block,
+          independently of price. Unresolved liability is unavailable. Withdrawal
           does not itself erase the contract's rebate escrow.
       hasMoreTokens:
         type: boolean

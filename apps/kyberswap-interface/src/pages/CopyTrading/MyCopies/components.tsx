@@ -1,10 +1,15 @@
 import { AlertTriangle } from 'react-feather'
 import { Link } from 'react-router-dom'
+import { metricValue } from 'services/copyTrading/adapters/shared'
 import type { ActivityRow, OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
 
 import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
-import { formatAlertFeedTime, getAlertFeedItemViewModel } from 'pages/CopyTrading/MyCopies/alertFeed'
+import {
+  formatAlertFeedTime,
+  formatRawTokenAmount,
+  getAlertFeedItemViewModel,
+} from 'pages/CopyTrading/MyCopies/alertFeed'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { ContentPanel, ShortenedId } from 'pages/CopyTrading/components/common/layout'
@@ -130,7 +135,16 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                     )}
                   </p>
 
-                  {alert.userAction ? (
+                  {alert.capital ? (
+                    <p className="break-words text-sm text-subText">
+                      Amount:{' '}
+                      <span className="text-text">
+                        {formatRawTokenAmount(alert.capital.amountRaw, alert.capital.token?.decimals) ?? 'N/A'}
+                        {alert.capital.token?.symbol && ` ${alert.capital.token.symbol}`}
+                      </span>{' '}
+                      ({formatUsd(metricValue(alert.capital.valueUsd))})
+                    </p>
+                  ) : alert.userAction ? (
                     <p className="break-words text-sm text-subText">
                       Your Copy:{' '}
                       <span

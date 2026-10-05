@@ -5,9 +5,49 @@ API and internal admin tools with the VPN-only admin API. Use the endpoint
 reference for request fields, agent registry management, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: September 29, 2026.
+Last updated: October 5, 2026.
 
 ## Changelog
+
+### October 4, 2026: wallet totals, closed Amount Out, and activity details
+
+[API PR #102](https://github.com/KyberNetwork/copy-trade-api/pull/102), verified
+at `2612c14c4a24ad6255e16dc305821449cfe60065`, is open at this update. Deployment
+has not been verified. The PR #102 rules below describe the new response
+semantics once deployed. Requests, routes, JSON field names, and enums are
+unchanged; existing clients need rendering changes only where they enforce
+the older rules.
+
+1. Render a closed copy run's **Amount Out** from `capitalOutUsd` as soon as
+   that metric is available. Do not wait for token withdrawal. For a proven
+   quote-only closure, it includes quote still held plus prior withdrawals;
+   it is not a withdrawal receipt. See [Closed-run Amount Out](#closed-run-amount-out).
+2. In `ACTIVITY_SURFACE_ALERT_FEED`, render deposit, top-up, and withdrawal
+   amounts from the row's `capital` detail when present. Keep raw amounts as
+   strings and use token decimals and the USD metric's own status. See
+   [Capital amounts in Alert Feed](#capital-amounts-in-alert-feed).
+3. Link skipped copy-run activity to its returned `tradeId` independently of
+   `txHash`. A skip without a submitted execution has no follower transaction
+   hash; a skipped buy need not have a follower position. Both links remain
+   optional. See [Skipped-trade links](#skipped-trade-links).
+4. Use `walletInventoryValueUsd` for **Remaining in Wallet** and
+   `withdrawTokens.totalCurrentValueUsd` for **Est. USD from selected**. They
+   sum available valuations; an unpriced token remains N/A without hiding the
+   subtotal. A complete, entirely unpriced selection can return `"0"`; that
+   does not mean its tokens are worthless. See
+   [Current wallet inventory](#current-wallet-inventory) and
+   [Prepare Withdraw Tokens](#prepare-withdraw-tokens).
+5. Render a returned zero `cashbackForfeitedUsd` even when a selected token's
+   price is unavailable. Price-independent zero cases include proven
+   quote-only/zero-nonquote inventory and fully settled residual positions with
+   coverage through the preparation block. Other available estimates can also
+   be zero; follow the returned metric status. Unresolved liability remains
+   unavailable; do not default every missing estimate to zero.
+
+Missing-price lookup is handled by the API for wallet and withdrawal displays.
+No frontend price-service call or extra retry loop is required. Render each
+available metric independently of response-level or display-enrichment status;
+price availability does not determine whether a prepared call is executable.
 
 ### September 29, 2026: all-chain leaderboard and corrected position reporting
 
@@ -1169,7 +1209,7 @@ same image.
 | Capital In                          | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`.                                                                                                                                                                           | Render the completed value normally when the projection is `READY`. A `SYNCING` projection can carry a prior same-identity `STALE` metric; render it only with a stale/syncing indication. `UNAVAILABLE` authorizes no number. A visible funding transaction alone doesn't make a provisional value authoritative. |
 | Account-effective cashback policy   | `GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` returns the operator-authored policy for that exact follower account, including typed status, optional rates, scope, provenance times, and optional formula version.                                          | Fetch it lazily for a selected run's fee/cashback panel. Branch on `status`; do not substitute an agent-level advertised rate, infer missing rates as zero, or hard-code a formula version. |
 | Pinned stable balance               | The current-stable materializer reads exact quote-token balances from the operator at one canonical block anchor. A present row can use `balanceSource = "onchain_rpc"`; exact zero remains present.                                                                            | Trust the row only when `pinnedStableBalance.status` is `PRESENT`. Preserve all other typed states as unavailable rather than converting them to zero.                                      |
-| Current wallet inventory            | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory` returns bounded current wallet rows and an account-wide `walletInventoryValueUsd` only when the source proves the response is complete and every nonzero asset is valued.                                         | Use this route for **Remaining in Wallet** on active and stopped copy runs. Never calculate the total from `/balances` pages or add the pinned stable row to the server total.              |
+| Current wallet inventory            | This baseline required complete inventory and a price for every nonzero asset. PR #102 replaces the price requirement with a subtotal of available valuations; see [Current wallet inventory](#current-wallet-inventory). | Use this route for **Remaining in Wallet** on active and stopped copy runs. Never calculate the total from `/balances` pages or add the pinned stable row to the server total. |
 | Action-log chain links              | Valid mixed-case EVM addresses and hashes are canonicalized to lowercase. Invalid optional linkage claims are discarded while a safe narrative row remains renderable.                                                                                                          | Treat `txHash`, `leaderPositionId`, `blockNumber`, and `tokenAddress` as optional links. Their absence is not an action failure and must not be reconstructed from narrative text.          |
 | Copy lifecycle views                | `OPEN` contains admitted runs with status `COPY_RUN_STATUS_ACTIVE` or `COPY_RUN_STATUS_CLOSING`. `HISTORY` contains admitted or readable historical-generation runs with status `COPY_RUN_STATUS_STOPPED` or `COPY_RUN_STATUS_CLOSED`. Position history is a separate universe. | Refresh from the server after lifecycle changes; do not pin local tab membership or derive it from position counts. Use owner position routes for owner-wide closed-trade history.          |
 | Historical-generation compatibility | Parentless child facts explicitly classified `HISTORICAL` by the operator are consumed without creating current/actionable projections. Missing `ADMITTED` or `QUARANTINED` parent identity still fails closed.                                                                 | Historical or unavailable data must not be promoted into current dashboards or actions. Preserve typed unavailable states and direct/History reads; never infer missing values as zero.     |
@@ -2884,8 +2924,10 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
   as the cumulative-total-PnL chart. Don't recompute either metric in the
   client.
 - `capitalInUsd`, cumulative opening allocation, deposits, and top-ups.
-  `capitalOutUsd` reports withdrawals and returned capital separately; do not
-  subtract it to derive the ROI denominator.
+- `capitalOutUsd`, the **Amount Out** display. Under PR #102, a proven closed
+  run can include quote still held before withdrawal. See
+  [Closed-run Amount Out](#closed-run-amount-out). Do not subtract it from
+  Capital In to derive the ROI denominator.
 - `capitalInProjectionStatus`. `READY` means `capitalInUsd` represents the
   completed generation. `SYNCING` can carry a server-published `CURRENT`
   provisional candidate or a prior same-identity `STALE` value. Render using
@@ -2920,6 +2962,31 @@ Both shapes remove
 and reserve `realizedPnlUsd`, `flatFeesCapturedUsd`, `cashbackReceivedUsd`,
 `netFeeCostUsd`, `estimatedCashbackPendingUsd`, and `observedCapitalInUsd`.
 Regenerate clients and don't use legacy accessors or synthesize replacements.
+
+#### Closed-run Amount Out
+
+Under PR #102, both `CopyRunListItem.capitalOutUsd` and
+`CopyRunSummary.capitalOutUsd` include quote still held when the server proves
+the run is `COPY_RUN_STATUS_CLOSED`, has zero open and leftover positions, and
+has no in-kind withdrawal. The backend derives this amount from canonical
+deposits plus finalized net realized P&L, covering closure. Other runs continue
+to expose recorded withdrawals and returned capital.
+
+Render the metric when `CURRENT` or `STALE`, preserving its qualifier. Closure
+alone does not guarantee a numeric value: missing or invalidated accounting
+can still make Amount Out unavailable. Do not calculate it from wallet balances
+or add a withdrawal to the returned value.
+
+For example, a quote-only run with $10 deposited and net realized P&L of
+-$2.677224 shows Amount Out of $7.322776 before withdrawal. Withdrawing $3 and
+then the remaining quote does not increase that Amount Out. These are display
+semantics, not proof that any funds reached the owner's wallet.
+
+After an action, refresh the copy-run response for its Amount Out card.
+`actions:status` returns `data.display.capitalOutUsd` from actual canonical
+withdrawals, so it can differ from the closed-run card. Keep it associated with
+the submitted action rather than overwriting the card with it. Continue using
+receipt/status evidence to determine whether a withdrawal completed.
 
 #### History after Stop or withdrawal
 
@@ -3029,8 +3096,11 @@ Fields that are not meaningful for the selected view can be
 `METRIC_STATUS_NOT_APPLICABLE`; do not merge the Open and History summary
 objects locally.
 
-`ActivityRow.detail` contains exactly one typed detail object appropriate for
-the activity: `copyLifecycle`, `position`, `capital`, `fee`, or `execution`.
+The protobuf `ActivityRow.detail` oneof holds at most one typed detail object:
+`copyLifecycle`, `position`, `capital`, `fee`, or `execution`. In HTTP JSON,
+that object appears directly on the row, such as `row.capital`; there is no
+`row.detail` wrapper. Alert rows can carry `alert` context without a detail
+object. PR #102 populates `capital` for capital alerts with proven amounts.
 
 The detail variant has this shape:
 
@@ -3050,6 +3120,47 @@ per exact `type`, product `group`, or activity surface. Render capital actions
 distinctly. The public copy-run log and alert-feed surfaces normalize returned
 capital to Capital withdrawn; do not show a separate Capital returned type on
 those surfaces.
+
+#### Capital amounts in Alert Feed
+
+Under PR #102, capital rows returned with
+`activitySurface=ACTIVITY_SURFACE_ALERT_FEED` include the existing `capital`
+detail when the exact quote amount and token identity are known:
+
+| JSON field | Frontend behavior |
+| --- | --- |
+| `capital.amountRaw` | Exact token amount as a string. Use decimal-safe arithmetic and `capital.token.decimals` for display; never convert the raw integer to a JavaScript `number`. |
+| `capital.tokenAddress`, `capital.token` | Token identity and available metadata. Missing decimals do not make the raw amount zero; retain an unavailable formatted amount until metadata is available. |
+| `capital.valueUsd` | Optional renderable value according to its `DecimalMetric.status`. Missing metadata can leave USD unavailable while the raw amount remains known. |
+| `capital.movementType` | Canonical `deposit`, `top_up`, `withdrawal`, or `returned_capital`. Continue using the row's public category/subtype for product labels; returned capital is displayed as Capital withdrawn. |
+| `alert.user.quoteAmountRaw` | The same canonical amount in the existing alert outcome context. It is not an additional movement to add to `capital.amountRaw`. |
+
+Render amounts without parsing `summary` or fallback text. A missing `capital`
+object on older servers or incomplete rows is unknown, not a zero deposit or
+withdrawal. Keep the row and its `alert.alertId` through refreshes.
+The copy-run log continues to normalize `capital.movementType` to `withdrawal`
+for returned capital; the Alert Feed detail preserves `returned_capital`.
+
+#### Skipped-trade links
+
+Under PR #102, copy-run log and ordinary activity/history rows for skipped
+aligned buys/sells and skipped exits resolve `tradeId` from canonical leader
+position facts. A skipped buy can have a trade link without `userPositionId`,
+`followerPositionId`, or a submitted follower transaction. Use the returned
+`tradeId` for the leader-trade link; do not treat it as a follower position ID.
+
+`txHash` remains optional follower execution evidence. Local skips that never
+submitted an execution have no hash. Hide only the transaction link when it is
+missing; preserve the skipped row and any trade link. A present execution hash
+does not turn a skipped outcome into a successful trade. Never substitute a
+leader transaction hash for a missing follower hash.
+
+Links can appear when parent facts arrive or disappear after a reorg. Replace
+them from refreshed server rows. Alert Feed keeps its separate context shape:
+use `alert.leader.leaderPositionId` for an available leader-trade link and the
+explicitly named leader, attempted-user, or canonical-follower hash for the
+corresponding explorer link. PR #102 does not add top-level `tradeId` to alert
+rows.
 
 #### Stop Copy and downstream activity rows
 
@@ -3156,19 +3267,22 @@ on both active and stopped copy runs:
 GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory
 ```
 
-The endpoint returns the current token rows held by the Smart Wallet and a
-server-calculated account-wide USD total. It does not include open-position
-valuation, and it is not a replacement for `portfolioValueUsd`.
+The endpoint returns the current token rows held by the Smart Wallet. Under
+PR #102, its server-calculated USD total sums available valuations across the
+complete inventory. It does not add a separate open-position valuation and is
+not a replacement for `portfolioValueUsd`.
 
 | Field                     | Frontend behavior                                                                                                                                                                               |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `data`                    | Render the returned wallet-token rows. Each row uses the existing `WalletBalanceRow` contract.                                                                                                  |
-| `walletInventoryValueUsd` | Use this `DecimalMetric` as the **Remaining in Wallet** total. Do not calculate another total from `data`.                                                                                      |
+| `walletInventoryValueUsd` | Use this `DecimalMetric` as the **Remaining in Wallet** total. Under PR #102 it sums available valuations; an unpriced row does not suppress it. Do not calculate another total from `data`. |
 | `complete`                | A value of `true` means the bounded operator request proved that all wallet rows fit in one response. A value of `false` means the rows may be rendered, but they are not a complete inventory. |
 | `pinnedStableBalance`     | Render the stable row separately only when its status is `PRESENT`. The API already counts it exactly once in `walletInventoryValueUsd`.                                                        |
 | `meta`                    | Apply the normal response metadata rules independently from the total metric and row-level freshness.                                                                                           |
 
-An abbreviated complete response has the following shape:
+An abbreviated PR #102 response with complete inventory and one unpriced
+token has the following shape. The unpriced row stays unavailable while the
+server subtotal includes the other token and the pinned stable balance:
 
 ```json
 {
@@ -3182,6 +3296,16 @@ An abbreviated complete response has the following shape:
       "currentValuation": {
         "valueUsd": "5",
         "status": "DATA_STATUS_CURRENT"
+      }
+    },
+    {
+      "chainId": "8453",
+      "copyAccount": "0x1111111111111111111111111111111111111111",
+      "tokenAddress": "0x4444444444444444444444444444444444444444",
+      "amountDecimal": "0.1",
+      "freshnessStatus": "fresh",
+      "currentValuation": {
+        "status": "DATA_STATUS_UNAVAILABLE"
       }
     }
   ],
@@ -3218,16 +3342,27 @@ Apply these rules when rendering the total:
    crawl `/balances`, or treat omitted assets as zero.
 3. Do not add `pinnedStableBalance.balance` to `walletInventoryValueUsd`; the
    server total already includes a present stable row exactly once.
-4. Preserve an explicit value of `"0"`. It is a valid complete inventory
-   result, not missing data.
+4. Preserve an explicit value of `"0"`. Under PR #102 it can mean that a
+   complete inventory has no available valuations. It does not establish an
+   empty wallet or zero token prices.
 5. Do not add open-position valuation or `availableBalanceUsd`. Those fields
    answer different product questions.
-6. Treat a non-`PRESENT` pinned stable status as unavailable, not zero. The
-   total also becomes unavailable when any nonzero wallet asset lacks a valid
-   USD valuation.
-7. The total becomes `METRIC_STATUS_STALE` when any included balance or price
-   is stale. Its `asOf` is the oldest effective valuation time included in the
-   total.
+6. Treat a non-`PRESENT` pinned stable status as unavailable, not zero. Under
+   PR #102, missing token prices alone do not make the total unavailable.
+   Keep those token USD rows as N/A, show the returned subtotal, and indicate
+   that unpriced tokens are excluded. `complete=true` proves inventory
+   coverage, not complete pricing; `CURRENT` is a freshness status, not proof
+   that every token is priced.
+7. Preserve the server's stale status and `asOf`. The timestamp reflects the
+   oldest contributing balance/valuation evidence, including balance evidence
+   for unpriced rows. Do not infer a zero token price or override an available
+   total because response-level metadata is unavailable.
+
+For example, $7.32 of valued stablecoin plus an unpriced CASHCAT balance shows
+a $7.32 subtotal and N/A on CASHCAT. The API attempts missing prices on demand
+for this route; no frontend price-service request is needed. A provider miss
+can still leave the token unavailable. Use ordinary refresh behavior and each
+metric's returned status.
 
 Use the cursor-paginated `/balances` endpoint only when the UI needs a
 page-by-page asset browser. It cannot be used to derive a stable account-wide
@@ -4111,8 +4246,8 @@ assets are excluded; wrapped native tokens are ordinary ERC-20s.
 | `quoteToken` | Identifies the quote token within the selection. |
 | `balanceSetRevision` | Opaque revision for the token identities selected in this batch; not a balance snapshot, chain watermark, or proof of complete wallet discovery. It can remain present on a non-executable result. |
 | `recipientAddress` | Current owner at the action block, present only when executable. Never replace it. |
-| `totalCurrentValueUsd` | Selected-token display value, with its own metric status. All-zero selected balances yield current zero. |
-| `cashbackForfeitedUsd` | Estimated rebate at risk for positively held selected nonquote tokens; not a guaranteed on-chain loss. Proven quote-only/zero-nonquote inventory yields current zero. |
+| `totalCurrentValueUsd` | Use for **Est. USD from selected**. Under PR #102 it sums available valuations in this exact-balance batch; unpriced rows stay N/A. A complete selection with no available valuations yields current `0`; missing balance proof remains unavailable. |
+| `cashbackForfeitedUsd` | Use its own metric status for **Cash-back forfeited**. Proven quote-only/zero-nonquote inventory yields current `0`. PR #102 also returns `0` for fully settled residual positions when coverage reaches the prepared block, independently of token price. Unresolved liability remains unavailable. This is an estimate, not a guaranteed on-chain loss. |
 | `hasMoreTokens` | `true` when additional eligible nonquote balances were positive at the action block. After receipt confirmation, prepare again for the next batch. |
 
 The token list is nonempty, sorted by canonical token address, unique, and no
@@ -4124,6 +4259,15 @@ Render available preview fields independently of `displayEnrichment.status`.
 Missing price/rebate enrichment does not invalidate a `READY` call. Explain
 that withdrawal can forfeit pending rebates; it does not erase rebate escrow
 or prove the final rebate amount.
+
+For the selected **All Tokens** option and **Est. USD from selected**, use the
+returned `totalCurrentValueUsd` rather than requiring all `tokens[]` to have
+prices. It values this prepared batch only; `hasMoreTokens=true` means it is
+not a whole-wallet total. Keep each unpriced token's USD value N/A and preserve
+an explicit `"0"` cashback estimate. A missing price is not a reason to force
+cashback to N/A, and a missing cashback estimate must not default to zero.
+The API owns the optional missing-price lookup; no additional FE request is
+needed.
 
 | Typed reason | FE behavior |
 | --- | --- |
@@ -4557,8 +4701,8 @@ whereas display readiness is tied to this exact submitted action.
 | Start Copy FUND | Public `capitalInUsd` includes the exact funding credit. The metric is included in `display`. |
 | Add Capital | Public `capitalInUsd` includes the exact deposit, including explicitly provisional values. The metric is included in `display`. |
 | Stop Copy | The permanent pause/account lifecycle is published. The public run can be `closing` while exits continue; readiness does not mean all positions are sold. |
-| Withdraw Quote | A positive withdrawal is included in public `capitalOutUsd`, returned in `display`. A zero maximum withdrawal requires readable account data but no capital movement or invented zero metric. |
-| Withdraw Tokens | The pause/account lifecycle is published. A positive quote withdrawal also requires updated public `capitalOutUsd`. A zero/nonquote batch need not return a capital metric; refreshed wallet balances and reduced trading-position quantities are not promised. |
+| Withdraw Quote | A positive withdrawal is included in the canonical withdrawal total returned as `display.capitalOutUsd`. Under PR #102 this can differ from the closed-run Amount Out card. A zero maximum withdrawal requires readable account data but no capital movement or invented zero metric. |
+| Withdraw Tokens | The pause/account lifecycle is published. A positive quote withdrawal also requires the canonical withdrawal total in `display.capitalOutUsd`. A zero/nonquote batch need not return a capital metric; refreshed wallet balances and reduced trading-position quantities are not promised. |
 | Manual Sell / Close Position | The exact sale activity and current public position summary are published. Use `userPositionId` to refresh the position and execution history. A later valid trade may have changed the current remaining amount. |
 
 For owner-scoped reads use `display.readOwnerAddress` with `copyRunId`, plus
@@ -4566,6 +4710,10 @@ For owner-scoped reads use `display.readOwnerAddress` with `copyRunId`, plus
 chain, hash, and `statusContext` for polling; the read owner can differ from the
 transaction actor. Amounts are server totals, not deltas: replace the displayed
 metric rather than adding the deposited/withdrawn amount to it again.
+
+For Capital Out, replace the submitted-action value only. Refresh the copy-run
+card from its list/detail response, because PR #102's
+[closed-run Amount Out](#closed-run-amount-out) also includes quote still held.
 
 Metric status and finality are separate. `METRIC_STATUS_CURRENT` does not mean
 final: a ready provisional Capital In may already be current. Label
