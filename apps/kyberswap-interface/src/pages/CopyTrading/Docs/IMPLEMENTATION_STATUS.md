@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-09-23
+Last reviewed: 2026-10-06
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -49,6 +49,11 @@ and the latest verification evidence. API details remain owned by
 - Position lifecycle and quantity state remain separate typed fields.
 - Renderable metric values include CURRENT and STALE. UNAVAILABLE remains
   non-renderable and continues to participate in validation.
+- Capital In and Remaining in Wallet have no status tags. Group-level metadata
+  does not add Syncing labels to individual metrics. Existing metric values,
+  loading/unavailable states, and query refresh intervals remain independent.
+  No status tags appear in leaderboard cards, mobile list cards, the timeline,
+  performance charts, or Copy Detail tables.
 - Cursor-paginated requests restart from page one when a non-initial cursor is
   rejected with HTTP 400/code 10 or HTTP 409.
 
@@ -306,28 +311,45 @@ Cross-flow decisions:
   to POST /users/{ownerAddress}/actions:status. The context owner must match
   the prepared sender. Context is not rebuilt from current list/detail data,
   and preparation expiry does not prevent observation.
-- Product decision (2026-09-23): display.status READY completes the shared flow
-  for every action, including while action status is SYNCING or result is absent.
-  Each flow receives the full display object, also retained in success state.
-  Start uses copyRunId for its My Copies action; Stop uses copyRunId and
-  readOwnerAddress for its navigation read. Capital metrics, position ID and
-  finality remain available in state; the UI does not directly render them.
-- Until display is READY, poll sequentially for at most 11 attempts when
-  guidance.retryAfterMs is valid, without checking action status. Missing or
-  unknown display status does not fall back to transaction outcome success.
-  The last returned receipt is sent as previousReceipt within that polling attempt sequence.
-  The limit is an attempt count, not a fixed 20-second timeout.
+- Receipt-first completion (2026-10-06): stop actions:status polling as soon
+  as receiptResult is present, or when display is READY, including during
+  CONFIRMING/SYNCING. Strict SUCCEEDED remains a completion signal. A raw RPC
+  receipt alone does not complete the flow; strict FAILED takes precedence.
+  Actions with a success callback (Start Copy and Stop Copy) additionally wait
+  for copyRunId in READY display or the SUCCEEDED result, keeping the modal
+  loading until callback data is available.
+- Status requests always send
+  `resultMode: SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST`, with the original
+  statusContext including creationTransactionHash when present. No client env
+  flag is required.
+- The existing modal UI, copy and success presentation remain unchanged.
+  Keep display data only when READY; receipt-only success leaves page data
+  loading/syncing. Receipt amounts never synthesize public totals. Refresh the
+  page queries independently; their existing 10-second refresh and
+  loading/syncing states own eventual public data convergence.
+- Success callbacks use READY display or a strict result when available.
+  The flow awaits these callbacks before showing success, as before. Receipt-only
+  completion is allowed for actions without a callback; actions with a callback
+  continue polling when its copy-run data is missing.
+- Until receiptResult, display READY, or strict success, poll sequentially for
+  at most 11 attempts at guidance.retryAfterMs; actions with callbacks also
+  require the callback data described above. Preserve the most recent
+  receipt reference for reorg comparison within the sequence. This change does
+  not add reset/unmount cancellation or response-version guards. The limit is
+  an attempt count, not a fixed 20-second timeout.
 - HTTP errors, unsupported/unverifiable results, missing context, and exhausted
   polling enter the existing sync recovery. Manual retry observes the saved
   action/hash again; it never prepares or submits another transaction. HTTP
   errors end the current poll sequence rather than retrying automatically.
-- A reverted RPC receipt or API transaction.outcome REVERTED enters transaction-error recovery;
-  Retry requests a fresh preparation through the existing flow.
+- Receipt outcomes are observed through actions:status before declaring failure.
+  Only strict FAILED enters transaction-error recovery; a reverted receipt still
+  CONFIRMING keeps polling.
+  Retry after confirmed failure requests a fresh preparation through the existing flow.
 - Both initial submission and receipt retry use receipt.transactionHash after
   receipt resolution, including replacement transactions such as wallet Speed up.
   State, explorer links, and subsequent status retries retain that resolved hash.
-- Cache invalidation runs after receipt success and again after display readiness,
-  refreshing both RTK Query and TanStack Copy Trading reads. Stop additionally
+- Cache invalidation runs after RPC receipt observation and again at verified
+  action completion, refreshing both RTK Query and TanStack Copy Trading reads. Stop additionally
   reads the returned Copy Run once to choose My Copies versus History; failure
   of this navigation-only read does not invalidate transaction success.
 - No automatic nextStep continuation, Start funding continuation, withdrawal
@@ -433,7 +455,7 @@ Cross-flow decisions:
 - Exact current balances, quote-token membership, recipient, and 1–100 unique
   tokens per batch are validated. Stop Copy retains its 32-position limit. Display price/rebate availability is independent
   from readiness; zero-balance selections remain executable.
-- All Tokens finishes after one transaction and display READY,
+- All Tokens finishes after one transaction and verified receipt effects,
   regardless of hasMoreTokens. There is no next-batch CTA, batch
   state, or batch-specific preview cache. To withdraw remaining eligible tokens,
   close and reopen the modal for a fresh preview and preparation. Success means
@@ -477,6 +499,15 @@ Operator-side skip/failure injection; they cannot be created deterministically
 from the frontend.
 
 ## Verification Snapshot
+
+October 6, 2026: **305 tests across 22 files** passed. Receipt/polling
+regressions cover early completion with verified
+receipt effects during CONFIRMING/SYNCING, pending public data, non-blocking
+refresh/navigation, raw receipt verification, receipt-first requests and
+cancellation at that snapshot. The subsequent scope reduction removes the added
+cancellation and restores awaited success callbacks. UI additions and the client env flag were removed to keep this
+update scoped to status checking. Browser QA and live transaction E2E have not
+been run for this update.
 
 September 23, 2026: **264 tests across 21 files**, app TypeScript, ESLint on
 changed files, and `git diff --check` passed. Added regression coverage exercises funding

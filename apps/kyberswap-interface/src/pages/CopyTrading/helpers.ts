@@ -1,11 +1,41 @@
 import type { AdvisoryActionAvailability, PreparedActionReason } from 'services/copyTrading/types/actionAvailability'
 import type { AgentCard, AgentProfile, AgentSnapshot, StrategyCategory } from 'services/copyTrading/types/agents'
 import type { ActivityRow } from 'services/copyTrading/types/copyRuns'
-import type { ActivitySubtype, DecimalString, LooseString, StrategyKey } from 'services/copyTrading/types/primitives'
+import type {
+  ActivitySubtype,
+  DecimalString,
+  FieldGroup,
+  LooseString,
+  ResponseMeta,
+  StrategyKey,
+} from 'services/copyTrading/types/primitives'
 
 import { formatDisplayNumber } from 'utils/numbers'
 
 type NumericValue = DecimalString | number
+
+export const isFieldGroupSyncing = (meta: ResponseMeta | undefined, ...groups: FieldGroup[]) => {
+  const fieldQualities = meta?.fieldQualities || []
+
+  return fieldQualities.some(quality => {
+    const matchesGroup = !!quality.group && groups.includes(quality.group)
+    if (!matchesGroup) {
+      return false
+    }
+
+    const isPending = quality.completeness === 'DATA_COMPLETENESS_PENDING'
+    const isPartial = quality.completeness === 'DATA_COMPLETENESS_PARTIAL'
+    const hasSyncingReason =
+      quality.reason === 'DATA_QUALITY_REASON_SOURCE_LAG' ||
+      quality.reason === 'DATA_QUALITY_REASON_DEPENDENCY_PENDING' ||
+      quality.reason === 'DATA_QUALITY_REASON_REORG_REPAIR' ||
+      quality.reason === 'DATA_QUALITY_REASON_PENDING_USER_OPERATION' ||
+      quality.reason === 'DATA_QUALITY_REASON_PRICE_PENDING' ||
+      quality.reason === 'DATA_QUALITY_REASON_POLICY_TRANSITION_PENDING'
+
+    return isPending || (isPartial && hasSyncingReason)
+  })
+}
 
 export type ActivityTone = 'buy' | 'sell' | 'capital' | 'warning' | 'fee' | 'neutral'
 

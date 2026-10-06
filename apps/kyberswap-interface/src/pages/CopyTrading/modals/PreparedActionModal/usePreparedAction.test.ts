@@ -532,13 +532,16 @@ describe('replacement transaction receipts', () => {
         transactionHash: replacementHash,
         blockNumber: 123n,
       })
+      statusMocks.getStatus.mockReturnValue({
+        unwrap: vi.fn().mockResolvedValue({ data: { status: 'SUBMITTED_ACTION_STATUS_FAILED' } }),
+      })
       const flow = usePreparedAction({
         getExpected: () => expected,
         prepare: vi.fn(),
       })
       await flow[entry]()
       expect(harness.getState()).toMatchObject({ phase: 'error', hash: replacementHash })
-      expect(statusMocks.getStatus).not.toHaveBeenCalled()
+      expect(statusMocks.getStatus).toHaveBeenCalledWith(expect.objectContaining({ transactionHash: replacementHash }))
     },
   )
 })
@@ -610,13 +613,13 @@ describe('authorized preparation', () => {
 })
 
 describe('shared result ownership', () => {
-  it('uses display data for action callbacks while the API is syncing without a result', async () => {
+  it('uses display data for action callbacks after strict success', async () => {
     const hash = `0x${'c'.repeat(64)}` as const
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
     statusMocks.getStatus.mockReturnValue({
       unwrap: vi.fn().mockResolvedValue({
         data: {
-          status: 'SUBMITTED_ACTION_STATUS_SYNCING',
+          status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
           transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
           display: readyDisplay,
         },
@@ -647,7 +650,7 @@ describe('shared result ownership', () => {
     const display = { ...readyDisplay, ...fields }
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
     statusMocks.getStatus.mockReturnValue({
-      unwrap: vi.fn().mockResolvedValue({ data: { status: 'SUBMITTED_ACTION_STATUS_SYNCING', display } }),
+      unwrap: vi.fn().mockResolvedValue({ data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', display } }),
     })
     const onSubmittedSuccess = vi.fn()
     await usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), onSubmittedSuccess }).retry()
@@ -657,7 +660,7 @@ describe('shared result ownership', () => {
     expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
   })
 
-  it('refreshes at receipt and display readiness, then lets the action consume display data', async () => {
+  it('waits for the existing navigation callback before showing success', async () => {
     const hash = `0x${'a'.repeat(64)}` as const
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
     let resolveStatus: (response: { data: SubmittedActionStatusData }) => void = () => undefined
@@ -880,4 +883,110 @@ describe('preparation failure diagnostics', () => {
     expect(prepare).toHaveBeenCalledOnce()
     expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
   })
+})
+
+describe('receipt-first result lifecycle', () => {
+  it.each([
+    { status: 'SUBMITTED_ACTION_STATUS_CONFIRMING', receiptResult: { effects: [] } },
+    { status: 'SUBMITTED_ACTION_STATUS_SYNCING', display: { status: 'SUBMITTED_ACTION_DISPLAY_STATUS_READY' } },
+    { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: {} },
+  ])('keeps loading until callback data is available after %j', async early => {
+    vi.useFakeTimers()
+    try {
+      const hash = `0x${'e'.repeat(64)}` as const
+      const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+      const unwrap = vi
+        .fn()
+        .mockResolvedValueOnce({ data: { ...early, guidance: { retryAfterMs: 2000 } } })
+        .mockResolvedValueOnce({ data: { status: 'SUBMITTED_ACTION_STATUS_SYNCING', display: readyDisplay } })
+      statusMocks.getStatus.mockReturnValue({ unwrap })
+      const onSubmittedSuccess = vi.fn()
+      const request = usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), onSubmittedSuccess }).retry()
+      await vi.advanceTimersByTimeAsync(1999)
+      expect(harness.getState().phase).toBe('syncing')
+      expect(onSubmittedSuccess).not.toHaveBeenCalled()
+      expect(statusMocks.getStatus).toHaveBeenCalledOnce()
+      await vi.advanceTimersByTimeAsync(1)
+      await request
+      expect(statusMocks.getStatus).toHaveBeenCalledTimes(2)
+      expect(onSubmittedSuccess).toHaveBeenCalledWith(readyDisplay, readyAction)
+      expect(harness.getState().phase).toBe('success')
+      expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('uses the strict result for the callback when ready display has no copy run ID', async () => {
+    const hash = `0x${'e'.repeat(64)}` as const
+    const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    const result = { copyRunId: 'run-1', readOwnerAddress: account }
+    statusMocks.getStatus.mockReturnValue({
+      unwrap: vi.fn().mockResolvedValue({
+        data: {
+          status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
+          display: { status: 'SUBMITTED_ACTION_DISPLAY_STATUS_READY' },
+          result,
+        },
+      }),
+    })
+    const onSubmittedSuccess = vi.fn()
+    await usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), onSubmittedSuccess }).retry()
+    expect(onSubmittedSuccess).toHaveBeenCalledWith(result, readyAction)
+    expect(statusMocks.getStatus).toHaveBeenCalledOnce()
+    expect(harness.getState().phase).toBe('success')
+  })
+
+  it('shows success from READY display while the action is still syncing', async () => {
+    const hash = `0x${'e'.repeat(64)}` as const
+    const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    statusMocks.getStatus.mockReturnValue({
+      unwrap: vi.fn().mockResolvedValue({
+        data: {
+          status: 'SUBMITTED_ACTION_STATUS_SYNCING',
+          reason: 'SUBMITTED_ACTION_REASON_SOURCE_INDEXING',
+          display: readyDisplay,
+          guidance: { retryAfterMs: 2000 },
+        },
+      }),
+    })
+    const onSubmittedSuccess = vi.fn()
+    await usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), onSubmittedSuccess }).retry()
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash, display: readyDisplay })
+    expect(statusMocks.getStatus).toHaveBeenCalledOnce()
+    expect(onSubmittedSuccess).toHaveBeenCalledWith(readyDisplay, readyAction)
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
+  it.each(['SUBMITTED_ACTION_DISPLAY_STATUS_PENDING', 'SUBMITTED_ACTION_DISPLAY_STATUS_SYNCING'] as const)(
+    'completes on receipt while display is %s and lets page queries refresh independently',
+    async displayStatus => {
+      const hash = `0x${'e'.repeat(64)}` as const
+      const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+      const receiptResult = { effects: [{ transfer: { amountRaw: '90071992547409931234' } }] }
+      const display = {
+        status: displayStatus,
+        copyRunId: 'run-1',
+        capitalInUsd: { value: '1', status: 'METRIC_STATUS_CURRENT' as const },
+      }
+      statusMocks.getStatus.mockReturnValue({
+        unwrap: vi.fn().mockResolvedValue({
+          data: {
+            status: 'SUBMITTED_ACTION_STATUS_CONFIRMING',
+            display,
+            receiptResult,
+            guidance: { retryAfterMs: 5000 },
+          },
+        }),
+      })
+      statusMocks.refresh.mockImplementation(() => new Promise(() => undefined))
+      const prepare = vi.fn()
+      await usePreparedAction({ getExpected: () => expected, prepare }).retry()
+      expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash, display: undefined })
+      expect(statusMocks.getStatus).toHaveBeenCalledOnce()
+      expect(statusMocks.refresh).toHaveBeenCalledTimes(2)
+      expect(prepare).not.toHaveBeenCalled()
+      expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+    },
+  )
 })
