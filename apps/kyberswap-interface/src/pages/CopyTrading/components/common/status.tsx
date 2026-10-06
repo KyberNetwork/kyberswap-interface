@@ -1,12 +1,18 @@
 import { PropsWithChildren } from 'react'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
-import type { CopyRunStatus, PositionLifecycle, PositionQuantityState } from 'services/copyTrading/types/primitives'
+import type {
+  CopyRunStatus,
+  FieldGroup,
+  PositionLifecycle,
+  PositionQuantityState,
+  ResponseMeta,
+} from 'services/copyTrading/types/primitives'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
-import { Center, HStack, Stack } from 'components/Stack'
+import { Center, Stack } from 'components/Stack'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatUsd } from 'pages/CopyTrading/helpers'
+import { formatUsd, isFieldGroupSyncing } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
 const MetricStatusBadge = ({ children }: PropsWithChildren) => (
@@ -15,16 +21,30 @@ const MetricStatusBadge = ({ children }: PropsWithChildren) => (
   </span>
 )
 
-export const CapitalInCardValue = ({ run }: { run: CopyRunListItem }) => (
-  <HStack className="items-center justify-end gap-1.5">
-    <span>{formatUsd(run.capitalInUsd)}</span>
-    {run.capitalInProjectionStatus === 'syncing' && (
-      <MetricStatusBadge>
-        <Dots>Syncing</Dots>
-      </MetricStatusBadge>
-    )}
-  </HStack>
-)
+// Currently unused in the UI. Group-level syncing does not imply that an individual metric is syncing.
+// Only use this tag when its status source applies to the exact value being displayed.
+export const SyncingTag = ({
+  meta,
+  groups = [],
+  syncing = false,
+}: {
+  meta?: ResponseMeta
+  groups?: FieldGroup[]
+  syncing?: boolean
+}) => {
+  const showSyncing = syncing || isFieldGroupSyncing(meta, ...groups)
+  if (!showSyncing) {
+    return null
+  }
+
+  return (
+    <MetricStatusBadge>
+      <Dots>Syncing</Dots>
+    </MetricStatusBadge>
+  )
+}
+
+export const CapitalInCardValue = ({ run }: { run: CopyRunListItem }) => <span>{formatUsd(run.capitalInUsd)}</span>
 
 const copyRunStatusLabel: Record<CopyRunStatus, string> = {
   active: 'Active',

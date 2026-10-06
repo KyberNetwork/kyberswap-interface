@@ -87,14 +87,24 @@ export const usePreparedAction = ({
 
   const syncSubmittedAction = async (action: PreparedAction, hash: Hash) => {
     setState({ phase: 'syncing', action, hash })
-    // Refresh once on receipt and again when the action's public data is ready.
+    // Page reads refresh independently of receipt verification.
     refresh()
 
     try {
-      const status = await pollSubmittedActionStatus({ action, hash, getStatus })
+      const status = await pollSubmittedActionStatus({
+        action,
+        hash,
+        getStatus,
+        waitForCallbackData: !!onSubmittedSuccess,
+      })
       refresh()
-      if (status.display) await onSubmittedSuccess?.(status.display, action)
-      setState({ phase: 'success', action, hash, display: status.display })
+      const isDisplayReady = status.display?.status === 'SUBMITTED_ACTION_DISPLAY_STATUS_READY'
+      const display = isDisplayReady ? status.display : undefined
+      const hasSucceeded = status.status === 'SUBMITTED_ACTION_STATUS_SUCCEEDED'
+      const strictResult = hasSucceeded ? status.result : undefined
+      const result = display?.copyRunId ? display : strictResult
+      if (result) await onSubmittedSuccess?.(result, action)
+      setState({ phase: 'success', action, hash, display })
     } catch (error) {
       setState({
         phase: error instanceof SubmittedActionFailedError ? 'error' : 'sync_error',
@@ -167,15 +177,6 @@ export const usePreparedAction = ({
       setState({ phase: 'confirming', action, hash: submittedHash })
       const receipt = await publicClient.waitForTransactionReceipt({ hash: submittedHash })
       hash = receipt.transactionHash
-      if (receipt.status !== 'success') {
-        setState({
-          phase: 'error',
-          action,
-          error: 'The transaction reverted on-chain. Prepare a new call before trying again.',
-          hash,
-        })
-        return
-      }
 
       await syncSubmittedAction(action, receipt.transactionHash)
     } catch (error) {
@@ -203,15 +204,6 @@ export const usePreparedAction = ({
       if (!publicClient) throw new Error('The public client is unavailable for the selected chain.')
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
-      if (receipt.status !== 'success') {
-        setState({
-          phase: 'error',
-          action,
-          error: 'The transaction reverted on-chain. Prepare a new call before trying again.',
-          hash: receipt.transactionHash,
-        })
-        return
-      }
 
       await syncSubmittedAction(action, receipt.transactionHash)
     } catch (error) {

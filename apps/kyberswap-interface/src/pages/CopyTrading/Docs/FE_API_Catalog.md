@@ -5,9 +5,40 @@ API and internal admin tools with the VPN-only admin API. Use the endpoint
 reference for request fields, agent registry management, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: October 5, 2026.
+Last updated: October 6, 2026.
 
 ## Changelog
+
+### October 5, 2026: receipt-first submitted-action results
+
+Show the verified result of a submitted call as soon as `data.receiptResult`
+is present. Let the user dismiss the transaction dialog; confirmations and
+updated totals can continue in the background.
+
+1. Send `resultMode: "SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST"` to
+   `actions:status` with the preparation's unchanged `statusContext` and the
+   wallet's EVM transaction hash. Preserve `creationTransactionHash` when
+   included in the context. Update the generated client for these fields and
+   `receiptResult` using the [#101 OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/cbadf0e5b05ccf8f110be233954526d0c40db152/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
+2. When `receiptResult` is present, show this call's successful effect with a
+   provisional label, such as **Capital added · Confirming**. Do not wait for
+   `display.status = READY` or `data.status = SUCCEEDED` to show that effect.
+   A successful `transaction.outcome` alone is insufficient.
+3. Read `display.status` separately. `READY` lets you show the action-specific
+   data and any returned metrics. `SYNCING` lets you keep the verified receipt
+   result visible while the affected totals show **Syncing**. Do not add the
+   receipt amount to an older total.
+4. When `data.status = SUCCEEDED`, show this call as completed and handle any
+   `nextStep`. Success applies to this call, stage, or batch; Stop exits or
+   further withdrawal batches can still remain.
+5. Replace the receipt result and display state on each successful poll. Use
+   `guidance.retryAfterMs`, preserve the operation across dialog dismissal,
+   and remove an earlier provisional claim when a later response no longer
+   supports it. Never resubmit automatically.
+
+See [When to show success](#when-to-show-success),
+[Provisional values and syncing totals](#provisional-values-and-syncing-totals),
+and [Refresh after a transaction](#refresh-after-a-transaction).
 
 ### October 4, 2026: wallet totals, closed Amount Out, and activity details
 
@@ -115,25 +146,17 @@ request/response examples, field-mask rules, and visibility behavior.
 
 ### September 22, 2026: display readiness for every submitted action
 
-[PR #83](https://github.com/KyberNetwork/copy-trade-api/pull/83), verified at
-`70583b83faa9c1a88ec44fc512cdc16d94e277a8`, adds `data.display` to
-`POST /users/{ownerAddress}/actions:status`. The PR is open at this update;
-deployment has not been verified. This is additive and leaves the existing
-action-status enum and the 35 HTTP operations unchanged.
+`actions:status` returns `data.display` independently of `data.status`.
 
-- Use `display.status = SUBMITTED_ACTION_DISPLAY_STATUS_READY` to show the
-  action's updated public data, even while `data.status` remains `SYNCING`.
-- Render returned `capitalInUsd` / `capitalOutUsd` as decimal strings with
-  their metric status and the separate `display.finality` qualifier.
-- Keep polling for strict completion. Conversely, `SUCCEEDED` with display
-  `PENDING` supplies a retry hint while the updated display data catches up.
-- Replace display state on every successful poll. Missing `display` from an
-  older server does not prove readiness; retain the existing completion flow.
+- On display `READY`, render the returned values with their metric status and
+  `display.finality`, then refresh the named copy run or position.
+- Action `SUCCEEDED` can arrive before display `READY`. Show call success
+  immediately and keep the affected data marked as updating.
+- Replace display state on each successful poll. An omitted or unknown display
+  status does not preserve an earlier readiness claim.
 
-See [Submitted-action display readiness](#submitted-action-display-readiness)
-for all action guarantees and [Refresh after a transaction](#refresh-after-a-transaction)
-for polling. Regenerate clients from the
-[PR #83 OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/70583b83faa9c1a88ec44fc512cdc16d94e277a8/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
+The [receipt-first lifecycle](#when-to-show-success) also lets you show a
+verified provisional result before either status is ready.
 
 ### September 22, 2026: live ROI, cached prices, and preparation diagnostics
 
@@ -1546,13 +1569,13 @@ route is missing.
   list row as authoritative transaction state.
 - Start a new cursor sequence when a filter, sort field, sort order, owner,
   agent, chain, view, route, or position-event `generationId` changes.
-- After wallet submission, use `actions:status` to check the exact transaction
-  and its result. When `display.status` is `READY`, show its qualified values
-  and refresh the named detail or position without waiting for `SUCCEEDED`.
-  On success, refresh the relevant lists and follow `nextStep` for any remaining
-  stage. A submitted-operation overlay may show an explicitly
-  pending user delta, but it must remain separate from authoritative API data
-  and action availability.
+- After wallet submission, use `actions:status` to check the exact transaction.
+  Show `receiptResult` immediately as a provisional successful effect and let
+  the user dismiss the dialog. When `display.status` is `READY`, render its
+  qualified values and refresh the named detail or position. On action
+  `SUCCEEDED`, refresh the relevant lists and handle `nextStep`. See
+  [When to show success](#when-to-show-success); local pending overlays remain
+  separate from server totals and action availability.
 
 Common screen requests:
 
@@ -2990,23 +3013,18 @@ receipt/status evidence to determine whether a withdrawal completed.
 
 #### History after Stop or withdrawal
 
-A mined transaction does not immediately establish History membership. Both
-Stop and withdrawal wait for canonical source coverage; Stop may also wait for
-downstream liquidations. For context, a chain configured with a 12-block safety
-depth and roughly 12-second blocks can need about 144 seconds for coverage
-alone. This is not a frontend timeout or a fixed API completion guarantee.
+Show a verified Stop or withdrawal result without waiting for the run to move
+to History. Call success and tab membership are separate: a Stop can still
+have positions exiting, and a withdrawal batch can leave tokens behind.
 
-Full-withdrawal proof now continues successful unfinished zero-balance pages at
-the configured poll cadence (5 seconds in pre-release). It does not shorten the
-confirmation window or promise that a run moves to History in 5 seconds. A
-withdrawal that leaves relevant balances, incomplete source coverage, or failed
-source reads continues to wait or retry according to backend policy.
+Refresh the run detail and Open/History lists after the action. Let the returned
+view and run status determine tab membership. Neither `receiptResult`, display
+`READY`, nor an elapsed timeout should move a run locally. Keep following
+[submitted-action status](#submitted-action-status) for the call and any
+returned Stop progress for its exits.
 
-Follow `actions:status` and `guidance.retryAfterMs`, then refresh the run detail
-and both Open/History lists as appropriate. Let the returned view/status decide
-tab membership. Financial fields such as Total Return can still be unavailable
-after a run appears in History; their recovery is independent of closure.
-Full withdrawal does not create synthetic sell events or closed-position rows.
+Financial fields such as Total Return can remain unavailable after the run
+appears in History. Render each available metric independently.
 
 #### Account-effective cashback policy
 
@@ -3713,12 +3731,14 @@ fields used for rendering.
 | Status `data.transaction.safeBlockNumber` | Decimal string when supplied. It can be `"0"` or absent when evidence is unavailable. It is not a frontend confirmation target. |
 | Status `data.transaction.verifiedActor` | Optional. Absence means the response does not provide an independently verified actor. Do not infer it from the request owner. |
 | Status `data.result` | Present only for `SUCCEEDED`. Replace the latest observation as a whole; never merge an old result into a newer response that omits it. |
-| Status `data.display` | Added by PR #83 on all normal status responses; absent on older servers and request-error envelopes. Missing or unknown display readiness proves nothing and must not reuse a prior `READY`. |
-| Status `data.display.status` | `SUBMITTED_ACTION_DISPLAY_STATUS_PENDING` or `SUBMITTED_ACTION_DISPLAY_STATUS_READY`. Independent of `data.status`; inspect both. An omitted or `UNSPECIFIED` value is not ready. |
+| Status `data.receiptResult` | Optional verified effects for receipt-first mode. Show provisional call success and allow dialog dismissal when present. It contains no cumulative totals or permission to submit another call. Replace it when a later poll omits or changes it; a current `SUCCEEDED`/`result` remains valid. |
+| Status `data.display` | Added by the submitted-action display contract on normal status responses; absent on older servers and request-error envelopes. Missing or unknown display readiness proves nothing and must not reuse a prior `READY`. |
+| Status `data.display.status` | `SUBMITTED_ACTION_DISPLAY_STATUS_PENDING`, `SUBMITTED_ACTION_DISPLAY_STATUS_READY`, or `SUBMITTED_ACTION_DISPLAY_STATUS_SYNCING`. Independent of `data.status`; inspect both. An omitted or `UNSPECIFIED` value is not ready. |
 | Status `data.display.copyRunId`, `readOwnerAddress` | Supplied when `READY`; they can also identify the target while pending. Use this read owner for resource links, not as a replacement for the saved request owner. |
 | Status `data.display.userPositionId` | Present for a resolved sell/close position; use it only with the matching copy run and saved chain. |
 | Status `data.display.capitalInUsd`, `capitalOutUsd` | Optional `DecimalMetric` objects, populated only when `READY` and applicable. Keep `value` as a decimal string, preserve `status` and `asOf`, and treat an omitted metric as unknown rather than zero. See the action table below. |
 | Status `data.display.finality` | Qualifies the displayed data as `DATA_FINALITY_PROVISIONAL` or `DATA_FINALITY_FINAL` when ready. Usually omitted while pending. It does not change the strict action status or authorize another action. |
+| Status `data.display.reason` | Explains why display data is pending or syncing, such as source indexing, source unavailability, or repair. Use the enum for control flow; do not parse the message text. |
 | Status `data.reason`, `data.nextStep` | Default `UNSPECIFIED` values are normally omitted. A normal successful sale can omit both fields. |
 | Status receipt/effect indexes | `transactionIndex` and `logIndex` are JSON numbers and can be omitted when zero. Default to zero only inside a present receipt or effect object. |
 | `data.result.stop` | A successful Stop identifies its exact accepted or reused parent. A Withdraw Tokens result can omit optional related Stop information. A missing required Stop result needs a fresh status check, not a claim that all exits finished. |
@@ -4590,6 +4610,7 @@ async function readSubmittedStatus(apiBase, ownerAddress, prepared, transactionH
       statusContext: prepared.statusContext,
       transactionHash,
       previousReceipt,
+      resultMode: "SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST",
     }),
   });
   const payload = await response.json();
@@ -4609,6 +4630,12 @@ async function readSubmittedStatus(apiBase, ownerAddress, prepared, transactionH
 The shared `readActionGuidance` helper is in [Error handling](#error-handling).
 Network or JSON-decoding failures reject the promise. Keep the saved hash and
 context, show that the status check failed, and allow another observation.
+
+The example requests receipt-first results. Omit `resultMode` to use the
+legacy completion flow. When the response has no `receiptResult`, use
+`data.status` and `data.result`; do not invent an early result or treat its
+absence as failure. This also supports environments where receipt-first
+results are not enabled.
 
 Store the most recent returned `transaction.receipt` separately and send it as
 `previousReceipt` on the next poll. If a later observation omits its receipt,
@@ -4637,105 +4664,144 @@ current status display. For example, a pending response can be:
 }
 ```
 
-The hash above is illustrative. Missing `result` is expected until this call's
-required publication is available. The `display` field in this and the status
-fixtures below requires PR #83; older servers can omit it.
+The hash above is illustrative. Missing `result` is expected before
+`SUCCEEDED`. Older servers can omit `display`; missing or
+unknown display readiness proves nothing, so do not reuse a previous `READY`
+value.
 Malformed contexts return an input error;
 oversized HTTP bodies return 413. A transport error is separate from an
 `UNKNOWN` observation and must not be shown as transaction failure.
 
+### When to show success
+
+Keep the submitted call's result separate from the readiness of its updated
+page data. Apply the latest response in this order:
+
+1. If `data.status = SUCCEEDED`, show the call as completed using `data.result`.
+2. Otherwise, if `data.receiptResult` is present, show the verified effect as
+   provisional success. For example, show **Capital added · Confirming** for
+   `CONFIRMING`, or **Withdrawal successful · Data syncing** while the updated
+   data is unavailable. Let the user dismiss the dialog and continue observing
+   the operation in the background.
+3. Otherwise, use the [status and reason matrix](#status-and-reason-matrix).
+   `transaction.outcome = SUCCESS` alone means only that the outer transaction
+   succeeded; it does not verify the intended action.
+
+`receiptResult` contains the action kind, account identity, and typed effects
+with raw token amounts. It has no separate status or finality field. Format
+amounts using the matching token's decimals and keep the raw strings intact.
+The optional `display.finality` qualifies display data, not the receipt result.
+`receiptResult` has no `copyRunId` or `userPositionId`; use the IDs returned in
+`display` or `result` for newly resolved resource links.
+
+A verified receipt effect can remain available when `data.status = UNKNOWN`
+because public details are temporarily unavailable. Keep that effect visible
+with its provisional label and show the data issue separately. If the latest
+response omits `receiptResult`, clear the earlier receipt preview; a current
+`SUCCEEDED` response and its `result` still establish call success.
+
+Only `SUCCEEDED` authorizes handling the returned `nextStep`. Neither a
+provisional success message nor display `READY` authorizes the next transaction.
+Success always applies to the submitted call, stage, or batch: a successful
+CREATE can still need funding, a successful Stop can still have exits in
+progress, and a successful withdrawal batch can leave tokens behind.
+
 ### Status and reason matrix
 
-Response `data` contains `status`, `transaction`, and `guidance`, with `reason`,
-`result`, and `nextStep` according to the rules below. PR #83 also returns the
-independent `display` object described below. The table omits the
-`SUBMITTED_ACTION_STATUS_` and `SUBMITTED_ACTION_REASON_` prefixes. Receipt
-outcomes use the `ACTION_TRANSACTION_RECEIPT_OUTCOME_` prefix.
+The table omits the `SUBMITTED_ACTION_STATUS_` and
+`SUBMITTED_ACTION_REASON_` prefixes. Apply the receipt-result rules above
+before choosing a pending or syncing presentation.
 
-| Status | Reason | Receipt and outer outcome | Result | Frontend behavior |
-| --- | --- | --- | --- | --- |
-| `PENDING` | `TRANSACTION_NOT_FOUND` | Absent | Absent | Show that the provider has not found the hash. Keep it and poll; absence does not prove cancellation. |
-| `PENDING` | `TRANSACTION_PENDING` | Absent | Absent | Show **Pending** and poll. |
-| `PENDING` | `REORGED` | Absent | Absent | Replace any previous success with **Checking new inclusion** and poll the same hash/context. |
-| `CONFIRMING` | `CONFIRMATIONS_PENDING` | Present; `SUCCESS` or `REVERTED` | Absent | Show **Confirming**, with the observed outer outcome separately. Continue polling even for a reverted receipt. |
-| `SYNCING` | `SOURCE_INDEXING`, `RESULT_PUBLICATION`, or `REPAIR_IN_PROGRESS` | Present; `SUCCESS` | Absent | The effect is verified; continue polling for the strict result. If display is `READY`, show the updated data with its qualifiers now; otherwise show **Updating result**. |
-| `SUCCEEDED` | Omitted, `UNSPECIFIED`, or `REINCLUDED` | Present; `SUCCESS` | Present | Show this call's success and handle `nextStep` separately. If display is `PENDING`, keep polling at the returned interval while waiting to show updated data. |
-| `FAILED` | `TRANSACTION_REVERTED` | Present; `REVERTED` | Absent | Show that the exact matched transaction reverted. Offer review of a fresh preparation; never resubmit automatically. |
-| `UNKNOWN` | `SOURCE_UNAVAILABLE` | May be present | Absent | Show **Status temporarily unavailable** and retry observation. |
-| `UNKNOWN` | `HISTORY_UNAVAILABLE`, `TARGET_MISMATCH`, `AMBIGUOUS_EFFECT`, or `EFFECT_NOT_VERIFIABLE` | May be present | Absent | Show the explanation and offer review or support. Do not label the transaction failed or keep polling without a retry hint. |
+| `data.status` | `data.reason` | Frontend behavior |
+| --- | --- | --- |
+| `PENDING` | `TRANSACTION_NOT_FOUND` or `TRANSACTION_PENDING` | Show **Pending** and poll. Keep the hash; absence does not prove cancellation. |
+| `PENDING` | `REORGED` | Remove the earlier result and show **Checking new inclusion**. Poll the same hash and context. |
+| `CONFIRMING` | `CONFIRMATIONS_PENDING` | With `receiptResult`, show provisional success. Otherwise show **Confirming** and the observed receipt outcome separately. A reverted receipt is not a final `FAILED` result yet; keep polling. |
+| `SYNCING` | `SOURCE_INDEXING`, `RESULT_PUBLICATION`, or `REPAIR_IN_PROGRESS` | With `receiptResult`, show the verified effect provisionally. Otherwise show **Updating result**. Render independently ready display data and continue polling. |
+| `SUCCEEDED` | Omitted, `UNSPECIFIED`, or `REINCLUDED` | Show call success and handle `nextStep` separately. If display is `PENDING` or `SYNCING`, keep the affected data updating and continue polling while the view needs it. |
+| `FAILED` | `TRANSACTION_REVERTED` | Show that the matched call reverted. Stop this operation's status polling. Any new submission requires a fresh preparation and user review. |
+| `UNKNOWN` | `SOURCE_UNAVAILABLE` | Show **Status temporarily unavailable**. Keep any current `receiptResult` visible provisionally and retry observation using the returned hint. |
+| `UNKNOWN` | `HISTORY_UNAVAILABLE`, `TARGET_MISMATCH`, `AMBIGUOUS_EFFECT`, or `EFFECT_NOT_VERIFIABLE` | Show the explanation without calling the transaction failed. A current `receiptResult` can still be shown provisionally. Follow a returned retry hint; otherwise offer review or support. |
 
-Pending, confirming, and syncing responses currently supply a 2,000 ms retry
-hint. `SUCCEEDED` with display `PENDING` also supplies 2,000 ms.
-`UNKNOWN/SOURCE_UNAVAILABLE` supplies 5,000 ms. Read
-`guidance.retryAfterMs` instead of hard-coding those values. These responses
-can omit `guidance.nextSteps`; polling does not depend on a `RETRY` step.
+Read `guidance.retryAfterMs` instead of hard-coding a polling interval. An
+omitted hint does not mean a zero-delay retry. Polling does not require a
+`RETRY` entry in `guidance.nextSteps`. Use status and reason enums for control
+flow, not `guidance.message` text.
 
-If a future status or reason is unsupported, preserve the operation and show
-an unsupported-status message. Do not map it to success or failure.
+`data.result` is present only with `SUCCEEDED`; `data.receiptResult` can arrive
+earlier. An unsupported status or reason must not be mapped to success or
+failure. Preserve the operation and offer another status check.
 
 ### Submitted-action display readiness
 
-This section describes PR #83's additive contract. `data.status` still answers
-whether the submitted call, stage, or batch has completed its required result
-publication. `data.display.status` answers whether its relevant updated public
-data can be shown. Neither `SYNCING` nor `SUCCEEDED` alone answers both questions.
-
-Display enum values use the `SUBMITTED_ACTION_DISPLAY_STATUS_` prefix:
+Use `data.display.status` to decide whether the updated public data for this
+exact action is ready. It is independent of `data.status` and `receiptResult`.
+Display values use the `SUBMITTED_ACTION_DISPLAY_STATUS_` prefix:
 
 | Display status | Frontend behavior |
 | --- | --- |
-| `PENDING` | The action's updated public data is not yet verified. Do not invent updated totals or retain values from an earlier ready observation. Target IDs alone do not prove readiness. |
-| `READY` | Show the named copy run or position's action-specific data; use any returned monetary values and qualify them with metric status and `display.finality`. Continue strict-result polling when action status is `SYNCING`. |
-| Missing, `UNSPECIFIED`, or unsupported | No readiness guarantee. On an older server without `display`, use the existing strict-completion/refresh flow; do not start an endless display-only poll. |
+| `PENDING` | No verified updated public data. Show the affected data as pending. Do not reuse an earlier ready display object or infer readiness from target IDs. |
+| `SYNCING` | Keep any verified receipt result visible; show the affected totals or position details as **Syncing**. This display does not supply replacement monetary values. |
+| `READY` | Show its action-specific data and any returned monetary values, preserving their status and `display.finality`. Refresh the named copy run or position. Other metrics can still be updating. |
+| Missing, `UNSPECIFIED`, or unsupported | No readiness guarantee. An older response without `display` uses the normal `SUCCEEDED` result and refresh flow; do not start endless display-only polling. |
 
-`READY` is available only alongside `SYNCING` or `SUCCEEDED`. Pending,
-confirming, failed, and unknown observations return display `PENDING`.
-Display readiness does not add a new top-level action status or expose
-`result` before `SUCCEEDED`. It is also separate from the copy run's
-`capitalInProjectionStatus`; that field describes the capital projection,
-whereas display readiness is tied to this exact submitted action.
+`READY` can accompany action `CONFIRMING`, `SYNCING`, or `SUCCEEDED`. Conversely,
+action `SUCCEEDED` can have display `SYNCING` or `PENDING`. Keep the success
+message and the updating-data indicator separate.
 
-| Action or stage | What display `READY` guarantees |
+| Action or stage | What display `READY` lets you show |
 | --- | --- |
-| Start Copy CREATE | The account lifecycle is published and the copy-run detail is readable. `capitalInUsd` is optional and only supplied when independently verified; its omission must not become zero or the prepared funding amount. |
-| Start Copy FUND | Public `capitalInUsd` includes the exact funding credit. The metric is included in `display`. |
-| Add Capital | Public `capitalInUsd` includes the exact deposit, including explicitly provisional values. The metric is included in `display`. |
-| Stop Copy | The permanent pause/account lifecycle is published. The public run can be `closing` while exits continue; readiness does not mean all positions are sold. |
-| Withdraw Quote | A positive withdrawal is included in the canonical withdrawal total returned as `display.capitalOutUsd`. Under PR #102 this can differ from the closed-run Amount Out card. A zero maximum withdrawal requires readable account data but no capital movement or invented zero metric. |
-| Withdraw Tokens | The pause/account lifecycle is published. A positive quote withdrawal also requires the canonical withdrawal total in `display.capitalOutUsd`. A zero/nonquote batch need not return a capital metric; refreshed wallet balances and reduced trading-position quantities are not promised. |
-| Manual Sell / Close Position | The exact sale activity and current public position summary are published. Use `userPositionId` to refresh the position and execution history. A later valid trade may have changed the current remaining amount. |
+| Start Copy CREATE | The new copy-run detail. Render `capitalInUsd` only when returned; absence is not zero or the prepared funding amount. |
+| Start Copy FUND | The returned `capitalInUsd`, which includes the exact funding credit. |
+| Add Capital | The returned `capitalInUsd`, which includes this deposit and can be provisional. |
+| Stop Copy | The paused copy-run lifecycle. The run can remain `closing` while positions exit; do not label all exits complete. |
+| Withdraw Quote | For a positive withdrawal, `display.capitalOutUsd` includes this withdrawal. A zero maximum withdrawal can be ready without a capital metric. |
+| Withdraw Tokens | The paused account lifecycle. A positive quote withdrawal is included in `display.capitalOutUsd`; zero or nonquote batches can be ready without it. Refresh wallet inventory separately. |
+| Manual Sell / Close Position | The sale activity and current position detail. Use `userPositionId` to refresh position/history; a later trade can change the current remaining amount. |
 
-For owner-scoped reads use `display.readOwnerAddress` with `copyRunId`, plus
-`userPositionId` for position detail/history. Keep the original request owner,
-chain, hash, and `statusContext` for polling; the read owner can differ from the
-transaction actor. Amounts are server totals, not deltas: replace the displayed
-metric rather than adding the deposited/withdrawn amount to it again.
+Use `display.readOwnerAddress` with `copyRunId` for owner-scoped reads and
+`userPositionId` for position reads. Keep the original owner, chain, hash, and
+`statusContext` for polling. The read owner can differ from the transaction
+actor.
 
-For Capital Out, replace the submitted-action value only. Refresh the copy-run
-card from its list/detail response, because PR #102's
-[closed-run Amount Out](#closed-run-amount-out) also includes quote still held.
+### Provisional values and syncing totals
 
-Metric status and finality are separate. `METRIC_STATUS_CURRENT` does not mean
-final: a ready provisional Capital In may already be current. Label
-`DATA_FINALITY_PROVISIONAL` values as provisional; retain a stale label for
-`METRIC_STATUS_STALE` even when finality is `DATA_FINALITY_FINAL`. Finality
-qualifies only the action's indicated display data, not every metric in its
-account. Capital Out currently waits for the published total because it has no
-provisional candidate. Prices, PnL, account-wide totals, list order/membership,
-wallet balances, and optional exit progress can still be updating.
+A provisional action result and a syncing total can appear together. These
+combinations require different rendering:
 
-Capital In can become display-ready before the capital replay window matures
-or the separate historical-fact promotion finishes. Thus `SYNCING` does not
-mean events or values are absent. A repair of strict-only workflow evidence
-can also leave independently verified account/position display `READY`; use
-the returned display status instead of suppressing it solely because the
-action reason is `REPAIR_IN_PROGRESS`.
+| Returned evidence | Action result | Totals and page data |
+| --- | --- | --- |
+| `receiptResult` plus display `SYNCING` | Show completed-call success when `data.status = SUCCEEDED`; otherwise show the effect provisionally. | Show affected totals as **Syncing**. Do not calculate an updated total from the receipt. |
+| Display `READY` with a metric and `DATA_FINALITY_PROVISIONAL` | Show the result permitted by `receiptResult` or `data.status`. | Show that metric with a provisional label; it is already an updated server value. |
+| Copy-run `capitalInProjectionStatus = SYNCING` with a `CURRENT` metric and capital-group `PROVISIONAL` finality | Does not by itself establish this action's result. | Show the server-published number with a provisional/syncing indicator. |
+| A normal read returns a `STALE` metric | Does not by itself establish this action's result. | Show it as stale if useful, without claiming it includes this action. |
+| No usable metric, or metric `UNAVAILABLE` | A verified receipt result can still be shown. | Show **Syncing** when the response says it is updating, or an unavailable placeholder. Never substitute zero. |
 
-Readiness is revocable. Replace `display` with each new response, including
-`READY` → `PENDING` after a reorg, correction, or source reset. Clear the prior
-action-specific display claim and values, then refresh normal public reads;
-do not merge an earlier ready object into a later pending/missing response.
-Readiness is never authority to skip preparation or follow `nextStep` early.
+For values from normal list/detail responses, follow their own metric status
+and field-group quality even while action display is `SYNCING`. Such a value
+does not by itself prove that the submitted action is included.
+
+In action-status responses, render `display.capitalInUsd` and
+`display.capitalOutUsd` only with display `READY`. Follow each metric's `status`
+and `asOf`. `METRIC_STATUS_CURRENT` can accompany `DATA_FINALITY_PROVISIONAL`;
+`METRIC_STATUS_STALE` can accompany `DATA_FINALITY_FINAL`. Preserve both
+qualifiers. These qualifiers do not make every other account metric ready.
+
+Returned capital values are totals. Replace the corresponding displayed
+metric and remove its matched local pending delta; do not add the receipt
+amount again. For Capital Out, keep the action-status total separate from the
+copy-run card's [Amount Out](#closed-run-amount-out), which can also include
+quote still held. Refresh the card from its list/detail response.
+
+Prices, P&L, wallet balances, list membership, and optional exit progress can
+still be updating after display `READY`. Render independently available fields;
+do not hide ready values solely because `data.reason = REPAIR_IN_PROGRESS`.
+
+Replace `receiptResult` and `display` on every successful poll. If a receipt
+is invalidated, remove its earlier provisional success. If only display data
+becomes pending or syncing, clear the earlier action-specific display values
+while retaining any receipt result in the latest response. Never merge an old
+ready object into a later pending, syncing, or missing one.
 
 ### Receipt changes and remaining work
 
@@ -4746,13 +4812,12 @@ durable flag. A replacement inclusion still awaiting confirmations returns
 After you send the new receipt on the next poll, a successful result can omit
 `REINCLUDED` again. Never wait for that reason to update the displayed receipt.
 
-`result` includes `chainId`, `factory`, `generationId`, exact event references,
-and resource IDs. These identify the verified historical account. Stop includes its new
-intent or proved earlier parent at the pause event; child progress is separate.
-Funded CREATE exposes `openingAllocationRaw` independently of the receipt transfer
-amount. Nonquote withdrawals use receipt transfer effects and do not wait for
-nonexistent capital rows. A typed zero quote withdrawal needs no capital row.
-Partial Manual Sell can succeed; Close requires its full residual.
+`result` includes the verified account identity, resource IDs, and exact
+transaction effects. Use its IDs for links and refreshes. For funded CREATE,
+use `openingAllocationRaw` when supplied rather than deriving the allocation
+from a transfer. A nonquote withdrawal can succeed without a Capital Out
+metric, and a maximum quote withdrawal can succeed with zero movement.
+Partial Manual Sell success does not mean the position is closed.
 
 Review-time skip counts and ratios can change before the transaction is mined.
 Judge completion from submitted status, not equality with a later position
@@ -4788,19 +4853,18 @@ Use `nextStep` only after `SUCCEEDED`. Values have the
 
 A wrapped outer success is insufficient without exact target effects. Unsupported
 wrapped reverts remain `UNKNOWN`, with outer receipt outcome shown separately.
-Every poll recomputes status, including after success. This route does not submit,
-prepare, register, or schedule anything, and has independent capacity from
-preparation. Success and errors use `Cache-Control: no-store`.
-Errors retain their HTTP/gRPC codes and include an allowlisted `ActionGuidance`
-detail, including malformed JSON and oversized input.
+Every poll can revise an earlier result. Treat responses as `no-store` and
+keep the operation identity so you can check it again after reopening the view.
+For request errors, use [Error handling](#error-handling).
 
 Status error guidance always refers to checking the original hash and context.
 An HTTP error, including cancellation of the status request, does not establish
 failure or cancellation of the transaction.
 
 Use the **Action Status** operation in the generated
-[OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/70583b83faa9c1a88ec44fc512cdc16d94e277a8/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
-for all context, display, and result fields; the display addition is from PR #83.
+[OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/cbadf0e5b05ccf8f110be233954526d0c40db152/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
+for context, display, receipt, and result fields, including `resultMode`,
+`creationTransactionHash`, and `receiptResult`.
 
 ### Refresh targets after success
 
@@ -5232,6 +5296,72 @@ HTTP 200 for the same preparation request when no route can be prepared. No `cal
 </details>
 
 <details>
+<summary>Status: Add Capital is verified while totals are syncing</summary>
+
+HTTP 200. Show **Capital added · Confirming** from `receiptResult` and let the
+user dismiss the dialog. Format the transfer amount using the matching token's
+known decimals. Display Capital In as **Syncing**: this response has no updated
+USD total. Continue observation after the returned interval without keeping
+transaction progress blocking. There is no `result` or `nextStep` yet.
+
+<!-- fe-response-example: status_receipt_confirming_display_syncing -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_CONFIRMING",
+    "reason": "SUBMITTED_ACTION_REASON_CONFIRMATIONS_PENDING",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "200"
+    },
+    "receiptResult": {
+      "kind": "ACTION_TRANSACTION_KIND_ADD_CAPITAL",
+      "chainId": "8453",
+      "factory": "0x4444444444444444444444444444444444444444",
+      "generationId": "example-v1",
+      "copyAccount": "0x2222222222222222222222222222222222222222",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "effects": [
+        {
+          "cursor": {
+            "blockNumber": "201",
+            "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "logIndex": 1,
+            "blockTime": "2026-10-05T08:47:49Z"
+          },
+          "emitter": "0x3333333333333333333333333333333333333333",
+          "transfer": {
+            "token": "0x3333333333333333333333333333333333333333",
+            "from": "0x1111111111111111111111111111111111111111",
+            "to": "0x2222222222222222222222222222222222222222",
+            "amountRaw": "1000000"
+          }
+        }
+      ]
+    },
+    "display": {
+      "status": "SUBMITTED_ACTION_DISPLAY_STATUS_SYNCING",
+      "reason": "SUBMITTED_ACTION_REASON_RESULT_PUBLICATION",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111"
+    },
+    "guidance": {
+      "message": "The exact action result is ready to show provisionally. Public data and final confirmation continue updating.",
+      "retryAfterMs": 5000
+    }
+  }
+}
+```
+
+</details>
+
+<details>
 <summary>Status: a reverted receipt still needs confirmation</summary>
 
 HTTP 200 from `actions:status`. The receipt says `REVERTED`, but the action status is still `CONFIRMING`. Show both facts and keep polling. Do not offer automatic resubmission.
@@ -5269,7 +5399,7 @@ HTTP 200 from `actions:status`. The receipt says `REVERTED`, but the action stat
 <details>
 <summary>Status: the effect is verified while its result is being repaired</summary>
 
-HTTP 200. This example has a repair affecting display data, so both result publication and display are pending. Clear any earlier ready display values. There is no `result` yet, and polling is driven by `guidance.retryAfterMs` even though no `nextSteps` array is present. A strict-only workflow repair can instead return display `READY`.
+HTTP 200. This response has no `receiptResult` or `result` and its display is `PENDING`. Show **Updating result**, clear any earlier action-specific display values, and poll at `guidance.retryAfterMs`. Other responses with the same reason can have display `READY`; always use the returned fields.
 
 <!-- fe-response-example: status_syncing_repair -->
 ```json
@@ -5304,7 +5434,7 @@ HTTP 200. This example has a repair affecting display data, so both result publi
 <details>
 <summary>Status: Add Capital is ready to show while the action is syncing</summary>
 
-HTTP 200 under PR #83. Display Capital In as 21 with a provisional label. It already includes this deposit: do not add the local deposit delta again. Refresh the named copy-run detail and keep polling for strict success; `result` and `nextStep` remain absent.
+HTTP 200. Display Capital In as 21 with a provisional label. It already includes this deposit: do not add the local deposit delta again. Show the receipt result immediately and let the user dismiss the dialog. Refresh the named copy run and continue status polling in the background; `result` and `nextStep` remain absent.
 
 <!-- fe-response-example: status_syncing_display_ready -->
 ```json
@@ -5333,8 +5463,34 @@ HTTP 200 under PR #83. Display Capital In as 21 with a provisional label. It alr
       "finality": "DATA_FINALITY_PROVISIONAL"
     },
     "guidance": {
-      "message": "Your updated data is ready to show. The submitted action's final result is still syncing.",
-      "retryAfterMs": 2000
+      "message": "The exact action result is ready to show provisionally. Public data and final confirmation continue updating.",
+      "retryAfterMs": 5000
+    },
+    "receiptResult": {
+      "kind": "ACTION_TRANSACTION_KIND_ADD_CAPITAL",
+      "chainId": "8453",
+      "factory": "0x4444444444444444444444444444444444444444",
+      "generationId": "example-v1",
+      "copyAccount": "0x2222222222222222222222222222222222222222",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "effects": [
+        {
+          "cursor": {
+            "blockNumber": "201",
+            "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "logIndex": 1,
+            "blockTime": "2026-09-22T08:47:49Z"
+          },
+          "emitter": "0x3333333333333333333333333333333333333333",
+          "transfer": {
+            "token": "0x3333333333333333333333333333333333333333",
+            "from": "0x1111111111111111111111111111111111111111",
+            "to": "0x2222222222222222222222222222222222222222",
+            "amountRaw": "1000000"
+          }
+        }
+      ]
     }
   }
 }
@@ -5345,7 +5501,7 @@ HTTP 200 under PR #83. Display Capital In as 21 with a provisional label. It alr
 <details>
 <summary>Status: Add Capital succeeded but its updated total is not ready</summary>
 
-HTTP 200 under PR #83. The exact credit is published, so this action succeeded. The updated public total is not verified yet: no capital metric is supplied in `display`. Keep polling at the returned interval while the view waits for that total.
+HTTP 200. Show this call as completed using `result`. The updated public total is not verified yet: no capital metric is supplied in `display`. Keep polling at the returned interval while the view waits for that total.
 
 <!-- fe-response-example: status_success_display_pending -->
 ```json
@@ -5406,7 +5562,7 @@ HTTP 200 under PR #83. The exact credit is published, so this action succeeded. 
 <details>
 <summary>Status: withdrawal Capital Out is ready while strict status is syncing</summary>
 
-HTTP 200 under PR #83. Capital Out includes the exact positive quote withdrawal. Render 5 with its stale qualifier; finality is separate from freshness. This does not promise a refreshed wallet balance. Keep polling for strict success.
+HTTP 200. Capital Out includes the exact positive quote withdrawal. Render 5 with its stale qualifier; finality is separate from freshness. This does not promise a refreshed wallet balance. Keep polling for strict success.
 
 <!-- fe-response-example: status_withdrawal_display_ready -->
 ```json
@@ -5918,50 +6074,52 @@ The browser should never ABI-encode a Copy Trade action from preview fields.
 
 ### Refresh after a transaction
 
-1. Preserve the executable preparation's `statusContext`, its owner, and the
-   wallet's EVM transaction hash so that observation can resume after refresh.
-   Keep these separately from calldata, permits, and signatures.
-2. POST the context and hash to `actions:status`. If the response contains a
-   receipt, save it and send it as `previousReceipt` on the next poll.
-3. For `PENDING`, `CONFIRMING`, or `SYNCING`, show the returned explanation and
-   poll after `guidance.retryAfterMs`. Allow only one in-flight poll per
-   operation; cancel the request when its view is closed and resume when needed.
-   Independently inspect `display`: on `READY`, render its qualified monetary
-   values and refresh the named detail/position immediately. Keep polling when
-   the strict action is still `SYNCING`; do not execute a continuation yet.
-4. For `UNKNOWN`, display the reason without labeling the transaction failed.
-   Retry transient `SOURCE_UNAVAILABLE` according to guidance. For a target
-   mismatch, ambiguous effect, or unavailable history without a retry hint,
-   offer review or support instead of an endless automatic poll.
-5. For an HTTP or network error, keep the saved operation and follow
-   [Error handling](#error-handling). Never resubmit to recover a failed poll.
-6. On `SUCCEEDED`, refresh the resource IDs in `result` and their containing
-   lists. Follow `nextStep` for Start funding or a new withdrawal batch; keep
-   optional Stop progress separate from this call's success. If display is
-   `PENDING` and the view is waiting for updated data, continue polling using
-   `guidance.retryAfterMs`; don't treat the old total as updated.
-7. On `FAILED`, show that the matched transaction reverted. Require a fresh
-   preparation and user review before any new submission.
+1. Save the executable preparation's unchanged `statusContext`, owner, chain,
+   and wallet EVM transaction hash. Preserve them across dialog dismissal or
+   reload so status observation can resume.
+2. POST the context and hash to `actions:status` with
+   `resultMode: "SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST"`. Save each returned
+   `transaction.receipt` and send it as `previousReceipt` on the next poll.
+   Keep the last receipt reference for comparison even when a later response
+   omits its current receipt.
+3. Apply [When to show success](#when-to-show-success). A present `receiptResult`
+   replaces the blocking transaction spinner with the provisional result; let
+   the user dismiss the dialog. Independently use `display.status` to show
+   updated data or a syncing indicator. Replace both objects on each successful
+   response rather than merging in older values.
+4. While the call or needed display data is pending, poll at
+   `guidance.retryAfterMs` when supplied. Run one request per operation at a
+   time. Keep polling in the background while its view is active; pause when
+   the browser is hidden/offline or no view needs the result, and check again
+   on resume. Dismissing the dialog must not lose the saved operation.
+5. On `SUCCEEDED`, show completed-call success and refresh the IDs in `result`
+   and their containing lists. Handle `nextStep` for Start funding or the next
+   withdrawal batch using a fresh preparation. If display is `PENDING` or
+   `SYNCING`, keep polling at the returned interval while the view needs the
+   updated data; do not keep the user in a blocking transaction dialog.
+6. On `FAILED`, show the matched call's revert and stop status polling. On
+   `UNKNOWN`, show its explanation, retain any current verified receipt result,
+   and retry only according to guidance. An HTTP/network error is a failed
+   observation, not a failed transaction: keep the saved operation and follow
+   [Error handling](#error-handling). Never resubmit automatically.
 
-For PR #83, stop successful-operation polling once both action `SUCCEEDED`
-and display `READY` are observed. A confirmed `FAILED` stops success/display
-polling too. When an older server omits `display`, use the existing resolved
-result and refresh flow. Check again when reopening the operation or when the
-wallet reports a replacement hash. Every observation
-can revise a previous result after a reorg; don't cache success as irreversible.
+Stop successful-operation polling when action `SUCCEEDED` and display `READY`
+are both observed; do not wait for `display.finality = DATA_FINALITY_FINAL`.
+When a response omits `display`, use the existing `SUCCEEDED` result and refresh
+flow. Do not poll forever waiting for a field an older server does not provide. Use normal read refreshes for other metrics
+and Stop-exit progress that are still updating.
 
-Guard updates by the saved chain, transaction hash, and status context. If the
-user changes the selected operation while a request is in flight, ignore the
-old response. Schedule the next request after the current one finishes rather
-than using overlapping intervals. Browser cancellation can prevent any HTTP
-response; treat it as a stopped observation request.
+Guard updates by the saved chain, transaction hash, and status context. Ignore
+late responses for a different selected operation. Schedule the next request
+after the current one finishes. Browser cancellation stops observation, not
+the transaction. A failed poll does not make a cached observation current;
+show the refresh error and retry according to guidance.
 
-`CONFIRMING` reports the outer receipt result separately. `SYNCING` means the
-required result is catching up; readable display data may already be ready.
-`UNKNOWN` is not failure. Do not infer execution
-from a newer timestamp, successful outer wrapper, or elapsed timeout. A reorg can
-invalidate previous success; send the previous receipt reference to explain a
-changed inclusion. Never reuse a successfully submitted preparation.
+Check again when reopening an operation or when the wallet reports a
+replacement EVM hash. A changed receipt or reorg can withdraw an earlier
+success; apply the latest response and send the last receipt reference.
+Elapsed time, a missing receipt, or outer wallet success alone never proves
+that the intended action completed or failed. Never reuse a submitted call.
 
 ### Offline acceptance checks
 
@@ -5983,8 +6141,8 @@ component and request-state tests. No live transaction is needed for these cases
   cashback marked not applicable. Unavailable estimates never become zero.
 - A stale Total Return renders with its status while independently available
   dollar P&L remains visible. Missing Return does not hide a History row.
-- A successful withdrawal can remain Closing during source confirmation;
-  neither receipt success nor the 5-second continuation cadence forces History.
+- A successful withdrawal can remain Closing. Neither receipt success nor
+  elapsed time forces History membership.
 - `/chains` initializes Start Copy and Add Capital without hard-coded token
   values or a preliminary preparation request.
 - A token with only `chainId`, `address`, and `decimals` keeps funding usable.
@@ -6023,20 +6181,29 @@ component and request-state tests. No live transaction is needed for these cases
 - `SYNCING` with display `READY` renders the exact returned Capital In and its
   provisional label, clears the included local pending delta, and keeps polling
   for strict success without adding the deposit twice.
-- `SUCCEEDED` with display `PENDING` shows action success but continues display
-  polling at `guidance.retryAfterMs`; it does not label an older total updated.
+- `CONFIRMING` with `receiptResult` and display `SYNCING` shows provisional
+  call success, allows dialog dismissal, and leaves totals syncing.
+- A current `receiptResult` remains visible when the action is `UNKNOWN` due
+  to unavailable public data; use the returned retry hint.
+- `SUCCEEDED` with display `PENDING` or `SYNCING` shows completed-call success
+  and continues display polling while needed; it does not label an older total
+  updated or reopen a blocking dialog.
+- A missing `receiptResult` falls back to the latest status and strict result.
+  It does not erase a current `SUCCEEDED` result or imply transaction failure.
 - Every action follows its display guarantee above. CREATE can be ready with
   no capital value, Stop can remain closing, and a partial sale can be shown
   even when a later valid sale changed the remaining amount.
-- Positive quote withdrawals wait for returned Capital Out; zero/nonquote
-  batches do not wait for wallet-balance RPC or invent missing capital values.
+- A verified withdrawal effect is shown immediately. Updated Capital Out waits
+  for a returned ready metric; zero or nonquote batches can be ready without
+  a capital metric or refreshed wallet balance.
 - `CURRENT` plus `PROVISIONAL`, and `STALE` plus `FINAL`, retain both qualifiers.
 - Missing or unknown display status never borrows prior ready values. An older
   server without `display` uses the legacy completion flow without endless polling.
 - `SUCCEEDED` works with omitted `reason`, `nextStep`, and zero indexes.
 - Stop success with unavailable progress does not display zero remaining exits.
-- `UNKNOWN/SOURCE_UNAVAILABLE` retries observation; a target mismatch or
-  invalid request requires review instead of an automatic loop.
+- `UNKNOWN/SOURCE_UNAVAILABLE` retries observation. For `TARGET_MISMATCH`,
+  follow a returned retry hint; without one, require review. An invalid request
+  needs correction before retrying.
 - A reorg replaces the latest success and removes its displayed result while
   retaining the original context, hash, and last observed receipt reference.
   A new display `PENDING` also removes the earlier ready display claim/values.
@@ -6048,9 +6215,9 @@ component and request-state tests. No live transaction is needed for these cases
 ### Submitted-operation overlay
 
 The UI may show a pending local delta after the wallet returns a transaction
-hash. This overlay improves continuity while the operator and aggregate API
-project the confirmed event; it is never canonical read data or action
-authority.
+hash. Keep it separate from server totals. Replace its pending action message
+with the exact provisional effect when `receiptResult` arrives; this does not
+make a cumulative total ready.
 
 - Create the overlay only after wallet submission returns a transaction hash.
   Key it by chain, transaction hash, action kind, and exact target identity.
@@ -6066,7 +6233,8 @@ authority.
   isn't proof that the event was included.
 - For FUND/Add Capital, display `READY` proves the exact credit is already in
   returned Capital In. Replace the matching local funding overlay with that
-  server total, even while the action is `SYNCING`, to avoid double counting.
+  server total, even while the action is `CONFIRMING` or `SYNCING`, to avoid
+  double counting. `receiptResult` alone must not be added to the old total.
   Apply the same rule to returned Capital Out for a positive quote withdrawal.
   Keep unrelated pending operations separate; a ready account/position alone
   does not prove an omitted monetary metric includes its delta.

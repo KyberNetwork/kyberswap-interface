@@ -1673,6 +1673,8 @@ definitions:
         type: string
       previousReceipt:
         $ref: '#/definitions/v1ActionTransactionReceiptReference'
+      resultMode:
+        $ref: '#/definitions/v1SubmittedActionResultMode'
     description: |-
       GetSubmittedActionStatusRequest can be repeated after process or browser resume.
       Previous receipt explains reorg changes but never supplies canonical proof.
@@ -1992,9 +1994,14 @@ definitions:
         $ref: '#/definitions/v1ActionTransactionWithdrawTokens'
       sell:
         $ref: '#/definitions/v1ActionTransactionSell'
+      creationTransactionHash:
+        type: string
+        description: Unsigned locator; the operator independently verifies canonical creation.
       agentId:
         type: string
-        description: Public identities are checked against aggregate mappings before chain access.
+        description: |-
+          Public identities are hints checked against aggregate mappings before links
+          are returned. Receipt-first observations do not require those rows to exist.
       copyRunId:
         type: string
       userPositionId:
@@ -5121,6 +5128,9 @@ definitions:
         type: string
       capitalOutUsd:
         $ref: '#/definitions/v1DecimalMetric'
+      reason:
+        $ref: '#/definitions/v1SubmittedActionReason'
+        description: Explains display independently of receipt confirmation or strict publication.
     description: |-
       SubmittedActionDisplay qualifies the named copy-run or position read.
       READY requires its action-specific data to include the exact submitted effect.
@@ -5135,6 +5145,7 @@ definitions:
       - SUBMITTED_ACTION_DISPLAY_STATUS_UNSPECIFIED
       - SUBMITTED_ACTION_DISPLAY_STATUS_PENDING
       - SUBMITTED_ACTION_DISPLAY_STATUS_READY
+      - SUBMITTED_ACTION_DISPLAY_STATUS_SYNCING
     default: SUBMITTED_ACTION_DISPLAY_STATUS_UNSPECIFIED
     description: |-
       SubmittedActionDisplayStatus describes whether this submission's updated
@@ -5167,6 +5178,30 @@ definitions:
       - SUBMITTED_ACTION_REASON_REPAIR_IN_PROGRESS
     default: SUBMITTED_ACTION_REASON_UNSPECIFIED
     description: SubmittedActionReason is a stable public-safe observation reason.
+  v1SubmittedActionReceiptResult:
+    type: object
+    properties:
+      kind:
+        $ref: '#/definitions/v1ActionTransactionKind'
+      chainId:
+        type: string
+        format: int64
+      factory:
+        type: string
+      generationId:
+        type: string
+      copyAccount:
+        type: string
+      readOwnerAddress:
+        type: string
+      effects:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActionTransactionEffect'
+    description: |-
+      SubmittedActionReceiptResult is verified provisional receipt evidence, not
+      cumulative public data, final accounting, or authority to submit another call.
   v1SubmittedActionResult:
     type: object
     properties:
@@ -5205,6 +5240,13 @@ definitions:
     description: |-
       SubmittedActionResult contains matched historical effects. Optional related
       business progress is qualified independently and never implies full withdrawal.
+  v1SubmittedActionResultMode:
+    type: string
+    enum:
+      - SUBMITTED_ACTION_RESULT_MODE_UNSPECIFIED
+      - SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST
+    default: SUBMITTED_ACTION_RESULT_MODE_UNSPECIFIED
+    description: SubmittedActionResultMode preserves legacy behavior unless explicitly opted in.
   v1SubmittedActionStatus:
     type: string
     enum:
@@ -5235,7 +5277,10 @@ definitions:
       display:
         $ref: '#/definitions/v1SubmittedActionDisplay'
         description: Readiness of this action's public data, independent of strict action success.
-    description: SubmittedActionStatusData uses the same progress contract for all seven actions.
+      receiptResult:
+        $ref: '#/definitions/v1SubmittedActionReceiptResult'
+        description: Presence proves the complete expected effect set for the current receipt.
+    description: SubmittedActionStatusData uses the same progress contract for all eight actions.
   v1SubmittedStopResult:
     type: object
     properties:
