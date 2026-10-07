@@ -1,4 +1,4 @@
-import type { DataFinality, LooseString, Metric } from 'services/copyTrading/types/primitives'
+import type { ActionTransactionKind, DataFinality, LooseString, Metric } from 'services/copyTrading/types/primitives'
 
 // Operator-authored selector: preserve every field verbatim when observing a submitted call.
 export type ActionStatusContext = {
@@ -51,17 +51,7 @@ export type ActionTransactionEffect = {
 }
 
 export type SubmittedActionReceiptResult = {
-  kind?: LooseString<
-    | 'ACTION_TRANSACTION_KIND_UNSPECIFIED'
-    | 'ACTION_TRANSACTION_KIND_START_COPY_CREATE'
-    | 'ACTION_TRANSACTION_KIND_START_COPY_FUND'
-    | 'ACTION_TRANSACTION_KIND_ADD_CAPITAL'
-    | 'ACTION_TRANSACTION_KIND_STOP_COPY'
-    | 'ACTION_TRANSACTION_KIND_WITHDRAW_QUOTE'
-    | 'ACTION_TRANSACTION_KIND_MANUAL_SELL'
-    | 'ACTION_TRANSACTION_KIND_CLOSE_POSITION'
-    | 'ACTION_TRANSACTION_KIND_WITHDRAW_TOKENS'
-  >
+  kind?: ActionTransactionKind
   chainId?: string
   factory?: string
   generationId?: string
