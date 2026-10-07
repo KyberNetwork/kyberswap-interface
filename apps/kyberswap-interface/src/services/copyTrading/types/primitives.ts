@@ -78,6 +78,34 @@ export type FieldGroupQuality = {
   group?: FieldGroup
 }
 
+export type ActionTransactionKind = LooseString<
+  | 'ACTION_TRANSACTION_KIND_UNSPECIFIED'
+  | 'ACTION_TRANSACTION_KIND_START_COPY_CREATE'
+  | 'ACTION_TRANSACTION_KIND_START_COPY_FUND'
+  | 'ACTION_TRANSACTION_KIND_ADD_CAPITAL'
+  | 'ACTION_TRANSACTION_KIND_STOP_COPY'
+  | 'ACTION_TRANSACTION_KIND_WITHDRAW_QUOTE'
+  | 'ACTION_TRANSACTION_KIND_MANUAL_SELL'
+  | 'ACTION_TRANSACTION_KIND_CLOSE_POSITION'
+  | 'ACTION_TRANSACTION_KIND_WITHDRAW_TOKENS'
+>
+
+// Pending publication metadata, not proof of call success or amounts to add to totals.
+export type PendingReadAction = {
+  kind?: ActionTransactionKind
+  chainId?: string
+  transactionHash?: string
+  copyAccount?: string
+  copyRunId?: string
+  readOwnerAddress?: string
+  agentId?: string
+  userPositionId?: string
+  receiptBlockNumber?: string
+  receiptBlockHash?: string
+  fieldGroups?: FieldGroup[]
+  receiptInvalidated?: boolean
+}
+
 export type ResponseMeta = {
   requestId?: string
   generatedAt?: Timestamp
@@ -86,6 +114,8 @@ export type ResponseMeta = {
   asOfChains?: ChainFreshness[]
   status?: DataStatus
   fieldQualities?: FieldGroupQuality[]
+  pendingActions?: PendingReadAction[]
+  pendingActionsTruncated?: boolean
 }
 
 export type SingleResponse<T> = {

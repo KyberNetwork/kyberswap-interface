@@ -9,35 +9,31 @@ Last updated: October 6, 2026.
 
 ## Changelog
 
-### October 5, 2026: receipt-first submitted-action results
+### October 6, 2026: action success and related data status
 
-Show the verified result of a submitted call as soon as `data.receiptResult`
-is present. Let the user dismiss the transaction dialog; confirmations and
-updated totals can continue in the background.
+Show provisional call success as soon as `data.receiptResult` is present, and
+let the user dismiss the dialog. Fetch the affected page immediately. The
+backend tracks verified pending effects, so ordinary GETs report syncing data
+after a reload or from another session without a saved action observer.
 
-1. Send `resultMode: "SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST"` to
-   `actions:status` with the preparation's unchanged `statusContext` and the
-   wallet's EVM transaction hash. Preserve `creationTransactionHash` when
-   included in the context. Update the generated client for these fields and
-   `receiptResult` using the [#101 OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/cbadf0e5b05ccf8f110be233954526d0c40db152/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
-2. When `receiptResult` is present, show this call's successful effect with a
-   provisional label, such as **Capital added · Confirming**. Do not wait for
-   `display.status = READY` or `data.status = SUCCEEDED` to show that effect.
-   A successful `transaction.outcome` alone is insufficient.
-3. Read `display.status` separately. `READY` lets you show the action-specific
-   data and any returned metrics. `SYNCING` lets you keep the verified receipt
-   result visible while the affected totals show **Syncing**. Do not add the
-   receipt amount to an older total.
-4. When `data.status = SUCCEEDED`, show this call as completed and handle any
-   `nextStep`. Success applies to this call, stage, or batch; Stop exits or
-   further withdrawal batches can still remain.
-5. Replace the receipt result and display state on each successful poll. Use
-   `guidance.retryAfterMs`, preserve the operation across dialog dismissal,
-   and remove an earlier provisional claim when a later response no longer
-   supports it. Never resubmit automatically.
+1. Send `resultMode: "SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST"` with the
+   preparation's unchanged `statusContext` and wallet transaction hash.
+2. Show the verified effect from `receiptResult`. Use `data.status = SUCCEEDED`
+   for completed-call success and `nextStep` for a remaining preparation stage.
+3. Invalidate the affected client read cache and fetch again. Render numbers
+   from the GET's metric statuses and `meta.fieldQualities`; show **Syncing**
+   when its group has `completeness = DATA_COMPLETENESS_PENDING`.
+4. Use `meta.pendingActions` to identify affected rows or a new copy run that
+   has not appeared yet. No action-readiness map needs to be stored in the UI.
+5. A verified new-run detail can return HTTP 200 with `meta` and absent `data`.
+   Show a syncing placeholder and refetch. Never invent a zero-valued run.
+6. Replace observations after a reorg or changed receipt. Keep the transaction
+   context only to reopen the dialog or continue a staged/batched action.
 
-See [When to show success](#when-to-show-success),
-[Provisional values and syncing totals](#provisional-values-and-syncing-totals),
+`actions:status.readiness[]` has been removed from this proposed contract.
+Regenerate the client from [API #108](https://github.com/KyberNetwork/copy-trade-api/pull/108)
+and enable this integration with its matching deployment. See
+[Related-read status](#related-read-status), [Action UI flows](#action-ui-flows),
 and [Refresh after a transaction](#refresh-after-a-transaction).
 
 ### October 4, 2026: wallet totals, closed Amount Out, and activity details
@@ -1571,11 +1567,9 @@ route is missing.
   agent, chain, view, route, or position-event `generationId` changes.
 - After wallet submission, use `actions:status` to check the exact transaction.
   Show `receiptResult` immediately as a provisional successful effect and let
-  the user dismiss the dialog. When `display.status` is `READY`, render its
-  qualified values and refresh the named detail or position. On action
-  `SUCCEEDED`, refresh the relevant lists and handle `nextStep`. See
-  [When to show success](#when-to-show-success); local pending overlays remain
-  separate from server totals and action availability.
+  the user dismiss the dialog. Render `display` values only when ready and
+  follow each fresh GET's [related-read status](#related-read-status). On action `SUCCEEDED`, handle `nextStep`.
+  Pending UI state remains separate from server totals and action availability.
 
 Common screen requests:
 
@@ -1796,6 +1790,9 @@ It can also carry `METRIC_STATUS_CURRENT` while
 `DATA_FINALITY_PROVISIONAL`. This is a server-published candidate, not a
 client-side funding overlay. Keep the syncing/provisional indication rather
 than hiding the number or relabeling it as a completed generation.
+After a verified submitted action, fresh reads include its pending effects in
+these field qualities. Follow [related-read status](#related-read-status); no
+client action-readiness map is needed.
 
 ### Metrics
 
@@ -2986,6 +2983,13 @@ and reserve `realizedPnlUsd`, `flatFeesCapturedUsd`, `cashbackReceivedUsd`,
 `netFeeCostUsd`, `estimatedCashbackPendingUsd`, and `observedCapitalInUsd`.
 Regenerate clients and don't use legacy accessors or synthesize replacements.
 
+Neither shape contains the action's `receiptResult` or submitted `status`.
+Use `actions:status` for transaction success, then render fresh list/detail
+responses with their metric statuses, `meta.fieldQualities`, and
+`meta.pendingActions`. The backend preserves pending effects across reloads.
+Discard cached responses and requests started before verified success; they
+cannot establish the new action's adoption.
+
 #### Closed-run Amount Out
 
 Under PR #102, both `CopyRunListItem.capitalOutUsd` and
@@ -3156,6 +3160,13 @@ detail when the exact quote amount and token identity are known:
 Render amounts without parsing `summary` or fallback text. A missing `capital`
 object on older servers or incomplete rows is unknown, not a zero deposit or
 withdrawal. Keep the row and its `alert.alertId` through refreshes.
+
+Replace each alert from the latest response, including its status, finality,
+amounts, and transaction links. A correction or reorg can withdraw earlier
+success evidence; remove omitted amounts and links instead of retaining an old
+success row. A provisional alert can remain visible with its finality label.
+Use `actions:status` to observe the submitted operation independently.
+
 The copy-run log continues to normalize `capital.movementType` to `withdrawal`
 for returned capital; the Alert Feed detail preserves `returned_capital`.
 
@@ -3275,6 +3286,29 @@ present row can therefore report `balanceSource = "onchain_rpc"`. A
 response-level `meta.status=DATA_STATUS_UNAVAILABLE` can coexist with usable
 rows; check row freshness, valuation status, and
 `pinnedStableBalance.status` separately.
+
+#### Refresh token balances with RPC
+
+After `actions:status` verifies a receipt effect, you can use the UI's chain RPC client
+to read `balanceOf(copyAccount)` for the affected ERC-20 tokens. This can update
+token quantities while backend portfolio totals are syncing.
+
+- Read the Smart Wallet (`copyAccount`), not the connected owner's wallet.
+- Use a fresh block at least as recent as the observed receipt. Read related
+  token balances at one block when displaying them together.
+- Keep raw quantities as integers or strings and format them using matching
+  token decimals. A failed read is unavailable; a successful zero is zero.
+- Batch affected tokens and reuse the client's request deduplication. Refresh
+  after the action, changed receipt inclusion, or reopening the view rather
+  than polling the whole wallet continuously.
+- Treat these quantities as provisional. Use `actions:status` to verify the
+  action and each ordinary GET's quality to render its data; a balance does not
+  establish action success.
+
+Continue using wallet inventory to discover held tokens and published reads
+for USD totals. Do not add receipt deltas to balances or combine new quantities
+with older prices to invent a portfolio total. A failed RPC read leaves the
+balance syncing or unavailable without changing verified call success.
 
 #### Current wallet inventory
 
@@ -3732,6 +3766,7 @@ fields used for rendering.
 | Status `data.transaction.verifiedActor` | Optional. Absence means the response does not provide an independently verified actor. Do not infer it from the request owner. |
 | Status `data.result` | Present only for `SUCCEEDED`. Replace the latest observation as a whole; never merge an old result into a newer response that omits it. |
 | Status `data.receiptResult` | Optional verified effects for receipt-first mode. Show provisional call success and allow dialog dismissal when present. It contains no cumulative totals or permission to submit another call. Replace it when a later poll omits or changes it; a current `SUCCEEDED`/`result` remains valid. |
+| Read `meta.pendingActions` and `meta.fieldQualities` | Ordinary GETs report pending effects and data quality. Follow [Related-read status](#related-read-status); no `actions:status.readiness[]` handling is required. |
 | Status `data.display` | Added by the submitted-action display contract on normal status responses; absent on older servers and request-error envelopes. Missing or unknown display readiness proves nothing and must not reuse a prior `READY`. |
 | Status `data.display.status` | `SUBMITTED_ACTION_DISPLAY_STATUS_PENDING`, `SUBMITTED_ACTION_DISPLAY_STATUS_READY`, or `SUBMITTED_ACTION_DISPLAY_STATUS_SYNCING`. Independent of `data.status`; inspect both. An omitted or `UNSPECIFIED` value is not ready. |
 | Status `data.display.copyRunId`, `readOwnerAddress` | Supplied when `READY`; they can also identify the target while pending. Use this read owner for resource links, not as a replacement for the saved request owner. |
@@ -3862,8 +3897,9 @@ omission/`UNSPECIFIED` is HTTP 400.
 Keep the target, funding mode, and permit intent stable while reusing that ID,
 because the canonical creation evidence is bound to the create amount and
 permit hash. Start Copy can be multi-stage: prepare, submit the returned call,
-wait for confirmation and refreshed reads, then prepare again until the
-response is complete.
+observe that stage through `actions:status`, then follow `PREPARE_START_COPY`
+after `SUCCEEDED`. Prepare again until the preparation reports completion.
+Keep related totals syncing independently; they do not control continuation.
 
 Funding modes:
 
@@ -4066,11 +4102,11 @@ START_COPY_STAGE_FUNDING_REQUIRED
 START_COPY_STAGE_COMPLETE
 ```
 
-`CREATE_CONFIRMING` means the deterministic account exists with the exact
-reviewed live deployment graph, but its canonical creation/allocation evidence
-has not crossed the safe funding boundary. Do not resubmit the create call in
-this stage. Continue polling with the same UUID and target until
-`FUNDING_REQUIRED`, then submit only the newly returned funding call.
+`CREATE_CONFIRMING` means the account has been observed, but preparation is
+still waiting for the creation/allocation evidence needed to continue. It
+returns `PENDING` with no call. Do not resubmit CREATE or infer permission to
+fund. Retry preparation according to guidance with the same flow inputs until
+it returns an executable `FUNDING_REQUIRED` stage or reports `COMPLETE`.
 
 `targetCapitalRaw` is a positive base-unit integer with at most 78 digits.
 `data.startCopy` includes the stage, request ID, predicted copy account, quote
@@ -4085,11 +4121,13 @@ Recommended loop:
 1. Generate one UUIDv4 when the user starts the flow.
 2. Prepare using that UUID, requested target, and explicit funding mode.
 3. Validate `expectedAccount`, `chainId`, status, stage, and call kind.
-4. Submit the exact call and wait for a successful receipt.
-5. Refresh relevant reads, then prepare again with the same UUID, target,
-   funding mode, and permit intent.
+4. Submit the exact call and observe it with `actions:status`. Show the
+   verified receipt effect early; wait for `SUCCEEDED` before continuation.
+5. Follow `PREPARE_START_COPY` with the same UUID, target, generation,
+   funding mode, and permit intent. Refresh related reads independently.
    If the stage is `CREATE_CONFIRMING`, do not submit another transaction.
-6. Submit the funding call only after `FUNDING_REQUIRED` is returned.
+6. Submit a newly reviewed funding call only when preparation is
+   `PARTIALLY_COMPLETED` with `FUNDING_REQUIRED` and an executable FUND call.
 7. Finish only on `COMPLETED`/`START_COPY_STAGE_COMPLETE`.
 
 ### Prepare Add Capital
@@ -4268,7 +4306,7 @@ assets are excluded; wrapped native tokens are ordinary ERC-20s.
 | `recipientAddress` | Current owner at the action block, present only when executable. Never replace it. |
 | `totalCurrentValueUsd` | Use for **Est. USD from selected**. Under PR #102 it sums available valuations in this exact-balance batch; unpriced rows stay N/A. A complete selection with no available valuations yields current `0`; missing balance proof remains unavailable. |
 | `cashbackForfeitedUsd` | Use its own metric status for **Cash-back forfeited**. Proven quote-only/zero-nonquote inventory yields current `0`. PR #102 also returns `0` for fully settled residual positions when coverage reaches the prepared block, independently of token price. Unresolved liability remains unavailable. This is an estimate, not a guaranteed on-chain loss. |
-| `hasMoreTokens` | `true` when additional eligible nonquote balances were positive at the action block. After receipt confirmation, prepare again for the next batch. |
+| `hasMoreTokens` | `true` when additional eligible nonquote balances were positive at the action block. After submitted status is `SUCCEEDED`, follow `CHECK_WITHDRAWAL_REMAINDER` with a fresh preparation. |
 
 The token list is nonempty, sorted by canonical token address, unique, and no
 larger than 100. Unavailable balances must not be displayed as zero. The
@@ -4300,9 +4338,10 @@ The quote token sweeps its execution-time full balance; positive nonquote
 amounts are pinned to the preparation block. Fee-on-transfer/rebasing tokens
 can deliver a different amount to the owner. Do not label the balance preview
 as a guaranteed amount received. Estimate gas for the exact returned outer
-call with the wallet/provider. If `hasMoreTokens` is true, wait for the receipt
-before preparing the next batch; the first batch's permanent Stop means later
-batches operate on the stopped account.
+call with the wallet/provider. Follow the submitted status continuation after
+`SUCCEEDED` to check the remainder; `hasMoreTokens` is only the preparation-time
+preview. The first batch's permanent Stop means later batches operate on the
+stopped account.
 
 `reprepareAfter` is at most 30 seconds after preparation. Reprepare after
 expiry, a relevant state change, or a failed submission. After a successful
@@ -4672,6 +4711,39 @@ Malformed contexts return an input error;
 oversized HTTP bodies return 413. A transport error is separate from an
 `UNKNOWN` observation and must not be shown as transaction failure.
 
+### Which status controls which part of the UI
+
+The action dialog, copy-run lifecycle, and financial fields answer different
+questions. Keep their states separate in the client:
+
+| Field and endpoint | Question it answers | What to render or update |
+| --- | --- | --- |
+| Preparation `data.status`, `data.reason`, and optional `startCopy.stage` | Is there a call the user can submit, or another stage to prepare? | Show review, a preparation explanation, or completed preparation. Preparation is not a receipt for a new transaction. |
+| `actions:status.data.status` and `data.reason` | What is the current verified state of this submitted call? | Drive the pending, confirming, syncing, succeeded, failed, or unknown call state. |
+| `actions:status.data.receiptResult` | Is the intended effect verified in the current mined receipt? | Show the exact effect as provisional success before strict completion. Its presence, not the outer receipt outcome alone, enables the early success message. |
+| `actions:status.data.display.status` | Are this action's specific public values ready to display? | Render returned display metrics only with `READY`. Use the per-action guarantees below. |
+| Read `meta.pendingActions[]` and `meta.fieldQualities[]` | Which returned subjects or field groups are still updating? | Render the affected component as syncing. The backend owns reconciliation; no client action-readiness map is needed. |
+| Copy-run detail/list `data.status` or row `status` | Is this run active, closing, stopped, or closed? | Render the run lifecycle. Use server Open/History lists for membership. This is not submitted-action status. |
+| Copy-run `capitalInUsd.status` | Is this returned Capital In number usable? | Render `CURRENT`; qualify `STALE`; use a placeholder for `UNAVAILABLE`. It does not prove that a particular transaction is included. |
+| Copy-run `capitalInProjectionStatus` | Has Capital In completed its current projection? | Keep a syncing indication for `SYNCING`, even with a usable provisional number. `READY` refers to that projection, not an unobserved submitted action. |
+| Read `meta.fieldQualities[]` and metric `asOf` | How fresh, complete, and final is the returned value? | Preserve provisional, stale, partial, or pending qualifiers. A fresh response timestamp alone is not proof of action inclusion. |
+
+Copy-run detail and list responses use their existing lifecycle, metric, and
+projection fields plus response metadata. A GET started after `receiptResult`
+can independently describe pending effects; it does not need the status
+context or transaction hash. `METRIC_STATUS_SYNCING` does not exist.
+
+For example, Capital In can show **$10 · Last known · Syncing** from a stale
+metric and pending capital-group quality, then **$15 · Provisional** from a
+new server value. Use the returned numbers; never add a local receipt delta.
+
+The fast path begins when the node exposes a mined receipt that verifies the
+expected effect. The target is an exact action result within a few seconds of
+that observation. This is not a submission-to-success timer or a measured
+production latency guarantee. Wallet approval, block inclusion, dependency
+failure, and reorgs can take longer. Do not keep the dialog blocked on totals
+or promise that every metric becomes ready within five seconds.
+
 ### When to show success
 
 Keep the submitted call's result separate from the readiness of its updated
@@ -4734,8 +4806,10 @@ failure. Preserve the operation and offer another status check.
 
 ### Submitted-action display readiness
 
-Use `data.display.status` to decide whether the updated public data for this
-exact action is ready. It is independent of `data.status` and `receiptResult`.
+Use `data.display.status` for the action-specific values described below.
+Related GETs report their own pending state through `meta.fieldQualities` and
+`meta.pendingActions`. Display readiness is independent of call success and
+does not make every field on the page ready.
 Display values use the `SUBMITTED_ACTION_DISPLAY_STATUS_` prefix:
 
 | Display status | Frontend behavior |
@@ -4764,6 +4838,73 @@ Use `display.readOwnerAddress` with `copyRunId` for owner-scoped reads and
 `statusContext` for polling. The read owner can differ from the transaction
 actor.
 
+### Related-read status
+
+After `receiptResult`, request the affected data immediately. The backend
+retains the verified effect before returning that response and continues
+reconciliation without browser polling. A fresh GET works after dialog
+closure, reload, wallet reconnect, or a new session.
+
+Read these fields directly from each GET response:
+
+| Field | UI behavior |
+| --- | --- |
+| Metric `status` | Render `CURRENT`, qualify an available `STALE` value, and show a placeholder for `UNAVAILABLE`. Never turn an absent value into zero. |
+| `meta.fieldQualities[].completeness = DATA_COMPLETENESS_PENDING` | Show **Syncing** for that field group. `DATA_QUALITY_REASON_PENDING_USER_OPERATION` identifies a verified action waiting for public data. |
+| Group `finality = DATA_FINALITY_PROVISIONAL` | Label the returned value provisional. Freshness, completeness, and finality are separate qualifiers. |
+| `capitalInProjectionStatus` | Preserve its existing `SYNCING`, `READY`, or `UNAVAILABLE` behavior alongside the metric and capital-group quality. |
+| `meta.pendingActions[]` | Identify an affected run/account/position, or a pending CREATE without a canonical row. Use it as response metadata, not a second action-status state machine. |
+| `meta.pendingActionsTruncated = true` | More pending effects exist than the bounded descriptor list contains. Follow group quality; absence from the list does not establish that a row is current. |
+| `receiptInvalidated = true` or `DATA_QUALITY_REASON_REORG_REPAIR` | Withdraw the invalid receipt preview and unavailable values. Render the corrected data supplied by subsequent responses. |
+
+A pending-action descriptor contains `kind`, `chainId`, `transactionHash`,
+`copyAccount`, `copyRunId`, `readOwnerAddress`, `agentId`, optional
+`userPositionId`, `receiptBlockNumber`, `receiptBlockHash`, `fieldGroups`, and
+`receiptInvalidated`. Public agent responses can omit action descriptors;
+their returned metric and group quality still apply. Descriptors contain no
+amount to add to a total and do not authorize another transaction.
+
+For a verified CREATE whose row is not available yet, detail responds with
+absent `data` and a pending descriptor in `meta`. Owner lists retain canonical
+rows and include the new identity in metadata; render a separate syncing
+placeholder instead of inserting invented financial values or changing rank.
+Unknown, unverified resource IDs still return 404.
+
+#### Related fields and reads by action
+
+All actions can leave account/owner portfolio and agent AUM updating. Each GET
+qualifies its own fields independently; a sale's fees or P&L can remain pending
+after its position quantity has updated.
+
+| Action | Refresh immediately after verified success | What can remain syncing |
+| --- | --- | --- |
+| Start CREATE | Owner copy-run list, known new-run detail, owner summary | New row/lifecycle, opening Capital In, portfolio and AUM; a separate FUND is another action. |
+| Start FUND | Run detail/list, owner/account summaries, wallet | Capital In, portfolio, AUM, and activity. CREATE completion does not clear funding work. |
+| Add Capital | Run detail/list, owner/account summaries, wallet | Capital In, portfolio, AUM, and activity. |
+| Stop Copy | Run detail/list and positions; owner/account summaries | Pause/lifecycle publication, selected exit progress, portfolio, activity, and derived metrics. Stop success does not mean all positions are sold. |
+| Withdraw Quote | Run detail/list, wallet, owner/account summaries, history | Capital Out, wallet balances, portfolio, and activity. The withdrawal does not stop the run. |
+| Withdraw Tokens | Run detail/list, wallet inventory, positions, history | Pause/lifecycle, actual wallet quantities, portfolio, and any quote component's Capital Out. Success applies to this batch. |
+| Manual Sell | Position list, closed executions, pending-sell obligations, wallet, run detail | Quantity/lifecycle, FIFO, wallet, settlement, fees, P&L, and activity. A partial sell can succeed. |
+| Close Position | The same reads as Manual Sell | The affected position closes; the run can remain active. Settlement and fees can follow the quantity update. |
+
+Use `/users/{readOwnerAddress}/copy-runs/{copyRunId}` for detail, its existing
+positions/performance routes for drilldowns, and the matching owner list and
+summary routes for the current view. Account reads use
+`/copy-accounts/{chainId}/{copyAccount}` and its balances, wallet-inventory,
+positions, pending-sell-obligations, or history routes. Use the returned public
+IDs and the exact connected-owner/filter cache keys.
+
+Fetch visible resources; invalidate hidden ones for their next use. Coalesce
+requests for the same endpoint. Existing wallet GETs compare their own balance
+observations with the pending effect; portfolio readiness never certifies a
+cached token quantity. No new endpoint or transaction parameter is required.
+An affected token can disappear from inventory after a verified zero balance.
+An empty response with pending quality does not establish an empty wallet.
+Keep usable quantities visible with their row freshness and valuation statuses;
+show **Syncing** while the valuation group is pending. Frontend
+[RPC balance reads](#refresh-token-balances-with-rpc) remain optional for promptly
+reading known tokens.
+
 ### Provisional values and syncing totals
 
 A provisional action result and a syncing total can appear together. These
@@ -4771,9 +4912,10 @@ combinations require different rendering:
 
 | Returned evidence | Action result | Totals and page data |
 | --- | --- | --- |
-| `receiptResult` plus display `SYNCING` | Show completed-call success when `data.status = SUCCEEDED`; otherwise show the effect provisionally. | Show affected totals as **Syncing**. Do not calculate an updated total from the receipt. |
+| `receiptResult` plus a pending GET field group | Show completed-call success when `data.status = SUCCEEDED`; otherwise show the effect provisionally. | Keep the corresponding field marked **Syncing**. A usable server value can remain visible with its own qualifiers. Do not calculate a new total from the receipt. |
 | Display `READY` with a metric and `DATA_FINALITY_PROVISIONAL` | Show the result permitted by `receiptResult` or `data.status`. | Show that metric with a provisional label; it is already an updated server value. |
 | Copy-run `capitalInProjectionStatus = SYNCING` with a `CURRENT` metric and capital-group `PROVISIONAL` finality | Does not by itself establish this action's result. | Show the server-published number with a provisional/syncing indicator. |
+| A GET returns a usable value with pending field-group quality | Does not establish that this action is included. | Keep the syncing indicator; show the number only as the last known value. |
 | A normal read returns a `STALE` metric | Does not by itself establish this action's result. | Show it as stale if useful, without claiming it includes this action. |
 | No usable metric, or metric `UNAVAILABLE` | A verified receipt result can still be shown. | Show **Syncing** when the response says it is updating, or an unavailable placeholder. Never substitute zero. |
 
@@ -4797,11 +4939,14 @@ Prices, P&L, wallet balances, list membership, and optional exit progress can
 still be updating after display `READY`. Render independently available fields;
 do not hide ready values solely because `data.reason = REPAIR_IN_PROGRESS`.
 
-Replace `receiptResult` and `display` on every successful poll. If a receipt
-is invalidated, remove its earlier provisional success. If only display data
-becomes pending or syncing, clear the earlier action-specific display values
-while retaining any receipt result in the latest response. Never merge an old
-ready object into a later pending, syncing, or missing one.
+Replace `receiptResult` and `display` on every successful status poll; apply each
+GET's current metadata when rendering its fields.
+If a receipt is invalidated or changes inclusion, remove its earlier provisional
+success and readiness claims before applying the new observation. If only
+display data becomes pending or syncing, clear the earlier action-specific values
+while retaining any receipt result in the latest response. Reset affected
+refreshes when their returned quality becomes pending or unavailable. Never merge an old ready object
+into a later pending, syncing, or missing one.
 
 ### Receipt changes and remaining work
 
@@ -4862,26 +5007,201 @@ An HTTP error, including cancellation of the status request, does not establish
 failure or cancellation of the transaction.
 
 Use the **Action Status** operation in the generated
-[OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/cbadf0e5b05ccf8f110be233954526d0c40db152/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
-for context, display, receipt, and result fields, including `resultMode`,
-`creationTransactionHash`, and `receiptResult`.
+[OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/885cf82a4f208b03fe6f0e61007bbb6c726657d0/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
+for context, display, receipt, result, and read-metadata fields, including
+`resultMode`, `creationTransactionHash`, `receiptResult`, and `pendingActions`.
 
 ### Refresh targets after success
+
+Use [Related fields and reads by action](#related-fields-and-reads-by-action)
+and the action-specific flows below. Refresh
+only visible resources and invalidate other affected client cache entries for
+their next use. Coalesce refreshes that need the same endpoint and filters.
 
 Use `result.readOwnerAddress` for owner-scoped historical links when supplied,
 and the resource IDs returned by the status response. This read owner can
 differ from the actor of the transaction. It does not replace the expected
 owner in the saved status context or a future preparation request.
 
-| Completed call | Refresh | Remaining work |
+### Action UI flows
+
+These flows cover all eight submitted action kinds. Enum values in prose omit
+their common prefixes; JSON fragments retain the full wire values. Success
+labels are UI suggestions. Translate them without using message text as a
+control-flow key.
+
+#### Read exact effects without counting them twice
+
+Both `receiptResult.effects[]` and `result.effects[]` contain typed effects.
+Select the populated payload (`create`, `transfer`, `pause`,
+`liquidationConfig`, `withdrawQuote`, or `sell`), not a fixed array index.
+Effects are ordered by receipt log position. Several effects can describe the
+same movement, so their amounts are not independent amounts to sum.
+
+| Action | Effect to present | Amount or meaning |
 | --- | --- | --- |
-| Start CREATE or FUND | Copy-run detail, owner copy-run list, and agent follower list when shown | Follow `PREPARE_START_COPY` using the original request UUID and inputs. The next preparation can already be complete. |
-| Add Capital | Copy-run detail, balances, and capital activity | No status-directed preparation continuation. |
-| Stop Copy | Copy-run detail and the exact `stopIntentId` progress | Exit children can remain pending, skipped, or unavailable after the Stop call succeeds. |
-| Withdraw Quote | Quote balance and capital activity | A successful partial withdrawal does not imply a zero remaining balance. |
-| Withdraw Tokens | Wallet inventory, balances, and copy-run detail | Follow `CHECK_WITHDRAWAL_REMAINDER` with a fresh preparation. If all eligible balances are zero, preparation returns `UNAVAILABLE` with `NO_WITHDRAWABLE_BALANCE` and no executable call. |
-| Manual Sell | The position, pending-sell obligations, and quote balance | New obligations can remain after this exact partial sale succeeds. Any new sale needs review and preparation. |
-| Close Position | The position, closed executions, and quote balance | The confirmed close covers the expected full residual; use server position/lifecycle values for list membership. |
+| CREATE | `create`; funded creation also has a matching `transfer` | `create.createAmountRaw` is the call's creation funding, not the run's full opening allocation. Use optional `result.openingAllocationRaw` for the verified opening allocation. Never add the create and transfer amounts together. |
+| FUND / Add Capital | `transfer` | Display `token`, `from`, `to`, and `amountRaw` for this credit. |
+| Stop Copy | `pause`; selected Stop also includes `liquidationConfig` | The pause/settings took effect. These effects are not receipts for the downstream position sales. |
+| Withdraw Quote | `withdrawQuote`; positive withdrawals also have a corroborating `transfer` | Display `withdrawQuote.token`, `recipient`, and actual `amountRaw` once. Do not add the corroborating transfer. |
+| Withdraw Tokens | `pause`, the included quote withdrawal, and selected token transfers | Display the quote movement once and each nonquote `transfer.amountRaw` with its token and recipient. Do not sum different tokens into a raw amount or USD total. |
+| Manual Sell / Close Position | `sell` | Display `baseSoldRaw`, `baseUnsoldRaw`, and `quoteReceivedRaw` using the matching position's base/quote token metadata. These are the exact sale quantities, not the preparation's swap estimate. |
+
+Keep decimal strings or arbitrary-precision integers throughout formatting.
+An unavailable token symbol or USD price does not invalidate an exact raw
+effect. Use an address label, and show the raw amount until matching decimals
+are known. Never guess decimals or treat the maximum-withdrawal sentinel as an
+amount received. The API verifies the expected effects; the UI does not need
+to rebuild the receipt matcher or repeat historical RPC validation.
+
+#### Start Copy CREATE
+
+1. Prepare Start Copy with the original request UUID, selected generation,
+   target capital, and funding mode. Submit only its executable CREATE call.
+2. Show **Copy account created · Confirming** when `receiptResult` arrives.
+   Allow dismissal and open the returned `display.copyRunId` under
+   `display.readOwnerAddress` when available.
+3. Fetch the owner list and new-run detail. An absent detail `data` with a
+   pending CREATE descriptor means **Creating copy-run view · Syncing**. Once
+   a row is returned, render it and its capital/portfolio quality independently.
+4. On `SUCCEEDED` with `PREPARE_START_COPY`, prepare again with the same UUID
+   and original inputs. `COMPLETED/COMPLETE` finishes the flow;
+   `PARTIALLY_COMPLETED/FUNDING_REQUIRED` asks for a separately reviewed FUND.
+
+The exact CREATE funding amount is not automatically the run's complete opening
+allocation. Use returned `openingAllocationRaw` when supplied; never add
+CREATE and transfer effects as two credits.
+
+#### Start Copy FUND
+
+1. Submit the newly prepared FUND call and keep its hash separate from CREATE.
+2. Show **Capital added · Confirming** from the verified transfer in
+   `receiptResult`; the user can close the dialog and visit the run page.
+3. Fetch run detail/list and owner/account data. Capital In can show a usable
+   old value with **Syncing**, a provisional updated value, or a syncing
+   placeholder. Render exactly what that GET and its metadata describe.
+4. On `SUCCEEDED`, follow `PREPARE_START_COPY` using the original flow UUID.
+   Complete the flow when preparation returns `COMPLETED/COMPLETE`.
+
+#### Add Capital
+
+1. Submit the prepared call. Show the exact verified token amount from
+   `receiptResult` and allow dismissal.
+2. Invalidate the run, owner/account totals, and visible wallet/history caches;
+   fetch again immediately. Each GET carries its own pending state.
+3. Retain an available stale Capital In number with **Syncing**. Replace it
+   with the server's new number as responses update; never add the receipt
+   amount to the previous total. A page reload follows the same GET behavior.
+4. Complete the call on `SUCCEEDED`. Missing optional prices or P&L do not
+   require keeping the transaction dialog open.
+
+#### Stop Copy
+
+1. Show **Copy stop accepted · Confirming** from the verified pause/settings.
+2. Refresh run detail, current Open/History lists, positions, and summaries.
+   Render lifecycle from those responses and show syncing from their metadata.
+3. A run can remain `CLOSING` in Open while exits continue. Use returned
+   `stopCopyProgress` or `result.stop` with its own status for child progress.
+4. Offer subsequent actions through fresh preparation. Stop success is not a
+   withdrawal and does not prove every selected position was sold.
+
+#### Withdraw Quote
+
+1. Show the actual `withdrawQuote.amountRaw` from `receiptResult`, including a
+   successful maximum withdrawal of zero. The preparation sentinel is not the
+   amount received.
+2. Refresh run detail/list, account/owner data, wallet, and visible history.
+   Capital Out can update separately from the wallet or portfolio.
+3. Render the card's existing Amount Out semantics; do not equate a closed
+   run's quote still held with an on-chain withdrawal. The run can stay active.
+
+#### Withdraw Tokens
+
+1. Show the verified pause and each token movement from `receiptResult` for
+   this atomic batch. A positive quote withdrawal is displayed once, without
+   also counting its corroborating transfer.
+2. Refresh run detail/list, wallet inventory, positions, summaries, and history.
+   Wallet quantities and USD values have their own source/price quality.
+3. A batch without quote movement does not create Capital Out. A successful
+   batch does not prove every token, native asset, or unrelated airdrop is gone.
+4. On `SUCCEEDED` and `CHECK_WITHDRAWAL_REMAINDER`, prepare again to discover
+   remaining eligible balances. Review a new batch; never replay the old one.
+
+#### Manual Sell
+
+1. Show exact `baseSoldRaw`, `baseUnsoldRaw`, and `quoteReceivedRaw` from the
+   verified `sell` effect, using the position's token identities.
+2. Refresh the position list, closed executions, pending-sell obligations,
+   run detail, wallet, and visible history. Use each response's pending quality.
+3. Quantity can update while fees, rebates, and P&L remain syncing. A nonzero
+   residual is a successful partial sale; do not mark the position closed.
+4. Refresh preparation before another sale. Received quote stays inside the
+   copy account and is not a withdrawal or Capital Out.
+
+#### Close Position
+
+1. Show the verified full-residual sale from `receiptResult` and allow dismissal.
+2. Refresh the same reads as Manual Sell. Render the affected position's
+   lifecycle and list membership from the server; financial settlement can lag.
+3. Complete this call on `SUCCEEDED`. An active copy run stays active unless
+   its own lifecycle response changes. Closing one position is not Stop Copy
+   and does not withdraw its quote to the owner.
+
+### Start Copy with funding walkthrough
+
+This example uses a $5 target in a six-decimal quote token. It illustrates
+possible response ordering, not required intermediate polls or a time promise.
+Apply the latest response directly when states arrive together or are skipped.
+
+| Observation | Dialog or operation card | Copy-run list/detail | Capital In and other metrics |
+| --- | --- | --- | --- |
+| Wallet returns CREATE hash; no verified receipt effect yet | **Creating copy account · Pending** | Keep a distinct local pending card; use the server's existing list | Keep existing values qualified; no invented new run or $5 total |
+| CREATE `receiptResult` arrives | **Copy account created · Confirming** or **Data syncing**; allow dismissal | Resolve/open the run when its IDs and lifecycle data are available | Show exact creation funding separately; totals can still be syncing |
+| The detail/list GET returns the new row | Preserve the verified call state | Start fresh detail/list requests; display the returned row, even while financial fields lag | Render a usable provisional Capital In or a syncing placeholder |
+| CREATE becomes `SUCCEEDED` | Complete the CREATE stage and follow `PREPARE_START_COPY` | Keep the run visible | Do not delay continuation for portfolio value or AUM |
+| Funded CREATE's next preparation is `COMPLETED/COMPLETE` | **Copy started**; no FUND transaction needed | Continue normal view updates | Capital In can still have projection `SYNCING`; preserve its number and qualifiers when usable |
+| Unfunded CREATE's next preparation is `PARTIALLY_COMPLETED/FUNDING_REQUIRED` with a FUND call | Ask the user to review the separate funding call | The created run remains visible | A CREATE-proven zero does not clear the new FUND operation's syncing indicator |
+| FUND `receiptResult` reports transfer `amountRaw = "5000000"` | **Initial funding received · Confirming** or **Data syncing**; show 5 quote tokens | Keep the existing run | Old Capital In can remain visible as last known; receipt amount is not a replacement cumulative USD total |
+| FUND is reflected in the run GET | Keep provisional/completed call label according to submitted status | Refetch the detail/list for that operation | Show the returned updated Capital In; owner portfolio and AUM can remain syncing |
+| FUND is `SUCCEEDED`; continued preparation is `COMPLETED/COMPLETE` | **Copy started** | Run remains available | Finish visible refreshes independently; no blocking spinner for remaining metrics |
+
+Here is a valid **copy-run detail response fragment** while Capital In has a
+usable provisional value. Unrelated fields are omitted for clarity:
+
+```json
+{
+  "data": {
+    "copyRunId": "run_1",
+    "status": "COPY_RUN_STATUS_ACTIVE",
+    "capitalInUsd": {
+      "value": "5",
+      "status": "METRIC_STATUS_CURRENT"
+    },
+    "capitalInProjectionStatus": "CAPITAL_IN_PROJECTION_STATUS_SYNCING"
+  },
+  "meta": {
+    "fieldQualities": [
+      {
+        "group": "FIELD_GROUP_CAPITAL",
+        "finality": "DATA_FINALITY_PROVISIONAL"
+      }
+    ]
+  }
+}
+```
+
+Render **$5 · Provisional · Syncing** from that fragment. It contains no
+submitted-action status. Keep the field syncing while its projection or GET
+field-group quality is pending. A completed GET alone does not clear that
+indicator. The backend removes the action's pending effect after adoption;
+ordinary projection and quality fields then determine what remains syncing or
+unavailable. Later projection `READY` does not erase a provisional finality
+qualifier.
+
+If Capital In is `UNAVAILABLE` with no value, render **Syncing** while its
+projection or field-group quality says work is pending. If the read reports unavailable
+evidence without a pending signal, render an unavailable value and a refresh
+control. Neither case prevents showing the verified creation/funding effect.
 
 ## Action response examples
 
@@ -6074,57 +6394,93 @@ The browser should never ABI-encode a Copy Trade action from preview fields.
 
 ### Refresh after a transaction
 
-1. Save the executable preparation's unchanged `statusContext`, owner, chain,
-   and wallet EVM transaction hash. Preserve them across dialog dismissal or
-   reload so status observation can resume.
-2. POST the context and hash to `actions:status` with
-   `resultMode: "SUBMITTED_ACTION_RESULT_MODE_RECEIPT_FIRST"`. Save each returned
-   `transaction.receipt` and send it as `previousReceipt` on the next poll.
-   Keep the last receipt reference for comparison even when a later response
-   omits its current receipt.
-3. Apply [When to show success](#when-to-show-success). A present `receiptResult`
-   replaces the blocking transaction spinner with the provisional result; let
-   the user dismiss the dialog. Independently use `display.status` to show
-   updated data or a syncing indicator. Replace both objects on each successful
-   response rather than merging in older values.
-4. While the call or needed display data is pending, poll at
-   `guidance.retryAfterMs` when supplied. Run one request per operation at a
-   time. Keep polling in the background while its view is active; pause when
-   the browser is hidden/offline or no view needs the result, and check again
-   on resume. Dismissing the dialog must not lose the saved operation.
-5. On `SUCCEEDED`, show completed-call success and refresh the IDs in `result`
-   and their containing lists. Handle `nextStep` for Start funding or the next
-   withdrawal batch using a fresh preparation. If display is `PENDING` or
-   `SYNCING`, keep polling at the returned interval while the view needs the
-   updated data; do not keep the user in a blocking transaction dialog.
-6. On `FAILED`, show the matched call's revert and stop status polling. On
-   `UNKNOWN`, show its explanation, retain any current verified receipt result,
-   and retry only according to guidance. An HTTP/network error is a failed
-   observation, not a failed transaction: keep the saved operation and follow
-   [Error handling](#error-handling). Never resubmit automatically.
+1. Keep the preparation's unchanged `statusContext`, owner, chain, and wallet
+   transaction hash for observing the submitted call and continuing its flow.
+2. POST them to `actions:status` in receipt-first mode. Send the latest receipt
+   reference as `previousReceipt` on subsequent observations.
+3. Show provisional success when `receiptResult` arrives. Invalidate affected
+   client caches, discard older in-flight GETs, and fetch the visible resources
+   immediately. Let the user dismiss the dialog.
+4. Render each GET from its own metric/projection statuses and field-group
+   quality. Show **Syncing** for pending groups and retain usable stale or
+   provisional numbers with their qualifiers. No action-readiness array or
+   per-operation field wait set is required in the UI.
+5. Poll normal visible reads while their returned groups are pending, using the
+   application's bounded refresh/backoff policy. Coalesce identical reads and
+   pause background refreshes for hidden views.
+6. Continue status observation when the call's strict outcome or `nextStep`
+   matters, such as separate Start funding or another withdrawal batch. GET
+   synchronization does not depend on keeping that observer alive.
 
-Stop successful-operation polling when action `SUCCEEDED` and display `READY`
-are both observed; do not wait for `display.finality = DATA_FINALITY_FINAL`.
-When a response omits `display`, use the existing `SUCCEEDED` result and refresh
-flow. Do not poll forever waiting for a field an older server does not provide. Use normal read refreshes for other metrics
-and Stop-exit progress that are still updating.
+Closing the dialog, refreshing the browser, or opening a new session does not
+lose registered pending effects. Ordinary GETs load shared backend state.
+Before the first verified status observation, retain the normal local submitted
+indicator; a transaction hash alone has not registered an effect.
 
-Guard updates by the saved chain, transaction hash, and status context. Ignore
-late responses for a different selected operation. Schedule the next request
-after the current one finishes. Browser cancellation stops observation, not
-the transaction. A failed poll does not make a cached observation current;
-show the refresh error and retry according to guidance.
+A changed receipt or `REORGED` observation withdraws the previous preview. Use
+fresh GETs and their repair/unavailable quality. An HTTP or network error is an
+observation failure, not proof that the transaction failed; retry the same hash
+rather than automatically resubmitting.
 
-Check again when reopening an operation or when the wallet reports a
-replacement EVM hash. A changed receipt or reorg can withdraw an earlier
-success; apply the latest response and send the last receipt reference.
-Elapsed time, a missing receipt, or outer wallet success alone never proves
-that the intended action completed or failed. Never reuse a submitted call.
+### Client caches and pagination
+
+Key reads by their complete identity and filters: owner, chain, run/account,
+position/agent, view, sort, and pagination. Clear visible owner-specific state
+on wallet changes and ignore late responses for a previous owner or request.
+
+Backend tracking cannot change a response already held in a browser cache.
+After early success, invalidate the relevant cache and require a GET started
+after that response. On reload or reconnect, revalidate cached reads. Render
+cached data as last known until that request completes. A failed refresh keeps
+the last safe value explicitly stale; it never turns a missing value into zero.
+
+Restart owner/account lists from page one after the user's affected action.
+An invalidated cursor requires a fresh page-one request. Public agent and
+leaderboard cursors retain their order while other users act; older retained
+card values are marked stale. Refresh page one to get current membership/rank.
+
+The backend combines overlapping operations. Completing one deposit cannot
+clear another deposit or withdrawal still awaiting publication. Replace the
+metadata from each GET; do not merge old pending descriptors into a permanent
+client ledger or add their amounts to totals.
 
 ### Offline acceptance checks
 
 Use the [action response examples](#action-response-examples) in frontend
 component and request-state tests. No live transaction is needed for these cases:
+
+| Action or lifecycle case | Expected UI behavior |
+| --- | --- |
+| Funded CREATE with no mapped run ID yet | Show verified creation/funding provisionally; do not invent a run ID or fail the transaction because the detail cannot be fetched yet. |
+| CREATE run appears before Capital In | Render the server row and usable fields; Capital In can remain syncing. Do not wait for every total to show the run. |
+| Unfunded CREATE has `createAmountRaw = "0"` and a separately published nonzero Capital In | `result.openingAllocationRaw` can be absent. Render the qualified server Capital In; do not zero the account from the CREATE amount. |
+| CREATE succeeds, then a separate FUND starts | Keep CREATE completed and FUND pending independently. The FUND GET remains pending until that separate credit is reflected. |
+| Funded CREATE continuation is already `COMPLETED/COMPLETE` | Finish Start Copy without inventing a second transfer; leave delayed metrics in the page. |
+| FUND becomes ready before projection completion | Show returned Capital In with `CURRENT`, projection `SYNCING`, and provisional finality together. |
+| Two Add Capital operations overlap | Reconcile only matching operations; never add their effects to a server total and render the GET's combined pending state. |
+| Empty or selected Stop succeeds with unavailable child progress | Show copying stopped; keep exits unknown/updating and preserve server tab membership. Do not show zero pending exits. |
+| Exact or maximum quote withdrawal succeeds | Show the actual effect amount once, not the sentinel or both the withdrawal and transfer amounts. Preserve the prior pause state. |
+| Maximum quote withdrawal has actual amount `"0"` | Show successful call with no quote moved; accept ready display without requiring a nonzero Capital Out value. |
+| Token batch succeeds with unpriced nonquote tokens | Show verified token effects and pause; USD totals can be unavailable. Do not require a Capital Out update for a nonquote-only context. |
+| Token batch has outer receipt success without complete verified effects | Show the status explanation; do not infer whole-batch or per-token success. |
+| Token batch continuation returns `NO_WITHDRAWABLE_BALANCE` | Complete the eligible-token flow; do not claim native assets or unrelated airdrops were withdrawn. |
+| Manual Sell succeeds with a nonzero remaining base amount | Show a successful partial sale and refresh recovery obligations; do not mark the position or run fully closed. |
+| Close Position succeeds with zero base remaining | Show the affected position's close; refresh server membership without stopping the copy run or creating a withdrawal. |
+| A later trade changes the current position quantity | Keep the receipt's historical sale result and the current position row distinct. |
+| Any receipt is reorged or re-included in another block | Revoke prior inclusion claims, discard old in-flight reads, and apply the new observation. |
+| Reload after dismissing the successful dialog | Fresh GETs still show pending effects without saved action-readiness state. |
+| One account is current while another account is stale | Render the owner GET's aggregate quality; do not infer every account is current. |
+| Portfolio is current while Capital In remains syncing | Render each returned field independently. |
+
+- `receiptResult` shows provisional success while a GET's capital or valuation
+  group remains pending. A usable value stays visible with its qualifier.
+- An old browser-cache response cannot replace the required post-success GET.
+- Capital In, portfolio, activity, fees, and AUM can update independently.
+- Overlapping actions remain guarded by the backend after reload.
+- Reorg metadata removes invalid values and cannot be overwritten by an older
+  in-flight response.
+- A successful RPC balance of zero is rendered as zero; a failed balance read
+  remains unavailable. An RPC read failure does not erase verified call success.
 
 - An all-chain leaderboard omits `chainId` and uses one global cursor; selecting
   a chain restarts the query rather than filtering the current page locally.
@@ -6179,15 +6535,13 @@ component and request-state tests. No live transaction is needed for these cases
 - `SYNCING/REPAIR_IN_PROGRESS` shows pending result publication without an old
   `result` object. Independently proved display `READY` can still be rendered.
 - `SYNCING` with display `READY` renders the exact returned Capital In and its
-  provisional label, clears the included local pending delta, and keeps polling
-  for strict success without adding the deposit twice.
+  provisional label. Refresh ordinary reads; never add the deposit again.
 - `CONFIRMING` with `receiptResult` and display `SYNCING` shows provisional
   call success, allows dialog dismissal, and leaves totals syncing.
 - A current `receiptResult` remains visible when the action is `UNKNOWN` due
   to unavailable public data; use the returned retry hint.
-- `SUCCEEDED` with display `PENDING` or `SYNCING` shows completed-call success
-  and continues display polling while needed; it does not label an older total
-  updated or reopen a blocking dialog.
+- `SUCCEEDED` with display `PENDING` or `SYNCING` shows completed-call success.
+  Fresh GETs own their syncing indicators; do not reopen a blocking dialog.
 - A missing `receiptResult` falls back to the latest status and strict result.
   It does not erase a current `SUCCEEDED` result or imply transaction failure.
 - Every action follows its display guarantee above. CREATE can be ready with
@@ -6212,39 +6566,17 @@ component and request-state tests. No live transaction is needed for these cases
 - Canceling, refreshing, or reopening the view retains the operation identity
   and prevents an older in-flight response from updating a different operation.
 
-### Submitted-operation overlay
+### Optional local pending message
 
-The UI may show a pending local delta after the wallet returns a transaction
-hash. Keep it separate from server totals. Replace its pending action message
-with the exact provisional effect when `receiptResult` arrives; this does not
-make a cumulative total ready.
+Before `receiptResult`, the UI can retain the submitted hash and show a pending
+transaction message. After verification, show the exact effect and let the user
+dismiss the dialog. This message does not change server totals, list membership,
+metric status, or action availability.
 
-- Create the overlay only after wallet submission returns a transaction hash.
-  Key it by chain, transaction hash, action kind, and exact target identity.
-- Keep independent pending operations as independent deltas. For example, two
-  Add Capital submissions of 1 USD and 2 USD must accumulate as two pending
-  deltas. Don't replace the first delta with the second preparation's
-  `newAllocatedCapital` preview.
-- Render the overlay with an explicit pending label. Don't merge it into the
-  server metric's status, `asOf`, sorting value, pagination cursor, summary
-  total, or action-availability decision.
-- Reconcile a delta only when an authoritative read exposes matching source
-  evidence or the exact operation outcome. A newer response timestamp alone
-  isn't proof that the event was included.
-- For FUND/Add Capital, display `READY` proves the exact credit is already in
-  returned Capital In. Replace the matching local funding overlay with that
-  server total, even while the action is `CONFIRMING` or `SYNCING`, to avoid
-  double counting. `receiptResult` alone must not be added to the old total.
-  Apply the same rule to returned Capital Out for a positive quote withdrawal.
-  Keep unrelated pending operations separate; a ready account/position alone
-  does not prove an omitted monetary metric includes its delta.
-- Reconcile the overlay with exact submitted status. A reorg or lost receipt
-  withdraws a prior success; elapsed time alone never proves failure or cancellation.
-- A Stop Copy overlay can show “stopping” locally, but it must not move the run
-  between Open and History tabs. Server lifecycle remains the membership
-  authority.
-- Always call the live preparation endpoint for the next action. Never use an
-  overlay to bypass `PENDING`, `TRY_PREPARE`, or an unavailable result.
+The UI does not maintain deltas or readiness guards for related reads. Refresh
+those reads and use their returned quality. Keep the original action context only
+when continuing transaction observation or a required next preparation. Reorgs
+withdraw invalid previews; temporary observation failures do not prove failure.
 
 ## Complete HTTP operation index
 

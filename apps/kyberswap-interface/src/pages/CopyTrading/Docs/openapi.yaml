@@ -3436,7 +3436,7 @@ definitions:
         description: |-
           Amount Out display. For a proven closed run without remaining positions
           or an in-kind withdrawal, includes quote still held plus prior quote
-          withdrawals, derived from canonical deposits and finalized realized PnL.
+          withdrawals, derived from canonical deposits plus net trading quote flow.
           Other runs expose recorded withdrawals. This is not a withdrawal receipt.
       portfolioValueUsd:
         $ref: '#/definitions/v1DecimalMetric'
@@ -4232,6 +4232,42 @@ definitions:
       - OWNER_COPY_VIEW_HISTORY
     default: OWNER_COPY_VIEW_UNSPECIFIED
     description: OwnerCopyView selects one product tab and its exact membership universe.
+  v1PendingReadAction:
+    type: object
+    properties:
+      kind:
+        $ref: '#/definitions/v1ActionTransactionKind'
+      chainId:
+        type: string
+        format: int64
+      transactionHash:
+        type: string
+      copyAccount:
+        type: string
+      copyRunId:
+        type: string
+      readOwnerAddress:
+        type: string
+      agentId:
+        type: string
+      userPositionId:
+        type: string
+      receiptBlockNumber:
+        type: string
+      receiptBlockHash:
+        type: string
+      fieldGroups:
+        type: array
+        items:
+          $ref: '#/definitions/v1FieldGroup'
+      receiptInvalidated:
+        type: boolean
+        description: |-
+          The former receipt was invalidated. Its affected values remain unavailable
+          until local rollback has caught up; this object is never a success proof.
+    description: |-
+      PendingReadAction names the affected public subjects without manufacturing
+      canonical list rows. Field groups identify unfinished publication, not values.
   v1PendingSellObligation:
     type: object
     properties:
@@ -4879,6 +4915,20 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/v1FieldGroupQuality'
+      pendingActions:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PendingReadAction'
+        description: |-
+          Verified operations whose named reads still need to catch up. This is
+          shared backend state and survives browser reloads. It is not call success
+          or permission to transact, and never supplies a delta to add to a total.
+      pendingActionsTruncated:
+        type: boolean
+        description: |-
+          More matching guards exist. Apply the returned group-level pending quality
+          conservatively rather than treating an omitted subject as ready.
     description: ResponseMeta carries freshness metadata for public responses.
   v1RetainedLiquidationConfig:
     type: object
