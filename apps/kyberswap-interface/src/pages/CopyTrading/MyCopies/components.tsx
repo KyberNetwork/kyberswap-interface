@@ -170,7 +170,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                           {' '}
                           <Link
                             className="text-red no-underline hover:text-red hover:underline"
-                            to={copyTradingPath('my-copies/' + alert.manualSellCopyRunId, item.chainId)}
+                            to={copyTradingPath('my-copies/' + alert.manualSellCopyRunId)}
                           >
                             [Manual sell]
                           </Link>

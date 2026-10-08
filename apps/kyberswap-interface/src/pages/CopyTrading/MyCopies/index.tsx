@@ -15,7 +15,7 @@ import { useCopyTradingContext } from 'pages/CopyTrading/context'
 const PAGE_SIZE = 10
 
 const MyCopiesView = () => {
-  const { ownerAddress } = useCopyTradingContext()
+  const { ownerAddress, selectedChainId } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
   const [sortBy, setSortBy] = useState<CopyRunSortBy>()
   const [sortOrder, setSortOrder] = useState<SortOrder>()
@@ -24,10 +24,11 @@ const MyCopiesView = () => {
 
   const activeRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
-    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'open', sortBy, sortOrder],
+    queryKey: ['copy-trading', 'copy-runs', ownerAddress, selectedChainId, 'open', sortBy, sortOrder],
     queryFn: cursor =>
       getCopyRuns({
         ownerAddress: ownerAddress || '',
+        chainId: selectedChainId,
         view: 'open',
         sortBy,
         sortOrder,
@@ -42,10 +43,11 @@ const MyCopiesView = () => {
     items: activityRows,
   } = useInfiniteCursorQuery({
     enabled: !!ownerAddress,
-    queryKey: ['copy-trading', 'owner-activity', ownerAddress, 'alert_feed'],
+    queryKey: ['copy-trading', 'owner-activity', ownerAddress, selectedChainId, 'alert_feed'],
     queryFn: cursor =>
       getOwnerActivity({
         ownerAddress: ownerAddress || '',
+        chainId: selectedChainId,
         activitySurface: 'alert_feed',
         cursor,
         limit: PAGE_SIZE,
@@ -55,6 +57,7 @@ const MyCopiesView = () => {
   const { currentData: ownerSummary, isFetching: isOwnerSummaryFetching } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
+      chainId: selectedChainId,
       view: 'open',
     },
     { pollingInterval: 10_000, skip: !ownerAddress },

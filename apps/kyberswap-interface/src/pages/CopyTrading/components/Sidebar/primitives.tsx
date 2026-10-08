@@ -8,14 +8,14 @@ import { cn } from 'utils/cn'
 export const getSidebarRouteState = (pathname: string, basePath: string) => {
   pathname = pathname.replace(/\/$/, '')
   const isLeaderboardPage = pathname === basePath || pathname === APP_PATHS.COPY_TRADING
-  const isCopiesPage = pathname === basePath + '/my-copies' || pathname.startsWith(basePath + '/my-copies/')
-  const isMyCopiesDetailPage = pathname.startsWith(basePath + '/my-copies/')
+  const isMyCopiesDetailPage = pathname.startsWith(APP_PATHS.COPY_TRADING + '/my-copies/')
+  const isCopiesPage = pathname === basePath + '/my-copies' || isMyCopiesDetailPage
   const isHistoryPage = pathname === basePath + '/history'
-  const isHistoryDetailPage = pathname.startsWith(basePath + '/history/')
+  const isHistoryDetailPage = pathname.startsWith(APP_PATHS.COPY_TRADING + '/history/')
   const isCopyDetailPage = isMyCopiesDetailPage || isHistoryDetailPage
-  const activeAgentCode = pathname.startsWith(basePath + '/') ? pathname.slice(basePath.length + 1).split('/')[0] : ''
-  const isAgentProfilePage =
-    pathname.startsWith(basePath + '/') && !isCopiesPage && !isHistoryPage && !isHistoryDetailPage
+  const segments = pathname.slice(APP_PATHS.COPY_TRADING.length).split('/').filter(Boolean)
+  const isAgentProfilePage = !isLeaderboardPage && segments.length === 1
+  const activeAgentCode = isAgentProfilePage ? decodeURIComponent(segments[0]) : ''
 
   return {
     activeAgentCode,

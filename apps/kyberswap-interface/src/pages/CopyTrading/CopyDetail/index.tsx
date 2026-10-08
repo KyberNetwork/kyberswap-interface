@@ -1,4 +1,4 @@
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
@@ -158,8 +158,7 @@ const CopyDetailContent = ({ agent, run }: CopyDetailContentProps) => {
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const copyTradingPath = useCopyTradingRoutes()
   const { copyId } = useParams()
-  const { ownerAddress, selectedChainId } = useCopyTradingContext()
-  const location = useLocation()
+  const { ownerAddress } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
 
   const copyRunQuery = { ownerAddress: ownerAddress || '', copyRunId: copyId || '' }
@@ -182,19 +181,6 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   const identity = profile || run?.agentSnapshot
   const backLabel = backPath === 'history' ? 'History' : 'My Copies'
   const copyRunPending = !run && (isFetching || isLoading || isUninitialized)
-
-  if (run && run.chainId !== selectedChainId) {
-    return (
-      <Navigate
-        to={{
-          pathname: copyTradingPath(backPath + '/' + copyId, run.chainId),
-          search: location.search,
-          hash: location.hash,
-        }}
-        replace
-      />
-    )
-  }
 
   if (isRestoringWallet) {
     return (
