@@ -71,8 +71,8 @@ describe('getStopLossDisplayStatus', () => {
   it.each([
     [StopLossExecutionStatus.CREATED, StopLossDisplayStatus.TRIGGERED],
     [StopLossExecutionStatus.PENDING, StopLossDisplayStatus.TRIGGERED],
-    [StopLossExecutionStatus.FAILED, StopLossDisplayStatus.FAILED],
-    [StopLossExecutionStatus.NOT_MINED, StopLossDisplayStatus.FAILED],
+    [StopLossExecutionStatus.FAILED, StopLossDisplayStatus.ACTIVE],
+    [StopLossExecutionStatus.NOT_MINED, StopLossDisplayStatus.ACTIVE],
   ] as const)('derives %s from the latest execution as %s', (status, expected) => {
     expect(getStopLossDisplayStatus({ ...ORDER, executions: [execution(status)] })).toBe(expected)
   })
@@ -100,10 +100,9 @@ describe('getStopLossDisplayStatus', () => {
 })
 
 describe('isActiveStopLossStatus', () => {
-  it('keeps triggered orders in the active table but files a failure under history', () => {
+  it('keeps triggered orders in the active table and finished ones under history', () => {
     expect(isActiveStopLossStatus(StopLossDisplayStatus.ACTIVE)).toBe(true)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.TRIGGERED)).toBe(true)
-    // The service still calls a failed order `Open`; Active has no status column to explain it.
     expect(isActiveStopLossStatus(StopLossDisplayStatus.FAILED)).toBe(false)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.EXECUTED)).toBe(false)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.CANCELLED)).toBe(false)

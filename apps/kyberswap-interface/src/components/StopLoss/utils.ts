@@ -38,12 +38,12 @@ export const getLatestExecution = (order: StopLossOrder): StopLossExecution | un
     : undefined
 
 const IN_FLIGHT_EXECUTION_STATUSES = [StopLossExecutionStatus.CREATED, StopLossExecutionStatus.PENDING]
-const FAILED_EXECUTION_STATUSES = [StopLossExecutionStatus.FAILED, StopLossExecutionStatus.NOT_MINED]
 
 /**
  * Collapses the order status and its latest settlement attempt into the single state a row shows.
- * An order stays `Open` while a settlement is in flight or after one failed, so those two cases are
- * only visible through the executions.
+ * An order stays `Open` while a settlement is in flight, so that case is only visible through the
+ * executions. A failed attempt leaves the order Active: the service keeps trying it while it is `Open`
+ * (a wallet short of tokenIn fills once topped up), so it must stay cancellable.
  */
 export const getStopLossDisplayStatus = (order: StopLossOrder): StopLossDisplayStatus => {
   switch (order.status) {
@@ -57,7 +57,6 @@ export const getStopLossDisplayStatus = (order: StopLossOrder): StopLossDisplayS
       const execution = getLatestExecution(order)
       if (!execution) return StopLossDisplayStatus.ACTIVE
       if (IN_FLIGHT_EXECUTION_STATUSES.includes(execution.status)) return StopLossDisplayStatus.TRIGGERED
-      if (FAILED_EXECUTION_STATUSES.includes(execution.status)) return StopLossDisplayStatus.FAILED
       return StopLossDisplayStatus.ACTIVE
     }
   }
@@ -66,11 +65,8 @@ export const getStopLossDisplayStatus = (order: StopLossOrder): StopLossDisplayS
 const ACTIVE_DISPLAY_STATUSES = [StopLossDisplayStatus.ACTIVE, StopLossDisplayStatus.TRIGGERED]
 
 /**
- * Which table an order belongs in. Keyed on the *display* status, not the service's, because the
- * service has no failed state: a failed settlement leaves the order reading `Open`, so splitting on
- * the raw status would file every failure under Active — where the layout has no status column to
- * show it in. A failed execution is never retried, so the order is finished even though the service
- * keeps calling it open until the deadline passes.
+ * Which table an order belongs in. Keyed on the *display* status, not the service's, because a
+ * settlement in flight is still `Open` to the service but belongs with the live orders.
  */
 export const isActiveStopLossStatus = (status: StopLossDisplayStatus) => ACTIVE_DISPLAY_STATUSES.includes(status)
 
