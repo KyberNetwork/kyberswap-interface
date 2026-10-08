@@ -18,7 +18,7 @@ import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
 import { cn } from 'utils/cn'
 
-export const ORDER_LIST_TABS = [
+const ORDER_LIST_TABS = [
   {
     id: LimitOrderTab.ORDER_BOOK,
     label: (
@@ -36,7 +36,7 @@ export const ORDER_LIST_TABS = [
   { id: LimitOrderTab.PRICE, label: <Trans>Price</Trans> },
 ] as const
 
-export type OrderListTabItem = (typeof ORDER_LIST_TABS)[number]
+type OrderListTabItem = (typeof ORDER_LIST_TABS)[number]
 
 type TabSelectorProps = {
   activeTab: LimitOrderTab
@@ -44,15 +44,13 @@ type TabSelectorProps = {
   tabs: readonly OrderListTabItem[]
 }
 
-export const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
+const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
   const { account } = useActiveWeb3React()
   const { chainId } = useLimitOrderContext()
 
-  // The count only ever badges the My Order(s) tab, so a bar without it has nothing to poll for.
-  const showsMyOrders = tabs.some(tab => tab.id === LimitOrderTab.MY_ORDER)
   const { data: numberOfInsufficientFundOrders } = useGetNumberOfInsufficientFundOrdersQuery(
     { chainId, maker: account || '' },
-    { skip: !account || !showsMyOrders, pollingInterval: 10_000 },
+    { skip: !account, pollingInterval: 10_000 },
   )
 
   return (
