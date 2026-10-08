@@ -1,9 +1,11 @@
 import type { HTMLAttributes } from 'react'
+import { AlertTriangle } from 'react-feather'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { CopyRunStatus } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
+import { MouseoverTooltip } from 'components/Tooltip'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import {
   HeaderCell,
@@ -19,6 +21,7 @@ import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   formatApproximateUsd,
+  formatCount,
   formatUsd,
   getSignedMetricClassName,
   signedPercent,
@@ -46,7 +49,7 @@ type PositionTableProps = {
   rows: PositionSummary[]
 }
 
-const PositionAction = ({
+const PositionStatus = ({
   copyRunStatus,
   generationId,
   position,
@@ -57,7 +60,10 @@ const PositionAction = ({
 }) => {
   const { openManagePosition } = useCopyTradingModal()
   const recoveryFlow = getPositionRecoveryFlow(position, copyRunStatus)
-  if (!recoveryFlow) return null
+
+  if (!recoveryFlow) {
+    return <span className="self-center rounded-full bg-primary-12 px-3 py-1.5 text-center text-primary">Active</span>
+  }
 
   const flowConfig = POSITION_SELL_FLOW_CONFIG[recoveryFlow]
 
@@ -68,14 +74,23 @@ const PositionAction = ({
       }
       type="button"
       padding="7px 12px"
-      color={flowConfig.sellContext === 'POSITION_SELL_CONTEXT_STOP_COPY' ? 'var(--ks-red)' : 'var(--ks-warning)'}
-      className="whitespace-nowrap"
+      color={flowConfig.preparation === 'closePosition' ? 'var(--ks-red)' : 'var(--ks-warning)'}
+      className="gap-1.5 whitespace-nowrap lg:w-fit"
       onClick={event => {
         event.stopPropagation()
         openManagePosition(position, recoveryFlow, generationId)
       }}
     >
       {flowConfig.actionLabel}
+      <span className="inline-flex shrink-0" onClick={event => event.stopPropagation()}>
+        <MouseoverTooltip
+          text={`${formatCount(position.metrics.skippedSellCount?.value)} skipped sells`}
+          placement="top"
+          width="max-content"
+        >
+          <AlertTriangle size={14} color="currentColor" />
+        </MouseoverTooltip>
+      </span>
     </ButtonLight>
   )
 }
@@ -114,7 +129,7 @@ export const CopyPositionsTable = ({
           <HeaderCell className="justify-end text-right">Unrealised P&amp;L</HeaderCell>
           <HeaderCell className="justify-end text-right">Est. Rebate</HeaderCell>
           <HeaderCell className="justify-end text-right">Open Since</HeaderCell>
-          <HeaderCell className="justify-center text-center">Action</HeaderCell>
+          <HeaderCell className="justify-center text-center">Status</HeaderCell>
         </CopyPositionsGrid>
         <TableBody
           className="grid gap-2 bg-transparent lg:block lg:min-w-[1100px] lg:bg-buttonBlack-60"
@@ -149,8 +164,8 @@ export const CopyPositionsTable = ({
                 <TableCell className="whitespace-normal text-right text-subText">
                   {formatDateTime(row.openedAt)}
                 </TableCell>
-                <TableCell className="flex justify-end">
-                  <PositionAction copyRunStatus={copyRunStatus} generationId={generationId} position={row} />
+                <TableCell className="flex justify-center">
+                  <PositionStatus copyRunStatus={copyRunStatus} generationId={generationId} position={row} />
                 </TableCell>
               </CopyPositionsGrid>
 
@@ -186,7 +201,7 @@ export const CopyPositionsTable = ({
                     </TableCardField>
                   </TableCardGrid>
 
-                  <PositionAction copyRunStatus={copyRunStatus} generationId={generationId} position={row} />
+                  <PositionStatus copyRunStatus={copyRunStatus} generationId={generationId} position={row} />
                 </Stack>
               </Stack>
             </div>

@@ -1,6 +1,6 @@
 import { useMotionValue } from 'framer-motion'
 import { type PropsWithChildren } from 'react'
-import { useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 
@@ -103,7 +103,11 @@ const AgentProfile = () => {
 
   const resourceUnavailable = !agentCode || isMissingOrForbiddenError(agentError)
 
-  if (!resourceUnavailable && (isRestoringWallet || agentPending || copyRunPending)) {
+  if (resourceUnavailable) {
+    return <Navigate to={copyTradingPath()} replace />
+  }
+
+  if (isRestoringWallet || agentPending || copyRunPending) {
     return (
       <CopyTradingPage>
         <LocalLoader />
@@ -111,11 +115,11 @@ const AgentProfile = () => {
     )
   }
 
-  if (resourceUnavailable || !profile || (!!ownerAddress && !openCopyRuns)) {
+  if (!profile || (!!ownerAddress && !openCopyRuns)) {
     return (
       <CopyTradingPage backTo={{ label: 'Leaderboard', to: copyTradingPath() }}>
         <CopyTradingReadError
-          resourceUnavailable={resourceUnavailable}
+          resourceUnavailable={false}
           onRetry={() => {
             if (!profile) void refetchAgent()
             if (ownerAddress && !openCopyRuns) void refetchCopyRuns()
