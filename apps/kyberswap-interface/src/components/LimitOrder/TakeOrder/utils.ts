@@ -90,11 +90,17 @@ export const formatInvertedRate = (context: LimitOrderTakeContext) => {
   return `1 ${context.receiveCurrency.symbol} = ${removeTrailingZero(rate)} ${context.payCurrency.symbol}`
 }
 
-export const getPercentFillAmount = (amount: CurrencyAmount<Currency> | undefined, percent: number) => {
+export const getPercentFillAmount = (
+  amount: CurrencyAmount<Currency> | undefined,
+  percent: number,
+  cap?: CurrencyAmount<Currency>,
+) => {
   if (!amount) return ''
 
   const rawAmount = JSBI.divide(JSBI.multiply(amount.quotient, JSBI.BigInt(percent)), JSBI.BigInt(100))
-  return CurrencyAmount.fromRawAmount(amount.currency, rawAmount).toExact()
+  const percentAmount = CurrencyAmount.fromRawAmount(amount.currency, rawAmount)
+  const shouldCap = !!cap && cap.currency.equals(amount.currency) && percentAmount.greaterThan(cap)
+  return (shouldCap ? cap : percentAmount).toExact()
 }
 
 export const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
