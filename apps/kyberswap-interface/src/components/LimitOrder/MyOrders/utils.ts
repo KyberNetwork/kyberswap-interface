@@ -17,17 +17,6 @@ type OrderTypeOption = {
   value: LimitOrderStatus
 }
 
-export const getActiveOrderOptions = (): OrderTypeOption[] => [
-  {
-    label: t`All Active Orders`,
-    value: LimitOrderStatus.ACTIVE,
-  },
-  {
-    label: t`Open Orders`,
-    value: LimitOrderStatus.OPEN,
-  },
-]
-
 export const getCloseOrderOptions = (): OrderTypeOption[] => [
   {
     label: t`All Closed Orders`,
@@ -46,9 +35,6 @@ export const getCloseOrderOptions = (): OrderTypeOption[] => [
     value: LimitOrderStatus.EXPIRED,
   },
 ]
-
-export const getOrderTypeOptions = (orderType: LimitOrderStatus): OrderTypeOption[] =>
-  isActiveStatus(orderType) ? getActiveOrderOptions() : getCloseOrderOptions()
 
 export const getActiveTabByOrderType = (orderType: LimitOrderStatus): ListOrderTab =>
   isActiveStatus(orderType) ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED

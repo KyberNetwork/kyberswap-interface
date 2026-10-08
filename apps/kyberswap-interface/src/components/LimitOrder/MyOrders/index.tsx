@@ -25,7 +25,7 @@ import { useMyOrdersNotifications } from 'components/LimitOrder/MyOrders/useMyOr
 import {
   LIST_ORDER_TABS,
   getActiveTabByOrderType,
-  getOrderTypeOptions,
+  getCloseOrderOptions,
   getOrdersApiSearchKeyword,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
@@ -88,11 +88,10 @@ const MyOrders = () => {
 
   const isTabActive = isActiveStatus(orderType)
   const activeTab = getActiveTabByOrderType(orderType)
-  const orderTypeOptions = getOrderTypeOptions(orderType)
-  const orderTypeDropdownOptions = useMemo<MenuOption[]>(
-    () => orderTypeOptions.map(option => ({ label: option.label, value: option.value })),
-    [orderTypeOptions],
-  )
+  const closedOrderTypeOptions: MenuOption[] = getCloseOrderOptions().map(option => ({
+    label: option.label,
+    value: option.value,
+  }))
 
   const chainOptions = useMemo<MenuOption[]>(
     () => [{ label: t`All Chains`, value: ALL_CHAINS_VALUE }, ...supportedLimitOrderChainOptions],
@@ -310,13 +309,17 @@ const MyOrders = () => {
 
       <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
         <div className="flex min-w-0 items-center gap-2 max-sm:w-full">
-          <DropdownMenu
-            options={orderTypeDropdownOptions}
-            value={orderType}
-            width={130}
-            mobileHalfWidth
-            onChange={onSelectOrderType}
-          />
+          {/* The Active tab always lists every live order — unfilled and partially filled alike — so only
+              History offers a status to narrow by. */}
+          {!isTabActive && (
+            <DropdownMenu
+              options={closedOrderTypeOptions}
+              value={orderType}
+              width={130}
+              mobileHalfWidth
+              onChange={onSelectOrderType}
+            />
+          )}
           <DropdownMenu
             options={chainOptions}
             value={selectedChainValue}
