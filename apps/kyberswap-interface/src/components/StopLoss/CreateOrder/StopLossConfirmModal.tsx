@@ -7,8 +7,9 @@ import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { Center, HStack, Stack } from 'components/Stack'
 import { StopLossWarning } from 'components/StopLoss/Form/useStopLossWarnings'
+import { triggerProximityText } from 'components/StopLoss/MyOrders/components'
 import { StopLossFee } from 'components/StopLoss/types'
-import { clampStopLossDeadline } from 'components/StopLoss/utils'
+import { clampStopLossDeadline, getTriggerProximity } from 'components/StopLoss/utils'
 import { CloseIcon } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -147,7 +148,7 @@ const StopLossConfirmModal = ({
               </div>
               {triggerPercent !== undefined && triggerPercent < 0 && (
                 <div data-testid="stop-loss-confirm-trigger-distance">
-                  <span className="text-red">
+                  <span className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}>
                     ↓ {formatDisplayNumber(Math.abs(triggerPercent), { fractionDigits: 1 })}%
                   </span>{' '}
                   <span className="text-subText">
