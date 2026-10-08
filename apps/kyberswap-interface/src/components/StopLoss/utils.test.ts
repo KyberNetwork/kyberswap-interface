@@ -103,7 +103,6 @@ describe('isActiveStopLossStatus', () => {
   it('keeps triggered orders in the active table and finished ones under history', () => {
     expect(isActiveStopLossStatus(StopLossDisplayStatus.ACTIVE)).toBe(true)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.TRIGGERED)).toBe(true)
-    expect(isActiveStopLossStatus(StopLossDisplayStatus.FAILED)).toBe(false)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.EXECUTED)).toBe(false)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.CANCELLED)).toBe(false)
     expect(isActiveStopLossStatus(StopLossDisplayStatus.EXPIRED)).toBe(false)

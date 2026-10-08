@@ -15,14 +15,12 @@ import {
   PairCell,
   StatusCell,
   StopLossExecutionDetail,
-  StopLossFailureDetail,
 } from 'components/StopLoss/MyOrders/components'
 import { useStopLossOraclePrice } from 'components/StopLoss/hooks/useStopLossOraclePrice'
 import { StopLossDisplayStatus, StopLossOrder } from 'components/StopLoss/types'
 import {
   getStopLossDisplayStatus,
   getStopLossExecutionTxHash,
-  getStopLossFailureReason,
   getStopLossFills,
   getStopLossTriggerPrice,
   summarizeStopLossFills,
@@ -95,10 +93,8 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
   const txHash = getStopLossExecutionTxHash(order)
   const showTxLink = isExecuted && !!txHash
 
-  const isFailed = status === StopLossDisplayStatus.FAILED
   // An executed row only has a story to tell once its fills carry both their prices and what they received.
-  const hasExecutionDetail = isExecuted && executionPrice !== undefined && receivedAmount !== undefined
-  const canExpand = isFailed || hasExecutionDetail
+  const canExpand = isExecuted && executionPrice !== undefined && receivedAmount !== undefined
   const [expanded, setExpanded] = useState(false)
   const recreate = () => onRecreate(order, sellCurrencyAmount?.toExact() ?? '')
 
@@ -212,8 +208,8 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
         </div>
       </StopLossRowWrapper>
 
-      {/* Kept mounted so it can animate both ways; `inert` keeps the hidden Recreate button out of the tab
-          order while it is collapsed. */}
+      {/* Kept mounted so it can animate both ways; `inert` keeps the hidden transaction links out of the
+          tab order while it is collapsed. */}
       {canExpand && (
         <div
           inert={!expanded}
@@ -223,22 +219,14 @@ const StopLossOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel
           )}
         >
           <div className="min-h-0 overflow-hidden">
-            {isFailed ? (
-              <StopLossFailureDetail
-                sellSymbol={sellCurrency?.symbol || '-'}
-                reason={getStopLossFailureReason(order)}
-                onRecreate={recreate}
-              />
-            ) : (
-              <StopLossExecutionDetail
-                chainId={order.chainId}
-                fills={fills}
-                summary={fillSummary}
-                sellSymbol={sellCurrency?.symbol || '-'}
-                receiveSymbol={receiveCurrency?.symbol || '-'}
-                triggerPrice={Number(triggerPrice)}
-              />
-            )}
+            <StopLossExecutionDetail
+              chainId={order.chainId}
+              fills={fills}
+              summary={fillSummary}
+              sellSymbol={sellCurrency?.symbol || '-'}
+              receiveSymbol={receiveCurrency?.symbol || '-'}
+              triggerPrice={Number(triggerPrice)}
+            />
           </div>
         </div>
       )}

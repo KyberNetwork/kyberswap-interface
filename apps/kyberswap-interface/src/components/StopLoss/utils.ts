@@ -64,10 +64,7 @@ export const getStopLossDisplayStatus = (order: StopLossOrder): StopLossDisplayS
 
 const ACTIVE_DISPLAY_STATUSES = [StopLossDisplayStatus.ACTIVE, StopLossDisplayStatus.TRIGGERED]
 
-/**
- * Which table an order belongs in. Keyed on the *display* status, not the service's, because a
- * settlement in flight is still `Open` to the service but belongs with the live orders.
- */
+/** Which table an order belongs in: everything still `Open` to the service, settling or not. */
 export const isActiveStopLossStatus = (status: StopLossDisplayStatus) => ACTIVE_DISPLAY_STATUSES.includes(status)
 
 export type TriggerProximity = 'far' | 'near' | 'imminent'
@@ -89,14 +86,6 @@ export const getStopLossTriggerPrice = (order: StopLossOrder) => order.condition
 
 /** The settlement transaction, available once an attempt reached the chain. */
 export const getStopLossExecutionTxHash = (order: StopLossOrder) => getLatestExecution(order)?.hash
-
-/**
- * Why a triggered order never settled.
- *
- * Hard-coded placeholder: neither the order nor its executions carry a reason, so every failure reads
- * the same. The single place to swap once the service returns one — see the pending BE request.
- */
-export const getStopLossFailureReason = (_order: StopLossOrder): string => 'insufficient liquidity'
 
 /**
  * The card inputs that reproduce a past order.

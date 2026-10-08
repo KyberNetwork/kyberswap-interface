@@ -5,7 +5,6 @@ import dayjs from 'dayjs'
 import { ReactNode } from 'react'
 import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, ExternalLink as LinkIcon, Trash } from 'react-feather'
 
-import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stoploss_recreate.svg'
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
@@ -277,7 +276,6 @@ const statusStyles = cva('block text-xs font-medium', {
       [StopLossDisplayStatus.ACTIVE]: 'text-primary',
       [StopLossDisplayStatus.TRIGGERED]: 'text-warning',
       [StopLossDisplayStatus.EXECUTED]: 'text-green2',
-      [StopLossDisplayStatus.FAILED]: 'text-red',
       [StopLossDisplayStatus.CANCELLED]: 'text-gray',
       [StopLossDisplayStatus.EXPIRED]: 'text-gray',
     },
@@ -292,8 +290,6 @@ export const formatStopLossStatus = (status: StopLossDisplayStatus) => {
       return t`Triggered`
     case StopLossDisplayStatus.EXECUTED:
       return t`Executed`
-    case StopLossDisplayStatus.FAILED:
-      return t`Failed`
     case StopLossDisplayStatus.CANCELLED:
       return t`Cancelled`
     default:
@@ -302,8 +298,8 @@ export const formatStopLossStatus = (status: StopLossDisplayStatus) => {
 }
 
 /**
- * Only an executed or failed order carries anything to expand — the other statuses say everything they
- * have in one word.
+ * Only an executed order carries anything to expand — the other statuses say everything they have in
+ * one word.
  */
 export const StatusCell = ({
   status,
@@ -342,43 +338,6 @@ export const StatusCell = ({
 
 const DETAIL_CLASS = 'border-t border-white-04 px-4 pb-3 pt-2 text-xs font-medium text-subText'
 
-/** The failure detail that opens under a Failed row, spanning the whole table width. */
-export const StopLossFailureDetail = ({
-  sellSymbol,
-  reason,
-  onRecreate,
-}: {
-  sellSymbol: string
-  reason: string
-  onRecreate: () => void
-}) => (
-  <HStack
-    className={cn(DETAIL_CLASS, 'items-center justify-between gap-4 max-sm:flex-col max-sm:items-start')}
-    data-testid="stop-loss-order-failure-detail"
-  >
-    <Stack className="gap-1">
-      <span>
-        <Trans>
-          Your stop-loss triggered but the swap could not complete. Your <span className="text-text">{sellSymbol}</span>{' '}
-          is still in your wallet.
-        </Trans>
-      </span>
-      <span data-testid="stop-loss-order-failure-reason">
-        <Trans>Reason</Trans>: {reason}
-      </span>
-    </Stack>
-    <button
-      type="button"
-      onClick={onRecreate}
-      data-testid="stop-loss-order-failure-recreate"
-      className="flex w-fit shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border-0 bg-primary-20 px-3 py-1 text-xs font-medium text-primary transition hover:brightness-110"
-    >
-      <RecreateIcon className="size-3.5" />
-      <Trans>Recreate</Trans>
-    </button>
-  </HStack>
-)
-
 const formatFillAmount = (value: number | undefined) =>
   value === undefined ? '-' : formatDisplayNumber(value, { significantDigits: 6 })
 
@@ -389,8 +348,8 @@ const getTriggerGapPercent = (price: number | undefined, triggerPrice: number) =
 const formatTriggerGap = (gapPercent: number) => formatDisplayNumber(Math.abs(gapPercent), { fractionDigits: 2 })
 
 /**
- * What an executed order actually did, opening under its row like the failure detail. The gap to the
- * trigger is worth stating: the fill follows the oracle at execution, which a fast market can carry
+ * What an executed order actually did, opening under its row across the whole table width. The gap to
+ * the trigger is worth stating: the fill follows the oracle at execution, which a fast market can carry
  * well past the trigger. An order settled in several fills gets the totals first, then each fill with
  * its own transaction — the row's link reaches only the latest.
  */

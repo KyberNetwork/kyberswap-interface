@@ -18,15 +18,14 @@ export enum StopLossExecutionStatus {
 }
 
 /**
- * What an order row displays. The service reports only the four order statuses, so the two states a
- * user cares about mid-flight — the trigger fired, and the swap could not complete — are derived from
- * the latest execution instead. See `getStopLossDisplayStatus`.
+ * What an order row displays. The service reports only the four order statuses, so the state a user
+ * cares about mid-flight — the trigger fired and the swap is on its way — is derived from the latest
+ * execution instead. See `getStopLossDisplayStatus`.
  */
 export enum StopLossDisplayStatus {
   ACTIVE = 'active',
   TRIGGERED = 'triggered',
   EXECUTED = 'executed',
-  FAILED = 'failed',
   CANCELLED = 'cancelled',
   EXPIRED = 'expired',
 }

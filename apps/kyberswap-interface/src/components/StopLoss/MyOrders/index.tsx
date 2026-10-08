@@ -127,8 +127,6 @@ const StopLossOrders = () => {
     const scoped = allOrders.filter(order => {
       const isActive = isActiveStopLossStatus(getStopLossDisplayStatus(order))
       if (isActiveTab) return isActive
-      // A failed order is still `Open` to the service, so it matches none of the closed sub-statuses
-      // and surfaces only under the unfiltered view.
       return !isActive && (closedFilter === ALL_CLOSED_VALUE || order.status === closedFilter)
     })
     if (!keyword) return scoped
@@ -169,10 +167,7 @@ const StopLossOrders = () => {
   const cancellableOrders = useMemo(() => {
     if (!isActiveTab) return EMPTY_ORDERS
     return allOrders.filter(
-      order =>
-        // Matches what the Active tab lists, not the raw `Open` set: a failed order keeps that status
-        // until its deadline, and counting it here would offer to cancel rows the user is not looking at.
-        isActiveStopLossStatus(getStopLossDisplayStatus(order)) && !cancellingIds.includes(order.id),
+      order => isActiveStopLossStatus(getStopLossDisplayStatus(order)) && !cancellingIds.includes(order.id),
     )
   }, [allOrders, isActiveTab, cancellingIds])
 

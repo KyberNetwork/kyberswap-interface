@@ -9,7 +9,6 @@ import { useNotify } from 'state/application/hooks'
 const NOTIFIED_STATUSES = [
   StopLossDisplayStatus.TRIGGERED,
   StopLossDisplayStatus.EXECUTED,
-  StopLossDisplayStatus.FAILED,
   StopLossDisplayStatus.EXPIRED,
 ]
 
@@ -19,12 +18,6 @@ const describe = (status: StopLossDisplayStatus) => {
       return { type: NotificationType.WARNING, title: t`Stop-loss triggered`, summary: t`Executing the swap...` }
     case StopLossDisplayStatus.EXECUTED:
       return { type: NotificationType.SUCCESS, title: t`Stop-loss executed`, summary: t`Your order has been filled.` }
-    case StopLossDisplayStatus.FAILED:
-      return {
-        type: NotificationType.ERROR,
-        title: t`Stop-loss failed`,
-        summary: t`The swap could not complete. Your tokens are still in your wallet.`,
-      }
     default:
       return {
         type: NotificationType.WARNING,
