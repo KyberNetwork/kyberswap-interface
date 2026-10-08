@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
@@ -200,7 +200,11 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   const resourceUnavailable = !copyId || isMissingOrForbiddenError(copyRunError)
 
-  if (!resourceUnavailable && copyRunPending) {
+  if (resourceUnavailable) {
+    return <Navigate to={copyTradingPath(backPath)} replace />
+  }
+
+  if (copyRunPending) {
     return (
       <CopyTradingPage>
         <LocalLoader />
@@ -208,11 +212,11 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     )
   }
 
-  if (resourceUnavailable || !run) {
+  if (!run) {
     return (
       <CopyTradingPage backTo={{ label: backLabel, to: copyTradingPath(backPath) }}>
         <CopyTradingReadError
-          resourceUnavailable={resourceUnavailable}
+          resourceUnavailable={false}
           onRetry={() => {
             if (!run) void refetchCopyRun()
           }}
