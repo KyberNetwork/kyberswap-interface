@@ -16,7 +16,6 @@ import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
-import { formatTimeDuration } from 'utils/time'
 
 export const StopLossTabSelector = ({
   isActiveTab,
@@ -451,21 +450,17 @@ export const StopLossExecutionDetail = ({
   )
 }
 
-const SEVEN_DAYS_IN_SECONDS = 7 * 24 * 60 * 60
-
-/** Relative wording inside a week; beyond it, an absolute date with its time split out as a second line. */
+/**
+ * The deadline as a date with its time split out as a second line, in the limit-order table's format.
+ * A deadline already passed reads as expired instead, since the service can keep such an order open.
+ */
 export const formatExpiry = (deadlineInSeconds: number): { label: string; time?: string } => {
   const expiry = dayjs.unix(deadlineInSeconds)
-  const secondsLeft = expiry.diff(dayjs(), 'second')
-
-  if (secondsLeft <= 0) return { label: t`Expired` }
-  if (secondsLeft >= SEVEN_DAYS_IN_SECONDS) return { label: expiry.format('DD/MM/YYYY'), time: expiry.format('HH:mm') }
-
-  const remaining = formatTimeDuration(secondsLeft)
-  return { label: t`in ${remaining}` }
+  if (!expiry.isAfter(dayjs())) return { label: t`Expired` }
+  return { label: expiry.format('DD/MM/YYYY'), time: expiry.format('HH:mm') }
 }
 
-/** The date sits above its time; relative and expired wording have no time and stay on one line. */
+/** The date sits above its time; an expired deadline has no time and stays on one line. */
 export const ExpiryCell = ({ deadline }: { deadline: number }) => {
   const { label, time } = formatExpiry(deadline)
 
