@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 
@@ -8,42 +8,62 @@ import DropdownMenu, { type MenuOption } from 'components/DropdownMenu'
 import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/useCancellingOrders'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
+import HistoryPagination from 'components/LimitOrder/MyOrders/HistoryPagination'
 import OrderRow from 'components/LimitOrder/MyOrders/OrderRow'
 import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
 import { CancelAllButton, EmptyOrders, TabSelector } from 'components/LimitOrder/MyOrders/components'
+import {
+  INITIAL_HISTORY_PAGER_STATE,
+  canGoToNextHistoryPage,
+  canGoToPreviousHistoryPage,
+  getHistoryPagerCursor,
+  goToNextHistoryPage,
+  goToNumberedPage,
+  goToPreviousHistoryPage,
+} from 'components/LimitOrder/MyOrders/historyPager'
 import { useMyOrdersNotifications } from 'components/LimitOrder/MyOrders/useMyOrdersNotifications'
 import {
   LIST_ORDER_TABS,
-  PAGE_SIZE,
   getActiveTabByOrderType,
   getOrderTypeOptions,
   getOrdersApiSearchKeyword,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
+import {
+  LIMIT_ORDERS_PAGE_SIZE,
+  getInitialListOrdersArgs,
+  useSupportedLimitOrderChains,
+} from 'components/LimitOrder/listOrdersArgs'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { isActiveStatus } from 'components/LimitOrder/utils'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
 import SearchInput from 'components/SearchInput'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useChainsConfig from 'hooks/useChainsConfig'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import usePageLocation from 'hooks/usePageLocation'
 import useTab from 'hooks/useTab'
-import { sortChainOptionsByPriority } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 
 const ALL_CHAINS_VALUE = 'all'
 const EMPTY_LIMIT_ORDERS: LimitOrder[] = []
+/**
+ * An omitted `chainIds` is the backend's all-chains path. It matters on the history statuses only: there
+ * every explicit chain multiplies the backend's index branches (statuses x chains x 2 tables) and a long
+ * list tips it into a slow sorted query. The active status is one indexed query either way, and keeping
+ * the explicit list there keeps `totalItems` exact for the numbered pager (no rows on chains this build
+ * does not support).
+ */
+const ALL_CHAINS_API_CHAIN_IDS: ChainId[] = []
 
 const MyOrders = () => {
   const { account } = useActiveWeb3React()
   const limitOrderTracking = useLimitOrderTracking()
   const { isEmbeddedSwap } = usePageLocation()
   const { chainId, networkName } = useLimitOrderContext()
-  const { supportedChains } = useChainsConfig()
+  const { options: supportedLimitOrderChainOptions, chainIds: supportedLimitOrderChains } =
+    useSupportedLimitOrderChains()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const invalidateTag = useInvalidateTagLimitOrder()
@@ -55,12 +75,14 @@ const MyOrders = () => {
     syncQuery: !isEmbeddedSwap,
   })
 
-  const [curPage, setCurPage] = useState(1)
+  const [pager, setPager] = useState(INITIAL_HISTORY_PAGER_STATE)
   const [orderType, setOrderType] = useState<LimitOrderStatus>(orderTab || LimitOrderStatus.ACTIVE)
   const [selectedChainValue, setSelectedChainValue] = useState<string>(ALL_CHAINS_VALUE)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isCancelAll, setIsCancelAll] = useState(false)
+  /** Cursor already bounced back to page 1, so a repeated 400 on it does not loop. */
+  const rejectedCursorRef = useRef<string | undefined>(undefined)
 
   const keyword = searchParams.get('search') || ''
 
@@ -72,58 +94,57 @@ const MyOrders = () => {
     [orderTypeOptions],
   )
 
-  const supportedLimitOrderChainOptions = useMemo<MenuOption[]>(
-    () =>
-      supportedChains
-        .filter(chain => isSupportLimitOrder(chain.chainId))
-        .map(chain => ({
-          label: chain.name,
-          value: chain.chainId.toString(),
-          icon: chain.icon,
-        }))
-        .sort(sortChainOptionsByPriority),
-    [supportedChains],
-  )
   const chainOptions = useMemo<MenuOption[]>(
     () => [{ label: t`All Chains`, value: ALL_CHAINS_VALUE }, ...supportedLimitOrderChainOptions],
-    [supportedLimitOrderChainOptions],
-  )
-  const supportedLimitOrderChains = useMemo(
-    () => supportedLimitOrderChainOptions.map(option => Number(option.value) as ChainId),
     [supportedLimitOrderChainOptions],
   )
 
   const selectedChainId = Number(selectedChainValue) as ChainId
   const isSelectedChainSupported = supportedLimitOrderChains.includes(selectedChainId)
   const isAllChainsSelected = selectedChainValue === ALL_CHAINS_VALUE || !isSelectedChainSupported
+  // Every chain this build supports — what the keyword mapping and the cancel flow reason about.
   const selectedOrderChainIds = isAllChainsSelected ? supportedLimitOrderChains : [selectedChainId]
+  // What the list endpoint is asked for: on history tabs, all chains is an omitted filter, not an enumeration.
+  const apiChainIds = isAllChainsSelected && !isTabActive ? ALL_CHAINS_API_CHAIN_IDS : selectedOrderChainIds
 
   const cancellingChainId = isAllChainsSelected ? chainId : selectedOrderChainIds[0]
   const ordersApiSearchKeyword = getOrdersApiSearchKeyword(keyword, selectedOrderChainIds)
 
   const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId: cancellingChainId })
 
+  const curPage = pager.page
+  // The active tab keeps numbered paging: the backend rejects a cursor on an active status.
+  const cursor = isTabActive ? undefined : getHistoryPagerCursor(pager)
+
   const {
     data: listOrdersData,
+    currentData: currentListOrdersData,
     isFetching,
     isError: isOrdersError,
+    error: ordersError,
     isSuccess: isOrdersLoaded,
   } = useGetListOrdersQuery(
     {
-      chainIds: selectedOrderChainIds,
-      maker: account,
+      ...getInitialListOrdersArgs(apiChainIds, account),
       status: orderType,
       query: ordersApiSearchKeyword,
       page: curPage,
-      pageSize: PAGE_SIZE,
+      cursor,
     },
     { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
   )
 
   const orders = listOrdersData?.orders ?? EMPTY_LIMIT_ORDERS
   const totalOrder = listOrdersData?.totalOrder ?? 0
+  const hasMoreOrders = currentListOrdersData?.hasMore ?? false
   const hasOrders = orders.length > 0
-  const showPagination = hasOrders && totalOrder > PAGE_SIZE
+  const canGoPreviousPage = canGoToPreviousHistoryPage(pager)
+  const hasNextHistoryPage = canGoToNextHistoryPage(pager, hasMoreOrders, LIMIT_ORDERS_PAGE_SIZE)
+  // RTK Query retains the previous page's `data` while the current page is loading.
+  const canGoNextPage = !isFetching && !isOrdersError && hasNextHistoryPage
+  const showPagination = isTabActive && hasOrders && totalOrder > LIMIT_ORDERS_PAGE_SIZE
+  // A page can be empty after filtering unsupported chains even when the backend has more orders.
+  const showHistoryPagination = !isTabActive && (canGoPreviousPage || hasNextHistoryPage)
   const showCancelAll = hasOrders && isTabActive
   const showNoOrders = !hasOrders && (isOrdersLoaded || isOrdersError || !account)
 
@@ -158,7 +179,7 @@ const MyOrders = () => {
   )
 
   const onReset = useCallback(() => {
-    setCurPage(1)
+    setPager(INITIAL_HISTORY_PAGER_STATE)
   }, [])
 
   const refetchOrders = useCallback(() => {
@@ -201,12 +222,22 @@ const MyOrders = () => {
   }
 
   const onPageChange = (page: number) => {
-    setCurPage(page)
+    setPager(goToNumberedPage(page))
+  }
+
+  const onNextHistoryPage = () => {
+    if (!canGoNextPage) return
+    // Without a cursor the backend still serves the next numbered page, inside its 1,000-row window.
+    setPager(state => goToNextHistoryPage(state, currentListOrdersData?.nextCursor))
+  }
+
+  const onPreviousHistoryPage = () => {
+    setPager(goToPreviousHistoryPage)
   }
 
   const onChangeKeyword = (val: string) => {
     setKeyword(val)
-    setCurPage(1)
+    onReset()
   }
 
   const hideConfirmCancel = useCallback(() => {
@@ -236,9 +267,20 @@ const MyOrders = () => {
     setIsCancelAll(true)
   }
 
+  // A cursor is scoped to one maker's keyset, so it cannot survive a wallet switch.
   useEffect(() => {
     onReset()
-  }, [orderType, onReset])
+  }, [orderType, account, onReset])
+
+  // A tampered or expired cursor comes back as a 400 that would otherwise be re-sent every poll.
+  useEffect(() => {
+    if (!cursor || !isOrdersError) return
+    if (!ordersError || !('status' in ordersError) || ordersError.status !== 400) return
+    if (rejectedCursorRef.current === cursor) return
+
+    rejectedCursorRef.current = cursor
+    onReset()
+  }, [cursor, isOrdersError, ordersError, onReset])
 
   useEffect(() => {
     if (!orderTab) return
@@ -314,8 +356,19 @@ const MyOrders = () => {
             onPageChange={onPageChange}
             totalCount={totalOrder}
             currentPage={curPage}
-            pageSize={PAGE_SIZE}
+            pageSize={LIMIT_ORDERS_PAGE_SIZE}
             style={{ padding: '0' }}
+          />
+        </div>
+      )}
+      {showHistoryPagination && (
+        <div className="flex items-center justify-center bg-background px-4 py-2">
+          <HistoryPagination
+            currentPage={curPage}
+            canGoPrevious={canGoPreviousPage}
+            canGoNext={canGoNextPage}
+            onPrevious={onPreviousHistoryPage}
+            onNext={onNextHistoryPage}
           />
         </div>
       )}
