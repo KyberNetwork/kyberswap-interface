@@ -70,6 +70,7 @@ export type CopyRunListItem = {
   portfolioValueUsd?: DecimalString
   unrealizedPnlUsd?: DecimalString
   roiPct?: DecimalString
+  copyRunVolumeUsd?: DecimalString
   copyRunWinRatePct?: DecimalString
   copyRunClassifiedClosedPositionCount?: DecimalString
   openPositionCount?: DecimalString

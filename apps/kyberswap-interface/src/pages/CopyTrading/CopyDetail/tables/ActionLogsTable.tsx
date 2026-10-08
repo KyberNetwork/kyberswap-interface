@@ -33,13 +33,15 @@ type ActivityTypeView = {
   value: ActivitySubtype
 }
 
-export type ActivityLogTypeFilter = '' | 'buy' | 'sell' | 'capital' | 'failed_action' | 'fee_rebate'
+export type ActivityLogTypeFilter = '' | 'buy' | 'sell' | 'capital' | 'failed_action' | 'fee_rebate' | 'copy_lifecycle'
 
 type ActivityTypeFilterOption = Omit<SelectOption, 'value'> & {
   value: ActivityLogTypeFilter
 }
 
 const activityTypeViews: ActivityTypeView[] = [
+  { label: 'Copy Started', value: 'copy_started' },
+  { label: 'Copy Stopped', value: 'copy_stopped' },
   { label: 'Buy', value: 'buy' },
   { label: 'Sell', value: 'sell' },
   { label: 'Deposited', value: 'deposited' },
@@ -58,6 +60,7 @@ const activityTypeFilterOptions: ActivityTypeFilterOption[] = [
   { label: <span className="text-primary">CAPITAL EVENTS</span>, value: 'capital' },
   { label: <span className="text-warning">FAILED ACTIONS</span>, value: 'failed_action' },
   { label: <span className="text-blue">FEE/REBATES</span>, value: 'fee_rebate' },
+  { label: <span className="text-subText">COPY LIFECYCLE</span>, value: 'copy_lifecycle' },
 ]
 
 const ActivityGrid = ({ header, className, ...props }: TableGridWrapperProps) => {
@@ -75,6 +78,8 @@ const ActivityGrid = ({ header, className, ...props }: TableGridWrapperProps) =>
 }
 
 const getActivityAsset = (activity: ActivityRow) => {
+  if (activity.copyLifecycle)
+    return { amountRaw: activity.copyLifecycle.amountRaw, token: activity.copyLifecycle.token }
   if (activity.position) {
     return { amountRaw: activity.position.displayBaseRaw, token: activity.position.baseToken }
   }

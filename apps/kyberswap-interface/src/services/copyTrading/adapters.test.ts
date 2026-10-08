@@ -439,3 +439,66 @@ describe('chain funding token discovery', () => {
     expect(adaptChainsResponse({ data: [{ chainId: '56', quoteToken: token }] }).data[0].quoteToken).toBeUndefined()
   })
 })
+
+describe('copy-run contract additions', () => {
+  it('uses run volume independently of agent volume and preserves zero and unavailable values', () => {
+    for (const metric of [
+      { status: 'METRIC_STATUS_STALE', value: '0' },
+      { status: 'METRIC_STATUS_CURRENT', value: '25' },
+      { status: 'METRIC_STATUS_UNAVAILABLE', value: undefined },
+    ] as const) {
+      const source = {
+        copyRunVolumeUsd: metric,
+        agentSnapshot: { metrics: { lifetimeVolumeUsd: { status: 'METRIC_STATUS_CURRENT', value: '9000' } } },
+      } as const
+      for (const run of [
+        adaptCopyRunsResponse({ data: [source] }).data[0],
+        adaptCopyRunResponse({ data: source }).data,
+      ]) {
+        expect(run.copyRunVolumeUsd).toBe(metric.value)
+        expect(run.metrics.copyRunVolumeUsd).toEqual(metric)
+        expect(run.agentStats.volumeUsd).toBe('9000')
+      }
+    }
+  })
+
+  it('retains exact opening amounts and normalizes lifecycle token metadata', () => {
+    const row = adaptActivityResponse({
+      data: [
+        {
+          category: 'ACTIVITY_CATEGORY_COPY_LIFECYCLE',
+          subtype: 'ACTIVITY_SUBTYPE_COPY_STARTED',
+          copyLifecycle: {
+            amountRaw: '90071992547409931234',
+            tokenAddress: '0x123',
+            token: { chainId: '8453', address: '0x123', decimals: 6 },
+          },
+        },
+      ],
+    }).data[0]
+    expect(row.category).toBe('copy_lifecycle')
+    expect(row.subtype).toBe('copy_started')
+    expect(row.copyLifecycle).toMatchObject({
+      amountRaw: '90071992547409931234',
+      tokenAddress: '0x123',
+      token: { chainId: 8453, decimals: 6 },
+    })
+    expect(
+      adaptActivityResponse({ data: [{ copyLifecycle: { eventType: 'stopped' } }] }).data[0].copyLifecycle?.amountRaw,
+    ).toBeUndefined()
+  })
+
+  it('retains independent recovery guidance', () => {
+    const availability = { status: 'ADVISORY_ACTION_STATUS_TRY_PREPARE' as const }
+    const row = adaptPositionsResponse({
+      data: [
+        {
+          closePositionAvailability: availability,
+          manualSellAvailability: { status: 'ADVISORY_ACTION_STATUS_UNAVAILABLE' },
+        },
+      ],
+    }).data[0]
+    expect(row.closePositionAvailability).toEqual(availability)
+    expect(row.manualSellAvailability?.status).toBe('ADVISORY_ACTION_STATUS_UNAVAILABLE')
+  })
+})

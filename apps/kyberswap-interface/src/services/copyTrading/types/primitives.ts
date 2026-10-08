@@ -157,6 +157,7 @@ export type CopyRunSortBy =
   | 'roi_pct'
   | 'agent_win_rate'
   | 'agent_volume'
+  | 'volume'
   | 'capital_in'
   | 'closed_trades'
   | 'realized_pnl'
@@ -191,7 +192,7 @@ export type ActivityType =
 export type ActivityTypeFilter = 'all' | ActivityType
 export type TradeSide = 'buy' | 'sell' | 'unknown'
 export type ActivitySurface = 'copy_run_log' | 'alert_feed'
-export type ActivityCategory = 'trade' | 'capital' | 'failed_action' | 'fee_rebate'
+export type ActivityCategory = 'trade' | 'capital' | 'failed_action' | 'fee_rebate' | 'copy_lifecycle'
 export type ActivitySubtype =
   | 'buy'
   | 'sell'
@@ -202,5 +203,7 @@ export type ActivitySubtype =
   | 'skipped_sell'
   | 'flat_fee_captured'
   | 'rebate_received'
+  | 'copy_started'
+  | 'copy_stopped'
 export type LeaderboardSortBy = 'roi_pct' | 'win_rate_pct' | 'volume_usd' | 'aum_usd' | 'copiers' | 'open_positions'
 export type PositionSortBy = 'opened_at' | 'closed_at' | 'value_usd'

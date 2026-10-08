@@ -26,6 +26,8 @@ import {
 } from 'pages/CopyTrading/helpers'
 import {
   POSITION_SELL_FLOW_CONFIG,
+  POSITION_SELL_PREPARATION_CONFIG,
+  canPreparePositionAction,
   getPositionRecoveryFlow,
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
@@ -61,6 +63,9 @@ const PositionAction = ({
 
   return (
     <ButtonLight
+      disabled={
+        !canPreparePositionAction(position, POSITION_SELL_PREPARATION_CONFIG[flowConfig.preparation].actionKind)
+      }
       type="button"
       padding="7px 12px"
       color={flowConfig.sellContext === 'POSITION_SELL_CONTEXT_STOP_COPY' ? 'var(--ks-red)' : 'var(--ks-warning)'}

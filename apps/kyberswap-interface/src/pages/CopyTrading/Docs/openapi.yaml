@@ -604,6 +604,7 @@ paths:
             - OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
             - OWNER_COPY_RUN_SORT_FIELD_REBATES
             - OWNER_COPY_RUN_SORT_FIELD_ROI_PCT
+            - OWNER_COPY_RUN_SORT_FIELD_VOLUME
           default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
         - name: sortOrder
           in: query
@@ -1016,6 +1017,7 @@ paths:
             - ACTIVITY_CATEGORY_CAPITAL
             - ACTIVITY_CATEGORY_FAILED_ACTION
             - ACTIVITY_CATEGORY_FEE_REBATE
+            - ACTIVITY_CATEGORY_COPY_LIFECYCLE
           default: ACTIVITY_CATEGORY_UNSPECIFIED
         - name: subtype
           in: query
@@ -1032,6 +1034,8 @@ paths:
             - ACTIVITY_SUBTYPE_SKIPPED_SELL
             - ACTIVITY_SUBTYPE_FLAT_FEE_CAPTURED
             - ACTIVITY_SUBTYPE_REBATE_RECEIVED
+            - ACTIVITY_SUBTYPE_COPY_STARTED
+            - ACTIVITY_SUBTYPE_COPY_STOPPED
           default: ACTIVITY_SUBTYPE_UNSPECIFIED
       tags:
         - Owner Copies
@@ -2296,6 +2300,7 @@ definitions:
       - ACTIVITY_CATEGORY_CAPITAL
       - ACTIVITY_CATEGORY_FAILED_ACTION
       - ACTIVITY_CATEGORY_FEE_REBATE
+      - ACTIVITY_CATEGORY_COPY_LIFECYCLE
     default: ACTIVITY_CATEGORY_UNSPECIFIED
     description: |-
       ActivityCategory is the stable grouped vocabulary for copy-run logs and
@@ -2376,6 +2381,8 @@ definitions:
       - ACTIVITY_SUBTYPE_SKIPPED_SELL
       - ACTIVITY_SUBTYPE_FLAT_FEE_CAPTURED
       - ACTIVITY_SUBTYPE_REBATE_RECEIVED
+      - ACTIVITY_SUBTYPE_COPY_STARTED
+      - ACTIVITY_SUBTYPE_COPY_STOPPED
     default: ACTIVITY_SUBTYPE_UNSPECIFIED
     description: |-
       ActivitySubtype is the stable leaf vocabulary for copy-run logs and owner
@@ -3209,6 +3216,13 @@ definitions:
         type: string
       afterStatus:
         type: string
+      amountRaw:
+        type: string
+        description: Canonical opening allocation for Start Copy, when available.
+      tokenAddress:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
     description: CopyLifecycleActivityDetail contains typed copy-run lifecycle context.
   v1CopyRunCashbackPolicy:
     type: object
@@ -3393,6 +3407,11 @@ definitions:
       generationId:
         type: string
         description: Absent until canonical creation provenance has been indexed.
+      copyRunVolumeUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Lifetime executed buy plus sell quote volume belonging to this copy run.
+          Deposits, withdrawals, skipped trades, and agent volume are excluded.
     description: |-
       CopyRunListItem contains one copy-run row for owner copy-run lists. It omits
       the detail-only estimated fee breakdown and Portfolio P&L fields.
@@ -3512,6 +3531,11 @@ definitions:
       generationId:
         type: string
         description: Absent until canonical creation provenance has been indexed.
+      copyRunVolumeUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Lifetime executed buy plus sell quote volume belonging to this copy run.
+          Deposits, withdrawals, skipped trades, and agent volume are excluded.
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -3884,11 +3908,14 @@ definitions:
         $ref: '#/definitions/v1CountMetric'
       totalAumUsd:
         $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Sum of available selected-agent AUM. Partial coverage is marked stale;
+          unavailable only when a nonempty selection has no usable AUM.
       totalCopierCount:
         $ref: '#/definitions/v1CountMetric'
         description: |-
-          Platform-wide lifetime distinct owner wallets across configured agents,
-          independent of leaderboard filters.
+          Lifetime distinct owner wallets within the selected chain and agent filters.
+          An owner copying multiple matching agents is counted once.
       lifetimeVolumeUsd:
         $ref: '#/definitions/v1DecimalMetric'
     description: LeaderboardSummary contains aggregate leaderboard totals.
@@ -4179,6 +4206,7 @@ definitions:
       - OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
       - OWNER_COPY_RUN_SORT_FIELD_REBATES
       - OWNER_COPY_RUN_SORT_FIELD_ROI_PCT
+      - OWNER_COPY_RUN_SORT_FIELD_VOLUME
     default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
     description: OwnerCopyRunSortField selects a public owner copy-run order.
   v1OwnerCopySummary:
@@ -4634,11 +4662,11 @@ definitions:
       positionPnlUsd:
         $ref: '#/definitions/v1DecimalMetric'
         description: |-
-          Server-computed follower Position P&L: realized P&L to date plus marked
-          unrealized P&L and the remaining-cashback estimate for active or closing
-          inventory. After proven full withdrawal, residual positions use canonical
-          state and a historical mark at the first Stop, without estimated rebates.
-          Actual realized P&L and raw quantities remain independently unchanged.
+          Net follower Position P&L. Open inventory uses settled quote received plus
+          current remaining value minus original quote spent. Actual fees and received
+          cashback are already included; estimated cashback is excluded. Closed
+          positions use canonical realized P&L. After proven full withdrawal, residual
+          positions use canonical state and a historical mark at the first Stop.
       manualSellAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
         description: Independent guidance remains present when an action is not recommended.

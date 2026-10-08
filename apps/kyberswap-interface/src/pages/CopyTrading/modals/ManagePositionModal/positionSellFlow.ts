@@ -2,6 +2,7 @@ import type { PositionActionKind, PositionSummary } from 'services/copyTrading/t
 import type { PositionSellContext } from 'services/copyTrading/types/preparedActions'
 import type { CopyRunStatus } from 'services/copyTrading/types/primitives'
 
+import { canAttemptPreparation } from 'pages/CopyTrading/helpers'
 import type { PreparedActionFlowState } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 export type ManagePositionFlow = 'manualSell' | 'activeClosePosition' | 'stopCopyClosePosition'
@@ -65,6 +66,16 @@ export const POSITION_SELL_FLOW_CONFIG: Record<ManagePositionFlow, PositionSellF
 
 export const hasPositionAction = (position: PositionSummary, action: PositionActionKind) =>
   position.actionKind === action || position.availableActionKinds.includes(action)
+
+export const canPreparePositionAction = (position: PositionSummary, action: PositionActionKind) => {
+  const availability =
+    action === 'POSITION_ACTION_KIND_MANUAL_SELL'
+      ? position.manualSellAvailability
+      : action === 'POSITION_ACTION_KIND_CLOSE_POSITION'
+      ? position.closePositionAvailability
+      : undefined
+  return availability ? canAttemptPreparation(availability) : hasPositionAction(position, action)
+}
 
 const POSITION_RECOVERY_FLOW_BY_ACTION: Partial<
   Record<PositionActionKind, (copyRunStatus: CopyRunStatus) => ManagePositionFlow>
