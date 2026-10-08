@@ -22,6 +22,7 @@ const StopLossPage = () => {
         <SwapSettingsPanel
           isCrossChainPage={false}
           isSwapPage={false}
+          isStopLossPage
           highlightDegenMode={highlightDegenMode}
           onBack={onBackToMainTab}
           onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}

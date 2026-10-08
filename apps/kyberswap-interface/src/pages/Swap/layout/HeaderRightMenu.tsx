@@ -41,6 +41,8 @@ type HeaderRightMenuProps = {
 export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
+  // Stop-loss sits under the Limit Order tab but has display settings of its own.
+  const isStopLossPage = pathname.startsWith(APP_PATHS.STOP_LOSS)
   const isSwapPage = isSwapLikePath(pathname) || activeMainTab === TAB.SWAP
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
   const defaultTab =
@@ -73,12 +75,13 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: Head
           }}
         />
       )}
-      {!isLimitPage && (
+      {(!isLimitPage || isStopLossPage) && (
         <IconButton
           variant="action"
           active={activeTab === TAB.SETTINGS}
           onClick={() => {
             onToggleActionTab(TAB.SETTINGS)
+            if (isStopLossPage) return
             if (isCrossChainPage) {
               trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_OPENED, {
                 current_max_slippage: formatSlippage(slippage, false),
