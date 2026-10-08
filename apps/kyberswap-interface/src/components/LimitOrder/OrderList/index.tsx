@@ -1,11 +1,14 @@
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
-import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
+import { ChevronRight } from 'react-feather'
+import { useSearchParams } from 'react-router-dom'
+import { useGetListOrdersQuery, useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
 import OrderBook from 'components/LimitOrder/OrderBook'
-import { LimitOrderTab } from 'components/LimitOrder/types'
+import { getInitialListOrdersArgs, useSupportedLimitOrderChains } from 'components/LimitOrder/listOrdersArgs'
+import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
 import TokenPriceChart from 'components/TokenPriceChart'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -102,9 +105,36 @@ export const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps)
   )
 }
 
+const MyOpenOrdersLink = ({ onClick }: { onClick: () => void }) => {
+  const { account } = useActiveWeb3React()
+  const { chainIds } = useSupportedLimitOrderChains()
+  const { currentData, isFetching, isError } = useGetListOrdersQuery(getInitialListOrdersArgs(chainIds, account), {
+    skip: !account || !chainIds.length,
+    pollingInterval: 10_000,
+    refetchOnFocus: true,
+  })
+  const count = currentData?.totalOrder ?? 0
+
+  if (!account || isFetching || isError || count <= 0) return null
+
+  return (
+    <div className="flex justify-end border-t border-darkBorder px-4 py-3">
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-sm font-medium text-primary hover:brightness-125"
+      >
+        <Trans>View my open orders ({count})</Trans>
+        <ChevronRight size={16} aria-hidden="true" />
+      </button>
+    </div>
+  )
+}
+
 const OrderList = () => {
   const { chainId, syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[chainId])
   const tabs = useMemo(
@@ -120,12 +150,29 @@ const OrderList = () => {
   })
   const currentTab = activeTab || LimitOrderTab.ORDER_BOOK
 
+  const viewMyOpenOrders = () => {
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.delete('search')
+    nextSearchParams.set('orderTab', LimitOrderStatus.ACTIVE)
+    if (syncOrderListTabWithQuery) {
+      nextSearchParams.set('tab', LimitOrderTab.MY_ORDER)
+    } else {
+      setActiveTab(LimitOrderTab.MY_ORDER)
+    }
+    setSearchParams(nextSearchParams, { replace: true })
+  }
+
   return (
     <Stack className="w-full gap-0 overflow-hidden rounded-xl border border-darkBorder max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none">
       <TabSelector setActiveTab={setActiveTab} activeTab={currentTab} tabs={tabs} />
 
       <Stack className="border-t border-darkBorder">
-        {currentTab === LimitOrderTab.ORDER_BOOK && <OrderBook />}
+        {currentTab === LimitOrderTab.ORDER_BOOK && (
+          <>
+            <OrderBook />
+            <MyOpenOrdersLink onClick={viewMyOpenOrders} />
+          </>
+        )}
         {currentTab === LimitOrderTab.MY_ORDER && <MyOrders />}
         {currentTab === LimitOrderTab.PRICE && <TokenPriceChart flatten tokens={[currencyIn, currencyOut]} />}
       </Stack>
