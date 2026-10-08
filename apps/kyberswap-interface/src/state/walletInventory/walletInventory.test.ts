@@ -855,14 +855,35 @@ describe('getTokenComparator with unlisted holdings', () => {
     expect([scam, usdt].sort(compare).map(t => t.address)).toEqual([usdt.address, scam.address])
   })
 
-  it('ranks a held unlisted token above a listed token the wallet does not hold', () => {
+  it('ranks a priced held unlisted token above a listed token the wallet does not hold', () => {
+    const dai = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI')
+    const balances = {
+      [dai.address]: TokenAmount.fromRawAmount(dai, '0'),
+      [scam.address]: TokenAmount.fromRawAmount(scam, '1000000000000000000'),
+    }
+    const compare = getTokenComparator(balances, undefined, { [scam.address]: 0.5 }, undefined, new Set([scam.address]))
+    expect([dai, scam].sort(compare).map(t => t.address)).toEqual([scam.address, dai.address])
+  })
+
+  it('sinks an unpriced held unlisted token below a listed token the wallet does not hold', () => {
     const dai = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI')
     const balances = {
       [dai.address]: TokenAmount.fromRawAmount(dai, '0'),
       [scam.address]: TokenAmount.fromRawAmount(scam, '1000000000000000000'),
     }
     const compare = getTokenComparator(balances, undefined, {}, undefined, new Set([scam.address]))
-    expect([dai, scam].sort(compare).map(t => t.address)).toEqual([scam.address, dai.address])
+    expect([scam, dai].sort(compare).map(t => t.address)).toEqual([dai.address, scam.address])
+  })
+
+  it('orders unpriced unlisted tokens alphabetically, not by amount', () => {
+    const zeta = new Token(ChainId.MAINNET, '0x1000000000000000000000000000000000000002', 18, 'ZETA')
+    const alpha = new Token(ChainId.MAINNET, '0x1000000000000000000000000000000000000003', 18, 'ALPHA')
+    const balances = {
+      [zeta.address]: TokenAmount.fromRawAmount(zeta, '1000000000000000000000000000'),
+      [alpha.address]: TokenAmount.fromRawAmount(alpha, '1'),
+    }
+    const compare = getTokenComparator(balances, undefined, {}, undefined, new Set([zeta.address, alpha.address]))
+    expect([zeta, alpha].sort(compare).map(t => t.address)).toEqual([alpha.address, zeta.address])
   })
 
   it('keeps a priced unlisted token below every listed holding, however much it is worth', () => {
