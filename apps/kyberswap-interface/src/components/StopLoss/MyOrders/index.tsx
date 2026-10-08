@@ -45,8 +45,6 @@ const EMPTY_ORDERS: StopLossOrder[] = []
 /** Filters and search sit on the same raised surface as the table header. */
 const FILTER_TRIGGER_CLASS = 'h-9 rounded-2xl bg-raisedBlack text-text'
 
-const getActiveStatusOptions = (): MenuOption[] => [{ label: t`All Status`, value: ALL_CLOSED_VALUE }]
-
 const getClosedStatusOptions = (): MenuOption[] => [
   { label: t`All Closed Orders`, value: ALL_CLOSED_VALUE },
   { label: t`Executed Orders`, value: StopLossOrderStatus.DONE },
@@ -235,23 +233,25 @@ const StopLossOrders = () => {
 
       <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
         <div className="flex min-w-0 items-center gap-2 max-sm:w-full">
-          <DropdownMenu
-            options={isActiveTab ? getActiveStatusOptions() : getClosedStatusOptions()}
-            value={isActiveTab ? ALL_CLOSED_VALUE : closedFilter}
-            width={150}
-            mobileHalfWidth
-            // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
-            // last option off whenever the table is short. A portalled menu escapes that box.
-            usePortal
-            triggerClassName={FILTER_TRIGGER_CLASS}
-            data-testid="stop-loss-status-filter"
-            // Only the History tab has sub-statuses; the Active list has a single bucket.
-            onChange={value => {
-              if (isActiveTab) return
-              setClosedFilter(String(value))
-              setCurPage(1)
-            }}
-          />
+          {/* Only History has statuses to choose between: an active order is `Open` to the service, and the
+              Triggered state it can pass through lasts seconds. */}
+          {!isActiveTab && (
+            <DropdownMenu
+              options={getClosedStatusOptions()}
+              value={closedFilter}
+              width={150}
+              mobileHalfWidth
+              // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
+              // last option off whenever the table is short. A portalled menu escapes that box.
+              usePortal
+              triggerClassName={FILTER_TRIGGER_CLASS}
+              data-testid="stop-loss-status-filter"
+              onChange={value => {
+                setClosedFilter(String(value))
+                setCurPage(1)
+              }}
+            />
+          )}
           <DropdownMenu
             options={chainOptions}
             value={selectedChainValue}
