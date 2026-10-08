@@ -293,7 +293,14 @@ const StopLossOrders = () => {
             onRecreate={onRecreate}
           />
         ))}
-        {showNoOrders && <StopLossEmptyOrders isActiveTab={isActiveTab} keyword={keyword} isError={isError} />}
+        {showNoOrders && (
+          <StopLossEmptyOrders
+            isActiveTab={isActiveTab}
+            keyword={keyword}
+            isError={isError}
+            isWalletConnected={!!account}
+          />
+        )}
       </div>
 
       {totalItems > PAGE_SIZE && <StopLossPager page={page} pageCount={pageCount} onPageChange={setCurPage} />}

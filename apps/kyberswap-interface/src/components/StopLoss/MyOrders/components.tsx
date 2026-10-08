@@ -128,11 +128,14 @@ export const StopLossEmptyOrders = ({
   isActiveTab,
   keyword,
   isError,
+  isWalletConnected,
 }: {
   isActiveTab: boolean
   keyword: string
   /** A failed request must not read as "you have no orders" — that hides outages behind a normal state. */
   isError?: boolean
+  /** Without a wallet there is nothing to list, which is not the same as having no orders. */
+  isWalletConnected: boolean
 }) => (
   <Stack
     className={cn(
@@ -143,7 +146,9 @@ export const StopLossEmptyOrders = ({
   >
     {isError ? <AlertTriangle size={22} /> : <NoDataIcon />}
     <span>
-      {isError ? (
+      {!isWalletConnected ? (
+        <Trans>Connect your wallet to view your stop-loss orders.</Trans>
+      ) : isError ? (
         <Trans>Could not load your stop-loss orders. Retrying…</Trans>
       ) : keyword ? (
         <Trans>No orders found.</Trans>
@@ -156,11 +161,6 @@ export const StopLossEmptyOrders = ({
   </Stack>
 )
 
-/**
- * Logo and symbol both come from the resolved currency. Looking the logo up by the order's raw
- * address instead would miss: the service returns addresses lower-cased, while the whitelist map is
- * keyed by checksummed ones.
- */
 /** The list holds the wallet's orders on every chain, so each row names its own. */
 export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
   const { name, icon } = NETWORKS_INFO[chainId]
@@ -173,6 +173,11 @@ export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
   )
 }
 
+/**
+ * Logo and symbol both come from the resolved currency. Looking the logo up by the order's raw
+ * address instead would miss: the service returns addresses lower-cased, while the whitelist map is
+ * keyed by checksummed ones.
+ */
 export const PairCell = ({
   sellCurrency,
   receiveCurrency,
