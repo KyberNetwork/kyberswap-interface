@@ -37,6 +37,10 @@ vi.mock('react', async importOriginal => ({
   ...(await importOriginal<typeof import('react')>()),
   useCallback: (callback: unknown) => callback,
 }))
+vi.mock('framer-motion', async importOriginal => {
+  const actual = await importOriginal<typeof import('framer-motion')>()
+  return { ...actual, useMotionValue: actual.motionValue }
+})
 vi.mock('react-router-dom', () => ({
   useParams: mocks.params,
   useLocation: () => ({ search: '?profileTab=history', hash: '#detail' }),
@@ -128,26 +132,11 @@ describe('detail page read recovery', () => {
     expect(agent.refetch).toHaveBeenCalledOnce()
   })
 
-  it.each([1, undefined])(
-    'canonicalizes an agent or copy URL from chain %s before rendering actions',
-    selectedChainId => {
-      mocks.context.mockReturnValue({ ...chainContext, selectedChainId, ownerAddress: 'owner-1' })
-      expect(AgentProfile()).toMatchObject({
-        type: 'navigate',
-        props: {
-          replace: true,
-          to: { pathname: '/copy-trading/base/agent-1', search: '?profileTab=history', hash: '#detail' },
-        },
-      })
-      expect(CopyDetail({ backPath: 'history' })).toMatchObject({
-        type: 'navigate',
-        props: {
-          replace: true,
-          to: { pathname: '/copy-trading/base/history/run-1', search: '?profileTab=history', hash: '#detail' },
-        },
-      })
-    },
-  )
+  it.each([1, undefined])('renders details without redirecting to entity chain from %s', selectedChainId => {
+    mocks.context.mockReturnValue({ ...chainContext, selectedChainId, ownerAddress: 'owner-1' })
+    expect(AgentProfile().type).toBe('page')
+    expect(CopyDetail({ backPath: 'history' }).type).toBe('page')
+  })
 
   it('keeps owner lookup failures retryable without treating the public Agent as unavailable', () => {
     const copyRuns = query(undefined, { status: 403 })

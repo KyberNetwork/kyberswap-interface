@@ -140,7 +140,7 @@ const ClosedSubscriptionsTable = ({
             <ClosedSubscriptionsGrid key={subscription.copyRunId} className="relative cursor-pointer">
               <TableRowLink
                 label={`View copy history for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-                to={copyTradingPath('history/' + subscription.copyRunId, subscription.chainId)}
+                to={copyTradingPath('history/' + subscription.copyRunId)}
               />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
               <TableCell className="text-right">{formatCount(subscription.closedPositionCount)}</TableCell>
@@ -179,7 +179,7 @@ const ClosedSubscriptionsTable = ({
           >
             <TableRowLink
               label={`View copy history for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-              to={copyTradingPath('history/' + subscription.copyRunId, subscription.chainId)}
+              to={copyTradingPath('history/' + subscription.copyRunId)}
             />
             <CopyRunAgentCell run={subscription} className="gap-3" />
 

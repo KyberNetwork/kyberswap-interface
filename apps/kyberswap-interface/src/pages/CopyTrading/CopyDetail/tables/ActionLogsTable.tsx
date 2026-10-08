@@ -175,7 +175,7 @@ export const ActionLogsTable = ({
                   <TableCell className="text-subText">
                     <ShortenedId value={row.tradeId} />
                   </TableCell>
-                  <TableCell>{token?.symbol || 'N/A'}</TableCell>
+                  <TableCell>{token?.symbol}</TableCell>
                   <TableCell className={type.colorClassName}>{type.label}</TableCell>
                   <TableCell className="text-right">{amount}</TableCell>
                   <TableCell className="text-right text-subText">{formatDateTime(row.occurredAt)}</TableCell>

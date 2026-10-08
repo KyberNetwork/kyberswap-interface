@@ -40,7 +40,7 @@ const CopyTrading = () => {
     navigate(location, { replace: true, state: null })
   }, [location, navigate])
 
-  const { chain, redirect, allChains } = resolveCopyTradingRoute(location.pathname, chainOptions)
+  const { chain, redirect, allChains, isDetail } = resolveCopyTradingRoute(location.pathname, chainOptions)
   if (!chains && chainsLoading)
     return (
       <CopyTradingPage>
@@ -55,7 +55,7 @@ const CopyTrading = () => {
         state={location.state}
       />
     )
-  if (!chains || (!chain && !allChains))
+  if (!chains || (!chain && !allChains && !isDetail))
     return (
       <CopyTradingPage>
         <CopyTradingReadError resourceUnavailable={!!chains} onRetry={refetchChains} />
@@ -74,15 +74,18 @@ const CopyTrading = () => {
           <Sidebar />
           <Routes>
             <Route index element={<AgentList />} />
-            <Route path=":chain">
-              <Route index element={<AgentList />} />
-              <Route path="my-copies" element={<MyCopiesView />} />
-              <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
-              <Route path="history" element={<CopyHistoryView />} />
-              <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
+            <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
+            <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
+            {isDetail ? (
               <Route path=":agentCode" element={<AgentProfile />} />
-              <Route path="*" element={<Navigate to={getCopyTradingPath(chain?.slug ?? 'all')} replace />} />
-            </Route>
+            ) : (
+              <Route path=":chain">
+                <Route index element={<AgentList />} />
+                <Route path="my-copies" element={<MyCopiesView />} />
+                <Route path="history" element={<CopyHistoryView />} />
+              </Route>
+            )}
+            <Route path="*" element={<Navigate to={getCopyTradingPath(chain?.slug ?? 'all')} replace />} />
           </Routes>
         </div>
       </CopyTradingModalProvider>

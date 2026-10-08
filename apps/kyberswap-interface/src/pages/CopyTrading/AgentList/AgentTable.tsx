@@ -143,7 +143,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
 
             return (
               <LeaderboardGrid key={agent.agentId} className="relative cursor-pointer">
-                <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId, agent.chainId)} />
+                <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId)} />
                 <AgentCell agent={agent} className="px-3 py-2" />
                 <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.roiPct))}>
                   {percent(agent.stats.roiPct)}
@@ -159,7 +159,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                   {myCopyRunId ? (
                     <ButtonLight
                       as={Link}
-                      to={copyTradingPath('my-copies/' + myCopyRunId, agent.chainId)}
+                      to={copyTradingPath('my-copies/' + myCopyRunId)}
                       padding="6px 12px"
                       className="w-fit whitespace-nowrap"
                     >
@@ -205,13 +205,13 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               key={agent.agentId}
               className="relative cursor-pointer gap-0 overflow-hidden rounded-xl bg-buttonBlack outline-none transition-colors hover:bg-primary-10"
             >
-              <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId, agent.chainId)} />
+              <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId)} />
               <div className="flex items-center gap-3 p-3">
                 <AgentCell agent={agent} className="flex-1 gap-3" />
                 {myCopyRunId ? (
                   <ButtonLight
                     as={Link}
-                    to={copyTradingPath('my-copies/' + myCopyRunId, agent.chainId)}
+                    to={copyTradingPath('my-copies/' + myCopyRunId)}
                     padding="6px 12px"
                     className="w-fit shrink-0 whitespace-nowrap"
                   >

@@ -1,10 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Globe } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
-import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import type { AgentCard, Chain } from 'services/copyTrading/types/agents'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 
@@ -19,12 +18,12 @@ import {
   SidebarSection,
   getSidebarRouteState,
 } from 'pages/CopyTrading/components/Sidebar/primitives'
+import useSidebarData from 'pages/CopyTrading/components/Sidebar/useSidebarData'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { cn } from 'utils/cn'
 
-const SIDEBAR_ITEM_LIMIT = 10
 const DEFAULT_VISIBLE_AGENTS = 5
 const ACTIVE_COPY_DOT_COLORS = ['bg-primary', 'bg-yellow1', 'bg-blue3', 'bg-lightGreen', 'bg-warning'] as const
 
@@ -103,7 +102,7 @@ const AgentItem = ({ activeAgentCode, agent }: { activeAgentCode: string; agent:
   const active = activeAgentCode === agent.agentId
 
   return (
-    <SidebarMenuItem to={copyTradingPath(agent.agentId, agent.chainId)} active={active} activeStyle="text" layout="row">
+    <SidebarMenuItem to={copyTradingPath(agent.agentId)} active={active} activeStyle="text" layout="row">
       <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
         {getAgentInitials(agent.displayName)}
       </Center>
@@ -177,7 +176,7 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
           return (
             <SidebarMenuItem
               key={run.copyRunId}
-              to={copyTradingPath('my-copies/' + run.copyRunId, run.chainId)}
+              to={copyTradingPath('my-copies/' + run.copyRunId)}
               active={active}
               activeStyle="text"
               layout="row"
@@ -253,17 +252,20 @@ const SidebarContent = ({
   route,
   selectedChainId,
 }: SidebarContentProps) => (
-  <Stack className="gap-5">
-    <MyCopiesSection agentById={agentById} route={route} runs={activeRuns} />
-    <div className="h-px bg-buttonGray" />
-    <AgentsSection
-      activeAgentCode={route.activeAgentCode}
-      agents={agents}
-      expanded={expandedAgents}
-      isActive={route.isAgentsPage}
-      onToggle={onToggleAgents}
-    />
-    <div className="h-px bg-buttonGray" />
+  <Stack className="gap-5 lg:grid lg:h-full lg:grid-rows-[minmax(0,1fr)_auto]">
+    <div className="lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain">
+      <Stack className="gap-5">
+        <AgentsSection
+          activeAgentCode={route.activeAgentCode}
+          agents={agents}
+          expanded={expandedAgents}
+          isActive={route.isAgentsPage}
+          onToggle={onToggleAgents}
+        />
+        <div className="h-px bg-buttonGray" />
+        <MyCopiesSection agentById={agentById} route={route} runs={activeRuns} />
+      </Stack>
+    </div>
     <NetworksSection chains={chains} onSelectChain={onSelectChain} selectedChainId={selectedChainId} />
   </Stack>
 )
@@ -275,21 +277,34 @@ const Sidebar = () => {
   const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
   const [expandedAgents, setExpandedAgents] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const sidebarRef = useRef<HTMLElement>(null)
   const previousPathname = useRef(location.pathname)
   const route = getSidebarRouteState(location.pathname, basePath)
+  const { agents, activeRuns, refetchOpenCopies } = useSidebarData(ownerAddress, selectedChainId)
 
-  const { currentData: leaderboard } = discoveryApi.useGetLeaderboardQuery(
-    { chainId: selectedChainId, limit: SIDEBAR_ITEM_LIMIT },
-    { pollingInterval: 10_000 },
-  )
-  const { currentData: openCopies, refetch: refetchOpenCopies } = copyRunApi.useGetCopyRunsQuery(
-    {
-      ownerAddress: ownerAddress || '',
-      view: 'open',
-      limit: SIDEBAR_ITEM_LIMIT,
-    },
-    { pollingInterval: 10_000, skip: !ownerAddress },
-  )
+  useLayoutEffect(() => {
+    const sidebar = sidebarRef.current
+    if (!sidebar) return
+
+    // The app header/banner scrolls away, so only subtract the sidebar's visible top offset.
+    const updateHeight = () => {
+      const top = Math.max(0, sidebar.getBoundingClientRect().top)
+      sidebar.style.height = `calc(100dvh - ${top}px)`
+    }
+
+    updateHeight()
+    const observer = new ResizeObserver(updateHeight)
+    observer.observe(document.body)
+    window.addEventListener('scroll', updateHeight, { passive: true })
+    window.addEventListener('resize', updateHeight)
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('scroll', updateHeight)
+      window.removeEventListener('resize', updateHeight)
+    }
+  }, [])
+
   const { currentData: breadcrumbCopyRun } = copyRunApi.useGetCopyRunQuery(
     { ownerAddress: ownerAddress || '', copyRunId: route.activeCopyId },
     { skip: !ownerAddress || !route.activeCopyId },
@@ -306,8 +321,6 @@ const Sidebar = () => {
     if (ownerAddress) void refetchOpenCopies()
   }, [location.pathname, ownerAddress, refetchOpenCopies])
 
-  const agents = leaderboard?.data || []
-  const activeRuns = ownerAddress ? openCopies?.data || [] : []
   const enabledChains = chains.filter(chain => chain.isEnabled)
   const agentById = new Map(agents.map(agent => [agent.agentId, agent]))
   const listedCopyRun = activeRuns.find(run => run.copyRunId === route.activeCopyId)
@@ -347,7 +360,7 @@ const Sidebar = () => {
         <SidebarContent {...sidebarContentProps} />
       </MobileNavigation>
 
-      <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-6 max-lg:hidden">
+      <aside ref={sidebarRef} className="sticky top-0 h-dvh w-60 flex-none overflow-hidden p-6 pb-4 max-lg:hidden">
         <SidebarContent {...sidebarContentProps} />
       </aside>
     </>

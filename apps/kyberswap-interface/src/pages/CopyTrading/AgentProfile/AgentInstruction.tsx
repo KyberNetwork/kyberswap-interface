@@ -1,3 +1,4 @@
+import type { MotionValue } from 'framer-motion'
 import { Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
@@ -53,9 +54,10 @@ const StartCopyCard = ({ agent, onCopy }: { agent: AgentProfile; onCopy: () => v
 type AgentInstructionProps = {
   activeCopyRun?: CopyRunListItem
   agent: AgentProfile
+  winRateProgress: MotionValue<number>
 }
 
-const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
+const AgentInstruction = ({ activeCopyRun, agent, winRateProgress }: AgentInstructionProps) => {
   const navigate = useNavigate()
   const copyTradingPath = useCopyTradingRoutes()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
@@ -64,7 +66,7 @@ const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
     <CopyCapitalCard
       addCapitalAvailability={activeCopyRun.addCapitalAvailability}
       capital={<CapitalInCardValue run={activeCopyRun} />}
-      onView={() => navigate(copyTradingPath('my-copies/' + activeCopyRun.copyRunId, activeCopyRun.chainId))}
+      onView={() => navigate(copyTradingPath('my-copies/' + activeCopyRun.copyRunId))}
       onAddCapital={() => openAddCapital(activeCopyRun)}
     />
   ) : (
@@ -77,7 +79,11 @@ const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
         {copyActionCard}
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.risk}>
-        <RiskCard maxDrawdownPct={agent.stats.maxDrawdownPct} winRatePct={agent.stats.winRatePct} />
+        <RiskCard
+          maxDrawdownPct={agent.stats.maxDrawdownPct}
+          winRatePct={agent.stats.winRatePct}
+          winRateProgress={winRateProgress}
+        />
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.strategy}>
         <StrategyExecutionCard items={agent.strategyExecutionItems} />

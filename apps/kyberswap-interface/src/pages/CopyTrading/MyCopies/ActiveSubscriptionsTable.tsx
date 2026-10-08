@@ -143,7 +143,7 @@ const ActiveSubscriptionsTable = ({
             <ActiveSubscriptionsGrid key={subscription.copyRunId} className="relative cursor-pointer">
               <TableRowLink
                 label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-                to={copyTradingPath('my-copies/' + subscription.copyRunId, subscription.chainId)}
+                to={copyTradingPath('my-copies/' + subscription.copyRunId)}
               />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
               <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
@@ -182,7 +182,7 @@ const ActiveSubscriptionsTable = ({
           >
             <TableRowLink
               label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-              to={copyTradingPath('my-copies/' + subscription.copyRunId, subscription.chainId)}
+              to={copyTradingPath('my-copies/' + subscription.copyRunId)}
             />
             <div className="flex items-start justify-between gap-3">
               <CopyRunAgentCell run={subscription} className="min-w-0 flex-1 gap-3" />

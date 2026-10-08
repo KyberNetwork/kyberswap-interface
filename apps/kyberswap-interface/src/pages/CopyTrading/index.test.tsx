@@ -83,9 +83,9 @@ describe('Copy Trading route boundary', () => {
     '/copy-trading/all',
     '/copy-trading/all/my-copies',
     '/copy-trading/all/history',
-  ])('mounts %s with all chains and preserves chain-specific entity links', url => {
+  ])('mounts %s with all chains and uses chainless entity links', url => {
     const router = routerAt(url)
-    expect(render(router)).toContain('all:list:/copy-trading/all/history:/copy-trading/ethereum/my-copies/run-2')
+    expect(render(router)).toContain('all:list:/copy-trading/all/history:/copy-trading/my-copies/run-2')
     router.dispose()
   })
 
@@ -93,13 +93,20 @@ describe('Copy Trading route boundary', () => {
     ['/copy-trading/base', 'list'],
     ['/copy-trading/base/my-copies', 'list'],
     ['/copy-trading/base/history', 'list'],
-    ['/copy-trading/base/agent-1', 'agent-1'],
-    ['/copy-trading/base/my-copies/run-1', 'run-1'],
-    ['/copy-trading/base/history/run-1', 'run-1'],
   ])('mounts %s with the chain and nested params from the URL', (url, id) => {
     const router = routerAt(url)
-    expect(render(router)).toContain(`8453:${id}:/copy-trading/base/history:/copy-trading/ethereum/my-copies/run-2`)
+    expect(render(router)).toContain(`8453:${id}:/copy-trading/base/history:/copy-trading/my-copies/run-2`)
     expect(render(router)).toContain(':/copy-trading/all</span>')
+    router.dispose()
+  })
+
+  it.each([
+    ['/copy-trading/agent-1', 'agent-1'],
+    ['/copy-trading/my-copies/run-1', 'run-1'],
+    ['/copy-trading/history/run-1', 'run-1'],
+  ])('mounts detail %s without a selected chain', (url, id) => {
+    const router = routerAt(url)
+    expect(render(router)).toContain(`all:${id}:/copy-trading/all/history:/copy-trading/my-copies/run-2`)
     router.dispose()
   })
 
@@ -112,6 +119,14 @@ describe('Copy Trading route boundary', () => {
     expect(render(router)).toContain('8453:list')
     await router.navigate(1)
     expect(render(router)).toContain('1:list')
+    await router.navigate('/copy-trading/agent-1')
+    expect(render(router)).toContain('all:agent-1')
+    await router.navigate('/copy-trading/my-copies/run-1')
+    expect(render(router)).toContain('all:run-1')
+    await router.navigate(-1)
+    expect(render(router)).toContain('all:agent-1')
+    await router.navigate(-1)
+    expect(render(router)).toContain('1:list')
     await router.navigate('/copy-trading/all')
     expect(render(router)).toContain('all:list')
     await router.navigate(-1)
@@ -119,7 +134,7 @@ describe('Copy Trading route boundary', () => {
     router.dispose()
   })
 
-  it.each(['/copy-trading/base/agent-1', '/copy-trading/all', '/copy-trading'])(
+  it.each(['/copy-trading/agent-1', '/copy-trading/all', '/copy-trading'])(
     'waits for the catalog before mounting %s',
     url => {
       discovery.data = undefined

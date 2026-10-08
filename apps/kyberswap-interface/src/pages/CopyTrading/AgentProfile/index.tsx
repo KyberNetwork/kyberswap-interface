@@ -1,5 +1,6 @@
+import { useMotionValue } from 'framer-motion'
 import { type PropsWithChildren } from 'react'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 
@@ -49,10 +50,11 @@ const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
 }
 
 const AgentProfile = () => {
+  // Keep the displayed win rate while the next agent's detail is loading.
+  const winRateProgress = useMotionValue(0)
   const copyTradingPath = useCopyTradingRoutes()
   const { agentCode } = useParams()
-  const { ownerAddress, selectedChainId } = useCopyTradingContext()
-  const location = useLocation()
+  const { ownerAddress } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
 
   const {
@@ -101,19 +103,6 @@ const AgentProfile = () => {
 
   const resourceUnavailable = !agentCode || isMissingOrForbiddenError(agentError)
 
-  if (profile && profile.chainId !== selectedChainId) {
-    return (
-      <Navigate
-        to={{
-          pathname: copyTradingPath(agentCode || '', profile.chainId),
-          search: location.search,
-          hash: location.hash,
-        }}
-        replace
-      />
-    )
-  }
-
   if (!resourceUnavailable && (isRestoringWallet || agentPending || copyRunPending)) {
     return (
       <CopyTradingPage>
@@ -148,7 +137,7 @@ const AgentProfile = () => {
         <ResponsiveDetailGrid className="max-xl:contents">
           <AgentStats agentId={profile.agentId} />
           <StickySideColumn>
-            <AgentInstruction activeCopyRun={activeCopyRun} agent={profile} />
+            <AgentInstruction activeCopyRun={activeCopyRun} agent={profile} winRateProgress={winRateProgress} />
           </StickySideColumn>
         </ResponsiveDetailGrid>
 

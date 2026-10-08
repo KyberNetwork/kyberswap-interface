@@ -41,7 +41,7 @@ const CopyHistorySummary = ({ loading, summary }: { loading?: boolean; summary?:
 }
 
 const CopyHistoryView = () => {
-  const { ownerAddress } = useCopyTradingContext()
+  const { ownerAddress, selectedChainId } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
   const [sortBy, setSortBy] = useState<CopyRunSortBy>()
   const [sortOrder, setSortOrder] = useState<SortOrder>()
@@ -49,10 +49,11 @@ const CopyHistoryView = () => {
 
   const closedRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
-    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'history', sortBy, sortOrder],
+    queryKey: ['copy-trading', 'copy-runs', ownerAddress, selectedChainId, 'history', sortBy, sortOrder],
     queryFn: cursor =>
       getCopyRuns({
         ownerAddress: ownerAddress || '',
+        chainId: selectedChainId,
         view: 'history',
         sortBy,
         sortOrder,
@@ -64,6 +65,7 @@ const CopyHistoryView = () => {
   const { currentData: ownerSummary, isFetching: isOwnerSummaryFetching } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
+      chainId: selectedChainId,
       view: 'history',
     },
     { pollingInterval: 10_000, skip: !ownerAddress },
