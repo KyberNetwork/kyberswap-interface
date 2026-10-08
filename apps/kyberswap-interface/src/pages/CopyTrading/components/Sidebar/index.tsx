@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Globe } from 'react-feather'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentCard, Chain } from 'services/copyTrading/types/agents'
@@ -22,6 +22,7 @@ import useSidebarData from 'pages/CopyTrading/components/Sidebar/useSidebarData'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
+import { resolveCopyTradingRoute } from 'pages/CopyTrading/routing'
 import { cn } from 'utils/cn'
 
 const DEFAULT_VISIBLE_AGENTS = 5
@@ -43,7 +44,7 @@ type MyCopiesSectionProps = {
 
 type NetworksSectionProps = {
   chains: Chain[]
-  onSelectChain: () => void
+  onSelectChain: (chainId?: number) => void
   selectedChainId?: number
 }
 
@@ -53,7 +54,7 @@ type SidebarContentProps = {
   agents: AgentCard[]
   chains: Chain[]
   expandedAgents: boolean
-  onSelectChain: () => void
+  onSelectChain: (chainId?: number) => void
   onToggleAgents: () => void
   route: SidebarRouteState
   selectedChainId?: number
@@ -203,18 +204,15 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
 }
 
 const NetworksSection = ({ chains, onSelectChain, selectedChainId }: NetworksSectionProps) => {
-  const copyTradingPath = useCopyTradingRoutes()
-
   return (
     <SidebarSection title="Networks" count={chains.length}>
       <Stack className="gap-1">
         <SidebarMenuItem
-          to={copyTradingPath('', 'all')}
           active={selectedChainId === undefined}
           activeStyle="text"
           layout="row"
           colorByActive
-          onClick={onSelectChain}
+          onClick={() => onSelectChain()}
         >
           <Globe className="size-5 shrink-0" />
           <span>All Chains</span>
@@ -225,11 +223,10 @@ const NetworksSection = ({ chains, onSelectChain, selectedChainId }: NetworksSec
           return (
             <SidebarMenuItem
               key={chain.chainId}
-              to={copyTradingPath('', chain.chainId)}
               active={active}
               activeStyle="text"
               layout="row"
-              onClick={onSelectChain}
+              onClick={() => onSelectChain(chain.chainId)}
             >
               <img src={chain.iconUrl} alt="" className="size-5 rounded-full" />
               <span className={cn('truncate text-sm', active ? 'text-primary' : 'text-subText')}>{chain.name}</span>
@@ -274,12 +271,14 @@ const Sidebar = () => {
   const copyTradingPath = useCopyTradingRoutes()
   const basePath = copyTradingPath()
   const location = useLocation()
-  const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
+  const navigate = useNavigate()
+  const { chains, ownerAddress, selectedChainId, setSelectedChainId } = useCopyTradingContext()
   const [expandedAgents, setExpandedAgents] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const sidebarRef = useRef<HTMLElement>(null)
   const previousPathname = useRef(location.pathname)
-  const route = getSidebarRouteState(location.pathname, basePath)
+  const { chain: routeChain } = resolveCopyTradingRoute(location.pathname, chains)
+  const route = getSidebarRouteState(location.pathname, copyTradingPath('', routeChain?.chainId ?? 'all'))
   const { agents, activeRuns, refetchOpenCopies } = useSidebarData(ownerAddress, selectedChainId)
 
   useLayoutEffect(() => {
@@ -332,7 +331,9 @@ const Sidebar = () => {
   const profileAgentName = breadcrumbAgent?.data.displayName || agentById.get(route.activeAgentCode)?.displayName || '' // Agent Profile
   const breadcrumbs = getBreadcrumbs(basePath, route, detailAgentName, profileAgentName)
 
-  const selectChain = () => {
+  const selectChain = (chainId?: number) => {
+    setSelectedChainId(chainId)
+    navigate(copyTradingPath('', chainId ?? 'all'))
     setExpandedAgents(false)
     setMobileOpen(false)
   }

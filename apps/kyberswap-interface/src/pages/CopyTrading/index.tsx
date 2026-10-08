@@ -47,48 +47,47 @@ const CopyTrading = () => {
         <LocalLoader />
       </CopyTradingPage>
     )
-  if (redirect)
-    return (
-      <Navigate
-        to={{ pathname: redirect, search: location.search, hash: location.hash }}
-        replace
-        state={location.state}
-      />
-    )
-  if (!chains || (!chain && !allChains && !isDetail))
+  if (!chains)
     return (
       <CopyTradingPage>
-        <CopyTradingReadError resourceUnavailable={!!chains} onRetry={refetchChains} />
+        <CopyTradingReadError resourceUnavailable={false} onRetry={refetchChains} />
       </CopyTradingPage>
     )
 
   return (
-    <CopyTradingProvider
-      key={chain?.chainId ?? 'all'}
-      selectedChainId={chain?.chainId}
-      chains={chainOptions}
-      ownerAddress={ownerAddress}
-    >
-      <CopyTradingModalProvider>
-        <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
-          <Sidebar />
-          <Routes>
-            <Route index element={<AgentList />} />
-            <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
-            <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
-            {isDetail ? (
-              <Route path=":agentCode" element={<AgentProfile />} />
-            ) : (
-              <Route path=":chain">
-                <Route index element={<AgentList />} />
-                <Route path="my-copies" element={<MyCopiesView />} />
-                <Route path="history" element={<CopyHistoryView />} />
-              </Route>
-            )}
-            <Route path="*" element={<Navigate to={getCopyTradingPath(chain?.slug ?? 'all')} replace />} />
-          </Routes>
-        </div>
-      </CopyTradingModalProvider>
+    <CopyTradingProvider initialSelectedChainId={chain?.chainId} chains={chainOptions} ownerAddress={ownerAddress}>
+      {redirect ? (
+        <Navigate
+          to={{ pathname: redirect, search: location.search, hash: location.hash }}
+          replace
+          state={location.state}
+        />
+      ) : !chain && !allChains && !isDetail ? (
+        <CopyTradingPage>
+          <CopyTradingReadError resourceUnavailable onRetry={refetchChains} />
+        </CopyTradingPage>
+      ) : (
+        <CopyTradingModalProvider>
+          <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
+            <Sidebar />
+            <Routes>
+              <Route index element={<AgentList />} />
+              <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
+              <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
+              {isDetail ? (
+                <Route path=":agentCode" element={<AgentProfile />} />
+              ) : (
+                <Route path=":chain">
+                  <Route index element={<AgentList />} />
+                  <Route path="my-copies" element={<MyCopiesView />} />
+                  <Route path="history" element={<CopyHistoryView />} />
+                </Route>
+              )}
+              <Route path="*" element={<Navigate to={getCopyTradingPath(chain?.slug ?? 'all')} replace />} />
+            </Routes>
+          </div>
+        </CopyTradingModalProvider>
+      )}
     </CopyTradingProvider>
   )
 }
