@@ -1,3 +1,4 @@
+import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type {
   AgentPositionSummary,
   ClosedPositionExecution,
@@ -69,6 +70,8 @@ type ApiPosition = {
   exitKind?: string
   actionKind?: string
   availableActionKinds?: string[]
+  manualSellAvailability?: AdvisoryActionAvailability
+  closePositionAvailability?: AdvisoryActionAvailability
   latestSkipPublicErrorCode?: string
   durationSeconds?: string
   durationAsOf?: string
@@ -257,6 +260,8 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     },
     actionKind: position.actionKind as PositionSummary['actionKind'],
     availableActionKinds: (position.availableActionKinds || []) as PositionSummary['availableActionKinds'],
+    manualSellAvailability: position.manualSellAvailability,
+    closePositionAvailability: position.closePositionAvailability,
     latestSkipPublicErrorCode: position.latestSkipPublicErrorCode,
     totalBaseSoldRaw: position.totalBaseSoldRaw,
     totalQuoteReceivedRaw: position.totalQuoteReceivedRaw,

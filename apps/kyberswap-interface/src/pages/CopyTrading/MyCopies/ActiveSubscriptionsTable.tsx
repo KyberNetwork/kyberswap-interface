@@ -112,7 +112,7 @@ const ActiveSubscriptionsTable = ({
             activeSortBy={sortBy}
             className="justify-end text-right"
             onSortChange={onSortChange}
-            sortField="agent_volume"
+            sortField="volume"
             sortOrder={sortOrder}
           >
             Volume
@@ -153,7 +153,7 @@ const ActiveSubscriptionsTable = ({
               <TableCell className={cn('text-right', getWinRateClassName(subscription.copyRunWinRatePct))}>
                 {percent(subscription.copyRunWinRatePct)}
               </TableCell>
-              <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
+              <TableCell className="text-right">{compactUsd(subscription.copyRunVolumeUsd)}</TableCell>
               <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
               <TableCell className={cn('text-right', getSignedMetricClassName(subscription.unrealizedPnlUsd))}>
                 {signedUsd(subscription.unrealizedPnlUsd)}
@@ -196,7 +196,7 @@ const ActiveSubscriptionsTable = ({
               <TableCardField align="right" label="ROI" valueClassName={getSignedMetricClassName(subscription.roiPct)}>
                 {percent(subscription.roiPct)}
               </TableCardField>
-              <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
+              <TableCardField label="Volume">{compactUsd(subscription.copyRunVolumeUsd)}</TableCardField>
               <TableCardField align="right" label="Capital In">
                 {formatUsd(subscription.capitalInUsd)}
               </TableCardField>

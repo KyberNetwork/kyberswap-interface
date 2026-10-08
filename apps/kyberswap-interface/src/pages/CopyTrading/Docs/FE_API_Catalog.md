@@ -5,9 +5,107 @@ API and internal admin tools with the VPN-only admin API. Use the endpoint
 reference for request fields, agent registry management, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: October 6, 2026.
+Last updated: October 7, 2026.
 
 ## Changelog
+
+### October 7, 2026: RPC failures and preparation retries
+
+This contract ships in [API PR #111](https://github.com/KyberNetwork/copy-trade-api/pull/111)
+with [operator PR #239](https://github.com/KyberNetwork/copy-trade-operator/pull/239).
+Deployment is not verified by this catalog update. Deploy the API consumer
+before the operator emits the new diagnostics. No request fields, endpoints or
+generated application enums change; update the frontend's HTTP error handling.
+
+- All seven preparation routes can identify blockchain RPC failures through
+  `google.rpc.ErrorInfo` in `details[]`, with `domain: "copy-trade-api"`.
+  `RPC_RATE_LIMITED` returns HTTP 429; `RPC_UNAVAILABLE` and `RPC_TIMEOUT`
+  return HTTP 503. Read the typed reason instead of matching message text.
+- Show the returned `ActionGuidance.message` and **Retry preparation** control.
+  Respect `guidance.retryAfterMs` and `Retry-After`; use bounded retries that
+  request a fresh preparation. Do not submit cached calldata after a failure.
+- RPC endpoint rotation and quarantine are handled by the operator. Keep using
+  the same API route. Do not add frontend RPC selection or an extra retry loop
+  per provider, and do not disable independent actions because one attempt failed.
+- Distinguish these request errors from HTTP 200 aggregator/simulation outcomes.
+  A generic HTTP 429 without the recognized RPC detail is not proof of an RPC
+  rate limit. Older operators can still return generic dependency guidance.
+
+See [RPC preparation errors](#rpc-preparation-errors) for the wire format and
+retry rules. After a transaction is submitted, retry status observation with
+its saved hash and context; never resubmit it to recover an RPC status failure.
+
+### October 7, 2026: copy-run metrics, filtered totals, and activity links
+
+These additions ship in [API PR #110](https://github.com/KyberNetwork/copy-trade-api/pull/110).
+Regenerate clients for the new fields and enums after deployment.
+
+- Render copy-run Volume from `copyRunVolumeUsd`; sort with
+  `OWNER_COPY_RUN_SORT_FIELD_VOLUME`. `agentSnapshot.metrics.lifetimeVolumeUsd`
+  continues to describe the agent and must not populate the copy-run column.
+- Existing runs can initially return unavailable volume or `currentBalanceUsd`
+  while background updates catch up. Follow each metric's status and refresh
+  normally; do not substitute zero or agent volume. No frontend replay or
+  transaction resubmission is needed.
+- Send the same `chainId`, `strategyCategory`, and `search` filters to the
+  leaderboard summary and table. `totalCopierCount` now follows those filters
+  and counts an owner once across matching agents. `totalAumUsd` can contain
+  the available subtotal marked `METRIC_STATUS_STALE`; show its partial-data
+  indication. A nonempty selection with no usable AUM remains unavailable.
+- Use returned follower `positionPnlUsd` directly. Open/closing positions now
+  include actual fee economics and received cashback, excluding estimated
+  cashback. Do not add estimated cashback or subtract `netFeeCostUsd` again.
+- Copy-run activity `tradeId` and follower position/preparation `tradeId` now
+  identify the follower position. A skipped buy without a follower position
+  has no trade link. Keep missing execution hashes and unstored attempt amounts
+  absent; do not use leader amounts or hashes as replacements.
+- Render `ACTIVITY_CATEGORY_COPY_LIFECYCLE` with subtypes
+  `ACTIVITY_SUBTYPE_COPY_STARTED` and `ACTIVITY_SUBTYPE_COPY_STOPPED` in copy-run
+  logs. Start Copy can include `copyLifecycle.amountRaw`, `tokenAddress`, and
+  `token` for the canonical opening allocation. Later funding remains a
+  deposit/top-up row.
+- After observing an app-submitted token withdrawal with `actions:status`,
+  refresh the activity log. Non-quote transfers appear as
+  `ACTIVITY_TYPE_CAPITAL_WITHDRAWN` with `capital.movementType=token_withdrawal`,
+  the actual `amountRaw`, token, and `txHash`. Render token units;
+  `capital.valueUsd` stays unavailable without a historical price. Quote
+  withdrawals retain their existing separate rows. Token withdrawals already
+  completed before this feature are not automatically added to the log; a
+  missing row does not prove that no withdrawal occurred.
+- After receipt-first Stop observation, refresh positions. A returned Close
+  Position with `ADVISORY_ACTION_STATUS_TRY_PREPARE` allows live preparation
+  while projections catch up. Selected positions still being liquidated stay
+  pending with `EXIT_IN_PROGRESS`. Submit only a fresh READY preparation.
+
+### October 7, 2026: opening metrics, wallet retries, and recovery actions
+
+These UI behaviors apply after
+[API PR #110](https://github.com/KyberNetwork/copy-trade-api/pull/110) and the
+action fixes in [operator PR #238](https://github.com/KyberNetwork/copy-trade-operator/pull/238)
+are deployed. Requests, JSON fields, and enums are unchanged; no client
+regeneration is required for these changes.
+
+1. For a new copy run, render returned `totalPnlUsd` and `roiPct` values of
+   `"0"` with `METRIC_STATUS_STALE` as opening values. Keep the stale indication
+   and the returned creation-time `asOf`. Do not substitute zero for absent
+   data or a later unavailable metric. See [ROI and chart return](#roi-and-chart-return).
+2. Handle HTTP 409 from wallet inventory and wallet-balance reads as **Updating**.
+   Show the returned message and retry with bounded backoff. Do not replace
+   missing balances or USD totals with zero. See
+   [Current wallet inventory](#current-wallet-inventory).
+3. Use `actionKind`, `availableActionKinds`, `manualSellAvailability`, and
+   `closePositionAvailability` for position recovery buttons. Two or more
+   distinct unresolved partial skips can recommend **Close Position**. A
+   cumulative 100% recovery also recommends **Close Position**, even after one
+   missed sell; Manual Sell remains a supported alternative. Do not count
+   repeated activity entries to decide which button to show. See
+   [Prepare Close Position](#prepare-close-position).
+4. A selected-position Stop Copy can return HTTP 200 with
+   `PREPARED_ACTION_STATUS_UNAVAILABLE` and `failureDetails.code = "route_unfulfillable"`.
+   Show `failureDetails.message` and the returned `guidance`; there is no call
+   to submit. Keep the user's selection and slippage unchanged. If the user
+   chooses the offered Stop-with-existing-settings alternative, prepare that
+   action separately. See [Preparation failures](#manual-sell-and-close-preparation-failures).
 
 ### October 6, 2026: action success and related data status
 
@@ -610,8 +708,9 @@ GET /copy-accounts/{chainId}/{copyAccount}/positions
 
 `PositionSummary` adds `positionPnlUsd`:
 
-- For active or closing inventory, it is realized P&L to date plus marked
-  unrealized P&L plus estimated remaining cashback.
+- For active or closing inventory, it is settled quote received plus current
+  remaining token value minus original quote spent. This includes actual fee
+  economics and received cashback, and excludes estimated cashback.
 - For a closed position, it is realized P&L only.
 - The metric is all-or-nothing. If any required component is unavailable, the
   headline is unavailable rather than a partial sum. If any required component
@@ -758,9 +857,10 @@ corresponding gRPC code is `ABORTED`. Branch on HTTP status or gRPC code; never
 match the diagnostic message.
 
 An HTTP 499 means the client canceled the request. Don't classify it as a
-server timeout. A preparation dependency failure can return HTTP 503; discard
-any earlier prepared call and request a new preparation instead of submitting
-cached calldata.
+server timeout. Preparation dependency failures can return HTTP 503, or HTTP
+429 for a recognized RPC rate limit. Follow the [RPC error guidance](#rpc-preparation-errors),
+discard any earlier prepared call, and request a new preparation instead of
+submitting cached calldata.
 
 #### Action logs and polling
 
@@ -867,11 +967,13 @@ Frontend migration:
   only the bounded rows on that page by `sessionId`, so one source session can
   appear on multiple cursor pages. Never treat one page's group as the complete
   source session.
-- The copy-run log surface exposes only these category/subtype pairs:
+- With the October 7 additions, the copy-run log surface exposes these
+  category/subtype pairs:
   - Trade: Buy and Sell
   - Capital: Deposited, Capital topped up, and Capital withdrawn
   - Failed action: Skipped buy and Skipped sell
   - Fee or rebate: Flat fee captured and Rebate received
+  - Copy lifecycle: Copy started and Copy stopped
 
 - Returned capital is normalized to Capital withdrawn. There is no separate
   Capital returned subtype.
@@ -1880,6 +1982,13 @@ Use these display rules:
 - A copy run proven to have no position facts can publish zero Total P&L and
   ROI even while unrelated capital data is catching up. An empty response
   page does not establish that proof.
+- After [API PR #110](https://github.com/KyberNetwork/copy-trade-api/pull/110)
+  is deployed, the API also returns zero Total P&L and ROI for an
+  eligible new run while its first metrics are updating, with
+  `METRIC_STATUS_STALE` and `asOf` set to its creation time. Show the stale
+  indication: this describes the opening value while later coverage catches
+  up. Render the returned metrics; do not synthesize this zero in the client
+  or replace a later `UNAVAILABLE` result with it.
 - Missing, invalid, or provisional deposit evidence does not authorize a
   calculated ROI. Follow the metric status; do not substitute zero or a
   cached APR value. The proven no-position case above is independent.
@@ -2509,8 +2618,7 @@ Filter behavior:
 
 All-chain requests use one globally sorted and paginated result. Do not fetch
 one page per chain and merge or re-sort those pages in the browser. Apply the
-same chain, search, and strategy filters to the table and summary; the
-`totalCopierCount` exception described below still applies. `/agents` remains
+same chain, search, and strategy filters to the table and summary. `/agents` remains
 the discovery list and has different qualification/order rules from the
 leaderboard. Neither `/agents` nor `/leaderboard/summary` accepts `ownerAddress`.
 
@@ -2553,10 +2661,14 @@ summed when run or position coverage, token metadata, or a required current
 price is unavailable. It is `STALE` when any accepted input is stale. Its
 metric-level `asOf` is the oldest contributing valuation timestamp and can
 differ from the response-level `asOf`.
-`totalCopierCount` is different: it is the platform-wide lifetime count of
-distinct owner wallets across configured agents and intentionally ignores
-leaderboard filters, including `chainId`, search, and strategy category. Every
-metric still has its own status and can be unavailable independently.
+`totalCopierCount` counts lifetime distinct owner wallets in the selected chain,
+search, and strategy scope. An owner copying multiple matching agents counts
+once, including closed-run history. Every metric has its own status.
+
+`totalAumUsd` sums usable AUM from selected agents. If some selected agents have
+no usable AUM, show the returned subtotal and stale/partial indication. If none
+of a nonempty selection is usable, the total is unavailable; a proven empty
+selection returns zero. This does not change each agent's completeness rules.
 
 #### Copy and My copy buttons
 
@@ -2720,9 +2832,10 @@ Position rendering rules:
 - A position's three valuations can have different statuses. Closed-position
   `exitValuation` can remain final even when a current price is unavailable.
 - Render follower Position P&L from `positionPnlUsd`. For active or closing
-  inventory, it includes realized P&L to date, marked unrealized P&L, and
-  estimated remaining cashback. For a closed position, it contains realized
-  P&L only. Don't reconstruct it from the component fields in the client.
+  inventory, it equals net quote received plus current remaining value minus
+  original quote spent. Actual fee costs and received cashback are already
+  included; estimated cashback is excluded. Closed positions use canonical
+  realized P&L. Do not reconstruct it or subtract Net Fees again in the client.
 - `POSITION_EXIT_KIND_MANUAL` is reserved for an explicitly proven manual
   exit.
   Generic owner-directed `sell_unaligned` history projects as
@@ -2853,6 +2966,7 @@ OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT
 OWNER_COPY_RUN_SORT_FIELD_ROI_PCT
 OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
 OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
+OWNER_COPY_RUN_SORT_FIELD_VOLUME
 OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
 OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE
 OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES
@@ -2923,6 +3037,11 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
 - `startedAt`, `stoppedAt`, `status`, `durationSeconds`
 - `agentSnapshot`. Within copy-run responses, `metrics` omits the agent's
   `roiPct` and `winRatePct` and retains `lifetimeVolumeUsd`.
+- `copyRunVolumeUsd`, this run's lifetime executed buy-plus-sell quote volume.
+  Deposits, withdrawals, skipped trades, and agent volume do not contribute.
+  Existing runs populate in the background after deployment. Respect its
+  `DecimalMetric.status` while unavailable; do not fall back to agent volume
+  or zero. Refresh the list or detail normally.
 - `roiPct`, the copy run's lifetime ROI. See
   [ROI and chart return](#roi-and-chart-return).
 - `copyRunWinRatePct` and `copyRunClassifiedClosedPositionCount`, based on this
@@ -2932,7 +3051,9 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
 - capital, portfolio-value, P&L, position-count, and ROI metrics
 - `currentBalanceUsd`, for History account value and Open/Closing portfolio
   value when current. Stale, expired, or incomplete inputs make this metric
-  `UNAVAILABLE`.
+  `UNAVAILABLE`. Keep the value unavailable while indexing catches up and
+  refresh normally; unrelated available metrics can still render. This does
+  not mean the wallet is empty or that an earlier transaction failed.
 - `totalPnlUsd`, `totalPnlPct`, and `unrealizedPnlUsd`, each with its own
   metric status
 - `totalPnlUsd` is realized plus unrealized P&L; fees and rebates are already
@@ -3128,11 +3249,11 @@ The detail variant has this shape:
 
 | Variant         | Used for                       | Important fields                                                                                                                                                                               |
 | --------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `copyLifecycle` | Copy started/stopped           | `eventId`, `eventType`, optional `beforeStatus`, `afterStatus`                                                                                                                                 |
+| `copyLifecycle` | Copy started/stopped           | `eventId`, `eventType`, optional `beforeStatus`, `afterStatus`; Start Copy can also include `amountRaw`, `tokenAddress`, and `token` for its canonical opening allocation. Render a missing amount as unknown, not zero. |
 | `position`      | Open/close/reduce position     | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback                                                                                                               |
 | `capital`       | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric                                                                                                                                            |
 | `fee`           | Flat fee/cashback              | Exact raw amount, token, USD metric                                                                                                                                                            |
-| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline; optional `baseTokenAddress`, `quoteTokenAddress`, `baseToken`, and `quoteToken` for token identity. No generic amount or USD value. |
+| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline; optional `baseTokenAddress`, `quoteTokenAddress`, `baseToken`, and `quoteToken` for token identity. Attempt amounts are absent when no authoritative follower amount was recorded; never infer them from leader amounts. |
 
 The top-level `summary` is display text. Business logic should switch on the
 typed `type` and oneof detail, not parse the summary.
@@ -3170,13 +3291,31 @@ Use `actions:status` to observe the submitted operation independently.
 The copy-run log continues to normalize `capital.movementType` to `withdrawal`
 for returned capital; the Alert Feed detail preserves `returned_capital`.
 
+App-verified token withdrawals also appear in copy-run logs and account history
+as `ACTIVITY_TYPE_CAPITAL_WITHDRAWN`, with `capital.movementType` set to
+`token_withdrawal`. Each nonzero non-quote transfer has its exact `amountRaw`,
+token address, and transaction hash. Observe the submitted operation through
+`actions:status` so the backend can verify it. These rows become visible after
+the matching canonical pause is indexed; an external withdrawal without app
+verification does not produce this activity. Reorgs can remove a row, so replace
+the log from refreshed results. The token amount does not imply a USD peg:
+`capital.valueUsd` is unavailable for these rows. They are separate from quote
+withdrawals and do not change `capitalOutUsd`.
+
+Historical coverage is limited: token withdrawals completed before this
+feature are not automatically added, and external withdrawals remain outside
+this app-verified log. An absent row is not proof that no withdrawal occurred.
+Refresh after status observation, but do not resubmit a transaction to create
+its activity row. Existing Start Copy and quote-funding records do not require
+the frontend to replay any action.
+
 #### Skipped-trade links
 
-Under PR #102, copy-run log and ordinary activity/history rows for skipped
-aligned buys/sells and skipped exits resolve `tradeId` from canonical leader
-position facts. A skipped buy can have a trade link without `userPositionId`,
-`followerPositionId`, or a submitted follower transaction. Use the returned
-`tradeId` for the leader-trade link; do not treat it as a follower position ID.
+Copy-run activity uses the follower position's `tradeId` consistently for
+executed and skipped trades. A skipped buy that never opened a follower
+position has no `tradeId`, `userPositionId`, or `followerPositionId`. Do not link
+such a row to an agent trade through the top-level `tradeId`. A canonical
+follower position can supply the link later when its facts arrive.
 
 `txHash` remains optional follower execution evidence. Local skips that never
 submitted an execution have no hash. Hide only the transaction link when it is
@@ -3323,6 +3462,13 @@ The endpoint returns the current token rows held by the Smart Wallet. Under
 PR #102, its server-calculated USD total sums available valuations across the
 complete inventory. It does not add a separate open-position valuation and is
 not a replacement for `portfolioValueUsd`.
+
+After [API PR #110](https://github.com/KyberNetwork/copy-trade-api/pull/110)
+is deployed, wallet reads can return HTTP 409 (gRPC `code: 10`, `ABORTED`):
+`"Wallet balances are updating. Please retry shortly."` Keep the wallet in a
+syncing state and retry with bounded backoff. Do not replace balances or totals
+with zero. This applies to paginated wallet balances too, and responses remain
+`no-store`.
 
 | Field                     | Frontend behavior                                                                                                                                                                               |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -4433,6 +4579,14 @@ for a full-position recovery close under current operator state; otherwise the
 response is typed `PENDING` or `UNAVAILABLE`. Do not treat Close Position as a
 generic sell endpoint.
 
+For active positions, two or more distinct unresolved partial skipped sells
+recommend Close Position and retain Manual Sell. A cumulative 100% skipped-sell
+recovery also recommends Close Position, even if there is only one unresolved
+missed sell. Manual Sell remains a supported alternative. Repeated log entries
+and retry attempts do not add obligations. Use the returned availability and
+recommendation fields rather than counting activity entries or deriving a
+different button from the displayed percentage.
+
 #### Manual Sell and Close preparation failures
 
 Check HTTP status first, then `data.status`, `data.reason`, and optional
@@ -4448,10 +4602,19 @@ response supplies executable `call` or `statusContext` fields.
 | Other aggregator errors | 200, `UNAVAILABLE / NO_EXECUTABLE_ROUTE`; code from the table below | Use `failureDetails.retryable` and the supplied guidance. `UNAVAILABLE` alone does not prohibit a fresh preparation. |
 | Simulation RPC unavailable or its local deadline expires | 200, `PENDING / ACTION_SETUP_UNAVAILABLE`, `simulation_unavailable` | Retry preparation after the supplied delay. |
 | Account call reverts during simulation | 200, `UNAVAILABLE / INNER_CALL_REVERTED`; a simulation code below | Follow `failureDetails` and `guidance`; do not reuse an earlier call. |
+| Recognized blockchain RPC rate limit propagated as a request error | 429, gRPC `code: 8`, `ErrorInfo.reason: RPC_RATE_LIMITED` | Show the RPC message and retry a fresh preparation after the supplied delay; see [RPC preparation errors](#rpc-preparation-errors). |
+| Recognized blockchain RPC outage or timeout propagated as a request error | 503, gRPC `code: 14`, `ErrorInfo.reason: RPC_UNAVAILABLE` or `RPC_TIMEOUT` | Keep the selection and follow the supplied retry guidance. |
 | Operator route, connection, or another unresolved dependency fails | 503, gRPC `code: 14`, `message: "service unavailable"`, guidance in `details[]` | Retry after the supplied delay. This generic error does not identify a provider. |
 | Overall request deadline expires | 504, gRPC `code: 4`, `message: "request deadline exceeded"`, guidance in `details[]` | Retry preparation. The API did not submit a transaction. |
 | Returned preparation fails contract, selector, scope, or evidence validation | 400, gRPC `code: 9`, sanitized message and guidance in `details[]` | Show support guidance. Do not automatically repeat this invalid response. |
 | Built route fails internal consistency validation | 500, gRPC `code: 13`, `message: "internal query error"`, guidance in `details[]` | Show support guidance; do not use old calldata as a fallback. |
+
+After [operator PR #238](https://github.com/KyberNetwork/copy-trade-operator/pull/238)
+is deployed, Stop Copy also returns HTTP 200 with
+`UNAVAILABLE / NO_EXECUTABLE_ROUTE` and `route_unfulfillable` when a selected
+position cannot meet the requested minimum output. Show the supplied
+message and guidance for the whole selection. Do not silently drop positions or
+increase slippage. No executable call is returned for this case.
 
 `failureDetails` has this shape. It can also appear on other preparation
 endpoints after simulation failure. Stop Copy with selected positions also uses
@@ -4611,9 +4774,11 @@ amounts.
 If `failureDetails` is absent, fall back to `reason` and `guidance`. Do not
 infer the aggregator from a generic revert, HTTP 503, or HTTP 504. The API
 never exposes raw provider messages, vendor payloads, revert arguments, or
-signed calldata in diagnostics. HTTP 429 reports an API resource or action
-capacity limit. An aggregator rate limit is represented by a preparation result
-whose `failureDetails.aggregatorHttpStatus` is 429.
+signed calldata in diagnostics. HTTP 429 can report an API resource/action
+capacity limit or a recognized blockchain RPC rate limit; use the typed
+`ErrorInfo` described below to distinguish them. An aggregator rate limit is
+represented by an HTTP 200 preparation result whose
+`failureDetails.aggregatorHttpStatus` can be 429.
 
 ## Submitted action status
 
@@ -4660,6 +4825,8 @@ async function readSubmittedStatus(apiBase, ownerAddress, prepared, transactionH
       code: payload.code,
       message: payload.message,
       guidance: readActionGuidance(payload),
+      details: payload.details ?? [],
+      retryAfter: response.headers.get("Retry-After"),
     };
   }
   return { ok: true, data: payload.data };
@@ -4667,6 +4834,9 @@ async function readSubmittedStatus(apiBase, ownerAddress, prepared, transactionH
 ```
 
 The shared `readActionGuidance` helper is in [Error handling](#error-handling).
+Keep `details` for typed RPC reasons and retry delays. `retryAfter` can be null
+when the header is absent or unavailable to the browser; the error body's
+`RetryInfo` still supplies the recognized RPC delay.
 Network or JSON-decoding failures reject the promise. Keep the saved hash and
 context, show that the status check failed, and allow another observation.
 
@@ -6270,11 +6440,90 @@ Common HTTP statuses:
 | 404  | Requested public resource not found                                 |
 | 409  | Pinned page target changed; restart from the first page             |
 | 413  | Submitted-status body exceeds 64 KiB                                |
-| 429  | Server resource limit, including action capacity or message size    |
+| 429  | RPC rate limit when identified by ErrorInfo; otherwise a server resource limit, including action capacity or message size |
 | 499  | Client closed or canceled the request                              |
 | 500  | Internal request failure; the response is sanitized                 |
 | 503  | Temporarily unavailable; retry with bounded backoff                 |
 | 504  | Request deadline exceeded; retry with bounded backoff               |
+
+### RPC preparation errors
+
+The seven preparation routes (Start Copy, Add Capital, Stop Copy, Withdraw
+Quote, Withdraw Tokens, Manual Sell and Close Position) use this mapping for
+recognized RPC request failures:
+
+| `ErrorInfo.reason` | HTTP | JSON `code` | Public message |
+| --- | --- | --- | --- |
+| `RPC_RATE_LIMITED` | 429 | `8` (`ResourceExhausted`) | The blockchain RPC is rate limiting requests. Retry shortly. |
+| `RPC_UNAVAILABLE` | 503 | `14` (`Unavailable`) | The blockchain RPC is temporarily unavailable. Retry shortly. |
+| `RPC_TIMEOUT` | 503 | `14` (`Unavailable`) | The blockchain RPC timed out. Retry shortly. |
+
+Find `details[]` entries by `@type`; their order is not a client contract.
+Identify RPC failures only from `type.googleapis.com/google.rpc.ErrorInfo`
+with `domain: "copy-trade-api"` and a recognized reason. These are error-detail
+strings, not `PreparedActionReason` enum values. The API also returns
+`google.rpc.RetryInfo` and the existing `ActionGuidance`; metadata values such
+as `retryable` are strings. Do not identify the failing dependency from the
+HTTP status or message text alone.
+
+For example, an RPC preparation failure with a 2500 ms delay returns HTTP
+429, `Cache-Control: no-store` and `Retry-After: 3`:
+
+<!-- fe-response-example: preparation_rpc_error_429 -->
+```json
+{
+  "code": 8,
+  "message": "The blockchain RPC is rate limiting requests. Retry shortly.",
+  "details": [
+    {
+      "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+      "reason": "RPC_RATE_LIMITED",
+      "domain": "copy-trade-api",
+      "metadata": { "dependency": "rpc", "retryable": "true" }
+    },
+    {
+      "@type": "type.googleapis.com/google.rpc.RetryInfo",
+      "retryDelay": "2.500s"
+    },
+    {
+      "@type": "type.googleapis.com/kyber.copytrade.aggregate.v1.ActionGuidance",
+      "message": "The blockchain RPC is rate limiting requests. Retry shortly.",
+      "retryAfterMs": 2500,
+      "nextSteps": [
+        {
+          "kind": "ACTION_GUIDANCE_STEP_KIND_RETRY",
+          "label": "Retry preparation"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Use `guidance.retryAfterMs` for the preparation retry delay. It is at least
+2000 ms and preserves the operator delay up to 2147483647 ms. `RetryInfo`
+contains that same delay as a protobuf duration string. `Retry-After` rounds
+it up to whole seconds: wait at least the longer available delay, so the
+example above waits at least three seconds when the header is readable.
+Do not hard-code a two-second timer or shorten a longer cooldown.
+
+Keep the user's selection while showing the supplied retry message. Use a
+small retry budget with backoff and jitter, cancel scheduled retries when the
+action/form changes, and leave manual retry available. A retry requests fresh
+preparation evidence; the error contains no `data.call` or `statusContext`
+and does not establish that a transaction was submitted. Never reuse an old
+call, alter slippage, or disable another action merely because this request
+failed.
+
+Rotation/quarantine, provider URLs, batch limits and shared provider quotas are
+backend concerns. Successful failover preserves the normal response contract
+and exact evidence anchor. If suitable providers remain unavailable, use the
+same error/retry flow. Continue handling generic 429/503 errors when the RPC
+detail is absent or unknown; they can come from older deployments or other
+dependencies. HTTP 200 `failureDetails` outcomes retain their separate rules
+in [Preparation failures](#manual-sell-and-close-preparation-failures).
+
+### Submitted-status request errors
 
 For `actions:status`, use this request-error handling. The JSON `code` is a
 gRPC code, not a copy of the HTTP status:
@@ -6296,16 +6545,24 @@ errors supply the current 2,000 ms retry hint. Treat the control and automatic
 retry scheduling separately; a retry control on HTTP 400 does not make the
 unchanged request valid.
 
+If a status error includes the recognized RPC `ErrorInfo` and `RetryInfo`,
+honor its longer delay and `Retry-After` too. The status guidance can retain
+its generic 2000 ms hint; it does not shorten an RPC provider's cooldown.
+Continue observing the original hash/context instead of preparing another
+transaction. The preparation example's **Retry preparation** label does not
+apply to a submitted-status request.
+
 Some upstream failed-precondition responses also map to HTTP 400. Use the typed
 prepared-action `status` and `reason` for normal product state; HTTP errors are
 request/transport failures.
 
-Retry guidance:
+### Retry guidance
 
 - Do not retry 400, 404, or 413 automatically. Review the request and follow
   its guidance.
 - For 429, 503, and 504, honor `Retry-After` when present and
-  `guidance.retryAfterMs`. If both are present, wait at least the longer delay.
+  `guidance.retryAfterMs`. Include a recognized RPC `RetryInfo.retryDelay`
+  when supplied, and wait at least the longest available delay.
   Use bounded backoff for repeated failures and keep a manual retry control.
 - Retry the operation that failed. A preparation error can trigger a fresh
   preparation. A status error can trigger only another observation of the
@@ -6530,6 +6787,12 @@ component and request-state tests. No live transaction is needed for these cases
   exactly as returned, preserving the ratio as a string.
 - `NO_EXECUTABLE_ROUTE` renders a recoverable HTTP 200 outcome. HTTP 503 renders
   a request error with guidance from `details[]`.
+- HTTP 429 plus `ErrorInfo.domain = copy-trade-api` and `RPC_RATE_LIMITED`
+  renders the RPC retry message. Unknown/missing RPC details retain generic
+  resource-limit handling; aggregator HTTP 200 outcomes remain distinct.
+- A 2500 ms RPC preparation delay plus `Retry-After: 3` waits at least three
+  seconds before a fresh preparation. Neither RPC rotation nor a failed
+  status observation causes wallet submission or replay of old calldata.
 - A `CONFIRMING` response with a reverted outer receipt keeps polling and does
   not render a final failed action.
 - `SYNCING/REPAIR_IN_PROGRESS` shows pending result publication without an old

@@ -2,6 +2,7 @@ import type { PositionSummary } from 'services/copyTrading/types/positions'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
+  canPreparePositionAction,
   getPositionRecoveryFlow,
   retryPositionSell,
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
@@ -90,5 +91,29 @@ describe('position sell retry', () => {
     })
     expect(retry).toHaveBeenCalledOnce()
     expect(reloadObligations).not.toHaveBeenCalled()
+  })
+})
+
+describe('position action availability', () => {
+  it('uses independent availability without replacing the recommended action', () => {
+    const row: PositionSummary = {
+      ...position,
+      actionKind: 'POSITION_ACTION_KIND_CLOSE_POSITION',
+      manualSellAvailability: { status: 'ADVISORY_ACTION_STATUS_AVAILABLE' },
+      closePositionAvailability: {
+        status: 'ADVISORY_ACTION_STATUS_PENDING',
+        reason: 'PREPARED_ACTION_REASON_EXIT_IN_PROGRESS',
+      },
+    }
+    expect(getPositionRecoveryFlow(row, 'closing')).toBe('stopCopyClosePosition')
+    expect(canPreparePositionAction(row, 'POSITION_ACTION_KIND_CLOSE_POSITION')).toBe(false)
+    expect(canPreparePositionAction(row, 'POSITION_ACTION_KIND_MANUAL_SELL')).toBe(true)
+    row.closePositionAvailability = { status: 'ADVISORY_ACTION_STATUS_TRY_PREPARE' }
+    expect(canPreparePositionAction(row, 'POSITION_ACTION_KIND_CLOSE_POSITION')).toBe(true)
+  })
+
+  it('preserves advertised actions when older responses omit availability', () => {
+    expect(canPreparePositionAction(position, 'POSITION_ACTION_KIND_MANUAL_SELL')).toBe(true)
+    expect(canPreparePositionAction(position, 'POSITION_ACTION_KIND_CLOSE_POSITION')).toBe(true)
   })
 })

@@ -1,3 +1,4 @@
+import type { AdvisoryActionAvailability } from './actionAvailability'
 import type { Token } from './agents'
 import type {
   ActivityType,
@@ -101,6 +102,8 @@ export type PositionSummary = AgentPositionSummary & {
   metrics: PositionMetrics
   actionKind?: PositionActionKind
   availableActionKinds: PositionActionKind[]
+  manualSellAvailability?: AdvisoryActionAvailability
+  closePositionAvailability?: AdvisoryActionAvailability
   latestSkipPublicErrorCode?: string
   totalBaseSoldRaw?: string
   totalQuoteReceivedRaw?: string
@@ -140,6 +143,9 @@ export type CopyLifecycleActivityDetail = {
   eventType?: string
   beforeStatus?: string
   afterStatus?: string
+  amountRaw?: string
+  tokenAddress?: Address
+  token?: Token
 }
 
 export type PositionActivityDetail = {

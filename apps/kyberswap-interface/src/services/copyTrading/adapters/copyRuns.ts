@@ -53,6 +53,7 @@ type ApiCopyRunListItem = {
   portfolioValueUsd?: ApiMetric
   unrealizedPnlUsd?: ApiMetric
   roiPct?: ApiMetric
+  copyRunVolumeUsd?: ApiMetric
   copyRunWinRatePct?: ApiMetric
   copyRunClassifiedClosedPositionCount?: ApiMetric
   openPositionCount?: ApiMetric
@@ -166,6 +167,7 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
     portfolioValueUsd: metricValue(run.portfolioValueUsd),
     unrealizedPnlUsd: metricValue(run.unrealizedPnlUsd),
     roiPct: metricValue(run.roiPct),
+    copyRunVolumeUsd: metricValue(run.copyRunVolumeUsd),
     copyRunWinRatePct: metricValue(run.copyRunWinRatePct),
     copyRunClassifiedClosedPositionCount: metricValue(run.copyRunClassifiedClosedPositionCount),
     openPositionCount: metricValue(run.openPositionCount),
@@ -191,6 +193,7 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
       portfolioValueUsd: run.portfolioValueUsd,
       unrealizedPnlUsd: run.unrealizedPnlUsd,
       roiPct: run.roiPct,
+      copyRunVolumeUsd: run.copyRunVolumeUsd,
       copyRunWinRatePct: run.copyRunWinRatePct,
       copyRunClassifiedClosedPositionCount: run.copyRunClassifiedClosedPositionCount,
       openPositionCount: run.openPositionCount,

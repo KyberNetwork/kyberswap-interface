@@ -80,6 +80,7 @@ export const copyRunSortMap: Record<CopyRunSortBy, string> = {
   roi_pct: 'OWNER_COPY_RUN_SORT_FIELD_ROI_PCT',
   agent_win_rate: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE',
   agent_volume: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME',
+  volume: 'OWNER_COPY_RUN_SORT_FIELD_VOLUME',
   capital_in: 'OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN',
   closed_trades: 'OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES',
   realized_pnl: 'OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL',
@@ -98,6 +99,7 @@ export const activityCategoryMap = {
   capital: 'ACTIVITY_CATEGORY_CAPITAL',
   failed_action: 'ACTIVITY_CATEGORY_FAILED_ACTION',
   fee_rebate: 'ACTIVITY_CATEGORY_FEE_REBATE',
+  copy_lifecycle: 'ACTIVITY_CATEGORY_COPY_LIFECYCLE',
 } as const
 
 export const activitySubtypeMap = {
@@ -110,6 +112,8 @@ export const activitySubtypeMap = {
   skipped_sell: 'ACTIVITY_SUBTYPE_SKIPPED_SELL',
   flat_fee_captured: 'ACTIVITY_SUBTYPE_FLAT_FEE_CAPTURED',
   rebate_received: 'ACTIVITY_SUBTYPE_REBATE_RECEIVED',
+  copy_started: 'ACTIVITY_SUBTYPE_COPY_STARTED',
+  copy_stopped: 'ACTIVITY_SUBTYPE_COPY_STOPPED',
 } as const
 
 export const ownerViewMap = {

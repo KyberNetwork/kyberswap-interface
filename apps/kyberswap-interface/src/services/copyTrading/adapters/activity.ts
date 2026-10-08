@@ -44,6 +44,9 @@ type ApiActivity = {
     eventType?: string
     beforeStatus?: string
     afterStatus?: string
+    amountRaw?: string
+    tokenAddress?: string
+    token?: ApiToken
   }
   position?: {
     eventId?: string
@@ -290,7 +293,13 @@ const toActivity = (activity: ApiActivity): ActivityRow => ({
   txHash: activity.txHash,
   agentDisplayName: activity.agentDisplayName,
   agentAvatarUrl: activity.agentAvatarUrl,
-  copyLifecycle: activity.copyLifecycle,
+  copyLifecycle: activity.copyLifecycle
+    ? {
+        ...activity.copyLifecycle,
+        tokenAddress: activity.copyLifecycle.tokenAddress as Address | undefined,
+        token: activity.copyLifecycle.token ? toToken(activity.copyLifecycle.token) : undefined,
+      }
+    : undefined,
   position: toPositionActivity(activity.position),
   capital: toCapitalActivity(activity.capital),
   fee: toFeeActivity(activity.fee),

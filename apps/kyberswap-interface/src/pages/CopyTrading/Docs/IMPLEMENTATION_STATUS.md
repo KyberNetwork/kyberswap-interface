@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-10-06
+Last reviewed: 2026-10-08
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -54,6 +54,9 @@ and the latest verification evidence. API details remain owned by
   loading/unavailable states, and query refresh intervals remain independent.
   No status tags appear in leaderboard cards, mobile list cards, the timeline,
   performance charts, or Copy Detail tables.
+- The October 7 contract sync keeps wallet HTTP 409 UI and retry behavior
+  unchanged. Metrics continue displaying existing renderable values without
+  additional stale/partial/status labels.
 - Cursor-paginated requests restart from page one when a non-initial cursor is
   rejected with HTTP 400/code 10 or HTTP 409.
 
@@ -237,22 +240,29 @@ them unless product explicitly approves a UI change:
 - Closed Positions displays Token, Closed Price, Amount, P&L, Fee, Rebate,
   Received, and Tx Hash. Its P&L reads realizedPnlUsd.
 - Action Logs displays Token, Type, Amount, Closed Time, and Tx Hash. Token is
-  resolved from the position, capital, or fee detail and uses N/A when absent;
+  resolved from the lifecycle, position, capital, or fee detail and uses N/A when absent;
   Amount uses the matching raw amount and token decimals without cross-field
   fallback.
 - The Action Logs Type control is server-backed. Buy and Sell send subtype;
-  Capital Events, Failed Actions, and Fee/Rebates send category; All Type Logs
+  Capital Events, Failed Actions, Fee/Rebates, and Copy Lifecycle send category; All Type Logs
   omits both parameters. The filter value participates in the infinite-query
   key so changing it restarts the cursor chain.
+- Copy Started and Copy Stopped have explicit row labels. Start Copy renders
+  the returned opening allocation using copyLifecycle.amountRaw and token metadata.
+- Recovery buttons keep the API recommendation and use the matching
+  manualSellAvailability or closePositionAvailability to enable preparation.
+  AVAILABLE and TRY_PREPARE allow preparation; pending/unavailable guidance disables it.
 
 ### Lists and responsive behavior
 
 - Leaderboard, My Copies, and History use cursor pagination. Infinite lists keep
   independent cursor chains and reset rejected non-initial cursors to page one.
-- My Copies sorting is server-backed for Copy Run ROI, Agent Volume, and
+- My Copies sorting is server-backed for Copy Run ROI, Copy Run Volume, and
   Capital In. Win Rate reads the Copy Run metric and is not sortable because
   the API only offers agent Win Rate sorting. Header selection cycles
   descending, ascending, then default.
+- My Copies Volume reads copyRunVolumeUsd, independently of agent volume, and
+  sorts with OWNER_COPY_RUN_SORT_FIELD_VOLUME. Missing volume stays unavailable.
 - Desktop and mobile rows use native links, preserving modified-click,
   context-menu, and new-tab behavior. Independent action buttons remain outside
   the row-link hit target.
@@ -341,6 +351,9 @@ Cross-flow decisions:
   polling enter the existing sync recovery. Manual retry observes the saved
   action/hash again; it never prepares or submits another transaction. HTTP
   errors end the current poll sequence rather than retrying automatically.
+- Preparation retries use only ActionGuidance.retryAfterMs. RPC RetryInfo and
+  Retry-After are not parsed. Manual status retry immediately observes the saved
+  hash/context again without an additional cooldown or automatic retry loop.
 - Receipt outcomes are observed through actions:status before declaring failure.
   Only strict FAILED enters transaction-error recovery; a reverted receipt still
   CONFIRMING keeps polling.
@@ -499,6 +512,13 @@ Operator-side skip/failure injection; they cannot be created deterministically
 from the frontend.
 
 ## Verification Snapshot
+
+October 8, 2026: **145 focused tests across 6 files**, app TypeScript,
+ESLint on changed code, and `git diff --check` passed. Preparation retains its
+guidance-only delay and manual status retry remains immediate. Coverage includes
+run volume, lifecycle mapping/request filters, independent recovery availability,
+and the existing preparation/status flows. Browser QA and live transaction E2E
+were not run.
 
 October 6, 2026: **305 tests across 22 files** passed. Receipt/polling
 regressions cover early completion with verified

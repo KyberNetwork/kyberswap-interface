@@ -111,7 +111,12 @@ const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const [typeFilter, setTypeFilter] = useState<ActivityLogTypeFilter>('')
   const [getOwnerActivity] = copyRunApi.useLazyGetOwnerActivityQuery()
   const categoryFilter =
-    typeFilter === 'capital' || typeFilter === 'failed_action' || typeFilter === 'fee_rebate' ? typeFilter : undefined
+    typeFilter === 'capital' ||
+    typeFilter === 'failed_action' ||
+    typeFilter === 'fee_rebate' ||
+    typeFilter === 'copy_lifecycle'
+      ? typeFilter
+      : undefined
   const subtypeFilter = typeFilter === 'buy' || typeFilter === 'sell' ? typeFilter : undefined
 
   const {
