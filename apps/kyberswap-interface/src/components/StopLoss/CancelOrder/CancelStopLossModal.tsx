@@ -16,7 +16,9 @@ import { HStack, Stack } from 'components/Stack'
 import { useStopLossTracking } from 'components/StopLoss/hooks/useStopLossTracking'
 import { StopLossOrder } from 'components/StopLoss/types'
 import { stripEmptyEip712Salt } from 'components/StopLoss/utils'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
@@ -58,6 +60,7 @@ const CancelStopLossModal = ({ orders, isCancelAll, onDismiss, onCancelled }: Pr
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const notify = useNotify()
   const tracking = useStopLossTracking()
+  const { changeNetwork } = useChangeNetwork()
 
   const [getCancelSignMessage] = useGetStopLossCancelSignMessageMutation()
   const [cancelOrder] = useCancelStopLossOrderMutation()
@@ -65,6 +68,7 @@ const CancelStopLossModal = ({ orders, isCancelAll, onDismiss, onCancelled }: Pr
   const [batchCancel] = useBatchCancelStopLossOrdersMutation()
 
   const [isCancelling, setIsCancelling] = useState(false)
+  const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false)
   const [error, setError] = useState('')
   const [pickedChainId, setPickedChainId] = useState<ChainId>()
 
@@ -91,6 +95,20 @@ const CancelStopLossModal = ({ orders, isCancelAll, onDismiss, onCancelled }: Pr
 
   const isBatch = selectedOrders.length > 1
   const order = selectedOrders[0]
+
+  // The cancel message is signed for the orders' chain, which a wallet on another chain refuses — so,
+  // as the limit-order modal does, the confirm button first offers to switch.
+  const shouldSwitchNetwork = !!order && walletChainId !== order.chainId
+  const onSwitchNetwork = async () => {
+    if (!order) return
+    setError('')
+    setIsSwitchingNetwork(true)
+    try {
+      await changeNetwork(order.chainId)
+    } finally {
+      setIsSwitchingNetwork(false)
+    }
+  }
 
   const handleDismiss = () => {
     setError('')
@@ -183,7 +201,7 @@ const CancelStopLossModal = ({ orders, isCancelAll, onDismiss, onCancelled }: Pr
             options={chainOptions}
             selectedChainId={selectedChainId}
             totalOrders={orders.length}
-            disabled={isCancelling}
+            disabled={isCancelling || isSwitchingNetwork}
             onChange={chainId => {
               setError('')
               setPickedChainId(chainId)
@@ -219,12 +237,14 @@ const CancelStopLossModal = ({ orders, isCancelAll, onDismiss, onCancelled }: Pr
             </ButtonOutlined>
           )}
           <ButtonPrimary
-            onClick={onConfirm}
+            onClick={shouldSwitchNetwork ? onSwitchNetwork : onConfirm}
             className="flex-1"
-            disabled={isCancelling || !order}
+            disabled={isCancelling || isSwitchingNetwork || !order}
             data-testid="stop-loss-cancel-confirm-button"
           >
-            {isCancelling ? (
+            {shouldSwitchNetwork && order ? (
+              <Trans>Switch to {NETWORKS_INFO[order.chainId].name}</Trans>
+            ) : isCancelling ? (
               <Trans>Cancelling...</Trans>
             ) : isCancelAll ? (
               <Trans>Cancel Orders</Trans>
