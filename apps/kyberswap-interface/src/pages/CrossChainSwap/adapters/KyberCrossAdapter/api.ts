@@ -9,7 +9,7 @@ type TokenReference = string
 type JsonObject = Record<string, unknown>
 
 export type ChainName = 'ethereum' | 'arbitrum' | 'base' | 'bsc' | 'robinhood' | 'hyperevm'
-export type BridgeProvider = 'across' | 'relay' | 'mayan' | 'near_intents' | 'cctp_v2' | 'cctp_v2_fast' | 'ccip'
+export type BridgeProvider = 'across' | 'relay' | 'mayan' | 'near_intents' | 'cctp_v2' | 'cctp_v2_fast' | 'ccip' | 'eco'
 type FlowType = 'bridge_only' | 'swap_then_bridge' | 'bridge_then_swap' | 'swap_bridge_swap'
 export type RouteState =
   | 'BRIDGE_PENDING'
