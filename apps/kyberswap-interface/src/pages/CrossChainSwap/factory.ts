@@ -23,6 +23,7 @@ export type CrossChainSource = Pick<SwapProvider, 'getName'> & Partial<Pick<Swap
 
 const CCTP_ICON = 'https://cdn.prod.website-files.com/668c08d1b8a9330bd1d786ad/669a20df8ac2810a6dd50e67_favicon-256.svg'
 const CCIP_ICON = 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png'
+const ECO_ICON = 'https://cdn.prod.website-files.com/67af51ad91d062ee8ef52137/68ecc9d27b7aab7d9650a0f9_Favicon.svg'
 
 const cctpV2Source: CrossChainSource = {
   getName: () => 'CCTP V2',
@@ -37,6 +38,11 @@ const cctpV2FastSource: CrossChainSource = {
 const ccipSource: CrossChainSource = {
   getName: () => 'CCIP',
   getIcon: () => CCIP_ICON,
+}
+
+const ecoSource: CrossChainSource = {
+  getName: () => 'Eco',
+  getIcon: () => ECO_ICON,
 }
 
 // Factory for creating swap provider instances
@@ -100,6 +106,7 @@ export class CrossChainSwapFactory {
       cctpV2Source,
       cctpV2FastSource,
       ccipSource,
+      ecoSource,
     ]
   }
 
