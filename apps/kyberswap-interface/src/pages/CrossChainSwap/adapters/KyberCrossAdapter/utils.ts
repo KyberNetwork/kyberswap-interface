@@ -24,6 +24,7 @@ export enum NormalizedProvider {
   CctpV2 = 'cctpv2',
   CctpV2Fast = 'cctpv2fast',
   Ccip = 'ccip',
+  Eco = 'eco',
 }
 
 const normalizedProviderMap: Record<string, NormalizedProvider> = Object.values(NormalizedProvider).reduce(
@@ -45,6 +46,7 @@ const kyberCrossBridgeProviderMap: Partial<Record<NormalizedProvider, BridgeProv
   [NormalizedProvider.CctpV2]: 'cctp_v2',
   [NormalizedProvider.CctpV2Fast]: 'cctp_v2_fast',
   [NormalizedProvider.Ccip]: 'ccip',
+  [NormalizedProvider.Eco]: 'eco',
 }
 
 export const getKyberCrossBridgeProviders = (sources?: string[]): BridgeProvider[] | undefined => {
