@@ -162,10 +162,10 @@ export const getPairInfo = async ({
       const currencyInAddress = isEvmCurrency(currencyIn) ? currencyIn.wrapped.address.toLowerCase() : ''
       const currencyOutAddress = isEvmCurrency(currencyOut) ? currencyOut.wrapped.address.toLowerCase() : ''
       const categories = await Promise.all([
-        fetchTokenCategories({ chainId: fromChainId, tokens: currencyInAddress }).then(
+        fetchTokenCategories({ chainId: fromChainId, tokens: currencyInAddress }, { signal }).then(
           items => items.find(item => item.token.toLowerCase() === currencyInAddress)?.category || 'exoticPair',
         ),
-        fetchTokenCategories({ chainId: toChainId, tokens: currencyOutAddress }).then(
+        fetchTokenCategories({ chainId: toChainId, tokens: currencyOutAddress }, { signal }).then(
           items => items.find(item => item.token.toLowerCase() === currencyOutAddress)?.category || 'exoticPair',
         ),
       ])

@@ -5,12 +5,19 @@ import {
   QuoteParams,
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
+import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import { streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
-import { PairCategory, createTimeoutPromise, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { getSourceFilters, streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
+import { PairCategory, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
+
+const DEFAULT_QUOTE_TIMEOUT_MS = 10_000
+const KYBERCROSS_QUOTE_TIMEOUT_MS = 60_000
 
 type QuoteRunnerParams = {
+  quoteMode: CrossChainQuoteMode
   params: QuoteParams | NearQuoteParams
   category: PairCategory
   currencyIn: Currency
@@ -21,6 +28,35 @@ type QuoteRunnerParams = {
   isReadOnly: boolean
   onQuotes: (quotes: Quote[]) => void
   onQuoteReady: () => void
+}
+
+const getAdapterQuote = async (adapter: SwapProvider, params: QuoteParams | NearQuoteParams, signal: AbortSignal) => {
+  if (signal.aborted) throw new Error('Cancelled')
+
+  const quoteTimeoutMs = adapter.getName() === 'KyberCross' ? KYBERCROSS_QUOTE_TIMEOUT_MS : DEFAULT_QUOTE_TIMEOUT_MS
+  const requestController = new AbortController()
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  let handleAbort: (() => void) | undefined
+
+  const cancellationPromise = new Promise<never>((_, reject) => {
+    handleAbort = () => {
+      reject(new Error('Cancelled'))
+      requestController.abort()
+    }
+    signal.addEventListener('abort', handleAbort, { once: true })
+
+    timeoutId = setTimeout(() => {
+      reject(new Error('Timeout'))
+      requestController.abort()
+    }, quoteTimeoutMs)
+  })
+
+  try {
+    return await Promise.race([adapter.getQuote(params, requestController.signal), cancellationPromise])
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId)
+    if (handleAbort) signal.removeEventListener('abort', handleAbort)
+  }
 }
 
 export const isSameChainEvmSwap = (params: QuoteParams | NearQuoteParams) =>
@@ -51,7 +87,7 @@ export const getSameChainQuote = async ({
       console.log('Using KyberSwap adapter for same-chain swap')
       if (signal.aborted) throw new Error('Cancelled')
 
-      const quote = await Promise.race([kyberswapAdapter.getQuote(params), createTimeoutPromise(9_000)])
+      const quote = await getAdapterQuote(kyberswapAdapter, params, signal)
       if (signal.aborted) throw new Error('Cancelled')
 
       onQuotes([{ adapter: kyberswapAdapter, quote, isReadOnly }])
@@ -70,12 +106,12 @@ export const getSameChainQuote = async ({
 }
 
 export const getFallbackQuotes = async ({
+  quoteMode,
   params,
   category,
   currencyIn,
   currencyOut,
   excludedSources,
-  registry,
   signal,
   isReadOnly,
   onQuotes,
@@ -84,12 +120,14 @@ export const getFallbackQuotes = async ({
   console.log('Falling back to client-side adapter getQuote...')
 
   const fallbackQuotes: Quote[] = []
-  let clientAdapters = registry.getAllAdapters().filter(adapter => !excludedSources.includes(adapter.getName()))
-  if (clientAdapters.length === 0) clientAdapters = registry.getAllAdapters()
+  const clientQuoteAdapters = CrossChainSwapFactory.getClientQuoteAdapters(quoteMode)
+  let clientAdapters = clientQuoteAdapters.filter(adapter => !excludedSources.includes(adapter.getName()))
+  if (clientAdapters.length === 0) clientAdapters = clientQuoteAdapters
 
   const adapters = clientAdapters.filter(
     adapter =>
       adapter.getName() !== 'KyberSwap' &&
+      (!params.gasDrop || adapter.getName() === 'KyberCross') &&
       adapter.getSupportedChains().includes(params.fromChain) &&
       adapter.getSupportedChains().includes(params.toChain),
   ) as SwapProvider[]
@@ -100,10 +138,26 @@ export const getFallbackQuotes = async ({
         if (signal.aborted) throw new Error('Cancelled')
         if (!adapter.canSupport(category, currencyIn, currencyOut)) return
 
-        const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
+        const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
+          quoteMode,
+          excludedSources,
+          category,
+          currencyIn,
+          currencyOut,
+        )
+        const isExcludedAllSources = selectableSources.every(source => excludedSources.includes(source.getName()))
+        const quoteParams = isExcludedAllSources
+          ? params
+          : { ...params, includedSources: includedSourceNames, excludedSources: excludedSourceNames }
+
+        const quote = await getAdapterQuote(adapter, quoteParams, signal)
         if (signal.aborted) throw new Error('Cancelled')
 
-        fallbackQuotes.push({ adapter, quote, isReadOnly })
+        const routeQuotes =
+          adapter instanceof KyberCrossAdapter
+            ? adapter.getRouteQuotes(quote, isReadOnly)
+            : [{ adapter, quote, isReadOnly }]
+        fallbackQuotes.push(...routeQuotes)
         onQuotes(sortQuotesByNetOutput(fallbackQuotes))
         onQuoteReady()
       } catch (error) {
@@ -122,6 +176,11 @@ export const getQuotes = async (options: QuoteRunnerParams) => {
     return
   }
 
+  if (options.quoteMode === 'direct') {
+    await getFallbackQuotes(options)
+    return
+  }
+
   try {
     await streamQuotes({ ...options, onSoftTimeout: options.onQuoteReady })
     return
@@ -130,7 +189,4 @@ export const getQuotes = async (options: QuoteRunnerParams) => {
     console.error('Failed to get quotes from streaming API:', error)
     throw error
   }
-
-  // Direct cross-chain quote fallback is deprecated; respect the aggregator source configuration.
-  // await getFallbackQuotes(options)
 }
