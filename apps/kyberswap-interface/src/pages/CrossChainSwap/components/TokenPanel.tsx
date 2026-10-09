@@ -216,7 +216,8 @@ export const TokenPanel = ({
               NonEvmChain.Solana,
               NonEvmChain.Bitcoin,
               NonEvmChain.Near,
-              ...supportedChains.map(chain => chain.chainId),
+              // Blast is supported by the cross-chain aggregator while inactive for same-chain swaps.
+              ...new Set([...supportedChains.map(chain => chain.chainId), ChainId.BLAST]),
             ]}
             ref={ref}
           />
