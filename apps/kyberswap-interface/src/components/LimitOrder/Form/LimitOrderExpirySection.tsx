@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes } from 'react'
 import { Calendar, ChevronDown } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
-import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
+import { DropdownIcon, type SettingGridCells } from 'components/SwapForm/SlippageSetting'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TIMES_IN_SECS } from 'constants/index'
@@ -32,6 +32,8 @@ const ExpireOptionButton = ({
   />
 )
 
+export type ExpiryPresetOption = { value: number; label: string }
+
 type Props = {
   expiry?: {
     expire?: number
@@ -44,13 +46,21 @@ type Props = {
     onOpenDatePicker?: () => void
     onExpireChange?: (val: Date | number) => void
   }
+  /** Durations in seconds offered above the Custom Date entry. */
+  presetOptions?: ExpiryPresetOption[]
+  tooltip?: string
+  /** See `SettingGridCells`: splits the header and the panel across the caller's grid. */
+  gridCells?: SettingGridCells
 }
 
 const LimitOrderExpirySection = ({
   expiry: { expire, expanded, customDateExpire, displayTime } = {},
   events = {},
+  presetOptions,
+  tooltip,
+  gridCells,
 }: Props) => {
-  const expirePresetOptions = [
+  const expirePresetOptions = presetOptions ?? [
     { value: TIMES_IN_SECS.ONE_HOUR, label: t`1 Hour` },
     { value: TIMES_IN_SECS.ONE_DAY, label: t`1 Day` },
     { value: 7 * TIMES_IN_SECS.ONE_DAY, label: t`7 Days` },
@@ -66,13 +76,15 @@ const LimitOrderExpirySection = ({
     : expirePresetOptions.find(item => item.value === expire)?.label || displayTime
 
   return (
-    <Stack>
-      <HStack className="items-center justify-between gap-1 text-subText">
+    <Stack className={cn(gridCells && 'contents')} data-testid="expiry-setting">
+      <HStack className={cn('items-center justify-between gap-1 text-subText', gridCells?.header)}>
         <HStack className="items-center gap-2">
           <TextDashed fontSize={14} className="flex h-fit items-center text-subText">
             <MouseoverTooltip
               placement="bottom"
-              text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
+              text={
+                tooltip ?? t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`
+              }
             >
               <Trans>Expires In</Trans>:
             </MouseoverTooltip>
@@ -81,8 +93,11 @@ const LimitOrderExpirySection = ({
             className="cursor-pointer items-center gap-1 hover:brightness-75"
             role="button"
             onClick={events.onToggleExpanded}
+            data-testid="expiry-setting-toggle"
           >
-            <span className="text-sm font-medium text-text/80">{fullDisplayTime}</span>
+            <span className="text-sm font-medium text-text/80" data-testid="expiry-value">
+              {fullDisplayTime}
+            </span>
             <DropdownIcon size={14} data-flip={expanded}>
               <ChevronDown size={14} />
             </DropdownIcon>
@@ -94,11 +109,17 @@ const LimitOrderExpirySection = ({
         className={cn(
           'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
           expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+          // As a grid item the panel's automatic minimum size would hold the collapsed 0fr row open.
+          gridCells && 'min-h-0',
+          gridCells?.panel,
         )}
       >
         <div className="min-h-0 overflow-hidden">
           <div className="pt-2">
-            <div className="grid w-full max-w-full grid-cols-3 gap-1 rounded-[20px] bg-tabBackground p-1">
+            <div
+              className="grid w-full max-w-full grid-cols-3 gap-1 rounded-[20px] bg-tabBackground p-1"
+              data-testid="expiry-options"
+            >
               {expireOptions.map(item => {
                 const active = customDateExpire ? item.custom : item.value === expire
 
@@ -111,6 +132,7 @@ const LimitOrderExpirySection = ({
                     }}
                     active={active}
                     custom={item.custom}
+                    data-testid={item.custom ? 'expiry-option-custom' : `expiry-option-${item.value}`}
                   >
                     {item.custom ? (
                       <HStack as="span" className="items-center justify-center gap-1">

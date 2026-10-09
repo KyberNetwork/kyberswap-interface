@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import Modal from 'components/Modal'
+import SetExitPriceButton from 'components/StopOrder/SetExitPriceButton'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import {
@@ -158,6 +159,14 @@ const SwapModal: React.FC<Props> = props => {
           hash={txHash}
           onDismiss={handleDismiss}
           tokenAddToMetaMask={tokenAddToMetaMask as Token}
+          extraAction={
+            <SetExitPriceButton
+              currency={currencyOut}
+              amount={routeSummary?.parsedAmountOut}
+              source="post_swap"
+              onNavigate={handleDismiss}
+            />
+          }
         />
       )
     }

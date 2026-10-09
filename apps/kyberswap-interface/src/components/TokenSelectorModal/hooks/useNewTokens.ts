@@ -5,7 +5,7 @@ import { fetchTokenCatalogTokens } from 'services/tokenCatalog'
 
 import { NEW_TOKEN_MAX_DISPLAY } from 'components/TokenSelectorModal/constants'
 import { catalogMetricsToExtra, mapCatalogTokens } from 'components/TokenSelectorModal/hooks/catalog'
-import { TokenRowExtraMap, TokenSort } from 'components/TokenSelectorModal/types'
+import { TokenRowExtraMap, TokenSearchFilters, TokenSort } from 'components/TokenSelectorModal/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 /** Server-side `sort` param, or `undefined` to let the API apply its default (`whitelistedAt:desc`). */
@@ -21,12 +21,14 @@ export const useNewTokens = (
   chainIds: ChainId[],
   sort: TokenSort | null = null,
   active = true,
+  filters?: TokenSearchFilters,
 ): { tokens: WrappedTokenInfo[]; extras: TokenRowExtraMap; loading: boolean } => {
   const chainIdsParam = chainIds.join(',')
   const sortParam = toSortParam(sort)
+  const oracleTokenFilter = filters?.oracleTokenFilter
 
   const { data, isLoading } = useQuery({
-    queryKey: ['token-selector-new-tokens', chainIdsParam, sortParam ?? 'default'],
+    queryKey: ['token-selector-new-tokens', chainIdsParam, sortParam ?? 'default', oracleTokenFilter],
     enabled: active && chainIds.length > 0,
     queryFn: () =>
       fetchTokenCatalogTokens({
@@ -35,6 +37,7 @@ export const useNewTokens = (
         page: 1,
         pageSize: NEW_TOKEN_MAX_DISPLAY,
         sort: sortParam,
+        ...(oracleTokenFilter && { [oracleTokenFilter]: true }),
       }),
     // Changing the sort starts a new query; keep the current rows on screen while the new order loads
     // (same chain only) so the list re-sorts in place instead of flashing the skeleton.

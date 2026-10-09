@@ -63,6 +63,9 @@ export interface TokenImportResponse<T = TokenInfo> {
   }
 }
 
+const ORACLE_TOKENS_PAGE_SIZE = 100
+const ORACLE_TOKENS_MAX_PAGES = 10
+
 const ksSettingApi = createApi({
   reducerPath: 'ksSettingConfigurationApi',
   baseQuery: baseQueryOauth({
@@ -200,6 +203,43 @@ const ksSettingApi = createApi({
         params: { query, page: 1, pageSize },
       }),
     }),
+    /**
+     * Lowercased addresses of every token on the chain that `tokenFilter` keeps, whitelisted or not —
+     * the filter names an oracle's price feeds (`hasChainlinkOracle`, `hasPythOracle`, …). The endpoint
+     * caps `pageSize` at 100, so a longer list is read page by page.
+     */
+    getOracleTokens: builder.query<string[], { chainId: ChainId; tokenFilter: string }>({
+      queryFn: async ({ chainId, tokenFilter }, _api, _extra, fetchWithBQ) => {
+        const fetchPage = async (page: number) => {
+          const result = await fetchWithBQ({
+            url: '/tokens',
+            params: { chainIds: chainId, [tokenFilter]: true, page, pageSize: ORACLE_TOKENS_PAGE_SIZE },
+          })
+          const body = result.data as TokenListResponse | undefined
+          if (result.error || !body?.data?.tokens) {
+            return { error: result.error ?? 'Unexpected response from the token list' }
+          }
+          return { tokens: body.data.tokens, totalItems: body.data.pagination?.totalItems }
+        }
+
+        const first = await fetchPage(1)
+        if (!first.tokens) return { error: first.error }
+
+        let tokens = first.tokens
+        const totalItems = first.totalItems ?? tokens.length
+        const totalPages = Math.min(Math.ceil(totalItems / ORACLE_TOKENS_PAGE_SIZE), ORACLE_TOKENS_MAX_PAGES)
+
+        if (totalPages > 1) {
+          const rest = await Promise.all(Array.from({ length: totalPages - 1 }, (_, index) => fetchPage(index + 2)))
+          for (const result of rest) {
+            if (!result.tokens) return { error: result.error }
+            tokens = tokens.concat(result.tokens)
+          }
+        }
+
+        return { data: tokens.map(token => token.address.toLowerCase()) }
+      },
+    }),
   }),
 })
 
@@ -210,6 +250,7 @@ export const {
   useGetChainsConfigurationQuery,
   useGetTokenByAddressesQuery,
   useLazySearchTokensBySymbolQuery,
+  useGetOracleTokensQuery,
 } = ksSettingApi
 
 export default ksSettingApi

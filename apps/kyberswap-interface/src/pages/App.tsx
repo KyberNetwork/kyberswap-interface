@@ -25,6 +25,7 @@ import {
   NETWORKS_INFO,
   SUPPORTED_NETWORKS,
   isSupportLimitOrder,
+  isSupportStopOrder,
 } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
@@ -80,6 +81,8 @@ const PoolDetail = lazy(() => import('pages/Earns/PoolDetail'))
 const ExploreVaults = lazy(() => import('pages/Earns/ExploreVaults'))
 const MyVaults = lazy(() => import('pages/Earns/MyVaults'))
 const VaultDetail = lazy(() => import('pages/Earns/VaultDetail'))
+
+const StopOrderPage = lazy(() => import('pages/Swap/StopOrderPage'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
@@ -274,6 +277,18 @@ export default function App() {
                   element={
                     <NetworkSyncedPage>
                       <LimitPage />
+                    </NetworkSyncedPage>
+                  }
+                />
+              )}
+
+              <Route path={APP_PATHS.STOP_ORDER} element={<RedirectPathToTradeNetwork />} />
+              {isSupportStopOrder(chainId) && (
+                <Route
+                  path={`${APP_PATHS.STOP_ORDER}/:network/:currency?`}
+                  element={
+                    <NetworkSyncedPage>
+                      <StopOrderPage />
                     </NetworkSyncedPage>
                   }
                 />

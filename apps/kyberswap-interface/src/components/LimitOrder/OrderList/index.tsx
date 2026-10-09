@@ -55,7 +55,7 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
 
   return (
     <HStack className="items-center gap-3 bg-background pr-4">
-      <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
+      <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist" data-testid="order-list-tabs">
         {tabs.map((tab, index) => {
           const active = tab.id === activeTab
           const isLast = index === tabs.length - 1
@@ -66,6 +66,7 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
               onClick={() => setActiveTab(tab.id)}
               role="tab"
               type="button"
+              data-testid={`order-list-tab-${tab.id}`}
               className={cn(
                 'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1 border-0 px-4 py-3 text-sm font-medium',
                 !isLast && 'border-r border-darkBorder',
@@ -86,7 +87,10 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
                     </Trans>
                   }
                 >
-                  <span className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning">
+                  <span
+                    className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning"
+                    data-testid="order-list-insufficient-funds-badge"
+                  >
                     {numberOfInsufficientFundOrders}
                   </span>
                 </MouseoverTooltip>

@@ -145,6 +145,7 @@ const CustomSlippageInput: React.FC<Props> = ({
             onFocusChange?.(true)
             onActiveChange(true)
           }}
+          data-testid="slippage-custom-input"
           className="w-14 min-w-0 border-0 bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         <span className={cn('text-sm', isActive && 'text-text')}>%</span>

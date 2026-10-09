@@ -6,6 +6,7 @@ import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import ksSettingApi from 'services/ksSetting'
 
+import type { TokenSearchFilters } from 'components/TokenSelectorModal/types'
 import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -38,6 +39,8 @@ type TokenSearchParams = {
   pageSize: number
   page: number
   chainIds: string
+  /** An oracle's token-list filter, named by the chain's oracle config (`hasPythOracle`, …). */
+  [oracleTokenFilter: string]: string | number | boolean | undefined
 }
 
 type UseAddressRpcTokenSearchParams = {
@@ -49,6 +52,8 @@ type UseAddressRpcTokenSearchParams = {
   isFetchedTokenSearch: boolean
   isFetchingTokenSearch: boolean
   hasTokenSearchResults: boolean
+  /** Off where a token the API does not know could never be picked anyway. */
+  enabled?: boolean
 }
 
 const toSearchParams = (params: TokenSearchParams) =>
@@ -63,6 +68,7 @@ const fetchTokenSearchPage = async (
   search: string | undefined,
   page: number,
   chainIds: ChainId[],
+  filters?: TokenSearchFilters,
 ): Promise<WrappedTokenInfo[]> => {
   const params: TokenSearchParams = {
     query: search ?? '',
@@ -70,6 +76,7 @@ const fetchTokenSearchPage = async (
     page,
     pageSize: TOKEN_SEARCH_PAGE_SIZE,
     ...(!search && { isWhitelisted: true }),
+    ...(filters?.oracleTokenFilter && { [filters.oracleTokenFilter]: true }),
   }
   const response = await axios.get(`${KS_SETTING_API}/v1/tokens?${toSearchParams(params).toString()}`)
   const { tokens = [] } = response.data.data
@@ -81,14 +88,16 @@ export const fetchTokens = async (
   search: string | undefined,
   page: number,
   chainIds: ChainId[],
+  filters?: TokenSearchFilters,
 ): Promise<WrappedTokenInfo[]> => {
   try {
     const primaryChainId = chainIds[0]
+    // A single address is looked up directly; the caller screens the one token that comes back.
     if (search && primaryChainId && isAddress(primaryChainId, search)) {
       return fetchTokenByAddress(search, primaryChainId)
     }
 
-    return fetchTokenSearchPage(search, page, chainIds)
+    return fetchTokenSearchPage(search, page, chainIds, filters)
   } catch (error) {
     return []
   }
@@ -186,9 +195,11 @@ export const useAddressRpcTokenSearch = ({
   isFetchedTokenSearch,
   isFetchingTokenSearch,
   hasTokenSearchResults,
+  enabled = true,
 }: UseAddressRpcTokenSearchParams) => {
   const rpcSearchChainIds = useMemo(() => getRpcSearchChainIds(chainId, supportedChains), [chainId, supportedChains])
   const shouldFetchRpcTokens =
+    enabled &&
     !!debouncedQuery &&
     !isImportedTab &&
     isQueryValidEVMAddress &&

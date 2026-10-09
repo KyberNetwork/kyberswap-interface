@@ -191,6 +191,7 @@ type AmountInputControlsProps = {
   account?: string | null
   currency?: Currency | null
   disabledInput?: boolean
+  readOnlyInput?: boolean
   error?: boolean
   estimatedUsd?: string
   lockIcon?: boolean
@@ -206,6 +207,7 @@ const AmountInputControls = ({
   account,
   currency,
   disabledInput,
+  readOnlyInput,
   error,
   estimatedUsd,
   lockIcon,
@@ -226,6 +228,7 @@ const AmountInputControls = ({
         data-testid="token-amount-input"
         value={value}
         disabled={disabledInput}
+        readOnly={readOnlyInput}
         maxLength={maxLength}
         onUserInput={onUserInput}
         onFocus={onFocus}
@@ -312,6 +315,8 @@ const PoolLockContent = (
   </div>
 )
 
+export type CurrencyInputPanelFooter = ReactNode | ((openTokenSelector: () => void) => ReactNode)
+
 interface CurrencyInputPanelProps {
   value: string
   onMax?: () => void
@@ -321,6 +326,11 @@ interface CurrencyInputPanelProps {
   onClickSelect?: () => void
   positionMax?: 'inline' | 'top'
   label?: ReactNode
+  /**
+   * Rendered inside the panel, under the amount row — for a note that belongs to this field. As a
+   * function it is handed a callback that opens this panel's token selector, for a note that offers one.
+   */
+  footer?: CurrencyInputPanelFooter
   positionLabel?: 'in' | 'out'
   onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
@@ -329,6 +339,8 @@ interface CurrencyInputPanelProps {
   hideBalance?: boolean
   hideInput?: boolean
   disabledInput?: boolean
+  /** Shows a computed figure at full contrast: not editable, without the dimmed disabled look. */
+  readOnlyInput?: boolean
   otherCurrency?: Currency | null
   id: string
   dataTestId?: string
@@ -355,6 +367,8 @@ interface CurrencyInputPanelProps {
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
+  /** The token selector lists only tokens the chain's stop order oracle can price. */
+  requireOracle?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -365,6 +379,7 @@ export default function CurrencyInputPanel({
   onHalf,
   positionMax = 'inline',
   label = '',
+  footer,
   positionLabel = 'out',
   onCurrencySelect,
   onSwitchCurrency,
@@ -375,6 +390,7 @@ export default function CurrencyInputPanel({
   hideBalance = false,
   hideInput = false,
   disabledInput = false,
+  readOnlyInput = false,
   otherCurrency,
   id,
   dataTestId,
@@ -399,6 +415,7 @@ export default function CurrencyInputPanel({
   customChainId,
   trackingSource,
   scaleERC8056Balances,
+  requireOracle,
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -443,6 +460,7 @@ export default function CurrencyInputPanel({
                 account={account}
                 currency={currency}
                 disabledInput={disabledInput}
+                readOnlyInput={readOnlyInput}
                 error={error}
                 estimatedUsd={estimatedUsd}
                 lockIcon={lockIcon}
@@ -491,6 +509,8 @@ export default function CurrencyInputPanel({
               </CurrencySelect>
             )}
           </InputRow>
+
+          {typeof footer === 'function' ? footer(() => setModalOpen(true)) : footer}
         </Container>
         {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
           <TokenSelectorModal
@@ -504,6 +524,7 @@ export default function CurrencyInputPanel({
             filterWrap={filterWrap}
             customChainId={customChainId}
             trackingSource={trackingSource}
+            requireOracle={requireOracle}
           />
         )}
       </InputPanel>
