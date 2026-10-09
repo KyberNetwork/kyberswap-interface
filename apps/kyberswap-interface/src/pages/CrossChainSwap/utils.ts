@@ -47,6 +47,7 @@ export const CANONICAL_TOKENS: Record<string, Record<number, string>> = {
     [ChainId.HYPEREVM]: '0x1fbccdc677c10671ee50b46c61f0f7d135112450',
     [ChainId.ROBINHOOD]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
     [ChainId.ARC]: '0x128cC466B61f542da60c70e3aA11c10e19B84EDB',
+    [ChainId.ABSTRACT]: WETH[ChainId.ABSTRACT].address,
   },
   BNB: {
     [ChainId.BSCMAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',

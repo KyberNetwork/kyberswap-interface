@@ -5,6 +5,7 @@ import { reconnect, watchChainId } from '@wagmi/core'
 import { ReactNode, useEffect } from 'react'
 import { type Chain, defineChain, fallback, http } from 'viem'
 import {
+  abstract,
   arbitrum,
   avalanche,
   base,
@@ -411,6 +412,7 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(robinhood),
   withKyberRpc(rise),
   withKyberRpc(arc),
+  withKyberRpc(abstract),
 ] as const
 
 // One endpoint's share of the wait. `fallback()` walks its URLs in order and moves on only once the

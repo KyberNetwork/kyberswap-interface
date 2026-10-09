@@ -3,7 +3,11 @@ import { useMemo } from 'react'
 import { useGetChainsConfigurationQuery } from 'services/ksSetting'
 
 import { IS_TESTING_DEPLOYMENT } from 'constants/deployment'
-import { MAINNET_NETWORKS, NETWORKS_INFO as NETWORKS_INFO_HARDCODE } from 'constants/networks'
+import {
+  CROSS_CHAIN_ONLY_NETWORKS,
+  MAINNET_NETWORKS,
+  NETWORKS_INFO as NETWORKS_INFO_HARDCODE,
+} from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 
@@ -63,7 +67,7 @@ export default function useChainsConfig() {
     return {
       activeChains: chains.filter(chain => ENABLED_STATES.includes(chain.state)),
       supportedChains: chains.filter(chain => SUPPORTED_STATES.includes(chain.state)),
-      allChains: chains,
+      allChains: [...chains, ...CROSS_CHAIN_ONLY_NETWORKS.map(chainId => NETWORKS_INFO_HARDCODE[chainId])],
     }
   }, [data, globalConfig])
 }

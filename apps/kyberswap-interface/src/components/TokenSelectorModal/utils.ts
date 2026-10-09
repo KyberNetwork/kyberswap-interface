@@ -4,6 +4,7 @@ import { useQueries } from '@tanstack/react-query'
 import axios from 'axios'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
+import { fetchAbstractTokens } from 'services/crossChainTokens'
 import ksSettingApi from 'services/ksSetting'
 
 import { KS_SETTING_API } from 'constants/env'
@@ -84,6 +85,18 @@ export const fetchTokens = async (
 ): Promise<WrappedTokenInfo[]> => {
   try {
     const primaryChainId = chainIds[0]
+    if (primaryChainId === ChainId.ABSTRACT) {
+      const query = search?.trim().toLowerCase() || ''
+      const tokens = (await fetchAbstractTokens()).filter(
+        token =>
+          token.address.toLowerCase() === query ||
+          token.symbol.toLowerCase().includes(query) ||
+          token.name.toLowerCase().includes(query),
+      )
+      return filterTruthy(
+        tokens.slice((page - 1) * TOKEN_SEARCH_PAGE_SIZE, page * TOKEN_SEARCH_PAGE_SIZE).map(formatAndCacheToken),
+      )
+    }
     if (search && primaryChainId && isAddress(primaryChainId, search)) {
       return fetchTokenByAddress(search, primaryChainId)
     }

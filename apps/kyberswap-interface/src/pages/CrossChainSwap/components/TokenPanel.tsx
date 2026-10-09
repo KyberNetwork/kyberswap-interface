@@ -18,6 +18,7 @@ import { Stack } from 'components/Stack'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
+import { CROSS_CHAIN_ONLY_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -217,7 +218,7 @@ export const TokenPanel = ({
               NonEvmChain.Bitcoin,
               NonEvmChain.Near,
               // Blast is supported by the cross-chain aggregator while inactive for same-chain swaps.
-              ...new Set([...supportedChains.map(chain => chain.chainId), ChainId.BLAST]),
+              ...new Set([...supportedChains.map(chain => chain.chainId), ChainId.BLAST, ...CROSS_CHAIN_ONLY_NETWORKS]),
             ]}
             ref={ref}
           />

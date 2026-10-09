@@ -1,4 +1,5 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { isAbstractStableToken } from 'services/crossChainTokens'
 import { parseUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
@@ -67,7 +68,8 @@ export const getCurrencyAddress = (currency: Currency) => {
 }
 
 export const isStableCurrency = (currency: Currency | undefined, chain: Chain | undefined) => {
-  if (isEvmCurrency(currency)) return !!currency.wrapped.isStable
+  if (isEvmCurrency(currency))
+    return chain === ChainId.ABSTRACT ? isAbstractStableToken(currency.wrapped.address) : !!currency.wrapped.isStable
   if (chain === NonEvmChain.Solana && isSolanaToken(currency)) return SOLANA_STABLE_COINS.includes(currency.id)
   if (chain === NonEvmChain.Near && isNearToken(currency)) return NEAR_STABLE_COINS.includes(currency.assetId)
   return false

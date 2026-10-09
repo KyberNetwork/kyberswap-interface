@@ -49,6 +49,7 @@ export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [
   ChainId.FANTOM,
   ChainId.SCROLL,
   ChainId.BLAST,
+  ChainId.ABSTRACT,
   ChainId.ZKSYNC,
   ChainId.HYPEREVM,
   NonEvmChain.Solana,
