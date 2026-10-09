@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import Modal from 'components/Modal'
-import SetExitPriceButton from 'components/StopLoss/SetExitPriceButton'
+import SetExitPriceButton from 'components/StopOrder/SetExitPriceButton'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import {

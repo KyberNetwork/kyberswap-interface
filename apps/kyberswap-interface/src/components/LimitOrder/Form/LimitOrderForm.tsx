@@ -17,7 +17,7 @@ import {
 import { useLimitOrderFormState } from 'components/LimitOrder/Form/useLimitOrderFormState'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { HStack, Stack } from 'components/Stack'
-import OrderTypeSubTabs from 'components/StopLoss/OrderTypeSubTabs'
+import OrderTypeSubTabs from 'components/StopOrder/OrderTypeSubTabs'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'

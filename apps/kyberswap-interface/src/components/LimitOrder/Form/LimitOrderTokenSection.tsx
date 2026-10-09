@@ -17,7 +17,7 @@ export type LimitOrderTokenPanelProps = {
   footer?: CurrencyInputPanelFooter
   /** Extra classes for the token button, e.g. to flag a token that cannot be used here. */
   selectClassName?: string
-  /** The token selector lists only tokens the chain's stop-loss oracle can price. */
+  /** The token selector lists only tokens the chain's stop order oracle can price. */
   requireOracle?: boolean
 }
 

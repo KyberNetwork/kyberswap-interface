@@ -367,7 +367,7 @@ interface CurrencyInputPanelProps {
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
-  /** The token selector lists only tokens the chain's stop-loss oracle can price. */
+  /** The token selector lists only tokens the chain's stop order oracle can price. */
   requireOracle?: boolean
 }
 

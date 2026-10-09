@@ -82,14 +82,14 @@ export const isSupportLimitOrder = (chainId: ChainId, envKey: EnvKeys = ENV_KEY)
 }
 
 /**
- * Stop-loss runs on a fixed chain set instead of the per-chain, per-env `limitOrder` config.
+ * Stop order runs on a fixed chain set instead of the per-chain, per-env `limitOrder` config.
  *
  * Every entry must be one the conditional-order service accepts: it rejects an unknown chain with
  * `chain id is not supported`, and one bad id fails the whole order-list request, so listing a chain
  * it does not know breaks the table for every chain at once. Polygon is left out for that reason.
  * Chains it accepts but has no oracle feeds for stay in — the form degrades to "not available yet".
  */
-const STOP_LOSS_NETWORKS: ChainId[] = [
+const STOP_ORDER_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ARBITRUM,
   ChainId.BSCMAINNET,
@@ -97,7 +97,7 @@ const STOP_LOSS_NETWORKS: ChainId[] = [
   ChainId.BASE,
 ]
 
-export const isSupportStopLoss = (chainId: ChainId): boolean => STOP_LOSS_NETWORKS.includes(chainId)
+export const isSupportStopOrder = (chainId: ChainId): boolean => STOP_ORDER_NETWORKS.includes(chainId)
 
 export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MAINNET,

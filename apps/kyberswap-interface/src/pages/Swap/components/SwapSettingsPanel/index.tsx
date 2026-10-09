@@ -57,8 +57,8 @@ type SwapSettingsPanelProps = {
   onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
-  /** Stop-loss has no trade settings, only the pricing chart it shares with Swap. */
-  isStopLossPage?: boolean
+  /** Stop order has no trade settings, only the pricing chart it shares with Swap. */
+  isStopOrderPage?: boolean
   highlightDegenMode?: boolean
   displaySettings?: {
     isShowPricingChart?: boolean
@@ -71,7 +71,7 @@ type SwapSettingsPanelProps = {
 const SwapSettingsPanel = ({
   isSwapPage,
   isCrossChainPage,
-  isStopLossPage,
+  isStopOrderPage,
   highlightDegenMode,
   onBack,
   onClickLiquiditySources,
@@ -157,7 +157,7 @@ const SwapSettingsPanel = ({
           </>
         )}
 
-        {isStopLossPage && (
+        {isStopOrderPage && (
           <SettingsSection title={<Trans>Display Settings</Trans>}>
             <DisplaySettingRow
               label={<Trans>Pricing Chart</Trans>}

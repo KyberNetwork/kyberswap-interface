@@ -22,7 +22,7 @@ const RIGHT_PANEL_LOADERS: LazyComponentLoader[] = [
   () => import('components/TokenPriceChart/TokenPriceChartCanvas'),
   () => import('components/TradeRouting'),
   () => import('components/LimitOrder/OrderList'),
-  () => import('components/StopLoss/RightPanel'),
+  () => import('components/StopOrder/RightPanel'),
 ]
 
 const SWAP_LAYOUT_LOADERS = [...LEFT_CONTENT_LOADERS, ...RIGHT_PANEL_LOADERS]

@@ -1,12 +1,12 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useGetOracleTokensQuery } from 'services/ksSetting'
-import { useGetStopLossOracleConfigQuery } from 'services/stopLoss'
+import { useGetStopOrderOracleConfigQuery } from 'services/stopOrder'
 
 const EMPTY_ADDRESSES = new Set<string>()
 
 /**
- * The tokens on a chain that its stop-loss oracle can price. The oracle differs from chain to chain,
+ * The tokens on a chain that its stop order oracle can price. The oracle differs from chain to chain,
  * so the chain's oracle config is read first: its `tokenFilter` is the token-list param that finds
  * that oracle's feeds, and is returned for callers that filter a list server-side.
  *
@@ -16,7 +16,7 @@ const EMPTY_ADDRESSES = new Set<string>()
  */
 export const useOracleTokens = (chainId: ChainId | undefined, options?: { skip?: boolean }) => {
   const skip = !chainId || !!options?.skip
-  const { currentData: config, isError: isConfigError } = useGetStopLossOracleConfigQuery(chainId as ChainId, {
+  const { currentData: config, isError: isConfigError } = useGetStopOrderOracleConfigQuery(chainId as ChainId, {
     skip,
   })
   const tokenFilter = config?.tokenFilter || undefined

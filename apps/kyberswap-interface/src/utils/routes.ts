@@ -7,7 +7,7 @@ const SWAP_LIKE_PATHS = [APP_PATHS.SWAP, APP_PATHS.BUY, APP_PATHS.SELL]
 export const isSwapLikePath = (pathname: string) => SWAP_LIKE_PATHS.some(path => isPathOrChild(pathname, path))
 
 // Trade products addressed as `{product}/{network}/{tokenIn}-to-{tokenOut}`. Swap owns every other trade path.
-const TRADE_PRODUCT_PATHS = [APP_PATHS.LIMIT, APP_PATHS.STOP_LOSS] as const
+const TRADE_PRODUCT_PATHS = [APP_PATHS.LIMIT, APP_PATHS.STOP_ORDER] as const
 
 /** Resolves which trade product a pathname belongs to, so token selection keeps the user on that product. */
 export const getTradeProductPath = (pathname: string) =>

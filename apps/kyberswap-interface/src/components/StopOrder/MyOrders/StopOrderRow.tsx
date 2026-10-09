@@ -1,0 +1,237 @@
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
+import { useState } from 'react'
+import { ExternalLink as LinkIcon, Trash } from 'react-feather'
+
+import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stop_order_recreate.svg'
+import IconButton from 'components/Button/IconButton'
+import { Stack } from 'components/Stack'
+import { StopOrderRowLayout, StopOrderRowWrapper } from 'components/StopOrder/MyOrders/TableHeader'
+import {
+  AmountCell,
+  ChainCell,
+  DistanceCell,
+  ExpiryCell,
+  PairCell,
+  StatusCell,
+  StopOrderExecutionDetail,
+} from 'components/StopOrder/MyOrders/components'
+import { useStopOrderOraclePrice } from 'components/StopOrder/hooks/useStopOrderOraclePrice'
+import { StopOrder, StopOrderDisplayStatus } from 'components/StopOrder/types'
+import {
+  getStopOrderDisplayStatus,
+  getStopOrderExecutionTxHash,
+  getStopOrderFills,
+  getStopOrderTriggerPrice,
+  summarizeStopOrderFills,
+} from 'components/StopOrder/utils'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { useCurrencyV2 } from 'hooks/useTokens'
+import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
+import { formatDisplayNumber } from 'utils/numbers'
+
+type Props = {
+  order: StopOrder
+  isActiveTab: boolean
+  /** USD prices for the sell-amount sub-line; absent when the row sits outside the priced chain. */
+  priceUsd?: Record<string, number>
+  isCancelling: boolean
+  onCancel: (order: StopOrder) => void
+  /** `sellAmount` is exact, not the rounded display figure — it goes straight back into the form. */
+  onRecreate: (order: StopOrder, sellAmount: string) => void
+}
+
+/**
+ * Prices here are tokenOut per tokenIn, not USD, so they carry the quote symbol instead of a currency
+ * sign — a pair like WETH/WBTC has no dollar meaning at all.
+ */
+const formatPairPrice = (value: number | string | undefined, quoteSymbol?: string) => {
+  if (value === undefined || value === '' || Number.isNaN(Number(value))) return '-'
+  const amount = formatDisplayNumber(value, { significantDigits: 6 })
+  return quoteSymbol ? `${amount} ${quoteSymbol}` : amount
+}
+
+const StopOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel, onRecreate }: Props) => {
+  const sellCurrency = useCurrencyV2(order.tokenIn, order.chainId)
+  const receiveCurrency = useCurrencyV2(order.tokenOut, order.chainId)
+
+  const status = getStopOrderDisplayStatus(order)
+  const triggerPrice = getStopOrderTriggerPrice(order)
+
+  // Without the token's decimals `amountIn` is an unreadable integer, and pricing it would be wrong by
+  // 10^decimals — so an unresolved token shows no amount rather than a misleading one.
+  const sellCurrencyAmount = sellCurrency ? CurrencyAmount.fromRawAmount(sellCurrency, order.amountIn) : undefined
+  const sellAmount = sellCurrencyAmount ? `${sellCurrencyAmount.toSignificant(6)} ${sellCurrency?.symbol ?? ''}` : '-'
+
+  const sellPriceUsd = priceUsd?.[order.tokenIn.toLowerCase()]
+  const sellAmountUsd =
+    sellCurrencyAmount && sellPriceUsd ? Number(sellCurrencyAmount.toExact()) * sellPriceUsd : undefined
+
+  // The same feed the trigger is evaluated against, queried per pair so rows on any chain are right.
+  // History rows never render a live price, so they do not open a subscription for it.
+  const { priceNumber: currentPrice } = useStopOrderOraclePrice(
+    isActiveTab ? sellCurrency ?? undefined : undefined,
+    isActiveTab ? receiveCurrency ?? undefined : undefined,
+    order.chainId,
+  )
+  const distancePercent =
+    currentPrice && Number(triggerPrice) ? ((Number(triggerPrice) - currentPrice) / currentPrice) * 100 : undefined
+
+  // Every fill counts towards the execution price and the received total, however many the order took.
+  const fills = getStopOrderFills(order, sellCurrency?.decimals, receiveCurrency?.decimals)
+  const isExecuted = status === StopOrderDisplayStatus.EXECUTED
+  const fillSummary = summarizeStopOrderFills(
+    fills,
+    // An executed order sold all of it, so its own amount is the exact total.
+    isExecuted && sellCurrencyAmount ? Number(sellCurrencyAmount.toExact()) : undefined,
+  )
+  const executionPrice = fillSummary.price
+  const receivedAmount = fillSummary.amountOut
+
+  const txHash = getStopOrderExecutionTxHash(order)
+  const showTxLink = isExecuted && !!txHash
+
+  // An executed row only has a story to tell once its fills carry both their prices and what they received.
+  const canExpand = isExecuted && executionPrice !== undefined && receivedAmount !== undefined
+  const [expanded, setExpanded] = useState(false)
+  const recreate = () => onRecreate(order, sellCurrencyAmount?.toExact() ?? '')
+
+  return (
+    <div
+      // The id and chain let a test target the exact order it created, which no visible text can do.
+      data-testid="stop-order-order-row"
+      data-order-id={order.id}
+      data-chain-id={order.chainId}
+      className={cn('transition-colors duration-200', expanded && canExpand && 'bg-raisedBlack')}
+    >
+      <StopOrderRowWrapper
+        layout={isActiveTab ? StopOrderRowLayout.ACTIVE : StopOrderRowLayout.HISTORY}
+        className="min-h-14 px-4 py-2"
+      >
+        <ChainCell chainId={order.chainId} />
+
+        <PairCell sellCurrency={sellCurrency ?? undefined} receiveCurrency={receiveCurrency ?? undefined} />
+
+        <AmountCell
+          className="max-sm:col-start-3 max-sm:items-end"
+          dataTestId="stop-order-order-sell-amount"
+          value={sellAmount}
+          subValue={
+            sellAmountUsd ? formatDisplayNumber(sellAmountUsd, { style: 'currency', significantDigits: 4 }) : undefined
+          }
+        />
+
+        <span
+          className="truncate text-sm font-medium text-blue3 max-sm:hidden"
+          data-testid="stop-order-order-trigger-price"
+        >
+          {formatPairPrice(triggerPrice, receiveCurrency?.symbol)}
+        </span>
+
+        {isActiveTab ? (
+          <>
+            {/* The pair names the unit, so the price itself needs none. */}
+            <Stack className="min-w-0 gap-0.5 font-medium max-sm:hidden">
+              <span className="truncate text-xs text-subText">
+                {sellCurrency?.symbol || '-'}/{receiveCurrency?.symbol || '-'}
+              </span>
+              <span className="truncate text-sm text-text" data-testid="stop-order-order-current-price">
+                {formatPairPrice(currentPrice)}
+              </span>
+            </Stack>
+            <div className="max-sm:hidden">
+              <DistanceCell percent={distancePercent} />
+            </div>
+            <div className="max-sm:hidden">
+              <ExpiryCell deadline={order.deadline} />
+            </div>
+          </>
+        ) : (
+          <>
+            <span
+              className="truncate text-sm font-medium text-text max-sm:hidden"
+              data-testid="stop-order-order-execution-price"
+            >
+              {formatPairPrice(executionPrice, receiveCurrency?.symbol)}
+            </span>
+            <span
+              className="truncate text-sm font-medium text-text max-sm:hidden"
+              data-testid="stop-order-order-received"
+            >
+              {receivedAmount === undefined
+                ? '-'
+                : `${formatDisplayNumber(receivedAmount, { significantDigits: 6 })} ${receiveCurrency?.symbol ?? ''}`}
+            </span>
+            <div className="max-sm:hidden">
+              <StatusCell
+                status={status}
+                expanded={expanded}
+                onToggle={canExpand ? () => setExpanded(open => !open) : undefined}
+              />
+            </div>
+          </>
+        )}
+
+        <div className="flex justify-end">
+          {isActiveTab ? (
+            <MouseoverTooltip text={t`Cancel order`} placement="top" width="fit-content">
+              <IconButton
+                disabled={isCancelling}
+                onClick={() => onCancel(order)}
+                data-testid="stop-order-order-cancel-button"
+                className="p-0 text-subText hover:bg-white/10 hover:text-red disabled:text-subText-40 disabled:opacity-100"
+              >
+                <Trash size={16} />
+              </IconButton>
+            </MouseoverTooltip>
+          ) : showTxLink ? (
+            <ExternalLink
+              href={getEtherscanLink(order.chainId, txHash as string, 'transaction')}
+              data-testid="stop-order-order-tx-link"
+              className="flex size-7 items-center justify-center rounded-full text-subText hover:bg-white/10 hover:text-text hover:no-underline"
+            >
+              <LinkIcon size={15} />
+            </ExternalLink>
+          ) : (
+            <MouseoverTooltip text={t`Recreate order`} placement="top" width="fit-content">
+              <IconButton
+                onClick={recreate}
+                data-testid="stop-order-order-recreate-button"
+                className="p-0 text-primary hover:bg-white/10 hover:brightness-110"
+              >
+                <RecreateIcon className="size-4" />
+              </IconButton>
+            </MouseoverTooltip>
+          )}
+        </div>
+      </StopOrderRowWrapper>
+
+      {/* Kept mounted so it can animate both ways; `inert` keeps the hidden transaction links out of the
+          tab order while it is collapsed. */}
+      {canExpand && (
+        <div
+          inert={!expanded}
+          className={cn(
+            'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+            expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+          )}
+        >
+          <div className="min-h-0 overflow-hidden">
+            <StopOrderExecutionDetail
+              chainId={order.chainId}
+              fills={fills}
+              summary={fillSummary}
+              sellSymbol={sellCurrency?.symbol || '-'}
+              receiveSymbol={receiveCurrency?.symbol || '-'}
+              triggerPrice={Number(triggerPrice)}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default StopOrderRow

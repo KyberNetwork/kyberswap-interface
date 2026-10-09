@@ -36,7 +36,7 @@ interface TokenSelectorModalProps {
   showDiscoveryTabs?: boolean
   /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
   onSelectChain?: (chainId: ChainId) => void
-  /** List only tokens the chain's stop-loss oracle can price. */
+  /** List only tokens the chain's stop order oracle can price. */
   requireOracle?: boolean
 }
 

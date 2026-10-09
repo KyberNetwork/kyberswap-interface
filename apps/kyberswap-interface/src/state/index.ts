@@ -27,7 +27,7 @@ import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
 import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
-import stopLossApi from 'services/stopLoss'
+import stopOrderApi from 'services/stopOrder'
 import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
 import tokenCatalogApi from 'services/tokenCatalog'
@@ -47,7 +47,7 @@ import mint from 'state/mint/reducer'
 import pair from 'state/pair/reducer'
 import pools from 'state/pools/reducer'
 import profile from 'state/profile/reducer'
-import stopLoss from 'state/stopLoss/reducer'
+import stopOrder from 'state/stopOrder/reducer'
 import swap from 'state/swap/reducer'
 import tokenPrices from 'state/tokenPrices'
 import topTokens from 'state/topTokens'
@@ -89,7 +89,7 @@ const rootReducer = combineReducers({
   transactions,
   crossChainSwap,
   swap,
-  stopLoss,
+  stopOrder,
   mint,
   mintV2,
   burn,
@@ -105,7 +105,7 @@ const rootReducer = combineReducers({
   [coingeckoApi.reducerPath]: coingeckoApi.reducer,
   [contractQuery.reducerPath]: contractQuery.reducer,
   [limitOrderApi.reducerPath]: limitOrderApi.reducer,
-  [stopLossApi.reducerPath]: stopLossApi.reducer,
+  [stopOrderApi.reducerPath]: stopOrderApi.reducer,
   [externalApi.reducerPath]: externalApi.reducer,
 
   [kyberDAO.reducerPath]: kyberDAO.reducer,
@@ -146,7 +146,7 @@ const apiMiddlewares: Middleware[] = [
   externalApi,
   contractQuery,
   limitOrderApi,
-  stopLossApi,
+  stopOrderApi,
   aggregatorStatsApi,
   announcementApi,
   publicAnnouncementApi,

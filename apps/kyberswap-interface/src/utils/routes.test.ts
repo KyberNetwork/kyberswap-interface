@@ -74,8 +74,8 @@ describe('getTradeProductPath', () => {
   it.each([
     ['/limit', '/limit'],
     ['/limit/base/eth-to-usdc', '/limit'],
-    ['/stop-loss', '/stop-loss'],
-    ['/stop-loss/base/eth-to-usdc', '/stop-loss'],
+    ['/stop-order', '/stop-order'],
+    ['/stop-order/base/eth-to-usdc', '/stop-order'],
     ['/swap/base/eth-to-usdc', '/swap'],
     ['/cross-chain', '/swap'],
     ['/limited-partners', '/swap'],
@@ -90,7 +90,7 @@ describe('getSyncedNetworkPathname', () => {
     ['/buy/ethereum/wbtc', '/swap/base'],
     ['/sell/ethereum/wbtc', '/swap/base'],
     ['/limit/ethereum/eth-to-usdc', '/limit/base'],
-    ['/stop-loss/ethereum/eth-to-usdc', '/stop-loss/base'],
+    ['/stop-order/ethereum/eth-to-usdc', '/stop-order/base'],
     ['/pools/ethereum', '/pools/base'],
   ] as const)('syncs %s to %s', (pathname, expected) => {
     expect(getSyncedNetworkPathname(pathname, 'ethereum', 'base')).toBe(expected)

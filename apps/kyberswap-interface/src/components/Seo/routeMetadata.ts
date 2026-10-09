@@ -8,7 +8,7 @@ import {
   KYBER_NETWORK_TELEGRAM_URL,
   KYBER_NETWORK_TWITTER_URL,
 } from 'constants/index'
-import { MAINNET_NETWORKS, NETWORKS_INFO, isSupportLimitOrder, isSupportStopLoss } from 'constants/networks'
+import { MAINNET_NETWORKS, NETWORKS_INFO, isSupportLimitOrder, isSupportStopOrder } from 'constants/networks'
 import { SwapIntent } from 'utils/routes'
 
 // Pure route metadata shared by client-side <RouteSeo> and static trade shells.
@@ -24,7 +24,7 @@ export type RouteSeoMetadata = {
   title: string
 }
 
-export type TradeProduct = 'limit' | 'stop-loss' | 'swap'
+export type TradeProduct = 'limit' | 'stop-order' | 'swap'
 
 type SeoCopy = Pick<RouteSeoMetadata, 'title' | 'description'>
 
@@ -51,11 +51,11 @@ const LIMIT_DESCRIPTION =
   'Set a target price and your order settles on-chain automatically when the market reaches it. Gasless submission, no slippage, zero fee for placing order.'
 const DEFAULT_LIMIT_SEO_COPY: SeoCopy = { title: LIMIT_TITLE, description: LIMIT_DESCRIPTION }
 
-// Sitemap: Stop Loss - per chain
-const STOP_LOSS_TITLE = 'Stop Loss Orders | KyberSwap'
-const STOP_LOSS_DESCRIPTION =
+// Sitemap: Stop Order - per chain
+const STOP_ORDER_TITLE = 'Stop Orders | KyberSwap'
+const STOP_ORDER_DESCRIPTION =
   'Set a trigger price and KyberSwap sells automatically at the best available market price when the oracle price reaches it. Free to place, tokens stay in your wallet.'
-const DEFAULT_STOP_LOSS_SEO_COPY: SeoCopy = { title: STOP_LOSS_TITLE, description: STOP_LOSS_DESCRIPTION }
+const DEFAULT_STOP_ORDER_SEO_COPY: SeoCopy = { title: STOP_ORDER_TITLE, description: STOP_ORDER_DESCRIPTION }
 
 // Sitemap: Cross-chain and Earn
 const CROSS_CHAIN_DESCRIPTION =
@@ -107,10 +107,10 @@ const supportsLimitOrder = (networkRoute: string) => {
   return isSupportLimitOrder(chainId)
 }
 
-const supportsStopLoss = (networkRoute: string) => {
+const supportsStopOrder = (networkRoute: string) => {
   const chainId = getMainnetChainIdByRoute(networkRoute)
   if (chainId === undefined) return false
-  return isSupportStopLoss(chainId)
+  return isSupportStopOrder(chainId)
 }
 
 const getSingleSearchParam = (searchParams: URLSearchParams, key: string) => {
@@ -148,14 +148,14 @@ const getLimitSeoCopy = (networkRoute: string): SeoCopy => {
     : DEFAULT_LIMIT_SEO_COPY
 }
 
-const getStopLossSeoCopy = (networkRoute: string): SeoCopy => {
+const getStopOrderSeoCopy = (networkRoute: string): SeoCopy => {
   const networkName = getNetworkNameByRoute(networkRoute)
   return networkName
     ? {
-        title: `Stop Loss Orders - Protect Your Positions on ${networkName} | KyberSwap`,
-        description: STOP_LOSS_DESCRIPTION,
+        title: `Stop Orders - Protect Your Positions on ${networkName} | KyberSwap`,
+        description: STOP_ORDER_DESCRIPTION,
       }
-    : DEFAULT_STOP_LOSS_SEO_COPY
+    : DEFAULT_STOP_ORDER_SEO_COPY
 }
 
 const getLegacyPairCanonicalPath = (productPath: string, networkRoute: string, searchParams: URLSearchParams) => {
@@ -300,30 +300,30 @@ export const resolveRouteMetadata = (pathname: string, search: string): RouteSeo
     }
   }
 
-  // Sitemap: Stop Loss - per chain. Same pair-route policy as Limit Orders.
-  const stopLossPairMatch = matchPath(`${APP_PATHS.STOP_LOSS}/:network/:currency`, normalizedPath)
-  if (stopLossPairMatch) {
-    const networkRoute = stopLossPairMatch.params.network || 'ethereum'
+  // Sitemap: Stop Order - per chain. Same pair-route policy as Limit Orders.
+  const stopOrderPairMatch = matchPath(`${APP_PATHS.STOP_ORDER}/:network/:currency`, normalizedPath)
+  if (stopOrderPairMatch) {
+    const networkRoute = stopOrderPairMatch.params.network || 'ethereum'
     return {
-      ...getStopLossSeoCopy(networkRoute),
+      ...getStopOrderSeoCopy(networkRoute),
       canonicalPath: normalizedPath,
       jsonLd: buildSiteJsonLd(normalizedPath),
       robots: NOINDEX_ROBOTS,
     }
   }
 
-  const stopLossMatch = matchPath(`${APP_PATHS.STOP_LOSS}/:network`, normalizedPath)
-  if (stopLossMatch) {
-    const networkRoute = (stopLossMatch.params.network || 'ethereum').toLowerCase()
-    const isSupportedStopLossRoute = supportsStopLoss(networkRoute)
+  const stopOrderMatch = matchPath(`${APP_PATHS.STOP_ORDER}/:network`, normalizedPath)
+  if (stopOrderMatch) {
+    const networkRoute = (stopOrderMatch.params.network || 'ethereum').toLowerCase()
+    const isSupportedStopOrderRoute = supportsStopOrder(networkRoute)
     const canonicalPath =
-      (isSupportedStopLossRoute && getLegacyPairCanonicalPath(APP_PATHS.STOP_LOSS, networkRoute, searchParams)) ||
-      `${APP_PATHS.STOP_LOSS}/${networkRoute}`
+      (isSupportedStopOrderRoute && getLegacyPairCanonicalPath(APP_PATHS.STOP_ORDER, networkRoute, searchParams)) ||
+      `${APP_PATHS.STOP_ORDER}/${networkRoute}`
     return {
-      ...getStopLossSeoCopy(networkRoute),
+      ...getStopOrderSeoCopy(networkRoute),
       canonicalPath,
       jsonLd: buildSiteJsonLd(canonicalPath),
-      robots: !isSupportedStopLossRoute || hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      robots: !isSupportedStopOrderRoute || hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
     }
   }
 
@@ -497,7 +497,7 @@ export const resolveRouteMetadata = (pathname: string, search: string): RouteSeo
 export const resolveTradeShellMetadata = (product: TradeProduct): RouteSeoMetadata => {
   const shell = {
     limit: { copy: DEFAULT_LIMIT_SEO_COPY, canonicalPath: APP_PATHS.LIMIT },
-    'stop-loss': { copy: DEFAULT_STOP_LOSS_SEO_COPY, canonicalPath: APP_PATHS.STOP_LOSS },
+    'stop-order': { copy: DEFAULT_STOP_ORDER_SEO_COPY, canonicalPath: APP_PATHS.STOP_ORDER },
     swap: { copy: DEFAULT_SWAP_SEO_COPY, canonicalPath: APP_PATHS.SWAP },
   }[product]
 

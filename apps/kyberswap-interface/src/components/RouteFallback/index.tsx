@@ -39,7 +39,7 @@ const pickSkeleton = (rawPathname: string, insideShell: boolean) => {
 
   if (
     isSwapLikePath(pathname) ||
-    matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.STOP_LOSS, APP_PATHS.CROSS_CHAIN])
+    matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.STOP_ORDER, APP_PATHS.CROSS_CHAIN])
   ) {
     return <SwapPageSkeleton />
   }

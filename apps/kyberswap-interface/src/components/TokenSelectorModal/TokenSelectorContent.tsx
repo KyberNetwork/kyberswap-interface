@@ -121,7 +121,7 @@ interface TokenSelectorContentProps {
   /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
   onSelectChain?: (chainId: ChainId) => void
   /**
-   * List only tokens the stop-loss oracle can price, on whichever chain the selector is showing — the
+   * List only tokens the stop order oracle can price, on whichever chain the selector is showing — the
    * oracle, and so the filter that finds its feeds, comes from that chain's oracle config.
    */
   requireOracle?: boolean
@@ -1158,7 +1158,7 @@ export const TokenSelectorContent = ({
   // Every list in oracle-only mode is screened, so an empty one — searched or not — is down to the
   // filter, and says so instead of naming the tab.
   const emptyMessage = requireOracle ? (
-    <Trans>No supported tokens found. Stop-loss only supports tokens with an oracle price feed.</Trans>
+    <Trans>No supported tokens found. Stop orders only support tokens with an oracle price feed.</Trans>
   ) : debouncedQuery ? undefined : activeTab === TokenSelectorTab.Trending ? (
     <Trans>No trending tokens right recently. Check back later.</Trans>
   ) : activeTab === TokenSelectorTab.New ? (
@@ -1235,7 +1235,7 @@ export const TokenSelectorContent = ({
           >
             <Info size={14} className="mt-px shrink-0" />
             <span>
-              <Trans>Only tokens with an oracle price feed are shown. Stop-loss triggers on that price.</Trans>
+              <Trans>Only tokens with an oracle price feed are shown. Stop orders trigger on that price.</Trans>
             </span>
           </HStack>
         )}

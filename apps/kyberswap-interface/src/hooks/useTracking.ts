@@ -159,7 +159,7 @@ export enum TRACKING_EVENT_TYPE {
   ANNOUNCEMENT_CLICK_CTA_POPUP,
   ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
 
-  // Stop Loss
+  // Stop Order
   SL_PAGE_VIEWED,
   SL_TOKEN_SELECTED,
   SL_REVIEW_OPENED,
@@ -1241,31 +1241,31 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRACKING_EVENT_TYPE.SL_PAGE_VIEWED: {
-          formoTrack('Stop Loss - Sub Tab Opened', payload)
+          formoTrack('Stop Order - Sub Tab Opened', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SL_TOKEN_SELECTED: {
-          formoTrack('Stop Loss - Token Selected', payload)
+          formoTrack('Stop Order - Token Selected', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SL_REVIEW_OPENED: {
-          formoTrack('Stop Loss - Review Opened', payload)
+          formoTrack('Stop Order - Review Opened', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SL_ORDER_PLACED: {
-          formoTrack('Stop Loss - Order Placed', payload)
+          formoTrack('Stop Order - Order Placed', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SL_ORDER_CANCELLED: {
-          formoTrack('Stop Loss - Order Cancelled', payload)
+          formoTrack('Stop Order - Order Cancelled', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SL_RECREATE_CLICKED: {
-          formoTrack('Stop Loss - Recreate Clicked', payload)
+          formoTrack('Stop Order - Recreate Clicked', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SL_INELIGIBLE_TOKEN: {
-          formoTrack('Stop Loss - Ineligible Token', payload)
+          formoTrack('Stop Order - Ineligible Token', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SL_EXIT_PRICE_ENTRY_CLICKED: {
