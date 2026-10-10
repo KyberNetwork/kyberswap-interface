@@ -5,10 +5,12 @@ import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import {
   BaseSwapAdapter,
+  BitcoinToken,
   Chain,
   Currency,
   EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
@@ -37,8 +39,12 @@ export class BungeeAdapter extends BaseSwapAdapter {
     ]
   }
 
-  canSupport(_category: string, tokenIn?: Currency, _tokenOut?: Currency): boolean {
-    // Bungee only supports EVM tokens, so check if it has chainId
+  canSupport(_category: string, tokenIn?: Currency, tokenOut?: Currency): boolean {
+    if (tokenIn === BitcoinToken) {
+      return !!tokenOut && 'chainId' in tokenOut && MAINNET_NETWORKS.includes(tokenOut.chainId)
+    }
+
+    // Other source tokens must be on EVM chains.
     if (!tokenIn || !('chainId' in tokenIn) || !tokenIn.chainId) return false
 
     const isWrappedTokenIn = isWrappedToken(tokenIn)
@@ -52,7 +58,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
   }
 
   getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS]
+    return [...MAINNET_NETWORKS, NonEvmChain.Bitcoin]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -60,6 +66,10 @@ export class BungeeAdapter extends BaseSwapAdapter {
   }
 
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
+    if (params.fromChain === NonEvmChain.Bitcoin || params.toChain === NonEvmChain.Bitcoin) {
+      throw new Error('Use the aggregator stream API for Socket Bitcoin quotes')
+    }
+
     const quoteParams: SocketQuoteParams = {
       userAddress: params.sender,
       originChainId: params.fromChain.toString(),
@@ -115,11 +125,16 @@ export class BungeeAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(
+    { quote }: Quote,
+    walletClient: WalletClient | undefined,
+    _nearWallet?: unknown,
+    sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+  ): Promise<NormalizedTxResponse> {
     const route = getSocketTxRoute(quote.rawQuote as SocketQuoteResult)
-    const txData = route?.txData?.object
+    const txData = route?.txData
 
-    if (!txData?.to || !txData?.data || !route?.quoteId) {
+    if (!txData?.object || !route?.quoteId) {
       throw new Error('Missing Bungee transaction data')
     }
 
@@ -136,15 +151,38 @@ export class BungeeAdapter extends BaseSwapAdapter {
       timestamp: new Date().getTime(),
     }
 
-    const account = walletClient.account?.address
-    if (!account) throw new Error('WalletClient account is not defined')
-    const hash = await walletClient.sendTransaction({
-      to: txData.to,
-      value: BigInt(txData.value || '0'),
-      data: txData.data,
-      chain: undefined,
-      account,
-    })
+    let hash: string
+    if (quote.quoteParams.fromChain === NonEvmChain.Bitcoin) {
+      if (txData.kind !== 'btc_deposit') throw new Error('Missing Socket Bitcoin deposit data')
+      const { depositAddress, amount, chainId } = txData.object
+      if (
+        chainId !== 8253038 ||
+        !depositAddress ||
+        !amount ||
+        !/^\d+$/.test(amount) ||
+        BigInt(amount) <= 0n ||
+        BigInt(amount) !== BigInt(quote.quoteParams.amount)
+      ) {
+        throw new Error('Invalid Socket Bitcoin deposit data')
+      }
+      if (!sendBtcFn) throw new Error('Bitcoin wallet is not connected')
+
+      // Socket returns the deposit amount in satoshis, as expected by the Bitcoin wallet.
+      hash = await sendBtcFn({ recipient: depositAddress, amount })
+    } else {
+      if (txData.kind && txData.kind !== 'evm_tx') throw new Error('Unsupported Socket transaction type')
+      const { to, data, value } = txData.object
+      if (!to || !data) throw new Error('Missing Bungee transaction data')
+      const account = walletClient?.account?.address
+      if (!walletClient || !account) throw new Error('WalletClient account is not defined')
+      hash = await walletClient.sendTransaction({
+        to,
+        value: BigInt(value || '0'),
+        data,
+        chain: undefined,
+        account,
+      })
+    }
 
     return {
       ...params,
