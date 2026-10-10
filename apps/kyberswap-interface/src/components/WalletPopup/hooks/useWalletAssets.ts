@@ -1,6 +1,8 @@
-import { Currency, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
+import { ETHER_ADDRESS } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -17,6 +19,8 @@ const EMPTY_HIDDEN: WrappedTokenInfo[] = []
 
 export type WalletAssets = {
   loading: boolean
+  /** The native balance the inventory holds, for the row to show until a fresher read lands. */
+  nativeBalance?: CurrencyAmount<Currency>
   /** Vetted holdings (whitelisted or imported), highest USD value first. */
   currencies: Currency[]
   currencyBalances: { [address: string]: TokenAmount | undefined }
@@ -37,9 +41,9 @@ export type WalletAssets = {
 export const useWalletAssets = (): WalletAssets => {
   const { chainId } = useActiveWeb3React()
   const inventory = useWalletInventory()
-  // The multicall hook answers until the inventory can. A wallet is walked page by page, and the
-  // popup shows balances from the first read rather than from the end of that walk.
-  const legacy = useTokensHasBalance(true, !inventory.active)
+  // The multicall hook answers only once the inventory has said it cannot; while the first walk is in
+  // flight the popup waits for it rather than sweeping the whole whitelist behind it.
+  const legacy = useTokensHasBalance(true, !inventory.active && !inventory.pending)
 
   const defaultTokens = useAllTokens()
   const tokenImports = useUserAddedTokens()
@@ -95,11 +99,15 @@ export const useWalletAssets = (): WalletAssets => {
         impersonators: EMPTY_DISCOVERIES.impersonators,
       }
     }
+    const nativeRow = inventory.rows[ETHER_ADDRESS]
+    const native = NativeCurrencies[chainId] as Currency | undefined
     return {
       loading: !tokenListReady,
       currencies: ranked.currencies,
       currencyBalances: holdings.currencyBalances,
       usdBalances: prices,
+      nativeBalance:
+        nativeRow && native ? CurrencyAmount.fromRawAmount(native, nativeRow.rawBalance.toString()) : undefined,
       // Null while prices are still on their way, so the header keeps its placeholder instead of
       // printing $0 and then jumping.
       totalBalanceInUsd: pricesLoading && holdings.vetted.length ? null : ranked.totalBalanceInUsd,
@@ -108,6 +116,8 @@ export const useWalletAssets = (): WalletAssets => {
     }
   }, [
     inventory.active,
+    inventory.rows,
+    chainId,
     tokenListReady,
     pricesLoading,
     legacyLoading,
