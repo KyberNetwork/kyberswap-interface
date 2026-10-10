@@ -1,0 +1,267 @@
+import { type HTMLAttributes } from 'react'
+import { Link } from 'react-router-dom'
+import type { AgentCard } from 'services/copyTrading/types/agents'
+import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/primitives'
+
+import { ButtonLight, ButtonPrimary } from 'components/Button'
+import ScrollArea from 'components/ScrollArea'
+import { Stack } from 'components/Stack'
+import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCardGrid,
+  TableCell,
+  TableHeader,
+  TableRow,
+  TableRowLink,
+} from 'pages/CopyTrading/components/Table'
+import { AgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
+import {
+  compactUsd,
+  formatCount,
+  getPreparedReasonMessage,
+  getSignedMetricClassName,
+  getWinRateClassName,
+  percent,
+} from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
+import { cn } from 'utils/cn'
+
+type LeaderboardGridProps = HTMLAttributes<HTMLDivElement> & {
+  header?: boolean
+}
+
+type AgentTableProps = {
+  agents: AgentCard[]
+  loading?: boolean
+  pagination: CursorPaginationState
+  sortBy?: LeaderboardSortBy
+  sortOrder?: SortOrder
+  onSortChange: (sortBy: LeaderboardSortBy) => void
+}
+
+const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) => {
+  const Grid = header ? TableHeader : TableRow
+
+  return (
+    <Grid
+      className={cn(
+        'min-w-[1024px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.8fr)]',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
+  const { chains, ownerAddress } = useCopyTradingContext()
+  const { openStartCopy } = useCopyTradingModal()
+
+  return (
+    <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
+      <ScrollArea className="relative hidden max-h-[480px] lg:block">
+        <LeaderboardGrid header className="sticky top-0 z-[1]">
+          <HeaderCell>Agent</HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="roi_pct"
+            sortOrder={sortOrder}
+          >
+            ROI
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="win_rate_pct"
+            sortOrder={sortOrder}
+          >
+            Win Rates
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="volume_usd"
+            sortOrder={sortOrder}
+          >
+            Volume
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="copiers"
+            sortOrder={sortOrder}
+          >
+            Copiers
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="aum_usd"
+            sortOrder={sortOrder}
+          >
+            AUM
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="open_positions"
+            sortOrder={sortOrder}
+          >
+            Position
+          </HeaderCell>
+          <HeaderCell className="justify-end text-right" />
+        </LeaderboardGrid>
+
+        <TableBody
+          className="min-w-[1024px]"
+          empty={!agents.length}
+          emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
+          emptyMessage={pagination.error ? 'Unable to load agents' : 'No agents found'}
+          loading={loading}
+        >
+          {agents.map(agent => {
+            const myCopyRunId = ownerAddress ? agent.myCopyRunId : undefined
+            const { canStart: canStartCopy, reason: unavailableReason } = resolveStartCopyEligibility(
+              chains.find(chain => chain.chainId === agent.chainId),
+              agent,
+            )
+
+            return (
+              <LeaderboardGrid key={agent.agentId} className="relative cursor-pointer">
+                <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId)} />
+                <AgentCell agent={agent} className="px-3 py-2" />
+                <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.roiPct))}>
+                  {percent(agent.stats.roiPct)}
+                </TableCell>
+                <TableCell className={cn('text-right', getWinRateClassName(agent.stats.winRatePct))}>
+                  {percent(agent.stats.winRatePct)}
+                </TableCell>
+                <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
+                <TableCell className="text-right">{formatCount(agent.stats.copiers)}</TableCell>
+                <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
+                <TableCell className="text-right">{formatCount(agent.stats.openPositions)}</TableCell>
+                <TableCell className="flex items-center justify-center">
+                  {myCopyRunId ? (
+                    <ButtonLight
+                      as={Link}
+                      to={copyTradingPath('my-copies/' + myCopyRunId)}
+                      padding="6px 12px"
+                      className="w-fit whitespace-nowrap"
+                    >
+                      My Copy
+                    </ButtonLight>
+                  ) : (
+                    <div>
+                      <ButtonPrimary
+                        type="button"
+                        altDisabledStyle
+                        padding="6px 12px"
+                        disabled={!canStartCopy}
+                        title={!canStartCopy ? getPreparedReasonMessage(unavailableReason) : undefined}
+                        onClick={() => openStartCopy(agent)}
+                      >
+                        Copy
+                      </ButtonPrimary>
+                    </div>
+                  )}
+                </TableCell>
+              </LeaderboardGrid>
+            )
+          })}
+        </TableBody>
+      </ScrollArea>
+
+      <TableBody
+        className="grid gap-2 bg-transparent lg:hidden"
+        empty={!agents.length}
+        emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
+        emptyMessage={pagination.error ? 'Unable to load agents' : 'No agents found'}
+        loading={loading}
+      >
+        {agents.map(agent => {
+          const myCopyRunId = ownerAddress ? agent.myCopyRunId : undefined
+          const { canStart: canStartCopy, reason: unavailableReason } = resolveStartCopyEligibility(
+            chains.find(chain => chain.chainId === agent.chainId),
+            agent,
+          )
+
+          return (
+            <Stack
+              key={agent.agentId}
+              className="relative cursor-pointer gap-0 overflow-hidden rounded-xl bg-buttonBlack outline-none transition-colors hover:bg-primary-10"
+            >
+              <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId)} />
+              <div className="flex items-center gap-3 p-3">
+                <AgentCell agent={agent} className="flex-1 gap-3" />
+                {myCopyRunId ? (
+                  <ButtonLight
+                    as={Link}
+                    to={copyTradingPath('my-copies/' + myCopyRunId)}
+                    padding="6px 12px"
+                    className="w-fit shrink-0 whitespace-nowrap"
+                  >
+                    My Copy
+                  </ButtonLight>
+                ) : (
+                  <ButtonPrimary
+                    type="button"
+                    altDisabledStyle
+                    padding="6px 12px"
+                    className="w-fit shrink-0 whitespace-nowrap"
+                    disabled={!canStartCopy}
+                    title={!canStartCopy ? getPreparedReasonMessage(unavailableReason) : undefined}
+                    onClick={() => openStartCopy(agent)}
+                  >
+                    Copy
+                  </ButtonPrimary>
+                )}
+              </div>
+
+              <TableCardGrid className="border-t border-tableHeader p-3">
+                <TableCardField label="ROI" valueClassName={getSignedMetricClassName(agent.stats.roiPct)}>
+                  {percent(agent.stats.roiPct)}
+                </TableCardField>
+                <TableCardField
+                  align="right"
+                  label="Win Rate"
+                  valueClassName={getWinRateClassName(agent.stats.winRatePct)}
+                >
+                  {percent(agent.stats.winRatePct)}
+                </TableCardField>
+                <TableCardField label="Volume">{compactUsd(agent.stats.volumeUsd)}</TableCardField>
+                <TableCardField align="right" label="Copiers">
+                  {formatCount(agent.stats.copiers)}
+                </TableCardField>
+                <TableCardField label="AUM">{compactUsd(agent.stats.aumUsd)}</TableCardField>
+                <TableCardField align="right" label="Positions">
+                  {formatCount(agent.stats.openPositions)}
+                </TableCardField>
+              </TableCardGrid>
+            </Stack>
+          )
+        })}
+      </TableBody>
+
+      <div className="overflow-hidden rounded-xl lg:rounded-none">
+        <CursorPagination {...pagination} />
+      </div>
+    </Stack>
+  )
+}
+
+export default AgentTable

@@ -238,7 +238,6 @@ export default function ClaimAllModal({
                         data-open={isSelected ? 'true' : 'false'}
                         data-signal={chain.tokens.length > 5 ? 'true' : 'false'}
                         showArrow
-                        showBackground
                       >
                         {[...chain.tokens]
                           .filter(token => token.claimableUsdValue > 0)
@@ -301,7 +300,6 @@ export default function ClaimAllModal({
               <FilteredChainTokens
                 data-open={selectedChainExpanded ? 'true' : 'false'}
                 data-signal={selectedRewardChain.tokens.length > 5 ? 'true' : 'false'}
-                showBackground
               >
                 {[...selectedRewardChain.tokens]
                   .filter(token => token.claimableUsdValue > 0)

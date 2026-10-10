@@ -50,6 +50,7 @@ const Consent = lazy(() => import('pages/Oauth/Consent'))
 
 const ElasticSnapshot = lazy(() => import('pages/ElasticSnapshot'))
 const MarketOverview = lazy(() => import('pages/MarketOverview'))
+const CopyTrading = lazy(() => import('pages/CopyTrading'))
 
 const PartnerSwap = lazy(() => import('pages/PartnerSwap'))
 const MyPool = lazy(() => import('pages/MyPool'))
@@ -214,6 +215,7 @@ export default function App() {
   useGlobalTrackingEvents()
 
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
+  const isFullPage = pathname.includes(APP_PATHS.COPY_TRADING)
 
   return (
     <ErrorBoundary>
@@ -341,6 +343,7 @@ export default function App() {
 
               <Route path={LEGACY_POOL_APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
+              <Route path={`${APP_PATHS.COPY_TRADING}/*`} element={<CopyTrading />} />
 
               <Route path={APP_PATHS.SAFEPAL_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.RAFFLE_CAMPAIGN} element={<Campaign />} />
@@ -374,7 +377,7 @@ export default function App() {
               <Route path="*" element={<RedirectPathToTradeNetwork />} />
             </Routes>
           </BodyWrapper>
-          {showFooter && <Footer />}
+          {!isFullPage && showFooter && <Footer />}
         </Suspense>
       </AppWrapper>
     </ErrorBoundary>
