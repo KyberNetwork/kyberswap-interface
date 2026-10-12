@@ -1,11 +1,11 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useState } from 'react'
-import { ExternalLink as LinkIcon, Trash } from 'react-feather'
+import { ExternalLink as LinkIcon, Repeat, Trash } from 'react-feather'
 
 import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stop_order_recreate.svg'
 import IconButton from 'components/Button/IconButton'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import { StopOrderRowLayout, StopOrderRowWrapper } from 'components/StopOrder/MyOrders/TableHeader'
 import {
   AmountCell,
@@ -32,6 +32,7 @@ import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
+import { formatSlippage } from 'utils/slippage'
 
 type Props = {
   order: StopOrder
@@ -116,6 +117,8 @@ const StopOrderRow = ({
   // An executed row only has a story to tell once its fills carry both their prices and what they received.
   const canExpand = isExecuted && executionPrice !== undefined && receivedAmount !== undefined
   const [expanded, setExpanded] = useState(false)
+  // Display only: the trigger and distance stay in the order's own direction.
+  const [isPriceInverted, setIsPriceInverted] = useState(false)
   const recreate = () => onRecreate(order, sellCurrencyAmount?.toExact() ?? '')
 
   return (
@@ -165,12 +168,14 @@ const StopOrderRow = ({
             <SkeletonLine width={80} />
           </div>
         ) : (
-          <span
-            className="truncate text-sm font-medium text-blue3 max-sm:hidden"
-            data-testid="stop-order-order-trigger-price"
-          >
-            {formatPairPrice(triggerPrice, receiveCurrency?.symbol)}
-          </span>
+          <Stack className="min-w-0 gap-0.5 font-medium max-sm:hidden">
+            <span className="truncate text-sm text-blue3" data-testid="stop-order-order-trigger-price">
+              {formatPairPrice(triggerPrice, receiveCurrency?.symbol)}
+            </span>
+            <span className="truncate text-xs text-subText" data-testid="stop-order-order-slippage">
+              {formatSlippage(order.slippage)}
+            </span>
+          </Stack>
         )}
 
         {isActiveTab ? (
@@ -180,15 +185,28 @@ const StopOrderRow = ({
               {isPairLoading ? (
                 <SkeletonLine size="xs" width={64} />
               ) : (
-                <span className="truncate text-xs text-subText">
-                  {sellCurrency?.symbol || '-'}/{receiveCurrency?.symbol || '-'}
-                </span>
+                <HStack className="min-w-0 items-center gap-1 text-xs text-subText">
+                  <span className="truncate">
+                    {isPriceInverted
+                      ? `${receiveCurrency?.symbol || '-'}/${sellCurrency?.symbol || '-'}`
+                      : `${sellCurrency?.symbol || '-'}/${receiveCurrency?.symbol || '-'}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsPriceInverted(inverted => !inverted)}
+                    aria-label={t`Invert price`}
+                    data-testid="stop-order-order-invert-price"
+                    className="flex shrink-0 cursor-pointer items-center border-0 bg-transparent p-0 text-subText hover:text-text"
+                  >
+                    <Repeat size={12} />
+                  </button>
+                </HStack>
               )}
               {isCurrentPriceLoading ? (
                 <SkeletonLine width={56} />
               ) : (
-                <span className="truncate text-sm text-text" data-testid="stop-order-order-current-price">
-                  {formatPairPrice(currentPrice)}
+                <span className="truncate text-sm text-primary" data-testid="stop-order-order-current-price">
+                  {formatPairPrice(isPriceInverted && currentPrice ? 1 / currentPrice : currentPrice)}
                 </span>
               )}
             </Stack>

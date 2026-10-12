@@ -56,8 +56,13 @@ const StopOrderTableHeader = ({ isActiveTab }: { isActiveTab?: boolean }) => (
     <span className="max-sm:col-start-3 max-sm:justify-self-end max-sm:text-right">
       <Trans>Sell Amount</Trans>
     </span>
-    <span className="max-sm:hidden">
-      <Trans>Trigger Price</Trans>
+    <span className="flex flex-col gap-0.5 max-sm:hidden">
+      <span>
+        <Trans>Trigger Price</Trans>
+      </span>
+      <span className="font-normal normal-case tracking-normal">
+        <Trans>Slippage</Trans>
+      </span>
     </span>
     {isActiveTab ? (
       <>
