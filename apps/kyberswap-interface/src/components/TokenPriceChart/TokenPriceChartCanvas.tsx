@@ -14,10 +14,12 @@ import {
   type UTCTimestamp,
   createChart,
 } from 'lightweight-charts'
-import { type MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type MutableRefObject, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
 import { type TokenChartTimeFrame } from 'services/tokenChart'
 
+import { ScrollIndicator } from 'components/DropdownMenu/styles'
 import { Stack } from 'components/Stack'
 import {
   type MarkerCluster,
@@ -398,6 +400,54 @@ const PriceChartTooltip = ({
 }
 
 /**
+ * The details panel's list, with arrows at its ends when there is more to scroll to — the same hint
+ * the dropdown menus give, so a cut-off list reads as a list rather than as everything there is.
+ */
+const MarkerDetailsList = ({ children, contentKey }: { children: ReactNode; contentKey: string }) => {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollUp, setCanScrollUp] = useState(false)
+  const [canScrollDown, setCanScrollDown] = useState(false)
+
+  const updateScrollIndicators = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    setCanScrollUp(el.scrollTop > 0)
+    setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1)
+  }, [])
+
+  // Measured after layout, and again whenever the panel switches to another group of lines.
+  useEffect(() => {
+    const frame = requestAnimationFrame(updateScrollIndicators)
+    return () => cancelAnimationFrame(frame)
+  }, [contentKey, updateScrollIndicators])
+
+  const scrollBy = (direction: 'up' | 'down') =>
+    scrollRef.current?.scrollBy({ top: direction === 'up' ? -100 : 100, behavior: 'smooth' })
+
+  return (
+    <>
+      <ScrollIndicator
+        $visible={canScrollUp}
+        onClick={() => scrollBy('up')}
+        data-testid="price-marker-details-scroll-up"
+      >
+        <ChevronUp size={16} />
+      </ScrollIndicator>
+      <div ref={scrollRef} onScroll={updateScrollIndicators} className="min-h-0 flex-1 overflow-y-auto px-3 py-2.5">
+        {children}
+      </div>
+      <ScrollIndicator
+        $visible={canScrollDown}
+        onClick={() => scrollBy('down')}
+        data-testid="price-marker-details-scroll-down"
+      >
+        <ChevronDown size={16} />
+      </ScrollIndicator>
+    </>
+  )
+}
+
+/**
  * The tags and details drawn over the marker lines. The lines themselves are price lines on the
  * series; this layer only adds what a canvas line cannot carry — a label on the line, details on
  * hover or tap, and counts for markers outside the visible price range.
@@ -478,7 +528,7 @@ const PriceMarkerLayer = ({
           onMouseLeave={scheduleClose}
           // Grows out of the pill it belongs to, from whichever side it opens on.
           className={cn(
-            'absolute z-[3] overflow-y-auto rounded-xl border border-border bg-tableHeader px-3 py-2.5 shadow-lg motion-reduce:animate-none',
+            'absolute z-[3] flex flex-col overflow-hidden rounded-xl border border-border bg-tableHeader shadow-lg motion-reduce:animate-none',
             opensBelow ? 'origin-top-right animate-dropdownIn' : 'origin-bottom-right animate-dropupIn',
           )}
           style={{
@@ -489,7 +539,9 @@ const PriceMarkerLayer = ({
               : { bottom: chartHeight - openCluster.y + DETAILS_OFFSET_PX }),
           }}
         >
-          {overlay.renderDetails(openCluster.ids)}
+          <MarkerDetailsList contentKey={clusterKey(openCluster)}>
+            {overlay.renderDetails(openCluster.ids)}
+          </MarkerDetailsList>
         </div>
       )}
 
