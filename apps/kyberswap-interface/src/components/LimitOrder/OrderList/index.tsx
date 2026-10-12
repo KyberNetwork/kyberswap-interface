@@ -7,10 +7,10 @@ import { useGetListOrdersQuery, useGetNumberOfInsufficientFundOrdersQuery } from
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
 import OrderBook from 'components/LimitOrder/OrderBook'
+import LimitOrderPriceChart from 'components/LimitOrder/PriceChart'
 import { getInitialListOrdersArgs, useSupportedLimitOrderChains } from 'components/LimitOrder/listOrdersArgs'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
-import TokenPriceChart from 'components/TokenPriceChart'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -172,7 +172,9 @@ const OrderList = () => {
           </>
         )}
         {currentTab === LimitOrderTab.MY_ORDER && <MyOrders />}
-        {currentTab === LimitOrderTab.PRICE && <TokenPriceChart flatten tokens={[currencyIn, currencyOut]} />}
+        {currentTab === LimitOrderTab.PRICE && (
+          <LimitOrderPriceChart currencyIn={currencyIn} currencyOut={currencyOut} />
+        )}
       </Stack>
     </Stack>
   )
