@@ -49,7 +49,10 @@ const FieldWarning = ({
   children: ReactNode
   onViewSupportedTokens?: () => void
 }) => (
-  <HStack className="items-start gap-1.5 text-xs font-medium text-warning" data-testid="stop-order-field-warning">
+  <HStack
+    className="animate-[fadeIn_0.2s_ease-out_both] items-start gap-1.5 text-xs font-medium text-warning motion-reduce:animate-none"
+    data-testid="stop-order-field-warning"
+  >
     <AlertTriangle size={14} className="mt-px shrink-0" />
     <Stack className="gap-0.5">
       <span>{children}</span>
@@ -295,7 +298,15 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
         {validation.formWarnings.length > 0 && (
           <Stack className="gap-3" data-testid="stop-order-warnings">
             {validation.formWarnings.map((warning, index) => (
-              <ErrorWarning type={warning.type} key={index} title={warning.message} dataTestId="stop-order-warning" />
+              <ErrorWarning
+                type={warning.type}
+                key={index}
+                title={warning.message}
+                dataTestId="stop-order-warning"
+                // Fades in when it appears; keyed by position, so a message that changes while the user
+                // types updates in place instead of flashing again.
+                className="animate-[fadeIn_0.2s_ease-out_both] motion-reduce:animate-none"
+              />
             ))}
           </Stack>
         )}

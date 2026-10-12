@@ -38,7 +38,7 @@ export const StopOrderTabSelector = ({
       aria-selected={isActiveTab}
       onClick={() => onChange(true)}
       className={cn(
-        'cursor-pointer border-0 border-r border-darkBorder bg-transparent pr-3',
+        'cursor-pointer border-0 border-r border-darkBorder bg-transparent pr-3 transition-colors',
         isActiveTab ? 'text-primary' : 'text-subText hover:text-text',
       )}
     >
@@ -50,7 +50,7 @@ export const StopOrderTabSelector = ({
       aria-selected={!isActiveTab}
       onClick={() => onChange(false)}
       className={cn(
-        'cursor-pointer border-0 bg-transparent pl-3',
+        'cursor-pointer border-0 bg-transparent pl-3 transition-colors',
         !isActiveTab ? 'text-primary' : 'text-subText hover:text-text',
       )}
     >
@@ -74,7 +74,7 @@ export const CancelAllButton = ({ onClick }: { onClick: () => void }) => (
     type="button"
     onClick={onClick}
     data-testid="stop-order-cancel-all-button"
-    className="flex w-fit cursor-pointer items-center gap-1.5 rounded-[10px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text"
+    className="flex w-fit animate-[fadeIn_0.2s_ease-out_both] cursor-pointer items-center gap-1.5 rounded-[10px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text motion-reduce:animate-none"
   >
     <Trash size={14} />
     <Trans>Cancel All</Trans>
@@ -144,7 +144,7 @@ export const StopOrderEmptyOrders = ({
 }) => (
   <Stack
     className={cn(
-      'min-h-[220px] items-center justify-center gap-2 text-sm font-medium',
+      'min-h-[220px] animate-[fadeIn_0.2s_ease-out_both] items-center justify-center gap-2 text-sm font-medium motion-reduce:animate-none',
       isError ? 'text-warning' : 'text-subText',
     )}
     data-testid={isError ? 'stop-order-orders-error' : 'stop-order-no-orders'}
@@ -326,7 +326,7 @@ export const AmountCell = ({
 )
 
 /** The colour a trigger distance takes, in the order list and on the form alike. */
-export const triggerProximityText = cva('', {
+export const triggerProximityText = cva('transition-colors duration-200', {
   variants: {
     proximity: {
       far: 'text-green2',

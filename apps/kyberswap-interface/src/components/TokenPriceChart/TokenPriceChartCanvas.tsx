@@ -476,7 +476,11 @@ const PriceMarkerLayer = ({
           data-price-marker-layer
           onMouseEnter={() => open(clusterKey(openCluster))}
           onMouseLeave={scheduleClose}
-          className="absolute z-[3] overflow-y-auto rounded-xl border border-border bg-tableHeader px-3 py-2.5 shadow-lg"
+          // Grows out of the pill it belongs to, from whichever side it opens on.
+          className={cn(
+            'absolute z-[3] overflow-y-auto rounded-xl border border-border bg-tableHeader px-3 py-2.5 shadow-lg motion-reduce:animate-none',
+            opensBelow ? 'origin-top-right animate-dropdownIn' : 'origin-bottom-right animate-dropupIn',
+          )}
           style={{
             right,
             maxHeight: Math.max(opensBelow ? spaceBelow : spaceAbove, 0),

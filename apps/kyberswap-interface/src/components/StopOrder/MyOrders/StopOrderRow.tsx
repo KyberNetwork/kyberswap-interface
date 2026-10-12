@@ -41,6 +41,8 @@ type Props = {
   /** The USD prices this row reads are still loading. */
   isPriceLoading?: boolean
   isCancelling: boolean
+  /** Position on the page, which staggers the rows' entrance. */
+  rowIndex?: number
   onCancel: (order: StopOrder) => void
   /** `sellAmount` is exact, not the rounded display figure — it goes straight back into the form. */
   onRecreate: (order: StopOrder, sellAmount: string) => void
@@ -56,7 +58,16 @@ const formatPairPrice = (value: number | string | undefined, quoteSymbol?: strin
   return quoteSymbol ? `${amount} ${quoteSymbol}` : amount
 }
 
-const StopOrderRow = ({ order, isActiveTab, priceUsd, isPriceLoading, isCancelling, onCancel, onRecreate }: Props) => {
+const StopOrderRow = ({
+  order,
+  isActiveTab,
+  priceUsd,
+  isPriceLoading,
+  isCancelling,
+  rowIndex = 0,
+  onCancel,
+  onRecreate,
+}: Props) => {
   const { currency: sellCurrency, isLoading: isSellLoading } = useCurrencyV2WithLoading(order.tokenIn, order.chainId)
   const { currency: receiveCurrency, isLoading: isReceiveLoading } = useCurrencyV2WithLoading(
     order.tokenOut,
@@ -113,11 +124,21 @@ const StopOrderRow = ({ order, isActiveTab, priceUsd, isPriceLoading, isCancelli
       data-testid="stop-order-order-row"
       data-order-id={order.id}
       data-chain-id={order.chainId}
-      className={cn('transition-colors duration-200', expanded && canExpand && 'bg-raisedBlack')}
+      // Rows rise in one after another when they first mount — a new page, tab or filter — and keep
+      // still through the 10s poll, which updates them in place. The delay is capped so a full page has
+      // landed within 0.6s.
+      className={cn(
+        // `duration-*` also sets the animation's length under tailwindcss-animate, so the background
+        // transition takes its 200ms from a plain property instead.
+        'animate-[fadeInUp_0.3s_ease-out_both] transition-colors [transition-duration:200ms] motion-reduce:animate-none',
+        expanded && canExpand && 'bg-raisedBlack',
+      )}
+      style={{ animationDelay: `${Math.min(rowIndex * 50, 300)}ms` }}
     >
+      {/* Dimmed on the grid, not the row: the entrance animation holds the row's own opacity. */}
       <StopOrderRowWrapper
         layout={isActiveTab ? StopOrderRowLayout.ACTIVE : StopOrderRowLayout.HISTORY}
-        className="min-h-14 px-4 py-2"
+        className={cn('min-h-14 px-4 py-2 transition-opacity duration-200', isCancelling && 'opacity-50')}
       >
         <ChainCell chainId={order.chainId} />
 

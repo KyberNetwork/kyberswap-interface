@@ -211,6 +211,11 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(-6px) scale(0.97)' },
           to: { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
+        // The same enter for a popover that opens above its anchor, so it rises toward it instead.
+        dropupIn: {
+          from: { opacity: '0', transform: 'translateY(6px) scale(0.97)' },
+          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
         // Push-navigation enter: a detail panel fades in with a short nudge from the right (paired with
         // a "←" back). Kept to a few pixels — travelling the full panel width janks on slow devices.
         slideInRight: {
@@ -236,6 +241,7 @@ const config: Config = {
         'highlight-warning': 'highlight-warning 2s infinite alternate ease-in-out',
         'token-info-glow': 'token-info-glow 1.5s ease-in-out infinite',
         dropdownIn: 'dropdownIn 0.15s ease-out',
+        dropupIn: 'dropupIn 0.15s ease-out',
         slideInRight: 'slideInRight 0.15s ease-out',
         slideOutRight: 'slideOutRight 0.12s ease-in forwards',
       },

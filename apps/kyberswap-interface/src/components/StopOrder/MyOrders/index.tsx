@@ -283,10 +283,11 @@ const StopOrders = () => {
       <div className="relative min-h-20" data-testid="stop-order-order-list">
         <RefetchIndicator visible={isFetching && !isInitialLoading} />
         {isInitialLoading && <StopOrderRowsSkeleton isActiveTab={isActiveTab} />}
-        {orders.map(order => (
+        {orders.map((order, index) => (
           <StopOrderRow
             key={order.id}
             order={order}
+            rowIndex={index}
             isActiveTab={isActiveTab}
             priceUsd={order.chainId === priceChainId ? priceUsd : undefined}
             isPriceLoading={order.chainId === priceChainId && isPriceLoading}
