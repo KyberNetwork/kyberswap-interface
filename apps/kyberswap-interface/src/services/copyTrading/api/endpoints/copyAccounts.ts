@@ -55,14 +55,14 @@ const copyAccountApi = copyTradingBaseApi.injectEndpoints({
       providesTags: ['CopyTrading'],
     }),
     getPendingSellObligations: builder.query<PendingSellObligationsResponse, PendingSellObligationsQuery>({
-      query: ({ chainId, copyAccount, userPositionId, cursor, limit }) => ({
+      query: ({ chainId, copyAccount, positionId, cursor, limit }) => ({
         url:
           '/copy-accounts/' +
           pathPart(chainId) +
           '/' +
           pathPart(copyAccount) +
           '/positions/' +
-          pathPart(userPositionId) +
+          pathPart(positionId) +
           '/pending-sell-obligations',
         params: cleanParams({ cursor, limit }),
       }),

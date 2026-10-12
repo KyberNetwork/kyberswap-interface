@@ -309,7 +309,7 @@ describe('position model boundaries', () => {
           positionId: 'leader-position-1',
           agentId: 'agent-1',
           lifecycle: 'POSITION_LIFECYCLE_ACTIVE',
-          userPositionId: 'follower-position-1',
+          copyRunId: 'follower-run-1',
           positionPnlUsd: { value: '4.2', status: 'METRIC_STATUS_CURRENT' },
           actionKind: 'POSITION_ACTION_KIND_MANUAL_SELL',
         },
@@ -317,7 +317,7 @@ describe('position model boundaries', () => {
       pagination: { hasMore: false, limit: 10 },
     })
 
-    expect(response.data[0]).not.toHaveProperty('userPositionId')
+    expect(response.data[0]).not.toHaveProperty('copyRunId')
     expect(response.data[0]).not.toHaveProperty('positionPnlUsd')
     expect(response.data[0]).not.toHaveProperty('actionKind')
   })
@@ -500,5 +500,67 @@ describe('copy-run contract additions', () => {
     }).data[0]
     expect(row.closePositionAvailability).toEqual(availability)
     expect(row.manualSellAvailability?.status).toBe('ADVISORY_ACTION_STATUS_UNAVAILABLE')
+  })
+})
+
+describe('compact IDs and canonical position identity', () => {
+  it('preserves compact IDs without case changes or parsing', () => {
+    const digest = 'Aa0_-'.repeat(8) + 'Aa0'
+    const copyRunId = 'cr_' + digest
+    const activityId = 'ev_' + digest
+    const actionLogId = 'al_' + digest
+    const positionId = '0x' + 'ab'.repeat(32)
+    const tradeId = '0x' + 'cd'.repeat(32)
+    expect(adaptCopyRunsResponse({ data: [{ copyRunId }] }).data[0].copyRunId).toBe(copyRunId)
+    expect(adaptLeaderboardResponse({ data: [{ myCopyRunId: copyRunId }] }).data[0].myCopyRunId).toBe(copyRunId)
+    expect(adaptPositionsResponse({ data: [{ positionId, tradeId, copyRunId }] }).data[0]).toMatchObject({
+      positionId,
+      tradeId,
+      copyRunId,
+    })
+    expect(
+      adaptActivityResponse({ data: [{ activityId, positionId, tradeId, copyRunId, alert: { alertId: activityId } }] })
+        .data[0],
+    ).toMatchObject({ activityId, positionId, tradeId, copyRunId, alert: { alertId: activityId } })
+    expect(
+      adaptActionLogsResponse({ data: [{ logs: [{ actionLogId, leaderPositionId: positionId }] }] }).data[0],
+    ).toMatchObject({
+      logId: actionLogId,
+      positionId,
+    })
+  })
+
+  it('keeps missing canonical activity identity and transaction links absent', () => {
+    const row = adaptActivityResponse({ data: [{ tradeId: 'compatibility-only' }] }).data[0]
+    expect(row.positionId).toBeUndefined()
+    expect(row.txHash).toBeUndefined()
+  })
+})
+
+describe('estimated closing P&L', () => {
+  it.each([
+    ['METRIC_STATUS_CURRENT', '-3', '-3'],
+    ['METRIC_STATUS_CURRENT', '0', '0'],
+    ['METRIC_STATUS_STALE', '-3', '-3'],
+    ['METRIC_STATUS_UNAVAILABLE', '99', undefined],
+    ['METRIC_STATUS_NOT_APPLICABLE', '99', undefined],
+    ['METRIC_STATUS_UNSPECIFIED', '99', undefined],
+    ['METRIC_STATUS_CURRENT', undefined, undefined],
+  ] as const)('preserves %s estimate independently of whole-trade P&L', (status, value, expected) => {
+    const estimate = { status, value, asOf: '2026-10-12T00:00:00Z' }
+    const raw = {
+      estimatedClosePnlUsd: estimate,
+      positionPnlUsd: { status: 'METRIC_STATUS_CURRENT', value: '5' },
+      unrealizedPnlUsd: { status: 'METRIC_STATUS_CURRENT', value: '10' },
+      estimatedCashbackUsd: { status: 'METRIC_STATUS_CURRENT', value: '2' },
+    } as const
+    const position = adaptPositionsResponse({ data: [raw] }).data[0]
+    expect(position.estimatedClosePnlUsd).toBe(expected)
+    expect(position.metrics.estimatedClosePnlUsd).toEqual(estimate)
+    expect(position.positionPnlUsd).toBe('5')
+    expect(adaptAgentPositionsResponse({ data: [raw] }).data[0]).not.toHaveProperty('estimatedClosePnlUsd')
+    expect(
+      adaptPositionsResponse({ data: [{ positionPnlUsd: raw.positionPnlUsd }] }).data[0].estimatedClosePnlUsd,
+    ).toBeUndefined()
   })
 })

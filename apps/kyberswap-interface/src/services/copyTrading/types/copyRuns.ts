@@ -186,7 +186,7 @@ export type ActivityRow = {
   subtype?: LooseString<ActivitySubtype>
   summary: string
   occurredAt: Timestamp
-  userPositionId?: string
+  positionId?: string
   followerPositionId?: string
   tradeId?: string
   txHash?: string

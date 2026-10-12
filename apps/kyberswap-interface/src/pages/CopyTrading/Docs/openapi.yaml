@@ -964,6 +964,7 @@ paths:
           type: integer
           format: int32
         - name: type
+          description: ' - ACTIVITY_TYPE_POSITION_WITHDRAWAL_CLOSED: Lifecycle closure after withdrawal; this is not a sell execution.'
           in: query
           required: false
           type: string
@@ -986,6 +987,7 @@ paths:
             - ACTIVITY_TYPE_EXIT_FAILED
             - ACTIVITY_TYPE_EXECUTION_FAILED
             - ACTIVITY_TYPE_POSITION_REDUCED
+            - ACTIVITY_TYPE_POSITION_WITHDRAWAL_CLOSED
           default: ACTIVITY_TYPE_UNSPECIFIED
         - name: group
           in: query
@@ -1237,7 +1239,7 @@ paths:
           default: SORT_ORDER_UNSPECIFIED
       tags:
         - Copy Accounts
-  /copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations:
+  /copy-accounts/{chainId}/{copyAccount}/positions/{positionId}/pending-sell-obligations:
     get:
       summary: |-
         ListCopyAccountPositionPendingSellObligations returns the current
@@ -1262,7 +1264,7 @@ paths:
           in: path
           required: true
           type: string
-        - name: userPositionId
+        - name: positionId
           in: path
           required: true
           type: string
@@ -1310,6 +1312,7 @@ paths:
           type: integer
           format: int32
         - name: type
+          description: ' - ACTIVITY_TYPE_POSITION_WITHDRAWAL_CLOSED: Lifecycle closure after withdrawal; this is not a sell execution.'
           in: query
           required: false
           type: string
@@ -1332,6 +1335,7 @@ paths:
             - ACTIVITY_TYPE_EXIT_FAILED
             - ACTIVITY_TYPE_EXECUTION_FAILED
             - ACTIVITY_TYPE_POSITION_REDUCED
+            - ACTIVITY_TYPE_POSITION_WITHDRAWAL_CLOSED
           default: ACTIVITY_TYPE_UNSPECIFIED
         - name: group
           in: query
@@ -1519,7 +1523,7 @@ paths:
             $ref: '#/definitions/TransactionPreparationServicePrepareWithdrawTokensBody'
       tags:
         - Transaction Preparation
-  /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell:
+  /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareManualSell:
     post:
       summary: PrepareManualSell prepares the exact unresolved skipped-sell obligation.
       operationId: prepareManualSell
@@ -1541,7 +1545,7 @@ paths:
           in: path
           required: true
           type: string
-        - name: userPositionId
+        - name: positionId
           in: path
           required: true
           type: string
@@ -1552,7 +1556,7 @@ paths:
             $ref: '#/definitions/TransactionPreparationServicePrepareManualSellBody'
       tags:
         - Transaction Preparation
-  /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition:
+  /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareClosePosition:
     post:
       summary: PrepareClosePosition prepares one eligible full-position recovery close.
       operationId: prepareClosePosition
@@ -1574,7 +1578,7 @@ paths:
           in: path
           required: true
           type: string
-        - name: userPositionId
+        - name: positionId
           in: path
           required: true
           type: string
@@ -1738,7 +1742,7 @@ definitions:
   TransactionPreparationServicePrepareStopCopyBody:
     type: object
     properties:
-      userPositionIds:
+      positionIds:
         type: array
         items:
           type: string
@@ -1935,7 +1939,7 @@ definitions:
         type: string
       copyRunId:
         type: string
-      userPositionId:
+      positionId:
         type: string
       tokenAddress:
         type: string
@@ -2008,7 +2012,7 @@ definitions:
           are returned. Receipt-first observations do not require those rows to exist.
       copyRunId:
         type: string
-      userPositionId:
+      positionId:
         type: string
     description: ActionStatusContext is part of the bounded submitted-action observation contract.
   v1ActionTransactionConfigEffect:
@@ -2320,6 +2324,7 @@ definitions:
     properties:
       activityId:
         type: string
+        description: Opaque compact API identity; pagination cursors must be used verbatim.
       ownerAddress:
         type: string
         description: Initial follower-account creation wallet; not current ownership or authorization evidence.
@@ -2339,8 +2344,6 @@ definitions:
         format: date-time
       type:
         $ref: '#/definitions/v1ActivityType'
-      userPositionId:
-        type: string
       followerPositionId:
         type: string
       tradeId:
@@ -2367,6 +2370,8 @@ definitions:
         $ref: '#/definitions/v1ExecutionActivityDetail'
       alert:
         $ref: '#/definitions/v1AlertFeedContext'
+      positionId:
+        type: string
     description: ActivityRow is a public owner or copy-account timeline row.
   v1ActivitySubtype:
     type: string
@@ -2418,8 +2423,12 @@ definitions:
       - ACTIVITY_TYPE_EXIT_FAILED
       - ACTIVITY_TYPE_EXECUTION_FAILED
       - ACTIVITY_TYPE_POSITION_REDUCED
+      - ACTIVITY_TYPE_POSITION_WITHDRAWAL_CLOSED
     default: ACTIVITY_TYPE_UNSPECIFIED
-    description: ActivityType is the stable public activity timeline type set.
+    description: |-
+      ActivityType is the stable public activity timeline type set.
+
+       - ACTIVITY_TYPE_POSITION_WITHDRAWAL_CLOSED: Lifecycle closure after withdrawal; this is not a sell execution.
   v1AddCapitalPreview:
     type: object
     properties:
@@ -2562,6 +2571,7 @@ definitions:
     properties:
       actionLogId:
         type: string
+        description: Opaque compact API identity; not a source note ID or transaction hash.
       chainId:
         type: string
         format: int64
@@ -2598,6 +2608,14 @@ definitions:
         $ref: '#/definitions/v1TradeSide'
       token:
         $ref: '#/definitions/v1Token'
+      slippageBps:
+        type: integer
+        format: int64
+        description: |-
+          Source-reported last swap attempt ladder step, in basis points (0..10000),
+          whether successful or a terminal failure. Absent means not reported; zero
+          is an explicitly reported zero-slippage attempt.
+        maximum: 10000
     description: |-
       AgentActionLog is one sanitized public decision-log narrative. Optional
       chain links are populated only from canonical operator-derived facts.
@@ -4278,8 +4296,6 @@ definitions:
         type: string
       agentId:
         type: string
-      userPositionId:
-        type: string
       receiptBlockNumber:
         type: string
       receiptBlockHash:
@@ -4293,6 +4309,8 @@ definitions:
         description: |-
           The former receipt was invalidated. Its affected values remain unavailable
           until local rollback has caught up; this object is never a success proof.
+      positionId:
+        type: string
     description: |-
       PendingReadAction names the affected public subjects without manufacturing
       canonical list rows. Field groups identify unfinished publication, not values.
@@ -4468,8 +4486,12 @@ definitions:
       - POSITION_EXIT_KIND_UNSPECIFIED
       - POSITION_EXIT_KIND_ALIGNED
       - POSITION_EXIT_KIND_MANUAL
+      - POSITION_EXIT_KIND_WITHDRAWAL_CLOSE
     default: POSITION_EXIT_KIND_UNSPECIFIED
-    description: PositionExitKind identifies how a terminal or reduced position exited.
+    description: |-
+      PositionExitKind identifies how a terminal or reduced position exited.
+
+       - POSITION_EXIT_KIND_WITHDRAWAL_CLOSE: Position ownership closed after a confirmed in-kind token withdrawal.
   v1PositionLifecycle:
     type: string
     enum:
@@ -4501,7 +4523,7 @@ definitions:
     properties:
       context:
         $ref: '#/definitions/v1PositionSellContext'
-      userPositionId:
+      positionId:
         type: string
       tradeId:
         type: string
@@ -4543,8 +4565,6 @@ definitions:
     type: object
     properties:
       positionId:
-        type: string
-      userPositionId:
         type: string
       agentPositionId:
         type: string
@@ -4589,6 +4609,10 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       netFeeCostUsd:
         $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Captured upfront fee valued at entry minus cashback actually received.
+          Estimated cashback is excluded; this is lifetime fee attribution, not
+          the incremental fee for closing the remaining inventory.
       estimatedCashbackUsd:
         $ref: '#/definitions/v1DecimalMetric'
       skippedSellCount:
@@ -4672,6 +4696,15 @@ definitions:
         description: Independent guidance remains present when an action is not recommended.
       closePositionAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
+      estimatedClosePnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Estimated P&L from selling the remaining follower inventory at the current
+          mark: expected net quote proceeds minus its remaining canonical cost.
+          Includes estimated cashback and protocol fees, excludes prior realized
+          P&L, gas, price impact and slippage. Not a route quote or execution promise.
+          Not applicable for closed/withdrawn positions; unavailable when required
+          accounting, mark or fee-policy evidence is missing. Render as an estimate.
     description: PositionSummary is a follower position row.
   v1PositionValuation:
     type: object
@@ -5152,7 +5185,7 @@ definitions:
   v1StopPositionPreview:
     type: object
     properties:
-      userPositionId:
+      positionId:
         type: string
       tradeId:
         type: string
@@ -5202,7 +5235,7 @@ definitions:
         description: Only populated when READY; uses the public copy-run value and availability.
       finality:
         $ref: '#/definitions/v1DataFinality'
-      userPositionId:
+      positionId:
         type: string
       capitalOutUsd:
         $ref: '#/definitions/v1DecimalMetric'
@@ -5291,7 +5324,7 @@ definitions:
         type: string
       copyRunId:
         type: string
-      userPositionId:
+      positionId:
         type: string
       readOwnerAddress:
         type: string

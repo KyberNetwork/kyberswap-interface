@@ -24,6 +24,7 @@ export type PositionExitKind =
   | 'POSITION_EXIT_KIND_UNSPECIFIED'
   | 'POSITION_EXIT_KIND_ALIGNED'
   | 'POSITION_EXIT_KIND_MANUAL'
+  | 'POSITION_EXIT_KIND_WITHDRAWAL_CLOSE'
 
 export type PositionValuation = {
   valueUsd?: DecimalString
@@ -38,6 +39,7 @@ export type PositionValuation = {
 
 export type PositionMetrics = {
   positionPnlUsd?: Metric
+  estimatedClosePnlUsd?: Metric
   realizedPnlUsd?: Metric
   unrealizedPnlUsd?: Metric
   unrealizedPnlPct?: Metric
@@ -86,7 +88,6 @@ export type AgentPositionSummary = {
 }
 
 export type PositionSummary = AgentPositionSummary & {
-  userPositionId?: string
   agentPositionId?: string
   copyRunId?: string
   copyAccount?: Address
@@ -95,6 +96,7 @@ export type PositionSummary = AgentPositionSummary & {
   netBaseReceivedRaw?: string
   remainingNetBaseRaw?: string
   positionPnlUsd?: DecimalString
+  estimatedClosePnlUsd?: DecimalString
   flatFeeCapturedUsd?: DecimalString
   cashbackReceivedUsd?: DecimalString
   netFeeCostUsd?: DecimalString

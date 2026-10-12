@@ -18,9 +18,8 @@ import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/
 import { StopCopyForm, StopCopyReview } from 'pages/CopyTrading/modals/StopCopyModal/components'
 import {
   MAX_STOP_POSITIONS,
-  type SelectableStopCopyPosition,
   getSelectedStopCopyPositionIds,
-  hasUserPositionId,
+  hasPositionId,
   loadAllOpenCopyRunPositions,
 } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 import {
@@ -86,9 +85,9 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
     }
   }, [isOpen, loadPositions])
 
-  const selectablePositions = useMemo(() => (positions || []).filter(hasUserPositionId), [positions])
-  const isSelected = (position: SelectableStopCopyPosition, index: number) =>
-    selected[position.userPositionId] ?? index < MAX_STOP_POSITIONS
+  const selectablePositions = useMemo(() => (positions || []).filter(hasPositionId), [positions])
+  const isSelected = (position: PositionSummary, index: number) =>
+    selected[position.positionId] ?? index < MAX_STOP_POSITIONS
 
   const selectedPositions = selectablePositions.filter(isSelected)
   const selectedPositionValueUsd = sumUsdValues(...selectedPositions.map(position => position.valueUsd))
@@ -111,11 +110,11 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
       const response = await prepareStopCopy({
         ownerAddress: account.toLowerCase(),
         copyRunId: copyRun.copyRunId,
-        userPositionIds: currentPositionIds,
+        positionIds: currentPositionIds,
         slippageBps: Math.round(slippage * 100),
       }).unwrap()
       const preparedPositionIds = (response.data.stopCopy?.positions || [])
-        .map(position => position.userPositionId)
+        .map(position => position.positionId)
         .filter((positionId): positionId is string => !!positionId)
 
       if (preparedPositionIds.some(positionId => !currentPositionIds.includes(positionId))) {
@@ -140,8 +139,8 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   })
   const { state: flowState } = flow
 
-  const togglePosition = (position: SelectableStopCopyPosition, index: number) => {
-    const positionId = position.userPositionId
+  const togglePosition = (position: PositionSummary, index: number) => {
+    const positionId = position.positionId
     const checked = isSelected(position, index)
     if (!checked && selectedPositions.length >= MAX_STOP_POSITIONS) return
 

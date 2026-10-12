@@ -19,7 +19,7 @@ type GetPendingSellObligations = (query: PendingSellObligationsQuery) => {
 
 export const loadPendingSellObligations = async (
   getPendingSellObligations: GetPendingSellObligations,
-  query: Pick<PendingSellObligationsQuery, 'chainId' | 'copyAccount' | 'userPositionId'>,
+  query: Pick<PendingSellObligationsQuery, 'chainId' | 'copyAccount' | 'positionId'>,
 ) => {
   const obligations: PendingSellObligation[] = []
   const seenCursors = new Set<string>()

@@ -99,7 +99,7 @@ export type PendingReadAction = {
   copyRunId?: string
   readOwnerAddress?: string
   agentId?: string
-  userPositionId?: string
+  positionId?: string
   receiptBlockNumber?: string
   receiptBlockHash?: string
   fieldGroups?: FieldGroup[]
@@ -188,6 +188,7 @@ export type ActivityType =
   | 'exit_failed'
   | 'execution_failed'
   | 'position_reduced'
+  | 'position_withdrawal_closed'
 
 export type ActivityTypeFilter = 'all' | ActivityType
 export type TradeSide = 'buy' | 'sell' | 'unknown'

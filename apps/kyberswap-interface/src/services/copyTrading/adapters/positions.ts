@@ -35,7 +35,6 @@ import {
 
 type ApiPosition = {
   positionId?: string
-  userPositionId?: string
   agentPositionId?: string
   copyRunId?: string
   agentId?: string
@@ -56,6 +55,7 @@ type ApiPosition = {
   currentValuation?: ApiValuation
   exitValuation?: ApiValuation
   positionPnlUsd?: ApiMetric
+  estimatedClosePnlUsd?: ApiMetric
   realizedPnlUsd?: ApiMetric
   unrealizedPnlUsd?: ApiMetric
   unrealizedPnlPct?: ApiMetric
@@ -172,7 +172,8 @@ const toPositionExitKind = (exitKind?: string): PositionExitKind | undefined => 
   if (
     exitKind === 'POSITION_EXIT_KIND_UNSPECIFIED' ||
     exitKind === 'POSITION_EXIT_KIND_ALIGNED' ||
-    exitKind === 'POSITION_EXIT_KIND_MANUAL'
+    exitKind === 'POSITION_EXIT_KIND_MANUAL' ||
+    exitKind === 'POSITION_EXIT_KIND_WITHDRAWAL_CLOSE'
   ) {
     return exitKind
   }
@@ -234,7 +235,6 @@ const toPosition = (position: ApiPosition): PositionSummary => {
 
   return {
     ...agentPosition,
-    userPositionId: position.userPositionId,
     agentPositionId: position.agentPositionId,
     copyRunId: position.copyRunId,
     copyAccount: position.copyAccount as Address | undefined,
@@ -243,6 +243,7 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     netBaseReceivedRaw: position.netBaseReceivedRaw,
     remainingNetBaseRaw: position.remainingNetBaseRaw,
     positionPnlUsd: metricValue(position.positionPnlUsd),
+    estimatedClosePnlUsd: metricValue(position.estimatedClosePnlUsd),
     flatFeeCapturedUsd: metricValue(position.flatFeeCapturedUsd),
     cashbackReceivedUsd: metricValue(position.cashbackReceivedUsd),
     netFeeCostUsd: metricValue(position.netFeeCostUsd),
@@ -250,6 +251,7 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     metrics: {
       ...agentPosition.metrics,
       positionPnlUsd: position.positionPnlUsd,
+      estimatedClosePnlUsd: position.estimatedClosePnlUsd,
       flatFeeCapturedUsd: position.flatFeeCapturedUsd,
       cashbackReceivedUsd: position.cashbackReceivedUsd,
       netFeeCostUsd: position.netFeeCostUsd,

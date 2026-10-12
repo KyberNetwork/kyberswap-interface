@@ -644,7 +644,7 @@ describe('shared result ownership', () => {
       capitalOutUsd: { value: '12.25', status: 'METRIC_STATUS_STALE' as const },
       finality: 'DATA_FINALITY_FINAL' as const,
     },
-    { userPositionId: 'position-1', finality: 'DATA_FINALITY_PROVISIONAL' as const },
+    { positionId: 'position-1', finality: 'DATA_FINALITY_PROVISIONAL' as const },
   ])('preserves action-specific display data for the flow: %j', async fields => {
     const hash = `0x${'d'.repeat(64)}` as const
     const display = { ...readyDisplay, ...fields }

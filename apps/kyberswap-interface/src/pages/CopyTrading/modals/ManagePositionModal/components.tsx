@@ -217,7 +217,7 @@ const PositionTrade = ({ position }: { position: PositionSummary }) => (
     <span className="text-subText">Trade</span>
     <span className="truncate text-text">{position.token.symbol || 'Token'}</span>
     <span className="text-subText">•</span>
-    <ShortenedId value={position.tradeId} />
+    <ShortenedId value={position.positionId} />
   </div>
 )
 

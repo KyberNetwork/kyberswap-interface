@@ -167,5 +167,5 @@ export type CopyAccountHistoryQuery = CursorQuery &
 
 export type PendingSellObligationsQuery = CursorQuery &
   CopyAccountQuery & {
-    userPositionId: string
+    positionId: string
   }

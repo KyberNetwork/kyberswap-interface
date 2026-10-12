@@ -5,9 +5,124 @@ API and internal admin tools with the VPN-only admin API. Use the endpoint
 reference for request fields, agent registry management, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: October 7, 2026.
+Last updated: October 11, 2026.
 
 ## Changelog
+
+### October 11, 2026: compact public IDs and canonical position identity
+
+This is a breaking frontend contract update from [API PR #119](https://github.com/KyberNetwork/copy-trade-api/pull/119).
+Regenerate the protobuf/HTTP client before adopting these fields. The API
+transport now exposes shorter opaque IDs while preserving the complete stored
+identity; this changes only the public representation and does not require a
+database migration, replay, or sync rebuild.
+
+- `copyRunId` and `myCopyRunId` use `cr_` followed by a 43-character unpadded
+  base64url digest (46 characters total). The digest preserves the complete
+  stored 256-bit identity, including chain, factory, and copy account.
+  `activityId` and `alert.alertId` use `ev_` with the same length.
+  `actionLogId` uses `al_` with the same length. Treat every ID as opaque:
+  store and return it exactly, do not decode it, split it, derive a chain or
+  wallet from it, or use its characters as a sort key.
+- `userPositionId` is removed from the public contract. Use `positionId` for a
+  single position and `positionIds` for Stop Copy selections. This applies to
+  position paths, pending-sell-obligation paths, preparation requests and
+  previews, action guidance, pending-action metadata, submitted-action status,
+  activity rows, and position summaries.
+- A public `positionId` is the canonical position ID for the row's subject:
+  leader contract position ID for agent positions, and operator follower
+  position ID for owner, copy-run, and copy-account positions. It is a full
+  lowercase `0x`-prefixed 32-byte ID, scoped by chain and the selected run or
+  account. Action requests and previews use this same follower ID. Use it for
+  position identity and display. When a response also has `tradeId`, keep it as
+  a separate compatibility field; do not route by it, treat it as a transaction
+  hash, or replace a missing transaction link with it.
+- Position-related activity exposes `positionId` when a follower position is
+  known. A skipped buy can have no position ID. Alert transaction links remain
+  separate: use `alert.leader.canonicalLeaderTxHash` for the leader and
+  `alert.user.canonicalFollowerTxHash` for a confirmed follower transaction;
+  an ID is never a transaction link.
+- Invalidate persisted client state and cached URLs that contain the removed
+  `userPositionId` fields or old long public IDs. Cursors remain signed and
+  opaque; pass each returned cursor unchanged with the same endpoint, filters,
+  and sort. Do not construct a cursor from a compact ID.
+- Optional `positionId` fields remain absent when the server has no canonical
+  identity. Do not manufacture one or fall back to `tradeId`, an aggregate key,
+  or a token address. Keep the submitted action's complete `statusContext` and
+  transaction hash unchanged while polling; `receiptResult` has no resource IDs,
+  so use returned `display` or `result` IDs for follow-up reads.
+
+The endpoint and response sections below use `positionId`/`positionIds` and
+compact-ID-shaped examples. Keep the selected chain, copy run or copy account,
+and owner together with a position ID when issuing a request.
+
+
+### October 9, 2026: Stop modal estimates and capital activity
+
+These changes extend [API PR #113](https://github.com/KyberNetwork/copy-trade-api/pull/113).
+Regenerate clients for the additive follower `PositionSummary.estimatedClosePnlUsd`
+field. These instructions apply when the server exposes the updated contract;
+this document does not confirm deployment. Requests and preparation previews are
+unchanged. If the field is absent on an older response, show the closing
+estimate as unavailable rather than substituting another P&L field.
+
+- Use `estimatedClosePnlUsd` for each selected position in the Stop Copy modal,
+  labeled **Est. P&L on closing**. It covers the remaining tokens, includes
+  estimated cashback and protocol fees, and excludes earlier realized P&L,
+  gas, price impact, and slippage. It is a mark estimate, not a guaranteed quote.
+  Respect its metric status; do not replace an unavailable estimate with zero.
+  The preparation response supplies the route-based preview at confirmation.
+- Keep using `positionPnlUsd` for the whole-trade P&L headline. `netFeeCostUsd`
+  subtracts only cashback already received from captured fees. Do not subtract
+  either fee field from `estimatedClosePnlUsd` or add cashback again.
+- After Start Copy, further quote deposits are returned as
+  **Capital topped up**, including the first later deposit. Render the returned
+  type/subtype, summary, and `capital.movementType=top_up`; use the top-up filter
+  to retrieve these rows. Keep distinct activity IDs as separate rows.
+- Copy-run logs and copy-account history require a recorded follower-attempt
+  transaction hash for skipped rows. Alert Feed has separate visibility rules
+  and can still contain skips without a hash. Follow each surface's returned
+  rows and pagination; a recorded hash proves neither broadcast nor success.
+- Show `skippedSellCount` beside the recovery action selected by `actionKind`
+  and its `manualSellAvailability` / `closePositionAvailability`. It counts
+  unresolved skipped-sell obligations, not executor retries or visible log rows;
+  recovery can be needed without a visible skipped log.
+
+See [Position P&L and Stop Copy selection](#position-pl-and-stop-copy-selection),
+[Capital activity labels and filters](#capital-activity-labels-and-filters), and
+[Skipped-trade links](#skipped-trade-links) for field mappings and examples.
+
+### October 8, 2026: readable skipped-trade activity
+
+Historical behavior: the [October 9 update](#october-9-2026-stop-modal-estimates-and-capital-activity)
+supersedes this entry's visibility rules for skipped rows without transaction
+hashes. Use the current [skipped-trade guidance](#skipped-trade-links).
+
+These changes extend [API PR #113](https://github.com/KyberNetwork/copy-trade-api/pull/113).
+Deployment is not implied by this catalog update. No request or response fields
+change, and client regeneration is not required.
+
+- Render the returned `summary` and public error message for skipped actions.
+  They describe the user outcome; do not parse executor text or infer amounts
+  from it. A missing position link or transaction hash is valid for a buy that
+  was skipped before opening a position.
+- Copy-run logs and account history show one event per skipped action. Repeated
+  status updates do not create more rows. Keep `activityId` as the row key; do
+  not deduplicate by token or `tradeId`, because separate actions may concern
+  the same position.
+- Follow-on skipped sells are omitted when the server can prove that the
+  opening buy was skipped and no follower position exists. Missing IDs alone
+  are not a frontend filtering rule. Uncertain cases remain visible.
+- Alert Feed omits zero-input and below-minimum skipped buys; these remain in
+  the normal activity log. Other buy failures and skipped sells involving real
+  positions remain visible. Follow the server's filtered pagination rather
+  than removing rows in the client.
+- For a skipped sell with `positionId`, open the related position and use
+  its current `manualSellAvailability` / `closePositionAvailability` to select
+  the recovery control. Do not choose an action from the summary, assume that
+  an old skip means the user still holds tokens, or resubmit a stored transaction.
+- If an activity cursor is rejected after deployment or an evidence correction,
+  clear the loaded pages and restart that filter's cursor chain.
 
 ### October 7, 2026: RPC failures and preparation retries
 
@@ -55,10 +170,12 @@ Regenerate clients for the new fields and enums after deployment.
 - Use returned follower `positionPnlUsd` directly. Open/closing positions now
   include actual fee economics and received cashback, excluding estimated
   cashback. Do not add estimated cashback or subtract `netFeeCostUsd` again.
-- Copy-run activity `tradeId` and follower position/preparation `tradeId` now
-  identify the follower position. A skipped buy without a follower position
-  has no trade link. Keep missing execution hashes and unstored attempt amounts
-  absent; do not use leader amounts or hashes as replacements.
+- Copy-run activity and follower position/preparation responses expose
+  `positionId` for the follower position. `tradeId` can remain present as a
+  compatibility field; use `positionId` for the position link and identity. A
+  skipped buy without a follower position has no position link. Keep missing
+  execution hashes and unstored attempt amounts absent; do not use leader
+  amounts or hashes as replacements.
 - Render `ACTIVITY_CATEGORY_COPY_LIFECYCLE` with subtypes
   `ACTIVITY_SUBTYPE_COPY_STARTED` and `ACTIVITY_SUBTYPE_COPY_STOPPED` in copy-run
   logs. Start Copy can include `copyLifecycle.amountRaw`, `tokenAddress`, and
@@ -151,10 +268,10 @@ the older rules.
    amounts from the row's `capital` detail when present. Keep raw amounts as
    strings and use token decimals and the USD metric's own status. See
    [Capital amounts in Alert Feed](#capital-amounts-in-alert-feed).
-3. Link skipped copy-run activity to its returned `tradeId` independently of
-   `txHash`. A skip without a submitted execution has no follower transaction
-   hash; a skipped buy need not have a follower position. Both links remain
-   optional. See [Skipped-trade links](#skipped-trade-links).
+3. Link skipped copy-run activity to its returned `positionId` when present,
+   independently of `txHash`. A skip without a submitted execution has no
+   follower transaction hash; a skipped buy need not have a follower position.
+   Both links remain optional. See [Skipped-trade links](#skipped-trade-links).
 4. Use `walletInventoryValueUsd` for **Remaining in Wallet** and
    `withdrawTokens.totalCurrentValueUsd` for **Est. USD from selected**. They
    sum available valuations; an unpriced token remains N/A without hiding the
@@ -693,7 +810,7 @@ GET /agents/{agentId}/positions/{positionId}
 ```
 
 `AgentPositionSummary` is leader-side data. It deliberately omits follower
-identity and accounting fields, including `userPositionId`, `copyRunId`,
+identity and accounting fields, including `positionId`, `copyRunId`,
 `copyAccount`, fee and rebate fields, skipped-sell and leftover state, follower
 action recommendations, and `positionPnlUsd`. Use its `openedTxHash` and
 `latestTxHash` only as leader-side transaction hashes.
@@ -716,10 +833,23 @@ GET /copy-accounts/{chainId}/{copyAccount}/positions
   headline is unavailable rather than a partial sum. If any required component
   is stale, the headline is stale and uses the oldest contributing `asOf`.
 
-Use `positionPnlUsd` for the follower Trade ID headline. Don't cast
-`AgentPositionSummary` to `PositionSummary`, combine the follower P&L
-components in the client, or substitute leader transaction hashes for follower
-receipts.
+Use `positionPnlUsd` for the follower Trade ID headline. For Stop Copy's
+remaining-position selection, use `estimatedClosePnlUsd` instead, labeled
+**Est. P&L on closing**. This estimate is expected net proceeds from selling the
+remaining inventory at the current mark, less the cost assigned to that
+inventory. It includes estimated cashback and protocol fees, excludes earlier
+realized P&L, and does not include gas, price impact, or slippage. Do not add
+cashback or subtract fees again. Closed or fully withdrawn positions return
+not-applicable; missing required evidence returns unavailable. Stale estimates
+retain their status and evidence timestamp.
+
+`netFeeCostUsd` is lifetime captured fees at entry value minus actual cashback
+received. It can equal `flatFeeCapturedUsd` before any cashback is received,
+even when `estimatedCashbackUsd` is positive. Estimated cashback is contingent
+on selling the remaining tokens; it is not already received cashback.
+
+Don't cast `AgentPositionSummary` to `PositionSummary`, combine the follower
+P&L components in the client, or substitute leader hashes for follower receipts.
 
 #### Prepared-action display enrichment
 
@@ -731,8 +861,8 @@ POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy
 POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital
 POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy
 POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote
-POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell
-POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareManualSell
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareClosePosition
 ```
 
 Handle these enrichment statuses:
@@ -1595,7 +1725,7 @@ tab, chart, drawer, or drilldown is opened.
 | Copy-account overview                 | `GET /copy-accounts/{chainId}/{copyAccount}`                                                        | Balances, positions, and history routes below                                                                                | Prepare Add Capital, Stop Copy, Withdraw Quote, or Withdraw Tokens through the associated copy run |
 | Copy Details — Remaining in Wallet    | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory`                                       | Use `/balances` only for a separately paginated asset explorer                                                               | None                                                                                                               |
 | Copy-account balances                 | `GET /copy-accounts/{chainId}/{copyAccount}/balances`                                               | Load the next cursor page                                                                                                    | None                                                                                                               |
-| Copy-account positions                | `GET /copy-accounts/{chainId}/{copyAccount}/positions`                                              | Pending-sell obligations for a selected `userPositionId`                                                                     | Manual Sell or Close Position                                                                                      |
+| Copy-account positions                | `GET /copy-accounts/{chainId}/{copyAccount}/positions`                                              | Pending-sell obligations for a selected `positionId`                                                                     | Manual Sell or Close Position                                                                                      |
 | Copy-account history                  | `GET /copy-accounts/{chainId}/{copyAccount}/history`                                                | Filter by exact `type` or product `group`                                                                                    | None                                                                                                               |
 | Skipped-sell recovery drawer          | Position row plus `GET .../pending-sell-obligations`                                                | Refresh the FIFO immediately before preparation                                                                              | Prepare Manual Sell or Close Position directly, then submit from the owner wallet                                  |
 
@@ -1648,8 +1778,8 @@ the wallet. The API does not submit the call.
 | Stop Copy      | Direct copy-run detail plus its current open/leftover position selection and `stopCopyAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy`                                 |
 | Withdraw Quote | Direct copy-run/copy-account detail and `withdrawQuoteAvailability`; don't wait for Stop Copy       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote`                            |
 | Withdraw Tokens | Direct copy-run/copy-account detail and `withdrawTokensAvailability`; explain permanent Stop | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawTokens` |
-| Manual Sell    | `manualSellAvailability` on the current position; review current quantities through preparation or the pending-sell-obligation FIFO | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell` |
-| Close Position | `closePositionAvailability` on the current position                                                 | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition` |
+| Manual Sell    | `manualSellAvailability` on the current position; review current quantities through preparation or the pending-sell-obligation FIFO | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareManualSell` |
+| Close Position | `closePositionAvailability` on the current position                                                 | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareClosePosition` |
 
 Advisory availability controls presentation only. Always call the matching
 preparation route when the user confirms, and branch on its typed
@@ -2105,7 +2235,7 @@ Advisory objects, prepared actions, and submitted-status data use the same
 | `retryAfterMs` | Optional minimum delay before retrying the same operation. It does not extend calldata validity. |
 | `nextSteps[]` | Up to three suggested controls, identified by `kind` and labeled by `label`. |
 | `nextSteps[].action` | Optional target action: `start_copy`, `add_capital`, `stop_copy`, `withdraw_quote`, `withdraw_tokens`, `manual_sell`, or `close_position`. |
-| `nextSteps[].copyRunId`, `userPositionId` | Optional target overrides. Otherwise, use the containing response's target. |
+| `nextSteps[].copyRunId`, `positionId` | Optional target overrides. Otherwise, use the containing response's target. |
 | `nextSteps[].tokenAddress`, `amountRaw`, `spenderAddress` | Optional token approval or amount inputs. Keep raw amounts as strings. |
 
 Step enum values have the `ACTION_GUIDANCE_STEP_KIND_` prefix:
@@ -2128,10 +2258,10 @@ wallet actions. In particular, `RETRY` from `actions:status` means **check statu
 not **prepare or submit again**.
 
 Resolve a step's target from the screen's saved operation first, then apply any
-explicit `copyRunId` or `userPositionId` override. Use `action` only to select
+explicit `copyRunId` or `positionId` override. Use `action` only to select
 one of the seven documented preparation routes; it is not a URL or calldata.
 For example, an empty-Stop alternative uses `action: "stop_copy"`, the indicated
-copy run, and a new request with `userPositionIds: []`. Explain the retained
+copy run, and a new request with `positionIds: []`. Explain the retained
 exit settings before the user confirms this different request.
 
 `nextSteps` and `retryAfterMs` serve different purposes. A pending status can
@@ -2450,7 +2580,7 @@ operational/data states and must not be converted to a zero balance.
 ## Shared request validation
 
 - A supplied `chainId` must be positive.
-- IDs such as `agentId`, `copyRunId`, `positionId`, and `userPositionId` are
+- IDs such as `agentId`, `copyRunId`, `positionId`, and `positionIds` are
   opaque. Preserve them exactly and URL-encode them; do not split or derive
   business meaning from their text.
 - Filters are normalized server-side, but the client should trim search text
@@ -2689,7 +2819,7 @@ are omitted from this example:
     {
       "agentId": "agt_example_base",
       "chainId": "8453",
-      "myCopyRunId": "copy_run_example"
+      "myCopyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     },
     {
       "agentId": "agt_example_ethereum",
@@ -2803,20 +2933,19 @@ Key `AgentPositionSummary` fields:
 
 This agent shape deliberately omits follower account identity, fee and rebate
 accounting, skipped-sell state, leftovers, recovery actions, closed executions,
-and `positionPnlUsd`. Don't cast it to the follower position type or fill those
-fields from another route.
+`positionPnlUsd`, and `estimatedClosePnlUsd`. Don't cast it to the follower
+position type or fill those fields from another route.
 
 Key follower `PositionSummary` fields:
 
-- identity: `positionId`, optional `userPositionId`, optional
-  `agentPositionId`, optional `copyRunId`
+- identity: `positionId`, optional `agentPositionId`, optional `copyRunId`
 - routing/display: `agentId`, `chainId`, optional `copyAccount`, `tradeId`,
   `token`
 - lifecycle: `lifecycle`, `quantityState`, `exitKind`, `openedAt`, `closedAt`
 - amount: `remainingBaseRaw` and optional gross/net accounting fields
 - value: `entryValuation`, `currentValuation`, `exitValuation`
-- metrics: `positionPnlUsd`, realized/unrealized PnL, fees, cashback, skip
-  counts, and ratios
+- metrics: `positionPnlUsd`, `estimatedClosePnlUsd`, realized/unrealized PnL,
+  fees, cashback, skip counts, and ratios
 - recovery UI: `actionKind`, `availableActionKinds`
 
 Position rendering rules:
@@ -2836,6 +2965,13 @@ Position rendering rules:
   original quote spent. Actual fee costs and received cashback are already
   included; estimated cashback is excluded. Closed positions use canonical
   realized P&L. Do not reconstruct it or subtract Net Fees again in the client.
+- In Stop Copy selection, render `estimatedClosePnlUsd` as **Est. P&L on
+  closing** for remaining tokens. It includes estimated cashback and protocol
+  fees, but not earlier realized P&L, gas, price impact, or slippage. Respect its
+  status and switch to the preparation response's route preview at confirmation.
+- `skippedSellCount` counts unresolved skipped-sell obligations. Show it beside
+  the current recovery action, even when omitted local skip attempts leave no
+  visible activity row. Do not derive it from activity pagination.
 - `POSITION_EXIT_KIND_MANUAL` is reserved for an explicitly proven manual
   exit.
   Generic owner-directed `sell_unaligned` history projects as
@@ -2871,6 +3007,102 @@ status-bearing `valueUsd` and `valuePct`, and optional
 the time-weighted chart return, not `roiPct`. Use each value's own status.
 For per-trade P&L, the trade and position identifiers are suitable for opening
 the related detail, while the point timestamp remains the chart order key.
+
+#### Position P&L and Stop Copy selection
+
+Use the follower `PositionSummary` returned by:
+
+```http
+GET /users/{ownerAddress}/copy-runs/{copyRunId}/positions?view=POSITION_VIEW_OPEN
+GET /users/{ownerAddress}/positions
+GET /copy-accounts/{chainId}/{copyAccount}/positions
+```
+
+The fields below describe different scopes. Preserve the returned decimal
+strings and each metric's `status` and `asOf`.
+
+| UI use | Field | Meaning |
+| --- | --- | --- |
+| Whole-trade **Position P&L** | `positionPnlUsd` | P&L for one follower position since its opening buy, including previous partial sales and the current remaining value. Includes actual fees and received cashback; excludes estimated cashback. This is not the copy-run total. |
+| Stop modal **Est. P&L on closing** | `estimatedClosePnlUsd` | Estimated net proceeds from selling the remaining tokens at the current mark, less their remaining assigned cost. Includes estimated cashback and protocol fees; excludes earlier realized P&L, gas, price impact, and slippage. |
+| **Realized P&L** | `realizedPnlUsd` | Actual net P&L from completed sales. Do not add fees or received cashback again. |
+| **Unrealized P&L** | `unrealizedPnlUsd` | Price movement on the unsold net tokens against the entry price. It is not the fee-adjusted closing estimate. |
+| **Net fees to date** | `netFeeCostUsd` | Upfront fee value captured at entry minus cashback actually received over this position's lifetime. It is not the fee for selling only the remaining tokens. |
+| **Estimated remaining rebate** | `estimatedCashbackUsd` | Estimated cashback from a future sale of the unsold inventory, already included in `estimatedClosePnlUsd`. |
+| **Received rebate** | `cashbackReceivedUsd` | Cashback already received, including from earlier partial sales. |
+| Remaining token value | `currentValuation.valueUsd` | Current marked token value, using `currentValuation.status` (`DATA_STATUS_*`). This is neither P&L nor guaranteed sale proceeds. |
+
+For an open or closing position, the meaning of `positionPnlUsd` is:
+
+```text
+net quote already received + current remaining token value − original quote spent
+```
+
+For example, a position originally cost $100. Half was sold for $60 net and
+half remains worth $45. Whole-trade P&L is `$60 + $45 − $100 = +$5`: the sold
+half earned $10 against its $50 cost, while the unsold half is down $5. If
+estimated net proceeds for the remaining half are $47 including cashback,
+its **Est. P&L on closing** is `$47 − $50 = −$3`. Both fields can therefore
+have different signs without being inconsistent.
+
+This illustrative fragment shows the resulting display fields, not a complete
+position response:
+
+```json
+{
+  "positionPnlUsd": {
+    "value": "5",
+    "status": "METRIC_STATUS_CURRENT",
+    "asOf": "2026-10-09T00:00:00Z"
+  },
+  "estimatedClosePnlUsd": {
+    "value": "-3",
+    "status": "METRIC_STATUS_CURRENT",
+    "asOf": "2026-10-09T00:00:00Z"
+  },
+  "estimatedCashbackUsd": {
+    "value": "2",
+    "status": "METRIC_STATUS_CURRENT",
+    "asOf": "2026-10-09T00:00:00Z"
+  }
+}
+```
+
+Render the server's P&L values directly. Do not calculate a substitute from
+`unrealizedPnlUsd − netFeeCostUsd`, or from public realized P&L and cashback
+components: they cover different scopes and can update at different times.
+Do not add `estimatedCashbackUsd` to `estimatedClosePnlUsd` or subtract fees
+again. With no received cashback, `netFeeCostUsd` can correctly equal
+`flatFeeCapturedUsd` even when estimated cashback is positive. Preserve signed
+values; do not clamp a negative net fee or P&L to zero.
+
+Closed positions use their returned canonical realized P&L. A residual position
+after full withdrawal can instead carry a historical Stop-boundary P&L; use
+that returned value rather than revaluing it from today's zero wallet balance.
+The closing estimate is not applicable once the position is closed or fully
+withdrawn.
+
+| Closing-estimate state | UI behavior |
+| --- | --- |
+| `METRIC_STATUS_CURRENT` with a value | Show the signed value with **Est. P&L on closing**. Current means current evidence, not guaranteed execution. Preserve an explicit `"0"`. |
+| `METRIC_STATUS_STALE` with a value | Keep the estimate visible with a stale/updating indication and its returned `asOf`. |
+| `METRIC_STATUS_UNAVAILABLE`, absent metric/value, or unknown status | Show an unavailable estimate. Do not fall back to zero, `positionPnlUsd`, or `unrealizedPnlUsd`. |
+| `METRIC_STATUS_NOT_APPLICABLE` | Omit the closing estimate or show a neutral dash; do not display it as a zero return. |
+
+When the Stop modal opens, load the run's open positions and keep selection
+keyed by `positionId`, not token symbol, address, or `tradeId`. Multiple
+positions can hold the same token. Follow pagination before offering a
+selection of all positions; a loaded page is not necessarily the full run.
+Refresh after a sale, Stop, or withdrawal, and remove selections that no longer
+exist in the returned eligible set. Never retain an older estimate when a fresh
+response omits or invalidates it. Follow `meta.pendingActions` and field quality
+alongside each metric.
+
+A missing monetary estimate alone does not decide whether an action is allowed.
+Use the corresponding advisory availability and a fresh preparation. For the
+confirmation step, see [Prepare Stop Copy](#prepare-stop-copy): that response
+supplies route-based proceeds, minimum output, and cashback, but does **not**
+add `estimatedClosePnlUsd` to its `StopPositionPreview` rows.
 
 #### Entry and exit execution prices
 
@@ -3253,7 +3485,7 @@ The detail variant has this shape:
 | `position`      | Open/close/reduce position     | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback                                                                                                               |
 | `capital`       | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric                                                                                                                                            |
 | `fee`           | Flat fee/cashback              | Exact raw amount, token, USD metric                                                                                                                                                            |
-| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline; optional `baseTokenAddress`, `quoteTokenAddress`, `baseToken`, and `quoteToken` for token identity. Attempt amounts are absent when no authoritative follower amount was recorded; never infer them from leader amounts. |
+| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline; optional `baseTokenAddress`, `quoteTokenAddress`, `baseToken`, and `quoteToken` for token identity. Skipped execution details expose token identity but no attempted or executed amount fields; never infer follower amounts from leader amounts. |
 
 The top-level `summary` is display text. Business logic should switch on the
 typed `type` and oneof detail, not parse the summary.
@@ -3263,6 +3495,29 @@ per exact `type`, product `group`, or activity surface. Render capital actions
 distinctly. The public copy-run log and alert-feed surfaces normalize returned
 capital to Capital withdrawn; do not show a separate Capital returned type on
 those surfaces.
+
+#### Capital activity labels and filters
+
+Quote funding added after Start Copy is displayed as **Capital topped up**,
+including the first later deposit and a deposit in the same block as creation.
+The original Start Copy record remains **Copy started** and can carry its
+opening amount in `copyLifecycle`. Distinct transfers remain distinct rows;
+do not combine them merely because their amounts or transaction hashes match.
+
+| Surface | Returned top-up classification | Top-up filter |
+| --- | --- | --- |
+| Owner activity without `activitySurface` | `type=ACTIVITY_TYPE_CAPITAL_TOPPED_UP` | `type=ACTIVITY_TYPE_CAPITAL_TOPPED_UP` |
+| Copy-run log | Same `type`, `category=ACTIVITY_CATEGORY_CAPITAL`, `subtype=ACTIVITY_SUBTYPE_CAPITAL_TOPPED_UP` | `activitySurface=ACTIVITY_SURFACE_COPY_RUN_LOG&copyRunId={copyRunId}&subtype=ACTIVITY_SUBTYPE_CAPITAL_TOPPED_UP` |
+| Alert Feed | Same capital type/category/subtype | `activitySurface=ACTIVITY_SURFACE_ALERT_FEED&subtype=ACTIVITY_SUBTYPE_CAPITAL_TOPPED_UP` |
+| Copy-account history | `type=ACTIVITY_TYPE_CAPITAL_TOPPED_UP` | `type=ACTIVITY_TYPE_CAPITAL_TOPPED_UP` |
+
+When a capital detail is present, normalized top-ups use
+`capital.movementType="top_up"`. The Deposit filter no longer includes those
+rows. Other rows can still be returned as Deposit; honor the server's typed
+classification instead of relabeling them all in the client. Keep
+`activityId`/`alert.alertId` as row identity and preserve the actual amount,
+token, and available transaction link. Reload the first page when changing a
+filter; replace a cursor chain if the server rejects its cursor.
 
 #### Capital amounts in Alert Feed
 
@@ -3275,7 +3530,7 @@ detail when the exact quote amount and token identity are known:
 | `capital.amountRaw` | Exact token amount as a string. Use decimal-safe arithmetic and `capital.token.decimals` for display; never convert the raw integer to a JavaScript `number`. |
 | `capital.tokenAddress`, `capital.token` | Token identity and available metadata. Missing decimals do not make the raw amount zero; retain an unavailable formatted amount until metadata is available. |
 | `capital.valueUsd` | Optional renderable value according to its `DecimalMetric.status`. Missing metadata can leave USD unavailable while the raw amount remains known. |
-| `capital.movementType` | Canonical `deposit`, `top_up`, `withdrawal`, or `returned_capital`. Continue using the row's public category/subtype for product labels; returned capital is displayed as Capital withdrawn. |
+| `capital.movementType` | Public `deposit`, `top_up`, `withdrawal`, or `returned_capital`; post-start deposits can be normalized to `top_up`. Use the row's public category/subtype for labels; returned capital is displayed as Capital withdrawn. |
 | `alert.user.quoteAmountRaw` | The same canonical amount in the existing alert outcome context. It is not an additional movement to add to `capital.amountRaw`. |
 
 Render amounts without parsing `summary` or fallback text. A missing `capital`
@@ -3311,24 +3566,77 @@ the frontend to replay any action.
 
 #### Skipped-trade links
 
-Copy-run activity uses the follower position's `tradeId` consistently for
-executed and skipped trades. A skipped buy that never opened a follower
-position has no `tradeId`, `userPositionId`, or `followerPositionId`. Do not link
-such a row to an agent trade through the top-level `tradeId`. A canonical
-follower position can supply the link later when its facts arrive.
+Visibility is specific to the requested surface:
 
-`txHash` remains optional follower execution evidence. Local skips that never
-submitted an execution have no hash. Hide only the transaction link when it is
-missing; preserve the skipped row and any trade link. A present execution hash
-does not turn a skipped outcome into a successful trade. Never substitute a
-leader transaction hash for a missing follower hash.
+| Surface | Skipped-row behavior |
+| --- | --- |
+| Copy-run logs, owner activity without a surface, copy-account history | A skipped row requires a recorded follower-attempt `txHash`. Local skips without one are omitted. Repeated status updates for a logical action appear once, using the first eligible published row's ID and time. |
+| Alert Feed | Separate alert rules apply; a skipped alert can have no transaction hash. Known zero-input and below-minimum skipped buys are omitted. Render the returned alerts rather than applying the log's hash rule locally. |
 
-Links can appear when parent facts arrive or disappear after a reorg. Replace
-them from refreshed server rows. Alert Feed keeps its separate context shape:
-use `alert.leader.leaderPositionId` for an available leader-trade link and the
-explicitly named leader, attempted-user, or canonical-follower hash for the
-corresponding explorer link. PR #102 does not add top-level `tradeId` to alert
-rows.
+Follow-on skipped sells can be omitted when the server proves that the opening
+buy never created a follower position. Missing IDs alone are not a reason to
+hide a returned row. Skipped sells involving an existing position can remain
+visible after it closes. Do not infer current token ownership from an old log.
+Keep distinct action rows separate even when they refer to the same token or
+position, and follow the server's filtered pagination.
+
+Copy-run activity uses the follower position's `positionId` for executed and
+skipped trades when that position exists. A skipped buy that never opened one
+can have no `positionId`, `tradeId`, or `followerPositionId`, even with a
+recorded transaction hash. Render the outcome without a position link; never
+substitute the agent's trade ID. Use `positionId` and `copyRunId` when opening
+follower position details or preparing a recovery action.
+
+A recorded `txHash` is a transaction identifier, not proof of broadcast,
+inclusion, or success. Do not label it confirmed from its presence. Other
+activity kinds can omit a hash. Alert Feed names its links separately:
+`alert.leader.canonicalLeaderTxHash`, `alert.user.attemptedTxHash`, and
+`alert.user.canonicalFollowerTxHash`. Use each only for its stated context;
+a leader hash must never replace a follower hash. Top-level follower `tradeId`
+is not an Alert Feed trade-link contract.
+
+Skipped log `execution` details identify tokens but do not expose attempted
+or executed amounts. Render the returned `summary` and
+`execution.publicErrorMessage`, or `alert.user.publicErrorMessage` for alerts.
+Do not infer follower amounts from leader amounts, messages, or current
+balances. Alert `alert.user.baseAmountRaw` / `quoteAmountRaw` describe follower
+outcome amounts when present; they are not a promised amount for a skipped
+attempt. Replace rows from refreshed responses, including removal of omitted
+links and amounts after a correction.
+
+#### Recovery buttons and skipped-sell count
+
+The positions API already exposes `skippedSellCount` as a `CountMetric`:
+
+```json
+{
+  "skippedSellCount": {
+    "value": "2",
+    "status": "METRIC_STATUS_CURRENT",
+    "asOf": "2026-10-09T00:00:00Z"
+  }
+}
+```
+
+The count is the number of **unresolved skipped-sell obligations** for that
+position. It is not an executor retry count, total historical failures, a
+skipped-buy count, or a count of visible activity rows. It can remain positive
+when the relevant local attempts have no log-visible transaction hash, and it
+can decrease when recovery resolves obligations.
+
+Use `actionKind` as the primary recommendation and `availableActionKinds` plus
+the independent `manualSellAvailability` / `closePositionAvailability` for the
+controls. Display the usable count beside the recommended action, for example
+**Close Position · 2 skipped sells**. Do not select a button by hard-coding a
+count threshold or by assuming `2` always means Close Position. For `CURRENT`
+or `STALE`, render the supplied string count and preserve any stale indication;
+keep unknown counts unknown and omit a positive-count badge for `"0"`.
+An unavailable count alone must not override a usable action advisory.
+
+After a sell or close, refresh positions and use the returned action/count.
+The pending-sell-obligations endpoint supplies detailed recovery context when
+needed; activity pagination is not a substitute. Prepare the chosen action
+fresh rather than resubmitting a transaction stored in an old log.
 
 #### Stop Copy and downstream activity rows
 
@@ -3344,7 +3652,7 @@ independent canonical facts:
 | `ACTIVITY_TYPE_POSITION_CLOSED`                                                                                         | One completed sell that closes the position                | Use the token and exact raw accounting from `position`.                                                                |
 
 All such rows can share `copyRunId` and `copyAccount`. Position and execution
-rows can additionally carry `userPositionId`, `followerPositionId`, `tradeId`,
+rows can additionally carry `positionId`, `followerPositionId`, `tradeId`,
 or `execution.exitActionId`. The public `ACTIVITY_TYPE_COPY_STOPPED` row does
 **not** expose a parent/child correlation identifier connecting it to every
 downstream exit.
@@ -3383,7 +3691,7 @@ There is no exact total-count contract—use `pagination.hasMore`.
 | GET    | `/copy-accounts/{chainId}/{copyAccount}/balances`                                            | `cursor?`, `limit?`                                   | `WalletBalanceRow[]`; response also includes `pinnedStableBalance`                             |
 | GET    | `/copy-accounts/{chainId}/{copyAccount}/wallet-inventory`                                    | Path only                                             | Bounded `WalletBalanceRow[]`, `walletInventoryValueUsd`, `complete`, and `pinnedStableBalance` |
 | GET    | `/copy-accounts/{chainId}/{copyAccount}/positions`                                           | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]`                                                                            |
-| GET    | `/copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations` | `cursor?`, `limit?`                                   | `PendingSellObligation[]`                                                                      |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/positions/{positionId}/pending-sell-obligations` | `cursor?`, `limit?`                                   | `PendingSellObligation[]`                                                                      |
 | GET    | `/copy-accounts/{chainId}/{copyAccount}/history`                                             | `type?`, `group?`, `cursor?`, `limit?`                | `ActivityRow[]`                                                                                |
 
 `CopyAccountSummary` contains chain/account/creation-owner identity, current
@@ -3916,7 +4224,7 @@ fields used for rendering.
 | Status `data.display` | Added by the submitted-action display contract on normal status responses; absent on older servers and request-error envelopes. Missing or unknown display readiness proves nothing and must not reuse a prior `READY`. |
 | Status `data.display.status` | `SUBMITTED_ACTION_DISPLAY_STATUS_PENDING`, `SUBMITTED_ACTION_DISPLAY_STATUS_READY`, or `SUBMITTED_ACTION_DISPLAY_STATUS_SYNCING`. Independent of `data.status`; inspect both. An omitted or `UNSPECIFIED` value is not ready. |
 | Status `data.display.copyRunId`, `readOwnerAddress` | Supplied when `READY`; they can also identify the target while pending. Use this read owner for resource links, not as a replacement for the saved request owner. |
-| Status `data.display.userPositionId` | Present for a resolved sell/close position; use it only with the matching copy run and saved chain. |
+| Status `data.display.positionId` | Present for a resolved sell/close position; use it only with the matching copy run and saved chain. |
 | Status `data.display.capitalInUsd`, `capitalOutUsd` | Optional `DecimalMetric` objects, populated only when `READY` and applicable. Keep `value` as a decimal string, preserve `status` and `asOf`, and treat an omitted metric as unknown rather than zero. See the action table below. |
 | Status `data.display.finality` | Qualifies the displayed data as `DATA_FINALITY_PROVISIONAL` or `DATA_FINALITY_FINAL` when ready. Usually omitted while pending. It does not change the strict action status or authorize another action. |
 | Status `data.display.reason` | Explains why display data is pending or syncing, such as source indexing, source unavailability, or repair. Use the enum for control flow; do not parse the message text. |
@@ -4304,7 +4612,7 @@ POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy
 
 ```json
 {
-  "userPositionIds": ["user_position_..."],
+  "positionIds": ["0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
   "slippageBps": 400
 }
 ```
@@ -4315,11 +4623,33 @@ POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy
 - Each position ID is 1..256 characters.
 - `slippageBps` is an integer from 0 to 10,000.
 
+Populate the selection screen from the run's `PositionSummary` rows. Use
+`estimatedClosePnlUsd` for **Est. P&L on closing** and `currentValuation.valueUsd`
+for the token-value column; these are different amounts. Do not use
+`positionPnlUsd` or `unrealizedPnlUsd` as a fallback closing estimate. See
+[Position P&L and Stop Copy selection](#position-pl-and-stop-copy-selection).
+
 `data.stopCopy` contains at most 32 position previews and totals. Each row pins
-the `userPositionId`, `tradeId`, base token, user base amount, cashback,
+the `positionId`, `tradeId`, base token, user base amount, cashback,
 current valuation, lifecycle, unrealized P&L, and `swapQuote`. The stop-level
 `totalSwapQuote` carries total expected/minimum quote metrics. If the selectable
 position set changes, discard the old preparation and prepare again.
+
+| Confirmation display | Preparation field | Rule |
+| --- | --- | --- |
+| Expected net proceeds per position | `data.stopCopy.positions[].swapQuote.expectedQuote` | Raw quote-token units; already includes cashback and deducts protocol fees. Match rows by `positionId`. |
+| Minimum proceeds per position | `data.stopCopy.positions[].swapQuote.minimumQuote` | Use the returned minimum; do not derive it from the earlier USD mark estimate. |
+| Total expected / minimum proceeds | `data.stopCopy.totalSwapQuote.expectedQuote` / `minimumQuote` | Use the server totals and `data.stopCopy.quoteToken.decimals`. Preserve each metric's status. |
+| Estimated value selected | `data.stopCopy.totalCurrentValueUsd` | USD marked value of the selected inventory; it is not P&L or expected quote proceeds. |
+| Cashback disclosure | `data.stopCopy.positions[].cashback` / `totalCashback` | Part of net expected proceeds, not an extra amount to add to them. |
+
+`StopPositionPreview` has `unrealizedPnlUsd`, but it does not expose
+`estimatedClosePnlUsd`. Do not silently relabel that unrealized value as closing
+P&L. Use the route-based preview to review proceeds; any closing P&L carried
+from the selection remains a separately labeled mark estimate. Quote metrics
+use `valueRaw`, whereas USD metrics use `value`. Reprepare after the returned
+validity boundary or when selection/slippage changes, and submit only a fresh
+executable preparation.
 
 For an empty selection, `totalCurrentValueUsd`, `totalSwapQuote.expectedQuote`,
 `totalSwapQuote.minimumQuote`, and `totalCashback` are current `"0"` metrics,
@@ -4502,7 +4832,7 @@ stable-only withdrawal without changing pause state.
 ### Prepare Manual Sell
 
 ```http
-POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareManualSell
 ```
 
 ```json
@@ -4565,7 +4895,7 @@ For routing or dependency failures, use the
 ### Prepare Close Position
 
 ```http
-POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}:prepareClosePosition
 ```
 
 ```json
@@ -4862,7 +5192,7 @@ current status display. For example, a pending response can be:
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     },
     "guidance": {
@@ -4933,7 +5263,7 @@ page data. Apply the latest response in this order:
 with raw token amounts. It has no separate status or finality field. Format
 amounts using the matching token's decimals and keep the raw strings intact.
 The optional `display.finality` qualifies display data, not the receipt result.
-`receiptResult` has no `copyRunId` or `userPositionId`; use the IDs returned in
+`receiptResult` has no `copyRunId` or `positionId`; use the IDs returned in
 `display` or `result` for newly resolved resource links.
 
 A verified receipt effect can remain available when `data.status = UNKNOWN`
@@ -5001,10 +5331,10 @@ message and the updating-data indicator separate.
 | Stop Copy | The paused copy-run lifecycle. The run can remain `closing` while positions exit; do not label all exits complete. |
 | Withdraw Quote | For a positive withdrawal, `display.capitalOutUsd` includes this withdrawal. A zero maximum withdrawal can be ready without a capital metric. |
 | Withdraw Tokens | The paused account lifecycle. A positive quote withdrawal is included in `display.capitalOutUsd`; zero or nonquote batches can be ready without it. Refresh wallet inventory separately. |
-| Manual Sell / Close Position | The sale activity and current position detail. Use `userPositionId` to refresh position/history; a later trade can change the current remaining amount. |
+| Manual Sell / Close Position | The sale activity and current position detail. Use `positionId` to refresh position/history; a later trade can change the current remaining amount. |
 
 Use `display.readOwnerAddress` with `copyRunId` for owner-scoped reads and
-`userPositionId` for position reads. Keep the original owner, chain, hash, and
+`positionId` for position reads. Keep the original owner, chain, hash, and
 `statusContext` for polling. The read owner can differ from the transaction
 actor.
 
@@ -5029,7 +5359,7 @@ Read these fields directly from each GET response:
 
 A pending-action descriptor contains `kind`, `chainId`, `transactionHash`,
 `copyAccount`, `copyRunId`, `readOwnerAddress`, `agentId`, optional
-`userPositionId`, `receiptBlockNumber`, `receiptBlockHash`, `fieldGroups`, and
+`positionId`, `receiptBlockNumber`, `receiptBlockHash`, `fieldGroups`, and
 `receiptInvalidated`. Public agent responses can omit action descriptors;
 their returned metric and group quality still apply. Descriptors contain no
 amount to add to a total and do not authorize another transaction.
@@ -5341,7 +5671,7 @@ usable provisional value. Unrelated fields are omitted for clarity:
 ```json
 {
   "data": {
-    "copyRunId": "run_1",
+    "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "status": "COPY_RUN_STATUS_ACTIVE",
     "capitalInUsd": {
       "value": "5",
@@ -5466,7 +5796,7 @@ expiry checks.
         "token": "0x3333333333333333333333333333333333333333",
         "amountRaw": "9"
       },
-      "copyRunId": "run_1"
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     },
     "displayEnrichment": {
       "status": "ACTION_DISPLAY_ENRICHMENT_STATUS_UNAVAILABLE",
@@ -5537,8 +5867,8 @@ HTTP 200 from `:prepareManualSell` with only `{"slippageBps": 125}`. Show the re
     },
     "manualSell": {
       "context": "POSITION_SELL_CONTEXT_ALIGN_SKIP",
-      "userPositionId": "position_1",
-      "tradeId": "trade_1",
+      "positionId": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "tradeId": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       "baseToken": {
         "chainId": "8453",
         "address": "0x4444444444444444444444444444444444444444",
@@ -5638,16 +5968,16 @@ HTTP 200 after the user reviews the quantities and sends `{"slippageBps": 125, "
         "sellRatioRaw": "500000000000000000",
         "unresolvedSkipCount": 1
       },
-      "copyRunId": "run_1",
-      "userPositionId": "position_1"
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "positionId": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     },
     "displayEnrichment": {
       "status": "ACTION_DISPLAY_ENRICHMENT_STATUS_COMPLETE"
     },
     "manualSell": {
       "context": "POSITION_SELL_CONTEXT_ALIGN_SKIP",
-      "userPositionId": "position_1",
-      "tradeId": "trade_1",
+      "positionId": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "tradeId": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       "baseToken": {
         "chainId": "8453",
         "address": "0x4444444444444444444444444444444444444444",
@@ -5737,8 +6067,8 @@ HTTP 200 for the same preparation request when no route can be prepared. No `cal
     },
     "manualSell": {
       "context": "POSITION_SELL_CONTEXT_ALIGN_SKIP",
-      "userPositionId": "position_1",
-      "tradeId": "trade_1",
+      "positionId": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "tradeId": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       "baseToken": {
         "chainId": "8453",
         "address": "0x4444444444444444444444444444444444444444",
@@ -5838,7 +6168,7 @@ transaction progress blocking. There is no `result` or `nextStep` yet.
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_SYNCING",
       "reason": "SUBMITTED_ACTION_REASON_RESULT_PUBLICATION",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     },
     "guidance": {
@@ -5877,7 +6207,7 @@ HTTP 200 from `actions:status`. The receipt says `REVERTED`, but the action stat
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
@@ -5912,7 +6242,7 @@ HTTP 200. This response has no `receiptResult` or `result` and its display is `P
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
@@ -5943,7 +6273,7 @@ HTTP 200. Display Capital In as 21 with a provisional label. It already includes
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111",
       "capitalInUsd": {
         "value": "21",
@@ -6010,7 +6340,7 @@ HTTP 200. Show this call as completed using `result`. The updated public total i
     "result": {
       "kind": "ACTION_TRANSACTION_KIND_ADD_CAPITAL",
       "copyAccount": "0x2222222222222222222222222222222222222222",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111",
       "effects": [
         {
@@ -6036,7 +6366,7 @@ HTTP 200. Show this call as completed using `result`. The updated public total i
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     },
     "guidance": {
@@ -6071,7 +6401,7 @@ HTTP 200. Capital Out includes the exact positive quote withdrawal. Render 5 wit
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111",
       "capitalOutUsd": {
         "value": "5",
@@ -6113,8 +6443,8 @@ HTTP 200. The exact sale completed with 50 raw base units remaining. Refresh the
     "result": {
       "kind": "ACTION_TRANSACTION_KIND_MANUAL_SELL",
       "copyAccount": "0x2222222222222222222222222222222222222222",
-      "copyRunId": "run_1",
-      "userPositionId": "position_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "positionId": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111",
       "effects": [
         {
@@ -6144,10 +6474,10 @@ HTTP 200. The exact sale completed with 50 raw base units remaining. Refresh the
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111",
       "finality": "DATA_FINALITY_PROVISIONAL",
-      "userPositionId": "position_1"
+      "positionId": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     }
   }
 }
@@ -6187,7 +6517,7 @@ HTTP 200. The confirmed direct transaction reverted. `result` is absent. Review 
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
@@ -6217,7 +6547,7 @@ HTTP 200. This is an `UNKNOWN` observation, not an HTTP dependency error or a fa
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
@@ -6247,7 +6577,7 @@ HTTP 200. Replace the previous observation with this response, including removal
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_PENDING",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111"
     }
   }
@@ -6279,7 +6609,7 @@ HTTP 200 for an empty Stop that reasserted pause. `result.stop` identifies the e
     "result": {
       "kind": "ACTION_TRANSACTION_KIND_STOP_COPY",
       "copyAccount": "0x2222222222222222222222222222222222222222",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111",
       "effects": [
         {
@@ -6320,7 +6650,7 @@ HTTP 200 for an empty Stop that reasserted pause. `result.stop` identifies the e
     },
     "display": {
       "status": "SUBMITTED_ACTION_DISPLAY_STATUS_READY",
-      "copyRunId": "run_1",
+      "copyRunId": "cr_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
       "readOwnerAddress": "0x1111111111111111111111111111111111111111",
       "finality": "DATA_FINALITY_PROVISIONAL"
     }
@@ -6752,6 +7082,16 @@ component and request-state tests. No live transaction is needed for these cases
   adjustment. An open partially sold position does not require an exit valuation.
 - A closed position renders actual received rebate, with remaining estimated
   cashback marked not applicable. Unavailable estimates never become zero.
+- A partial-sale position can show positive whole-trade `positionPnlUsd` and
+  negative `estimatedClosePnlUsd`; each appears in its intended UI location.
+- Missing or stale closing estimates preserve their status and never fall back
+  to whole-trade/unrealized P&L. Confirmation uses prepared net quote amounts
+  without adding cashback or deducting fees a second time.
+- A post-start deposit appears in the Top Up filter on each activity surface;
+  distinct transfers remain separate rows with their original IDs.
+- Copy-run logs can have no skipped row while a position still shows a positive
+  `skippedSellCount` and a recovery action. Alert Feed can separately return a
+  hashless skipped alert; neither surface dictates the position's count.
 - A stale Total Return renders with its status while independently available
   dollar P&L remains visible. Missing Return does not hide a History row.
 - A successful withdrawal can remain Closing. Neither receipt success nor

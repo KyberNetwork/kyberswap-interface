@@ -77,7 +77,7 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
             <div key={row.positionId}>
               <TradeHistoryGrid className="max-lg:hidden">
                 <TableCell className="text-subText">
-                  <ShortenedId value={row.tradeId} />
+                  <ShortenedId value={row.positionId} />
                 </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.entryPriceUsd, 2)}</TableCell>
@@ -105,7 +105,7 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                   }
                   metricLabel="P&amp;L"
                   tokenSymbol={row.token.symbol}
-                  tradeId={row.tradeId}
+                  positionId={row.positionId}
                 />
 
                 <TableCardGrid className="border-t border-tableHeader p-3">

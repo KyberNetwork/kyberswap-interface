@@ -6,6 +6,16 @@ import type { Address, LooseString, Metric, MetricStatus, Timestamp } from 'serv
 export type ActionGuidance = {
   message?: string
   retryAfterMs?: number
+  nextSteps?: {
+    kind?: string
+    label?: string
+    action?: string
+    copyRunId?: string
+    positionId?: string
+    tokenAddress?: Address
+    amountRaw?: string
+    spenderAddress?: Address
+  }[]
 }
 
 export type ActionFailureDetails = {
@@ -197,7 +207,7 @@ export type PreparedPositionLifecycle =
   | 'POSITION_LIFECYCLE_CLOSED'
 
 export type StopPositionPreview = {
-  userPositionId?: string
+  positionId?: string
   tradeId?: string
   baseToken?: PreparedToken
   userBaseRaw?: string
@@ -245,7 +255,7 @@ export type PositionSellContext =
 
 export type PositionSellPreview = {
   context?: PositionSellContext
-  userPositionId?: string
+  positionId?: string
   tradeId?: string
   baseToken?: PreparedToken
   quoteToken?: PreparedToken
@@ -320,7 +330,7 @@ export type PrepareAddCapitalRequest = PrepareCopyRunRequest & {
 }
 
 export type PrepareStopCopyRequest = PrepareCopyRunRequest & {
-  userPositionIds: string[]
+  positionIds: string[]
   slippageBps: number
 }
 
@@ -329,7 +339,7 @@ export type PrepareWithdrawQuoteRequest = PrepareCopyRunRequest & {
 }
 
 export type PreparePositionRequest = PrepareCopyRunRequest & {
-  userPositionId: string
+  positionId: string
   slippageBps: number
 }
 

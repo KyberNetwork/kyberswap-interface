@@ -16,7 +16,6 @@ export type AlertFeedItemViewModel = {
   key: string
   manualSellCopyRunId?: string
   occurredAt: string
-  referenceId?: string
   userAction?: 'bought' | 'sold' | 'skipped' | 'pending' | 'completed'
   userAmount?: string
   userFallback?: string
@@ -105,7 +104,6 @@ export const getAlertFeedItemViewModel = (activity: ActivityRow): AlertFeedItemV
     key: alert?.alertId || activity.activityId,
     manualSellCopyRunId: user?.status === 'skipped' && userSide === 'sell' ? activity.copyRunId : undefined,
     occurredAt: activity.occurredAt,
-    referenceId: leader?.leaderPositionId || activity.tradeId,
     userAction: resolvedUserAction,
     userAmount,
     userFallback,

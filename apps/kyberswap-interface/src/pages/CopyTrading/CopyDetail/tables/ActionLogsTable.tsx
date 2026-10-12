@@ -173,7 +173,7 @@ export const ActionLogsTable = ({
               <div key={row.activityId}>
                 <ActivityGrid className="max-lg:hidden">
                   <TableCell className="text-subText">
-                    <ShortenedId value={row.tradeId} />
+                    <ShortenedId value={row.positionId} />
                   </TableCell>
                   <TableCell>{token?.symbol}</TableCell>
                   <TableCell className={type.colorClassName}>{type.label}</TableCell>
@@ -189,7 +189,7 @@ export const ActionLogsTable = ({
                     metric={<span className={type.colorClassName}>{type.label}</span>}
                     metricLabel="Type"
                     tokenSymbol={token?.symbol}
-                    tradeId={row.tradeId}
+                    positionId={row.positionId}
                   />
 
                   <TableCardGrid className="border-t border-tableHeader p-3">

@@ -1,3 +1,4 @@
+import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions'
 
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
@@ -7,7 +8,7 @@ import { formatApproximateUsd, getSignedMetricClassName, signedUsd } from 'pages
 import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
-import { MAX_STOP_POSITIONS, type SelectableStopCopyPosition } from 'pages/CopyTrading/modals/StopCopyModal/positions'
+import { MAX_STOP_POSITIONS } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 import { cn } from 'utils/cn'
 
 const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
@@ -18,7 +19,7 @@ const groupStopCopyPositionsByToken = (positions: NonNullable<StopCopyPreview['p
   positions.forEach((position, index) => {
     const address = position.baseToken?.address?.toLowerCase()
     const symbol = position.baseToken?.symbol
-    const key = address || (symbol ? `symbol:${symbol.toLowerCase()}` : `unknown:${position.userPositionId || index}`)
+    const key = address || (symbol ? `symbol:${symbol.toLowerCase()}` : `unknown:${position.positionId || index}`)
     const current = groups.get(key)
 
     groups.set(key, {
@@ -90,12 +91,12 @@ type StopCopyFormProps = {
   availabilityMessage?: string
   expectedPositionCount?: number
   isPreparing: boolean
-  isSelected: (position: SelectableStopCopyPosition, index: number) => boolean
+  isSelected: (position: PositionSummary, index: number) => boolean
   onCancel: () => void
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
-  onTogglePosition: (position: SelectableStopCopyPosition, index: number) => void
-  positions?: SelectableStopCopyPosition[]
+  onTogglePosition: (position: PositionSummary, index: number) => void
+  positions?: PositionSummary[]
   positionsError?: string
   primaryActionDisabled: boolean
   primaryActionLabel: string
@@ -134,7 +135,7 @@ type StopCopyPositionRowProps = {
   checked: boolean
   disabled: boolean
   onToggle: () => void
-  position: SelectableStopCopyPosition
+  position: PositionSummary
 }
 
 const StopCopyPositionRow = ({ checked, disabled, onToggle, position }: StopCopyPositionRowProps) => (
@@ -154,8 +155,8 @@ const StopCopyPositionRow = ({ checked, disabled, onToggle, position }: StopCopy
     <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
     <HStack className="col-span-2 col-start-2 row-start-2 min-w-0 items-center gap-1 sm:col-auto sm:row-auto">
       <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
-      <span className={cn('truncate text-sm font-medium', getSignedMetricClassName(position.positionPnlUsd))}>
-        {signedUsd(position.positionPnlUsd)}
+      <span className={cn('truncate text-sm font-medium', getSignedMetricClassName(position.estimatedClosePnlUsd))}>
+        {signedUsd(position.estimatedClosePnlUsd)}
       </span>
     </HStack>
     <span className="col-start-3 row-start-1 truncate text-right text-sm font-medium text-text sm:col-auto sm:row-auto">
@@ -199,7 +200,7 @@ const StopCopyPositionList = ({
 
       return (
         <StopCopyPositionRow
-          key={position.userPositionId}
+          key={position.positionId}
           checked={checked}
           disabled={isPreparing || selectionLimitReached}
           onToggle={() => onTogglePosition(position, index)}

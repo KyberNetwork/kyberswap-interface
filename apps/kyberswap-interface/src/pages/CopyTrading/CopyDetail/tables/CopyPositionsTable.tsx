@@ -142,7 +142,7 @@ export const CopyPositionsTable = ({
             <div key={row.positionId}>
               <CopyPositionsGrid className="max-lg:hidden">
                 <TableCell className="text-subText">
-                  <ShortenedId value={row.tradeId} />
+                  <ShortenedId value={row.positionId} />
                 </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.entryPriceUsd, 2)}</TableCell>
@@ -183,7 +183,7 @@ export const CopyPositionsTable = ({
                   }
                   metricLabel="Unrealised P&amp;L"
                   tokenSymbol={row.token.symbol}
-                  tradeId={row.tradeId}
+                  positionId={row.positionId}
                 />
 
                 <Stack className="gap-3 border-t border-tableHeader p-3">

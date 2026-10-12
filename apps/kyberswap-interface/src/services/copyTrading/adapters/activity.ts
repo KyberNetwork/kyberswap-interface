@@ -33,7 +33,7 @@ type ApiActivity = {
   subtype?: string
   summary?: string
   occurredAt?: string
-  userPositionId?: string
+  positionId?: string
   followerPositionId?: string
   tradeId?: string
   txHash?: string
@@ -287,7 +287,7 @@ const toActivity = (activity: ApiActivity): ActivityRow => ({
   subtype: enumValue(activity.subtype, 'ACTIVITY_SUBTYPE_') as ActivitySubtype | undefined,
   summary: activity.summary || '',
   occurredAt: activity.occurredAt || '',
-  userPositionId: activity.userPositionId,
+  positionId: activity.positionId,
   followerPositionId: activity.followerPositionId,
   tradeId: activity.tradeId,
   txHash: activity.txHash,

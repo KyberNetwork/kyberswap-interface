@@ -34,7 +34,7 @@ type TradeCardHeaderProps = {
   metric: ReactNode
   metricLabel: string
   tokenSymbol?: string
-  tradeId?: string
+  positionId?: string
 }
 
 type EmptyStateProps = {
@@ -175,15 +175,14 @@ const TokenChip = ({ symbol }: { symbol: string }) => (
 
 export const TableCardValueFallback = () => <span className="text-subText">—</span>
 
-export const TradeCardHeader = ({ metric, metricLabel, tokenSymbol, tradeId }: TradeCardHeaderProps) => {
-  const normalizedTradeId = tradeId?.trim()
+export const TradeCardHeader = ({ metric, metricLabel, tokenSymbol, positionId }: TradeCardHeaderProps) => {
   const normalizedTokenSymbol = tokenSymbol?.trim()
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 p-3">
       <TableCardField label="Trade ID">
         <HStack className="min-w-0 items-center gap-2">
-          {normalizedTradeId ? <ShortenedId value={normalizedTradeId} /> : <TableCardValueFallback />}
+          {positionId ? <ShortenedId value={positionId} /> : <TableCardValueFallback />}
           {normalizedTokenSymbol && <TokenChip symbol={normalizedTokenSymbol} />}
         </HStack>
       </TableCardField>

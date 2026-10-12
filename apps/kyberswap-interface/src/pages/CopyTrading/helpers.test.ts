@@ -89,7 +89,7 @@ const query = (currentData?: unknown, error?: unknown) => ({
   refetch: vi.fn(),
 })
 const profile = { data: { agentId: 'agent-1', chainId: 8453 } }
-const run = { data: { copyRunId: 'run-1', agentId: 'agent-1', chainId: 8453 } }
+const run = { data: { copyRunId: 'cr_Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0', agentId: 'agent-1', chainId: 8453 } }
 const chainContext = {
   selectedChainId: 8453,
   chains: [
@@ -101,7 +101,7 @@ const chainContext = {
 describe('detail page read recovery', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.params.mockReturnValue({ agentCode: 'agent-1', copyId: 'run-1' })
+    mocks.params.mockReturnValue({ agentCode: 'agent-1', copyId: 'cr_Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0' })
     mocks.context.mockReturnValue({ ...chainContext, ownerAddress: 'owner-1' })
     mocks.restoring.mockReturnValue(false)
     mocks.agent.mockReturnValue(query(profile))
@@ -166,39 +166,36 @@ describe('detail page read recovery', () => {
     mocks.agent.mockReturnValue({ ...query(), isFetching: true })
     const page = CopyDetail({ backPath: 'my-copies' })
     expect(page.props.children[0]).toMatchObject({ type: 'agent', props: { agent: agentSnapshot } })
-    expect(page.props.children[1].props.run.copyRunId).toBe('run-1')
+    expect(page.props.children[1].props.run.copyRunId).toBe('cr_Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0_-Aa0')
   })
 
-  it.each([403, 404])('keeps missing/forbidden resources (%s) on the page with only the header Back to', status => {
+  it.each([403, 404])('redirects missing/forbidden resources (%s) to their list', status => {
     mocks.agent.mockReturnValue(query(undefined, { status }))
     expect(AgentProfile()).toMatchObject({
-      type: 'page',
-      props: {
-        backTo: { label: 'Leaderboard', to: APP_PATHS.COPY_TRADING + '/base' },
-        children: { type: 'read-error', props: { resourceUnavailable: true } },
-      },
+      type: 'navigate',
+      props: { to: APP_PATHS.COPY_TRADING + '/base', replace: true },
     })
     mocks.agent.mockReturnValue(query(profile))
     mocks.copyRun.mockReturnValue(query(undefined, { status }))
     expect(CopyDetail({ backPath: 'history' })).toMatchObject({
-      type: 'page',
-      props: {
-        backTo: { label: 'History', to: APP_PATHS.COPY_TRADING + '/base/history' },
-        children: { type: 'read-error', props: { resourceUnavailable: true } },
-      },
+      type: 'navigate',
+      props: { to: APP_PATHS.COPY_TRADING + '/base/history', replace: true },
     })
     expect(mocks.agent().refetch).not.toHaveBeenCalled()
     expect(mocks.copyRun().refetch).not.toHaveBeenCalled()
   })
 
-  it('shows the error without a retry for missing route IDs and skipped queries', () => {
+  it('redirects missing route IDs without retrying skipped queries', () => {
     mocks.params.mockReturnValue({})
     mocks.agent.mockReturnValue({ ...query(), isUninitialized: true })
     mocks.copyRun.mockReturnValue({ ...query(), isUninitialized: true })
-    expect(AgentProfile().props.children).toMatchObject({ type: 'read-error', props: { resourceUnavailable: true } })
-    expect(CopyDetail({ backPath: 'my-copies' }).props.children).toMatchObject({
-      type: 'read-error',
-      props: { resourceUnavailable: true },
+    expect(AgentProfile()).toMatchObject({
+      type: 'navigate',
+      props: { to: APP_PATHS.COPY_TRADING + '/base', replace: true },
+    })
+    expect(CopyDetail({ backPath: 'my-copies' })).toMatchObject({
+      type: 'navigate',
+      props: { to: APP_PATHS.COPY_TRADING + '/base/my-copies', replace: true },
     })
   })
 

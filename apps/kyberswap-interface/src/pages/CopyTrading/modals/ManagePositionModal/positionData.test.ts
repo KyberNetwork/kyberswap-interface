@@ -28,7 +28,7 @@ const obligationPage = (
 const obligationQuery = {
   chainId: 8453,
   copyAccount,
-  userPositionId: 'selected',
+  positionId: 'selected',
 }
 
 describe('loadPendingSellObligations', () => {

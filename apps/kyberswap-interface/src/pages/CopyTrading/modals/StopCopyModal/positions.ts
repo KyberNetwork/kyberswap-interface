@@ -5,10 +5,7 @@ import type { CopyRunPositionsResponse } from 'services/copyTrading/types/respon
 export const MAX_STOP_POSITIONS = 32
 const POSITIONS_PAGE_SIZE = 100
 
-export type SelectableStopCopyPosition = PositionSummary & { userPositionId: string }
-
-export const hasUserPositionId = (position: PositionSummary): position is SelectableStopCopyPosition =>
-  !!position.userPositionId
+export const hasPositionId = (position: PositionSummary) => !!position.positionId
 
 type GetCopyRunPositions = (query: CopyRunPositionsQuery) => {
   unwrap: () => Promise<CopyRunPositionsResponse>
@@ -29,7 +26,7 @@ export const loadAllOpenCopyRunPositions = async (getCopyRunPositions: GetCopyRu
     }).unwrap()
 
     response.data.forEach(position => {
-      const positionId = position.userPositionId || position.positionId
+      const positionId = position.positionId
       if (!positionId || seenPositionIds.has(positionId)) return
 
       seenPositionIds.add(positionId)
@@ -49,10 +46,10 @@ export const loadAllOpenCopyRunPositions = async (getCopyRunPositions: GetCopyRu
 }
 
 export const getSelectedStopCopyPositionIds = (
-  positions: SelectableStopCopyPosition[],
-  isSelected: (position: SelectableStopCopyPosition, index: number) => boolean,
+  positions: PositionSummary[],
+  isSelected: (position: PositionSummary, index: number) => boolean,
 ) => {
-  const positionIds = positions.filter(isSelected).map(position => position.userPositionId)
+  const positionIds = positions.filter(isSelected).map(position => position.positionId)
 
   if (positionIds.length > MAX_STOP_POSITIONS) {
     throw new Error('Select at most ' + MAX_STOP_POSITIONS + ' positions before continuing.')

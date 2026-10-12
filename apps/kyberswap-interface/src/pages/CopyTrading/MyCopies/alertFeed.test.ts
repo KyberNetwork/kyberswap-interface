@@ -104,7 +104,6 @@ describe('getAlertFeedItemViewModel', () => {
       agentTokenSymbol: 'ETH',
       indicatorTone: 'buy',
       key: 'alert-1',
-      referenceId: '0x1234567890abcdef',
       userAction: 'bought',
       userAmount: '0.078',
       userPrice: '3,204',

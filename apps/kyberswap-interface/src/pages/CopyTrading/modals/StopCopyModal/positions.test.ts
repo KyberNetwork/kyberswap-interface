@@ -4,16 +4,15 @@ import type { CopyRunPositionsResponse } from 'services/copyTrading/types/respon
 import { describe, expect, it, vi } from 'vitest'
 
 import {
-  type SelectableStopCopyPosition,
   getSelectedStopCopyPositionIds,
+  hasPositionId,
   loadAllOpenCopyRunPositions,
 } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 
-const position = (id: string): SelectableStopCopyPosition =>
+const position = (id: string): PositionSummary =>
   ({
     positionId: id,
-    userPositionId: id,
-  } as SelectableStopCopyPosition)
+  } as PositionSummary)
 
 const response = (
   data: PositionSummary[],
@@ -38,7 +37,7 @@ describe('Stop Copy position loading', () => {
       copyRunId: 'copy-run-1',
     })
 
-    expect(positions.map(item => item.userPositionId)).toEqual(['position-1', 'position-2', 'position-3'])
+    expect(positions.map(item => item.positionId)).toEqual(['position-1', 'position-2', 'position-3'])
     expect(getPositions).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({ status: 'open', cursor: undefined, limit: 100 }),
@@ -69,6 +68,13 @@ describe('Stop Copy position loading', () => {
 })
 
 describe('Stop Copy position selection', () => {
+  it('selects canonical positions without legacy identity and rejects a trade-only row', () => {
+    const canonical = position('0x' + 'ab'.repeat(32))
+    const tradeOnly = { ...position(''), tradeId: 'compatibility-only' }
+    const selectable = [canonical, tradeOnly].filter(hasPositionId)
+    expect(getSelectedStopCopyPositionIds(selectable, () => true)).toEqual([canonical.positionId])
+  })
+
   it('returns 32 selected position IDs', () => {
     const positions = Array.from({ length: 32 }, (_, index) => position(`position-${index}`))
     expect(getSelectedStopCopyPositionIds(positions, () => true)).toHaveLength(32)

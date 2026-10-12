@@ -12,7 +12,8 @@ import {
 } from 'pages/CopyTrading/MyCopies/alertFeed'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
-import { ContentPanel, ShortenedId } from 'pages/CopyTrading/components/common/layout'
+import { TxHashLink } from 'pages/CopyTrading/components/common/TxHashLink'
+import { ContentPanel } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   type ActivityTone,
@@ -103,6 +104,14 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
             const activityLabel = getActivityLabel(item)
             const summary = item.summary.trim()
             const showSummary = !!summary && !isSameActivityCopy(summary, activityLabel)
+            const leaderTxHash = item.alert?.leader?.canonicalLeaderTxHash
+            const followerTxHash = item.alert?.user?.canonicalFollowerTxHash
+            const followerTxLink = followerTxHash ? (
+              <>
+                <span className="text-subText"> • </span>
+                <TxHashLink chainId={item.chainId} txHash={followerTxHash} />
+              </>
+            ) : null
 
             return (
               <HStack key={alert.key} className="items-start gap-3">
@@ -116,12 +125,6 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                           {alert.agentAction}
                         </span>{' '}
                         {alert.agentTokenSymbol}
-                        {alert.referenceId && (
-                          <span className="text-subText">
-                            {' '}
-                            · <ShortenedId value={alert.referenceId} />
-                          </span>
-                        )}
                       </>
                     ) : alert.agentFallback ? (
                       alert.agentFallback
@@ -133,6 +136,12 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                     ) : (
                       `${alert.agentName} ${activityLabel}`
                     )}
+                    {leaderTxHash && (
+                      <>
+                        <span className="text-subText"> • </span>
+                        <TxHashLink chainId={item.chainId} txHash={leaderTxHash} />
+                      </>
+                    )}
                   </p>
 
                   {alert.capital ? (
@@ -142,7 +151,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                         {formatRawTokenAmount(alert.capital.amountRaw, alert.capital.token?.decimals) ?? 'N/A'}
                         {alert.capital.token?.symbol && ` ${alert.capital.token.symbol}`}
                       </span>{' '}
-                      ({formatUsd(metricValue(alert.capital.valueUsd))})
+                      ({formatUsd(metricValue(alert.capital.valueUsd))}){followerTxLink}
                     </p>
                   ) : alert.userAction ? (
                     <p className="break-words text-sm text-subText">
@@ -176,11 +185,20 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                           </Link>
                         </>
                       )}
+                      {followerTxLink}
                     </p>
                   ) : alert.userFallback ? (
-                    <p className="break-words text-sm text-subText">{alert.userFallback}</p>
+                    <p className="break-words text-sm text-subText">
+                      {alert.userFallback}
+                      {followerTxLink}
+                    </p>
                   ) : (
-                    showSummary && <p className="break-words text-sm text-subText">{summary}</p>
+                    (showSummary || followerTxHash) && (
+                      <p className="break-words text-sm text-subText">
+                        {showSummary ? summary : 'Your Copy:'}
+                        {followerTxLink}
+                      </p>
+                    )
                   )}
 
                   <span className="text-sm text-subText">{formatAlertFeedTime(alert.occurredAt)}</span>

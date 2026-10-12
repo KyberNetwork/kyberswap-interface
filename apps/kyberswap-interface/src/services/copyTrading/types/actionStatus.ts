@@ -1,3 +1,4 @@
+import type { ActionGuidance } from 'services/copyTrading/types/preparedActions'
 import type { ActionTransactionKind, DataFinality, LooseString, Metric } from 'services/copyTrading/types/primitives'
 
 // Operator-authored selector: preserve every field verbatim when observing a submitted call.
@@ -69,7 +70,7 @@ export type SubmittedActionDisplay = {
   >
   copyRunId?: string
   readOwnerAddress?: string
-  userPositionId?: string
+  positionId?: string
   capitalInUsd?: Metric
   capitalOutUsd?: Metric
   finality?: DataFinality
@@ -98,10 +99,11 @@ export type SubmittedActionStatusData = {
   receiptResult?: SubmittedActionReceiptResult
   result?: {
     copyRunId?: string
+    positionId?: string
     readOwnerAddress?: string
     stop?: { stopIntentId?: string }
   }
-  guidance?: { message?: string; retryAfterMs?: number }
+  guidance?: ActionGuidance
 }
 
 export type SubmittedActionStatusRequest = {

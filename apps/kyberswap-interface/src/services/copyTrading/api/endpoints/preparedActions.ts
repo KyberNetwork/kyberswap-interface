@@ -71,7 +71,7 @@ const preparedActionApi = copyTradingBaseApi.injectEndpoints({
       query: ({
         ownerAddress,
         copyRunId,
-        userPositionId,
+        positionId,
         slippageBps,
         expectedUnresolvedSkipCount,
         expectedSellRatioRaw,
@@ -82,21 +82,21 @@ const preparedActionApi = copyTradingBaseApi.injectEndpoints({
           '/copy-runs/' +
           pathPart(copyRunId) +
           '/positions/' +
-          pathPart(userPositionId) +
+          pathPart(positionId) +
           ':prepareManualSell',
         method: 'POST',
         body: { slippageBps, expectedUnresolvedSkipCount, expectedSellRatioRaw },
       }),
     }),
     prepareClosePosition: builder.mutation<PrepareClosePositionResponse, PrepareClosePositionRequest>({
-      query: ({ ownerAddress, copyRunId, userPositionId, slippageBps }) => ({
+      query: ({ ownerAddress, copyRunId, positionId, slippageBps }) => ({
         url:
           '/users/' +
           pathPart(ownerAddress) +
           '/copy-runs/' +
           pathPart(copyRunId) +
           '/positions/' +
-          pathPart(userPositionId) +
+          pathPart(positionId) +
           ':prepareClosePosition',
         method: 'POST',
         body: { slippageBps },

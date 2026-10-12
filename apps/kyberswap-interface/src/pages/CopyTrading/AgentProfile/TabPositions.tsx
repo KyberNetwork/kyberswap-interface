@@ -87,7 +87,7 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
             <div key={row.positionId}>
               <TabPositionsGrid className="max-lg:hidden">
                 <TableCell className="text-subText">
-                  <ShortenedId value={row.tradeId} />
+                  <ShortenedId value={row.positionId} />
                 </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.entryPriceUsd)}</TableCell>
@@ -121,7 +121,7 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                   }
                   metricLabel="P&amp;L"
                   tokenSymbol={row.token.symbol}
-                  tradeId={row.tradeId}
+                  positionId={row.positionId}
                 />
 
                 <TableCardGrid className="border-t border-tableHeader p-3">

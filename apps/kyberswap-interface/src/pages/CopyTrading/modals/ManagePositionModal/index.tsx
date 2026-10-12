@@ -77,7 +77,6 @@ const ManagePositionModal = ({
   const requiresObligations = !usesStopCopyContext
   const usesClosePreparation = flowConfig.preparation === 'closePosition'
 
-  const userPositionId = position.userPositionId
   const positionId = position.positionId
   const copyRunId = position.copyRunId
   const copyAccount = position.copyAccount
@@ -92,18 +91,18 @@ const ManagePositionModal = ({
     setObligationsError(undefined)
 
     try {
-      if (!copyAccount || !userPositionId) throw new Error('This position is missing its Smart Wallet identity.')
+      if (!copyAccount || !positionId) throw new Error('This position is missing its Smart Wallet identity.')
 
       const currentObligations = await loadPendingSellObligations(getObligations, {
         chainId: position.chainId,
         copyAccount,
-        userPositionId,
+        positionId,
       })
       if (obligationsRequestId.current === requestId) setObligations(currentObligations)
     } catch (error) {
       if (obligationsRequestId.current === requestId) setObligationsError(getApiErrorMessage(error))
     }
-  }, [copyAccount, getObligations, position.chainId, userPositionId])
+  }, [copyAccount, getObligations, position.chainId, positionId])
 
   useEffect(() => {
     if (isOpen && requiresObligations) void loadObligations()
@@ -113,7 +112,7 @@ const ManagePositionModal = ({
     }
   }, [isOpen, loadObligations, requiresObligations])
 
-  const identityMissing = !copyRunId || !positionId || !userPositionId || (requiresObligations && !copyAccount)
+  const identityMissing = !copyRunId || !positionId || (requiresObligations && !copyAccount)
   const obligationsLoading = requiresObligations && obligations === undefined && !obligationsError
   const obligationsUnavailable =
     requiresObligations && obligations !== undefined && !isValidWadRatio(obligations[0]?.currentRatioRaw)
@@ -122,17 +121,17 @@ const ManagePositionModal = ({
     obligationsError ||
     (obligationsUnavailable ? NO_PENDING_OBLIGATION_MESSAGE : undefined)
 
-  const prepareClose = async (account: string, copyRunId: string, userPositionId: string, slippageBps: number) => {
+  const prepareClose = async (account: string, copyRunId: string, positionId: string, slippageBps: number) => {
     const response = await prepareClosePosition({
       ownerAddress: account,
       copyRunId,
-      userPositionId,
+      positionId,
       slippageBps,
     }).unwrap()
     const preview = response.data.closePosition
 
     if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
-      if (preview?.userPositionId !== userPositionId) {
+      if (preview?.positionId !== positionId) {
         throw new Error('The prepared position does not match your selection.')
       }
       if (flowConfig.requireFullSell && !isFullWadRatio(preview.sellRatioRaw)) {
@@ -143,14 +142,14 @@ const ManagePositionModal = ({
     return response.data
   }
 
-  const prepareManual = async (account: string, copyRunId: string, userPositionId: string, slippageBps: number) => {
+  const prepareManual = async (account: string, copyRunId: string, positionId: string, slippageBps: number) => {
     if (!copyAccount || !obligations) throw new Error('Skipped sell actions are unavailable.')
 
     const currentObligation = obligations[0]
     const response = await prepareManualSell({
       ownerAddress: account,
       copyRunId,
-      userPositionId,
+      positionId,
       slippageBps,
       expectedUnresolvedSkipCount: obligations.length,
       expectedSellRatioRaw: currentObligation.currentRatioRaw,
@@ -158,7 +157,7 @@ const ManagePositionModal = ({
     const preview = response.data.manualSell
 
     if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
-      if (preview?.userPositionId !== userPositionId) {
+      if (preview?.positionId !== positionId) {
         throw new Error('The prepared position does not match your selection.')
       }
       if (preview.sellRatioRaw !== currentObligation.currentRatioRaw) {
@@ -173,7 +172,7 @@ const ManagePositionModal = ({
   }
 
   const preparePositionSell = async (sellSlippage = slippage) => {
-    if (!account || !copyRunId || !userPositionId) throw new Error(MISSING_IDENTITY_MESSAGE)
+    if (!account || !copyRunId || !positionId) throw new Error(MISSING_IDENTITY_MESSAGE)
     if (requiresObligations && (!copyAccount || !obligations)) {
       throw new Error('Wait for skipped sell actions to finish loading.')
     }
@@ -181,7 +180,7 @@ const ManagePositionModal = ({
       throw new Error(NO_PENDING_OBLIGATION_MESSAGE)
     }
 
-    const args = [account, copyRunId, userPositionId, Math.round(sellSlippage * 100)] as const
+    const args = [account, copyRunId, positionId, Math.round(sellSlippage * 100)] as const
     return usesClosePreparation ? prepareClose(...args) : prepareManual(...args)
   }
 
@@ -206,7 +205,7 @@ const ManagePositionModal = ({
 
   // Display-only preparation; Review still prepares a fresh executable quote.
   const previewQuery = useQuery({
-    queryKey: ['position-sell-preview', modalInstanceId, userPositionId, positionFlow, debouncedSlippage],
+    queryKey: ['position-sell-preview', modalInstanceId, positionId, positionFlow, debouncedSlippage],
     enabled: previewEnabled && !slippageDebouncing,
     queryFn: async () => {
       const action = await preparePositionSell(debouncedSlippage)
