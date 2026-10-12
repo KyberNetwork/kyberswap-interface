@@ -5,7 +5,7 @@ import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import { MAINNET_NETWORKS } from 'constants/networks'
+import { CROSS_CHAIN_ONLY_NETWORKS, MAINNET_NETWORKS } from 'constants/networks'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 import { toBigIntSafe } from 'utils/bigint'
@@ -37,7 +37,7 @@ export class LifiAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/aed3a971-48be-4c3c-9597-5ab78073fbf11745552578218.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
+    return [NonEvmChain.Solana, ...MAINNET_NETWORKS, ...CROSS_CHAIN_ONLY_NETWORKS]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {

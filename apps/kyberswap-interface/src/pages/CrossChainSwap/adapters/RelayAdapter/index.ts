@@ -10,6 +10,7 @@ import {
 import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 import {
+  abstract,
   arbitrum,
   avalanche,
   base,
@@ -64,6 +65,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       baseApiUrl: MAINNET_RELAY_API,
       source: 'kyberswap',
       chains: [
+        abstract,
         arbitrum,
         avalanche,
         base,
@@ -106,6 +108,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       ChainId.BASE,
       ChainId.BERA,
       ChainId.BLAST,
+      ChainId.ABSTRACT,
       ChainId.BSCMAINNET,
       ChainId.FANTOM,
       ChainId.LINEA,

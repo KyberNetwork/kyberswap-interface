@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
 import {
+  abstract,
   arbitrum,
   arc,
   avax,
@@ -62,6 +63,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ROBINHOOD]: robinhood,
   [ChainId.RISE]: rise,
   [ChainId.ARC]: arc,
+  [ChainId.ABSTRACT]: abstract,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -98,6 +100,9 @@ const STOP_ORDER_NETWORKS: ChainId[] = [
 ]
 
 export const isSupportStopOrder = (chainId: ChainId): boolean => STOP_ORDER_NETWORKS.includes(chainId)
+
+// Available to cross-chain wallets and token reads, but not single-chain products.
+export const CROSS_CHAIN_ONLY_NETWORKS: ChainId[] = [ChainId.ABSTRACT]
 
 export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MAINNET,

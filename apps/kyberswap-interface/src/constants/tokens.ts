@@ -62,6 +62,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.ROBINHOOD]: [],
   [ChainId.RISE]: [],
   [ChainId.ARC]: [],
+  [ChainId.ABSTRACT]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,

@@ -176,6 +176,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       ChainId.BASE,
       ChainId.SCROLL,
       ChainId.BLAST,
+      ChainId.ABSTRACT,
       ChainId.SONIC,
       ChainId.BERA,
       ChainId.ROBINHOOD,

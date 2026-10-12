@@ -217,8 +217,9 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     processing.start()
   }
 
+  // Presets are a share of the wallet balance, capped at what the order can still be filled for
   const handleFillAmountPreset = (percent: number) => {
-    setFillAmount(normalizeActionAmount(getPercentFillAmount(maxBalancePayAmount, percent)))
+    setFillAmount(normalizeActionAmount(getPercentFillAmount(maxBalancePayAmount, percent, maxPayAmount)))
   }
 
   const handleHalfClick = () => {

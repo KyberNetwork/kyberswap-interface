@@ -1,8 +1,10 @@
 import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { useQuery } from '@tanstack/react-query'
 import { multicall } from '@wagmi/core'
 import axios from 'axios'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { fetchAbstractTokens } from 'services/crossChainTokens'
 import ksSettingApi from 'services/ksSetting'
 
 import { wagmiConfig } from 'components/Web3Provider'
@@ -97,6 +99,12 @@ export function useEnsureTokenList(chainId?: ChainId) {
     const getTokens = async () => {
       fetchingChainIds.add(chainId)
       try {
+        if (chainId === ChainId.ABSTRACT) {
+          const tokens = await fetchAbstractTokens()
+          dispatch(setTokenList({ chainId, tokenList: listToTokenMap(tokens, chainId) }))
+          fetchedChainIds.add(chainId)
+          return
+        }
         const pageSize = 100
         const maximumPage = 15
 
@@ -323,6 +331,14 @@ const TOKEN_LOOKUP_PAGE_SIZE = 100
  * reads as "these addresses are unknown".
  */
 export const fetchListTokenByAddresses = async (address: string[], chainId: ChainId): Promise<WrappedTokenInfo[]> => {
+  if (chainId === ChainId.ABSTRACT) {
+    const addresses = new Set(address.map(item => item.toLowerCase()))
+    return filterTruthy(
+      (await fetchAbstractTokens())
+        .filter(token => addresses.has(token.address.toLowerCase()))
+        .map(formatAndCacheToken),
+    )
+  }
   const cached = filterTruthy(address.map(addr => findCacheToken(addr, chainId)))
   const missing = address.filter(addr => !findCacheToken(addr, chainId))
   if (!missing.length) return cached
@@ -407,14 +423,24 @@ export function useCurrencyV2WithLoading(
 
   const { data: token, isLoading } = ksSettingApi.useGetTokenByAddressQuery(
     { address: isAddress(chainId, currencyId) || '', chainId },
-    { skip: isETH || !!tokenInWhitelist || !isAddress(chainId, currencyId) },
+    { skip: chainId === ChainId.ABSTRACT || isETH || !!tokenInWhitelist || !isAddress(chainId, currencyId) },
   )
+
+  const { data: rpcToken, isLoading: isLoadingRpcToken } = useQuery({
+    queryKey: ['cross-chain-token', chainId, lowercaseId],
+    enabled: chainId === ChainId.ABSTRACT && !isETH && !tokenInWhitelist && !!isAddress(chainId, currencyId),
+    queryFn: async () => (await fetchTokenInfoFromRpc(currencyId || '', chainId)) ?? null,
+    staleTime: Infinity,
+  })
 
   return useMemo(() => {
     if (!currencyId) return { currency: undefined, isLoading: false }
     if (isETH) return { currency: NativeCurrencies[chainId], isLoading: false }
-    return { currency: tokenInWhitelist || token, isLoading: !tokenInWhitelist && isLoading }
-  }, [chainId, isETH, token, currencyId, tokenInWhitelist, isLoading])
+    return {
+      currency: tokenInWhitelist || rpcToken || token,
+      isLoading: !tokenInWhitelist && (isLoading || isLoadingRpcToken),
+    }
+  }, [chainId, isETH, token, rpcToken, currencyId, tokenInWhitelist, isLoading, isLoadingRpcToken])
 }
 
 export const useStableCoins = (chainId: ChainId | undefined) => {

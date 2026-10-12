@@ -53,6 +53,7 @@ const l2Chains = [
   ChainId.ZKSYNC,
   ChainId.SCROLL,
   ChainId.BLAST,
+  ChainId.ABSTRACT,
   ChainId.MANTLE,
   ChainId.ETHERLINK,
   ChainId.MEGAETH,

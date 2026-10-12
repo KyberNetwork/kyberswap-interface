@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { fetchTokenCategories, fetchTokenPrices } from 'services/tokenCatalog'
 
 import { Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
@@ -162,12 +163,16 @@ export const getPairInfo = async ({
       const currencyInAddress = isEvmCurrency(currencyIn) ? currencyIn.wrapped.address.toLowerCase() : ''
       const currencyOutAddress = isEvmCurrency(currencyOut) ? currencyOut.wrapped.address.toLowerCase() : ''
       const categories = await Promise.all([
-        fetchTokenCategories({ chainId: fromChainId, tokens: currencyInAddress }).then(
-          items => items.find(item => item.token.toLowerCase() === currencyInAddress)?.category || 'exoticPair',
-        ),
-        fetchTokenCategories({ chainId: toChainId, tokens: currencyOutAddress }).then(
-          items => items.find(item => item.token.toLowerCase() === currencyOutAddress)?.category || 'exoticPair',
-        ),
+        fromChainId === ChainId.ABSTRACT
+          ? Promise.resolve(isStableCurrency(currencyIn, fromChainId) ? 'stablePair' : 'exoticPair')
+          : fetchTokenCategories({ chainId: fromChainId, tokens: currencyInAddress }).then(
+              items => items.find(item => item.token.toLowerCase() === currencyInAddress)?.category || 'exoticPair',
+            ),
+        toChainId === ChainId.ABSTRACT
+          ? Promise.resolve(isStableCurrency(currencyOut, toChainId) ? 'stablePair' : 'exoticPair')
+          : fetchTokenCategories({ chainId: toChainId, tokens: currencyOutAddress }).then(
+              items => items.find(item => item.token.toLowerCase() === currencyOutAddress)?.category || 'exoticPair',
+            ),
       ])
       tokenInCategory = categories[0]
       tokenOutCategory = categories[1]
