@@ -9,7 +9,7 @@ import { Center, HStack, Stack } from 'components/Stack'
 import { StopOrderWarning } from 'components/StopOrder/Form/useStopOrderWarnings'
 import { triggerProximityText } from 'components/StopOrder/MyOrders/components'
 import { StopOrderFee } from 'components/StopOrder/types'
-import { clampStopOrderDeadline, getTriggerProximity } from 'components/StopOrder/utils'
+import { clampStopOrderDeadline, formatDistanceMagnitude, getTriggerProximity } from 'components/StopOrder/utils'
 import { CloseIcon } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -149,7 +149,7 @@ const StopOrderConfirmModal = ({
               {triggerPercent !== undefined && triggerPercent < 0 && (
                 <div data-testid="stop-order-confirm-trigger-distance">
                   <span className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}>
-                    ↓ {formatDisplayNumber(Math.abs(triggerPercent), { fractionDigits: 1 })}%
+                    ↓ {formatDistanceMagnitude(triggerPercent)}%
                   </span>{' '}
                   <span className="text-subText">
                     <Trans>below current oracle price</Trans>

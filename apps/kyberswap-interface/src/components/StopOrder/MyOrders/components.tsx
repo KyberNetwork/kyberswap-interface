@@ -9,7 +9,12 @@ import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
 import { StopOrderDisplayStatus } from 'components/StopOrder/types'
-import { StopOrderFill, StopOrderFillSummary, getTriggerProximity } from 'components/StopOrder/utils'
+import {
+  StopOrderFill,
+  StopOrderFillSummary,
+  formatDistanceMagnitude,
+  getTriggerProximity,
+} from 'components/StopOrder/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { ExternalLink } from 'theme'
@@ -235,19 +240,6 @@ export const triggerProximityText = cva('', {
 })
 
 /**
- * The distance's size as shown, without its sign. One decimal, always, so the column lines up —
- * formatDisplayNumber would drop the trailing zero. A distance too small to survive that rounding keeps
- * its first significant digit instead, in the form's notation (0.003, 0.0₄9), so a trigger merely close
- * to the market never reads as exactly at it.
- */
-export const formatDistanceMagnitude = (percent: number) => {
-  const magnitude = Math.abs(percent)
-  const rounded = Math.round(magnitude * 10) / 10
-  if (rounded === 0 && magnitude > 0) return formatDisplayNumber(magnitude, { fractionDigits: 1 })
-  return rounded.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
-}
-
-/**
  * How much room is left before the trigger fires. The arrow follows the sign: a trigger that has risen
  * above the market is about to fire, which is the opposite of the same magnitude below it.
  */
@@ -344,7 +336,8 @@ const formatFillAmount = (value: number | undefined) =>
 const getTriggerGapPercent = (price: number | undefined, triggerPrice: number) =>
   price && triggerPrice ? ((triggerPrice - price) / triggerPrice) * 100 : undefined
 
-const formatTriggerGap = (gapPercent: number) => formatDisplayNumber(Math.abs(gapPercent), { fractionDigits: 2 })
+// Two decimals: a fill usually lands within a fraction of a percent of its trigger.
+const formatTriggerGap = (gapPercent: number) => formatDistanceMagnitude(gapPercent, 2)
 
 /**
  * What an executed order actually did, opening under its row across the whole table width. The gap to

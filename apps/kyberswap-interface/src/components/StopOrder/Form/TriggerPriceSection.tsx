@@ -9,7 +9,7 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { triggerProximityText } from 'components/StopOrder/MyOrders/components'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopOrder/constants'
-import { getTriggerProximity } from 'components/StopOrder/utils'
+import { formatDistanceMagnitude, getTriggerProximity } from 'components/StopOrder/utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -29,8 +29,6 @@ type Props = {
 const PERCENT_CHIP_CLASSES = 'h-6 rounded-lg border px-2 text-xs font-medium transition-colors'
 
 /** Takes a magnitude — the arrow beside it carries the direction. */
-const formatPercentMagnitude = (percent: number) => `${formatDisplayNumber(percent, { fractionDigits: 1 })}%`
-
 /** Editable percent-below-market chip. It and the price field are the same value from two sides. */
 const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (value: string) => void }) => {
   const [draft, setDraft] = useState('')
@@ -214,7 +212,7 @@ const TriggerPriceSection = ({
               className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}
               data-testid="stop-order-trigger-distance"
             >
-              ↓ {formatPercentMagnitude(Math.abs(triggerPercent))} <Trans>below</Trans>
+              ↓ {formatDistanceMagnitude(triggerPercent)}% <Trans>below</Trans>
             </span>
           )}
         </HStack>

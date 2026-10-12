@@ -12,6 +12,7 @@ import {
   MAX_STOP_ORDER_DEADLINE,
   buildStopOrderPayload,
   clampStopOrderDeadline,
+  formatDistanceMagnitude,
   getStopOrderDisplayStatus,
   getStopOrderFills,
   getStopOrderRecreateDraft,
@@ -106,6 +107,36 @@ describe('isActiveStopOrderStatus', () => {
     expect(isActiveStopOrderStatus(StopOrderDisplayStatus.EXECUTED)).toBe(false)
     expect(isActiveStopOrderStatus(StopOrderDisplayStatus.CANCELLED)).toBe(false)
     expect(isActiveStopOrderStatus(StopOrderDisplayStatus.EXPIRED)).toBe(false)
+  })
+})
+
+describe('formatDistanceMagnitude', () => {
+  it('shows one decimal, keeping the trailing zero', () => {
+    expect(formatDistanceMagnitude(-6.62)).toBe('6.6')
+    expect(formatDistanceMagnitude(-10)).toBe('10.0')
+    expect(formatDistanceMagnitude(-0.2858)).toBe('0.3')
+    expect(formatDistanceMagnitude(0.1504)).toBe('0.2')
+  })
+
+  it('rounds a sub-1% distance rather than truncating it', () => {
+    expect(formatDistanceMagnitude(-0.0941)).toBe('0.1')
+    expect(formatDistanceMagnitude(-0.96)).toBe('1.0')
+  })
+
+  it('keeps the first significant digit of a distance that one decimal would round to zero', () => {
+    expect(formatDistanceMagnitude(-0.023)).toBe('0.02')
+    expect(formatDistanceMagnitude(-0.00344)).toBe('0.003')
+    expect(formatDistanceMagnitude(-0.000092)).toBe('0.0₄9')
+  })
+
+  it('rounds to the requested decimals, as a fill gap uses two', () => {
+    expect(formatDistanceMagnitude(0.1278, 2)).toBe('0.13')
+    expect(formatDistanceMagnitude(-1.5, 2)).toBe('1.50')
+    expect(formatDistanceMagnitude(0.0034, 2)).toBe('0.003')
+  })
+
+  it('reads zero only for a trigger exactly at the market', () => {
+    expect(formatDistanceMagnitude(0)).toBe('0.0')
   })
 })
 

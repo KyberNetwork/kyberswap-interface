@@ -11,6 +11,7 @@ import {
 } from 'components/StopOrder/types'
 import { isSupportedChainId } from 'constants/networks'
 import { tryParseAmount } from 'state/swap/hooks'
+import { formatDisplayNumber } from 'utils/numbers'
 
 /** The service rejects any deadline past 2100-01-01, so an "expires never" choice lands here instead. */
 export const MAX_STOP_ORDER_DEADLINE = 4102444800
@@ -79,6 +80,25 @@ export const getTriggerProximity = (percent: number): TriggerProximity => {
   if (percent >= 0) return 'imminent'
   const magnitude = Math.round(Math.abs(percent) * 10) / 10
   return magnitude >= 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
+}
+
+/**
+ * A percent distance between two prices as shown, without its sign — the one notation the stop order
+ * UI uses for a trigger's distance to the market (list, form, confirm modal) and a fill's gap to its
+ * trigger. Rounded to `fractionDigits` and always printed with them, so the list's column lines up;
+ * formatDisplayNumber would drop trailing zeros and truncate rather than round. A distance too small to
+ * survive that rounding keeps its first significant digit instead (0.003, 0.0₄9), so a price merely
+ * close to another never reads as exactly at it.
+ */
+export const formatDistanceMagnitude = (percent: number, fractionDigits = 1) => {
+  const magnitude = Math.abs(percent)
+  const scale = 10 ** fractionDigits
+  const rounded = Math.round(magnitude * scale) / scale
+  if (rounded === 0 && magnitude > 0) return formatDisplayNumber(magnitude, { fractionDigits: 1 })
+  return rounded.toLocaleString('en-US', {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  })
 }
 
 /** Trigger price as a human decimal string, tokenOut per tokenIn. */
