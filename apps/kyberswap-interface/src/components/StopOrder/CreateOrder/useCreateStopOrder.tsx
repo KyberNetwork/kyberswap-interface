@@ -51,7 +51,7 @@ export const useCreateStopOrder = ({
 
   const [fee, setFee] = useState<StopOrderFee | undefined>()
 
-  const [estimateFee] = useEstimateStopOrderFeeMutation()
+  const [estimateFee, { isLoading: isEstimatingFee }] = useEstimateStopOrderFeeMutation()
   const [getSignMessage] = useGetStopOrderSignMessageMutation()
   const [submitOrder] = useCreateStopOrderMutation()
 
@@ -240,6 +240,7 @@ export const useCreateStopOrder = ({
 
   return {
     fee,
+    isEstimatingFee,
     refreshFee,
     insufficientBalance,
     needsWrap: !!wrapAmount,

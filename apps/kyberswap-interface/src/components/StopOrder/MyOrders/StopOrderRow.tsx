@@ -13,6 +13,7 @@ import {
   DistanceCell,
   ExpiryCell,
   PairCell,
+  SkeletonLine,
   StatusCell,
   StopOrderExecutionDetail,
 } from 'components/StopOrder/MyOrders/components'
@@ -26,7 +27,7 @@ import {
   summarizeStopOrderFills,
 } from 'components/StopOrder/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useCurrencyV2 } from 'hooks/useTokens'
+import { useCurrencyV2WithLoading } from 'hooks/useTokens'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
@@ -37,6 +38,8 @@ type Props = {
   isActiveTab: boolean
   /** USD prices for the sell-amount sub-line; absent when the row sits outside the priced chain. */
   priceUsd?: Record<string, number>
+  /** The USD prices this row reads are still loading. */
+  isPriceLoading?: boolean
   isCancelling: boolean
   onCancel: (order: StopOrder) => void
   /** `sellAmount` is exact, not the rounded display figure — it goes straight back into the form. */
@@ -53,9 +56,13 @@ const formatPairPrice = (value: number | string | undefined, quoteSymbol?: strin
   return quoteSymbol ? `${amount} ${quoteSymbol}` : amount
 }
 
-const StopOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel, onRecreate }: Props) => {
-  const sellCurrency = useCurrencyV2(order.tokenIn, order.chainId)
-  const receiveCurrency = useCurrencyV2(order.tokenOut, order.chainId)
+const StopOrderRow = ({ order, isActiveTab, priceUsd, isPriceLoading, isCancelling, onCancel, onRecreate }: Props) => {
+  const { currency: sellCurrency, isLoading: isSellLoading } = useCurrencyV2WithLoading(order.tokenIn, order.chainId)
+  const { currency: receiveCurrency, isLoading: isReceiveLoading } = useCurrencyV2WithLoading(
+    order.tokenOut,
+    order.chainId,
+  )
+  const isPairLoading = isSellLoading || isReceiveLoading
 
   const status = getStopOrderDisplayStatus(order)
   const triggerPrice = getStopOrderTriggerPrice(order)
@@ -71,11 +78,13 @@ const StopOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel, on
 
   // The same feed the trigger is evaluated against, queried per pair so rows on any chain are right.
   // History rows never render a live price, so they do not open a subscription for it.
-  const { priceNumber: currentPrice } = useStopOrderOraclePrice(
+  const { priceNumber: currentPrice, isLoading: isOraclePriceLoading } = useStopOrderOraclePrice(
     isActiveTab ? sellCurrency ?? undefined : undefined,
     isActiveTab ? receiveCurrency ?? undefined : undefined,
     order.chainId,
   )
+  // The oracle is only asked once both tokens resolve, so a pair still loading is a price still loading.
+  const isCurrentPriceLoading = isActiveTab && (isPairLoading || isOraclePriceLoading)
   const distancePercent =
     currentPrice && Number(triggerPrice) ? ((Number(triggerPrice) - currentPrice) / currentPrice) * 100 : undefined
 
@@ -112,37 +121,58 @@ const StopOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel, on
       >
         <ChainCell chainId={order.chainId} />
 
-        <PairCell sellCurrency={sellCurrency ?? undefined} receiveCurrency={receiveCurrency ?? undefined} />
+        <PairCell
+          sellCurrency={sellCurrency ?? undefined}
+          receiveCurrency={receiveCurrency ?? undefined}
+          isSellLoading={isSellLoading}
+          isReceiveLoading={isReceiveLoading}
+        />
 
         <AmountCell
           className="max-sm:col-start-3 max-sm:items-end"
           dataTestId="stop-order-order-sell-amount"
           value={sellAmount}
+          isLoading={isSellLoading}
+          isSubLoading={isSellLoading || !!isPriceLoading}
           subValue={
             sellAmountUsd ? formatDisplayNumber(sellAmountUsd, { style: 'currency', significantDigits: 4 }) : undefined
           }
         />
 
-        <span
-          className="truncate text-sm font-medium text-blue3 max-sm:hidden"
-          data-testid="stop-order-order-trigger-price"
-        >
-          {formatPairPrice(triggerPrice, receiveCurrency?.symbol)}
-        </span>
+        {isReceiveLoading ? (
+          <div className="max-sm:hidden">
+            <SkeletonLine width={80} />
+          </div>
+        ) : (
+          <span
+            className="truncate text-sm font-medium text-blue3 max-sm:hidden"
+            data-testid="stop-order-order-trigger-price"
+          >
+            {formatPairPrice(triggerPrice, receiveCurrency?.symbol)}
+          </span>
+        )}
 
         {isActiveTab ? (
           <>
             {/* The pair names the unit, so the price itself needs none. */}
             <Stack className="min-w-0 gap-0.5 font-medium max-sm:hidden">
-              <span className="truncate text-xs text-subText">
-                {sellCurrency?.symbol || '-'}/{receiveCurrency?.symbol || '-'}
-              </span>
-              <span className="truncate text-sm text-text" data-testid="stop-order-order-current-price">
-                {formatPairPrice(currentPrice)}
-              </span>
+              {isPairLoading ? (
+                <SkeletonLine size="xs" width={64} />
+              ) : (
+                <span className="truncate text-xs text-subText">
+                  {sellCurrency?.symbol || '-'}/{receiveCurrency?.symbol || '-'}
+                </span>
+              )}
+              {isCurrentPriceLoading ? (
+                <SkeletonLine width={56} />
+              ) : (
+                <span className="truncate text-sm text-text" data-testid="stop-order-order-current-price">
+                  {formatPairPrice(currentPrice)}
+                </span>
+              )}
             </Stack>
             <div className="max-sm:hidden">
-              <DistanceCell percent={distancePercent} />
+              <DistanceCell percent={distancePercent} isLoading={isCurrentPriceLoading} />
             </div>
             <div className="max-sm:hidden">
               <ExpiryCell deadline={order.deadline} />
@@ -150,20 +180,36 @@ const StopOrderRow = ({ order, isActiveTab, priceUsd, isCancelling, onCancel, on
           </>
         ) : (
           <>
-            <span
-              className="truncate text-sm font-medium text-text max-sm:hidden"
-              data-testid="stop-order-order-execution-price"
-            >
-              {formatPairPrice(executionPrice, receiveCurrency?.symbol)}
-            </span>
-            <span
-              className="truncate text-sm font-medium text-text max-sm:hidden"
-              data-testid="stop-order-order-received"
-            >
-              {receivedAmount === undefined
-                ? '-'
-                : `${formatDisplayNumber(receivedAmount, { significantDigits: 6 })} ${receiveCurrency?.symbol ?? ''}`}
-            </span>
+            {/* Both figures are read from the fills with the tokens' decimals, so they wait for the pair. */}
+            {isPairLoading ? (
+              <>
+                <div className="max-sm:hidden">
+                  <SkeletonLine width={80} />
+                </div>
+                <div className="max-sm:hidden">
+                  <SkeletonLine width={80} />
+                </div>
+              </>
+            ) : (
+              <>
+                <span
+                  className="truncate text-sm font-medium text-text max-sm:hidden"
+                  data-testid="stop-order-order-execution-price"
+                >
+                  {formatPairPrice(executionPrice, receiveCurrency?.symbol)}
+                </span>
+                <span
+                  className="truncate text-sm font-medium text-text max-sm:hidden"
+                  data-testid="stop-order-order-received"
+                >
+                  {receivedAmount === undefined
+                    ? '-'
+                    : `${formatDisplayNumber(receivedAmount, { significantDigits: 6 })} ${
+                        receiveCurrency?.symbol ?? ''
+                      }`}
+                </span>
+              </>
+            )}
             <div className="max-sm:hidden">
               <StatusCell
                 status={status}

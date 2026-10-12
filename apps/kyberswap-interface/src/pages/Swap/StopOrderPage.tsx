@@ -1,4 +1,5 @@
 import StopOrderForm from 'components/StopOrder/Form/StopOrderForm'
+import StopOrderRightPanelSkeleton from 'components/StopOrder/RightPanelSkeleton'
 import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
@@ -15,7 +16,11 @@ const StopOrderPage = () => {
   const { currencies } = useCurrenciesByPage()
 
   return (
-    <SwapLayout controller={controller} rightPanel={<StopOrderRightPanel />}>
+    <SwapLayout
+      controller={controller}
+      rightPanel={<StopOrderRightPanel />}
+      rightPanelFallback={<StopOrderRightPanelSkeleton />}
+    >
       {activeTab === TAB.LIMIT && <StopOrderForm />}
       {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (

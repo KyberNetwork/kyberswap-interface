@@ -7,7 +7,9 @@ import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, ExternalLink as 
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import { StopOrderRowLayout, StopOrderRowWrapper } from 'components/StopOrder/MyOrders/TableHeader'
 import { StopOrderDisplayStatus } from 'components/StopOrder/types'
 import {
   StopOrderFill,
@@ -164,6 +166,81 @@ export const StopOrderEmptyOrders = ({
   </Stack>
 )
 
+/**
+ * A bar standing in for one line of text, boxed at that line's height so swapping it for the text moves
+ * nothing: `sm` is a text-sm line (20px), `xs` a text-xs one (16px).
+ */
+export const SkeletonLine = ({ size = 'sm', width }: { size?: 'sm' | 'xs'; width: number }) => (
+  <span className={cn('flex max-w-full items-center', size === 'sm' ? 'h-5' : 'h-4')}>
+    <Skeleton height={size === 'sm' ? 12 : 10} width={width} borderRadius={6} />
+  </span>
+)
+
+const SKELETON_ROW_COUNT = 5
+
+/**
+ * The table's first load: rows built on the same grid and padding as `StopOrderRow`, with every cell's
+ * lines in place, so the real rows replace them without the table moving.
+ */
+export const StopOrderRowsSkeleton = ({ isActiveTab }: { isActiveTab: boolean }) => (
+  <div data-testid="stop-order-orders-skeleton">
+    {Array.from({ length: SKELETON_ROW_COUNT }, (_, index) => (
+      <StopOrderRowWrapper
+        key={index}
+        layout={isActiveTab ? StopOrderRowLayout.ACTIVE : StopOrderRowLayout.HISTORY}
+        className="min-h-14 px-4 py-2"
+      >
+        <span className="flex items-center justify-center">
+          <Skeleton circle height={20} width={20} />
+        </span>
+        <HStack className="min-w-0 items-center gap-1.5">
+          <Skeleton circle height={16} width={16} />
+          <SkeletonLine width={40} />
+          <Skeleton circle height={16} width={16} />
+          <SkeletonLine width={40} />
+        </HStack>
+        <Stack className="min-w-0 gap-0.5 max-sm:col-start-3 max-sm:items-end">
+          <SkeletonLine width={72} />
+          <SkeletonLine size="xs" width={44} />
+        </Stack>
+        <div className="max-sm:hidden">
+          <SkeletonLine width={80} />
+        </div>
+        {isActiveTab ? (
+          <>
+            <Stack className="min-w-0 gap-0.5 max-sm:hidden">
+              <SkeletonLine size="xs" width={64} />
+              <SkeletonLine width={56} />
+            </Stack>
+            <div className="max-sm:hidden">
+              <SkeletonLine width={40} />
+            </div>
+            <Stack className="min-w-0 gap-0.5 max-sm:hidden">
+              <SkeletonLine width={72} />
+              <SkeletonLine size="xs" width={36} />
+            </Stack>
+          </>
+        ) : (
+          <>
+            <div className="max-sm:hidden">
+              <SkeletonLine width={80} />
+            </div>
+            <div className="max-sm:hidden">
+              <SkeletonLine width={80} />
+            </div>
+            <div className="max-sm:hidden">
+              <SkeletonLine width={64} />
+            </div>
+          </>
+        )}
+        <span className="flex justify-end">
+          <Skeleton circle height={20} width={20} />
+        </span>
+      </StopOrderRowWrapper>
+    ))}
+  </div>
+)
+
 /** The list holds the wallet's orders on every chain, so each row names its own. */
 export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
   const { name, icon } = NETWORKS_INFO[chainId]
@@ -184,16 +261,24 @@ export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
 export const PairCell = ({
   sellCurrency,
   receiveCurrency,
+  isSellLoading,
+  isReceiveLoading,
 }: {
   sellCurrency?: Currency
   receiveCurrency?: Currency
+  isSellLoading?: boolean
+  isReceiveLoading?: boolean
 }) => (
   <HStack className="min-w-0 items-center gap-1.5 text-sm font-medium text-text" data-testid="stop-order-order-pair">
     <CurrencyLogo currency={sellCurrency} size="16px" />
-    <span className="truncate">{sellCurrency?.symbol || '-'}</span>
+    {isSellLoading ? <SkeletonLine width={40} /> : <span className="truncate">{sellCurrency?.symbol || '-'}</span>}
     <span className="shrink-0 text-subText">→</span>
     <CurrencyLogo currency={receiveCurrency} size="16px" />
-    <span className="truncate">{receiveCurrency?.symbol || '-'}</span>
+    {isReceiveLoading ? (
+      <SkeletonLine width={40} />
+    ) : (
+      <span className="truncate">{receiveCurrency?.symbol || '-'}</span>
+    )}
   </HStack>
 )
 
@@ -201,27 +286,41 @@ export const PairCell = ({
 export const AmountCell = ({
   value,
   subValue,
+  isLoading,
+  isSubLoading,
   className,
   dataTestId,
 }: {
   value: ReactNode
   subValue?: ReactNode
+  /** The amount cannot be read yet; its line holds a placeholder. */
+  isLoading?: boolean
+  /** The USD line is on its way, so its space is held rather than added once it lands. */
+  isSubLoading?: boolean
   className?: string
   dataTestId?: string
 }) => (
   // `max-w-full` lets the lines truncate when a caller aligns them with `items-end`: a flex item that is
   // not stretched sizes to its content and would otherwise spill into the neighbouring column.
   <Stack className={cn('min-w-0 gap-0.5', className)}>
-    <span className="max-w-full truncate text-sm font-medium text-text" data-testid={dataTestId}>
-      {value}
-    </span>
-    {subValue !== undefined && (
-      <span
-        className="max-w-full truncate text-xs font-medium text-subText"
-        data-testid={dataTestId && `${dataTestId}-usd`}
-      >
-        {subValue}
+    {isLoading ? (
+      <SkeletonLine width={72} />
+    ) : (
+      <span className="max-w-full truncate text-sm font-medium text-text" data-testid={dataTestId}>
+        {value}
       </span>
+    )}
+    {isSubLoading && subValue === undefined ? (
+      <SkeletonLine size="xs" width={44} />
+    ) : (
+      subValue !== undefined && (
+        <span
+          className="max-w-full truncate text-xs font-medium text-subText"
+          data-testid={dataTestId && `${dataTestId}-usd`}
+        >
+          {subValue}
+        </span>
+      )
     )}
   </Stack>
 )
@@ -243,7 +342,8 @@ export const triggerProximityText = cva('', {
  * How much room is left before the trigger fires. The arrow follows the sign: a trigger that has risen
  * above the market is about to fire, which is the opposite of the same magnitude below it.
  */
-export const DistanceCell = ({ percent }: { percent?: number }) => {
+export const DistanceCell = ({ percent, isLoading }: { percent?: number; isLoading?: boolean }) => {
+  if (isLoading) return <SkeletonLine width={40} />
   if (percent === undefined)
     return (
       <span className={cn('text-sm font-medium', triggerProximityText())} data-testid="stop-order-order-distance">

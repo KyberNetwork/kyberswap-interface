@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, Info } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
+import Skeleton from 'components/Skeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { StopOrderWarning } from 'components/StopOrder/Form/useStopOrderWarnings'
 import { triggerProximityText } from 'components/StopOrder/MyOrders/components'
@@ -28,6 +29,8 @@ type Props = {
   slippage: number
   expiredAt: number
   fee?: StopOrderFee
+  /** The fee is being re-estimated for this review; any figure held is from an earlier one. */
+  isFeeLoading?: boolean
   /** Sell side priced in USD, which is what turns the fee percentage into an amount. */
   notionalUsd?: number
   needsWrap?: boolean
@@ -85,6 +88,7 @@ const StopOrderConfirmModal = ({
   slippage,
   expiredAt,
   fee,
+  isFeeLoading,
   notionalUsd,
   needsWrap,
   warnings = [],
@@ -163,17 +167,25 @@ const StopOrderConfirmModal = ({
             </SummaryRow>
 
             <SummaryRow label={<Trans>Fee</Trans>} dataTestId="stop-order-confirm-fee">
-              <HStack className="items-center gap-1">
-                <span>
-                  {feePercentage === undefined ? '--' : `${formatDisplayNumber(feePercentage, { fractionDigits: 2 })}%`}
+              {isFeeLoading ? (
+                <span className="flex h-5 items-center justify-end" data-testid="stop-order-confirm-fee-loading">
+                  <Skeleton height={12} width={96} borderRadius={6} />
                 </span>
-                {/* The percentage applied to the sell side, so the figure is an estimate like the rest. */}
-                {feeUsd !== undefined && (
-                  <span className="text-subText">
-                    ~{formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 4 })}
+              ) : (
+                <HStack className="items-center gap-1">
+                  <span>
+                    {feePercentage === undefined
+                      ? '--'
+                      : `${formatDisplayNumber(feePercentage, { fractionDigits: 2 })}%`}
                   </span>
-                )}
-              </HStack>
+                  {/* The percentage applied to the sell side, so the figure is an estimate like the rest. */}
+                  {feeUsd !== undefined && (
+                    <span className="text-subText">
+                      ~{formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 4 })}
+                    </span>
+                  )}
+                </HStack>
+              )}
             </SummaryRow>
 
             {/* Show the deadline that actually gets signed, not the pre-clamp value an

@@ -16,6 +16,7 @@ import tokenChartApi, {
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import type { PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -292,6 +293,12 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay }: Toke
           <Stack className="relative gap-3">
             <HStack className="flex-wrap items-start justify-between gap-4">
               <Stack>
+                {/* Held at the price line's height, so the time-frame control beside it does not jump. */}
+                {isLoading && currentPrice === undefined && (
+                  <span className="flex h-7 items-center" data-testid="token-price-chart-price-loading">
+                    <Skeleton height={20} width={160} borderRadius={8} />
+                  </span>
+                )}
                 {currentPrice !== undefined && (
                   <HStack className="flex-nowrap items-baseline gap-2">
                     <span className="text-xl font-medium text-text">{formatValue(currentPrice)}</span>

@@ -217,8 +217,9 @@ const TriggerPriceSection = ({
           )}
         </HStack>
       ) : isLoadingPrice ? (
-        <span className="text-xs font-medium text-subText" data-testid="stop-order-oracle-price-loading">
-          <Trans>Loading the current oracle price…</Trans>
+        // Boxed at the text-xs line the oracle price takes, so it lands without moving the card.
+        <span className="flex h-4 items-center" data-testid="stop-order-oracle-price-loading">
+          <Skeleton height={10} width={220} borderRadius={6} />
         </span>
       ) : null}
     </Stack>

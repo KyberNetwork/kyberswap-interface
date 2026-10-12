@@ -2,13 +2,10 @@ import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import { Stack } from 'components/Stack'
 import StopOrders from 'components/StopOrder/MyOrders'
 import StopOrderPriceChart from 'components/StopOrder/PriceChart'
+import { STOP_ORDER_CARD_CLASS } from 'components/StopOrder/RightPanelSkeleton'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useLimitState } from 'state/limit/hooks'
 import { useShowPricingChart } from 'state/user/hooks'
-
-/** The shell both cards share; on phones each runs edge to edge, like the limit-order panel. */
-const CARD_CLASS =
-  'w-full gap-0 overflow-hidden rounded-xl border border-background bg-buttonBlack max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none'
 
 /**
  * The stop order page's right column: the pair's price chart, which the trigger is set against, and the
@@ -24,12 +21,12 @@ const StopOrderRightPanel = () => {
   return (
     <>
       {showPriceChart && (
-        <Stack className={CARD_CLASS} data-testid="stop-order-market-panel">
+        <Stack className={STOP_ORDER_CARD_CLASS} data-testid="stop-order-market-panel">
           <StopOrderPriceChart currencyIn={currencyIn} currencyOut={currencyOut} />
         </Stack>
       )}
 
-      <Stack className={CARD_CLASS} data-testid="stop-order-orders-panel">
+      <Stack className={STOP_ORDER_CARD_CLASS} data-testid="stop-order-orders-panel">
         <StopOrders />
       </Stack>
     </>

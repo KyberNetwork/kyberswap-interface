@@ -14,6 +14,7 @@ import {
   CancelAllButton,
   StopOrderEmptyOrders,
   StopOrderPager,
+  StopOrderRowsSkeleton,
   StopOrderTabSelector,
 } from 'components/StopOrder/MyOrders/components'
 import { STOP_ORDER_DEFAULT_EXPIRE } from 'components/StopOrder/constants'
@@ -107,8 +108,10 @@ const StopOrders = () => {
     [isAllChains, selectedChainValue],
   )
 
+  // `currentData`, not `data`: `data` keeps the previous chain filter's orders while the new one loads,
+  // which would list them under the wrong filter instead of showing that the table is loading.
   const {
-    data,
+    currentData,
     isFetching,
     isError,
     isSuccess: isLoaded,
@@ -122,7 +125,7 @@ const StopOrders = () => {
     { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
   )
 
-  const allOrders = data?.orders ?? EMPTY_ORDERS
+  const allOrders = currentData?.orders ?? EMPTY_ORDERS
 
   // Fed the unfiltered set so a transition out of Open is still observed on the Active tab.
   useStopOrderNotifications(allOrders)
@@ -155,14 +158,15 @@ const StopOrders = () => {
       Array.from(new Set(orders.filter(order => order.chainId === priceChainId).flatMap(o => [o.tokenIn, o.tokenOut]))),
     [orders, priceChainId],
   )
-  const { data: rawPrices } = useTokenPricesWithLoading(priceAddresses, priceChainId)
+  const { data: rawPrices, loading: isPriceLoading } = useTokenPricesWithLoading(priceAddresses, priceChainId)
   const priceUsd = useMemo(
     () => Object.fromEntries(Object.entries(rawPrices ?? {}).map(([address, price]) => [address.toLowerCase(), price])),
     [rawPrices],
   )
 
   const hasOrders = orders.length > 0
-  const showNoOrders = !hasOrders && (isLoaded || isError || !account)
+  const isInitialLoading = !!account && !currentData && !isError
+  const showNoOrders = !hasOrders && !isInitialLoading && (isLoaded || isError || !account)
 
   /**
    * Every open order in view, across chains under the All Chains filter. One signature still covers a
@@ -277,13 +281,15 @@ const StopOrders = () => {
 
       <StopOrderTableHeader isActiveTab={isActiveTab} />
       <div className="relative min-h-20" data-testid="stop-order-order-list">
-        <RefetchIndicator visible={isFetching} />
+        <RefetchIndicator visible={isFetching && !isInitialLoading} />
+        {isInitialLoading && <StopOrderRowsSkeleton isActiveTab={isActiveTab} />}
         {orders.map(order => (
           <StopOrderRow
             key={order.id}
             order={order}
             isActiveTab={isActiveTab}
             priceUsd={order.chainId === priceChainId ? priceUsd : undefined}
+            isPriceLoading={order.chainId === priceChainId && isPriceLoading}
             isCancelling={cancellingIds.includes(order.id)}
             onCancel={target => {
               setIsCancelAll(false)

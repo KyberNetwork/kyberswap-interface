@@ -56,7 +56,7 @@ const StopOrderFlow = ({
   const navigate = useNavigate()
   const processingState = useProcessingState<ProcessingOrderStep>()
 
-  const { fee, refreshFee, needsWrap } = createOrder
+  const { fee, isEstimatingFee, refreshFee, needsWrap } = createOrder
 
   // The fee decides the cap carried in the signed intent, so it is fetched as soon as review opens.
   useEffect(() => {
@@ -106,6 +106,7 @@ const StopOrderFlow = ({
         slippage={slippage}
         expiredAt={expiredAt}
         fee={fee}
+        isFeeLoading={isEstimatingFee}
         notionalUsd={notionalUsd}
         needsWrap={needsWrap}
         warnings={warnings}
