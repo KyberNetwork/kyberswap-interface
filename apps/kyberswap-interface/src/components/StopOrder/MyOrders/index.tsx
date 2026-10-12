@@ -67,20 +67,20 @@ const StopOrders = () => {
 
   const [isActiveTab, setIsActiveTab] = useState(true)
   const [closedFilter, setClosedFilter] = useState<string>(ALL_CLOSED_VALUE)
-  // Starts on the wallet's chain, which is where the form above places orders.
-  const [selectedChainValue, setSelectedChainValue] = useState<string>(String(chainId))
+  // Starts on All Chains, like the limit-order list, so it covers every order the tab badge counts.
+  const [selectedChainValue, setSelectedChainValue] = useState<string>(ALL_CHAINS_VALUE)
   const [curPage, setCurPage] = useState(1)
   const [cancelTargets, setCancelTargets] = useState<StopOrder[]>([])
   const [isCancelAll, setIsCancelAll] = useState(false)
   const [cancellingIds, setCancellingIds] = useState<number[]>([])
 
-  // Follow the wallet when the user switches network, or the list keeps showing the previous chain
-  // while the form above creates orders on the new one.
+  // A single-chain filter follows the wallet when the user switches network, or the list keeps showing
+  // the previous chain while the form above creates orders on the new one. All Chains already covers it.
   const previousChainId = useRef(chainId)
   useEffect(() => {
     if (previousChainId.current === chainId) return
     previousChainId.current = chainId
-    setSelectedChainValue(String(chainId))
+    setSelectedChainValue(current => (current === ALL_CHAINS_VALUE ? current : String(chainId)))
     setCurPage(1)
   }, [chainId])
 

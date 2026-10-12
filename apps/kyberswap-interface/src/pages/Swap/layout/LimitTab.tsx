@@ -2,7 +2,10 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
+import { useGetStopOrdersQuery } from 'services/stopOrder'
 
+import { getInitialListOrdersArgs, useSupportedLimitOrderChains } from 'components/LimitOrder/listOrdersArgs'
+import { StopOrderStatus } from 'components/StopOrder/types'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { isSupportLimitOrder } from 'constants/networks'
@@ -23,20 +26,29 @@ export const LimitTab = ({ onClick, active, customChainId }: Props) => {
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isSupport = isSupportLimitOrder(chainId)
 
-  const skip = !account || !isSupport
-
+  // Counts every chain, like the limit-order list's default All Chains view. The args are the ones My
+  // Orders opens with, so both share one cached request.
+  // Waits for the chain config so the first request already carries the final chain list.
+  const { chainIds: limitOrderChainIds, isLoaded: isChainListLoaded } = useSupportedLimitOrderChains()
+  const skip = !account || !isSupport || !isChainListLoaded || !limitOrderChainIds.length
   const { data: { totalOrder = 0 } = {} } = useGetListOrdersQuery(
+    getInitialListOrdersArgs(limitOrderChainIds, account),
     {
-      chainIds: [chainId],
-      maker: account,
-      status: 'active',
-      query: '',
-      page: 1,
-      pageSize: 10,
+      skip,
+      refetchOnFocus: true,
+      pollingInterval: 10_000,
     },
-    { skip, refetchOnFocus: true, pollingInterval: 10_000 },
   )
-  const numberOfActiveOrders = skip ? undefined : totalOrder
+
+  // Stop orders live under the same tab, so the badge counts them too. An omitted `chainIds` is the
+  // service's all-chains path; only the total is read.
+  const skipStopOrders = !account
+  const { data: { totalItems: totalStopOrders = 0 } = {} } = useGetStopOrdersQuery(
+    { userWallet: account || '', status: StopOrderStatus.OPEN, page: 1, pageSize: 1 },
+    { skip: skipStopOrders, refetchOnFocus: true, pollingInterval: 10_000 },
+  )
+
+  const numberOfActiveOrders = (skip ? 0 : totalOrder) + (skipStopOrders ? 0 : totalStopOrders)
 
   if (!isSupport) {
     return null

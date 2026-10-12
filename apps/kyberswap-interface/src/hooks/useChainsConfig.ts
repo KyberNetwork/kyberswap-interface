@@ -42,7 +42,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_HARDCODE, {
 const defaultData = MAINNET_NETWORKS.map(chainId => NETWORKS_INFO_HARDCODE[chainId])
 
 export default function useChainsConfig() {
-  const { data } = useGetChainsConfigurationQuery()
+  const { data, isError } = useGetChainsConfigurationQuery()
   const globalConfig = useKyberswapGlobalConfig()
 
   return useMemo(() => {
@@ -64,6 +64,8 @@ export default function useChainsConfig() {
       activeChains: chains.filter(chain => ENABLED_STATES.includes(chain.state)),
       supportedChains: chains.filter(chain => SUPPORTED_STATES.includes(chain.state)),
       allChains: chains,
+      // Until the BE config arrives the lists hold every hardcoded mainnet; a failed fetch keeps them.
+      isLoaded: hasBeConfig || isError,
     }
-  }, [data, globalConfig])
+  }, [data, isError, globalConfig])
 }
