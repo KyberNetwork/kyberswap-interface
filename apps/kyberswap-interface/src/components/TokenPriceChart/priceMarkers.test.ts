@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { clusterMarkers, positionMarkers } from 'components/TokenPriceChart/priceMarkers'
+import { clusterMarkers, getCrossingArrow, positionMarkers } from 'components/TokenPriceChart/priceMarkers'
 
 const marker = (id: string, price: number, y: number) => ({ id, price, y })
 
@@ -63,5 +63,27 @@ describe('positionMarkers', () => {
     expect(result.visible.map(m => m.id)).toEqual(['in'])
     expect(result.above).toBe(1)
     expect(result.below).toBe(1)
+  })
+})
+
+describe('getCrossingArrow', () => {
+  const markers = [
+    { id: 'a', price: 10, crossing: 'down' as const },
+    { id: 'b', price: 11, crossing: 'down' as const },
+    { id: 'c', price: 12, crossing: 'up' as const },
+    { id: 'd', price: 13 },
+  ]
+
+  it('points the way the price must move for a line of one kind', () => {
+    expect(getCrossingArrow(['a', 'b'], markers)).toBe('↓')
+    expect(getCrossingArrow(['c'], markers)).toBe('↑')
+  })
+
+  it('points both ways for a line grouping both kinds', () => {
+    expect(getCrossingArrow(['a', 'c'], markers)).toBe('↕')
+  })
+
+  it('carries no arrow when the markers do not say', () => {
+    expect(getCrossingArrow(['d'], markers)).toBe('')
   })
 })

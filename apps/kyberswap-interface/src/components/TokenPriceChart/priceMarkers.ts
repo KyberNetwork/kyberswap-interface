@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react'
 
+/** Which way the chart price has to move to reach a marker and set it off. */
+export type MarkerCrossing = 'up' | 'down'
+
 /** A price level drawn across the chart, such as an order's trigger. */
-export type PriceMarker = { id: string; price: number }
+export type PriceMarker = { id: string; price: number; crossing?: MarkerCrossing }
 
 export type PriceMarkerOverlay = {
   markers: PriceMarker[]
@@ -81,4 +84,16 @@ export const positionMarkers = (markers: PriceMarker[], toY: (price: number) => 
   })
 
   return { visible, above, below }
+}
+
+/**
+ * The arrow a line's label carries: the way the chart price must move to set its markers off, or both
+ * ways when a line groups markers of each kind. Nothing when no marker says.
+ */
+export const getCrossingArrow = (ids: string[], markers: PriceMarker[]): string => {
+  const crossings = new Set(ids.map(id => markers.find(marker => marker.id === id)?.crossing).filter(Boolean))
+  if (crossings.size > 1) return '↕'
+  if (crossings.has('up')) return '↑'
+  if (crossings.has('down')) return '↓'
+  return ''
 }

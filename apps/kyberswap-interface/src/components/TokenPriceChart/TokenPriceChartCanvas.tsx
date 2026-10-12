@@ -25,6 +25,7 @@ import {
   type MarkerCluster,
   type PriceMarkerOverlay,
   clusterMarkers,
+  getCrossingArrow,
   positionMarkers,
 } from 'components/TokenPriceChart/priceMarkers'
 import useTheme from 'hooks/useTheme'
@@ -512,7 +513,9 @@ const PriceMarkerLayer = ({
             className="absolute z-[2] flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded border border-warning bg-buttonBlack px-1.5 py-0.5 text-[10px] font-medium leading-[14px]"
             style={{ top: cluster.y, right }}
           >
-            <span className="text-subText">{overlay.label}</span>
+            <span className="text-subText">
+              {overlay.label} {getCrossingArrow(cluster.ids, overlay.markers)}
+            </span>
             <span className="text-warning">
               {count > 1 ? `×${count}` : formatDisplayNumber(cluster.price, { significantDigits: 6 })}
             </span>

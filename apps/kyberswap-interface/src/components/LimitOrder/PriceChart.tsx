@@ -25,8 +25,9 @@ type Props = {
 
 /**
  * The pair's price chart with the user's open limit orders drawn across it. The chart prices the sell
- * token in the receive token, the unit an order's rate is set in, and draws only the orders selling
- * this pair's sell token for its receive token.
+ * token in the receive token, the unit an order's rate is set in. Orders the other way round — selling
+ * the receive token for the sell token — are drawn too, at the inverse of their rate, so every order
+ * on the pair shows on one scale.
  */
 const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
   const { account } = useActiveWeb3React()
@@ -45,20 +46,24 @@ const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
   // A cancel takes a while to reach the list; its line and cancel button must not outlive it.
   const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId })
 
+  /** Whether the order sells the receive token for the sell token, against the chart's direction. */
+  const isReversed = useCallback(
+    (order: LimitOrder) =>
+      order.makerAsset.toLowerCase() === takerAsset && order.takerAsset.toLowerCase() === makerAsset,
+    [makerAsset, takerAsset],
+  )
+
   const orders = useMemo(
     () =>
       (currentData?.orders ?? EMPTY_ORDERS).filter(
         order =>
-          order.makerAsset.toLowerCase() === makerAsset &&
-          order.takerAsset.toLowerCase() === takerAsset &&
+          ((order.makerAsset.toLowerCase() === makerAsset && order.takerAsset.toLowerCase() === takerAsset) ||
+            isReversed(order)) &&
           isActiveStatus(order.status) &&
           !isOrderCancelling(order),
       ),
-    [currentData?.orders, makerAsset, takerAsset, isOrderCancelling],
+    [currentData?.orders, makerAsset, takerAsset, isReversed, isOrderCancelling],
   )
-
-  const sellSymbol = currencyIn?.wrapped.symbol
-  const receiveSymbol = currencyOut?.symbol
 
   const renderDetails = useCallback(
     (markerIds: string[]) => {
@@ -69,6 +74,10 @@ const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
       return (
         <Stack className="min-w-[220px] gap-2.5 text-xs">
           {shown.map(order => {
+            // Each order reads in its own direction and rate, the way it was placed.
+            const reversed = isReversed(order)
+            const sellSymbol = reversed ? currencyOut?.wrapped.symbol : currencyIn?.wrapped.symbol
+            const receiveSymbol = reversed ? currencyIn?.symbol : currencyOut?.symbol
             const remaining = (BigInt(order.makingAmount) - BigInt(order.filledMakingAmount)).toString()
             const rate = formatDisplayNumber(getOrderRate(order), { significantDigits: 6 })
             const filled = calcPercentFilledOrder(
@@ -110,21 +119,27 @@ const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
         </Stack>
       )
     },
-    [orders, sellSymbol, receiveSymbol],
+    [orders, isReversed, currencyIn, currencyOut],
   )
 
   const markerOverlay = useMemo<PriceMarkerOverlay | undefined>(() => {
     if (!hasPair) return undefined
     return {
       markers: orders
-        .map(order => ({ id: String(order.id), price: Number(getOrderRate(order)) }))
+        .map(order => {
+          const rate = Number(getOrderRate(order))
+          // An order fills once its own price rises to the rate, which on the chart's inverted scale is a fall.
+          return isReversed(order)
+            ? { id: String(order.id), price: 1 / rate, crossing: 'down' as const }
+            : { id: String(order.id), price: rate, crossing: 'up' as const }
+        })
         .filter(marker => Number.isFinite(marker.price) && marker.price > 0),
       label: t`LIMIT`,
       renderDetails,
       renderOffscreen: (count, direction) =>
         direction === 'above' ? t`${count} order(s) above` : t`${count} order(s) below`,
     }
-  }, [hasPair, orders, renderDetails])
+  }, [hasPair, orders, isReversed, renderDetails])
 
   return (
     <>

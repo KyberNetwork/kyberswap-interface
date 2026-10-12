@@ -29,8 +29,9 @@ type Props = {
 /**
  * The pair's price chart with the user's open stop orders drawn across it. The chart prices the
  * sell token in the receive token, the unit every trigger is set in, and shows the oracle price the
- * triggers are checked against instead of the last candle's close. Only orders selling this pair's
- * sell token for its receive token are drawn.
+ * triggers are checked against instead of the last candle's close. Orders the other way round —
+ * selling the receive token for the sell token — are drawn too, at the inverse of their trigger, so
+ * every order on the pair shows on one scale.
  */
 const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
   const { account } = useActiveWeb3React()
@@ -49,24 +50,31 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
       userWallet: account || '',
       chainIds: chainId ? [chainId] : undefined,
       status: StopOrderStatus.OPEN,
-      tokenIns: tokenIn ? [tokenIn] : undefined,
-      tokenOuts: tokenOut ? [tokenOut] : undefined,
+      // Both directions: an order's tokens are always different, so these match the pair either way round.
+      tokenIns: tokenIn && tokenOut ? [tokenIn, tokenOut] : undefined,
+      tokenOuts: tokenIn && tokenOut ? [tokenOut, tokenIn] : undefined,
       page: 1,
       pageSize: 100,
     },
     { skip: !account || !hasPair, pollingInterval: 10_000 },
   )
 
+  /** Whether the order sells the receive token for the sell token, against the chart's direction. */
+  const isReversed = useCallback(
+    (order: StopOrder) => order.tokenIn.toLowerCase() === tokenOut && order.tokenOut.toLowerCase() === tokenIn,
+    [tokenIn, tokenOut],
+  )
+
   const orders = useMemo(
     () =>
       (currentData?.orders ?? EMPTY_ORDERS).filter(
         order =>
-          order.tokenIn.toLowerCase() === tokenIn &&
-          order.tokenOut.toLowerCase() === tokenOut &&
+          ((order.tokenIn.toLowerCase() === tokenIn && order.tokenOut.toLowerCase() === tokenOut) ||
+            isReversed(order)) &&
           !cancelledIds.includes(order.id) &&
           isActiveStopOrderStatus(getStopOrderDisplayStatus(order)),
       ),
-    [currentData?.orders, tokenIn, tokenOut, cancelledIds],
+    [currentData?.orders, tokenIn, tokenOut, isReversed, cancelledIds],
   )
 
   const { price: oraclePrice, priceNumber: oraclePriceNumber } = useStopOrderOraclePrice(
@@ -75,8 +83,8 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
     chainId,
   )
 
-  const sellSymbol = currencyIn?.wrapped.symbol
-  const receiveSymbol = currencyOut?.symbol
+  // The oracle line is in the chart's unit: the receive token per sell token.
+  const chartQuoteSymbol = currencyOut?.symbol
 
   const renderDetails = useCallback(
     (markerIds: string[]) => {
@@ -87,8 +95,13 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
       return (
         <Stack className="min-w-[220px] gap-2.5 text-xs">
           {shown.map(order => {
-            const amount = currencyIn
-              ? CurrencyAmount.fromRawAmount(currencyIn.wrapped, order.amountIn).toSignificant(6)
+            // Each order reads in its own direction and trigger, the way it was placed.
+            const reversed = isReversed(order)
+            const sellCurrency = reversed ? currencyOut : currencyIn
+            const sellSymbol = sellCurrency?.wrapped.symbol
+            const receiveSymbol = reversed ? currencyIn?.symbol : currencyOut?.symbol
+            const amount = sellCurrency
+              ? CurrencyAmount.fromRawAmount(sellCurrency.wrapped, order.amountIn).toSignificant(6)
               : '--'
             const trigger = formatDisplayNumber(getStopOrderTriggerPrice(order), { significantDigits: 6 })
             return (
@@ -124,21 +137,27 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
                 <Trans>Oracle</Trans>
               </span>
               <span className="font-medium text-text">
-                {formatDisplayNumber(oraclePrice, { significantDigits: 6 })} {receiveSymbol}
+                {formatDisplayNumber(oraclePrice, { significantDigits: 6 })} {chartQuoteSymbol}
               </span>
             </HStack>
           )}
         </Stack>
       )
     },
-    [orders, currencyIn, sellSymbol, receiveSymbol, oraclePrice],
+    [orders, isReversed, currencyIn, currencyOut, chartQuoteSymbol, oraclePrice],
   )
 
   const markerOverlay = useMemo<PriceMarkerOverlay | undefined>(() => {
     if (!hasPair) return undefined
     return {
       markers: orders
-        .map(order => ({ id: String(order.id), price: Number(getStopOrderTriggerPrice(order)) }))
+        .map(order => {
+          const trigger = Number(getStopOrderTriggerPrice(order))
+          // A trigger fires as its own price falls, which on the chart's inverted scale is a rise.
+          return isReversed(order)
+            ? { id: String(order.id), price: 1 / trigger, crossing: 'up' as const }
+            : { id: String(order.id), price: trigger, crossing: 'down' as const }
+        })
         .filter(marker => Number.isFinite(marker.price) && marker.price > 0),
       label: t`STOP`,
       referencePrice: oraclePriceNumber,
@@ -146,7 +165,7 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
       renderOffscreen: (count, direction) =>
         direction === 'above' ? t`${count} order(s) above` : t`${count} order(s) below`,
     }
-  }, [hasPair, orders, oraclePriceNumber, renderDetails])
+  }, [hasPair, orders, isReversed, oraclePriceNumber, renderDetails])
 
   return (
     <>
