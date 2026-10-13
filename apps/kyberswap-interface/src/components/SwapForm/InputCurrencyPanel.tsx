@@ -5,7 +5,7 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
-import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
+import { getGasReservation, getPercentageAmountWithGasReserve } from 'utils/gasReserve'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -41,7 +41,8 @@ const InputCurrencyPanel: React.FC<Props> = ({
   const trade = showWrap ? undefined : routeSummary
 
   const handleMaxInput = () => {
-    const max = maxAmountSpend(balanceIn)?.toExact()
+    const gasReservation = getGasReservation(balanceIn)
+    const max = (gasReservation?.maxAmount ?? balanceIn)?.toExact()
     trackingHandler(TRACKING_EVENT_TYPE.MAX_BALANCE_CLICKED, {
       token_symbol: currencyIn?.symbol,
       token_address: currencyIn?.isNative ? 'NATIVE' : currencyIn?.wrapped?.address,
@@ -53,7 +54,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
   }
 
   const handleHalfInput = () => {
-    const half = halfAmountSpend(balanceIn)?.toExact()
+    const half = getPercentageAmountWithGasReserve(balanceIn, 50)?.toExact()
     setTypedValue(half || '')
   }
 

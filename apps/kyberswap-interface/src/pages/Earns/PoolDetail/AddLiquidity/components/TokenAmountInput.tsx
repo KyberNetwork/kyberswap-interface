@@ -1,4 +1,5 @@
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, Token } from '@kyber/schema'
+import { CurrencyAmount, NativeCurrency, Token as SDKToken } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ChangeEvent, useMemo } from 'react'
 
@@ -8,6 +9,7 @@ import { ReactComponent as WalletIcon } from 'assets/svg/earn/ic_add_liquidity_w
 import Skeleton from 'components/Skeleton'
 import TokenLogo from 'components/TokenLogo'
 import { cn } from 'utils/cn'
+import { getPercentageAmountWithGasReserve } from 'utils/gasReserve'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
 
@@ -69,14 +71,21 @@ const TokenAmountInput = ({
     if (value === '' || INPUT_AMOUNT_REGEX.test(value)) updateAmount(value)
   }
 
+  const getPercentageAmount = (percentage: number) => {
+    const currency =
+      token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+        ? new NativeCurrency(chainId, token.decimals, token.symbol, token.name)
+        : new SDKToken(chainId, token.address, token.decimals, token.symbol, token.name)
+    return (
+      getPercentageAmountWithGasReserve(CurrencyAmount.fromRawAmount(currency, balanceInWei), percentage)?.toExact() ??
+      ''
+    )
+  }
+
   const applyPercentage = (percentage: number) => {
     if (!balanceInWei) return
 
-    const rawBalance = BigInt(balanceInWei)
-    const nextAmount =
-      percentage === 100
-        ? formatUnits(rawBalance, token.decimals)
-        : formatUnits((rawBalance * BigInt(percentage)) / 100n, token.decimals)
+    const nextAmount = getPercentageAmount(percentage)
     const normalizedAmount = normalizeActionAmount(nextAmount)
 
     updateAmount(normalizedAmount)
@@ -118,7 +127,7 @@ const TokenAmountInput = ({
         <button
           type="button"
           className="flex cursor-pointer items-center gap-1.5 border-none bg-transparent p-0 text-xs text-subText hover:brightness-110"
-          onClick={() => updateAmount(normalizeActionAmount(formattedBalance))}
+          onClick={() => updateAmount(normalizeActionAmount(getPercentageAmount(100)))}
         >
           <WalletIcon width={14} height={14} />
           {formatDisplayNumber(formattedBalance, { significantDigits: 8 })}
