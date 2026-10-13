@@ -1,4 +1,3 @@
-import type { MotionValue } from 'framer-motion'
 import { Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
@@ -54,10 +53,9 @@ const StartCopyCard = ({ agent, onCopy }: { agent: AgentProfile; onCopy: () => v
 type AgentInstructionProps = {
   activeCopyRun?: CopyRunListItem
   agent: AgentProfile
-  winRateProgress: MotionValue<number>
 }
 
-const AgentInstruction = ({ activeCopyRun, agent, winRateProgress }: AgentInstructionProps) => {
+const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
   const navigate = useNavigate()
   const copyTradingPath = useCopyTradingRoutes()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
@@ -79,11 +77,7 @@ const AgentInstruction = ({ activeCopyRun, agent, winRateProgress }: AgentInstru
         {copyActionCard}
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.risk}>
-        <RiskCard
-          maxDrawdownPct={agent.stats.maxDrawdownPct}
-          winRatePct={agent.stats.winRatePct}
-          winRateProgress={winRateProgress}
-        />
+        <RiskCard maxDrawdownPct={agent.stats.maxDrawdownPct} winRatePct={agent.stats.winRatePct} />
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.strategy}>
         <StrategyExecutionCard items={agent.strategyExecutionItems} />

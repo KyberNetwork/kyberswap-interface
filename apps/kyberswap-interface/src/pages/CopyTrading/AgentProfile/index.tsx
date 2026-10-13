@@ -1,4 +1,3 @@
-import { useMotionValue } from 'framer-motion'
 import { type PropsWithChildren } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
@@ -50,8 +49,6 @@ const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
 }
 
 const AgentProfile = () => {
-  // Keep the displayed win rate while the next agent's detail is loading.
-  const winRateProgress = useMotionValue(0)
   const copyTradingPath = useCopyTradingRoutes()
   const { agentCode } = useParams()
   const { ownerAddress } = useCopyTradingContext()
@@ -141,7 +138,7 @@ const AgentProfile = () => {
         <ResponsiveDetailGrid className="max-xl:contents">
           <AgentStats agentId={profile.agentId} />
           <StickySideColumn>
-            <AgentInstruction activeCopyRun={activeCopyRun} agent={profile} winRateProgress={winRateProgress} />
+            <AgentInstruction activeCopyRun={activeCopyRun} agent={profile} />
           </StickySideColumn>
         </ResponsiveDetailGrid>
 
