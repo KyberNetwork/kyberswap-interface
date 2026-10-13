@@ -5,7 +5,8 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
-import { getGasReservation, getPercentageAmountWithGasReserve } from 'utils/gasReserve'
+import { getGasReservation } from 'utils/gasReserve'
+import { halfAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -54,7 +55,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
   }
 
   const handleHalfInput = () => {
-    const half = getPercentageAmountWithGasReserve(balanceIn, 50)?.toExact()
+    const half = halfAmountSpend(balanceIn)?.toExact()
     setTypedValue(half || '')
   }
 

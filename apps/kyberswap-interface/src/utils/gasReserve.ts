@@ -40,14 +40,3 @@ export function getGasReservation(balance: CurrencyAmount<Currency> | undefined)
     maxAmount: CurrencyAmount.fromRawAmount(balance.currency, (remaining > 0n ? remaining : 0n).toString()),
   }
 }
-
-export function getPercentageAmountWithGasReserve(balance: CurrencyAmount<Currency> | undefined, percentage: number) {
-  if (!balance) return undefined
-
-  const amount = CurrencyAmount.fromRawAmount(
-    balance.currency,
-    ((BigInt(balance.quotient.toString()) * BigInt(percentage)) / 100n).toString(),
-  )
-  const maxAmount = getGasReservation(balance)?.maxAmount
-  return maxAmount && amount.greaterThan(maxAmount) ? maxAmount : amount
-}
