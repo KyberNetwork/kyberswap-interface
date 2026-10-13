@@ -3,7 +3,9 @@ import { ChargeFeeBy, ExtraFeeConfig, Route } from 'types/route'
 export type GetRouteParams = {
   tokenIn: string
   tokenOut: string
-  amountIn: string
+  /** Set for an exact-in quote; the exact-out endpoint takes `amountOut` instead. */
+  amountIn?: string
+  amountOut?: string
   includedSources?: string
   excludedSources?: string
   excludedPools?: string

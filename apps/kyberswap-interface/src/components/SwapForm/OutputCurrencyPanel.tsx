@@ -24,6 +24,10 @@ type Props = {
   onChangeCurrencyOut: (c: Currency) => void
   customChainId?: ChainId
   routeLoading: boolean
+  /** Output amount the user typed, shown instead of the quoted one while the swap is exact-out. */
+  typedValue?: string
+  /** Makes the output amount editable. */
+  onUserInput?: (value: string) => void
 }
 
 const OutputCurrencyPanel: React.FC<Props> = ({
@@ -38,6 +42,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   onChangeCurrencyOut,
   customChainId,
   routeLoading,
+  typedValue,
+  onUserInput,
 }) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
@@ -47,7 +53,11 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   // showWrap = true if this swap is either WRAP or UNWRAP
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
+  const isTyped = typedValue !== undefined && !showWrap
+  const showSkeleton = routeLoading && !isTyped
+
   const getFormattedAmount = () => {
+    if (isTyped) return typedValue
     if (showWrap) {
       return parsedAmountIn?.toExact() || ''
     }
@@ -65,14 +75,15 @@ const OutputCurrencyPanel: React.FC<Props> = ({
 
   return (
     <div className="relative">
-      {routeLoading && (
+      {showSkeleton && (
         <div className="absolute bottom-[18px] left-3 z-10 flex">
           <Skeleton height={24} width={upToSmall ? 120 : 160} />
         </div>
       )}
       <CurrencyInputPanel
-        disabledInput
-        value={routeLoading ? ' ' : getFormattedAmount()}
+        disabledInput={!onUserInput || showWrap}
+        onUserInput={onUserInput}
+        value={showSkeleton ? ' ' : getFormattedAmount()}
         currency={currencyOut}
         onCurrencySelect={onChangeCurrencyOut}
         otherCurrency={currencyIn}
@@ -81,7 +92,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         showPinnedTokens={true}
         customBalanceText={balanceText}
         highlightCurrencySelect={highlightToken}
-        estimatedUsd={routeLoading ? '' : getEstimatedUsd()}
+        estimatedUsd={showSkeleton ? '' : getEstimatedUsd()}
         label={
           <TextHelper
             placement="right"

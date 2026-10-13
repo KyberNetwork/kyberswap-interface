@@ -1,10 +1,13 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { useMedia } from 'react-use'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import Skeleton from 'components/Skeleton'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
+import { MEDIA_WIDTHS } from 'theme'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -20,6 +23,8 @@ type Props = {
   setTypedValue: (v: string) => void
   onUserInput: (v: string) => void
   customChainId?: ChainId
+  /** True while the input amount is being quoted from a typed output amount. */
+  routeLoading?: boolean
 }
 const InputCurrencyPanel: React.FC<Props> = ({
   wrapType,
@@ -33,7 +38,9 @@ const InputCurrencyPanel: React.FC<Props> = ({
   highlightToken,
   onChangeCurrencyIn,
   customChainId,
+  routeLoading,
 }) => {
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { routeSummary } = useSwapFormContext()
   const { networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
@@ -58,29 +65,36 @@ const InputCurrencyPanel: React.FC<Props> = ({
   }
 
   return (
-    <CurrencyInputPanel
-      value={typedValue}
-      positionMax="top"
-      currency={currencyIn}
-      onUserInput={onUserInput}
-      onMax={handleMaxInput}
-      onHalf={handleHalfInput}
-      onCurrencySelect={onChangeCurrencyIn}
-      otherCurrency={currencyOut}
-      id="swap-currency-input"
-      dataTestId="swap-currency-input"
-      showPinnedTokens={true}
-      customBalanceText={balanceText}
-      highlightCurrencySelect={highlightToken}
-      estimatedUsd={
-        trade?.amountInUsd
-          ? formatDisplayNumber(trade.amountInUsd, { style: 'currency', significantDigits: 4 })
-          : undefined
-      }
-      customChainId={customChainId}
-      trackingSource="swap"
-      scaleERC8056Balances
-    />
+    <div className="relative">
+      {routeLoading && (
+        <div className="absolute bottom-[18px] left-3 z-10 flex">
+          <Skeleton height={24} width={upToSmall ? 120 : 160} />
+        </div>
+      )}
+      <CurrencyInputPanel
+        value={routeLoading ? ' ' : typedValue}
+        positionMax="top"
+        currency={currencyIn}
+        onUserInput={onUserInput}
+        onMax={handleMaxInput}
+        onHalf={handleHalfInput}
+        onCurrencySelect={onChangeCurrencyIn}
+        otherCurrency={currencyOut}
+        id="swap-currency-input"
+        dataTestId="swap-currency-input"
+        showPinnedTokens={true}
+        customBalanceText={balanceText}
+        highlightCurrencySelect={highlightToken}
+        estimatedUsd={
+          !routeLoading && trade?.amountInUsd
+            ? formatDisplayNumber(trade.amountInUsd, { style: 'currency', significantDigits: 4 })
+            : undefined
+        }
+        customChainId={customChainId}
+        trackingSource="swap"
+        scaleERC8056Balances
+      />
+    </div>
   )
 }
 
