@@ -170,7 +170,7 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
   ) : isMissingTrigger ? (
     <Trans>Set a trigger price</Trans>
   ) : insufficientBalance ? (
-    <Trans>Insufficient {currencyIn?.symbol} balance</Trans>
+    <Trans>Insufficient {currencyIn?.symbol} funds</Trans>
   ) : (
     <Trans>Place Stop Order</Trans>
   )

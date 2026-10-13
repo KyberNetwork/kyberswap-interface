@@ -60,7 +60,7 @@ const StopOrderTableHeader = ({ isActiveTab }: { isActiveTab?: boolean }) => (
       <span>
         <Trans>Trigger Price</Trans>
       </span>
-      <span className="font-normal normal-case tracking-normal">
+      <span>
         <Trans>Slippage</Trans>
       </span>
     </span>
