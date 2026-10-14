@@ -24,8 +24,6 @@ type PositionSellPreparation = keyof typeof POSITION_SELL_PREPARATION_CONFIG
 
 type PositionSellFlowConfig = {
   actionLabel: string
-  destination: string
-  destinationLabel: string
   preparation: PositionSellPreparation
   requireFullSell?: true
   sellContext: PositionSellContext
@@ -33,8 +31,6 @@ type PositionSellFlowConfig = {
 }
 
 const ACTIVE_RECOVERY_CONFIG = {
-  destination: 'my-copies',
-  destinationLabel: 'My Copies',
   sellContext: 'POSITION_SELL_CONTEXT_ALIGN_SKIP',
 } as const
 
@@ -58,8 +54,6 @@ export const POSITION_SELL_FLOW_CONFIG: Record<ManagePositionFlow, PositionSellF
   },
   stopCopyClosePosition: {
     ...CLOSE_POSITION_CONFIG,
-    destination: 'history',
-    destinationLabel: 'View History',
     sellContext: 'POSITION_SELL_CONTEXT_STOP_COPY',
   },
 }

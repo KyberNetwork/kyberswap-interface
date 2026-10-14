@@ -265,9 +265,9 @@ const ManagePositionModal = ({
     void flow.prepare()
   }
 
-  const viewDestination = () => {
+  const viewPosition = () => {
     dismiss()
-    navigate(copyTradingPath(flowConfig.destination, position.chainId))
+    navigate(copyTradingPath(`my-copies/${copyRunId}`) + '?detailTab=closed-positions')
   }
 
   const preview = flowState.action?.[preparationConfig.preview]
@@ -291,11 +291,7 @@ const ManagePositionModal = ({
   )
 
   const successActions = (
-    <PreparedActionSuccessActions
-      onClose={dismiss}
-      onPrimaryAction={viewDestination}
-      primaryLabel={flowConfig.destinationLabel}
-    />
+    <PreparedActionSuccessActions onClose={dismiss} onPrimaryAction={viewPosition} primaryLabel="View Position" />
   )
 
   return (
