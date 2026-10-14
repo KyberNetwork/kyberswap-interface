@@ -35,8 +35,9 @@ export function getGasReservation(balance: CurrencyAmount<Currency> | undefined)
   if (reserve == null) return undefined
 
   const remaining = BigInt(balance.quotient.toString()) - parseUnits(reserve, balance.currency.decimals)
+  if (remaining < 0n) return undefined
 
   return {
-    maxAmount: CurrencyAmount.fromRawAmount(balance.currency, (remaining > 0n ? remaining : 0n).toString()),
+    maxAmount: CurrencyAmount.fromRawAmount(balance.currency, remaining.toString()),
   }
 }
