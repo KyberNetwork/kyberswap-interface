@@ -1,4 +1,11 @@
-import { InventoryRawRow, UnsupportedChainError, parseRawAmount, walkWalletInventory } from '@kyber/hooks'
+import {
+  InventoryRawRow,
+  UnsupportedChainError,
+  judgeInventory,
+  parseRawAmount,
+  readLiveNative,
+  walkWalletInventory,
+} from '@kyber/hooks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { z } from 'zod'
 
@@ -34,6 +41,10 @@ export type WalletInventoryResult = {
    * moment it asked for one.
    */
   blockNumber: number
+  /** Whether the index itself listed the native currency; see `judgeInventory`. */
+  nativeIndexed: boolean
+  /** The node's native balance as read by the service, when it was asked for and answered. */
+  nativeLive?: bigint
 }
 
 // Metadata is omitted per row for tokens the catalog does not know, so all of it is optional.
@@ -91,6 +102,8 @@ export const fetchWalletInventory = async ({
     rows: raw,
     complete,
     indexedBlock,
+    nativeIndexed,
+    nativeLive,
   } = await walkWalletInventory({
     baseUrl: KD_API_URL,
     chainId,
@@ -106,5 +119,40 @@ export const fetchWalletInventory = async ({
     if (row) rows.push(row)
   })
 
-  return { rows, complete, blockNumber: indexedBlock }
+  return { rows, complete, blockNumber: indexedBlock, nativeIndexed, nativeLive }
+}
+
+/**
+ * The node's native balance for the wallet, read by the service: the one request that settles what
+ * an answer without a native row means. Undefined when the service did not answer.
+ */
+export const readNativeBalance = async ({
+  chainId,
+  account,
+  signal,
+}: {
+  chainId: ChainId
+  account: string
+  signal?: AbortSignal
+}): Promise<bigint | undefined> => {
+  if (!KD_API_URL) return undefined
+  return readLiveNative({ baseUrl: KD_API_URL, chainId, account, signal })
+}
+
+/**
+ * A walk, plus the node's word on native where the index was silent about it: the one request that
+ * settles what such an answer means, made only for such answers. A walk made while a watch is on
+ * carries that word already, and the index carries it for most wallets most of the time. A read the
+ * service does not answer leaves the answer as it was, which the resolver reads as not to be relied on.
+ */
+export const fetchWalletInventoryJudged = async (args: {
+  chainId: ChainId
+  account: string
+  signal?: AbortSignal
+  liveAddrs?: readonly string[]
+}): Promise<WalletInventoryResult> => {
+  const result = await fetchWalletInventory(args)
+  if (judgeInventory(result) !== 'unknown') return result
+  const nativeLive = await readNativeBalance(args).catch(() => undefined)
+  return { ...result, nativeLive }
 }
