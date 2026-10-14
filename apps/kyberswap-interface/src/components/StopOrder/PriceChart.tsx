@@ -49,7 +49,7 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
     {
       userWallet: account || '',
       chainIds: chainId ? [chainId] : undefined,
-      status: StopOrderStatus.OPEN,
+      statuses: [StopOrderStatus.OPEN],
       // Both directions: an order's tokens are always different, so these match the pair either way round.
       tokenIns: tokenIn && tokenOut ? [tokenIn, tokenOut] : undefined,
       tokenOuts: tokenIn && tokenOut ? [tokenOut, tokenIn] : undefined,

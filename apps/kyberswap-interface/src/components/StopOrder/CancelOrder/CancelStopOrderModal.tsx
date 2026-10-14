@@ -2,10 +2,11 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import {
-  useBatchCancelStopOrdersMutation,
+  useCancelAllStopOrdersMutation,
   useCancelStopOrderMutation,
-  useGetStopOrderBatchCancelSignMessageMutation,
+  useGetStopOrderCancelAllSignMessageMutation,
   useGetStopOrderCancelSignMessageMutation,
+  useGetStopOrdersQuery,
 } from 'services/stopOrder'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -14,7 +15,7 @@ import { ChainFilter } from 'components/LimitOrder/CancelOrder/components'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
-import { StopOrder } from 'components/StopOrder/types'
+import { StopOrder, StopOrderStatus } from 'components/StopOrder/types'
 import { stripEmptyEip712Salt } from 'components/StopOrder/utils'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -26,11 +27,12 @@ import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
-/** The service signs at most 100 ids into one CancelBatchOrders message. */
-const BATCH_CANCEL_LIMIT = 100
-
 type Props = {
-  /** One order for a row cancel, or every cancellable order on screen for Cancel All. Empty closes the modal. */
+  /**
+   * One order for a row cancel. For Cancel All, the open orders in hand: they name the chains to offer
+   * and leave the table as soon as the cancel lands, while the cancel itself covers every open order
+   * on the chosen chain, listed here or not. Empty closes the modal.
+   */
   orders: StopOrder[]
   isCancelAll: boolean
   onDismiss: () => void
@@ -64,8 +66,8 @@ const CancelStopOrderModal = ({ orders, isCancelAll, onDismiss, onCancelled }: P
 
   const [getCancelSignMessage] = useGetStopOrderCancelSignMessageMutation()
   const [cancelOrder] = useCancelStopOrderMutation()
-  const [getBatchSignMessage] = useGetStopOrderBatchCancelSignMessageMutation()
-  const [batchCancel] = useBatchCancelStopOrdersMutation()
+  const [getCancelAllSignMessage] = useGetStopOrderCancelAllSignMessageMutation()
+  const [cancelAll] = useCancelAllStopOrdersMutation()
 
   const [isCancelling, setIsCancelling] = useState(false)
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false)
@@ -87,24 +89,37 @@ const CancelStopOrderModal = ({ orders, isCancelAll, onDismiss, onCancelled }: P
   const selectedChainId =
     pickedChainId ?? chainOptions.find(option => option.chainId === walletChainId)?.chainId ?? chainOptions[0]?.chainId
   const selectedOrders = useMemo(
-    () =>
-      isCancelAll ? orders.filter(order => order.chainId === selectedChainId).slice(0, BATCH_CANCEL_LIMIT) : orders,
+    () => (isCancelAll ? orders.filter(order => order.chainId === selectedChainId) : orders),
     [isCancelAll, orders, selectedChainId],
   )
   const showChainPicker = isCancelAll && chainOptions.length > 1
 
-  const isBatch = selectedOrders.length > 1
   const order = selectedOrders[0]
+  const targetChainId = isCancelAll ? selectedChainId : order?.chainId
+
+  // How many the cancel will reach, asked of the service: the orders in hand are the newest hundred,
+  // which a wallet with more open orders on the chain would exceed.
+  const { currentData: openOnChain } = useGetStopOrdersQuery(
+    {
+      userWallet: account || '',
+      chainIds: targetChainId ? [targetChainId] : undefined,
+      statuses: [StopOrderStatus.OPEN],
+      page: 1,
+      pageSize: 1,
+    },
+    { skip: !isCancelAll || !account || !targetChainId || orders.length === 0 },
+  )
+  const orderCount = isCancelAll ? openOnChain?.totalItems ?? selectedOrders.length : selectedOrders.length
 
   // The cancel message is signed for the orders' chain, which a wallet on another chain refuses — so,
   // as the limit-order modal does, the confirm button first offers to switch.
-  const shouldSwitchNetwork = !!order && walletChainId !== order.chainId
+  const shouldSwitchNetwork = !!targetChainId && walletChainId !== targetChainId
   const onSwitchNetwork = async () => {
-    if (!order) return
+    if (!targetChainId) return
     setError('')
     setIsSwitchingNetwork(true)
     try {
-      await changeNetwork(order.chainId)
+      await changeNetwork(targetChainId)
     } finally {
       setIsSwitchingNetwork(false)
     }
@@ -117,41 +132,28 @@ const CancelStopOrderModal = ({ orders, isCancelAll, onDismiss, onCancelled }: P
   }
 
   const onConfirm = async () => {
-    if (!order || !account) return
+    if (!targetChainId || !account) return
     setIsCancelling(true)
     setError('')
 
     try {
-      // A batch covers one chain and one order type, which the chain picker guarantees.
-      const chainId = order.chainId
-      let cancelledIds: number[]
-
-      if (isBatch) {
-        const orderIds = selectedOrders.map(o => o.id)
-        const params = { chainId, userWallet: account, orderIds }
-        const typedData = await getBatchSignMessage(params).unwrap()
+      const chainId = targetChainId
+      if (isCancelAll) {
+        const params = { chainId, userWallet: account }
+        const typedData = await getCancelAllSignMessage(params).unwrap()
         const rawSignature = await signTypedDataRaw({
           chainId,
           account: account as Address,
           typedData: stripEmptyEip712Salt(typedData),
         })
-        const results = await batchCancel({ ...params, signature: formatSignature(rawSignature) }).unwrap()
-
-        // A verified signature still returns success, so a per-order failure is only visible here.
-        cancelledIds = results.filter(result => result.success).map(result => result.orderId)
-        const failed = results.filter(result => !result.success)
-        if (failed.length) {
-          const count = failed.length
-          notify(
-            {
-              type: NotificationType.WARNING,
-              title: t`Some orders were not cancelled`,
-              summary: t`${count} of the selected orders could not be cancelled — they may have executed already.`,
-            },
-            10000,
-          )
-        }
+        // The service checks the signature against the moment it issued, so that travels back with it.
+        await cancelAll({
+          ...params,
+          issuedAt: String(typedData.message.issuedAt ?? ''),
+          signature: formatSignature(rawSignature),
+        }).unwrap()
       } else {
+        if (!order) return
         const params = { chainId, userWallet: account, orderId: order.id }
         const typedData = await getCancelSignMessage(params).unwrap()
         const rawSignature = await signTypedDataRaw({
@@ -160,22 +162,18 @@ const CancelStopOrderModal = ({ orders, isCancelAll, onDismiss, onCancelled }: P
           typedData: stripEmptyEip712Salt(typedData),
         })
         await cancelOrder({ ...params, signature: formatSignature(rawSignature) }).unwrap()
-        cancelledIds = [order.id]
       }
 
-      if (cancelledIds.length) {
-        const count = cancelledIds.length
-        notify(
-          {
-            type: NotificationType.SUCCESS,
-            title: t`Order cancelled`,
-            summary: isBatch ? t`${count} stop orders were cancelled.` : t`Your stop order was cancelled.`,
-          },
-          10000,
-        )
-        selectedOrders.filter(o => cancelledIds.includes(o.id)).forEach(tracking.trackOrderCancelled)
-        onCancelled(cancelledIds)
-      }
+      notify(
+        {
+          type: NotificationType.SUCCESS,
+          title: t`Order cancelled`,
+          summary: isCancelAll ? t`${orderCount} stop orders were cancelled.` : t`Your stop order was cancelled.`,
+        },
+        10000,
+      )
+      selectedOrders.forEach(tracking.trackOrderCancelled)
+      onCancelled(selectedOrders.map(o => o.id))
       handleDismiss()
     } catch (cancelError) {
       setError(friendlyError(cancelError))
@@ -183,8 +181,6 @@ const CancelStopOrderModal = ({ orders, isCancelAll, onDismiss, onCancelled }: P
       setIsCancelling(false)
     }
   }
-
-  const orderCount = selectedOrders.length
 
   return (
     <Modal isOpen={orders.length > 0} onDismiss={handleDismiss} maxWidth={480} borderRadius={16}>
@@ -239,11 +235,11 @@ const CancelStopOrderModal = ({ orders, isCancelAll, onDismiss, onCancelled }: P
           <ButtonPrimary
             onClick={shouldSwitchNetwork ? onSwitchNetwork : onConfirm}
             className="flex-1"
-            disabled={isCancelling || isSwitchingNetwork || !order}
+            disabled={isCancelling || isSwitchingNetwork || !targetChainId}
             data-testid="stop-order-cancel-confirm-button"
           >
-            {shouldSwitchNetwork && order ? (
-              <Trans>Switch to {NETWORKS_INFO[order.chainId].name}</Trans>
+            {shouldSwitchNetwork && targetChainId ? (
+              <Trans>Switch to {NETWORKS_INFO[targetChainId].name}</Trans>
             ) : isCancelling ? (
               <Trans>Cancelling...</Trans>
             ) : isCancelAll ? (

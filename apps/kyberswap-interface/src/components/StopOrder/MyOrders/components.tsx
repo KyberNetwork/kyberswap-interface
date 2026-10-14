@@ -69,12 +69,13 @@ export const StopOrderTabSelector = ({
  * button itself has no busy state to show. Orders drop out of the cancellable set as they settle,
  * which is what takes it off screen.
  */
-export const CancelAllButton = ({ onClick }: { onClick: () => void }) => (
+export const CancelAllButton = ({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) => (
   <button
     type="button"
     onClick={onClick}
+    disabled={disabled}
     data-testid="stop-order-cancel-all-button"
-    className="flex w-fit animate-[fadeIn_0.2s_ease-out_both] cursor-pointer items-center gap-1.5 rounded-[10px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text motion-reduce:animate-none"
+    className="flex w-fit animate-[fadeIn_0.2s_ease-out_both] cursor-pointer items-center gap-1.5 rounded-[10px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text disabled:cursor-default disabled:opacity-50 disabled:hover:text-subText motion-reduce:animate-none"
   >
     <Trash size={14} />
     <Trans>Cancel All</Trans>
@@ -258,27 +259,13 @@ export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
  * address instead would miss: the service returns addresses lower-cased, while the whitelist map is
  * keyed by checksummed ones.
  */
-export const PairCell = ({
-  sellCurrency,
-  receiveCurrency,
-  isSellLoading,
-  isReceiveLoading,
-}: {
-  sellCurrency?: Currency
-  receiveCurrency?: Currency
-  isSellLoading?: boolean
-  isReceiveLoading?: boolean
-}) => (
+export const PairCell = ({ sellCurrency, receiveCurrency }: { sellCurrency: Currency; receiveCurrency: Currency }) => (
   <HStack className="min-w-0 items-center gap-1.5 text-sm font-medium text-text" data-testid="stop-order-order-pair">
     <CurrencyLogo currency={sellCurrency} size="16px" />
-    {isSellLoading ? <SkeletonLine width={40} /> : <span className="truncate">{sellCurrency?.symbol || '-'}</span>}
+    <span className="truncate">{sellCurrency.symbol || '-'}</span>
     <span className="shrink-0 text-subText">→</span>
     <CurrencyLogo currency={receiveCurrency} size="16px" />
-    {isReceiveLoading ? (
-      <SkeletonLine width={40} />
-    ) : (
-      <span className="truncate">{receiveCurrency?.symbol || '-'}</span>
-    )}
+    <span className="truncate">{receiveCurrency.symbol || '-'}</span>
   </HStack>
 )
 
@@ -286,15 +273,12 @@ export const PairCell = ({
 export const AmountCell = ({
   value,
   subValue,
-  isLoading,
   isSubLoading,
   className,
   dataTestId,
 }: {
   value: ReactNode
   subValue?: ReactNode
-  /** The amount cannot be read yet; its line holds a placeholder. */
-  isLoading?: boolean
   /** The USD line is on its way, so its space is held rather than added once it lands. */
   isSubLoading?: boolean
   className?: string
@@ -303,13 +287,9 @@ export const AmountCell = ({
   // `max-w-full` lets the lines truncate when a caller aligns them with `items-end`: a flex item that is
   // not stretched sizes to its content and would otherwise spill into the neighbouring column.
   <Stack className={cn('min-w-0 gap-0.5', className)}>
-    {isLoading ? (
-      <SkeletonLine width={72} />
-    ) : (
-      <span className="max-w-full truncate text-sm font-medium text-text" data-testid={dataTestId}>
-        {value}
-      </span>
-    )}
+    <span className="max-w-full truncate text-sm font-medium text-text" data-testid={dataTestId}>
+      {value}
+    </span>
     {isSubLoading && subValue === undefined ? (
       <SkeletonLine size="xs" width={44} />
     ) : (
@@ -342,8 +322,7 @@ export const triggerProximityText = cva('transition-colors duration-200', {
  * How much room is left before the trigger fires. The arrow follows the sign: a trigger that has risen
  * above the market is about to fire, which is the opposite of the same magnitude below it.
  */
-export const DistanceCell = ({ percent, isLoading }: { percent?: number; isLoading?: boolean }) => {
-  if (isLoading) return <SkeletonLine width={40} />
+export const DistanceCell = ({ percent }: { percent?: number }) => {
   if (percent === undefined)
     return (
       <span className={cn('text-sm font-medium', triggerProximityText())} data-testid="stop-order-order-distance">

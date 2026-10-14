@@ -44,10 +44,52 @@ export type StopOrderCondition = {
   }
 }
 
+/**
+ * One side of a settlement. `amount` is in the token's human units; `amountWei` is the same figure as a
+ * JSON number, which cannot hold an 18-decimal amount exactly, so it is never read.
+ */
 export type StopOrderExecutionAmount = {
   amountWei?: number
   amount?: string
   amountUsd?: string
+}
+
+/**
+ * Something the service wants the user to know about an order it still holds, such as a price feed it
+ * can no longer evaluate the trigger against. `message` is written for the user as is.
+ */
+export type StopOrderWarning = {
+  orderId: number
+  tokenIn: string
+  tokenOut: string
+  code: string
+  message: string
+  canCancel: boolean
+}
+
+/** A token's identity as the order carries it, enough to format its amounts without a lookup. */
+export type StopOrderTokenInfo = {
+  address: string
+  symbol: string
+  decimals: number
+  logoURL?: string | null
+}
+
+/**
+ * The oracle's reading of an open order at the time the list was served: both legs in USD, what the
+ * sell amount is worth and what it would receive at that price. Absent once the order is closed.
+ */
+export type StopOrderOracleEstimate = {
+  source: string
+  /** Unix seconds. */
+  updatedAt: number
+  tokenInPriceUsd: string
+  tokenOutPriceUsd: string
+  amountInUsd: string
+  /** Raw integer in tokenOut's own decimals. */
+  expectedAmountOut: string
+  expectedAmountOutHuman: string
+  expectedAmountOutUsd: string
 }
 
 export type StopOrderExecution = {
@@ -75,6 +117,10 @@ export type StopOrder = {
   tokenOut: string
   /** Raw integer amount in tokenIn's own decimals. */
   amountIn: string
+  /** `amountIn` in tokenIn's human units. */
+  amountInHuman?: string
+  tokenInInfo: StopOrderTokenInfo
+  tokenOutInfo: StopOrderTokenInfo
   /** Max slippage in basis points, 1..10000. */
   slippage: number
   condition: StopOrderCondition
@@ -91,6 +137,8 @@ export type StopOrder = {
   /** Unix seconds. */
   createdAt: number
   executions?: StopOrderExecution[]
+  oracleEstimate?: StopOrderOracleEstimate | null
+  warnings?: StopOrderWarning[]
 }
 
 /** The payload shared by estimate-fee, sign-message and create. Build it once and reuse it. */

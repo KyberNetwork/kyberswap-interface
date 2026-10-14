@@ -44,7 +44,7 @@ export const LimitTab = ({ onClick, active, customChainId }: Props) => {
   // service's all-chains path; only the total is read.
   const skipStopOrders = !account
   const { data: { totalItems: totalStopOrders = 0 } = {} } = useGetStopOrdersQuery(
-    { userWallet: account || '', status: StopOrderStatus.OPEN, page: 1, pageSize: 1 },
+    { userWallet: account || '', statuses: [StopOrderStatus.OPEN], page: 1, pageSize: 1 },
     { skip: skipStopOrders, refetchOnFocus: true, pollingInterval: 10_000 },
   )
 

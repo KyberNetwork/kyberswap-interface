@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 
 import {
   StopOrder,
@@ -7,10 +7,13 @@ import {
   StopOrderExecution,
   StopOrderExecutionStatus,
   StopOrderStatus,
+  StopOrderTokenInfo,
   StopOrderTypedData,
+  StopOrderWarning,
 } from 'components/StopOrder/types'
 import { isSupportedChainId } from 'constants/networks'
 import { tryParseAmount } from 'state/swap/hooks'
+import { isAddress } from 'utils/address'
 import { formatDisplayNumber } from 'utils/numbers'
 
 /** The service rejects any deadline past 2100-01-01, so an "expires never" choice lands here instead. */
@@ -182,54 +185,26 @@ export const buildStopOrderPayload = ({
 })
 
 /**
- * Reads one side of an execution's settled amount, in the token's human units.
- *
- * `amountOut.amount` is documented as raw units while its sibling `amountIn.amount` is human-readable,
- * and a whole number is valid under either reading — the two differ by 10^decimals, so guessing wrong
- * shows a settlement figure off by orders of magnitude. The execution carries `amountUsd` and a
- * per-token `priceUsd`, which together say which reading the number must be.
+ * Reads one side of an execution's settled amount, in the token's human units — the form both sides
+ * report `amount` in.
  */
 const resolveExecutionAmount = (
   execution: StopOrderExecution | undefined,
   side: 'amountIn' | 'amountOut',
-  token: string,
-  decimals: number | undefined,
 ): number | undefined => {
-  const field = execution?.extraData?.[side]
-  const value = field?.amount
-  if (!value || decimals === undefined || !/^\d+(\.\d+)?$/.test(value)) return undefined
-
-  const asHuman = Number(value)
-  if (!Number.isFinite(asHuman)) return undefined
-  // A raw amount is an integer, so a fraction settles the reading on its own.
-  if (value.includes('.')) return asHuman
-  const asRaw = asHuman / 10 ** decimals
-
-  const amountUsd = Number(field?.amountUsd)
-  const priceUsd = Number(
-    execution?.extraData?.tokensInfo?.find(info => info.address?.toLowerCase() === token.toLowerCase())?.priceUsd,
-  )
-  // Without both references the documented reading is all there is to go on.
-  if (!Number.isFinite(amountUsd) || amountUsd <= 0 || !Number.isFinite(priceUsd) || priceUsd <= 0) {
-    return side === 'amountOut' ? asRaw : asHuman
-  }
-
-  return Math.abs(asRaw * priceUsd - amountUsd) <= Math.abs(asHuman * priceUsd - amountUsd) ? asRaw : asHuman
+  const value = execution?.extraData?.[side]?.amount
+  if (!value || !/^\d+(\.\d+)?$/.test(value)) return undefined
+  const amount = Number(value)
+  return Number.isFinite(amount) ? amount : undefined
 }
 
 /** What one execution received, in tokenOut's human units. */
-export const resolveExecutionAmountOut = (
-  execution: StopOrderExecution | undefined,
-  tokenOut: string,
-  decimals: number | undefined,
-) => resolveExecutionAmount(execution, 'amountOut', tokenOut, decimals)
+export const resolveExecutionAmountOut = (execution: StopOrderExecution | undefined) =>
+  resolveExecutionAmount(execution, 'amountOut')
 
 /** What one execution sold, in tokenIn's human units. */
-export const resolveExecutionAmountIn = (
-  execution: StopOrderExecution | undefined,
-  tokenIn: string,
-  decimals: number | undefined,
-) => resolveExecutionAmount(execution, 'amountIn', tokenIn, decimals)
+export const resolveExecutionAmountIn = (execution: StopOrderExecution | undefined) =>
+  resolveExecutionAmount(execution, 'amountIn')
 
 /** One settlement that went through. Amounts are in human units; any the execution does not report are unset. */
 export type StopOrderFill = {
@@ -244,11 +219,7 @@ export type StopOrderFill = {
  * Every settlement of the order that went through, oldest first. A stop order settles in one today, but
  * an order keeps a list of executions, so nothing that shows them assumes there is only one.
  */
-export const getStopOrderFills = (
-  order: StopOrder,
-  tokenInDecimals: number | undefined,
-  tokenOutDecimals: number | undefined,
-): StopOrderFill[] =>
+export const getStopOrderFills = (order: StopOrder): StopOrderFill[] =>
   (order.executions ?? [])
     .filter(execution => execution.status === StopOrderExecutionStatus.SUCCESS)
     .sort((a, b) => a.executionNum - b.executionNum)
@@ -256,8 +227,8 @@ export const getStopOrderFills = (
       const price = Number(execution.extraData?.oraclePrice)
       return {
         hash: execution.hash,
-        amountIn: resolveExecutionAmountIn(execution, order.tokenIn, tokenInDecimals),
-        amountOut: resolveExecutionAmountOut(execution, order.tokenOut, tokenOutDecimals),
+        amountIn: resolveExecutionAmountIn(execution),
+        amountOut: resolveExecutionAmountOut(execution),
         price: Number.isFinite(price) && price > 0 ? price : undefined,
       }
     })
@@ -301,6 +272,72 @@ export const summarizeStopOrderFills = (fills: StopOrderFill[], orderAmountIn?: 
 
 const isRawAmount = (value: unknown): value is string => typeof value === 'string' && /^\d+$/.test(value)
 
+const isTokenInfo = (chainId: ChainId, value: unknown): value is StopOrderTokenInfo => {
+  if (!value || typeof value !== 'object') return false
+  const info = value as Record<string, unknown>
+  return (
+    !!isAddress(chainId, info.address) &&
+    typeof info.symbol === 'string' &&
+    Number.isInteger(info.decimals) &&
+    (info.decimals as number) >= 0
+  )
+}
+
+const toPositiveNumber = (value: unknown): number | undefined => {
+  const parsed = Number(value)
+  return typeof value === 'string' && value !== '' && Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+}
+
+export type StopOrderFundingShortfall = 'balance' | 'allowance'
+
+/**
+ * Which of the wallet's holdings no longer covers an open order's amount. A stop order locks nothing:
+ * the sell token stays in the wallet under an allowance, and either can be spent or revoked after the
+ * order is placed, leaving it to fail when it fires. A figure not yet read is not a shortfall.
+ */
+export const getStopOrderFundingShortfalls = (
+  amountIn: string,
+  balance?: bigint,
+  allowance?: bigint,
+): StopOrderFundingShortfall[] => {
+  const amount = BigInt(amountIn)
+  const shortfalls: StopOrderFundingShortfall[] = []
+  if (balance !== undefined && balance < amount) shortfalls.push('balance')
+  if (allowance !== undefined && allowance < amount) shortfalls.push('allowance')
+  return shortfalls
+}
+
+/** The warnings the service attached that carry something to show; the rest are nothing to read out. */
+export const getStopOrderWarnings = (order: StopOrder): StopOrderWarning[] =>
+  Array.isArray(order.warnings)
+    ? order.warnings.filter(warning => typeof warning?.message === 'string' && warning.message.trim() !== '')
+    : []
+
+/**
+ * tokenOut per tokenIn by the oracle, the unit the trigger is set in, from the estimate the service
+ * attaches to an open order. Nothing once the order is closed, or while the service has no feed for it.
+ */
+export const getStopOrderCurrentPrice = (order: StopOrder): number | undefined => {
+  const tokenInUsd = toPositiveNumber(order.oracleEstimate?.tokenInPriceUsd)
+  const tokenOutUsd = toPositiveNumber(order.oracleEstimate?.tokenOutPriceUsd)
+  return tokenInUsd && tokenOutUsd ? tokenInUsd / tokenOutUsd : undefined
+}
+
+/**
+ * What the sell amount is worth in USD by the order's own figures: the oracle's while it is open, the
+ * settlements' once it executed. A cancelled or expired order carries none.
+ */
+export const getStopOrderSellAmountUsd = (order: StopOrder): number | undefined => {
+  const estimate = toPositiveNumber(order.oracleEstimate?.amountInUsd)
+  if (estimate !== undefined) return estimate
+
+  const settled = (order.executions ?? [])
+    .filter(execution => execution.status === StopOrderExecutionStatus.SUCCESS)
+    .map(execution => toPositiveNumber(execution.extraData?.amountIn?.amountUsd))
+  if (!settled.length || settled.some(value => value === undefined)) return undefined
+  return settled.reduce<number>((total, value) => total + (value ?? 0), 0)
+}
+
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.length > 0
 
 const ORDER_STATUSES = Object.values(StopOrderStatus) as string[]
@@ -323,6 +360,8 @@ export const parseStopOrder = (raw: unknown): StopOrder | null => {
     !isNonEmptyString(order.tokenIn) ||
     !isNonEmptyString(order.tokenOut) ||
     !isRawAmount(order.amountIn) ||
+    !isTokenInfo(chainId, order.tokenInInfo) ||
+    !isTokenInfo(chainId, order.tokenOutInfo) ||
     !isNonEmptyString(trigger) ||
     typeof order.slippage !== 'number' ||
     typeof order.deadline !== 'number'

@@ -13,9 +13,13 @@ import {
   buildStopOrderPayload,
   clampStopOrderDeadline,
   formatDistanceMagnitude,
+  getStopOrderCurrentPrice,
   getStopOrderDisplayStatus,
   getStopOrderFills,
+  getStopOrderFundingShortfalls,
   getStopOrderRecreateDraft,
+  getStopOrderSellAmountUsd,
+  getStopOrderWarnings,
   getTriggerProximity,
   isActiveStopOrderStatus,
   parseStopOrder,
@@ -36,6 +40,8 @@ const ORDER: StopOrder = {
   tokenIn: '0x4200000000000000000000000000000000000006',
   tokenOut: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
   amountIn: '100000000000000000',
+  tokenInInfo: { address: '0x4200000000000000000000000000000000000006', symbol: 'WETH', decimals: 18 },
+  tokenOutInfo: { address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', symbol: 'USDC', decimals: 6 },
   slippage: 50,
   condition: { field: { type: 'oracle_price', value: { lte: '2400', maxStaleness: 60 } } },
   deadline: 1783344543,
@@ -251,76 +257,143 @@ describe('buildStopOrderPayload', () => {
 })
 
 describe('resolveExecutionAmountOut', () => {
-  const USDC_OUT = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-  const withExtra = (amount: string, amountUsd?: string, priceUsd?: string): StopOrderExecution => ({
+  const withAmount = (amount?: string): StopOrderExecution => ({
     ...execution(StopOrderExecutionStatus.SUCCESS),
-    extraData: {
-      amountOut: { amount, amountUsd },
-      tokensInfo: priceUsd ? [{ address: USDC_OUT, priceUsd, decimal: 6 }] : undefined,
-    },
+    extraData: { amountOut: { amount, amountWei: 1, amountUsd: '176.24' } },
   })
 
-  it('reads a raw value as raw when the USD figure agrees', () => {
-    // 176235015 raw USDC = 176.235 USDC ≈ $176.24
-    expect(resolveExecutionAmountOut(withExtra('176235015', '176.24', '1.0'), USDC_OUT, 6)).toBeCloseTo(176.235015, 5)
-  })
-
-  it('reads a human value as human when the raw reading contradicts the USD figure', () => {
-    // 1500 as raw would be 0.0015 USDC ≈ $0.0015, nowhere near the reported $1500
-    expect(resolveExecutionAmountOut(withExtra('1500', '1500', '1.0'), USDC_OUT, 6)).toBe(1500)
-  })
-
-  it('falls back to the documented raw reading when there is nothing to check against', () => {
-    expect(resolveExecutionAmountOut(withExtra('176235015'), USDC_OUT, 6)).toBeCloseTo(176.235015, 5)
-  })
-
-  it('ignores a token entry for a different address', () => {
-    const wrongToken = withExtra('176235015', '176.24', '1.0')
-    expect(resolveExecutionAmountOut(wrongToken, '0x0000000000000000000000000000000000000001', 6)).toBeCloseTo(
-      176.235015,
-      5,
-    )
+  it("reads the amount as the token's human units, whole or fractional", () => {
+    expect(resolveExecutionAmountOut(withAmount('176.235015'))).toBeCloseTo(176.235015, 6)
+    expect(resolveExecutionAmountOut(withAmount('1500'))).toBe(1500)
   })
 
   it.each([
     ['no execution', undefined],
-    ['a missing amount', { ...execution(StopOrderExecutionStatus.SUCCESS), extraData: {} }],
-    [
-      'a non-numeric amount',
-      { ...execution(StopOrderExecutionStatus.SUCCESS), extraData: { amountOut: { amount: 'n/a' } } },
-    ],
+    ['a missing amount', withAmount(undefined)],
+    ['a non-numeric amount', withAmount('n/a')],
   ])('returns nothing for %s', (_label, input) => {
-    expect(resolveExecutionAmountOut(input as StopOrderExecution | undefined, USDC_OUT, 6)).toBeUndefined()
-  })
-
-  it('returns nothing when the token decimals are unknown', () => {
-    expect(resolveExecutionAmountOut(withExtra('176235015'), USDC_OUT, undefined)).toBeUndefined()
+    expect(resolveExecutionAmountOut(input)).toBeUndefined()
   })
 })
 
 describe('resolveExecutionAmountIn', () => {
-  const WETH_IN = '0x4200000000000000000000000000000000000006'
-  const sold = (amount: string, amountUsd?: string, priceUsd?: string): StopOrderExecution => ({
-    ...execution(StopOrderExecutionStatus.SUCCESS),
-    extraData: {
-      amountIn: { amount, amountUsd },
-      tokensInfo: priceUsd ? [{ address: WETH_IN, priceUsd, decimal: 18 }] : undefined,
-    },
+  it("reads the amount as the token's human units", () => {
+    const sold: StopOrderExecution = {
+      ...execution(StopOrderExecutionStatus.SUCCESS),
+      extraData: { amountIn: { amount: '0.25', amountWei: 250000000000000000 } },
+    }
+    expect(resolveExecutionAmountIn(sold)).toBe(0.25)
+  })
+})
+
+describe('getStopOrderFundingShortfalls', () => {
+  const amountIn = '100000000000000000'
+
+  it('names whichever holding falls short of the amount', () => {
+    expect(getStopOrderFundingShortfalls(amountIn, 50000000000000000n, 200000000000000000n)).toEqual(['balance'])
+    expect(getStopOrderFundingShortfalls(amountIn, 200000000000000000n, 0n)).toEqual(['allowance'])
+    expect(getStopOrderFundingShortfalls(amountIn, 0n, 0n)).toEqual(['balance', 'allowance'])
   })
 
-  it('falls back to the documented human reading when there is nothing to check against', () => {
-    expect(resolveExecutionAmountIn(sold('2'), WETH_IN, 18)).toBe(2)
+  it('is satisfied by holdings equal to the amount', () => {
+    expect(getStopOrderFundingShortfalls(amountIn, 100000000000000000n, 100000000000000000n)).toEqual([])
   })
 
-  it('reads a raw value as raw when the USD figure agrees', () => {
-    expect(resolveExecutionAmountIn(sold('100000000000000000', '250', '2500'), WETH_IN, 18)).toBeCloseTo(0.1, 10)
+  it('does not count a figure that has not been read yet', () => {
+    expect(getStopOrderFundingShortfalls(amountIn, undefined, undefined)).toEqual([])
+    expect(getStopOrderFundingShortfalls(amountIn, undefined, 0n)).toEqual(['allowance'])
+  })
+})
+
+describe('getStopOrderWarnings', () => {
+  const warning = {
+    orderId: 4,
+    tokenIn: ORDER.tokenIn,
+    tokenOut: ORDER.tokenOut,
+    code: 'FEED_MISSING',
+    canCancel: true,
+  }
+
+  it('keeps the warnings that carry a message', () => {
+    const order = {
+      ...ORDER,
+      warnings: [
+        { ...warning, message: 'The feed is gone.' },
+        { ...warning, message: ' ' },
+      ],
+    }
+    expect(getStopOrderWarnings(order).map(w => w.message)).toEqual(['The feed is gone.'])
   })
 
-  it('reads a fraction as human, since no raw amount has one', () => {
-    expect(resolveExecutionAmountIn(sold('0.25'), WETH_IN, 18)).toBe(0.25)
-    expect(resolveExecutionAmountOut({ ...sold('0'), extraData: { amountOut: { amount: '12.5' } } }, WETH_IN, 6)).toBe(
-      12.5,
-    )
+  it('reads none from an order without any, or with something that is not a list', () => {
+    expect(getStopOrderWarnings(ORDER)).toEqual([])
+    expect(getStopOrderWarnings({ ...ORDER, warnings: 'none' as never })).toEqual([])
+  })
+})
+
+describe('getStopOrderCurrentPrice', () => {
+  const estimate = {
+    source: 'chainlink',
+    updatedAt: 1783258149,
+    tokenInPriceUsd: '2500',
+    tokenOutPriceUsd: '1.0002',
+    amountInUsd: '250',
+    expectedAmountOut: '249950009',
+    expectedAmountOutHuman: '249.950009',
+    expectedAmountOutUsd: '250',
+  }
+
+  it('prices tokenIn in tokenOut from the two USD legs', () => {
+    expect(getStopOrderCurrentPrice({ ...ORDER, oracleEstimate: estimate })).toBeCloseTo(2500 / 1.0002, 10)
+  })
+
+  it.each([
+    ['no estimate', { ...ORDER }],
+    ['a null estimate, as a closed order carries', { ...ORDER, oracleEstimate: null }],
+    ['a leg without a price', { ...ORDER, oracleEstimate: { ...estimate, tokenOutPriceUsd: '0' } }],
+    ['a non-numeric leg', { ...ORDER, oracleEstimate: { ...estimate, tokenInPriceUsd: 'n/a' } }],
+  ])('has no price with %s', (_label, order) => {
+    expect(getStopOrderCurrentPrice(order)).toBeUndefined()
+  })
+})
+
+describe('getStopOrderSellAmountUsd', () => {
+  const sold = (amountUsd: string | undefined, status = StopOrderExecutionStatus.SUCCESS): StopOrderExecution => ({
+    ...execution(status),
+    extraData: { amountIn: { amount: '0.05', amountUsd } },
+  })
+  const estimate = {
+    source: 'chainlink',
+    updatedAt: 1783258149,
+    tokenInPriceUsd: '2500',
+    tokenOutPriceUsd: '1',
+    amountInUsd: '250',
+    expectedAmountOut: '250000000',
+    expectedAmountOutHuman: '250',
+    expectedAmountOutUsd: '250',
+  }
+
+  it('reads the oracle estimate while the order is open', () => {
+    expect(getStopOrderSellAmountUsd({ ...ORDER, oracleEstimate: estimate })).toBe(250)
+  })
+
+  it('totals what the settlements sold once the order executed', () => {
+    const order = { ...ORDER, status: StopOrderStatus.DONE, executions: [sold('125'), sold('124.5')] }
+    expect(getStopOrderSellAmountUsd(order)).toBeCloseTo(249.5, 10)
+  })
+
+  it('ignores an attempt that did not go through', () => {
+    const order = { ...ORDER, executions: [sold('125', StopOrderExecutionStatus.FAILED)] }
+    expect(getStopOrderSellAmountUsd(order)).toBeUndefined()
+  })
+
+  it('gives no total when a settlement does not report its value, rather than an understated one', () => {
+    const order = { ...ORDER, status: StopOrderStatus.DONE, executions: [sold('125'), sold(undefined)] }
+    expect(getStopOrderSellAmountUsd(order)).toBeUndefined()
+  })
+
+  it('has no figure for an order that neither runs nor executed', () => {
+    expect(getStopOrderSellAmountUsd({ ...ORDER, status: StopOrderStatus.CANCELLED })).toBeUndefined()
   })
 })
 
@@ -341,27 +414,25 @@ describe('getStopOrderFills', () => {
     const order: StopOrder = {
       ...ORDER,
       executions: [
-        fill(2, StopOrderExecutionStatus.SUCCESS, '0.06', '144000000', '2400'),
-        fill(0, StopOrderExecutionStatus.SUCCESS, '0.04', '95200000', '2380'),
+        fill(2, StopOrderExecutionStatus.SUCCESS, '0.06', '144', '2400'),
+        fill(0, StopOrderExecutionStatus.SUCCESS, '0.04', '95.2', '2380'),
         fill(1, StopOrderExecutionStatus.FAILED, '0.06', '0', '2390'),
       ],
     }
-    expect(getStopOrderFills(order, 18, 6)).toEqual([
+    expect(getStopOrderFills(order)).toEqual([
       { hash: '0xfill0', amountIn: 0.04, amountOut: 95.2, price: 2380 },
       { hash: '0xfill2', amountIn: 0.06, amountOut: 144, price: 2400 },
     ])
   })
 
   it('has no fills before an execution succeeds', () => {
-    expect(getStopOrderFills(ORDER, 18, 6)).toEqual([])
-    expect(getStopOrderFills({ ...ORDER, executions: [execution(StopOrderExecutionStatus.PENDING)] }, 18, 6)).toEqual(
-      [],
-    )
+    expect(getStopOrderFills(ORDER)).toEqual([])
+    expect(getStopOrderFills({ ...ORDER, executions: [execution(StopOrderExecutionStatus.PENDING)] })).toEqual([])
   })
 
   it('leaves a price the execution does not report unset', () => {
-    const order = { ...ORDER, executions: [fill(0, StopOrderExecutionStatus.SUCCESS, '0.1', '240000000', '')] }
-    expect(getStopOrderFills(order, 18, 6)[0].price).toBeUndefined()
+    const order = { ...ORDER, executions: [fill(0, StopOrderExecutionStatus.SUCCESS, '0.1', '240', '')] }
+    expect(getStopOrderFills(order)[0].price).toBeUndefined()
   })
 })
 
@@ -420,6 +491,9 @@ describe('parseStopOrder', () => {
     ['an unknown status', { status: 'OrderStatusSomethingNew' }],
     ['a missing trigger price', { condition: { field: { type: 'oracle_price', value: {} } } }],
     ['a missing tokenOut', { tokenOut: '' }],
+    ['a missing token identity', { tokenInInfo: undefined }],
+    ['a token identity without decimals', { tokenOutInfo: { address: ORDER.tokenOut, symbol: 'USDC' } }],
+    ['a token identity with a malformed address', { tokenOutInfo: { ...ORDER.tokenOutInfo, address: 'usdc' } }],
     ['a non-numeric slippage', { slippage: '50' }],
   ])('rejects %s', (_label, patch) => {
     expect(parseStopOrder({ ...ORDER, ...patch })).toBeNull()

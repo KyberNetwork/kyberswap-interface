@@ -21,30 +21,29 @@ import { STOP_ORDER_DEFAULT_EXPIRE } from 'components/StopOrder/constants'
 import { useStopOrderNotifications } from 'components/StopOrder/hooks/useStopOrderNotifications'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
 import { StopOrder, StopOrderStatus } from 'components/StopOrder/types'
-import {
-  getStopOrderDisplayStatus,
-  getStopOrderRecreateDraft,
-  isActiveStopOrderStatus,
-} from 'components/StopOrder/utils'
+import { getStopOrderDisplayStatus, getStopOrderRecreateDraft } from 'components/StopOrder/utils'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import useDebounce from 'hooks/useDebounce'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useAppDispatch } from 'state/hooks'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { updateStopOrderForm } from 'state/stopOrder/reducer'
-import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
 const PAGE_SIZE = 10
 /**
- * The service exposes one status at a time and no "closed" bucket, so the Active/History split, the
- * status sub-filter and paging are all resolved here over a single bounded fetch. Splitting them
- * server-side would return pages that are mostly filtered away, leaving short pages under a total
- * count that disagrees with them.
+ * How many of the wallet's newest orders the status toasts and the Cancel All modal work from: a toast
+ * needs to see an order before and after it leaves Open, and the modal names the chains it can clear
+ * from the open orders in hand — neither can come from the table's own page.
  */
 const FETCH_SIZE = 100
+const OPEN_STATUSES = [StopOrderStatus.OPEN]
+/** Debounce on the search box, so a word in progress does not send a request per keystroke. */
+const SEARCH_DEBOUNCE_MS = 300
 const ALL_CLOSED_VALUE = 'all_closed'
+const HISTORY_STATUSES = [StopOrderStatus.DONE, StopOrderStatus.CANCELLED, StopOrderStatus.EXPIRED]
 const ALL_CHAINS_VALUE = 'all'
 const EMPTY_ORDERS: StopOrder[] = []
 /** Filters and search sit on the same raised surface as the table header. */
@@ -86,6 +85,7 @@ const StopOrders = () => {
   }, [chainId])
 
   const keyword = searchParams.get('search') || ''
+  const debouncedKeyword = useDebounce(keyword, SEARCH_DEBOUNCE_MS)
 
   const { supportedChains } = useChainsConfig()
   const stopOrderChainOptions = useMemo<MenuOption[]>(
@@ -108,8 +108,21 @@ const StopOrders = () => {
     [isAllChains, selectedChainValue],
   )
 
-  // `currentData`, not `data`: `data` keeps the previous chain filter's orders while the new one loads,
-  // which would list them under the wrong filter instead of showing that the table is loading.
+  // Each tab is one request: Active is exactly what the service calls Open, and History is its three
+  // closed statuses, or the one picked. The service filters, searches and pages, so the total it
+  // reports is the total of what is shown.
+  const statuses = useMemo(
+    () =>
+      isActiveTab
+        ? [StopOrderStatus.OPEN]
+        : closedFilter === ALL_CLOSED_VALUE
+        ? HISTORY_STATUSES
+        : [closedFilter as StopOrderStatus],
+    [isActiveTab, closedFilter],
+  )
+
+  // `currentData`, not `data`: `data` keeps the previous filter's orders while the new one loads, which
+  // would list them under the wrong filter instead of showing that the table is loading.
   const {
     currentData,
     isFetching,
@@ -119,65 +132,46 @@ const StopOrders = () => {
     {
       userWallet: account || '',
       chainIds: queriedChainIds,
-      page: 1,
-      pageSize: FETCH_SIZE,
+      statuses,
+      query: debouncedKeyword || undefined,
+      page: curPage,
+      pageSize: PAGE_SIZE,
     },
     { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
   )
-
-  const allOrders = currentData?.orders ?? EMPTY_ORDERS
-
-  // Fed the unfiltered set so a transition out of Open is still observed on the Active tab.
-  useStopOrderNotifications(allOrders)
-
-  const filteredOrders = useMemo(() => {
-    const scoped = allOrders.filter(order => {
-      const isActive = isActiveStopOrderStatus(getStopOrderDisplayStatus(order))
-      if (isActiveTab) return isActive
-      return !isActive && (closedFilter === ALL_CLOSED_VALUE || order.status === closedFilter)
-    })
-    if (!keyword) return scoped
-
-    const needle = keyword.trim().toLowerCase()
-    return scoped.filter(
-      order => order.tokenIn.toLowerCase().includes(needle) || order.tokenOut.toLowerCase().includes(needle),
-    )
-  }, [allOrders, isActiveTab, closedFilter, keyword])
-
-  const totalItems = filteredOrders.length
-  // Orders leave the list as they settle, so a page the user is sitting on can vanish underneath them.
+  const orders = currentData?.orders ?? EMPTY_ORDERS
+  const totalItems = currentData?.totalItems ?? 0
   const pageCount = Math.max(1, Math.ceil(totalItems / PAGE_SIZE))
-  const page = Math.min(curPage, pageCount)
-  const orders = useMemo(() => filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE), [filteredOrders, page])
 
-  // USD sub-lines come from the per-chain price slice, which falls back to the wallet's chain while the
-  // All Chains filter is on.
-  const priceChainId = isAllChains ? chainId : (Number(selectedChainValue) as ChainId)
-  const priceAddresses = useMemo(
-    () =>
-      Array.from(new Set(orders.filter(order => order.chainId === priceChainId).flatMap(o => [o.tokenIn, o.tokenOut]))),
-    [orders, priceChainId],
+  // Orders leave the list as they settle, so the page the user sits on can vanish underneath them.
+  // Judged on the page's own answer: a page still loading reports no total at all.
+  useEffect(() => {
+    if (currentData && curPage > pageCount) setCurPage(pageCount)
+  }, [currentData, curPage, pageCount])
+
+  const { currentData: recentData } = useGetStopOrdersQuery(
+    { userWallet: account || '', chainIds: queriedChainIds, page: 1, pageSize: FETCH_SIZE },
+    { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
   )
-  const { data: rawPrices, loading: isPriceLoading } = useTokenPricesWithLoading(priceAddresses, priceChainId)
-  const priceUsd = useMemo(
-    () => Object.fromEntries(Object.entries(rawPrices ?? {}).map(([address, price]) => [address.toLowerCase(), price])),
-    [rawPrices],
-  )
+  // Fed every status, so an order is seen before and after it leaves Open; nothing else reads this.
+  useStopOrderNotifications(recentData?.orders ?? EMPTY_ORDERS)
 
   const hasOrders = orders.length > 0
   const isInitialLoading = !!account && !currentData && !isError
   const showNoOrders = !hasOrders && !isInitialLoading && (isLoaded || isError || !account)
 
-  /**
-   * Every open order in view, across chains under the All Chains filter. One signature still covers a
-   * single chain, so the cancel modal asks which chain to clear.
-   */
-  const cancellableOrders = useMemo(() => {
-    if (!isActiveTab) return EMPTY_ORDERS
-    return allOrders.filter(
-      order => isActiveStopOrderStatus(getStopOrderDisplayStatus(order)) && !cancellingIds.includes(order.id),
-    )
-  }, [allOrders, isActiveTab, cancellingIds])
+  // Offered whenever the Active tab shows an order, as the limit-order table does. The open orders
+  // behind it are fetched only then: the modal names the chains to clear from them and hides them once
+  // cancelled, while the cancel itself reaches every open order on the chosen chain, in hand or not.
+  const showCancelAll = isActiveTab && orders.some(order => !cancellingIds.includes(order.id))
+  const { currentData: openData } = useGetStopOrdersQuery(
+    { userWallet: account || '', chainIds: queriedChainIds, statuses: OPEN_STATUSES, page: 1, pageSize: FETCH_SIZE },
+    { skip: !account || !showCancelAll, refetchOnFocus: true },
+  )
+  const cancellableOrders = useMemo(
+    () => (openData?.orders ?? EMPTY_ORDERS).filter(order => !cancellingIds.includes(order.id)),
+    [openData?.orders, cancellingIds],
+  )
 
   const onChangeKeyword = (value: string) => {
     const next = new URLSearchParams(searchParams)
@@ -222,9 +216,10 @@ const StopOrders = () => {
             setCurPage(1)
           }}
         />
-        {cancellableOrders.length > 0 && (
+        {showCancelAll && (
           <div className="flex shrink-0 items-center px-4">
             <CancelAllButton
+              disabled={cancellableOrders.length === 0}
               onClick={() => {
                 setIsCancelAll(true)
                 setCancelTargets(cancellableOrders)
@@ -272,7 +267,7 @@ const StopOrders = () => {
         <SearchInput
           className="h-9 min-h-9 max-w-[360px] flex-1 rounded-2xl bg-raisedBlack py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
           dataTestId="stop-order-search-input"
-          placeholder={t`Search by token address`}
+          placeholder={t`Search by token symbol or address`}
           maxLength={255}
           value={keyword}
           onChange={onChangeKeyword}
@@ -289,8 +284,6 @@ const StopOrders = () => {
             order={order}
             rowIndex={index}
             isActiveTab={isActiveTab}
-            priceUsd={order.chainId === priceChainId ? priceUsd : undefined}
-            isPriceLoading={order.chainId === priceChainId && isPriceLoading}
             isCancelling={cancellingIds.includes(order.id)}
             onCancel={target => {
               setIsCancelAll(false)
@@ -309,7 +302,7 @@ const StopOrders = () => {
         )}
       </div>
 
-      {totalItems > PAGE_SIZE && <StopOrderPager page={page} pageCount={pageCount} onPageChange={setCurPage} />}
+      {totalItems > PAGE_SIZE && <StopOrderPager page={curPage} pageCount={pageCount} onPageChange={setCurPage} />}
 
       <CancelStopOrderModal
         orders={cancelTargets}

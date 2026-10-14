@@ -25,25 +25,42 @@ type PublicConfigResponse = { config?: { smartIntentAddress?: string } }
 export type StopOrderListParams = {
   userWallet: string
   chainIds?: ChainId[]
-  status?: StopOrderStatus
+  /** Any of these; the service rejects an unknown value rather than ignoring it. */
+  statuses?: StopOrderStatus[]
   tokenIns?: string[]
   tokenOuts?: string[]
+  /** Matches a token symbol or address on either side of the order. */
+  query?: string
   page?: number
   pageSize?: number
+}
+
+/** Exported for its test: list filters repeat their key once per value, the way the service reads them. */
+export const buildStopOrderListSearchParams = ({
+  userWallet,
+  chainIds,
+  statuses,
+  tokenIns,
+  tokenOuts,
+  query,
+  page = 1,
+  pageSize = 10,
+}: StopOrderListParams): URLSearchParams => {
+  const params = new URLSearchParams({ userWallet, page: String(page), pageSize: String(pageSize) })
+  statuses?.forEach(status => params.append('statuses', status))
+  chainIds?.forEach(chainId => params.append('chainIds', String(chainId)))
+  tokenIns?.forEach(token => params.append('tokenIns', token))
+  tokenOuts?.forEach(token => params.append('tokenOuts', token))
+  if (query?.trim()) params.append('query', query.trim())
+  return params
 }
 
 export type StopOrderListResult = { orders: StopOrder[]; totalItems: number }
 
 export type StopOrderCancelParams = { chainId: number; userWallet: string; orderId: number }
 
-export type StopOrderBatchCancelParams = { chainId: number; userWallet: string; orderIds: number[] }
-
-export type StopOrderBatchCancelResult = {
-  orderId: number
-  success: boolean
-  errorCode?: string
-  errorMessage?: string
-}
+/** Cancel All clears one chain per signature; the message the service issues carries `issuedAt`. */
+export type StopOrderCancelAllParams = { chainId: number; userWallet: string }
 
 export type StopOrderOraclePriceParams = { chainId: ChainId; base: string; quote: string }
 
@@ -65,20 +82,8 @@ const stopOrderApi = createApi({
     }),
 
     getStopOrders: builder.query<StopOrderListResult, StopOrderListParams>({
-      query: ({ userWallet, chainIds, status, tokenIns, tokenOuts, page = 1, pageSize = 10 }) => {
-        const params = new URLSearchParams({
-          userWallet,
-          page: String(page),
-          pageSize: String(pageSize),
-        })
-        if (status) params.append('status', status)
-        chainIds?.forEach(chainId => params.append('chainIds', String(chainId)))
-        tokenIns?.forEach(token => params.append('tokenIns', token))
-        tokenOuts?.forEach(token => params.append('tokenOuts', token))
-
-        // A trailing slash before the query string redirects, so the path stays bare.
-        return { url: `${ORDERS_PATH}?${params.toString()}` }
-      },
+      // A trailing slash before the query string redirects, so the path stays bare.
+      query: params => ({ url: `${ORDERS_PATH}?${buildStopOrderListSearchParams(params).toString()}` }),
       transformResponse: (response: ApiEnvelope<ListOrdersResponse>) => {
         // Rendered in the order the service returns them: it rejects every `sorts` value, and the
         // table offers no column sorting to reconcile with.
@@ -117,21 +122,14 @@ const stopOrderApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_STOP_ORDER_LIST],
     }),
 
-    // Up to 100 orders under one signature, all on the same chain and order type.
-    getStopOrderBatchCancelSignMessage: builder.mutation<StopOrderTypedData, StopOrderBatchCancelParams>({
-      query: body => ({ url: `${ORDERS_PATH}/cancel/batch/sign-message`, method: 'POST', body }),
+    // Every open order on one chain under one signature, whatever their number — no ids are sent.
+    getStopOrderCancelAllSignMessage: builder.mutation<StopOrderTypedData, StopOrderCancelAllParams>({
+      query: body => ({ url: `${ORDERS_PATH}/cancel/all/sign-message`, method: 'POST', body }),
       transformResponse: (response: ApiEnvelope<StopOrderTypedData>) => response?.data,
     }),
 
-    batchCancelStopOrders: builder.mutation<
-      StopOrderBatchCancelResult[],
-      StopOrderBatchCancelParams & { signature: string }
-    >({
-      query: body => ({ url: `${ORDERS_PATH}/cancel/batch`, method: 'POST', body }),
-      // A verified signature returns code 0 even when individual ids fail, so the per-order results
-      // are the only place a partial failure shows up.
-      transformResponse: (response: ApiEnvelope<{ results?: StopOrderBatchCancelResult[] }>) =>
-        response?.data?.results ?? [],
+    cancelAllStopOrders: builder.mutation<unknown, StopOrderCancelAllParams & { issuedAt: string; signature: string }>({
+      query: body => ({ url: `${ORDERS_PATH}/cancel/all`, method: 'POST', body }),
       invalidatesTags: [RTK_QUERY_TAGS.GET_STOP_ORDER_LIST],
     }),
 
@@ -172,8 +170,8 @@ export const {
   useCreateStopOrderMutation,
   useGetStopOrderCancelSignMessageMutation,
   useCancelStopOrderMutation,
-  useGetStopOrderBatchCancelSignMessageMutation,
-  useBatchCancelStopOrdersMutation,
+  useGetStopOrderCancelAllSignMessageMutation,
+  useCancelAllStopOrdersMutation,
 } = stopOrderApi
 
 export default stopOrderApi
