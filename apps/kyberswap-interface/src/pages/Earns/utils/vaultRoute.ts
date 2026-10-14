@@ -1,16 +1,12 @@
 import { SwapRouteDetail } from 'services/zap'
 
 import { VaultRouteLeg } from 'pages/Earns/VaultDetail/ZapRouteStrip'
+import { safeBigInt } from 'pages/Earns/utils/vault'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
 
 /** What a token address has to resolve to before its leg can be written out. */
 export type RouteTokenInfo = { symbol: string; decimals: number; logo?: string }
-
-/** One leg the aggregator quotes: what it spends and what that leg alone returns. */
-export type VaultRouteSwap = { from: VaultRouteLeg; to: VaultRouteLeg }
-
-const AGGREGATOR_SWAP = 'ACTION_TYPE_AGGREGATOR_SWAP'
 
 const toLeg = (
   { address, amount }: { address: string; amount: string },
@@ -26,25 +22,38 @@ const toLeg = (
 }
 
 /**
- * The swaps the route actually performs, one per leg the aggregator quotes. A deposit funded from
- * several tokens is several swaps, each with its own rate, rather than one combined figure — which
- * is what the route returns and so what the strip shows.
+ * What the route spends, one leg per token it takes in. A deposit funded from several tokens is
+ * several legs, each priced by the route itself rather than one combined figure.
+ *
+ * A vault deposit spends the vault's asset, part of which an earlier swap in the same route may have
+ * produced; only the rest of it came from the wallet, so only that remainder is a leg of its own.
  *
  * A token the caller cannot name is skipped: a leg with no symbol says less than no leg at all.
  */
-export const toRouteSwaps = (
+export const toRouteInputs = (
   route: SwapRouteDetail | undefined,
   tokens: Map<string, RouteTokenInfo>,
-): VaultRouteSwap[] =>
-  (route?.zapDetails.actions || [])
-    .filter(action => action.type === AGGREGATOR_SWAP)
-    .flatMap(action => action.aggregatorSwap?.swaps || [])
-    .map(swap => {
-      const from = toLeg(swap.tokenIn, tokens)
-      const to = toLeg(swap.tokenOut, tokens)
-      return from && to ? { from, to } : undefined
-    })
-    .filter((swap): swap is VaultRouteSwap => !!swap)
+): VaultRouteLeg[] => {
+  const actions = route?.zapDetails.actions || []
+  const swaps = actions.flatMap(action => action.aggregatorSwap?.swaps || [])
+
+  const swappedInto = new Map<string, bigint>()
+  swaps.forEach(({ tokenOut }) => {
+    const key = tokenOut.address.toLowerCase()
+    swappedInto.set(key, (swappedInto.get(key) ?? 0n) + safeBigInt(tokenOut.amount))
+  })
+
+  const depositedDirectly = actions.flatMap(action => {
+    if (!action.vaultDeposit) return []
+    const { address, amount } = action.vaultDeposit.tokenIn
+    const remainder = safeBigInt(amount) - (swappedInto.get(address.toLowerCase()) ?? 0n)
+    return remainder > 0n ? [{ address, amount: remainder.toString() }] : []
+  })
+
+  return [...swaps.map(swap => swap.tokenIn), ...depositedDirectly]
+    .map(token => toLeg(token, tokens))
+    .filter((leg): leg is VaultRouteLeg => !!leg)
+}
 
 /** Keyed on the lowercased address, since the route spells one token both ways across its actions. */
 export const toRouteTokenMap = (

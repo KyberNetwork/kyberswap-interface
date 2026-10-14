@@ -21,7 +21,7 @@ import VaultPriceImpactNote, {
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useVaultDepositTracking } from 'pages/Earns/hooks/useVaultFlowTracking'
-import { toRouteSwaps, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
+import { toRouteInputs, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -91,14 +91,14 @@ const DepositTab = ({
     }),
     vault.shareToken,
   ])
-  const swaps = toRouteSwaps(form.route, routeTokens)
+  const routeInputs = toRouteInputs(form.route, routeTokens)
 
   // A same-asset deposit has nothing to show; anything else swaps on the way in.
   const routeSummary: VaultRouteSummary | null =
-    !form.isVaultAsset && form.route && swaps.length > 0 && form.sharesOutRaw
+    !form.isVaultAsset && form.route && routeInputs.length > 0 && form.sharesOutRaw
       ? {
           // The amounts the route itself quotes, rather than what the form was typed with.
-          from: swaps.map(swap => swap.from),
+          from: routeInputs,
           fromUsd: formatDisplayNumber(form.route.zapDetails.initialAmountUsd, {
             style: 'currency',
             significantDigits: 4,
