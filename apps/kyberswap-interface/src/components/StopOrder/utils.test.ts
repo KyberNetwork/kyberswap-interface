@@ -21,7 +21,9 @@ import {
   getStopOrderSellAmountUsd,
   getStopOrderWarnings,
   getTriggerProximity,
+  hasReservedBalanceShortfall,
   isActiveStopOrderStatus,
+  parseRawAmount,
   parseStopOrder,
   parseStopOrders,
   resolveExecutionAmountIn,
@@ -302,6 +304,35 @@ describe('getStopOrderFundingShortfalls', () => {
   it('does not count a figure that has not been read yet', () => {
     expect(getStopOrderFundingShortfalls(amountIn, undefined, undefined)).toEqual([])
     expect(getStopOrderFundingShortfalls(amountIn, undefined, 0n)).toEqual(['allowance'])
+  })
+})
+
+describe('parseRawAmount', () => {
+  it('reads an integer string', () => {
+    expect(parseRawAmount('3000000000000000000')).toBe(3000000000000000000n)
+  })
+
+  it('counts nothing for a missing or malformed figure', () => {
+    expect(parseRawAmount(undefined)).toBe(0n)
+    expect(parseRawAmount('')).toBe(0n)
+    expect(parseRawAmount('1.5')).toBe(0n)
+    expect(parseRawAmount('abc')).toBe(0n)
+  })
+})
+
+describe('hasReservedBalanceShortfall', () => {
+  it('is short when less is left than the open orders claim', () => {
+    expect(hasReservedBalanceShortfall(2n, 3n)).toBe(true)
+    expect(hasReservedBalanceShortfall(-1n, 3n)).toBe(true)
+  })
+
+  it('is covered by exactly what the orders claim', () => {
+    expect(hasReservedBalanceShortfall(3n, 3n)).toBe(false)
+  })
+
+  it('is never short when nothing is claimed', () => {
+    expect(hasReservedBalanceShortfall(0n, 0n)).toBe(false)
+    expect(hasReservedBalanceShortfall(-5n, 0n)).toBe(false)
   })
 })
 

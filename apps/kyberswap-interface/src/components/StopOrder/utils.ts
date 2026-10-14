@@ -307,6 +307,24 @@ export const getStopOrderFundingShortfalls = (
   return shortfalls
 }
 
+/** A raw amount as the service writes it, as an integer; one that fails to parse counts as nothing. */
+export const parseRawAmount = (raw?: string): bigint => {
+  if (!raw) return 0n
+  try {
+    return BigInt(raw)
+  } catch {
+    return 0n
+  }
+}
+
+/**
+ * Whether what the wallet would have left falls short of what its open orders on that token already
+ * lay claim to. Orders lock nothing, so they all draw on the one balance, and whichever fires last
+ * finds it gone.
+ */
+export const hasReservedBalanceShortfall = (remainingBalance: bigint, reserved: bigint): boolean =>
+  reserved > 0n && remainingBalance < reserved
+
 /** The warnings the service attached that carry something to show; the rest are nothing to read out. */
 export const getStopOrderWarnings = (order: StopOrder): StopOrderWarning[] =>
   Array.isArray(order.warnings)
