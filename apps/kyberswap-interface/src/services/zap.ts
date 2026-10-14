@@ -46,7 +46,8 @@ export type BuildZapInApiResponse = {
 }
 
 /** Aggregator route into or out of a single token — used by the partner-vault deposit flow,
- *  where `token_out` is the vault's share token and the route mints through the vault's teller. */
+ *  where `token_out` is the vault's share token and the route mints it either by swapping through
+ *  the vault's teller (`aggregatorSwap`) or by depositing into the vault directly (`vaultDeposit`). */
 export type SwapRouteAction = {
   type: string
   aggregatorSwap?: {
@@ -54,6 +55,12 @@ export type SwapRouteAction = {
       tokenIn: { address: string; amount: string; amountUsd: string }
       tokenOut: { address: string; amount: string; amountUsd: string }
     }[]
+  }
+  /** Deposit of the vault's own asset; `tokenIn` may be what an earlier swap in the route produced. */
+  vaultDeposit?: {
+    protocol: string
+    tokenIn: { address: string; amount: string; amountUsd: string }
+    tokenOut: { address: string; amount: string; amountUsd: string }
   }
   refund?: { tokens: { address: string; amount: string; amountUsd: string }[] }
 }

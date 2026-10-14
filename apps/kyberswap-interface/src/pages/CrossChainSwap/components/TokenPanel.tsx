@@ -35,6 +35,7 @@ import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConne
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { shortenHash } from 'utils/address'
+import { getGasReservation } from 'utils/gasReserve'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const TokenPanel = ({
@@ -192,7 +193,8 @@ export const TokenPanel = ({
       return
     }
 
-    onUserInput(evmBalance?.toExact() || '0')
+    const gasReservation = getGasReservation(evmBalance)
+    onUserInput((gasReservation?.maxAmount ?? evmBalance)?.toExact() || '0')
   }
 
   const balanceSection = (

@@ -350,10 +350,11 @@ export const useDepositForm = ({
     ? t`Insufficient balance`
     : deposit.isRouteLoading && !deposit.route
     ? t`Finding best route`
-    : deposit.routeError
+    : deposit.routeError || (deposit.route && !deposit.sharesOutRaw)
     ? t`No route found`
     : undefined
 
+  // A route whose share output cannot be read has no receive or minimum to show, so it is not signable.
   const isReady = Boolean(
     account &&
       !wrongChain &&
@@ -361,6 +362,7 @@ export const useDepositForm = ({
       hasAllBalances &&
       !insufficientBalance &&
       deposit.route &&
+      deposit.sharesOutRaw &&
       !deposit.routeError &&
       !deposit.isRouteStale &&
       !deposit.isSubmitting,
