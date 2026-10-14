@@ -137,12 +137,18 @@ export const useZapSwap = ({
     ? response.message || t`Could not find a route for these tokens.`
     : undefined
 
-  /** What the route delivers, summed over its swaps into the output token. */
+  /**
+   * What the route delivers, summed over its swaps and vault deposits into the output token. The
+   * refund action repeats that same amount, so it is not counted again.
+   */
   const amountOutRaw = useMemo(() => {
     if (!route || !tokenOutAddress) return undefined
     const target = tokenOutAddress.toLowerCase()
     const total = route.zapDetails.actions
-      .flatMap(action => action.aggregatorSwap?.swaps || [])
+      .flatMap(action => [
+        ...(action.aggregatorSwap?.swaps || []),
+        ...(action.vaultDeposit ? [action.vaultDeposit] : []),
+      ])
       .filter(swap => swap.tokenOut.address.toLowerCase() === target)
       .reduce((sum, swap) => sum + safeBigInt(swap.tokenOut.amount), 0n)
     return total > 0n ? total : undefined
