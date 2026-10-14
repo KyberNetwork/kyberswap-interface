@@ -69,6 +69,20 @@ export const QuoteSelector = ({
     FASTEST: t`Fastest`,
     BEST_OUTPUT: t`Best Output`,
   }
+  // allLoading stays true while streaming, even after the soft timeout enables swapping.
+  const showStreamTags = quoteMode === 'stream' && !allLoading
+  let fastestTime = Infinity
+  let bestOutput: bigint | undefined
+  if (showStreamTags) {
+    for (const { quote } of quotes) {
+      if (Number.isFinite(quote.timeEstimate) && quote.timeEstimate > 0) {
+        fastestTime = Math.min(fastestTime, quote.timeEstimate)
+      }
+      if (quote.outputAmount > 0n && (bestOutput === undefined || quote.outputAmount > bestOutput)) {
+        bestOutput = quote.outputAmount
+      }
+    }
+  }
 
   const content = (
     <Stack className="size-full gap-3 text-text">
@@ -84,6 +98,10 @@ export const QuoteSelector = ({
               isKyberCross && quoteMode === 'direct'
                 ? getKyberCrossRoutePlan(quote.quote.rawQuote as KyberCrossRawQuote)?.tags || []
                 : []
+            if (showStreamTags) {
+              if (Number.isFinite(fastestTime) && quote.quote.timeEstimate === fastestTime) routeTags.push('FASTEST')
+              if (quote.quote.outputAmount === bestOutput) routeTags.push('BEST_OUTPUT')
+            }
             const ongoingTag =
               quoteMode === 'direct' && nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
             return (
@@ -134,7 +152,7 @@ export const QuoteSelector = ({
                       </span>
                     </HStack>
 
-                    {routeTags.length > 0 && (
+                    {(routeTags.length > 0 || (quoteMode === 'stream' && isKyberCross)) && (
                       <HStack className="shrink-0 items-center gap-1">
                         {routeTags.map(tag => {
                           if (!Object.prototype.hasOwnProperty.call(ROUTE_TAG_ICONS, tag)) return null
@@ -156,13 +174,12 @@ export const QuoteSelector = ({
                             </MouseoverTooltip>
                           )
                         })}
+                        {quoteMode === 'stream' && isKyberCross && (
+                          <span className="shrink-0 rounded-full bg-primary-20 px-2 py-1 text-xs font-medium text-primary">
+                            KyberCross
+                          </span>
+                        )}
                       </HStack>
-                    )}
-
-                    {quoteMode === 'stream' && isKyberCross && (
-                      <span className="shrink-0 rounded-full bg-primary-20 px-2 py-1 text-xs font-medium text-primary">
-                        KyberCross
-                      </span>
                     )}
 
                     {ongoingTag && (
