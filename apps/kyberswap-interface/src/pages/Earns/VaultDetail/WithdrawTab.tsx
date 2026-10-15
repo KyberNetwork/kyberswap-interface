@@ -20,7 +20,7 @@ import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useVaultWithdrawTracking } from 'pages/Earns/hooks/useVaultFlowTracking'
-import { toRouteSwaps, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
+import { toRouteInputs, toRouteTokenMap } from 'pages/Earns/utils/vaultRoute'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -84,13 +84,13 @@ const WithdrawTab = ({
     },
     form.swapToken,
   ])
-  const swaps = toRouteSwaps(form.zapRoute, routeTokens)
+  const routeInputs = toRouteInputs(form.zapRoute, routeTokens)
 
   const routeSummary: VaultRouteSummary | null =
-    !form.isNative && form.zapRoute && form.swapToken && form.zapAmountOutRaw && swaps.length > 0
+    !form.isNative && form.zapRoute && form.swapToken && form.zapAmountOutRaw && routeInputs.length > 0
       ? {
           leading: { label: vault.provider?.name ?? '', logo: vault.provider?.logo },
-          from: swaps.map(swap => swap.from),
+          from: routeInputs,
           fromUsd: formatDisplayNumber(form.zapRoute.zapDetails.initialAmountUsd, {
             style: 'currency',
             significantDigits: 4,

@@ -8,7 +8,8 @@ import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
 import { MEDIA_WIDTHS } from 'theme'
-import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
+import { getGasReservation } from 'utils/gasReserve'
+import { halfAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -48,7 +49,8 @@ const InputCurrencyPanel: React.FC<Props> = ({
   const trade = showWrap ? undefined : routeSummary
 
   const handleMaxInput = () => {
-    const max = maxAmountSpend(balanceIn)?.toExact()
+    const gasReservation = getGasReservation(balanceIn)
+    const max = (gasReservation?.maxAmount ?? balanceIn)?.toExact()
     trackingHandler(TRACKING_EVENT_TYPE.MAX_BALANCE_CLICKED, {
       token_symbol: currencyIn?.symbol,
       token_address: currencyIn?.isNative ? 'NATIVE' : currencyIn?.wrapped?.address,
