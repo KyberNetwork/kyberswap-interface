@@ -17,13 +17,14 @@ import {
   StopOrderExecutionDetail,
 } from 'components/StopOrder/MyOrders/components'
 import { useStopOrderCurrency } from 'components/StopOrder/hooks/useStopOrderCurrency'
-import { useStopOrderFunding } from 'components/StopOrder/hooks/useStopOrderFunding'
 import { StopOrder, StopOrderDisplayStatus } from 'components/StopOrder/types'
 import {
+  StopOrderFunding,
   getStopOrderCurrentPrice,
   getStopOrderDisplayStatus,
   getStopOrderExecutionTxHash,
   getStopOrderFills,
+  getStopOrderFundingShortfalls,
   getStopOrderSellAmountUsd,
   getStopOrderTriggerPrice,
   getStopOrderWarnings,
@@ -41,6 +42,8 @@ type Props = {
   order: StopOrder
   isActiveTab: boolean
   isCancelling: boolean
+  /** The wallet's balance and allowance for this order's sell token, read by the list per chain. */
+  funding?: StopOrderFunding
   /** Position on the page, which staggers the rows' entrance. */
   rowIndex?: number
   onCancel: (order: StopOrder) => void
@@ -60,7 +63,7 @@ const formatPairPrice = (value: number | string | undefined, quoteSymbol?: strin
   return quoteSymbol ? `${amount} ${quoteSymbol}` : amount
 }
 
-const StopOrderRow = ({ order, isActiveTab, isCancelling, rowIndex = 0, onCancel, onRecreate }: Props) => {
+const StopOrderRow = ({ order, isActiveTab, isCancelling, funding, rowIndex = 0, onCancel, onRecreate }: Props) => {
   const sellCurrency = useStopOrderCurrency(order.tokenInInfo, order.chainId)
   const receiveCurrency = useStopOrderCurrency(order.tokenOutInfo, order.chainId)
 
@@ -103,7 +106,8 @@ const StopOrderRow = ({ order, isActiveTab, isCancelling, rowIndex = 0, onCancel
   const showTxLink = isExecuted && !!txHash
   // What the service says about the order, then what the wallet says: an open order whose sell token
   // or allowance has since fallen short will fail when it fires, and the wallet is the first to know.
-  const fundingShortfalls = useStopOrderFunding(order, sellCurrency, isActiveTab)
+  const fundingShortfalls =
+    isActiveTab && funding ? getStopOrderFundingShortfalls(order.amountIn, funding.balance, funding.allowance) : []
   const warnings = [
     ...getStopOrderWarnings(order).map(warning => ({ code: warning.code, message: warning.message })),
     ...fundingShortfalls.map(shortfall =>

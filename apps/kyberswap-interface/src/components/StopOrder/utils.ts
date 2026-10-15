@@ -338,6 +338,27 @@ const toPositiveNumber = (value: unknown): number | undefined => {
 
 export type StopOrderFundingShortfall = 'balance' | 'allowance'
 
+/** A wallet's sell-token balance and its allowance to the smartIntent contract; undefined when unread. */
+export type StopOrderFunding = { balance?: bigint; allowance?: bigint }
+
+export const getStopOrderFundingKey = (chainId: ChainId, token: string) => `${chainId}:${token.toLowerCase()}`
+
+/**
+ * The sell tokens of a set of orders, one entry per chain, each list de-duplicated and sorted so the
+ * same rows always ask for the same read.
+ */
+export const groupStopOrderTokensByChain = (orders: StopOrder[]): { chainId: ChainId; tokens: string[] }[] => {
+  const byChain = new Map<ChainId, Set<string>>()
+  orders.forEach(order => {
+    const tokens = byChain.get(order.chainId) ?? new Set<string>()
+    tokens.add(order.tokenIn.toLowerCase())
+    byChain.set(order.chainId, tokens)
+  })
+  return [...byChain.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([chainId, tokens]) => ({ chainId, tokens: [...tokens].sort() }))
+}
+
 /**
  * Which of the wallet's holdings no longer covers an open order's amount. A stop order locks nothing:
  * the sell token stays in the wallet under an allowance, and either can be spent or revoked after the

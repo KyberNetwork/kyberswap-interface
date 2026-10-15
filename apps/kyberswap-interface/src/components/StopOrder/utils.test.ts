@@ -16,6 +16,7 @@ import {
   getStopOrderCurrentPrice,
   getStopOrderDisplayStatus,
   getStopOrderFills,
+  getStopOrderFundingKey,
   getStopOrderFundingShortfalls,
   getStopOrderPairKey,
   getStopOrderRecreateDraft,
@@ -23,6 +24,7 @@ import {
   getStopOrderServiceErrorMessage,
   getStopOrderWarnings,
   getTriggerProximity,
+  groupStopOrderTokensByChain,
   hasReservedBalanceShortfall,
   isActiveStopOrderStatus,
   matchExpiryPreset,
@@ -307,6 +309,28 @@ describe('getStopOrderFundingShortfalls', () => {
   it('does not count a figure that has not been read yet', () => {
     expect(getStopOrderFundingShortfalls(amountIn, undefined, undefined)).toEqual([])
     expect(getStopOrderFundingShortfalls(amountIn, undefined, 0n)).toEqual(['allowance'])
+  })
+})
+
+describe('groupStopOrderTokensByChain', () => {
+  const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+  const BUSD = '0xe9e7cea3dedca5984780bafc599bd69add087d56'
+
+  it('asks each chain once for its distinct sell tokens, in a stable order', () => {
+    const orders = [
+      { ...ORDER, id: 1, tokenIn: USDC },
+      { ...ORDER, id: 2, chainId: ChainId.BSCMAINNET, tokenIn: BUSD },
+      { ...ORDER, id: 3, tokenIn: ORDER.tokenIn },
+      { ...ORDER, id: 4, tokenIn: USDC.toLowerCase() },
+    ]
+    expect(groupStopOrderTokensByChain(orders)).toEqual([
+      { chainId: ChainId.BSCMAINNET, tokens: [BUSD] },
+      { chainId: ChainId.BASE, tokens: [ORDER.tokenIn.toLowerCase(), USDC.toLowerCase()].sort() },
+    ])
+  })
+
+  it('keys a token the same way whatever its case', () => {
+    expect(getStopOrderFundingKey(ChainId.BASE, USDC)).toBe(getStopOrderFundingKey(ChainId.BASE, USDC.toLowerCase()))
   })
 })
 

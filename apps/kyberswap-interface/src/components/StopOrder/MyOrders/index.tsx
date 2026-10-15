@@ -20,8 +20,13 @@ import {
 import { STOP_ORDER_DEFAULT_EXPIRE, getStopOrderExpiryPresets } from 'components/StopOrder/constants'
 import { useStopOrderNotifications } from 'components/StopOrder/hooks/useStopOrderNotifications'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
+import { useStopOrdersFunding } from 'components/StopOrder/hooks/useStopOrdersFunding'
 import { StopOrder, StopOrderStatus } from 'components/StopOrder/types'
-import { getStopOrderDisplayStatus, getStopOrderRecreateDraft } from 'components/StopOrder/utils'
+import {
+  getStopOrderDisplayStatus,
+  getStopOrderFundingKey,
+  getStopOrderRecreateDraft,
+} from 'components/StopOrder/utils'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -155,6 +160,9 @@ const StopOrders = () => {
   )
   // Fed every status, so an order is seen before and after it leaves Open; nothing else reads this.
   useStopOrderNotifications(recentData?.orders ?? EMPTY_ORDERS)
+
+  // Only open orders can still fail for want of funds, so History reads nothing.
+  const funding = useStopOrdersFunding(orders, isActiveTab)
 
   const hasOrders = orders.length > 0
   const isInitialLoading = !!account && !currentData && !isError
@@ -303,6 +311,7 @@ const StopOrders = () => {
             rowIndex={index}
             isActiveTab={isActiveTab}
             isCancelling={isActiveTab && cancellingIds.includes(order.id)}
+            funding={funding[getStopOrderFundingKey(order.chainId, order.tokenIn)]}
             onCancel={target => {
               setIsCancelAll(false)
               setCancelTargets([target])
