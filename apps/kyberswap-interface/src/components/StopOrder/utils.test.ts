@@ -549,8 +549,13 @@ describe('parseStopOrder', () => {
     expect(parseStopOrder({ ...ORDER, chainId: '8453' })?.chainId).toBe(ChainId.BASE)
   })
 
+  it('accepts the largest amount a token can hold', () => {
+    expect(parseStopOrder({ ...ORDER, amountIn: (2n ** 256n - 1n).toString() })).not.toBeNull()
+  })
+
   it.each([
     ['a non-numeric amountIn', { amountIn: '0.1' }],
+    ['an amountIn past uint256', { amountIn: (2n ** 256n).toString() }],
     ['a missing amountIn', { amountIn: undefined }],
     ['an unsupported chain', { chainId: 999999 }],
     ['an unknown status', { status: 'OrderStatusSomethingNew' }],

@@ -310,7 +310,15 @@ export const summarizeStopOrderFills = (fills: StopOrderFill[], orderAmountIn?: 
   return { amountIn, amountOut, price }
 }
 
-const isRawAmount = (value: unknown): value is string => typeof value === 'string' && /^\d+$/.test(value)
+const MAX_UINT256 = 2n ** 256n - 1n
+
+/**
+ * A raw token amount the SDK can hold. Anything past uint256 makes `CurrencyAmount.fromRawAmount` throw
+ * while a row or chart line renders, and the app's only error boundary sits above every route, so one
+ * such order would take the whole page down on each poll. It is dropped here instead.
+ */
+const isRawAmount = (value: unknown): value is string =>
+  typeof value === 'string' && /^\d+$/.test(value) && BigInt(value) <= MAX_UINT256
 
 const isTokenInfo = (chainId: ChainId, value: unknown): value is StopOrderTokenInfo => {
   if (!value || typeof value !== 'object') return false
