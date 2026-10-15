@@ -10,6 +10,7 @@ type LeaderboardSize = 'sm' | 'lg'
 
 export type LeaderboardStat = {
   label: string
+  labelSuffix?: ReactNode
   value: string
   icon: StatIcon
   mobileSpan?: 1 | 2
@@ -88,11 +89,12 @@ const LeaderboardCard = ({ className, item, loading, size }: LeaderboardCardProp
             )}
           </HStack>
         )}
-        <div className="min-w-0 text-sm text-subText">
+        <HStack className="min-w-0 items-center gap-1 text-sm text-subText">
           <span className="block whitespace-normal md:truncate" title={item.label}>
             {item.label}
           </span>
-        </div>
+          {item.labelSuffix}
+        </HStack>
       </Stack>
     </HStack>
   )

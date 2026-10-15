@@ -4,6 +4,7 @@ import type { LeaderboardSummary as LeaderboardSummaryData } from 'services/copy
 import type { StrategyKey } from 'services/copyTrading/types/primitives'
 
 import { ButtonEmpty } from 'components/Button'
+import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -135,3 +136,16 @@ export const SearchInput = ({ value, onChange }: SearchInputProps) => {
     </HStack>
   )
 }
+
+export const WinRateTooltip = ({ type }: { type: 'agent' | 'copyRun' }) => (
+  <InfoHelper
+    text={
+      type === 'agent'
+        ? "Share of the agent's closed positions that ended in profit"
+        : 'Share of positions closed by selling in this copy run that ended in profit.'
+    }
+    margin={false}
+    placement="top"
+    style={{ flexShrink: 0 }}
+  />
+)

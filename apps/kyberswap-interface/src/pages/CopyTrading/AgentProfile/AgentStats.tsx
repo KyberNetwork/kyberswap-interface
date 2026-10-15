@@ -4,6 +4,7 @@ import type { AgentStats as AgentStatsData } from 'services/copyTrading/types/ag
 import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 
 import { Stack } from 'components/Stack'
+import { WinRateTooltip } from 'pages/CopyTrading/AgentList/components'
 import { agentProfileResponsiveOrder } from 'pages/CopyTrading/AgentProfile/responsiveOrder'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import {
@@ -39,6 +40,7 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
   },
   {
     label: 'Win Rate',
+    labelSuffix: <WinRateTooltip type="agent" />,
     value: percent(stats?.winRatePct),
     valueClassName: getWinRateClassName(stats?.winRatePct),
     icon: copyTradingStatIconMap.winRate,

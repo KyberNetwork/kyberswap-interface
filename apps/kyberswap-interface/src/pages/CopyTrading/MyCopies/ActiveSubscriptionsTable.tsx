@@ -5,6 +5,7 @@ import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primit
 import { ButtonLight } from 'components/Button'
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
+import { WinRateTooltip } from 'pages/CopyTrading/AgentList/components'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import {
   HeaderCell,
@@ -107,7 +108,10 @@ const ActiveSubscriptionsTable = ({
           >
             ROI
           </HeaderCell>
-          <HeaderCell className="justify-end text-right">Win Rate</HeaderCell>
+          <HeaderCell className="justify-end text-right">
+            Win Rate
+            <WinRateTooltip type="copyRun" />
+          </HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
             className="justify-end text-right"

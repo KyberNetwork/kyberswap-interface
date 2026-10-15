@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronUp, Globe } from 'react-feather'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
@@ -10,6 +10,7 @@ import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import { ReactComponent as HistoryIcon } from 'assets/images/copy-trading/ic_history.svg'
 import { ReactComponent as OpenCopiesIcon } from 'assets/images/copy-trading/ic_opens.svg'
 import { ButtonEmpty } from 'components/Button'
+import Select from 'components/Select'
 import { Center, HStack, Stack } from 'components/Stack'
 import MobileNavigation, { type BreadcrumbItem } from 'pages/CopyTrading/components/Sidebar/MobileNavigation'
 import {
@@ -42,7 +43,7 @@ type MyCopiesSectionProps = {
   route: SidebarRouteState
 }
 
-type NetworksSectionProps = {
+type NetworkDropdownProps = {
   chains: Chain[]
   onSelectChain: (chainId?: number) => void
   selectedChainId?: number
@@ -203,38 +204,46 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
   )
 }
 
-const NetworksSection = ({ chains, onSelectChain, selectedChainId }: NetworksSectionProps) => {
-  return (
-    <SidebarSection title="Networks" count={chains.length}>
-      <Stack className="gap-1">
-        <SidebarMenuItem
-          active={selectedChainId === undefined}
-          activeStyle="text"
-          layout="row"
-          colorByActive
-          onClick={() => onSelectChain()}
-        >
-          <Globe className="size-5 shrink-0" />
-          <span>All Chains</span>
-        </SidebarMenuItem>
-        {chains.map(chain => {
-          const active = selectedChainId === chain.chainId
+const NetworkDropdown = ({ chains, onSelectChain, selectedChainId }: NetworkDropdownProps) => {
+  const options = [
+    {
+      value: 'all',
+      label: (
+        <HStack className="min-h-6 items-center gap-2">
+          <span className="grid size-6 shrink-0 grid-cols-2 grid-rows-2 gap-0.5" aria-hidden>
+            {chains.slice(0, 4).map(chain => (
+              <img key={chain.chainId} src={chain.iconUrl} alt="" className="size-full rounded-full object-contain" />
+            ))}
+          </span>
+          <span>All Networks</span>
+        </HStack>
+      ),
+    },
+    ...chains.map(chain => ({
+      value: chain.chainId,
+      label: (
+        <HStack className="min-h-6 items-center gap-2">
+          <Center className="size-6 shrink-0">
+            <img src={chain.iconUrl} alt="" className="size-5 rounded-full" />
+          </Center>
+          <span className="truncate">{chain.name}</span>
+        </HStack>
+      ),
+    })),
+  ]
 
-          return (
-            <SidebarMenuItem
-              key={chain.chainId}
-              active={active}
-              activeStyle="text"
-              layout="row"
-              onClick={() => onSelectChain(chain.chainId)}
-            >
-              <img src={chain.iconUrl} alt="" className="size-5 rounded-full" />
-              <span className={cn('truncate text-sm', active ? 'text-primary' : 'text-subText')}>{chain.name}</span>
-            </SidebarMenuItem>
-          )
-        })}
-      </Stack>
-    </SidebarSection>
+  return (
+    <Select
+      arrow="chevron"
+      arrowSize={16}
+      className="w-full gap-2 rounded-lg p-2 text-sm font-medium text-text"
+      matchMenuWidth
+      placement="bottom-start"
+      options={options}
+      value={selectedChainId ?? 'all'}
+      onChange={(value: string | number) => onSelectChain(value === 'all' ? undefined : Number(value))}
+      dropdownRender={menu => <div className="flex max-h-[280px] flex-col gap-1 overflow-y-auto">{menu}</div>}
+    />
   )
 }
 
@@ -249,7 +258,8 @@ const SidebarContent = ({
   route,
   selectedChainId,
 }: SidebarContentProps) => (
-  <Stack className="gap-5 lg:grid lg:h-full lg:grid-rows-[minmax(0,1fr)_auto]">
+  <Stack className="gap-5 lg:grid lg:h-full lg:grid-rows-[auto_minmax(0,1fr)]">
+    <NetworkDropdown chains={chains} onSelectChain={onSelectChain} selectedChainId={selectedChainId} />
     <div className="lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain">
       <Stack className="gap-5">
         <AgentsSection
@@ -263,7 +273,6 @@ const SidebarContent = ({
         <MyCopiesSection agentById={agentById} route={route} runs={activeRuns} />
       </Stack>
     </div>
-    <NetworksSection chains={chains} onSelectChain={onSelectChain} selectedChainId={selectedChainId} />
   </Stack>
 )
 

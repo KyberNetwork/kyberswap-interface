@@ -4,6 +4,7 @@ import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { WinRateTooltip } from 'pages/CopyTrading/AgentList/components'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { getWinRateClassName, percent } from 'pages/CopyTrading/helpers'
 import { shortenAddress } from 'utils/address'
@@ -16,7 +17,10 @@ export const RiskCard = ({
   return (
     <SidePanelCard bodyClassName="gap-3 py-4">
       <HStack className="min-h-6 items-center justify-between gap-2">
-        <span className="text-sm font-medium text-subText">Win Rate</span>
+        <HStack as="span" className="items-center gap-1 text-sm font-medium text-subText">
+          Win Rate
+          <WinRateTooltip type="agent" />
+        </HStack>
         <span className={cn('text-base font-medium leading-5', getWinRateClassName(winRatePct))}>
           {percent(winRatePct)}
         </span>

@@ -131,7 +131,7 @@ export const getSignedMetricClassName = (value?: NumericValue) => {
 export const getWinRateClassName = (value?: NumericValue, variant: 'text' | 'background' = 'text') => {
   const available = parseNumericValue(value) !== undefined
   if (variant === 'background') return available ? 'bg-primary' : 'bg-buttonGray'
-  return available ? 'text-primary' : 'text-text'
+  return available ? 'text-text' : 'text-text'
 }
 
 export const formatApproximateUsd = (value?: DecimalString, fractionDigits?: number) => {

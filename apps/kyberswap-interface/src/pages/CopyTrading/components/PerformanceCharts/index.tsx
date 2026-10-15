@@ -220,9 +220,9 @@ const CumulativePnlChart = ({
   const hasSelectedMetric = data.some(point => point[dataKey] !== undefined)
   const yAxisScale = useMemo(() => getRoundedYAxisScale(data.map(point => point[dataKey])), [data, dataKey])
   const chartControls = realized ? (
-    <HStack className="items-center gap-2 whitespace-nowrap text-right text-sm">
+    <HStack className="items-center gap-2 whitespace-nowrap text-right text-base">
       <span className="text-subText">Total Realised P&amp;L</span>
-      <span className={cn('font-medium', getSignedMetricClassName(totalRealizedPnlUsd))}>
+      <span className={cn('text-lg font-medium', getSignedMetricClassName(totalRealizedPnlUsd))}>
         {signedUsd(totalRealizedPnlUsd)}
       </span>
     </HStack>

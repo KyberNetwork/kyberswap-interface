@@ -6,6 +6,7 @@ import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/pr
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
+import { WinRateTooltip } from 'pages/CopyTrading/AgentList/components'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import {
   HeaderCell,
@@ -87,6 +88,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
             sortOrder={sortOrder}
           >
             Win Rates
+            <WinRateTooltip type="agent" />
           </HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
