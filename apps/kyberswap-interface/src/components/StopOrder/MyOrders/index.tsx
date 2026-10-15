@@ -168,6 +168,21 @@ const StopOrders = () => {
     { userWallet: account || '', chainIds: queriedChainIds, statuses: OPEN_STATUSES, page: 1, pageSize: FETCH_SIZE },
     { skip: !account || !showCancelAll, refetchOnFocus: true },
   )
+  /**
+   * A cancelled order is greyed out only to cover the moment between the service confirming the cancel
+   * and the list catching up. Once no list in hand still shows it open, the list itself says what
+   * happened, so the id is let go. Judged only on the Active tab's own lists: History never shows an
+   * open order, so its rows would let go of ids whose cancel the Active list has not caught up with yet.
+   */
+  useEffect(() => {
+    if (!isActiveTab || !currentData) return
+    const listed = new Set([...orders, ...(openData?.orders ?? EMPTY_ORDERS)].map(order => order.id))
+    setCancellingIds(ids => {
+      const next = ids.filter(id => listed.has(id))
+      return next.length === ids.length ? ids : next
+    })
+  }, [isActiveTab, currentData, orders, openData?.orders])
+
   const cancellableOrders = useMemo(
     () => (openData?.orders ?? EMPTY_ORDERS).filter(order => !cancellingIds.includes(order.id)),
     [openData?.orders, cancellingIds],
@@ -287,7 +302,7 @@ const StopOrders = () => {
             order={order}
             rowIndex={index}
             isActiveTab={isActiveTab}
-            isCancelling={cancellingIds.includes(order.id)}
+            isCancelling={isActiveTab && cancellingIds.includes(order.id)}
             onCancel={target => {
               setIsCancelAll(false)
               setCancelTargets([target])
