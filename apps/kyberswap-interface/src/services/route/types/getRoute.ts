@@ -6,6 +6,8 @@ export type GetRouteParams = {
   /** Set for an exact-in quote; the exact-out endpoint takes `amountOut` instead. */
   amountIn?: string
   amountOut?: string
+  /** Exact-out only: how far the quoted output may exceed `amountOut`, 1 - 100 bps. */
+  exactOutMaxOvershootBps?: number
   includedSources?: string
   excludedSources?: string
   excludedPools?: string

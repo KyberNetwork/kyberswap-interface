@@ -9,6 +9,10 @@ import FeeControlGroup from 'components/FeeControlGroup'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { NetworkSelector } from 'components/NetworkSelector'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/ERC8056Info'
+import ExactOutOvershootSetting, {
+  DEFAULT_EXACT_OUT_OVERSHOOT_BPS,
+  parseExactOutOvershootBps,
+} from 'components/SwapForm/ExactOutOvershootSetting'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import MultichainKNCNote from 'components/SwapForm/MultichainKNCNote'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
@@ -90,6 +94,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   // The side the user typed last; the other side is quoted from it.
   const [independentField, setIndependentField] = useState<Field>(Field.INPUT)
   const [typedOutValue, setTypedOutValue] = useState('')
+  const [exactOutOvershootBps, setExactOutOvershootBps] = useState(DEFAULT_EXACT_OUT_OVERSHOOT_BPS)
 
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
@@ -204,6 +209,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     currencyOut,
     parsedAmount,
     parsedAmountOut: isExactOut ? parsedTypedAmountOut : undefined,
+    exactOutMaxOvershootBps: parseExactOutOvershootBps(exactOutOvershootBps),
     isProcessingSwap,
     customChain: chainId,
     clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
@@ -349,6 +355,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} />
+            {isExactOut && <ExactOutOvershootSetting value={exactOutOvershootBps} onChange={setExactOutOvershootBps} />}
             {!isWrapOrUnwrap && <FeeControlGroup />}
           </div>
         </div>

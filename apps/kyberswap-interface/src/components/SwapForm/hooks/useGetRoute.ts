@@ -26,6 +26,7 @@ export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined
   /** Output amount to quote for; when set, the route is fetched exact-out and `parsedAmount` is ignored. */
   parsedAmountOut?: CurrencyAmount<Currency>
+  exactOutMaxOvershootBps?: number
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
 
@@ -86,7 +87,16 @@ export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver'
 
 const useGetRoute = (args: ArgsGetRoute) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { parsedAmount, parsedAmountOut, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
+  const {
+    parsedAmount,
+    parsedAmountOut,
+    exactOutMaxOvershootBps,
+    currencyIn,
+    currencyOut,
+    customChain,
+    isProcessingSwap,
+    clientId,
+  } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
   const [isLoading, setIsLoading] = useState(false)
@@ -217,6 +227,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
           tokenOutDecimals: routeTokenDecimals(currencyOut, 'out'),
           amountOut: parsedAmountOut.quotient.toString(),
           ...(dexes ? { includedSources: dexes } : {}),
+          ...(exactOutMaxOvershootBps ? { exactOutMaxOvershootBps } : {}),
           gasInclude: 'true',
           chainId,
         },
@@ -285,6 +296,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     isEnableAuthenAggregator,
     parsedAmount,
     parsedAmountOut,
+    exactOutMaxOvershootBps,
     triggerDebounced,
     feeConfigFromUrl,
     isProcessingSwap,
