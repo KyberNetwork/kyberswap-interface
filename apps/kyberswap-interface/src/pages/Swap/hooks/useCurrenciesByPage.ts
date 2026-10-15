@@ -7,7 +7,7 @@ import { useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
-import { isSwapLikePath } from 'utils/routes'
+import { getTradeProductPath, isSwapLikePath } from 'utils/routes'
 
 export const useCurrenciesByPage = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
@@ -32,7 +32,7 @@ export const useCurrenciesByPage = () => {
   )
 
   const shareUrl = useMemo(() => {
-    const path = `${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
+    const path = `${getTradeProductPath(pathname)}/${networkInfo.route}${
       currencyIn && currencyOut
         ? `?${new URLSearchParams({
             inputCurrency: currencyId(currencyIn, chainId),
@@ -41,7 +41,7 @@ export const useCurrenciesByPage = () => {
         : ''
     }`
     return `${window.location.origin}${isCrossChainPage ? APP_PATHS.CROSS_CHAIN : path}`
-  }, [networkInfo.route, currencyIn, currencyOut, chainId, isSwapPage, isCrossChainPage])
+  }, [networkInfo.route, currencyIn, currencyOut, chainId, pathname, isCrossChainPage])
 
   return {
     currencies,

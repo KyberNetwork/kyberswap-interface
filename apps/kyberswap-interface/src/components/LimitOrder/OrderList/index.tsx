@@ -7,10 +7,10 @@ import { useGetListOrdersQuery, useGetNumberOfInsufficientFundOrdersQuery } from
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
 import OrderBook from 'components/LimitOrder/OrderBook'
+import LimitOrderPriceChart from 'components/LimitOrder/PriceChart'
 import { getInitialListOrdersArgs, useSupportedLimitOrderChains } from 'components/LimitOrder/listOrdersArgs'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
-import TokenPriceChart from 'components/TokenPriceChart'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -55,7 +55,7 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
 
   return (
     <HStack className="items-center gap-3 bg-background pr-4">
-      <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
+      <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist" data-testid="order-list-tabs">
         {tabs.map((tab, index) => {
           const active = tab.id === activeTab
           const isLast = index === tabs.length - 1
@@ -66,6 +66,7 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
               onClick={() => setActiveTab(tab.id)}
               role="tab"
               type="button"
+              data-testid={`order-list-tab-${tab.id}`}
               className={cn(
                 'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1 border-0 px-4 py-3 text-sm font-medium',
                 !isLast && 'border-r border-darkBorder',
@@ -86,7 +87,10 @@ const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
                     </Trans>
                   }
                 >
-                  <span className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning">
+                  <span
+                    className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning"
+                    data-testid="order-list-insufficient-funds-badge"
+                  >
                     {numberOfInsufficientFundOrders}
                   </span>
                 </MouseoverTooltip>
@@ -168,7 +172,9 @@ const OrderList = () => {
           </>
         )}
         {currentTab === LimitOrderTab.MY_ORDER && <MyOrders />}
-        {currentTab === LimitOrderTab.PRICE && <TokenPriceChart flatten tokens={[currencyIn, currencyOut]} />}
+        {currentTab === LimitOrderTab.PRICE && (
+          <LimitOrderPriceChart currencyIn={currencyIn} currencyOut={currencyOut} />
+        )}
       </Stack>
     </Stack>
   )

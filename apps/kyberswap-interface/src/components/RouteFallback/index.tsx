@@ -37,7 +37,10 @@ const pickEarnBody = (pathname: string): ReactNode => {
 const pickSkeleton = (rawPathname: string, insideShell: boolean) => {
   const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname
 
-  if (isSwapLikePath(pathname) || matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN])) {
+  if (
+    isSwapLikePath(pathname) ||
+    matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.STOP_ORDER, APP_PATHS.CROSS_CHAIN])
+  ) {
     return <SwapPageSkeleton />
   }
   if (matchesAnyRoute(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {

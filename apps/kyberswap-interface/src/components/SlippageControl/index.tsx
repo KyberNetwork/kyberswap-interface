@@ -51,13 +51,17 @@ const SlippageControl: React.FC<Props> = props => {
   }, [isCustomInputFocused, options, rawSlippage])
 
   return (
-    <div className="flex w-full max-w-full items-stretch rounded-[20px] bg-tabBackground">
+    <div
+      className="flex w-full max-w-full items-stretch rounded-[20px] bg-tabBackground"
+      data-testid="slippage-control"
+    >
       {options.map(slp => {
         const isActive = rawSlippage === slp && !isCustomActive
 
         return (
           <DefaultSlippageOption
             key={slp}
+            data-testid={`slippage-preset-${slp}`}
             onClick={() => {
               trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
                 new_slippage: slp / 100,
