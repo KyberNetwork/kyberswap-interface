@@ -445,7 +445,8 @@ export const parseStopOrder = (raw: unknown): StopOrder | null => {
     !isTokenInfo(chainId, order.tokenOutInfo) ||
     !isNonEmptyString(trigger) ||
     typeof order.slippage !== 'number' ||
-    typeof order.deadline !== 'number'
+    typeof order.deadline !== 'number' ||
+    typeof order.createdAt !== 'number'
   ) {
     return null
   }

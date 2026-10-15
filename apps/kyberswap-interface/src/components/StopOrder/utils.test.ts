@@ -556,6 +556,8 @@ describe('parseStopOrder', () => {
   it.each([
     ['a non-numeric amountIn', { amountIn: '0.1' }],
     ['an amountIn past uint256', { amountIn: (2n ** 256n).toString() }],
+    ['a missing creation time', { createdAt: undefined }],
+    ['a creation time sent as a string', { createdAt: '1783258149' }],
     ['a missing amountIn', { amountIn: undefined }],
     ['an unsupported chain', { chainId: 999999 }],
     ['an unknown status', { status: 'OrderStatusSomethingNew' }],
