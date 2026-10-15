@@ -71,15 +71,23 @@ export const QuoteSelector = ({
   }
   // allLoading stays true while streaming, even after the soft timeout enables swapping.
   const showStreamTags = quoteMode === 'stream' && !allLoading
-  let fastestTime = Infinity
-  let bestOutput: bigint | undefined
+  let fastestQuoteIndex = -1
+  let bestOutputQuoteIndex = -1
   if (showStreamTags) {
-    for (const { quote } of quotes) {
-      if (Number.isFinite(quote.timeEstimate) && quote.timeEstimate > 0) {
-        fastestTime = Math.min(fastestTime, quote.timeEstimate)
+    for (const [index, { quote }] of quotes.entries()) {
+      const fastestQuote = quotes[fastestQuoteIndex]?.quote
+      if (
+        Number.isFinite(quote.timeEstimate) &&
+        quote.timeEstimate > 0 &&
+        (!fastestQuote ||
+          quote.timeEstimate < fastestQuote.timeEstimate ||
+          (quote.timeEstimate === fastestQuote.timeEstimate && quote.outputAmount > fastestQuote.outputAmount))
+      ) {
+        fastestQuoteIndex = index
       }
+      const bestOutput = quotes[bestOutputQuoteIndex]?.quote.outputAmount
       if (quote.outputAmount > 0n && (bestOutput === undefined || quote.outputAmount > bestOutput)) {
-        bestOutput = quote.outputAmount
+        bestOutputQuoteIndex = index
       }
     }
   }
@@ -99,8 +107,8 @@ export const QuoteSelector = ({
                 ? getKyberCrossRoutePlan(quote.quote.rawQuote as KyberCrossRawQuote)?.tags || []
                 : []
             if (showStreamTags) {
-              if (Number.isFinite(fastestTime) && quote.quote.timeEstimate === fastestTime) routeTags.push('FASTEST')
-              if (quote.quote.outputAmount === bestOutput) routeTags.push('BEST_OUTPUT')
+              if (index === fastestQuoteIndex) routeTags.push('FASTEST')
+              if (index === bestOutputQuoteIndex) routeTags.push('BEST_OUTPUT')
             }
             const ongoingTag =
               quoteMode === 'direct' && nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
