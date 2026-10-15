@@ -98,6 +98,12 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
   )
 
   /**
+   * The pair is set but its feed gave no usable price — the request failed, or the pair has no feed.
+   * Nothing can then tell a stop below the market from a trigger above it, which would sell at once.
+   */
+  const marketPriceUnavailable = !!pairKey && !loadingMarketPrice && !marketPrice
+
+  /**
    * The seed and the Market button both fill the field with the price rounded to the input's own
    * precision, which lands a hair either side of the live price. Comparing against the lower of the
    * two keeps a trigger set to market on the blocked side of the rule whichever way it rounded.
@@ -236,6 +242,7 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
     triggerAtOrAboveMarket,
     marketPrice,
     loadingMarketPrice,
+    marketPriceUnavailable,
     tradeInfo,
     estimatedOutput,
     slippage,

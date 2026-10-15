@@ -65,6 +65,8 @@ type Props = {
   triggerPercent?: number
   /** Judged at the trigger input's precision, so a trigger set to market counts as at market. */
   triggerAtOrAboveMarket?: boolean
+  /** The pair's oracle gave no usable price, so the trigger cannot be checked against the market. */
+  marketPriceUnavailable?: boolean
 }
 
 /**
@@ -78,6 +80,7 @@ export const useStopOrderWarnings = ({
   inputAmount,
   triggerPercent,
   triggerAtOrAboveMarket,
+  marketPriceUnavailable,
 }: Props) => {
   const { hasEligibleTokens, isLoading: loadingSupportedTokens } = useStopOrderSupportedTokens(chainId)
   const { isEligible, isLoading: loadingEligibility } = useIsStopOrderEligibleToken(currencyIn)
@@ -133,6 +136,22 @@ export const useStopOrderWarnings = ({
           Cannot receive {currencyOut.symbol} when selling {currencyIn.symbol} — they are the same asset.
         </Trans>
       )
+      shouldDisableAction = true
+    } else if (marketPriceUnavailable) {
+      // Last in the chain: a token with no feed at all already explains itself in its own field. The
+      // review repeats it because the price keeps polling while the modal is open.
+      const priceWarning: StopOrderWarning = {
+        type: 'warn',
+        blocking: true,
+        message: (
+          <Trans>
+            The oracle price for this pair is unavailable right now, so the trigger cannot be checked against the
+            market. Please try again shortly.
+          </Trans>
+        ),
+      }
+      formWarnings.push(priceWarning)
+      reviewWarnings.push(priceWarning)
       shouldDisableAction = true
     }
 
@@ -213,6 +232,7 @@ export const useStopOrderWarnings = ({
     currencyOut,
     triggerPercent,
     triggerAtOrAboveMarket,
+    marketPriceUnavailable,
     reservedBalance,
     hasEligibleTokens,
     isEligible,
