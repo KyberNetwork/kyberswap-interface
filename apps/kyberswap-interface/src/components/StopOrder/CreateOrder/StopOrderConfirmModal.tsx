@@ -167,13 +167,17 @@ const StopOrderConfirmModal = ({
               <div>
                 1 {currencyIn?.symbol} = {triggerPrice} {currencyOut?.symbol}
               </div>
-              {triggerPercent !== undefined && triggerPercent < 0 && (
+              {triggerPercent !== undefined && triggerPercent !== 0 && (
                 <div data-testid="stop-order-confirm-trigger-distance">
                   <span className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}>
-                    ↓ {formatDistanceMagnitude(triggerPercent)}%
+                    {triggerPercent < 0 ? '↓' : '↑'} {formatDistanceMagnitude(triggerPercent)}%
                   </span>{' '}
                   <span className="text-subText">
-                    <Trans>below current oracle price</Trans>
+                    {triggerPercent < 0 ? (
+                      <Trans>below current oracle price</Trans>
+                    ) : (
+                      <Trans>above current oracle price</Trans>
+                    )}
                   </span>
                 </div>
               )}

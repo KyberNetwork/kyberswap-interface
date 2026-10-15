@@ -99,32 +99,20 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
 
   /**
    * The pair is set but its feed gave no usable price — the request failed, or the pair has no feed.
-   * Nothing can then tell a stop below the market from a trigger above it, which would sell at once.
+   * The form then cannot show where the trigger sits against the market, so placing waits for it.
    */
   const marketPriceUnavailable = !!pairKey && !loadingMarketPrice && !marketPrice
 
   /**
-   * The seed and the Market button both fill the field with the price rounded to the input's own
-   * precision, which lands a hair either side of the live price. Comparing against the lower of the
-   * two keeps a trigger set to market on the blocked side of the rule whichever way it rounded.
-   */
-  const triggerAtOrAboveMarket = useMemo(() => {
-    const price = Number(triggerPrice)
-    if (!marketPrice || !price || !Number.isFinite(price)) return false
-    return price >= Math.min(marketPrice, Number(formatPriceInputValue(marketPrice)))
-  }, [triggerPrice, marketPrice])
-
-  /**
-   * How far the trigger sits below the market price, negative while it is a valid stop order. A trigger
-   * the rule above counts as at market reads 0 even when rounding left it a hair under the live price,
-   * so no "below" figure ever sits next to the warning that blocks it for not being below.
+   * How far the trigger sits from the market price, negative below it and positive above. Any side is a
+   * valid order: the trigger fires once the oracle is at or under it, and the fill must still clear
+   * `trigger × (1 − slippage)`, so a trigger above the market waits for the price to rise to that floor.
    */
   const triggerPercent = useMemo(() => {
     const price = Number(triggerPrice)
     if (!marketPrice || !price || !Number.isFinite(price)) return undefined
-    const percent = ((price - marketPrice) / marketPrice) * 100
-    return triggerAtOrAboveMarket ? Math.max(percent, 0) : percent
-  }, [triggerPrice, marketPrice, triggerAtOrAboveMarket])
+    return ((price - marketPrice) / marketPrice) * 100
+  }, [triggerPrice, marketPrice])
 
   const onChangeTriggerPrice = setTriggerPrice
 
@@ -206,9 +194,9 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
 
   /**
    * Turns the pair around, as the limit-order form does: the receive token becomes the one sold, and
-   * the estimate becomes the amount. The trigger does not carry over — inverted, it would sit above
-   * the reversed market, a take-profit rather than a stop order — and needs no clearing here: it was
-   * set for the other direction, so the reversed pair reads it as empty and reseeds from its own feed.
+   * the estimate becomes the amount. The trigger does not carry over — it is a price in the other
+   * direction's units — and needs no clearing here: it was set for the other direction, so the
+   * reversed pair reads it as empty and reseeds from its own feed.
    */
   const onSwitchPair = useCallback(() => {
     switchCurrency()
@@ -239,7 +227,6 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
     inputAmount,
     triggerPrice,
     triggerPercent,
-    triggerAtOrAboveMarket,
     marketPrice,
     loadingMarketPrice,
     marketPriceUnavailable,

@@ -89,7 +89,6 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
     currencyOut,
     inputAmount: form.inputAmount,
     triggerPercent: form.triggerPercent,
-    triggerAtOrAboveMarket: form.triggerAtOrAboveMarket,
     marketPriceUnavailable: form.marketPriceUnavailable,
   })
 
@@ -157,7 +156,7 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
 
   const isMissingAmount = !form.inputAmount || Number(form.inputAmount) === 0
   const isMissingTrigger = !form.triggerPrice || Number(form.triggerPrice) === 0
-  // Held while the oracle price loads: until it lands, nothing can say the trigger sits below the market.
+  // Held while the oracle price loads: the trigger is set against the market, which is not known yet.
   const disableAction =
     !!restrictedCurrency ||
     isMissingAmount ||

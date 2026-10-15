@@ -63,9 +63,7 @@ type Props = {
   /** The sell amount as typed, so the balance check sees the order about to be placed. */
   inputAmount?: string
   triggerPercent?: number
-  /** Judged at the trigger input's precision, so a trigger set to market counts as at market. */
-  triggerAtOrAboveMarket?: boolean
-  /** The pair's oracle gave no usable price, so the trigger cannot be checked against the market. */
+  /** The pair's oracle gave no usable price, so the trigger cannot be placed against the market. */
   marketPriceUnavailable?: boolean
 }
 
@@ -79,7 +77,6 @@ export const useStopOrderWarnings = ({
   currencyOut,
   inputAmount,
   triggerPercent,
-  triggerAtOrAboveMarket,
   marketPriceUnavailable,
 }: Props) => {
   const { hasEligibleTokens, isLoading: loadingSupportedTokens } = useStopOrderSupportedTokens(chainId)
@@ -95,8 +92,9 @@ export const useStopOrderWarnings = ({
     /**
      * Two destinations, because they answer different questions.
      *
-     * `formWarnings` explain why the CTA is blocked — the chain cannot take a stop order at all, or the
-     * trigger is on the wrong side of the market — so the review modal never opens on them.
+     * `formWarnings` explain why the CTA is blocked — the chain cannot take a stop order at all, the
+     * pair has no price to place it against, or the balance is already claimed by open orders — so the
+     * review modal never opens on them.
      * `reviewWarnings` belong to the review step, right before signing; one marked `blocking` also
      * disables the confirm button there.
      */
@@ -145,8 +143,8 @@ export const useStopOrderWarnings = ({
         blocking: true,
         message: (
           <Trans>
-            The oracle price for this pair is unavailable right now, so the trigger cannot be checked against the
-            market. Please try again shortly.
+            The oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market.
+            Please try again shortly.
           </Trans>
         ),
       }
@@ -184,26 +182,8 @@ export const useStopOrderWarnings = ({
       shouldDisableAction = true
     }
 
-    /**
-     * A trigger at or above the market both makes this a sell-above order and would fire at once. The
-     * review repeats the block: the oracle price keeps polling while it is open, so a trigger that was
-     * below the market when the form let it through can cross it before the order is signed.
-     */
-    if (triggerAtOrAboveMarket) {
-      const triggerWarning: StopOrderWarning = {
-        type: 'warn',
-        blocking: true,
-        message: (
-          <Trans>
-            Trigger price must be below the current oracle price. To sell above the current price, use Limit Order
-            instead.
-          </Trans>
-        ),
-      }
-      formWarnings.push(triggerWarning)
-      reviewWarnings.push(triggerWarning)
-      shouldDisableAction = true
-    } else if (triggerPercent !== undefined && Math.abs(triggerPercent) < TRIGGER_CLOSE_TO_MARKET_PERCENT) {
+    // Near the market on either side, ordinary price movement is enough to fill it right away.
+    if (triggerPercent !== undefined && Math.abs(triggerPercent) < TRIGGER_CLOSE_TO_MARKET_PERCENT) {
       reviewWarnings.push({
         type: 'warn',
         message: (
@@ -231,7 +211,6 @@ export const useStopOrderWarnings = ({
     currencyIn,
     currencyOut,
     triggerPercent,
-    triggerAtOrAboveMarket,
     marketPriceUnavailable,
     reservedBalance,
     hasEligibleTokens,

@@ -319,8 +319,8 @@ export const triggerProximityText = cva('transition-colors duration-200', {
 })
 
 /**
- * How much room is left before the trigger fires. The arrow follows the sign: a trigger that has risen
- * above the market is about to fire, which is the opposite of the same magnitude below it.
+ * How far the trigger sits from the market. The arrow follows the sign: below the market the order
+ * waits for the price to fall to it, above the market for the price to rise to its fill floor.
  */
 export const DistanceCell = ({ percent }: { percent?: number }) => {
   if (percent === undefined)

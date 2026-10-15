@@ -168,9 +168,11 @@ describe('getTriggerProximity', () => {
     expect(getTriggerProximity(-4.96)).toBe('near')
   })
 
-  it('treats a trigger at or above the market as imminent', () => {
+  it('grades a trigger above the market by the same distances', () => {
     expect(getTriggerProximity(0)).toBe('imminent')
-    expect(getTriggerProximity(25)).toBe('imminent')
+    expect(getTriggerProximity(3)).toBe('imminent')
+    expect(getTriggerProximity(7)).toBe('near')
+    expect(getTriggerProximity(25)).toBe('far')
   })
 })
 

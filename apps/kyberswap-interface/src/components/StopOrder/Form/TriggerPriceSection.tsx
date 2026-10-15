@@ -47,7 +47,7 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
       className={cn(
         PERCENT_CHIP_CLASSES,
         'flex w-[82px] items-center',
-        percent !== undefined && percent < 0
+        percent !== undefined && percent !== 0
           ? 'border-primary-50 bg-tabActive text-text'
           : 'border-border/60 text-subText',
       )}
@@ -88,12 +88,10 @@ const TriggerPriceSection = ({
   onChangeTriggerPercent,
   onSetMarketPrice,
 }: Props) => {
-  const isBelowMarket = triggerPercent !== undefined && triggerPercent < 0
-
   /**
    * Flips how the rate reads, as the limit-order Rate block does — the header rate, the trigger field
    * and its unit — while the order itself still triggers on the sell token priced in the receive token.
-   * The percent chips and the oracle line keep that direction, since "below" is defined by it.
+   * The percent chips and the oracle line keep that direction, since "below" and "above" are defined by it.
    */
   const [showInverted, setShowInverted] = useState(false)
   // What the user is typing into the inverted field, kept as typed: re-deriving it from the trigger on
@@ -207,12 +205,20 @@ const TriggerPriceSection = ({
             <Trans>Current oracle price</Trans>: {formatDisplayNumber(marketPrice, { significantDigits: 6 })}{' '}
             {receiveCurrency?.symbol}
           </span>
-          {isBelowMarket && (
+          {triggerPercent !== undefined && triggerPercent !== 0 && (
             <span
               className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}
               data-testid="stop-order-trigger-distance"
             >
-              ↓ {formatDistanceMagnitude(triggerPercent)}% <Trans>below</Trans>
+              {triggerPercent < 0 ? (
+                <>
+                  ↓ {formatDistanceMagnitude(triggerPercent)}% <Trans>below</Trans>
+                </>
+              ) : (
+                <>
+                  ↑ {formatDistanceMagnitude(triggerPercent)}% <Trans>above</Trans>
+                </>
+              )}
             </span>
           )}
         </HStack>

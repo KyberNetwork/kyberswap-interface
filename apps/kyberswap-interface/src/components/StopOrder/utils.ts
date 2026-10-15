@@ -76,13 +76,12 @@ export const isActiveStopOrderStatus = (status: StopOrderDisplayStatus) => ACTIV
 export type TriggerProximity = 'far' | 'near' | 'imminent'
 
 /**
- * How close a trigger is to firing, from its signed distance to the market in percent — the colour the
- * order list and the form give that distance. Judged on the distance rounded to one decimal, as it is
- * shown, so a distance that reads "10.0%" is never treated as still under 10. A trigger at or above the
- * market is imminent no matter how far past it has gone.
+ * How close an order is to filling, from its trigger's signed distance to the market in percent — the
+ * colour the order list and the form give that distance. The same on either side: below the market the
+ * price has to fall to the trigger, above it the price has to rise to the fill floor just under it.
+ * Judged on the distance rounded to one decimal, as it is shown, so "10.0%" is never treated as under 10.
  */
 export const getTriggerProximity = (percent: number): TriggerProximity => {
-  if (percent >= 0) return 'imminent'
   const magnitude = Math.round(Math.abs(percent) * 10) / 10
   return magnitude >= 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
 }
