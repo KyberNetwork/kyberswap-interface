@@ -1,7 +1,9 @@
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
 import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { PairCategory, getCurrencyAddress, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 
 const SSE_EVENT = {
   INIT: 'init',
@@ -26,25 +28,30 @@ type StreamQuotesParams = {
   onSoftTimeout: () => void
 }
 
-const getSourceFilters = (
-  registry: CrossChainSwapAdapterRegistry,
+export const getSourceFilters = (
+  quoteMode: CrossChainQuoteMode,
   excludedSources: string[],
   category: PairCategory,
   currencyIn: Currency,
   currencyOut: Currency,
 ) => {
-  const allAdapters = registry.getAllAdapters()
-  const supportedAdapters = allAdapters.filter(adapter => adapter.canSupport(category, currencyIn, currencyOut))
-  const includedSourceNames = supportedAdapters
+  const selectableSources = CrossChainSwapFactory.getSelectableSources(quoteMode)
+  const filterSourcesBySupport = quoteMode === 'stream'
+  const supportedSources = filterSourcesBySupport
+    ? selectableSources.filter(source => source.canSupport?.(category, currencyIn, currencyOut) ?? true)
+    : selectableSources
+  const includedSourceNames = supportedSources
     .filter(adapter => !excludedSources.includes(adapter.getName()))
     .map(adapter => adapter.getName())
-  const excludedSourceNames = allAdapters
+  const excludedSourceNames = selectableSources
     .filter(
-      adapter => excludedSources.includes(adapter.getName()) || !adapter.canSupport(category, currencyIn, currencyOut),
+      adapter =>
+        excludedSources.includes(adapter.getName()) ||
+        (filterSourcesBySupport && !(adapter.canSupport?.(category, currencyIn, currencyOut) ?? true)),
     )
     .map(adapter => adapter.getName())
 
-  return { allAdapters, includedSourceNames, excludedSourceNames }
+  return { selectableSources, includedSourceNames, excludedSourceNames }
 }
 
 const getStreamingUrl = ({
@@ -53,8 +60,7 @@ const getStreamingUrl = ({
   currencyIn,
   currencyOut,
   excludedSources,
-  registry,
-}: Pick<StreamQuotesParams, 'params' | 'category' | 'currencyIn' | 'currencyOut' | 'excludedSources' | 'registry'>) => {
+}: Pick<StreamQuotesParams, 'params' | 'category' | 'currencyIn' | 'currencyOut' | 'excludedSources'>) => {
   const queryParams = new URLSearchParams({
     fromChain: params.fromChain.toString(),
     fromToken: getCurrencyAddress(params.fromToken),
@@ -65,7 +71,8 @@ const getStreamingUrl = ({
     toToken: getCurrencyAddress(params.toToken),
     toTokenDecimals: params.toToken.decimals.toString(),
     toAddress: params.recipient,
-    fee: params.feeBps.toString(),
+    // Internal stream testing waives the UI fee for every source.
+    fee: '0',
     integrator: 'kyberswap',
     stream: 'true',
     slippage: params.slippage.toString(),
@@ -73,14 +80,14 @@ const getStreamingUrl = ({
     ...(params.tokenOutUsd > 0 ? { toTokenUsd: params.tokenOutUsd.toString() } : {}),
   })
 
-  const { allAdapters, includedSourceNames, excludedSourceNames } = getSourceFilters(
-    registry,
+  const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
+    'stream',
     excludedSources,
     category,
     currencyIn,
     currencyOut,
   )
-  if (includedSourceNames.length > 0 && includedSourceNames.length < allAdapters.length) {
+  if (includedSourceNames.length > 0 && includedSourceNames.length < selectableSources.length) {
     queryParams.append('includedSources', includedSourceNames.join(','))
   }
   if (excludedSourceNames.length > 0) {
@@ -119,10 +126,9 @@ export const streamQuotes = async ({
   }, SOFT_TIMEOUT_MS)
 
   try {
-    const response = await fetch(
-      getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources, registry }),
-      { signal },
-    )
+    const response = await fetch(getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources }), {
+      signal,
+    })
     if (!response.ok) {
       console.error('Streaming API error response status:', response.status)
       throw new Error(`HTTP error! status: ${response.status}`)
@@ -231,7 +237,7 @@ export const streamQuotes = async ({
               gasFeeUsd: data.gasFeeUsd,
               contractAddress: data.contractAddress,
               rawQuote: data.rawQuote,
-              protocolFee: data.protocolFee,
+              protocolFee: data.protocolFee ?? 0,
               protocolFeeString: data.protocolFeeString,
               platformFeePercent: data.platformFeePercent,
             },

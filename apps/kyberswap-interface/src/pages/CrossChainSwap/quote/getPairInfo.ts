@@ -165,12 +165,12 @@ export const getPairInfo = async ({
       const categories = await Promise.all([
         fromChainId === ChainId.ABSTRACT
           ? Promise.resolve(isStableCurrency(currencyIn, fromChainId) ? 'stablePair' : 'exoticPair')
-          : fetchTokenCategories({ chainId: fromChainId, tokens: currencyInAddress }).then(
+          : fetchTokenCategories({ chainId: fromChainId, tokens: currencyInAddress }, { signal }).then(
               items => items.find(item => item.token.toLowerCase() === currencyInAddress)?.category || 'exoticPair',
             ),
         toChainId === ChainId.ABSTRACT
           ? Promise.resolve(isStableCurrency(currencyOut, toChainId) ? 'stablePair' : 'exoticPair')
-          : fetchTokenCategories({ chainId: toChainId, tokens: currencyOutAddress }).then(
+          : fetchTokenCategories({ chainId: toChainId, tokens: currencyOutAddress }, { signal }).then(
               items => items.find(item => item.token.toLowerCase() === currencyOutAddress)?.category || 'exoticPair',
             ),
       ])

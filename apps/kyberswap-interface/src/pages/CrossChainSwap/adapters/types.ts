@@ -57,7 +57,21 @@ export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [
   NonEvmChain.Near,
 ]
 
+export type GasDropQuote = {
+  amount: string
+  minAmount: string
+  amountUsd?: number
+  inputAmountUsd?: number
+  inputToken: string
+}
+
+export type GasDropStatus = {
+  status: 'Pending' | 'Delivered' | 'Failed' | 'NotExecuted'
+  amount?: string
+}
+
 export interface QuoteParams {
+  gasDrop?: boolean
   feeBps: number
   fromChain: Chain
   toChain: Chain
@@ -71,6 +85,8 @@ export interface QuoteParams {
   sender: string
   recipient: string
   publicKey?: string
+  includedSources?: string[]
+  excludedSources?: string[]
 }
 
 export interface EvmQuoteParams extends QuoteParams {
@@ -84,6 +100,9 @@ export interface NearQuoteParams extends QuoteParams {
 
 export interface NormalizedQuote {
   quoteParams: QuoteParams
+
+  gasDrop?: GasDropQuote
+  minimumOutputAmount?: string
 
   outputAmount: bigint
   formattedOutputAmount: string
@@ -107,6 +126,8 @@ export interface NormalizedQuote {
 }
 
 export interface NormalizedTxResponse {
+  gasDrop?: GasDropQuote
+  gasDropStatus?: GasDropStatus
   id: string // specific id for each provider
   sourceTxHash: string
   sender: string
@@ -120,6 +141,8 @@ export interface NormalizedTxResponse {
   targetTxHash?: string
   timestamp: number
   status?: 'Processing' | 'Success' | 'Failed' | 'Refunded'
+  bridgeProvider?: string
+  routeId?: string
   // Enriched fields for data analysis
   amountInUsd: number
   amountOutUsd: number
@@ -130,6 +153,7 @@ export interface NormalizedTxResponse {
 }
 
 export interface SwapStatus {
+  gasDropStatus?: GasDropStatus
   txHash: string
   status: 'Processing' | 'Success' | 'Failed' | 'Refunded'
   amountOut?: string // Actual output amount from the destination chain (raw amount, not formatted)
@@ -147,7 +171,7 @@ export interface SwapProvider {
   getAliases?(): SwapProviderAlias[]
   getSupportedChains(): Chain[]
   getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
-  getQuote(params: QuoteParams): Promise<NormalizedQuote>
+  getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote>
   executeSwap(
     quote: Quote,
     walletClient: WalletClient,

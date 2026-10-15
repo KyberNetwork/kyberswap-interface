@@ -53,7 +53,15 @@ import transactions from 'state/transactions/reducer'
 import tutorial from 'state/tutorial/reducer'
 import user, { UserState } from 'state/user/reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap.transactions']
+const PERSISTED_KEYS: string[] = [
+  'user',
+  'transactions',
+  'profile',
+  'crossChainSwap.transactions',
+  'crossChainSwap.excludedSources',
+  'crossChainSwap.quoteMode',
+  'crossChainSwap.gasDropFeatureEnabled',
+]
 
 // Client-only: read persisted state from localStorage and migrate from old version to
 // new version, preventing lost favorite tokens of user. Returns {} under SSR/prerender.

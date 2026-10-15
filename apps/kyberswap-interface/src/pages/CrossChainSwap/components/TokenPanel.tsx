@@ -2,7 +2,7 @@ import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { formatUnits } from 'viem'
 
@@ -50,7 +50,9 @@ export const TokenPanel = ({
   evmLayout,
   setShowBtcConnect,
   loading,
+  headerAction,
 }: {
+  headerAction?: ReactNode
   evmLayout?: boolean
   setShowBtcConnect: (val: boolean) => void
   selectedChain?: Chain
@@ -226,7 +228,10 @@ export const TokenPanel = ({
           />
 
           {evmLayout ? (
-            balanceSection
+            <div className="flex items-center gap-2">
+              {headerAction}
+              {balanceSection}
+            </div>
           ) : (
             <div className="relative text-xs font-medium text-subText">
               <div
