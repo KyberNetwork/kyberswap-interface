@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { calcOutput, formatPriceInputValue } from 'components/LimitOrder/utils'
 import { STOP_ORDER_SLIPPAGE_MULTIPLIER } from 'components/StopOrder/constants'
 import { useStopOrderOraclePrice } from 'components/StopOrder/hooks/useStopOrderOraclePrice'
+import { getStopOrderPairKey } from 'components/StopOrder/utils'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY, PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
@@ -36,7 +37,8 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
 
   const dispatch = useAppDispatch()
   const {
-    triggerPrice,
+    triggerPrice: storedTriggerPrice,
+    triggerPair,
     slippage: pickedSlippage,
     expire,
     customDateExpire: customDateExpireMs,
@@ -61,9 +63,24 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
     [customDateExpireMs],
   )
 
+  /**
+   * A trigger is a price in one pair's terms, so it only stands while that pair is on screen. Every way
+   * the pair can change — the token pickers and the switch button, but also a network switch, a link
+   * from another page or a token picked on Swap — leaves a stored trigger for some other pair, which is
+   * read as empty and reseeded from this pair's feed.
+   */
+  const pairKey = useMemo(
+    () =>
+      currencyIn && currencyOut
+        ? getStopOrderPairKey(chainId, currencyIn.wrapped.address, currencyOut.wrapped.address)
+        : undefined,
+    [chainId, currencyIn, currencyOut],
+  )
+  const triggerPrice = pairKey && triggerPair === pairKey ? storedTriggerPrice : ''
+
   const setTriggerPrice = useCallback(
-    (value: string) => dispatch(updateStopOrderForm({ triggerPrice: value })),
-    [dispatch],
+    (value: string) => dispatch(updateStopOrderForm({ triggerPrice: value, triggerPair: pairKey })),
+    [dispatch, pairKey],
   )
   const setSlippage = useCallback((value: number) => dispatch(updateStopOrderForm({ slippage: value })), [dispatch])
 
@@ -123,16 +140,18 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
   }, [marketPrice, setTriggerPrice])
 
   /**
-   * Seeds the trigger with the market price once the feed has resolved, so the field opens with a
-   * usable figure instead of blank. Skipped whenever a price is already held: the poll must not
-   * overwrite what the user typed, and Recreate stages a past order's trigger before this runs.
+   * Seeds the trigger with the market price once the pair's feed has resolved, so the field opens with
+   * a usable figure instead of blank. Once per pair, and skipped whenever the pair already has a price:
+   * the poll must not overwrite what the user typed, and Recreate stages a past order's trigger before
+   * this runs. `marketPrice` is the current pair's own — the feed hook drops the previous pair's price
+   * while the next one loads — so a seed never lands on the wrong pair.
    */
-  const autoFilledTrigger = useRef(false)
+  const seededPair = useRef<string | undefined>(undefined)
   useEffect(() => {
-    if (!marketPrice || loadingMarketPrice || autoFilledTrigger.current) return
-    autoFilledTrigger.current = true
+    if (!pairKey || !marketPrice || loadingMarketPrice || seededPair.current === pairKey) return
+    seededPair.current = pairKey
     if (!triggerPrice) setTriggerPrice(formatPriceInputValue(marketPrice))
-  }, [marketPrice, loadingMarketPrice, triggerPrice, setTriggerPrice])
+  }, [pairKey, marketPrice, loadingMarketPrice, triggerPrice, setTriggerPrice])
 
   const onChangeExpire = useCallback(
     (value: Date | number) => {
@@ -150,28 +169,23 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
       // Picking the token already on the other side swaps them rather than leaving a same-token pair.
       if (currencyOut && currency.equals(currencyOut)) setCurrencyOut(currencyIn)
       setCurrencyIn(currency)
-      setTriggerPrice('')
-      // The new pair prices differently, so it gets its own seed once its feed resolves.
-      autoFilledTrigger.current = false
     },
-    [currencyIn, currencyOut, setCurrencyIn, setCurrencyOut, setTriggerPrice],
+    [currencyIn, currencyOut, setCurrencyIn, setCurrencyOut],
   )
 
   const onSelectCurrencyOut = useCallback(
     (currency: Currency) => {
       if (currencyIn && currency.equals(currencyIn)) setCurrencyIn(currencyOut)
       setCurrencyOut(currency)
-      setTriggerPrice('')
-      autoFilledTrigger.current = false
     },
-    [currencyIn, currencyOut, setCurrencyIn, setCurrencyOut, setTriggerPrice],
+    [currencyIn, currencyOut, setCurrencyIn, setCurrencyOut],
   )
 
   const onResetForm = useCallback(() => {
     setInputValue('')
     dispatch(resetStopOrderForm())
     // A cleared trigger is eligible for the market seed again on the next feed tick.
-    autoFilledTrigger.current = false
+    seededPair.current = undefined
   }, [setInputValue, dispatch])
 
   /**
@@ -187,15 +201,13 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
   /**
    * Turns the pair around, as the limit-order form does: the receive token becomes the one sold, and
    * the estimate becomes the amount. The trigger does not carry over — inverted, it would sit above
-   * the reversed market, a take-profit rather than a stop order — so it is cleared and reseeded from the
-   * new pair's feed, as when a token is picked.
+   * the reversed market, a take-profit rather than a stop order — and needs no clearing here: it was
+   * set for the other direction, so the reversed pair reads it as empty and reseeds from its own feed.
    */
   const onSwitchPair = useCallback(() => {
     switchCurrency()
     setInputValue(estimatedOutput)
-    setTriggerPrice('')
-    autoFilledTrigger.current = false
-  }, [switchCurrency, setInputValue, estimatedOutput, setTriggerPrice])
+  }, [switchCurrency, setInputValue, estimatedOutput])
 
   /**
    * A preset expiry counts from `expiryStart`, which `startExpiry` resets as each order goes to review:

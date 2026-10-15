@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 
 import {
   StopOrder,
@@ -11,6 +11,7 @@ import {
   StopOrderTypedData,
   StopOrderWarning,
 } from 'components/StopOrder/types'
+import { ETHER_ADDRESS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { isAddress } from 'utils/address'
@@ -111,6 +112,16 @@ export const getStopOrderTriggerPrice = (order: StopOrder) => order.condition?.f
 export const getStopOrderExecutionTxHash = (order: StopOrder) => getLatestExecution(order)?.hash
 
 /**
+ * Names a pair the way the oracle prices it: by wrapped token, so a native coin and its wrapped token
+ * share one key and a trigger carries between them.
+ */
+export const getStopOrderPairKey = (chainId: ChainId, tokenIn: string, tokenOut: string): string => {
+  const wrapped = (address: string) =>
+    (address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : address).toLowerCase()
+  return `${chainId}:${wrapped(tokenIn)}:${wrapped(tokenOut)}`
+}
+
+/**
  * How far a recorded window may trail the preset it came from. `deadline` is fixed when the order goes
  * to review and `createdAt` when the service stores it, so the window falls short of the preset by the
  * time spent reviewing and signing.
@@ -136,6 +147,7 @@ export const getStopOrderRecreateDraft = (
   { expiryPresets, defaultExpire, now }: { expiryPresets: number[]; defaultExpire: number; now: number },
 ): {
   triggerPrice: string
+  triggerPair: string
   slippage: number | undefined
   expire: number
   customDateExpire: number | undefined
@@ -149,6 +161,7 @@ export const getStopOrderRecreateDraft = (
     : matchExpiryPreset(duration, expiryPresets)
   return {
     triggerPrice: getStopOrderTriggerPrice(order),
+    triggerPair: getStopOrderPairKey(order.chainId, order.tokenIn, order.tokenOut),
     // Without a usable figure the form falls back to the pair's suggested slippage.
     slippage: Number.isFinite(order.slippage) && order.slippage > 0 ? order.slippage : undefined,
     expire: preset ?? defaultExpire,

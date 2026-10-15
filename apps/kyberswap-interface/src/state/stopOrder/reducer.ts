@@ -13,6 +13,12 @@ import { STOP_ORDER_DEFAULT_EXPIRE } from 'components/StopOrder/constants'
 export type StopOrderFormState = {
   triggerPrice: string
   /**
+   * The pair `triggerPrice` was set for (`getStopOrderPairKey`). The pair lives in the swap state and
+   * changes through routes this card never sees — a network switch, a link from another page, a token
+   * picked on Swap — so the form reads the trigger only while this still names the pair on screen.
+   */
+  triggerPair: string | undefined
+  /**
    * Basis points, once the user has picked one. Until then the form applies a suggestion derived from the
    * swap form's for the pair's category, which moves with the pair instead of carrying one pair's figure
    * to the next.
@@ -26,6 +32,7 @@ export type StopOrderFormState = {
 
 export const DEFAULT_STOP_ORDER_FORM_STATE: StopOrderFormState = {
   triggerPrice: '',
+  triggerPair: undefined,
   slippage: undefined,
   expire: STOP_ORDER_DEFAULT_EXPIRE,
   customDateExpire: undefined,

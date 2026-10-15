@@ -17,6 +17,7 @@ import {
   getStopOrderDisplayStatus,
   getStopOrderFills,
   getStopOrderFundingShortfalls,
+  getStopOrderPairKey,
   getStopOrderRecreateDraft,
   getStopOrderSellAmountUsd,
   getStopOrderWarnings,
@@ -553,6 +554,25 @@ describe('parseStopOrders', () => {
   })
 })
 
+describe('getStopOrderPairKey', () => {
+  const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+
+  it('names a pair by chain and lower-cased addresses, in direction', () => {
+    expect(getStopOrderPairKey(ChainId.BASE, ORDER.tokenIn, USDC)).toBe(
+      `${ChainId.BASE}:0x4200000000000000000000000000000000000006:${USDC.toLowerCase()}`,
+    )
+    expect(getStopOrderPairKey(ChainId.BASE, USDC, ORDER.tokenIn)).not.toBe(
+      getStopOrderPairKey(ChainId.BASE, ORDER.tokenIn, USDC),
+    )
+  })
+
+  it('gives a native coin the key of its wrapped token', () => {
+    expect(getStopOrderPairKey(ChainId.BASE, '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', USDC)).toBe(
+      getStopOrderPairKey(ChainId.BASE, WETH[ChainId.BASE].address, USDC),
+    )
+  })
+})
+
 describe('matchExpiryPreset', () => {
   const DAY = 24 * 60 * 60
   const PRESETS = [7 * DAY, 30 * DAY, 90 * DAY, 36500 * DAY]
@@ -574,7 +594,11 @@ describe('getStopOrderRecreateDraft', () => {
   const EXPIRY = { expiryPresets: [7 * DAY, 30 * DAY, 90 * DAY, 36500 * DAY], defaultExpire: 7 * DAY, now: NOW }
 
   it('carries the trigger price and slippage of the original order', () => {
-    expect(getStopOrderRecreateDraft(ORDER, EXPIRY)).toMatchObject({ triggerPrice: '2400', slippage: 50 })
+    expect(getStopOrderRecreateDraft(ORDER, EXPIRY)).toMatchObject({
+      triggerPrice: '2400',
+      triggerPair: getStopOrderPairKey(ORDER.chainId, ORDER.tokenIn, ORDER.tokenOut),
+      slippage: 50,
+    })
   })
 
   it('restores a window set from a preset as that preset', () => {
