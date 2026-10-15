@@ -38,9 +38,18 @@ const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
   const takerAsset = currencyOut?.wrapped.address.toLowerCase()
   const hasPair = !!currencyIn && !!makerAsset && !!takerAsset && makerAsset !== takerAsset
 
-  // The list cannot filter by pair, so the chain's open orders are fetched and narrowed here.
+  // The list has no pair filter, but its search takes a token address and matches it on either side,
+  // so asking by the sell token brings back this pair's orders in both directions; the exact pair is
+  // picked out below. A pair of addresses is not accepted, and symbols can collide between tokens.
   const { currentData } = useGetListOrdersQuery(
-    { chainIds: [chainId], maker: account, status: LimitOrderStatus.ACTIVE, page: 1, pageSize: 100 },
+    {
+      chainIds: [chainId],
+      maker: account,
+      status: LimitOrderStatus.ACTIVE,
+      query: makerAsset,
+      page: 1,
+      pageSize: 100,
+    },
     { skip: !account || !hasPair, pollingInterval: 10_000 },
   )
   // A cancel takes a while to reach the list; its line and cancel button must not outlive it.
