@@ -29,8 +29,11 @@ type Props = {
   slippage: number
   expiredAt: number
   fee?: StopOrderFee
+  /** Why the fee could not be estimated. The order cannot be signed without one. */
+  feeError?: string
   /** The fee is being re-estimated for this review; any figure held is from an earlier one. */
   isFeeLoading?: boolean
+  onRetryFee?: () => void
   /** Sell side priced in USD, which is what turns the fee percentage into an amount. */
   notionalUsd?: number
   needsWrap?: boolean
@@ -56,21 +59,31 @@ const SummaryRow = ({
   </HStack>
 )
 
-const WARNING_STYLES = {
+// `error` is the zap flows' error note — red text on a 20% red ground — in the review's own shape.
+const NOTE_STYLES = {
   info: { className: 'bg-primary-10 text-primary', Icon: Info },
   warn: { className: 'bg-warning-10 text-warning', Icon: AlertTriangle },
+  error: { className: 'bg-red-20 text-red', Icon: AlertTriangle },
 } as const
 
-const ReviewWarning = ({ warning }: { warning: StopOrderWarning }) => {
-  const { className, Icon } = WARNING_STYLES[warning.type]
+const ReviewNote = ({
+  type,
+  dataTestId,
+  children,
+}: {
+  type: keyof typeof NOTE_STYLES
+  dataTestId: string
+  children: React.ReactNode
+}) => {
+  const { className, Icon } = NOTE_STYLES[type]
   return (
     <HStack
       className={cn('w-full items-start gap-2.5 rounded-xl px-3 py-2 text-sm', className)}
-      data-testid="stop-order-confirm-warning"
-      data-warning-type={warning.type}
+      data-testid={dataTestId}
+      data-warning-type={type}
     >
       <Icon size={16} className="mt-0.5 shrink-0" />
-      <div className="flex-1">{warning.message}</div>
+      <div className="flex-1">{children}</div>
     </HStack>
   )
 }
@@ -88,7 +101,9 @@ const StopOrderConfirmModal = ({
   slippage,
   expiredAt,
   fee,
+  feeError,
   isFeeLoading,
+  onRetryFee,
   notionalUsd,
   needsWrap,
   warnings = [],
@@ -97,8 +112,10 @@ const StopOrderConfirmModal = ({
 }: Props) => {
   const feePercentage = fee?.protocol?.percentage
   const feeUsd = feePercentage !== undefined && notionalUsd ? (notionalUsd * feePercentage) / 100 : undefined
-  // The order stays reviewable so the warning can be read; only signing it is refused.
-  const isBlocked = warnings.some(warning => warning.blocking)
+  // The order stays reviewable so the warning can be read; only signing it is refused. The fee sets the
+  // cap signed into the order, so there is nothing to sign until it is known.
+  const isBlocked = warnings.some(warning => warning.blocking) || isFeeLoading || !fee
+  const showFeeError = !!feeError && !isFeeLoading
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
@@ -173,11 +190,17 @@ const StopOrderConfirmModal = ({
                 </span>
               ) : (
                 <HStack className="items-center gap-1">
-                  <span>
-                    {feePercentage === undefined
-                      ? '--'
-                      : `${formatDisplayNumber(feePercentage, { fractionDigits: 2 })}%`}
-                  </span>
+                  {showFeeError ? (
+                    <span className="text-red">
+                      <Trans>Unavailable</Trans>
+                    </span>
+                  ) : (
+                    <span>
+                      {feePercentage === undefined
+                        ? '--'
+                        : `${formatDisplayNumber(feePercentage, { fractionDigits: 2 })}%`}
+                    </span>
+                  )}
                   {/* The percentage applied to the sell side, so the figure is an estimate like the rest. */}
                   {feeUsd !== undefined && (
                     <span className="text-subText">
@@ -205,8 +228,29 @@ const StopOrderConfirmModal = ({
           </div>
 
           {warnings.map((warning, index) => (
-            <ReviewWarning key={index} warning={warning} />
+            <ReviewNote key={index} type={warning.type} dataTestId="stop-order-confirm-warning">
+              {warning.message}
+            </ReviewNote>
           ))}
+
+          {showFeeError && (
+            <ReviewNote type="error" dataTestId="stop-order-confirm-fee-error">
+              {feeError}
+              {onRetryFee && (
+                <>
+                  {' '}
+                  <button
+                    type="button"
+                    className="cursor-pointer border-0 bg-transparent p-0 font-medium text-red underline hover:brightness-110"
+                    onClick={onRetryFee}
+                    data-testid="stop-order-confirm-fee-retry"
+                  >
+                    <Trans>Try again</Trans>
+                  </button>
+                </>
+              )}
+            </ReviewNote>
+          )}
 
           <Stack className="gap-2">
             <ButtonPrimary onClick={onSubmit} disabled={isBlocked} data-testid="stop-order-confirm-submit">

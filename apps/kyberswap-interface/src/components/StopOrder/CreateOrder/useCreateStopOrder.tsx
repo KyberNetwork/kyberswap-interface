@@ -15,7 +15,11 @@ import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrder
 import { DEFAULT_MAX_FEES_PERCENTAGE, DEFAULT_MAX_GAS_PERCENTAGE } from 'components/StopOrder/constants'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
 import { StopOrderFee } from 'components/StopOrder/types'
-import { buildStopOrderPayload, stripEmptyEip712Salt } from 'components/StopOrder/utils'
+import {
+  buildStopOrderPayload,
+  getStopOrderServiceErrorMessage,
+  stripEmptyEip712Salt,
+} from 'components/StopOrder/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
@@ -50,6 +54,8 @@ export const useCreateStopOrder = ({
   const tracking = useStopOrderTracking()
 
   const [fee, setFee] = useState<StopOrderFee | undefined>()
+  // Why the last estimate failed, for the review to show beside the missing fee.
+  const [feeError, setFeeError] = useState<string | undefined>()
 
   const [estimateFee, { isLoading: isEstimatingFee }] = useEstimateStopOrderFeeMutation()
   const [getSignMessage] = useGetStopOrderSignMessageMutation()
@@ -162,26 +168,37 @@ export const useCreateStopOrder = ({
 
   /**
    * The protocol fee has to be known before signing, because the cap is signed into the intent and
-   * the BE doc requires it to be at least the live fee.
+   * the BE doc requires it to be at least the live fee. Throws when the service cannot estimate it.
    */
-  const refreshFee = useCallback(async () => {
+  const estimateLatestFee = useCallback(async () => {
     const payload = buildPayload(DEFAULT_MAX_FEES_PERCENTAGE)
     if (!payload) return undefined
+    const result = await estimateFee(payload).unwrap()
+    setFee(result)
+    setFeeError(undefined)
+    return result
+  }, [buildPayload, estimateFee])
+
+  /** For the review: a failed estimate leaves no fee, and the reason to show in its place. */
+  const refreshFee = useCallback(async () => {
+    setFeeError(undefined)
     try {
-      const result = await estimateFee(payload).unwrap()
-      setFee(result)
-      return result
+      return await estimateLatestFee()
     } catch (error) {
       setFee(undefined)
+      setFeeError(getStopOrderServiceErrorMessage(error) ?? t`The fee could not be estimated. Please try again.`)
       return undefined
     }
-  }, [buildPayload, estimateFee])
+  }, [estimateLatestFee])
 
   const submit = useCallback(async () => {
     if (!account || !currencyIn || !currencyOut) return false
 
-    const latestFee = (await refreshFee()) ?? fee
-    const protocolPercentage = latestFee?.protocol?.percentage ?? 0
+    // Re-estimated rather than taken from the review, and never signed without: a failure throws, so
+    // the processing modal reports why instead of the order carrying a cap set against no fee at all.
+    const latestFee = await estimateLatestFee()
+    if (!latestFee) return false
+    const protocolPercentage = latestFee.protocol?.percentage ?? 0
     // Keep the cap at or above the live fee, whichever is larger.
     const maxFeesPercentage = DEFAULT_MAX_FEES_PERCENTAGE.map(value => Math.max(value, protocolPercentage))
 
@@ -224,13 +241,12 @@ export const useCreateStopOrder = ({
     chainId,
     currencyIn,
     currencyOut,
-    fee,
     inputAmount,
     triggerPrice,
     slippage,
     expiredAt,
     buildPayload,
-    refreshFee,
+    estimateLatestFee,
     getSignMessage,
     submitOrder,
     notify,
@@ -240,6 +256,7 @@ export const useCreateStopOrder = ({
 
   return {
     fee,
+    feeError,
     isEstimatingFee,
     refreshFee,
     insufficientBalance,

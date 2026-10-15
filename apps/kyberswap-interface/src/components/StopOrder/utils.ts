@@ -16,6 +16,7 @@ import { isSupportedChainId } from 'constants/networks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { isAddress } from 'utils/address'
 import { formatDisplayNumber } from 'utils/numbers'
+import { capitalizeFirstLetter } from 'utils/string'
 
 /** The service rejects any deadline past 2100-01-01, so an "expires never" choice lands here instead. */
 export const MAX_STOP_ORDER_DEADLINE = 4102444800
@@ -363,6 +364,21 @@ export const parseRawAmount = (raw?: string): bigint => {
  */
 export const hasReservedBalanceShortfall = (remainingBalance: bigint, reserved: bigint): boolean =>
   reserved > 0n && remainingBalance < reserved
+
+/**
+ * The reason the service gave for refusing a request, readable as is. A domain refusal wraps it as
+ * `DOMAIN ERROR: {…, RootCause: <reason>}`, and only the reason is meant for the user — e.g. "slippage
+ * must exceed the maximum fees charged on tokenOut: … needs more than 539 bps". Undefined for anything
+ * that is not a service refusal, such as a network failure or a wallet error.
+ */
+export const getStopOrderServiceErrorMessage = (error: unknown): string | undefined => {
+  const data = error && typeof error === 'object' && 'data' in error ? (error as { data: unknown }).data : undefined
+  const message =
+    data && typeof data === 'object' && 'message' in data ? (data as { message: unknown }).message : undefined
+  if (typeof message !== 'string' || !message.trim()) return undefined
+  const reason = /RootCause: (.+?)\}?$/s.exec(message.trim())?.[1] ?? message
+  return capitalizeFirstLetter(reason.trim())
+}
 
 /** The warnings the service attached that carry something to show; the rest are nothing to read out. */
 export const getStopOrderWarnings = (order: StopOrder): StopOrderWarning[] =>

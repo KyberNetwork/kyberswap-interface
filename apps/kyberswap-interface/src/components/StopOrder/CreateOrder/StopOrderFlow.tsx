@@ -1,11 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
 import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
 import {
+  ProcessingStepFailure,
   ProcessingStepStatus,
   useProcessingState,
   useProcessingSteps,
@@ -13,9 +14,11 @@ import {
 import StopOrderConfirmModal from 'components/StopOrder/CreateOrder/StopOrderConfirmModal'
 import { useCreateStopOrder } from 'components/StopOrder/CreateOrder/useCreateStopOrder'
 import { StopOrderWarning } from 'components/StopOrder/Form/useStopOrderWarnings'
+import { getStopOrderServiceErrorMessage } from 'components/StopOrder/utils'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { currencyId } from 'utils/currencyId'
+import { friendlyError } from 'utils/errorMessage'
 
 type Props = {
   isOpen: boolean
@@ -34,6 +37,19 @@ type Props = {
   onDismiss: () => void
   onResetForm?: () => void
   createOrder: ReturnType<typeof useCreateStopOrder>
+}
+
+/**
+ * Why a step failed, in words the user can act on. The service's own reason comes first — it names the
+ * field it refused, such as a slippage below the fees or a balance already committed — and a refusal in
+ * the wallet needs no explanation at all.
+ */
+const getStepErrorMessage = (failure: ProcessingStepFailure): string | undefined => {
+  if (failure.reason === 'rejected' || failure.error === undefined) return undefined
+  const serviceMessage = getStopOrderServiceErrorMessage(failure.error)
+  if (serviceMessage) return serviceMessage
+  if (failure.error instanceof Error || typeof failure.error === 'string') return friendlyError(failure.error)
+  return t`Something went wrong. Please try again.`
 }
 
 const StopOrderFlow = ({
@@ -55,8 +71,10 @@ const StopOrderFlow = ({
 }: Props) => {
   const navigate = useNavigate()
   const processingState = useProcessingState<ProcessingOrderStep>()
+  // The modal shows it only while a step is marked failed, so a retry hides it and a new failure replaces it.
+  const [stepError, setStepError] = useState<string | undefined>()
 
-  const { fee, isEstimatingFee, refreshFee, needsWrap } = createOrder
+  const { fee, feeError, isEstimatingFee, refreshFee, needsWrap } = createOrder
 
   // The fee decides the cap carried in the signed intent, so it is fetched as soon as review opens.
   useEffect(() => {
@@ -72,6 +90,7 @@ const StopOrderFlow = ({
     wrapStep: 'wrap',
     ...createOrder.processing,
     onStart: onDismiss,
+    onStepFailed: (_step, failure) => setStepError(getStepErrorMessage(failure)),
   })
 
   const limitOrderStepLabel = getLimitOrderStepLabel({ chainId, currencyIn })
@@ -106,7 +125,9 @@ const StopOrderFlow = ({
         slippage={slippage}
         expiredAt={expiredAt}
         fee={fee}
+        feeError={feeError}
         isFeeLoading={isEstimatingFee}
+        onRetryFee={refreshFee}
         notionalUsd={notionalUsd}
         needsWrap={needsWrap}
         warnings={warnings}
@@ -119,6 +140,7 @@ const StopOrderFlow = ({
         processing={processing}
         title={t`Processing Stop Order`}
         getStepLabel={getStepLabel}
+        errorMessage={stepError}
         successAction={{ label: <Trans>View order</Trans>, onClick: viewOrders }}
       />
     </>

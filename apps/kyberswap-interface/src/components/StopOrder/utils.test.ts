@@ -20,6 +20,7 @@ import {
   getStopOrderPairKey,
   getStopOrderRecreateDraft,
   getStopOrderSellAmountUsd,
+  getStopOrderServiceErrorMessage,
   getStopOrderWarnings,
   getTriggerProximity,
   hasReservedBalanceShortfall,
@@ -335,6 +336,37 @@ describe('hasReservedBalanceShortfall', () => {
   it('is never short when nothing is claimed', () => {
     expect(hasReservedBalanceShortfall(0n, 0n)).toBe(false)
     expect(hasReservedBalanceShortfall(-5n, 0n)).toBe(false)
+  })
+})
+
+describe('getStopOrderServiceErrorMessage', () => {
+  it('reads the root cause out of a domain refusal', () => {
+    const error = {
+      status: 400,
+      data: {
+        code: 4004,
+        message:
+          'DOMAIN ERROR: {Code: DOMAIN:INVALID, Message: Domain error: Input is invalid , ErrorEntities: [slippage], RootCause: slippage must exceed the maximum fees charged on tokenOut: slippage 2 bps, needs more than 539 bps (protocol fee 2.5 + gas headroom 536.5)}',
+        errorEntities: ['slippage'],
+      },
+    }
+    expect(getStopOrderServiceErrorMessage(error)).toBe(
+      'Slippage must exceed the maximum fees charged on tokenOut: slippage 2 bps, needs more than 539 bps (protocol fee 2.5 + gas headroom 536.5)',
+    )
+  })
+
+  it('passes a plain refusal through', () => {
+    const error = { status: 400, data: { code: 4004, message: 'Input is invalid: deadline' } }
+    expect(getStopOrderServiceErrorMessage(error)).toBe('Input is invalid: deadline')
+  })
+
+  it('has nothing to say about errors that are not a service refusal', () => {
+    expect(getStopOrderServiceErrorMessage(new Error('User rejected the request.'))).toBeUndefined()
+    expect(
+      getStopOrderServiceErrorMessage({ status: 'FETCH_ERROR', error: 'TypeError: Failed to fetch' }),
+    ).toBeUndefined()
+    expect(getStopOrderServiceErrorMessage({ status: 500, data: '<html>' })).toBeUndefined()
+    expect(getStopOrderServiceErrorMessage(undefined)).toBeUndefined()
   })
 })
 
