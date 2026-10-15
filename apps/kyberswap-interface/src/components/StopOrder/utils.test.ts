@@ -23,6 +23,7 @@ import {
   getTriggerProximity,
   hasReservedBalanceShortfall,
   isActiveStopOrderStatus,
+  matchExpiryPreset,
   parseRawAmount,
   parseStopOrder,
   parseStopOrders,
@@ -552,32 +553,67 @@ describe('parseStopOrders', () => {
   })
 })
 
-describe('getStopOrderRecreateDraft', () => {
-  const DEFAULT_EXPIRE = 30 * 24 * 60 * 60
+describe('matchExpiryPreset', () => {
+  const DAY = 24 * 60 * 60
+  const PRESETS = [7 * DAY, 30 * DAY, 90 * DAY, 36500 * DAY]
 
-  it('carries the trigger price and slippage of the original order', () => {
-    expect(getStopOrderRecreateDraft(ORDER, DEFAULT_EXPIRE)).toMatchObject({ triggerPrice: '2400', slippage: 50 })
+  it('finds the preset a window trails by the time it took to review and sign', () => {
+    expect(matchExpiryPreset(7 * DAY - 12, PRESETS)).toBe(7 * DAY)
+    expect(matchExpiryPreset(30 * DAY - 15 * 60, PRESETS)).toBe(30 * DAY)
   })
 
-  it('carries expiry as the original duration, not its past deadline', () => {
-    // The fixture ran 1783258149 → 1783344543, i.e. one day.
-    expect(getStopOrderRecreateDraft(ORDER, DEFAULT_EXPIRE).expire).toBe(ORDER.deadline - ORDER.createdAt)
-    expect(getStopOrderRecreateDraft(ORDER, DEFAULT_EXPIRE).expire).toBe(86394)
+  it('finds none for a window the user picked as a custom date', () => {
+    expect(matchExpiryPreset(14 * DAY, PRESETS)).toBeUndefined()
+    expect(matchExpiryPreset(7 * DAY - 2 * 60 * 60, PRESETS)).toBeUndefined()
+  })
+})
+
+describe('getStopOrderRecreateDraft', () => {
+  const DAY = 24 * 60 * 60
+  const NOW = 1790000000000
+  const EXPIRY = { expiryPresets: [7 * DAY, 30 * DAY, 90 * DAY, 36500 * DAY], defaultExpire: 7 * DAY, now: NOW }
+
+  it('carries the trigger price and slippage of the original order', () => {
+    expect(getStopOrderRecreateDraft(ORDER, EXPIRY)).toMatchObject({ triggerPrice: '2400', slippage: 50 })
+  })
+
+  it('restores a window set from a preset as that preset', () => {
+    const weekLong = { ...ORDER, deadline: ORDER.createdAt + 7 * DAY - 12 }
+    expect(getStopOrderRecreateDraft(weekLong, EXPIRY)).toMatchObject({ expire: 7 * DAY, customDateExpire: undefined })
+  })
+
+  it('restores any other window as a custom date of the same length from now', () => {
+    const twoWeeks = { ...ORDER, deadline: ORDER.createdAt + 14 * DAY }
+    expect(getStopOrderRecreateDraft(twoWeeks, EXPIRY).customDateExpire).toBe(NOW + 14 * DAY * 1000)
+    // The fixture ran 1783258149 → 1783344543, i.e. one day less six seconds.
+    expect(getStopOrderRecreateDraft(ORDER, EXPIRY).customDateExpire).toBe(NOW + 86394 * 1000)
+  })
+
+  it('restores a deadline clamped to the service maximum as forever', () => {
+    const forever = { ...ORDER, deadline: MAX_STOP_ORDER_DEADLINE }
+    expect(getStopOrderRecreateDraft(forever, EXPIRY)).toMatchObject({
+      expire: 36500 * DAY,
+      customDateExpire: undefined,
+    })
   })
 
   it('falls back to the default when the recorded window is not a positive duration', () => {
     const sameInstant = { ...ORDER, deadline: ORDER.createdAt }
     const reversed = { ...ORDER, deadline: ORDER.createdAt - 1000 }
-    expect(getStopOrderRecreateDraft(sameInstant, DEFAULT_EXPIRE).expire).toBe(DEFAULT_EXPIRE)
-    expect(getStopOrderRecreateDraft(reversed, DEFAULT_EXPIRE).expire).toBe(DEFAULT_EXPIRE)
+    for (const order of [sameInstant, reversed]) {
+      expect(getStopOrderRecreateDraft(order, EXPIRY)).toMatchObject({
+        expire: EXPIRY.defaultExpire,
+        customDateExpire: undefined,
+      })
+    }
   })
 
   it("leaves the slippage unset when the order carries none, so the pair's suggestion applies", () => {
-    expect(getStopOrderRecreateDraft({ ...ORDER, slippage: 0 }, DEFAULT_EXPIRE).slippage).toBeUndefined()
+    expect(getStopOrderRecreateDraft({ ...ORDER, slippage: 0 }, EXPIRY).slippage).toBeUndefined()
   })
 
   it('yields an empty trigger when the condition is missing rather than throwing', () => {
     const noCondition = { ...ORDER, condition: undefined } as unknown as typeof ORDER
-    expect(getStopOrderRecreateDraft(noCondition, DEFAULT_EXPIRE).triggerPrice).toBe('')
+    expect(getStopOrderRecreateDraft(noCondition, EXPIRY).triggerPrice).toBe('')
   })
 })

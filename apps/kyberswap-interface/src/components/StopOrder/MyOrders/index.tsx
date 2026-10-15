@@ -17,7 +17,7 @@ import {
   StopOrderRowsSkeleton,
   StopOrderTabSelector,
 } from 'components/StopOrder/MyOrders/components'
-import { STOP_ORDER_DEFAULT_EXPIRE } from 'components/StopOrder/constants'
+import { STOP_ORDER_DEFAULT_EXPIRE, getStopOrderExpiryPresets } from 'components/StopOrder/constants'
 import { useStopOrderNotifications } from 'components/StopOrder/hooks/useStopOrderNotifications'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
 import { StopOrder, StopOrderStatus } from 'components/StopOrder/types'
@@ -192,9 +192,12 @@ const StopOrders = () => {
       setInputValue(sellAmount)
       dispatch(
         updateStopOrderForm({
-          ...getStopOrderRecreateDraft(order, STOP_ORDER_DEFAULT_EXPIRE),
-          // The staged expiry is a duration, so any custom date left over from a previous draft must go.
-          customDateExpire: undefined,
+          // Always sets `customDateExpire`, so a custom date left over from a previous draft never survives.
+          ...getStopOrderRecreateDraft(order, {
+            expiryPresets: getStopOrderExpiryPresets().map(preset => preset.value),
+            defaultExpire: STOP_ORDER_DEFAULT_EXPIRE,
+            now: Date.now(),
+          }),
         }),
       )
       navigate(`${APP_PATHS.STOP_ORDER}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${order.tokenOut}`)

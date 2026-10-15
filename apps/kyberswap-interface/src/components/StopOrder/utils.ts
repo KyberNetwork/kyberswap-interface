@@ -111,22 +111,48 @@ export const getStopOrderTriggerPrice = (order: StopOrder) => order.condition?.f
 export const getStopOrderExecutionTxHash = (order: StopOrder) => getLatestExecution(order)?.hash
 
 /**
+ * How far a recorded window may trail the preset it came from. `deadline` is fixed when the order goes
+ * to review and `createdAt` when the service stores it, so the window falls short of the preset by the
+ * time spent reviewing and signing.
+ */
+const PRESET_MATCH_TOLERANCE_SECONDS = 60 * 60
+
+/** The preset a recorded window was set from, if it is within the signing delay of one. */
+export const matchExpiryPreset = (duration: number, presets: number[]): number | undefined =>
+  presets.find(preset => Math.abs(preset - duration) <= PRESET_MATCH_TOLERANCE_SECONDS)
+
+/**
  * The card inputs that reproduce a past order.
  *
  * Expiry is carried as the original *duration*, not the original deadline: the deadline is a fixed
  * point in time, so an expired order would clone to one already past its deadline, and any other
- * closed order to a shorter window than the user originally chose.
+ * closed order to a shorter window than the user originally chose. A window that came from a preset is
+ * restored as that preset; any other is restored as a custom date the same length from `now`, since
+ * the custom-date modal reads a duration it does not recognise as an epoch timestamp. A deadline at
+ * the service maximum came from "Forever", the longest preset, which is clamped to it.
  */
 export const getStopOrderRecreateDraft = (
   order: StopOrder,
-  defaultExpire: number,
-): { triggerPrice: string; slippage: number | undefined; expire: number } => {
+  { expiryPresets, defaultExpire, now }: { expiryPresets: number[]; defaultExpire: number; now: number },
+): {
+  triggerPrice: string
+  slippage: number | undefined
+  expire: number
+  customDateExpire: number | undefined
+} => {
   const duration = order.deadline - order.createdAt
+  const isValidDuration = Number.isFinite(duration) && duration > 0
+  const preset = !isValidDuration
+    ? defaultExpire
+    : order.deadline >= MAX_STOP_ORDER_DEADLINE && expiryPresets.length > 0
+    ? Math.max(...expiryPresets)
+    : matchExpiryPreset(duration, expiryPresets)
   return {
     triggerPrice: getStopOrderTriggerPrice(order),
     // Without a usable figure the form falls back to the pair's suggested slippage.
     slippage: Number.isFinite(order.slippage) && order.slippage > 0 ? order.slippage : undefined,
-    expire: Number.isFinite(duration) && duration > 0 ? duration : defaultExpire,
+    expire: preset ?? defaultExpire,
+    customDateExpire: preset === undefined ? now + duration * 1000 : undefined,
   }
 }
 
