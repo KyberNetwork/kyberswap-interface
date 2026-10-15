@@ -17,7 +17,12 @@ import { formatDateTime } from 'utils/time'
 const PAGE_SIZE = 10
 
 const formatStatus = (status: string) => {
-  return status?.replace(/[-_]/g, ' ').replace(/\b\w/g, value => value.toUpperCase()) ?? '-'
+  return (
+    status
+      ?.trim()
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, value => value.toUpperCase()) || '—'
+  )
 }
 
 const statusClassNames: Record<string, string> = {
@@ -31,13 +36,15 @@ const statusClassName = (status: string) => statusClassNames[status] || 'text-su
 const DetailSection = ({ label, children }: PropsWithChildren<{ label: string }>) => (
   <Stack className="gap-1">
     <span className="text-xs font-medium uppercase text-primary">{label}</span>
-    <p className="whitespace-pre-line break-words text-sm text-subText">{children}</p>
+    <p className="whitespace-pre-line break-words text-sm text-subText">
+      {typeof children === 'string' ? children.trim() || '—' : children ?? '—'}
+    </p>
   </Stack>
 )
 
 const TxLink = ({ chainId, txHash }: { chainId: number; txHash?: string }) => {
   if (!txHash) {
-    return <span className="italic text-subText">(No transaction)</span>
+    return <span className="text-subText">—</span>
   }
 
   const displayHash = shortenHash(txHash, 4)
@@ -91,7 +98,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
           <span className={cn('shrink-0 rounded bg-primary-12 px-2 py-0.5 font-medium', statusClassName(row.status))}>
             {formatStatus(row.status)}
           </span>
-          <span className="min-w-0 flex-1 break-words font-medium text-text">{row.action}</span>
+          <span className="min-w-0 flex-1 break-words font-medium text-text">{row.action?.trim() || '—'}</span>
           <span className="shrink-0 text-xs max-lg:hidden">{formatDateTime(row.occurredAt)}</span>
           <span aria-hidden className="flex size-6 shrink-0 items-center justify-center text-text">
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}

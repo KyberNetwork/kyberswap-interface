@@ -5,11 +5,12 @@ import type { AgentProfile } from 'services/copyTrading/types/agents'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import LocalLoader from 'components/LocalLoader'
-import { Center, HStack, Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import { CopyDetailTabs } from 'pages/CopyTrading/CopyDetail/CopyDetailTabs'
 import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
 import CopySidePanel from 'pages/CopyTrading/CopyDetail/CopySidePanel'
+import CopyTimeline from 'pages/CopyTrading/CopyDetail/CopyTimeline'
 import { copyDetailResponsiveOrder } from 'pages/CopyTrading/CopyDetail/responsiveOrder'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { AgentIdentity, CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
@@ -34,12 +35,6 @@ import {
   signedUsd,
 } from 'pages/CopyTrading/helpers'
 import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
-import { formatDateTime } from 'utils/time'
-
-type CopyDetailContentProps = {
-  agent?: AgentProfile
-  run: CopyRunSummary
-}
 
 const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
   return [
@@ -72,7 +67,7 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
             {formatUsd(run.feeBreakdown?.feeChargedUsd)}
           </dd>
           <dt className="text-subText">Rebates</dt>
-          <dd className="m-0 text-right font-medium tabular-nums text-text">
+          <dd className="m-0 text-right font-medium tabular-nums text-blue">
             {formatUsd(run.feeBreakdown?.rebatesUsd)}
           </dd>
         </dl>
@@ -84,45 +79,14 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
 
 const CopyRunStats = ({ run }: { run: CopyRunSummary }) => <Leaderboard items={getCopyRunStats(run)} size="sm" />
 
-const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
-  return (
-    <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-sm:grid max-sm:grid-cols-2 max-sm:gap-x-4 max-sm:gap-y-0 max-sm:p-4">
-      <HStack className="items-center gap-5 max-sm:contents">
-        <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary max-sm:col-start-1 max-sm:row-start-1 max-sm:min-h-14 max-sm:px-4 max-sm:text-base">
-          Started Copy
-        </Center>
-        <Stack className="min-w-0 max-sm:col-start-2 max-sm:row-start-1 max-sm:justify-center">
-          <span className="text-sm text-subText max-sm:text-base">{formatDateTime(run.startedAt)}</span>
-          <span className="break-words text-lg font-medium text-text max-sm:text-base">
-            In: {formatUsd(run.capitalInUsd)}
-          </span>
-        </Stack>
-      </HStack>
-      <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-sm:hidden" />
-      <div className="col-start-1 row-start-2 my-2 hidden h-10 w-0.5 justify-self-center bg-gradient-to-b from-primary to-red max-sm:block" />
-      <HStack className="items-center justify-end gap-5 max-sm:contents">
-        <Stack className="min-w-0 items-end max-sm:col-start-2 max-sm:row-start-3 max-sm:items-start max-sm:justify-center">
-          <span className="text-right text-sm text-subText max-sm:text-left max-sm:text-base">
-            {formatDateTime(run.stoppedAt)}
-          </span>
-          <span className="break-words text-lg font-medium text-text max-sm:text-base">
-            Out: {formatUsd(run.capitalOutUsd)}
-          </span>
-        </Stack>
-        <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red max-sm:col-start-1 max-sm:row-start-3 max-sm:min-h-14 max-sm:px-4 max-sm:text-base">
-          {run.status === 'closed' ? 'Closed Copy' : 'Stopped Copy'}
-        </Center>
-      </HStack>
-    </HStack>
-  )
-}
-
-const CopyDetailContent = ({ agent, run }: CopyDetailContentProps) => {
+const CopyDetailContent = ({ agent, run }: { agent?: AgentProfile; run: CopyRunSummary }) => {
+  const { chains } = useCopyTradingContext()
+  const quoteTokenSymbol = chains.find(chain => chain.chainId === run.chainId)?.quoteToken?.symbol
   const isTerminal = run.status === 'stopped' || run.status === 'closed'
 
   return (
     <>
-      <CopyRunStats run={run} />
+      {!isTerminal && <CopyRunStats run={run} />}
 
       <ResponsiveDetailGrid>
         <ResponsiveDetailItem
@@ -132,10 +96,14 @@ const CopyDetailContent = ({ agent, run }: CopyDetailContentProps) => {
           {isTerminal ? (
             <Stack className="gap-4 max-xl:contents">
               <ResponsiveDetailItem className="max-xl:order-first">
-                <CopyTimeline run={run} />
+                <CopyTimeline run={run} quoteTokenSymbol={quoteTokenSymbol} />
               </ResponsiveDetailItem>
               <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.mainContent}>
-                <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
+                <CopyRunPerformance
+                  copyRunId={run.copyRunId}
+                  status={run.status}
+                  realizedPnlUsd={run.portfolioPnlUsd}
+                />
               </ResponsiveDetailItem>
             </Stack>
           ) : (

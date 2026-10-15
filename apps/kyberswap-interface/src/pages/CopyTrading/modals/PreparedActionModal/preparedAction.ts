@@ -178,11 +178,6 @@ export const formatPreparedRate = (
   return `1 ${inputToken.symbol} = ${formatDisplayNumber(rate, { significantDigits: 8 })} ${outputToken.symbol}`
 }
 
-/**
- * Converts the prepared-action em dash placeholder to the metric fallback used in review rows.
- */
-export const withMetricFallback = (value: string) => (value === '—' ? 'N/A' : value)
-
 export const formatWadPercent = (valueRaw?: string) => {
   if (!valueRaw || !/^\d+$/.test(valueRaw)) return '—'
   const percentage = Number(formatUnits(BigInt(valueRaw), 16))

@@ -1,4 +1,4 @@
-import type { AgentCard, AgentProfile, AgentStats, Chain, LeaderboardSummary, PerformancePoint } from './agents'
+import type { AgentCard, AgentProfile, AgentStats, Chain, LeaderboardSummary, PerformancePoint, Token } from './agents'
 import type {
   ActivityRow,
   CopyAccountSummary,
@@ -37,6 +37,7 @@ export type CopyRunPositionClosedExecutionsResponse = CursorResponse<ClosedPosit
 export type CopyRunPerformanceResponse = PerformanceResponse
 export type OwnerPositionsResponse = CursorResponse<PositionSummary>
 export type OwnerActivityResponse = CursorResponse<ActivityRow>
+export type CopyRunActivityTokensResponse = CursorResponse<Token>
 export type OwnerCopyAccountsResponse = CursorResponse<CopyAccountSummary>
 export type CopyAccountResponse = SingleResponse<CopyAccountSummary>
 export type CopyAccountBalancesResponse = CursorResponse<WalletBalanceRow> & {

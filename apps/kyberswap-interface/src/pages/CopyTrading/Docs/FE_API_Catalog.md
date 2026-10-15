@@ -5,9 +5,144 @@ API and internal admin tools with the VPN-only admin API. Use the endpoint
 reference for request fields, agent registry management, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: October 11, 2026.
+Last updated: October 14, 2026.
 
 ## Changelog
+
+### October 14, 2026: historical withdrawal settlement and token labels
+
+This entry describes [API PR #123](https://github.com/KyberNetwork/copy-trade-api/pull/123)
+at `9efb0ca5`, including the token-history label originally proposed in #127.
+It documents the reviewed response contract, not deployment confirmation.
+Regenerate clients from that contract before using the additive fields below.
+The existing read routes, withdrawal preparation requests, and action-status
+flow remain the integration points.
+
+Required frontend changes:
+
+1. Use run list/detail `capitalOutUsd` for **Capital Out**. A Closed run with
+   no remaining positions includes available quote, quote already withdrawn,
+   and settled token value. A stopped run with active positions includes only
+   withdrawn value, so Capital Out stays zero before any withdrawal. See
+   [Closed-run Amount Out](#closed-run-amount-out) for the state table and examples.
+2. When `capitalOutBreakdown` is present, show its independently qualified
+   `quoteUsd` and `tokensWithdrawnUsd` components. Without that object, keep
+   the single total. Missing token value must not become zero or a partial total.
+3. Use detail `portfolioPnlUsd` and list `netRealizedPnlUsd` for their respective
+   **Realised P&L** displays. Canonical token-withdrawal closures now contribute
+   alongside sales. A fully settled Closed run with zero remaining inventory has equal
+   Total and Realised P&L. The percentage Return chart remains a separate metric.
+4. Keep the historical table on `POSITION_VIEW_CLOSED`. Use
+   `exitKind = POSITION_EXIT_KIND_WITHDRAWAL_CLOSE` for a position closed by
+   withdrawal. Show its settlement price and `withdrawnBaseDecimal` with the
+   token as **Tokens settled**, rather than labeling that quantity USDC received.
+5. Independently show a **Tokens withdrawn** badge when `tokensWithdrawn === true`.
+   This also labels earlier sold positions sharing that token in the same run;
+   it does not change their sale price, proceeds, P&L, rebate, or exit kind.
+   Preserve optional `false` versus absent semantics.
+6. Refresh the affected run, positions, wallet, and realised chart after each
+   verified batch. Receipt success can precede settlement prices and accounting.
+   Render available quantities while USD fields are syncing, preserve returned
+   stale/provisional qualifiers, and remove values invalidated by a later response.
+
+See [Withdrawn positions and token-history labels](#withdrawn-positions-and-token-history-labels)
+for table-column rules and response fragments, and
+[Historical realised P&L](#historical-realised-pl) for charts, totals, and win rate.
+The first-Stop dollar-valuation guidance in older catalog entries applies only
+to residual positions without a canonical withdrawal closure; it does not
+override the new settlement-at-withdrawal contract.
+
+### October 13, 2026: copy-run log token filter
+
+This entry and the whitelist entry below describe the combined
+[API PR #128](https://github.com/KyberNetwork/copy-trade-api/pull/128).
+Update the generated client, agent-profile whitelist rendering, and copy-run
+log controls together. This documents the response contract; it does not
+confirm that a particular environment has deployed it.
+
+The copy-run log adds optional `tokenAddress`. Load the selector from
+`GET /users/{ownerAddress}/copy-runs/{copyRunId}/activity-tokens`, which returns
+paginated `Token[]` from visible history, including tokens outside the current
+whitelist.
+
+- Apply `tokenAddress` with `activitySurface=ACTIVITY_SURFACE_COPY_RUN_LOG` and
+  `copyRunId`; it intersects with `category`/`subtype`. Omit it for All tokens.
+  This filter is not available on Alert Feed or wallet history.
+- Selecting AERO includes its trades and linked fees/cashback, including
+  cashback paid in USDC. Keep each row's actual token and amount. A trade does
+  not match USDC merely because USDC was its quote token.
+- Fetch choices independently of log pages and action filters. Key them by
+  `(chainId, address)`, use available `Token` metadata, and fall back to an
+  abbreviated address when the symbol is missing. Do not restrict history
+  choices to the current whitelist or wallet inventory.
+- Token choices and logs have separate cursors. Reset log pagination when
+  changing a filter. Follow each endpoint's `hasMore`/`nextCursor`; on cursor
+  invalidation, reload its first page. Both use default limit 25, maximum 100.
+- HTTP 409 / gRPC `ABORTED` means the history changed during pagination;
+  discard that endpoint's accumulated pages and restart. A malformed, expired,
+  or mismatched cursor is HTTP 400 / `INVALID_ARGUMENT`. Do not retry an
+  unchanged rejected cursor.
+- Read `meta.fieldQualities` by `group`. `FIELD_GROUP_ACTIVITY` qualifies
+  history; `FIELD_GROUP_TOKEN_METADATA` qualifies token metadata. Partial
+  metadata does not remove known addresses. Current freshness does not prove
+  complete historical coverage or finality. Show pending/stale context, and
+  remove invalidated receipt previews when a correction is reported.
+- An empty filtered log is not an empty token list. Keep the selected token
+  and provide an empty-result state; clearing the selection restores All
+  tokens. The filter adds no execution amounts, trade IDs, or position IDs.
+- Token choices and filtered rows follow the public activity policy from
+  [API #130](https://github.com/KyberNetwork/copy-trade-api/pull/130), included
+  in the combined branch: meaningful skipped actions can appear without a
+  submitted transaction; proven routine no-ops and internal execution
+  transitions are omitted. Skipped rows omit follower transaction hashes and
+  execution internals. See [Skipped-trade links](#skipped-trade-links).
+
+See [Copy-run log token filtering](#copy-run-log-token-filtering) for matching,
+metadata quality, and pagination details.
+
+### October 13, 2026: whitelist token identities
+
+`GET /agents/{agentId}` replaces `whitelistedSymbols` with
+`whitelistedTokens[]`. This is a breaking response change: regenerate API
+clients and update whitelist rendering to use the existing `Token` object.
+These instructions describe the new contract, not a deployment confirmation.
+
+- Read `chainId`, `address`, and the available `symbol` from each entry. Key
+  tokens and build links using `(chainId, address)`; symbols are labels and can
+  repeat across different addresses. The list is unique, sorted by address,
+  and unpaginated. In HTTP JSON, `chainId` is a decimal string.
+- Use `name`, `decimals`, and `logoUrl` when present. They come from locally
+  available metadata. A missing or empty `symbol` does not remove the token;
+  show an abbreviated address as its label. Missing `decimals` is unknown,
+  while a present `0` means zero decimals. Do not substitute assumed decimals.
+- Follow `FIELD_GROUP_TRADE_TOKEN_CONFIGURATION` for the list's freshness and
+  completeness, and `FIELD_GROUP_TOKEN_METADATA` for label availability.
+  Missing metadata must not hide known token addresses. An empty or omitted
+  list with complete configuration evidence proves an empty snapshot; call
+  it currently empty only when that configuration is also current. A stale
+  snapshot needs a stale qualifier; unavailable configuration needs a
+  loading/retry state even if the profile request succeeds.
+- Metadata completeness does not guarantee a nonempty name or logo. Read
+  each field's presence. Metadata freshness can be unspecified while the
+  token identities remain usable.
+- These are tradable base tokens. Keep using `/chains[].quoteToken` for the
+  funding-token selector. The whitelist does not authorize an action; follow
+  action preparation as before.
+
+Example entry in `data.whitelistedTokens`:
+
+```json
+{
+  "chainId": "8453",
+  "address": "0x4200000000000000000000000000000000000006",
+  "symbol": "WETH",
+  "name": "Wrapped Ether",
+  "decimals": 18
+}
+```
+
+See [Whitelist tokens on agent profiles](#whitelist-tokens-on-agent-profiles)
+for the field contract, JSON examples, and the display-state table.
 
 ### October 11, 2026: compact public IDs and canonical position identity
 
@@ -268,10 +403,11 @@ the older rules.
    amounts from the row's `capital` detail when present. Keep raw amounts as
    strings and use token decimals and the USD metric's own status. See
    [Capital amounts in Alert Feed](#capital-amounts-in-alert-feed).
-3. Link skipped copy-run activity to its returned `positionId` when present,
-   independently of `txHash`. A skip without a submitted execution has no
-   follower transaction hash; a skipped buy need not have a follower position.
-   Both links remain optional. See [Skipped-trade links](#skipped-trade-links).
+3. Link skipped copy-run activity to its returned `positionId` when present.
+   A skipped buy need not have a follower position. The October 13 public
+   activity policy supersedes this entry's transaction-link behavior: skipped
+   rows now omit follower transaction hashes. See
+   [Skipped-trade links](#skipped-trade-links).
 4. Use `walletInventoryValueUsd` for **Remaining in Wallet** and
    `withdrawTokens.totalCurrentValueUsd` for **Est. USD from selected**. They
    sum available valuations; an unpriced token remains N/A without hiding the
@@ -623,9 +759,11 @@ This is source-contract verification, not a new deployment smoke test.
    withdrawal. Use the matching live preparation response for execution.
 4. Add the History row metrics and server-side sorts below. Don't reuse the
    detail rebate estimate for a History **Rebates received** column.
-5. Use server lifecycle/view membership after Stop or withdrawal. Full
-   withdrawal can close a run while its underlying positions remain open;
-   don't synthesize closed trades or reset Capital In.
+5. Use server lifecycle/view membership after Stop or withdrawal. A full
+   withdrawal proof can close a run while underlying position records remain open;
+   don't synthesize closed trades or reset Capital In. Canonical position
+   withdrawal closures now appear in `POSITION_VIEW_CLOSED`; see the
+   [October 14 update](#october-14-2026-historical-withdrawal-settlement-and-token-labels).
 6. Refresh detail, inventory, activity, lists/summaries, and visible performance
    after receipts. A receipt does not prove aggregate convergence. Restart a
    rejected cursor from page one after lifecycle/withdrawal evidence changes.
@@ -638,7 +776,7 @@ detail-only `CopyRunSummary.feeBreakdown` and `portfolioPnlUsd` fields.
 | History column | List field | `sortBy` |
 | --- | --- | --- |
 | Closed trades | `closedPositionCount` (existing) | `OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES` |
-| Realized P&L | `netRealizedPnlUsd` — closed-position-only net realized P&L | `OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL` |
+| Realized P&L | `netRealizedPnlUsd` — the run's published net realized P&L; see [Historical realised P&L](#historical-realised-pl) for detail/list scope | `OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL` |
 | Fee paid | `feeChargedUsd` — upfront flat fees across the run | `OWNER_COPY_RUN_SORT_FIELD_FEE_PAID` |
 | Rebates received | `rebatesUsd` — actual closed-position rebates, not pending estimates | `OWNER_COPY_RUN_SORT_FIELD_REBATES` |
 
@@ -660,15 +798,19 @@ The zero observation is at a canonical covered block at or after Stop, not
 necessarily the withdrawal transaction's block. Ordinary subsequent feed
 progress or a later direct deposit does not reopen the run. A reorg or late
 fact that invalidates its closure evidence can return it to Closing. Position
-lifecycle and raw quantities remain independent and are not rewritten.
+lifecycle and raw quantities remain independent: a wallet proof alone does not
+rewrite them. When canonical position-withdrawal evidence exists, it supplies
+the position's closed state and settlement quantities. Otherwise, residual
+position records can remain open under the historical first-Stop fallback.
 
 - Capital In remains gross opening/deposit/top-up contributions; withdrawals
   no longer subtract from it. Continue using `capitalInProjectionStatus` and
   the metric status while corrected values publish.
-- For withdrawn unsold holdings, copy-run Total P&L and Return use historical
-  valuation at the first Stop once the corresponding chart generation is
-  published. Later live prices do not change that historical endpoint.
-  Dollar P&L can be available while Return lacks capital-denominator evidence.
+- The first-Stop valuation below describes the legacy residual-holding path.
+  Under PR #123, canonical withdrawal closures contribute their withdrawal-time
+  settlements to dollar Total and Realised P&L. The separate percentage Return
+  chart retains its first-Stop policy. See
+  [Historical realised P&L](#historical-realised-pl).
 - Residual follower `positionPnlUsd` similarly uses canonical state and a
   historical mark at the first Stop, excluding later trades and estimated
   rebates. Price corrections can revise it; live price changes cannot.
@@ -707,10 +849,10 @@ Invalid/unavailable optional action-advisory evidence degrades that field group
 instead of failing the independent base row. Preserve the row and use the
 returned advisory status for controls. No new recovery-specific enum is added.
 
-Agent `whitelistedSymbols` now reads the applied aggregate trade-token
-configuration. A proven empty configuration is a valid empty list; missing
-symbol metadata degrades labels separately. No new FE endpoint or fallback to
-an operator request is required. This supersedes the older staged-import notes.
+The original `whitelistedSymbols` change is superseded by the October 13
+`whitelistedTokens` contract. Use the configured token identities and separate
+configuration/metadata quality rules under
+[Whitelist tokens on agent profiles](#whitelist-tokens-on-agent-profiles).
 
 ### 2026-08-28 — Post-redesign availability hardening
 
@@ -1287,11 +1429,13 @@ Status: merged backend/API contract; no frontend implementation was performed.
   newly confirmed allocation.
 - Adds field-quality groups for agent trade-token configuration, token
   metadata, and external enrichment. The staged Stage 1a target evaluates
-  `GetAgent.whitelistedSymbols` as a versioned chain/leader configuration
-  snapshot plus independently resolved token-symbol metadata; a proven empty
+  the then-existing `GetAgent.whitelistedSymbols` as a versioned chain/leader
+  configuration snapshot plus independently resolved token-symbol metadata; a proven empty
   configuration is complete, while unresolved symbols degrade only the
   token-metadata group. The staged request-time source described by this old
   release has since been replaced by the applied aggregate configuration.
+  The October 13 contract also removes `whitelistedSymbols`; use
+  `data.whitelistedTokens` and the current profile guidance below.
 - Keeps allocation semantics deliberately asymmetric by scope. This entry's
   temporary run-level `observedCapitalInUsd` overlay is superseded by the
   2026-08-26 contract and is now removed and reserved. Use canonical
@@ -1332,13 +1476,12 @@ Frontend migration:
 6. Remove references to execution-activity `token`, `displayAmountRaw`, and
    `valueUsd` when regenerating clients. Position, capital, and fee activity
    details retain their own source-proven token and value fields.
-7. After the target environment activates the Stage 1a group, render
-   `GetAgent.whitelistedSymbols` when the trade-token configuration group is
-   complete. If the token-metadata group is partial or pending, keep the
-   configured address set/source identity visible where the design supports
-   it, but degrade unresolved labels/symbols instead of hiding the whole
-   profile. Before activation, follow that environment's existing generated
-   contract rather than inferring readiness from this catalog.
+7. This release's whitelist field is superseded by `data.whitelistedTokens`.
+   Follow the current
+   [profile contract](#whitelist-tokens-on-agent-profiles): preserve known
+   identities when metadata is partial or pending, and qualify the list using
+   configuration freshness and completeness. Do not integrate the removed
+   `whitelistedSymbols` field from this historical entry.
 
 ### 2026-08-20 — Withdraw Quote at any copy lifecycle stage
 
@@ -1716,7 +1859,7 @@ tab, chart, drawer, or drilldown is opened.
 | History — stopped-run summary         | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_HISTORY`                               | None                                                                                                                         | None                                                                                                               |
 | History — stopped-run list            | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY`                                  | Load the next cursor page; use History column sorts                                                                          | Prepare Withdraw Quote or Withdraw Tokens according to the matching advisory                                       |
 | History — all closed positions/trades | `GET /users/{ownerAddress}/positions?view=POSITION_VIEW_CLOSED`                                     | Filter by agent/chain, paginate, or group rows by `copyRunId`                                                                | None for an already closed position                                                                                |
-| History — selected stopped run        | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions` | Choose `POSITION_VIEW_CLOSED` only for closed trades; load performance, cashback policy, and activity as needed | Prepare Withdraw Quote or Withdraw Tokens only when advertised; historical-generation rows remain non-actionable |
+| History — selected stopped run        | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions` | Use `POSITION_VIEW_CLOSED` for sold and withdrawal-closed positions; load performance, cashback policy, and activity as needed | Prepare Withdraw Quote or Withdraw Tokens only when advertised; historical-generation rows remain non-actionable |
 | Copy-run detail                       | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions`                           | `GET .../performance`; `GET .../cashback-policy` when fee/cashback detail is visible; owner activity filtered by `copyRunId` | Prepare Add Capital, Stop Copy, Withdraw Quote, Withdraw Tokens, Manual Sell, or Close Position as applicable |
 | All owner positions                   | `GET /users/{ownerAddress}/positions`                                                               | Filter by agent, chain, view, or sort; load the next cursor page                                                             | Prepare Manual Sell or Close Position when advertised                                                              |
 | Leftover positions                    | Owner or copy-run positions with `view=POSITION_VIEW_LEFTOVER`                                      | Copy-account drilldown and pending-sell obligations                                                                          | Manual Sell or Close Position when advertised                                                                      |
@@ -1734,8 +1877,9 @@ tab, chart, drawer, or drilldown is opened.
 Copy-run lifecycle and position lifecycle are independent:
 
 - `OWNER_COPY_VIEW_HISTORY` returns terminal copy runs. A stopped run can have
-  zero closed positions. A fully withdrawn run can enter History while its
-  underlying position records remain open; withdrawal is not a sale.
+  zero closed positions. A fully withdrawn run can enter History while
+  underlying position records remain open; use the returned position lifecycle.
+  Withdrawal closure belongs in closed-position history but is not a sale.
 - `POSITION_VIEW_CLOSED` returns closed positions. A still-active copy run can
   already contain many closed positions.
 
@@ -1932,6 +2076,11 @@ Default-valued JSON fields may be omitted. In particular:
 - `pagination.nextCursor` can be omitted when there is no next page.
 - Optional metric values are omitted when unavailable.
 
+Optional booleans preserve presence: `PositionSummary.tokensWithdrawn: false`
+means no withdrawal evidence is recorded in that snapshot, while an absent
+field is inapplicable or unknown. Do not normalize this optional field with
+`?? false`; show the badge only for literal `true`.
+
 POST responses use `{ "data": ... }` without `meta` or cursor pagination.
 Prepared actions carry their own `preparedAt`, `reprepareAfter`, and
 `evidence`.
@@ -2075,8 +2224,10 @@ ROI (%) = lifetime Total P&L / cumulative deposits × 100
 
 For copy-run list and detail responses, the numerator is `totalPnlUsd` in the
 same response, including marked open positions. The denominator is its
-canonical `capitalInUsd`. Both P&L and ROI respond to a live price refresh;
-there is no wait for a historical chart point or midnight refresh.
+canonical `capitalInUsd`. The currently held open-position component responds
+to live price refreshes without waiting for a historical chart point or
+midnight refresh. A settled withdrawal instead retains its historical boundary
+value; later live prices do not change that contribution to P&L or ROI.
 
 Cumulative deposits include opening allocation, deposits, and top-ups.
 Withdrawals do not reduce this denominator. It is not
@@ -2343,8 +2494,9 @@ invalidate an existing cursor:
 - changing performance series/window/interval;
 - changing the action-log time range, leader-position filter, action `type`, or `groupBy`.
 
-`limit` controls page size and is not part of the logical result identity, but
-the safest client behavior is to keep it stable through one sequence.
+Keep `limit` stable through one sequence. Owner activity and copy-run
+activity-token cursors bind the effective page size; changing it requires a
+new first page. Omission and `0` both select the default `25`.
 
 ### Stable ordering
 
@@ -2358,6 +2510,7 @@ the safest client behavior is to keep it stable through one sequence.
 | Open copy runs                        | `startedAt` descending unless explicitly changed                                                                                                   |
 | History copy runs                     | `stoppedAt` descending when `sortBy` is omitted                                                                                                    |
 | Owner activity / copy-account history | `occurredAt` descending, then `activityId` descending                                                                                              |
+| Copy-run activity token choices | Canonical token address ascending; unique by `(chainId, address)` |
 | Owner copy accounts                   | Chain and copy-account ascending                                                                                                                   |
 | Pending sell obligations              | Operator-authoritative FIFO order; never re-sort client-side                                                                                       |
 
@@ -2442,6 +2595,7 @@ Exit kind, when known:
 ```text
 POSITION_EXIT_KIND_ALIGNED
 POSITION_EXIT_KIND_MANUAL
+POSITION_EXIT_KIND_WITHDRAWAL_CLOSE
 ```
 
 Available recovery actions:
@@ -2680,7 +2834,7 @@ Identify the token by `(chainId, address)`. If only display metadata is missing,
 show the address and use the returned decimals. Missing metadata does not make
 the funding token unavailable. If `quoteToken` is unexpectedly absent, show a retryable
 token-information message; do not assume a token or decimals. A valid preparation
-response remains another source of token information. `whitelistedSymbols`
+response remains another source of token information. `whitelistedTokens`
 describes tradable base tokens and must not populate the funding-token selector.
 
 Use exact decimal arithmetic to produce `targetCapitalRaw` or `amountRaw`:
@@ -2895,28 +3049,121 @@ Agent-route behavior:
 
 Key `AgentProfile` additions over a card:
 
-- `bio`, `liveSince`, `whitelistedSymbols`, `tags`
+- `bio`, `liveSince`, `whitelistedTokens`, `tags`
 - `strategyExecutionItems`
 
-`whitelistedSymbols` is a display view over the operator-owned current
-trade-token configuration for the agent's `(chainId, leaderAddress)`. Treat the
-configuration source and the token metadata used to label it as separate
-quality dimensions:
+#### Whitelist tokens on agent profiles
 
-- `FIELD_GROUP_TRADE_TOKEN_CONFIGURATION` describes whether the configured
-  address snapshot is proven complete, pending, or unavailable.
-- `FIELD_GROUP_TOKEN_METADATA` describes symbol/name/decimals resolution for
-  those addresses and for other token-bearing fields.
-- A proven empty configuration is a complete empty list, not a loading error.
-- Missing token metadata should degrade labels or valuation groups only; it
-  should not hide unrelated profile identity, metrics, or lifecycle fields.
+Read `GET /agents/{agentId}` → `data.whitelistedTokens[]`. This is the
+configured tradable base-token snapshot for that agent's chain and leader.
+Its quality determines whether it is current, stale, pending, or unavailable.
+The profile list is unpaginated and has no separate whitelist endpoint.
 
-The current public API reads the applied local aggregate configuration, not a
-request-time operator lookup. A registered leader with zero tradable tokens is
-an explicit empty configuration; a deleted leader is absent from the next
-completed target. Partial/not-ready imports do not authorize deletion. Follow
-the returned trade-token and metadata quality groups; don't infer a new client
-field, tombstone object, or a complete empty list from unavailable evidence.
+`whitelistedSymbols` is removed. Regenerate clients and replace any rendering,
+selection, cache keys, and explorer links that used symbols as identities.
+There is no parallel symbol-only field to fall back to in the new contract.
+This change is on `AgentProfile`, not an additional whitelist on every
+`AgentCard`, copy-run card, or position response.
+
+Both the profile whitelist and the historical activity-token endpoint reuse
+the existing `Token` object:
+
+| Field | HTTP JSON type and presence | UI use |
+| --- | --- | --- |
+| `chainId` | Decimal string, for example `"8453"` | Chain component of token identity. Match it to the surrounding agent/run chain; do not compare by symbol across chains. |
+| `address` | Lowercase `0x` plus 40 hexadecimal characters | Address component of identity; use for token filters, copy-address controls, and chain-specific explorer links. |
+| `symbol` | String; may be empty or omitted | Display label only. Fall back to an abbreviated address; keep the full address accessible. |
+| `name` | String; may be empty or omitted | Optional secondary label. An empty name does not invalidate the token. |
+| `decimals` | Optional JSON integer | Distinguish absence from a present `0`. Use a presence check, not a truthiness check. If absent, do not guess decimals or format an amount from raw units. |
+| `logoUrl` | String; may be empty or omitted | Optional icon. Use the normal placeholder when absent or the image fails to load. |
+
+Entries are unique and sorted by address, not symbol. Use
+`(chainId, address)` as the stable key. Two entries with the same symbol are
+different tokens if their addresses differ. Metadata can change while the
+identity stays the same; update the label without losing a selection.
+
+The following is an illustrative **profile response excerpt**. Other profile
+and metadata fields are omitted. The addresses and labels are examples, not
+defaults to hard-code:
+
+```json
+{
+  "data": {
+    "chainId": "8453",
+    "whitelistedTokens": [
+      {
+        "chainId": "8453",
+        "address": "0x1111111111111111111111111111111111111111",
+        "symbol": "TOKEN",
+        "name": "Example Token",
+        "decimals": 18
+      },
+      {
+        "chainId": "8453",
+        "address": "0x2222222222222222222222222222222222222222",
+        "symbol": "TOKEN",
+        "decimals": 0
+      },
+      {
+        "chainId": "8453",
+        "address": "0x3333333333333333333333333333333333333333"
+      }
+    ]
+  },
+  "meta": {
+    "fieldQualities": [
+      {
+        "group": "FIELD_GROUP_TRADE_TOKEN_CONFIGURATION",
+        "freshness": "DATA_STATUS_CURRENT",
+        "completeness": "DATA_COMPLETENESS_COMPLETE"
+      },
+      {
+        "group": "FIELD_GROUP_TOKEN_METADATA",
+        "completeness": "DATA_COMPLETENESS_PARTIAL",
+        "reason": "DATA_QUALITY_REASON_DEPENDENCY_PENDING"
+      }
+    ]
+  }
+}
+```
+
+Render all three identities. The second token has known zero decimals; the
+third has unknown decimals and an address label. Do not collapse the two
+`TOKEN` entries or remove the third entry.
+
+Treat configuration and metadata as separate quality dimensions. Find each
+`meta.fieldQualities[]` entry by `group`, not array position:
+
+| Response condition | UI behavior |
+| --- | --- |
+| Configuration is `DATA_STATUS_CURRENT` and `DATA_COMPLETENESS_COMPLETE` | Show the complete current configured snapshot. An empty or omitted list represents a current empty snapshot. |
+| Configuration is `DATA_STATUS_STALE` with a retained complete snapshot | Show the last-known list with a stale/updating qualifier. An empty list proves that retained snapshot was empty, not that the current configuration is empty. Refresh normally. |
+| Configuration is unavailable, pending, or unspecified | Use a loading/retry or unavailable state for the whitelist. Do not turn an empty/omitted array into “No configured tokens,” and do not treat a returned partial list as complete. |
+| Metadata is `DATA_COMPLETENESS_PARTIAL` | Keep known identities and render each available field. Use address labels for missing symbols and preserve unknown decimals. |
+| Metadata is `DATA_COMPLETENESS_PENDING` | Metadata is not ready; retain proven configuration identities and show available labels or address fallbacks. This does not make unrelated profile fields unavailable. |
+| Metadata is `DATA_COMPLETENESS_COMPLETE` | Use returned fields, but still check optional strings individually. Completeness does not promise a nonempty name or logo URL. |
+| Metadata freshness is `DATA_STATUS_UNSPECIFIED` or omitted | No metadata freshness claim was supplied. It is not a reason to hide known token identities or require another token lookup before rendering. |
+
+HTTP success and overall `meta.status` do not prove configuration readiness.
+The profile can remain usable while this one field group is unavailable. An
+empty repeated field may be omitted in JSON; normalize it to `[]` for
+iteration only after reading the response quality. That normalization is not
+evidence of an empty configuration.
+
+Use the correct token source for each UI control:
+
+| UI control | API source |
+| --- | --- |
+| Agent profile's configured tradable tokens | `/agents/{agentId}` → `data.whitelistedTokens` |
+| Copy-run action-log token filter | `/users/{ownerAddress}/copy-runs/{copyRunId}/activity-tokens` |
+| Start Copy / Add Capital funding token | `/chains` → the matching chain's `quoteToken` |
+
+The historical selector can contain tokens absent from the current whitelist;
+the whitelist can contain tokens never represented in that run's history.
+Neither list is wallet inventory, a token-price response, nor permission to
+submit a transaction. Continue using the existing action preparation flow.
+
+#### Other agent and position fields
 
 `strategyExecutionItems[]` has `label` and `description` and is intended for
 the “Strategy & Execution” section of the profile. It is configured display
@@ -2943,6 +3190,8 @@ Key follower `PositionSummary` fields:
   `token`
 - lifecycle: `lifecycle`, `quantityState`, `exitKind`, `openedAt`, `closedAt`
 - amount: `remainingBaseRaw` and optional gross/net accounting fields
+- withdrawal history: optional `tokensWithdrawn`; for a withdrawal closure,
+  `withdrawnBaseRaw` and status-bearing `withdrawnBaseDecimal`
 - value: `entryValuation`, `currentValuation`, `exitValuation`
 - metrics: `positionPnlUsd`, `estimatedClosePnlUsd`, realized/unrealized PnL,
   fees, cashback, skip counts, and ratios
@@ -2953,6 +3202,8 @@ Position rendering rules:
 - Use `displayBaseRaw` when present for the main human-facing base amount;
   otherwise use the product-specific gross/net fields deliberately. Do not
   assume `remainingBaseRaw` and `remainingNetBaseRaw` are interchangeable.
+  For a withdrawal closure's **Tokens settled** cell, use `withdrawnBaseDecimal`
+  instead; a zero remaining balance is not the amount withdrawn.
 - `isLeftover` and `leftoverReason` are explicit stopped-run residue state.
 - Use `durationSeconds`/`durationAsOf` rather than recomputing a changing
   duration from browser time.
@@ -3025,7 +3276,7 @@ strings and each metric's `status` and `asOf`.
 | --- | --- | --- |
 | Whole-trade **Position P&L** | `positionPnlUsd` | P&L for one follower position since its opening buy, including previous partial sales and the current remaining value. Includes actual fees and received cashback; excludes estimated cashback. This is not the copy-run total. |
 | Stop modal **Est. P&L on closing** | `estimatedClosePnlUsd` | Estimated net proceeds from selling the remaining tokens at the current mark, less their remaining assigned cost. Includes estimated cashback and protocol fees; excludes earlier realized P&L, gas, price impact, and slippage. |
-| **Realized P&L** | `realizedPnlUsd` | Actual net P&L from completed sales. Do not add fees or received cashback again. |
+| **Realized P&L** | `realizedPnlUsd` | Settled net P&L from sales plus any canonical token-withdrawal closure at its historical settlement value. Do not add fees or received cashback again. |
 | **Unrealized P&L** | `unrealizedPnlUsd` | Price movement on the unsold net tokens against the entry price. It is not the fee-adjusted closing estimate. |
 | **Net fees to date** | `netFeeCostUsd` | Upfront fee value captured at entry minus cashback actually received over this position's lifetime. It is not the fee for selling only the remaining tokens. |
 | **Estimated remaining rebate** | `estimatedCashbackUsd` | Estimated cashback from a future sale of the unsold inventory, already included in `estimatedClosePnlUsd`. |
@@ -3076,9 +3327,11 @@ again. With no received cashback, `netFeeCostUsd` can correctly equal
 `flatFeeCapturedUsd` even when estimated cashback is positive. Preserve signed
 values; do not clamp a negative net fee or P&L to zero.
 
-Closed positions use their returned canonical realized P&L. A residual position
-after full withdrawal can instead carry a historical Stop-boundary P&L; use
-that returned value rather than revaluing it from today's zero wallet balance.
+Closed positions use their returned settled realized P&L. For
+`POSITION_EXIT_KIND_WITHDRAWAL_CLOSE`, this includes the withdrawn quantity
+valued at its own withdrawal boundary. A residual position without that
+canonical closure can instead carry a historical first-Stop P&L; use the
+returned value rather than revaluing it from today's zero wallet balance.
 The closing estimate is not applicable once the position is closed or fully
 withdrawn.
 
@@ -3116,9 +3369,11 @@ Use the existing valuation objects on both `AgentPositionSummary` and follower
 | Current market price | `currentValuation.priceUsd` | Independent current mark; it does not replace either execution price. |
 
 There are no new top-level `entryPriceUsd` or `exitPriceUsd` fields. Execution
-prices are materialized in the backend and can be corrected by background
-replay. Available execution valuations use `priceSource: "operator_execution"`;
-their timestamps describe execution evidence, not the time the page was loaded.
+prices can be corrected by historical evidence. Available buy/sell execution
+valuations use `priceSource: "operator_execution"`; their timestamps describe
+execution evidence, not the time the page was loaded. A follower withdrawal
+closure instead uses the historical mark described in
+[Withdrawal settlement prices](#withdrawal-settlement-prices).
 Keep rendering their individual statuses while retained data catches up.
 
 Amounts are normalized using each token's decimals before calculating ratios:
@@ -3135,10 +3390,174 @@ Amounts are normalized using each token's decimals before calculating ratios:
   exit price; it does not mix gross and net events in one ratio.
 
 Render the backend result rather than implementing those ratios in the UI.
-`exitValuation.valueUsd` still represents actual net quote received, while its
-unit price can use gross execution amounts. Fees, actual rebates, realized P&L,
+For a sell exit, `exitValuation.valueUsd` represents actual net quote received,
+while its unit price can use gross execution amounts. Fees, actual rebates, realized P&L,
 and received quantities retain their existing accounting. Do not reconstruct
 P&L from the corrected entry/exit prices or subtract fees a second time.
+
+#### Withdrawn positions and token-history labels
+
+For the selected historical run's **Closed Positions** table, request:
+
+```http
+GET /users/{ownerAddress}/copy-runs/{copyRunId}/positions?view=POSITION_VIEW_CLOSED
+```
+
+The same follower `PositionSummary` fields are available on the existing
+owner-wide and copy-account position lists. They are not additions to the
+leader-side `AgentPositionSummary`. Keep rows keyed by `positionId`; do not
+collapse several trades into one row because they share a token.
+
+Two independent fields answer different questions:
+
+| Field | Meaning | UI behavior |
+| --- | --- | --- |
+| `exitKind = POSITION_EXIT_KIND_WITHDRAWAL_CLOSE` | This position's remaining tracked inventory closed through a canonical token withdrawal. | Show the withdrawal-close reason, settlement price, and **Tokens settled** quantity. It is not a sale. |
+| `tokensWithdrawn = true` | This base token has recorded withdrawal evidence in this copy run. It applies to every closed position sharing that token, including earlier sold positions. | Show a **Tokens withdrawn** badge (or a **Withdrawn** tag with that explanation). Preserve the row's original exit kind and accounting. |
+| `tokensWithdrawn = false` | No qualifying withdrawal is recorded in the response's current snapshot. | Hide the badge. Do not infer the wallet still holds the token or that no external withdrawal ever happened. |
+| `tokensWithdrawn` absent | Inapplicable, unavailable, or invalidated evidence; an older deployment can also lack the additive field. | Hide the badge without converting absence to a negative fact. Follow lifecycle field-group quality. |
+
+Match the token by chain and address within the same `copyRunId`, not by symbol
+or owner alone. Use the returned flag on each row; do not propagate a badge from
+another run or deduce it from a receipt's token list. Only tokens with evidence
+in completed batches qualify. `hasMoreTokens`, Stop success, a prepared call,
+and a zero wallet balance are not substitutes for `tokensWithdrawn`.
+
+The flag applies to nonquote base tokens; quote withdrawal is not a token-history
+badge for every position. The flag records history, so a later deposit does not
+erase it and it does not promise that the wallet is still empty. If all positions
+for a token were sold before an external withdrawal, that withdrawal may have no position-close
+event. The label then requires receipt verification through the app's existing
+action-status flow. Treat `false` as snapshot evidence, not an exhaustive
+wallet transaction history.
+
+The flag does not change position membership or sorting. There is no new
+`tokensWithdrawn` filter or sort parameter. Continue cursor pagination normally;
+each page has its own returned evidence and quality. Refresh visible pages after
+a withdrawal or correction, and restart from page one when a cursor is rejected.
+
+Use these column rules for an actual withdrawal closure:
+
+| Column or detail | Field / rendering |
+| --- | --- |
+| Status/tag | `lifecycle`, `quantityState`, and `exitKind` describe closure. Use `tokensWithdrawn` separately for token history. |
+| Closed price | `exitValuation.priceUsd`, with the valuation's own `DATA_STATUS_*`; this is a historical settlement mark. |
+| Settled token value | `exitValuation.valueUsd`; it is the USD value of the remaining tokens attributed to this withdrawal, not USDC paid to the owner. |
+| Received / quantity column | Label the withdrawal cell **Tokens settled** and show `withdrawnBaseDecimal.value` with `token.symbol` or an address fallback. Do not label it USDC received. |
+| Exact settled quantity | Optional `withdrawnBaseRaw`, in `token.decimals` units. Keep it as a string or use arbitrary-precision arithmetic; do not convert it to a JavaScript `number`. |
+| Position P&L | `positionPnlUsd`; on the settled closed position this includes earlier sales plus withdrawal settlement, with actual fee/rebate economics already counted. |
+| Realised P&L detail | `realizedPnlUsd`, using its independent metric status. Do not calculate another value from exit price and entry price. |
+| Rebate on the withdrawal closure | `$0`: withdrawing tokens does not earn cashback. A separate lifetime **Received rebate** remains `cashbackReceivedUsd`, which can be positive from earlier partial sells. |
+| Prior sale proceeds | `totalQuoteReceivedRaw`, `totalQuoteReceivedDecimal`, and `totalQuoteReceivedValueUsd` still describe actual sales. Do not add token settlement into these quote fields. |
+| Prior sell details | Existing `closedExecutionPage` / closed-executions endpoint; withdrawal creates no synthetic sell execution. An empty sell history can be valid. |
+| Closed time and duration | Returned `closedAt`, `durationSeconds`, and `durationAsOf`. A later withdrawal batch can close the position after the run's first `stoppedAt`. |
+| Closing transaction link | Use `latestTxHash` when supplied. For a withdrawal-closed position it is the closing withdrawal transaction; the badge alone does not replace an earlier sold row's transaction link. |
+
+For a sold row with `tokensWithdrawn: true`, keep its sell price, quote-received
+cell, received rebate, timestamps, and P&L. Do not replace them with another
+position's withdrawal quantity or zero its rebate. The label alone never
+authorizes `withdrawnBaseRaw`/`withdrawnBaseDecimal` on that sold position.
+
+The settlement quantity is the position's tracked **net** base quantity at
+withdrawal. It excludes unrelated deposits, detached wallet dust, and inventory
+without a position. Transfer-tax and rebasing tokens can also make exact wallet
+receipts differ. Use **Tokens settled** for this field; use verified receipt
+effects for the actual transaction movement. Do not divide a receipt amount
+among positions or sum mixed-token quantities.
+
+Illustrative field fragment for a withdrawal-only position: 2 TKN settle at
+$2.785 each, producing $5.57 of settlement value. This is a read response
+fragment, not a transaction receipt or a complete API response.
+
+```json
+{
+  "lifecycle": "POSITION_LIFECYCLE_CLOSED",
+  "quantityState": "POSITION_QUANTITY_STATE_CLOSED",
+  "exitKind": "POSITION_EXIT_KIND_WITHDRAWAL_CLOSE",
+  "tokensWithdrawn": true,
+  "token": {
+    "chainId": "8453",
+    "address": "0x1111111111111111111111111111111111111111",
+    "symbol": "TKN",
+    "decimals": 6
+  },
+  "withdrawnBaseRaw": "2000000",
+  "withdrawnBaseDecimal": {
+    "value": "2",
+    "status": "METRIC_STATUS_CURRENT"
+  },
+  "exitValuation": {
+    "priceUsd": "2.785",
+    "valueUsd": "5.57",
+    "priceSource": "kd_api",
+    "isEstimated": true,
+    "isFinal": true,
+    "status": "DATA_STATUS_CURRENT"
+  }
+}
+```
+
+Illustrative fragment for an earlier sold position in the same run: keep its
+sale values and add only the token-history badge.
+
+```json
+{
+  "lifecycle": "POSITION_LIFECYCLE_CLOSED",
+  "exitKind": "POSITION_EXIT_KIND_ALIGNED",
+  "tokensWithdrawn": true,
+  "totalQuoteReceivedDecimal": {
+    "value": "12",
+    "status": "METRIC_STATUS_CURRENT"
+  },
+  "cashbackReceivedUsd": {
+    "value": "0.2",
+    "status": "METRIC_STATUS_CURRENT"
+  }
+}
+```
+
+`withdrawnBaseDecimal` and settlement USD/P&L fields have independent
+availability. A missing historical price can leave the settled token quantity
+available while the exit valuation and P&L are unavailable. A missing token
+decimal or invalidated quantity must not be replaced by `remainingBaseRaw`,
+`displayBaseRaw`, an old cache value, or a calculation from the wallet receipt.
+Honor the decimal metric status even when a raw quantity is present.
+
+An ordinary pending withdrawal does not invent a badge or settled quantity.
+Previously verified history can remain visible with stale/pending qualifiers.
+Re-evaluate the flag on every response: a correction can change `true` to
+`false`, while repair or unavailable identity can omit it. Either removes the
+old badge. When a quantity is omitted or invalidated, remove its old value too.
+Read `meta.fieldQualities` by `group`:
+`FIELD_GROUP_LIFECYCLE` qualifies lifecycle and the token-history label;
+`FIELD_GROUP_PERFORMANCE` qualifies settlement quantities and P&L;
+`FIELD_GROUP_VALUATION` qualifies valuations; and `FIELD_GROUP_FEES` qualifies
+actual fees and rebates. Use each metric or valuation's own status as well.
+Do not hide ready entry, fee, or quantity data merely because withdrawal
+valuation is pending.
+
+#### Withdrawal settlement prices
+
+A withdrawal-close price is a historical KD market-data mark, returned as
+`exitValuation.priceSource: "kd_api"` when available. It is not a router sale
+price or a current wallet price. The server selects the latest eligible
+**completed five-minute historical mark** at or before the withdrawal event,
+using the chain's configured quote/reference pair. Each later withdrawal batch
+has its own boundary, even when the run stopped in an earlier transaction.
+
+For example, a withdrawal at 10:07 UTC can use the completed 10:00–10:05 mark;
+it cannot use the still-in-progress 10:05–10:10 mark. A valid older observation
+can be returned as stale within the server's configured maximum age. Missing,
+future, invalid, or over-age prices remain unavailable. Let the response decide
+availability rather than applying a frontend age cutoff or querying a live
+price provider to fill the gap.
+
+Preserve `priceAsOf`, `asOf`, `status`, `isEstimated`, and `isFinal` when supplied.
+A terminal historical valuation can be both estimated and final: it values a
+withdrawal rather than proving execution of a sale. It is still correctable by
+canonical historical evidence or a reorg. Later live price changes alone do
+not revalue the settled withdrawal. Do not overwrite its closed price with the
+first-Stop mark, today's price, or a sibling position's sell price.
 
 #### Estimated and received rebates
 
@@ -3151,6 +3570,10 @@ Follower position rows expose separate status-bearing metrics:
 
 On a closed position, the remaining estimate is
 `METRIC_STATUS_NOT_APPLICABLE`; use `cashbackReceivedUsd` for the actual rebate.
+For `POSITION_EXIT_KIND_WITHDRAWAL_CLOSE`, the withdrawal action itself earns
+zero rebate, but lifetime `cashbackReceivedUsd` still retains earlier sell
+rebates. A sold row carrying only the `tokensWithdrawn` history badge keeps its
+original sale rebate. See the [withdrawal column rules](#withdrawn-positions-and-token-history-labels).
 Do not carry the last open-position estimate forward as a settled amount or
 sum it into the received field. A valid zero estimate is different from
 `METRIC_STATUS_UNAVAILABLE`; display stale estimates with a stale indication.
@@ -3187,7 +3610,8 @@ provenance is unknown; `agentSnapshot` does not supply a replacement generation.
 | GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}/closed-executions` | `cursor?`, `limit?`                                                                                         | `ClosedExecution[]`     |
 | GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/performance`                              | `series?`, `window?`, `interval?`, `cursor?`, `limit?`                                                      | `PerformancePoint[]`    |
 | GET    | `/users/{ownerAddress}/positions`                                                      | `agentId?`, `chainId?`, `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`                               | `PositionSummary[]`     |
-| GET    | `/users/{ownerAddress}/activity`                                                       | `activitySurface?`, `copyRunId?`, `chainId?`, `type?`, `group?`, `cursor?`, `limit?`                        | `ActivityRow[]`         |
+| GET    | `/users/{ownerAddress}/activity`                                                       | `activitySurface?`, `copyRunId?`, `chainId?`, `type?`, `group?`, `category?`, `subtype?`, `tokenAddress?`, `cursor?`, `limit?` | `ActivityRow[]` |
+| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/activity-tokens` | `cursor?`, `limit?` | `Token[]` |
 | GET    | `/users/{ownerAddress}/copy-accounts`                                                  | `chainId?`, `status?`, `cursor?`, `limit?`                                                                  | `CopyAccountSummary[]`  |
 
 Owner copy-run sort fields:
@@ -3280,6 +3704,8 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
   run's classified closed follower positions. Wins form the numerator;
   wins, losses, and break-even positions form the denominator. Use the metric
   status when the denominator is unavailable or no positions are classified.
+  Withdrawal closures are excluded from trade outcomes even though their
+  settled P&L contributes to the run's realised P&L.
 - capital, portfolio-value, P&L, position-count, and ROI metrics
 - `currentBalanceUsd`, for History account value and Open/Closing portfolio
   value when current. Stale, expired, or incomplete inputs make this metric
@@ -3290,17 +3716,23 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
   metric status
 - `totalPnlUsd` is realized plus unrealized P&L; fees and rebates are already
   included in the net execution economics. Don't subtract Net Fees again.
-  After a proven in-kind withdrawal, Total P&L uses the historical valuation
-  at the first Stop, once that chart generation is published; it does not
-  follow later live prices for the withdrawn holdings.
+  Canonical withdrawal closures contribute their own historical settlement
+  values, including withdrawals after the first Stop; later live prices do
+  not revalue those holdings. A wallet zero-balance proof alone cannot supply
+  missing position settlement.
   `totalPnlPct` uses the same cash-flow-neutral time-weighted-return semantics
-  as the cumulative-total-PnL chart. Don't recompute either metric in the
-  client.
+  as the cumulative-total-PnL chart and retains its separate first-Stop policy.
+  See [Historical realised P&L](#historical-realised-pl); don't recompute these
+  metrics in the client.
 - `capitalInUsd`, cumulative opening allocation, deposits, and top-ups.
-- `capitalOutUsd`, the **Amount Out** display. Under PR #102, a proven closed
-  run can include quote still held before withdrawal. See
-  [Closed-run Amount Out](#closed-run-amount-out). Do not subtract it from
-  Capital In to derive the ROI denominator.
+- `capitalOutUsd`, the **Capital Out / Amount Out** display, including settled
+  position token withdrawals under the state rules below.
+- optional `capitalOutBreakdown`, with `quoteUsd` and `tokensWithdrawnUsd`
+  metrics for a run with canonical position-withdrawal history or safe full
+  in-kind withdrawal evidence. It can be present while settlement is pending.
+  Both list and detail expose it; it is not an `OwnerCopySummary` field. See
+  [Closed-run Amount Out](#closed-run-amount-out). Do not subtract Capital Out
+  from Capital In to derive the ROI denominator.
 - `capitalInProjectionStatus`. `READY` means `capitalInUsd` represents the
   completed generation. `SYNCING` can carry a server-published `CURRENT`
   provisional candidate or a prior same-identity `STALE` value. Render using
@@ -3322,14 +3754,17 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
 
 - `portfolioPnlUsd`, the closed-position-only Portfolio P&L headline. Partial
   realized P&L from positions that remain open stays in charts and ROI inputs.
+  The historical detail screen's **Realised P&L** uses this field, including
+  sold and canonically withdrawal-closed positions.
 - `feeBreakdown.feeChargedUsd`, `feeBreakdown.rebatesUsd`, and
   `feeBreakdown.netFeesUsd`. Use `FIELD_GROUP_FEES` for the breakdown's group
   quality and each metric's own status for rendering.
 
 `CopyRunListItem` omits `portfolioPnlUsd` and `feeBreakdown`. Fetch
 `GetOwnerCopyRun` when the selected-run screen needs them. The list instead
-adds `netRealizedPnlUsd` (closed-position-only), `feeChargedUsd` (upfront fees),
-and `rebatesUsd` (actual closed-position rebates). Render their own statuses;
+adds `netRealizedPnlUsd` (published net realized P&L, including withdrawal
+settlements), `feeChargedUsd` (upfront fees), and `rebatesUsd` (actual
+closed-position rebates). Render their own statuses;
 list `rebatesUsd` is not the detail breakdown's actual-plus-estimated value.
 Both shapes remove
 and reserve `realizedPnlUsd`, `flatFeesCapturedUsd`, `cashbackReceivedUsd`,
@@ -3345,28 +3780,205 @@ cannot establish the new action's adoption.
 
 #### Closed-run Amount Out
 
-Under PR #102, both `CopyRunListItem.capitalOutUsd` and
-`CopyRunSummary.capitalOutUsd` include quote still held when the server proves
-the run is `COPY_RUN_STATUS_CLOSED`, has zero open and leftover positions, and
-has no in-kind withdrawal. The backend derives this amount from canonical
-deposits plus finalized net realized P&L, covering closure. Other runs continue
-to expose recorded withdrawals and returned capital.
+Render both `CopyRunListItem.capitalOutUsd` and
+`CopyRunSummary.capitalOutUsd` directly. The metric is the run's **Capital Out**
+display, not a transaction receipt or the wallet's current balance.
 
-Render the metric when `CURRENT` or `STALE`, preserving its qualifier. Closure
-alone does not guarantee a numeric value: missing or invalidated accounting
-can still make Amount Out unavailable. Do not calculate it from wallet balances
-or add a withdrawal to the returned value.
+| Returned run state and evidence | Capital Out meaning |
+| --- | --- |
+| `COPY_RUN_STATUS_CLOSED`, with known zero open and leftover positions and complete accounting | Quote still available + quote already withdrawn + settled value of position tokens withdrawn. |
+| Stopped/Closing run that still has active positions | Quote already withdrawn/returned + settled value of position tokens withdrawn. Available quote still in the account is excluded. With no withdrawals, the proven total is zero. |
+| Active run | Recorded withdrawn/returned value. Do not count available quote as Capital Out before closure. |
+| Closure, quantity, capital, or required settlement evidence is incomplete or invalidated | Follow the metric's unavailable/stale/pending state. Status `CLOSED` or a zero wallet observation alone does not authorize a final numeric total. |
 
-For example, a quote-only run with $10 deposited and net realized P&L of
--$2.677224 shows Amount Out of $7.322776 before withdrawal. Withdrawing $3 and
-then the remaining quote does not increase that Amount Out. These are display
-semantics, not proof that any funds reached the owner's wallet.
+The Closed rule applies whether a covered Stop/withdrawal moves the run directly
+from Active to Closed or the run passes through Stopped/Closing first while
+positions sell or are withdrawn. An active run does not close merely because
+it currently has no positions. The Capital Out rule is not conditional on the
+previous UI state. A run with no positions has no token settlement component.
+A run with only sold positions and no token-withdrawal context likewise keeps the
+quote-only display. Follow the returned breakdown rather than inferring its
+presence from counts.
 
-After an action, refresh the copy-run response for its Amount Out card.
-`actions:status` returns `data.display.capitalOutUsd` from actual canonical
-withdrawals, so it can differ from the closed-run card. Keep it associated with
-the submitted action rather than overwriting the card with it. Continue using
-receipt/status evidence to determine whether a withdrawal completed.
+The quote outcome includes quote still held and quote already withdrawn, so
+withdrawing that remaining quote does not subtract it from or add it again to
+Capital Out. The server uses canonical quote contributions and actual trade
+quote flow; it does not derive quote inventory from realised P&L or a live wallet
+request. Do not calculate `capitalInUsd + portfolioPnlUsd`, sum position pages,
+or copy the wallet-inventory total into the card. Direct deposits, wallet
+dust, and position cost attribution can make those scopes differ.
+
+Examples assume all required values are available and no unrelated balance or
+accounting changes occur:
+
+| Situation | Capital Out | Split |
+| --- | --- | --- |
+| After Stop: Active → Closed, no position ever opened, $20 quote still available | $20 | No token breakdown. |
+| Closed, sold positions only, $14.61 quote available and no earlier withdrawals | $14.61 | No token breakdown. |
+| Stopped/Closing with active positions, $14.61 available quote, nothing withdrawn | $0 | No token breakdown. |
+| Stopped/Closing with other positions still active, $14.61 available quote and $5.57 of tracked tokens already settled by withdrawal | $5.57 | Quote $0; tokens withdrawn $5.57. |
+| Closed with no remaining positions, $14.61 available quote and $5.57 settled tokens | $20.18 | Quote $14.61; tokens withdrawn $5.57. |
+| Same Closed run after withdrawing the remaining $14.61 quote | Still $20.18 | Quote still $14.61, now already withdrawn; tokens still $5.57. |
+
+Show the optional split only when `capitalOutBreakdown` is present:
+
+| Field | UI mapping |
+| --- | --- |
+| `capitalOutUsd` | Headline **Capital Out** or **Out**. Use the returned total, not a client sum. |
+| `capitalOutBreakdown.quoteUsd` | Quote component; label it with the configured quote token, such as **USDC**. On the Closed/no-remaining-position path, it includes both held and already withdrawn quote. On other paths, it includes withdrawn/returned quote only. Do not label it universally **USDC withdrawn**. |
+| `capitalOutBreakdown.tokensWithdrawnUsd` | **Tokens withdrawn** at their historical settlement values. These are position-attributed tokens, not every transfer out of the wallet. |
+
+Quote-only withdrawal does not create this breakdown by itself. A safe full
+in-kind withdrawal proof can make the breakdown present while canonical
+position closure is still missing; the token component and final
+settlement-dependent totals then remain unavailable. A present object is not proof that all prices
+or settlements are complete. A token-history badge on
+an earlier sold position also does not by itself imply a token settlement
+amount or a breakdown: that badge can come from withdrawal of wallet inventory
+which has no remaining tracked position. Use object presence, not
+`tokensWithdrawn`, `hasMoreTokens`, a nonzero amount, or a local receipt flag, to
+decide whether to show the split.
+
+Illustrative Closed-run response fragment, before or after withdrawing its
+remaining quote:
+
+```json
+{
+  "status": "COPY_RUN_STATUS_CLOSED",
+  "capitalOutUsd": {
+    "value": "20.18",
+    "status": "METRIC_STATUS_CURRENT"
+  },
+  "capitalOutBreakdown": {
+    "quoteUsd": {
+      "value": "14.61",
+      "status": "METRIC_STATUS_CURRENT"
+    },
+    "tokensWithdrawnUsd": {
+      "value": "5.57",
+      "status": "METRIC_STATUS_CURRENT"
+    }
+  }
+}
+```
+
+If token pricing is pending, the independently known quote component can still
+render while the token component and combined headline remain unavailable:
+
+```json
+{
+  "capitalOutUsd": { "status": "METRIC_STATUS_UNAVAILABLE" },
+  "capitalOutBreakdown": {
+    "quoteUsd": {
+      "value": "14.61",
+      "status": "METRIC_STATUS_CURRENT"
+    },
+    "tokensWithdrawnUsd": { "status": "METRIC_STATUS_UNAVAILABLE" }
+  }
+}
+```
+
+Do not display $14.61 as the total in that second example. A returned `"0"`
+with a renderable status is a real zero; absence or `UNAVAILABLE` is not.
+Render `STALE` components and totals with their qualifiers and `asOf`. A safe
+prior total can remain stale during an ordinary pending update, but a reorg or
+identity correction can revoke it. Do not retain a browser-cached numeric value
+when the latest response omits or invalidates it. Components can recover at
+different times; one available child does not make the total available.
+Use `FIELD_GROUP_CAPITAL` for the breakdown's response quality and each
+component's own metric status for the number. Pending settlement can qualify
+the token component even while the quote component remains usable. A pending
+first withdrawal does not authorize the UI to construct a missing breakdown.
+
+After an action, refresh the copy-run response for its Capital Out card.
+`actions:status.data.display.capitalOutUsd` describes the action-status cash
+withdrawal total; it does not include the card's held-quote outcome or supply a
+historical token settlement. Keep it associated with the submitted action
+rather than overwriting the card. A nonquote-only batch can succeed without
+that display metric and later increase the run's Capital Out through token
+settlement. Never add the receipt amount again to either returned total.
+
+#### Historical realised P&L
+
+Use the fields for their intended scopes:
+
+| Screen value | Response field / endpoint | Scope |
+| --- | --- | --- |
+| Run-detail **Realised P&L** | `CopyRunSummary.portfolioPnlUsd` | Closed follower positions, including sales and canonical token-withdrawal closures. |
+| History-card **Realised P&L** | `CopyRunListItem.netRealizedPnlUsd` | The run's published net realised P&L, including withdrawal settlement. Detail does not expose this list-only field. Do not assume it is interchangeable with the closed-position-only detail headline while positions remain open. |
+| Run **Total P&L** | `totalPnlUsd` | Realised plus applicable unrealised P&L, with each withdrawal closure valued at its settlement boundary. |
+| Closed-position **P&L** | `PositionSummary.positionPnlUsd` / `realizedPnlUsd` | That position's net settlement, including prior partial sales and the terminal withdrawal. |
+| **Cumulative Realised P&L** chart | Run `/performance` with `series=PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL`; render `PerformancePoint.valueUsd` | Realised events over time, including withdrawal batches after the first Stop. |
+| **ROI** | `roiPct` | Displayed Total P&L over gross contributions; withdrawals do not reduce its denominator. |
+| **Total Return** percentage | `totalPnlPct`, or `valuePct` on the cumulative-total-PnL series | Separate cash-flow-neutral time-weighted return. It retains the applied first-Stop valuation policy and is not the realised USD chart or simple ROI. |
+
+For a canonical withdrawal closure, the accounting meaning is:
+
+```text
+withdrawal settlement value = tracked net tokens settled × historical withdrawal mark
+position realised P&L = earlier net quote received + withdrawal settlement value − original quote spent
+```
+
+The server calculates these values. Prior partial-sale proceeds, actual fees,
+and received rebates are already included exactly once. Do not add cashback,
+subtract Net Fees again, or add the entire Capital Out to position P&L. Token
+settlement contributes value but creates no USDC receipt, sell execution, or
+trade volume. Withdrawal closures stay excluded from trade win/loss counts and
+`copyRunWinRatePct`; their gain/loss is not classified as a winning, losing, or
+break-even sale. A sold position with a token-history badge retains its original
+trade outcome. Do not derive the win-rate denominator from the number of rows
+in the closed-position table.
+
+For a fully settled `COPY_RUN_STATUS_CLOSED` run with zero remaining inventory,
+**Total P&L equals Realised P&L**. This is a backend accounting invariant once
+the required settlement is available, not a frontend fallback formula. Never
+copy one metric into the other to hide missing data, differences in freshness,
+or an update still in progress. A run with no positions can have a nonzero quote
+Capital Out and zero P&L. A stopped run with active positions can have different
+Total and Realised P&L because inventory remains; earlier partial sales on open
+positions also stay outside the closed-position-only headline.
+
+Choose the realised series explicitly; the performance endpoint defaults to
+the cumulative-total-PnL series. For example:
+
+```http
+GET /users/{ownerAddress}/copy-runs/{copyRunId}/performance?series=PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL&window=WINDOW_ALL&interval=PERFORMANCE_INTERVAL_WEEK
+```
+
+Use the existing [supported window/interval combinations](#performance-selections)
+and cursor pagination. Render returned point timestamps and values; do not
+truncate the realised chart at `stoppedAt` or insert a point from a receipt.
+Each withdrawal's gain or loss belongs to its own settlement boundary, while
+the run's first Stop still owns `stoppedAt` and run duration. A selected chart
+window, incomplete page set, open-position partial sale, or stale point can
+have a different scope from the lifetime closed-position headline; do not sum
+loaded points or position pages to replace the run metric. Use the run detail
+field for the sidebar's lifetime Realised P&L.
+
+Settled withdrawals do not follow later live prices. Historical price
+corrections or a reorg can revise a closed run's realised values and chart;
+Closed does not mean the client should permanently cache its financial fields.
+The separate first-Stop Return chart can differ from the later withdrawal-based
+dollar settlement, especially across multiple batches. Preserve each field's
+status rather than forcing equality between a chart endpoint and an unrelated
+metric.
+
+This also applies to `valueUsd` points on the existing
+`PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL` series: that series retains its
+first-Stop endpoint and need not end at the run card's later withdrawal-settled
+`totalPnlUsd`. Use `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` for the new
+historical realised chart; do not relabel the default series or extend it with
+client-calculated withdrawal points.
+
+Run closure, token receipt verification, settlement pricing, and financial
+publication can become available independently. In particular, a full-wallet
+zero proof can place the run in History without canonical position settlement.
+It does not guarantee every residual position will acquire a withdrawal-close
+event; keep the returned position lifecycle and historical fallback where
+applicable. Show available quantities while affected
+P&L and Capital Out show syncing/unavailable state. Do not fabricate zero token
+value to satisfy the closed-run equality. An independently available quote,
+entry price, fee, or settled quantity remains useful.
 
 #### History after Stop or withdrawal
 
@@ -3382,6 +3994,27 @@ returned Stop progress for its exits.
 
 Financial fields such as Total Return can remain unavailable after the run
 appears in History. Render each available metric independently.
+
+For token withdrawal, refresh these visible resources after each verified batch:
+
+1. Run detail and list/summary for lifecycle, Capital Out and its optional
+   breakdown, Total P&L, and the appropriate realised headline.
+2. The run's position list, including the Closed view and any loaded sell
+   detail, for withdrawal closure, `tokensWithdrawn`, settled quantity, price,
+   and P&L. Earlier sold rows for the same token can gain or lose the badge too.
+3. The cumulative realised `/performance` series. Later batches can add
+   realised points after `stoppedAt`; don't freeze the chart when Stop succeeds.
+4. Wallet inventory and the existing activity feed for actual remaining
+   balances and verified movements. The Capital Out breakdown does not prove
+   an empty wallet, and a settled quantity is not a wallet balance.
+
+Refresh only visible resources and invalidate hidden cached views for their
+next use. Coalesce requests as usual. The receipt result can render before
+prices and totals converge; there is no fixed wait after which the client may
+invent settlement. Use `meta.pendingActions`, matching field-group
+completeness/finality, and the returned metric statuses to show **Syncing**.
+An HTTP-successful read may still carry unavailable fields. Don't replay a
+transaction or keep the wallet dialog blocked because its accounting is late.
 
 #### Account-effective cashback policy
 
@@ -3485,7 +4118,7 @@ The detail variant has this shape:
 | `position`      | Open/close/reduce position     | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback                                                                                                               |
 | `capital`       | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric                                                                                                                                            |
 | `fee`           | Flat fee/cashback              | Exact raw amount, token, USD metric                                                                                                                                                            |
-| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline; optional `baseTokenAddress`, `quoteTokenAddress`, `baseToken`, and `quoteToken` for token identity. Skipped execution details expose token identity but no attempted or executed amount fields; never infer follower amounts from leader amounts. |
+| `execution`     | Meaningful skipped outcome | Bounded `publicErrorMessage` and optional `baseTokenAddress`, `quoteTokenAddress`, `baseToken`, and `quoteToken`. Skipped rows omit execution/action IDs and statuses, diagnostic codes, configuration constraints, transaction hashes, and attempted/executed amounts. Internal exit/execution transitions are not public history rows. |
 
 The top-level `summary` is display text. Business logic should switch on the
 typed `type` and oneof detail, not parse the summary.
@@ -3495,6 +4128,238 @@ per exact `type`, product `group`, or activity surface. Render capital actions
 distinctly. The public copy-run log and alert-feed surfaces normalize returned
 capital to Capital withdrawn; do not show a separate Capital returned type on
 those surfaces.
+
+#### Copy-run log token filtering
+
+Use two separate reads: one for the selector's token choices and one for the
+filtered log. This is a **single-token** filter on copy-run logs. Alert Feed,
+owner-wide activity without a copy run, and copy-account wallet history do
+not support this filter. It does not add a multi-token or symbol-search query.
+
+##### Load historical token choices
+
+```text
+GET /api/v1/users/{ownerAddress}/copy-runs/{copyRunId}/activity-tokens?limit=25
+```
+
+| Input | Contract |
+| --- | --- |
+| `ownerAddress` | Required path value: the copy run's historical creation-wallet scope. Use the same owner as the run/log read; it is not evidence of current wallet ownership or permission to transact. |
+| `copyRunId` | Required path value: pass the opaque ID returned by the API unchanged. Do not derive it from a position, token, or wallet address. |
+| `limit` | Optional integer `0..100`; omitted or `0` means `25`. Keep the effective limit fixed while continuing one page sequence. |
+| `cursor` | Optional opaque continuation, at most 4,096 characters. Omit on the first request; pass the returned `pagination.nextCursor` unchanged. |
+
+The run determines chain scope. This endpoint has no `tokenAddress`,
+`category`, `subtype`, `type`, `group`, chain selector, or sort input. Do not
+forward the log's filters to it.
+
+The response uses the usual `data`, `pagination`, and `meta` envelope:
+
+| Response field | Meaning |
+| --- | --- |
+| `data[]` | Existing `Token` objects; see [Token fields and presence](#whitelist-tokens-on-agent-profiles). Tokens are unique and ordered by lowercase address ascending. |
+| `pagination.limit` | Effective page size. It limits tokens, not log rows. |
+| `pagination.hasMore` | Whether another token-choice page exists. It is not a statement about complete historical coverage or metadata. |
+| `pagination.nextCursor` | Opaque continuation when `hasMore` is true. Stop paging when `hasMore` is false; the cursor can then be omitted or empty. |
+| `meta.fieldQualities[]` | Separate history and metadata quality; interpret by `group` as described below. |
+
+Choices are drawn from all **currently visible, available activity** for that
+run, rather than the current log page. They do not depend on current whitelist
+membership, current holdings, open positions, log category/subtype, or the
+selected token. A closed position or a token removed from the whitelist can
+therefore remain in the selector. A whitelisted token never represented in
+visible run history is not added merely because it is whitelisted.
+
+This is not a guarantee that every historical action has already become
+available. History readiness is reported separately. The response supplies
+neither activity counts per token, balances, nor prices. Do not interpret a
+token's presence as a positive wallet balance or current trading eligibility.
+
+This illustrative **response excerpt** shows two identities on a final page;
+other metadata is omitted. The first token has known zero decimals and the
+second has unavailable metadata:
+
+```json
+{
+  "data": [
+    {
+      "chainId": "8453",
+      "address": "0x1111111111111111111111111111111111111111",
+      "symbol": "OLD",
+      "decimals": 0
+    },
+    {
+      "chainId": "8453",
+      "address": "0x2222222222222222222222222222222222222222"
+    }
+  ],
+  "pagination": {
+    "limit": 25,
+    "hasMore": false
+  },
+  "meta": {
+    "fieldQualities": [
+      {
+        "group": "FIELD_GROUP_ACTIVITY",
+        "freshness": "DATA_STATUS_CURRENT"
+      },
+      {
+        "group": "FIELD_GROUP_TOKEN_METADATA",
+        "completeness": "DATA_COMPLETENESS_PARTIAL",
+        "reason": "DATA_QUALITY_REASON_DEPENDENCY_PENDING"
+      }
+    ]
+  }
+}
+```
+
+Keep both options selectable. Use an abbreviated address for the second label.
+Known zero decimals is not missing metadata. Missing names/logos are allowed
+even when metadata completeness is complete. Do not require metadata
+freshness to be `CURRENT` before showing an identity; it can be unspecified.
+
+Add **All tokens** locally. It is not a returned token, address, symbol, or
+special sentinel value. Fetch additional choice pages using their own cursor;
+do not silently treat the first 25 options as the complete selectable list.
+
+##### Apply the selected token to the log
+
+```text
+GET /api/v1/users/{ownerAddress}/activity?copyRunId={copyRunId}&activitySurface=ACTIVITY_SURFACE_COPY_RUN_LOG&tokenAddress={tokenAddress}&limit=25
+```
+
+Use the selected `Token.address`, never its symbol. `tokenAddress` must be
+`0x` plus 40 hexadecimal characters. Valid mixed-case addresses are accepted;
+returned token addresses are lowercase. For All tokens, omit the parameter
+entirely rather than sending an empty string, `all`, or a zero-address sentinel.
+
+| Log input | Behavior with `tokenAddress` |
+| --- | --- |
+| `activitySurface` | Must be `ACTIVITY_SURFACE_COPY_RUN_LOG`. |
+| `copyRunId` | Required. The same address on another chain/run is a different selection scope. |
+| `category` | Optional; intersects with the token filter. Omit it for all supported categories. |
+| `subtype` | Optional; intersects with the token filter and implies its category. If both are supplied, the category must match the subtype. |
+| `type`, `group` | Legacy filters cannot be combined with `activitySurface`; do not forward them from another activity screen. |
+| `chainId` | Existing optional extra constraint on the log. Normally omit it because the run already identifies the chain. If supplied, use the run's chain; a different chain can produce an empty result. |
+| `limit`, `cursor` | Existing log pagination: default 25, maximum 100, separate from token-choice pagination. |
+
+For example, this requests only cashback rows associated with the chosen
+token, even when the cashback itself was paid in another token:
+
+```text
+GET /api/v1/users/{ownerAddress}/activity?copyRunId={copyRunId}&activitySurface=ACTIVITY_SURFACE_COPY_RUN_LOG&tokenAddress={tokenAddress}&subtype=ACTIVITY_SUBTYPE_REBATE_RECEIVED&limit=25
+```
+
+Use the existing `ActivityRow[]` renderer. Rows retain their normal typed
+details, `activityId`, timestamp ordering, actual amounts, and display token.
+The filter supplies no new amount field, trade/position identifier, or
+client-side association field. Existing optional IDs and amounts remain
+optional; do not manufacture them from the selected token.
+
+##### Which activity matches a token
+
+| Log row | Token-filter match | Rendering consequence |
+| --- | --- | --- |
+| Buy, sell, reduction, position withdrawal closure | Traded base token | Using a token only as the trade's quote token does not make the row match it. |
+| Meaningful skipped buy/sell, including one without a submitted transaction | Canonically identified base token, when known, even without a follower position | Follow server visibility rules. Routine no-ops are omitted; visible skips have no follower transaction hash or executed amount. A token match does not imply that the trade executed. |
+| Flat fee or cashback | Actual fee/payment token and the related trade's base token when the linkage is proven | A row can match either token but appears only once in a single filtered response. Keep its actual payment token and raw amount. |
+| Deposit, top-up, quote/token withdrawal | Actual transferred token | Do not attach every capital movement to every traded token in the run. |
+| Copy started | Proven opening-allocation token, when available | An unresolved opening token is not guessed from the current selection. |
+| Copy stopped | No token association | It remains visible under All tokens and does not appear for a specific token. |
+
+For AERO bought with USDC, selecting AERO shows its buy/sell rows and proven
+linked USDC fees/cashback. Those fee rows still display USDC. Selecting USDC
+shows USDC capital movements and fees/cashback actually paid in USDC; it does
+not pull in every AERO trade merely because USDC funded it.
+
+Do not filter the returned log again by its displayed token, or reconstruct
+token relationships from symbols, text, transaction-hash coincidence, or
+agent history. The server's filtered result already applies the association
+rules. Rows without a known token association can remain visible under All
+tokens while being absent from a token-specific result.
+
+##### History quality, pending changes, and empty states
+
+Read `FIELD_GROUP_ACTIVITY` and `FIELD_GROUP_TOKEN_METADATA` independently.
+The activity-token response normally supplies history freshness without a
+claim of complete historical coverage or finality. An unspecified or omitted
+dimension means “not established,” not complete/final. Metadata quality does
+not establish history coverage, and `meta.generatedAt` does not establish
+the age or completeness of the underlying history.
+
+| State | UI behavior |
+| --- | --- |
+| Known tokens with partial metadata | Show every returned identity; use available labels or address fallbacks. Do not block filtering on missing symbol, name, logo, or decimals. |
+| Stale history or `DATA_COMPLETENESS_PENDING` | Show valid returned choices/logs with updating context and refresh using the existing pending-read behavior. Do not insert imagined activity rows or token choices from a submitted-action response. |
+| `DATA_QUALITY_REASON_REORG_REPAIR` or an invalidated receipt | Remove the affected optimistic receipt preview and refresh the log and choices. Previously cached membership is not evidence that invalidated activity still exists. |
+| Empty choice page with unavailable/unknown history | Show an unavailable/updating state as appropriate. It is not proof that the run never traded or used tokens, or that the wallet is empty. All tokens can still be used to read the log. |
+| Nonempty choices but an empty filtered log | Show “No actions match these filters.” Keep the selected token and the other choices; category/subtype combinations can legitimately have no matching rows. |
+| A syntactically valid token is absent from visible run history | The log can return an empty page; membership in the current whitelist is not a filter validation requirement. |
+| Choice read fails while the log remains available | Keep the independent log usable with its existing valid selection or All tokens, and expose a retry for the selector. Do not replace an error with an authoritative empty token list. |
+
+An empty `data` array can be omitted in HTTP JSON; normalize absence only for
+rendering a successful response. A read error, partial page, or unavailable
+history must not become a “no historical tokens” assertion. If a selected
+token has not appeared in the currently loaded choice pages, preserve the
+selection until refresh/pagination establishes the current choices.
+
+##### Pagination and refresh behavior
+
+Keep independent state for the log and token-choice list:
+
+| List | Cursor scope and reset rules |
+| --- | --- |
+| Token choices | Owner, copy run, effective limit, and server history/pending state. Reset when owner/run/limit changes or the continuation is rejected. Log category/subtype/token changes do not require reloading choices. |
+| Log | Owner, copy run, optional chain constraint, activity surface, category/subtype, selected token, effective limit, and server history/pending state. Reset to the first page whenever one of those client filters changes. |
+
+Log rows retain newest-first ordering. Token choices use address-ascending
+ordering. Do not exchange their cursors or derive a token cursor from an
+address, log row, or timestamp. Continue only with that response's exact
+`nextCursor` while `hasMore` is true. There is no total-count or numbered-page
+contract.
+
+New activity can change the available choices, including introducing a token
+before an already loaded address. Corrected activity, invalidated receipts,
+or changes to the public visibility policy can remove or change associations.
+Refreshing from page one therefore starts
+a new list; replace the previous page sequence instead of appending the new
+first page to old continuation pages. Merge entries within one valid sequence
+by `(chainId, address)` and keep log rows keyed by `activityId`.
+
+| Error | Meaning and recovery |
+| --- | --- |
+| HTTP 400 / gRPC `INVALID_ARGUMENT` (`code: 3`) on invalid filters | Fix the request: valid address, required copy-run scope, supported surface, matching category/subtype, no legacy type/group, and valid limit. Do not repeatedly retry the same invalid input. |
+| HTTP 400 / `INVALID_ARGUMENT` on a rejected continuation | A cursor can be expired, malformed, or bound to another scope/pending state. Clear that endpoint's cursor and pages, then request page one with valid current filters. If page one also fails, expose the error instead of restarting in a loop. |
+| HTTP 409 / gRPC `ABORTED` (`code: 10`) | History changed during pagination. Discard that endpoint's accumulated pages and cursor, then restart from page one. This is distinct from a malformed-cursor 400. |
+| Transport/dependency error | Use the normal bounded retry/error state. Do not treat the failure as empty history or clear another independently valid screen component. |
+
+The changed-history error has this public message; other envelope details
+such as the request ID can also be present:
+
+```json
+{
+  "code": 10,
+  "message": "page target advanced; restart from the first page"
+}
+```
+
+Recommended UI flow:
+
+1. Read the run's All tokens log and the first token-choice page independently.
+2. Render All tokens plus loaded identities, with address fallbacks and a way
+   to load remaining choices. Preserve quality qualifiers.
+3. On selection/category/subtype changes, clear only the log's pagination and
+   fetch its first page using the new filter. Keep the historical selector.
+4. On owner/run changes, clear both lists, both cursor chains, and the previous
+   selection. Discard late responses from the old scope.
+5. After relevant pending actions settle or corrected history is reported,
+   refresh both reads. Replace invalidated previews and page sequences rather
+   than calculating new choices or amounts locally.
+
+The token filter uses the same public visibility rules as All tokens. A
+meaningful missed action can be visible without submission, while a proven
+routine no-op is omitted. `/positions` `skippedSellCount` remains a separate
+recovery measure; do not derive it by counting filtered log rows.
 
 #### Capital activity labels and filters
 
@@ -3554,8 +4419,11 @@ token address, and transaction hash. Observe the submitted operation through
 the matching canonical pause is indexed; an external withdrawal without app
 verification does not produce this activity. Reorgs can remove a row, so replace
 the log from refreshed results. The token amount does not imply a USD peg:
-`capital.valueUsd` is unavailable for these rows. They are separate from quote
-withdrawals and do not change `capitalOutUsd`.
+`capital.valueUsd` is unavailable for these rows. These activity rows do not
+themselves supply a USD settlement. Canonical position settlement separately
+contributes to run-card `capitalOutUsd` and `capitalOutBreakdown`; refresh the
+run instead of calculating those values from the activity feed. Quote
+withdrawals retain their separate cash-movement rows.
 
 Historical coverage is limited: token withdrawals completed before this
 feature are not automatically added, and external withdrawals remain outside
@@ -3570,8 +4438,8 @@ Visibility is specific to the requested surface:
 
 | Surface | Skipped-row behavior |
 | --- | --- |
-| Copy-run logs, owner activity without a surface, copy-account history | A skipped row requires a recorded follower-attempt `txHash`. Local skips without one are omitted. Repeated status updates for a logical action appear once, using the first eligible published row's ID and time. |
-| Alert Feed | Separate alert rules apply; a skipped alert can have no transaction hash. Known zero-input and below-minimum skipped buys are omitted. Render the returned alerts rather than applying the log's hash rule locally. |
+| Copy-run logs, owner activity without a surface, copy-account history | Meaningful missed buys/sells can appear without a submitted transaction. Proven zero-input buys, below-minimum buys, and sells with no on-chain unsold position are omitted. Repeated lifecycle snapshots produce one notice at the first published occurrence. A nonce-maintenance transaction does not create a second trade notice. |
+| Alert Feed | Reports the logical action's latest outcome under its own alert rules. Proven routine no-ops are omitted; pending outcomes can remain until a canonical effect or final skip resolves them. Do not impose a transaction-hash requirement locally. |
 
 Follow-on skipped sells can be omitted when the server proves that the opening
 buy never created a follower position. Missing IDs alone are not a reason to
@@ -3580,29 +4448,38 @@ visible after it closes. Do not infer current token ownership from an old log.
 Keep distinct action rows separate even when they refer to the same token or
 position, and follow the server's filtered pagination.
 
+The API omits internal exit-started, exit-succeeded, exit-failed, and
+execution-failed transitions from public history. Completed trades appear
+through their canonical position events. Unknown or incomplete evidence is
+not sufficient to hide a meaningful skipped outcome; use the returned rows
+instead of attempting to classify raw reasons in the client.
+
 Copy-run activity uses the follower position's `positionId` for executed and
 skipped trades when that position exists. A skipped buy that never opened one
 can have no `positionId`, `tradeId`, or `followerPositionId`, even with a
-recorded transaction hash. Render the outcome without a position link; never
+recorded internal transaction. Render the outcome without a position link; never
 substitute the agent's trade ID. Use `positionId` and `copyRunId` when opening
 follower position details or preparing a recovery action.
 
-A recorded `txHash` is a transaction identifier, not proof of broadcast,
-inclusion, or success. Do not label it confirmed from its presence. Other
-activity kinds can omit a hash. Alert Feed names its links separately:
-`alert.leader.canonicalLeaderTxHash`, `alert.user.attemptedTxHash`, and
-`alert.user.canonicalFollowerTxHash`. Use each only for its stated context;
-a leader hash must never replace a follower hash. Top-level follower `tradeId`
-is not an Alert Feed trade-link contract.
+Skipped rows omit their top-level `txHash` and follower attempted/canonical
+receipt fields. A nonce-maintenance receipt is not a filled trade, so do not
+add a transaction link from another field or a previously cached row. Other
+activity kinds retain their own canonical transaction context. Alert Feed
+keeps the leader context separate: `alert.leader.canonicalLeaderTxHash` is a
+leader link and must never replace a follower hash. Top-level follower
+`tradeId` is not an Alert Feed trade-link contract.
 
-Skipped log `execution` details identify tokens but do not expose attempted
-or executed amounts. Render the returned `summary` and
+Skipped log `execution` details retain available token context but omit
+execution/action IDs and statuses, diagnostic codes, configuration constraints,
+and attempted/executed amounts. Render the returned bounded `summary` and
 `execution.publicErrorMessage`, or `alert.user.publicErrorMessage` for alerts.
 Do not infer follower amounts from leader amounts, messages, or current
-balances. Alert `alert.user.baseAmountRaw` / `quoteAmountRaw` describe follower
-outcome amounts when present; they are not a promised amount for a skipped
-attempt. Replace rows from refreshed responses, including removal of omitted
-links and amounts after a correction.
+balances. Skipped alerts also omit follower amounts and prices; any explicit
+leader amounts describe the leader only. Other outcome types keep their own
+amount contracts. Replace rows from refreshed responses, including removal
+of omitted links and amounts after a correction. A visibility-policy change
+can reject existing cursors; restart both affected log and token-choice page
+sequences from their first page.
 
 #### Recovery buttons and skipped-sell count
 
@@ -5383,7 +6260,7 @@ after its position quantity has updated.
 | Add Capital | Run detail/list, owner/account summaries, wallet | Capital In, portfolio, AUM, and activity. |
 | Stop Copy | Run detail/list and positions; owner/account summaries | Pause/lifecycle publication, selected exit progress, portfolio, activity, and derived metrics. Stop success does not mean all positions are sold. |
 | Withdraw Quote | Run detail/list, wallet, owner/account summaries, history | Capital Out, wallet balances, portfolio, and activity. The withdrawal does not stop the run. |
-| Withdraw Tokens | Run detail/list, wallet inventory, positions, history | Pause/lifecycle, actual wallet quantities, portfolio, and any quote component's Capital Out. Success applies to this batch. |
+| Withdraw Tokens | Run detail/list, wallet inventory, positions, history, and the visible realised chart | Pause/lifecycle, token-history labels, settlement quantity/price/P&L, wallet quantities, and Capital Out components can update independently. Success applies to this batch. |
 | Manual Sell | Position list, closed executions, pending-sell obligations, wallet, run detail | Quantity/lifecycle, FIFO, wallet, settlement, fees, P&L, and activity. A partial sell can succeed. |
 | Close Position | The same reads as Manual Sell | The affected position closes; the run can remain active. Settlement and fees can follow the quantity update. |
 
@@ -5433,7 +6310,8 @@ Returned capital values are totals. Replace the corresponding displayed
 metric and remove its matched local pending delta; do not add the receipt
 amount again. For Capital Out, keep the action-status total separate from the
 copy-run card's [Amount Out](#closed-run-amount-out), which can also include
-quote still held. Refresh the card from its list/detail response.
+quote still held and position-attributed token settlement value. Refresh the
+card and optional breakdown from its list/detail response.
 
 Prices, P&L, wallet balances, list membership, and optional exit progress can
 still be updating after display `READY`. Render independently available fields;
@@ -5460,8 +6338,9 @@ After you send the new receipt on the next poll, a successful result can omit
 `result` includes the verified account identity, resource IDs, and exact
 transaction effects. Use its IDs for links and refreshes. For funded CREATE,
 use `openingAllocationRaw` when supplied rather than deriving the allocation
-from a transfer. A nonquote withdrawal can succeed without a Capital Out
-metric, and a maximum quote withdrawal can succeed with zero movement.
+from a transfer. A nonquote withdrawal can succeed without an action-status
+`display.capitalOutUsd` metric; its later run-card token settlement is separate.
+A maximum quote withdrawal can succeed with zero movement.
 Partial Manual Sell success does not mean the position is closed.
 
 Review-time skip counts and ratios can change before the transaction is mined.
@@ -5621,9 +6500,14 @@ CREATE and transfer effects as two credits.
    this atomic batch. A positive quote withdrawal is displayed once, without
    also counting its corroborating transfer.
 2. Refresh run detail/list, wallet inventory, positions, summaries, and history.
-   Wallet quantities and USD values have their own source/price quality.
-3. A batch without quote movement does not create Capital Out. A successful
-   batch does not prove every token, native asset, or unrelated airdrop is gone.
+   Include the visible cumulative realised chart. Wallet quantities, token-history
+   labels, tracked settlement quantities, and USD values have their own quality.
+3. A batch without quote movement does not require an action-status
+   `display.capitalOutUsd`. It can still increase the run-card Capital Out when
+   its token settlements are available. Read the card and breakdown from the
+   refreshed run response; never price or add the receipt tokens yourself.
+   A successful batch does not prove every token, native asset, or unrelated
+   airdrop is gone.
 4. On `SUCCEEDED` and `CHECK_WITHDRAWAL_REMAINDER`, prepare again to discover
    remaining eligible balances. Review a new batch; never replay the old one.
 
@@ -7096,6 +7980,39 @@ component and request-state tests. No live transaction is needed for these cases
   dollar P&L remains visible. Missing Return does not hide a History row.
 - A successful withdrawal can remain Closing. Neither receipt success nor
   elapsed time forces History membership.
+- After a covered Stop/withdrawal, both direct Active → Closed and
+  Stopped/Closing → Closed use the same available-quote-plus-withdrawn-value
+  rule once no positions remain and
+  accounting is available. A no-position $20 quote run can show $20 Capital
+  Out and zero P&L without a token breakdown.
+- A stopped run with active positions and no withdrawals shows a server-proven
+  zero Capital Out; its available quote is not added by the client.
+- A Closed run with $14.61 quote and $5.57 settled tokens shows $20.18 Capital
+  Out before and after withdrawing the quote, absent other changes.
+- Missing token settlement price keeps the combined Capital Out unavailable
+  even when `capitalOutBreakdown.quoteUsd` is current. The UI neither shows a
+  partial total nor fabricates `tokensWithdrawnUsd: "0"`.
+- Show the split only when `capitalOutBreakdown` exists. A true badge on an
+  earlier sold position need not imply a breakdown or new realised token value.
+- A withdrawal-close row shows the historical closed price and base-token
+  **Tokens settled** amount. Missing price does not erase an independently
+  available quantity, entry value, or earlier-sale rebate.
+- A sold row with `tokensWithdrawn: true` retains its sell price, quote received,
+  lifetime rebate, P&L, and exit kind. Rows with the same token in another run
+  do not inherit the badge.
+- `tokensWithdrawn: false`, an absent flag, and a reorg-invalidated flag are
+  not converted into `true` from a cached receipt or a zero wallet balance.
+  A subsequent false or absent response removes an earlier badge.
+- A withdrawal after a partial sale adds only the remaining inventory's
+  settlement; prior sale proceeds/rebates remain counted once. Withdrawal
+  itself earns no rebate and creates no synthetic sell execution.
+- A fully settled Closed run with zero inventory has equal returned Total and
+  Realised P&L. Pending evidence shows its returned unavailable/stale state
+  rather than a client-forced equality. Withdrawal closures do not change the
+  trade win-rate denominator.
+- A second withdrawal batch can add a cumulative realised point after Stop.
+  The chart uses the requested realised series and returned timestamps;
+  first-Stop Return and lifetime ROI remain distinct metrics.
 - `/chains` initializes Start Copy and Add Capital without hard-coded token
   values or a preliminary preparation request.
 - A token with only `chainId`, `address`, and `decimals` keeps funding usable.
@@ -7150,9 +8067,10 @@ component and request-state tests. No live transaction is needed for these cases
 - Every action follows its display guarantee above. CREATE can be ready with
   no capital value, Stop can remain closing, and a partial sale can be shown
   even when a later valid sale changed the remaining amount.
-- A verified withdrawal effect is shown immediately. Updated Capital Out waits
-  for a returned ready metric; zero or nonquote batches can be ready without
-  a capital metric or refreshed wallet balance.
+- A verified withdrawal effect is shown immediately. Action-status cash totals
+  wait for their returned ready metric; zero or nonquote batches can be ready
+  without that metric or a refreshed wallet balance. The run-card total,
+  breakdown, and token settlement use fresh GET responses and their own quality.
 - `CURRENT` plus `PROVISIONAL`, and `STALE` plus `FINAL`, retain both qualifiers.
 - Missing or unknown display status never borrows prior ready values. An older
   server without `display` uses the legacy completion flow without endless polling.

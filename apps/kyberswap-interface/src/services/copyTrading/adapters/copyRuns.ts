@@ -50,6 +50,10 @@ type ApiCopyRunListItem = {
   stoppedAt?: string
   capitalInUsd?: ApiMetric
   capitalOutUsd?: ApiMetric
+  capitalOutBreakdown?: {
+    quoteUsd?: ApiMetric
+    tokensWithdrawnUsd?: ApiMetric
+  }
   portfolioValueUsd?: ApiMetric
   unrealizedPnlUsd?: ApiMetric
   roiPct?: ApiMetric
@@ -164,6 +168,12 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
     capitalInUsd: metricValue(run.capitalInUsd),
     capitalInProjectionStatus,
     capitalOutUsd: metricValue(run.capitalOutUsd),
+    capitalOutBreakdown: run.capitalOutBreakdown
+      ? {
+          quoteUsd: metricValue(run.capitalOutBreakdown.quoteUsd),
+          tokensWithdrawnUsd: metricValue(run.capitalOutBreakdown.tokensWithdrawnUsd),
+        }
+      : undefined,
     portfolioValueUsd: metricValue(run.portfolioValueUsd),
     unrealizedPnlUsd: metricValue(run.unrealizedPnlUsd),
     roiPct: metricValue(run.roiPct),

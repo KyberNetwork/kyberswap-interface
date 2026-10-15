@@ -50,12 +50,7 @@ const StartCopyCard = ({ agent, onCopy }: { agent: AgentProfile; onCopy: () => v
   )
 }
 
-type AgentInstructionProps = {
-  activeCopyRun?: CopyRunListItem
-  agent: AgentProfile
-}
-
-const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
+const AgentInstruction = ({ activeCopyRun, agent }: { activeCopyRun?: CopyRunListItem; agent: AgentProfile }) => {
   const navigate = useNavigate()
   const copyTradingPath = useCopyTradingRoutes()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
@@ -83,7 +78,7 @@ const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
         <StrategyExecutionCard items={agent.strategyExecutionItems} />
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.tokens}>
-        <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
+        <WhitelistedTokensCard tokens={agent.whitelistedTokens} />
       </ResponsiveDetailItem>
     </ResponsiveDetailContents>
   )

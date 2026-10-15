@@ -7,11 +7,11 @@ import { Center, HStack, Stack } from 'components/Stack'
 import { formatApproximateUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { MAX_STOP_POSITIONS } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 import { cn } from 'utils/cn'
 
-const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
+const withApproximateMetricFallback = (value: string) => (value === '—' ? '—' : `~${value}`)
 
 const groupStopCopyPositionsByToken = (positions: NonNullable<StopCopyPreview['positions']>) => {
   const groups = new Map<string, { count: number; label: string }>()
@@ -75,35 +75,16 @@ export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; pre
         <ReviewRow
           isLoading={showSkeleton}
           label="Expected Received"
-          value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.expectedQuote, preview?.quoteToken))}
+          value={formatPreparedAmount(preview?.totalSwapQuote?.expectedQuote, preview?.quoteToken)}
         />
         <ReviewRow
           isLoading={showSkeleton}
           label="Minimum Received"
-          value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken))}
+          value={formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken)}
         />
       </ReviewSection>
     </Stack>
   )
-}
-
-type StopCopyFormProps = {
-  availabilityMessage?: string
-  expectedPositionCount?: number
-  isPreparing: boolean
-  isSelected: (position: PositionSummary, index: number) => boolean
-  onCancel: () => void
-  onPrimaryAction: () => void
-  onSlippageChange: (slippage: number) => void
-  onTogglePosition: (position: PositionSummary, index: number) => void
-  positions?: PositionSummary[]
-  positionsError?: string
-  primaryActionDisabled: boolean
-  primaryActionLabel: string
-  primaryActionLoading: boolean
-  selectedPositionCount: number
-  selectedPositionValueUsd?: string
-  slippage: number
 }
 
 const StopCopyPositionSkeletons = ({ count }: { count: number }) => {
@@ -221,7 +202,7 @@ const StopCopyPositionList = ({
       <HStack className="items-center justify-between gap-3">
         <span className="text-sm text-subText">Select Positions To Sell:</span>
         <span className="shrink-0 text-sm font-medium text-subText">
-          {displayedPositionCount === undefined ? '' : `${selectedPositionCount}/${displayedPositionCount}`}
+          {displayedPositionCount === undefined ? '—' : `${selectedPositionCount}/${displayedPositionCount}`}
         </span>
       </HStack>
 
@@ -237,6 +218,25 @@ const StopCopyPositionList = ({
       </ScrollableWithSignal>
     </Stack>
   )
+}
+
+type StopCopyFormProps = {
+  availabilityMessage?: string
+  expectedPositionCount?: number
+  isPreparing: boolean
+  isSelected: (position: PositionSummary, index: number) => boolean
+  onCancel: () => void
+  onPrimaryAction: () => void
+  onSlippageChange: (slippage: number) => void
+  onTogglePosition: (position: PositionSummary, index: number) => void
+  positions?: PositionSummary[]
+  positionsError?: string
+  primaryActionDisabled: boolean
+  primaryActionLabel: string
+  primaryActionLoading: boolean
+  selectedPositionCount: number
+  selectedPositionValueUsd?: string
+  slippage: number
 }
 
 export const StopCopyForm = ({

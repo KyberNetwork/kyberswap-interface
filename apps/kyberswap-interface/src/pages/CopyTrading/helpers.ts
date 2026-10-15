@@ -39,7 +39,7 @@ export const isFieldGroupSyncing = (meta: ResponseMeta | undefined, ...groups: F
 
 export type ActivityTone = 'buy' | 'sell' | 'capital' | 'warning' | 'fee' | 'neutral'
 
-const METRIC_FALLBACK = 'N/A'
+const METRIC_FALLBACK = '—'
 
 const parseNumericValue = (value?: NumericValue) => {
   if (value === undefined || (typeof value === 'string' && !value.trim())) return undefined

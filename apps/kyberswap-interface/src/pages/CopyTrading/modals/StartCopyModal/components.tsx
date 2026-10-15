@@ -96,7 +96,7 @@ export const StartCopyReview = ({
             startPreview?.copyConfirmPolicy?.priceDeviationStatus === 'METRIC_STATUS_CURRENT' ||
             startPreview?.copyConfirmPolicy?.priceDeviationStatus === 'METRIC_STATUS_STALE'
               ? priceDeviation
-              : 'N/A'
+              : '—'
           }
         />
         <ReviewRow

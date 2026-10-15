@@ -7,10 +7,10 @@ import { canAttemptPreparation, formatUsd, percent, sumUsdValues } from 'pages/C
 
 describe('Copy Trading metric and preparation rules', () => {
   it('distinguishes missing metrics from an actual zero', () => {
-    expect(formatUsd(undefined)).toBe('N/A')
-    expect(percent(undefined)).toBe('N/A')
-    expect(formatUsd('0')).not.toBe('N/A')
-    expect(percent('0')).not.toBe('N/A')
+    expect(formatUsd(undefined)).toBe('—')
+    expect(percent(undefined)).toBe('—')
+    expect(formatUsd('0')).not.toBe('—')
+    expect(percent('0')).not.toBe('—')
   })
 
   it('only calculates combined USD metrics when every value is available', () => {

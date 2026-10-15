@@ -8,7 +8,9 @@ import {
   adaptOwnerCopySummaryResponse,
 } from 'services/copyTrading/adapters/copyRuns'
 import { adaptClosedPositionExecutionsResponse, adaptPositionsResponse } from 'services/copyTrading/adapters/positions'
+import { type ApiCursorResponse, type ApiToken, cursorResponse, toToken } from 'services/copyTrading/adapters/shared'
 import type {
+  CopyRunActivityTokensQuery,
   CopyRunPerformanceQuery,
   CopyRunPositionClosedExecutionsQuery,
   CopyRunPositionsQuery,
@@ -20,6 +22,7 @@ import type {
   OwnerPositionsQuery,
 } from 'services/copyTrading/types/queries'
 import type {
+  CopyRunActivityTokensResponse,
   CopyRunCashbackPolicyResponse,
   CopyRunPerformanceResponse,
   CopyRunPositionClosedExecutionsResponse,
@@ -130,6 +133,14 @@ const copyRunApi = copyTradingBaseApi.injectEndpoints({
       transformResponse: adaptPositionsResponse,
       providesTags: ['CopyTrading'],
     }),
+    getCopyRunActivityTokens: builder.query<CopyRunActivityTokensResponse, CopyRunActivityTokensQuery>({
+      query: ({ ownerAddress, copyRunId, cursor, limit }) => ({
+        url: '/users/' + pathPart(ownerAddress) + '/copy-runs/' + pathPart(copyRunId) + '/activity-tokens',
+        params: cleanParams({ cursor, limit }),
+      }),
+      transformResponse: (response: ApiCursorResponse<ApiToken>) => cursorResponse(response, toToken),
+      providesTags: ['CopyTrading'],
+    }),
     getOwnerActivity: builder.query<OwnerActivityResponse, OwnerActivityQuery>({
       query: ({
         ownerAddress,
@@ -138,6 +149,7 @@ const copyRunApi = copyTradingBaseApi.injectEndpoints({
         activityType,
         group,
         activitySurface,
+        tokenAddress,
         category,
         subtype,
         cursor,
@@ -150,6 +162,7 @@ const copyRunApi = copyTradingBaseApi.injectEndpoints({
           type: activityType && activityType !== 'all' ? 'ACTIVITY_TYPE_' + activityType.toUpperCase() : undefined,
           group: group ? activityGroupMap[group] : undefined,
           activitySurface: activitySurface ? activitySurfaceMap[activitySurface] : undefined,
+          tokenAddress: activitySurface === 'copy_run_log' && copyRunId ? tokenAddress : undefined,
           category: category ? activityCategoryMap[category] : undefined,
           subtype: subtype ? activitySubtypeMap[subtype] : undefined,
           cursor,

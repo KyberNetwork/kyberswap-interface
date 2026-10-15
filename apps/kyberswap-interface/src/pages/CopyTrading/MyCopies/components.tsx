@@ -27,12 +27,7 @@ import {
 import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { cn } from 'utils/cn'
 
-type OpenCopiesSummaryProps = {
-  loading?: boolean
-  summary?: OwnerCopySummary
-}
-
-export const OpenCopiesSummary = ({ loading, summary }: OpenCopiesSummaryProps) => {
+export const OpenCopiesSummary = ({ loading, summary }: { loading?: boolean; summary?: OwnerCopySummary }) => {
   const stats: LeaderboardStat[] = [
     {
       label: 'Total Allocated',
@@ -60,12 +55,6 @@ export const OpenCopiesSummary = ({ loading, summary }: OpenCopiesSummaryProps) 
   return <Leaderboard items={stats} loading={loading} />
 }
 
-type AlertsFeedProps = {
-  infiniteScroll: InfiniteScrollState
-  loading?: boolean
-  rows: ActivityRow[]
-}
-
 const normalizeActivityCopy = (value?: string) =>
   value
     ?.trim()
@@ -91,6 +80,12 @@ const AlertStatusIcon = ({ tone }: { tone: ActivityTone }) => {
       )}
     />
   )
+}
+
+type AlertsFeedProps = {
+  infiniteScroll: InfiniteScrollState
+  loading?: boolean
+  rows: ActivityRow[]
 }
 
 export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) => {
@@ -148,7 +143,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                     <p className="break-words text-sm text-subText">
                       Amount:{' '}
                       <span className="text-text">
-                        {formatRawTokenAmount(alert.capital.amountRaw, alert.capital.token?.decimals) ?? 'N/A'}
+                        {formatRawTokenAmount(alert.capital.amountRaw, alert.capital.token?.decimals) ?? '—'}
                         {alert.capital.token?.symbol && ` ${alert.capital.token.symbol}`}
                       </span>{' '}
                       ({formatUsd(metricValue(alert.capital.valueUsd))}){followerTxLink}

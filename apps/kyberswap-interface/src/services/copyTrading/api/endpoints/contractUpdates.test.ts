@@ -16,6 +16,81 @@ afterEach(() => {
 })
 
 describe('copy-run request contract', () => {
+  it('combines token and action filters and omits tokenAddress for All tokens and Alert Feed', async () => {
+    const fetch = vi.fn(async (_request: Request) => new Response(JSON.stringify({ data: [] })))
+    vi.stubGlobal('fetch', fetch)
+    const store = createStore()
+    const tokenAddress = '0x2222222222222222222222222222222222222222'
+    try {
+      for (const query of [
+        { activitySurface: 'copy_run_log' as const, tokenAddress },
+        { activitySurface: 'copy_run_log' as const },
+        { activitySurface: 'alert_feed' as const, tokenAddress },
+      ]) {
+        await store
+          .dispatch(
+            copyRunApi.endpoints.getOwnerActivity.initiate({
+              ownerAddress,
+              copyRunId: 'run-1',
+              category: 'fee_rebate',
+              subtype: 'rebate_received',
+              ...query,
+            }),
+          )
+          .unwrap()
+        const params = new URL(fetch.mock.calls[fetch.mock.calls.length - 1][0].url).searchParams
+        expect(params.get('tokenAddress')).toBe(
+          query.activitySurface === 'copy_run_log' ? query.tokenAddress || null : null,
+        )
+        expect(params.get('category')).toBe('ACTIVITY_CATEGORY_FEE_REBATE')
+        expect(params.get('subtype')).toBe('ACTIVITY_SUBTYPE_REBATE_RECEIVED')
+        expect(params.has('cursor')).toBe(false)
+      }
+    } finally {
+      store.dispatch(copyRunApi.util.resetApiState())
+    }
+  })
+
+  it('loads up to 100 historical tokens and preserves identities with missing metadata', async () => {
+    const tokens = [
+      { chainId: '8453', address: '0x2222222222222222222222222222222222222222', symbol: 'OLD', decimals: 0 },
+      { chainId: '8453', address: '0x3333333333333333333333333333333333333333' },
+    ]
+    const meta = {
+      fieldQualities: [{ group: 'FIELD_GROUP_TOKEN_METADATA', completeness: 'DATA_COMPLETENESS_PARTIAL' }],
+    }
+    const fetch = vi.fn(
+      async (_request: Request) =>
+        new Response(JSON.stringify({ data: tokens, pagination: { hasMore: false, limit: 100 }, meta })),
+    )
+    vi.stubGlobal('fetch', fetch)
+    const store = createStore()
+    try {
+      const result = await store
+        .dispatch(
+          copyRunApi.endpoints.getCopyRunActivityTokens.initiate({
+            ownerAddress,
+            copyRunId: 'run-1',
+            limit: 100,
+          }),
+        )
+        .unwrap()
+      expect(fetch).toHaveBeenCalledTimes(1)
+      const url = new URL(fetch.mock.calls[0][0].url)
+      expect(url.pathname).toContain(`/users/${ownerAddress}/copy-runs/run-1/activity-tokens`)
+      expect(Object.fromEntries(url.searchParams)).toEqual({ limit: '100' })
+      expect(result.data).toMatchObject([
+        { ...tokens[0], chainId: 8453 },
+        { ...tokens[1], chainId: 8453 },
+      ])
+      expect(result.data[1].decimals).toBeUndefined()
+      expect(result.pagination.hasMore).toBe(false)
+      expect(result.meta).toEqual(meta)
+    } finally {
+      store.dispatch(copyRunApi.util.resetApiState())
+    }
+  })
+
   it('sends run-volume sorting and lifecycle filters to the API', async () => {
     const fetch = vi.fn().mockImplementation(async () => new Response(JSON.stringify({ data: [] })))
     vi.stubGlobal('fetch', fetch)

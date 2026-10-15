@@ -12,7 +12,7 @@ import {
   getPreparedReasonMessage,
 } from 'pages/CopyTrading/helpers'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
@@ -33,6 +33,7 @@ const tokenLabel = (symbol?: string, address?: string) =>
     : 'Unknown token'
 
 export type WithdrawalMode = 'all' | 'stable'
+
 const WithdrawalCollapse = ({ expanded, children }: { expanded: boolean; children: ReactNode }) => (
   <div
     aria-hidden={!expanded}
@@ -46,6 +47,16 @@ const WithdrawalCollapse = ({ expanded, children }: { expanded: boolean; childre
   </div>
 )
 
+type WithdrawalOptionsProps = {
+  mode: WithdrawalMode
+  changeMode: (mode: WithdrawalMode) => void
+  disabled: boolean
+  copyRun: CopyRunListItem
+  wallet: WithdrawalInventory
+  quote: Pick<ReturnType<typeof useWithdrawQuote>, 'input' | 'selectedValueUsd'>
+  display: ReturnType<typeof useWithdrawalPreview>
+}
+
 export const WithdrawalOptions = ({
   mode,
   changeMode,
@@ -54,15 +65,7 @@ export const WithdrawalOptions = ({
   wallet,
   quote,
   display,
-}: {
-  mode: WithdrawalMode
-  changeMode: (mode: WithdrawalMode) => void
-  disabled: boolean
-  copyRun: CopyRunListItem
-  wallet: WithdrawalInventory
-  quote: Pick<ReturnType<typeof useWithdrawQuote>, 'input' | 'selectedValueUsd'>
-  display: ReturnType<typeof useWithdrawalPreview>
-}) => {
+}: WithdrawalOptionsProps) => {
   const { inventory, stable, loading: isInventoryLoading } = wallet
   const preview = display.preview
   const walletAssets = [
@@ -76,7 +79,7 @@ export const WithdrawalOptions = ({
           .map(asset => ({
             address: asset.token?.address,
             symbol: asset.token?.symbol,
-            amount: withMetricFallback(formatPreparedAmount(asset.balance, asset.token)),
+            amount: formatPreparedAmount(asset.balance, asset.token),
             valueUsd: isValuationRenderable(asset.currentValuation) ? asset.currentValuation?.valueUsd : undefined,
           }))
       : walletAssets
@@ -168,7 +171,7 @@ export const WithdrawalOptions = ({
           <ReviewRow
             label="Gas fee"
             isLoading={mode === 'all' && !display.gas && (display.loading || display.gasLoading === true)}
-            value={mode === 'all' ? display.gas || 'N/A' : 'Estimated in wallet'}
+            value={mode === 'all' ? display.gas || '—' : 'Estimated in wallet'}
           />
         </ReviewSection>
       </Stack>

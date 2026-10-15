@@ -10,7 +10,7 @@ import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
-import { formatUsd, getSignedMetricClassName, percent } from 'pages/CopyTrading/helpers'
+import { formatUsd, getSignedMetricClassName, percent, signedUsd } from 'pages/CopyTrading/helpers'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDateTime, formatShortDate } from 'utils/time'
@@ -35,12 +35,7 @@ const chartWindowOptions: readonly SegmentedControlOption<PerformanceWindow>[] =
   { label: 'All', value: 'all' },
 ]
 
-type ChartTitleProps = {
-  loading?: boolean
-  title: string
-}
-
-const ChartTitle = ({ loading, title }: ChartTitleProps) => (
+const ChartTitle = ({ loading, title }: { loading?: boolean; title: string }) => (
   <HStack className="items-center gap-2">
     <h2 className="text-base font-medium text-text sm:text-lg">{title}</h2>
     {loading && <Loader className="text-primary" size="14px" />}
@@ -50,11 +45,19 @@ const ChartTitle = ({ loading, title }: ChartTitleProps) => (
 type ChartSectionProps = PropsWithChildren<{
   collapsible?: boolean
   headerAside?: ReactNode
+  headerAsideClassName?: string
   loading?: boolean
   title: string
 }>
 
-const ChartSection = ({ children, collapsible, headerAside, loading, title }: ChartSectionProps) => {
+const ChartSection = ({
+  children,
+  collapsible,
+  headerAside,
+  headerAsideClassName,
+  loading,
+  title,
+}: ChartSectionProps) => {
   const [expanded, setExpanded] = useState(true)
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const mobileCollapsible = !!collapsible && isMobile
@@ -91,7 +94,9 @@ const ChartSection = ({ children, collapsible, headerAside, loading, title }: Ch
             className="overflow-hidden"
           >
             <div className="pt-4">
-              {mobileCollapsible && headerAside && <div className="mb-4 w-fit">{headerAside}</div>}
+              {mobileCollapsible && headerAside && (
+                <div className={cn('mb-4 w-fit', headerAsideClassName)}>{headerAside}</div>
+              )}
               {children}
             </div>
           </motion.div>
@@ -123,7 +128,8 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
       <span className="text-subText">{formatDateTime(point.timestamp)}</span>
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         {payload.map(item => {
-          const isPnl = item.dataKey === 'totalPnlUsd' || item.dataKey === 'valuePct'
+          const isPnl =
+            item.dataKey === 'totalPnlUsd' || item.dataKey === 'realizedPnlUsd' || item.dataKey === 'valuePct'
           const formattedValue =
             item.dataKey === 'valuePct'
               ? percent(item.value === undefined ? undefined : String(item.value))
@@ -143,16 +149,16 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
   )
 }
 
+const getPnlActiveDotFill = (value?: number) => {
+  if (value === undefined || value === 0) return 'var(--ks-text)'
+  return value > 0 ? 'var(--ks-primary)' : 'var(--ks-red)'
+}
+
 type PnlActiveDotProps = {
   cx?: number
   cy?: number
   payload?: PerformanceChartPoint
   dataKey: PnlDataKey
-}
-
-const getPnlActiveDotFill = (value?: number) => {
-  if (value === undefined || value === 0) return 'var(--ks-text)'
-  return value > 0 ? 'var(--ks-primary)' : 'var(--ks-red)'
 }
 
 const PnlActiveDot = ({ cx, cy, dataKey, payload }: PnlActiveDotProps) => (
@@ -196,29 +202,31 @@ const ChartState = ({ children, className, isError, isEmpty, isLoading }: ChartS
   )
 }
 
-type CumulativeTotalPnlChartProps = {
-  collapsible?: boolean
-  data: PerformanceChartPoint[]
-  isError?: boolean
-  isFetching?: boolean
-  onWindowChange?: (window: PerformanceWindow) => void
-  window?: PerformanceWindow
-}
+type CumulativePnlChartProps = CumulativeTotalPnlChartProps & { realized?: boolean; totalRealizedPnlUsd?: string }
 
-export const CumulativeTotalPnlChart = ({
+const CumulativePnlChart = ({
   collapsible,
   data,
   isError,
   isFetching,
   onWindowChange,
   window,
-}: CumulativeTotalPnlChartProps) => {
+  realized = false,
+  totalRealizedPnlUsd,
+}: CumulativePnlChartProps) => {
   const [metric, setMetric] = useState<'usd' | 'return'>('usd')
-  const dataKey: PnlDataKey = metric === 'usd' ? 'totalPnlUsd' : 'valuePct'
+  const dataKey: PnlDataKey = realized ? 'realizedPnlUsd' : metric === 'usd' ? 'totalPnlUsd' : 'valuePct'
   const gradientOffset = getPnlGradientOffset(data, dataKey)
   const hasSelectedMetric = data.some(point => point[dataKey] !== undefined)
   const yAxisScale = useMemo(() => getRoundedYAxisScale(data.map(point => point[dataKey])), [data, dataKey])
-  const chartControls = (
+  const chartControls = realized ? (
+    <HStack className="items-center gap-2 whitespace-nowrap text-right text-sm">
+      <span className="text-subText">Total Realised P&amp;L</span>
+      <span className={cn('font-medium', getSignedMetricClassName(totalRealizedPnlUsd))}>
+        {signedUsd(totalRealizedPnlUsd)}
+      </span>
+    </HStack>
+  ) : (
     <HStack className="items-center gap-2">
       <SegmentedControl
         onChange={setMetric}
@@ -239,8 +247,9 @@ export const CumulativeTotalPnlChart = ({
     <ChartSection
       collapsible={collapsible}
       headerAside={chartControls}
+      headerAsideClassName={realized ? 'ml-auto' : undefined}
       loading={isFetching}
-      title="Cumulative Total P&L"
+      title={realized ? 'Cumulative Realised P&L' : 'Cumulative Total P&L'}
     >
       <ChartState isEmpty={!isFetching && !hasSelectedMetric} isError={isError} isLoading={isFetching && !data.length}>
         {hasSelectedMetric && (
@@ -269,7 +278,7 @@ export const CumulativeTotalPnlChart = ({
                 axisLine={false}
                 domain={yAxisScale?.domain}
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
-                tickFormatter={value => formatPnlAxisTick(value, metric)}
+                tickFormatter={value => formatPnlAxisTick(value, realized ? 'usd' : metric)}
                 tickLine={false}
                 ticks={yAxisScale?.ticks}
                 width={Y_AXIS_WIDTH}
@@ -280,7 +289,7 @@ export const CumulativeTotalPnlChart = ({
                 dataKey={dataKey}
                 dot={false}
                 fill="url(#totalPnlFill)"
-                name={metric === 'return' ? 'Holding-period return' : 'Total P&L'}
+                name={realized ? 'Realised P&L' : metric === 'return' ? 'Holding-period return' : 'Total P&L'}
                 stroke="url(#totalPnlStroke)"
                 strokeWidth={3}
                 type="monotone"
@@ -292,6 +301,25 @@ export const CumulativeTotalPnlChart = ({
     </ChartSection>
   )
 }
+
+type CumulativeTotalPnlChartProps = {
+  collapsible?: boolean
+  data: PerformanceChartPoint[]
+  isError?: boolean
+  isFetching?: boolean
+  onWindowChange?: (window: PerformanceWindow) => void
+  window?: PerformanceWindow
+}
+
+export const CumulativeTotalPnlChart = (props: CumulativeTotalPnlChartProps) => <CumulativePnlChart {...props} />
+
+type CumulativeRealizedPnlChartProps = Omit<CumulativeTotalPnlChartProps, 'onWindowChange' | 'window'> & {
+  totalRealizedPnlUsd?: string
+}
+
+export const CumulativeRealizedPnlChart = (props: CumulativeRealizedPnlChartProps) => (
+  <CumulativePnlChart {...props} realized />
+)
 
 type CapitalValueChartProps = {
   collapsible?: boolean

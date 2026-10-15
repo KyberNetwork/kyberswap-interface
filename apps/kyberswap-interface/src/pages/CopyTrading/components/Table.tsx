@@ -30,13 +30,6 @@ type TableCardFieldProps = PropsWithChildren<{
   valueClassName?: string
 }>
 
-type TradeCardHeaderProps = {
-  metric: ReactNode
-  metricLabel: string
-  tokenSymbol?: string
-  positionId?: string
-}
-
 type EmptyStateProps = {
   className?: string
   iconUrl?: string
@@ -175,15 +168,26 @@ const TokenChip = ({ symbol }: { symbol: string }) => (
 
 export const TableCardValueFallback = () => <span className="text-subText">—</span>
 
-export const TradeCardHeader = ({ metric, metricLabel, tokenSymbol, positionId }: TradeCardHeaderProps) => {
+type TradeCardHeaderProps = {
+  metric: ReactNode
+  metricLabel: string
+  tokenSymbol?: string
+  tokenBadge?: ReactNode
+  positionId?: string
+}
+
+export const TradeCardHeader = ({ metric, metricLabel, tokenSymbol, tokenBadge, positionId }: TradeCardHeaderProps) => {
   const normalizedTokenSymbol = tokenSymbol?.trim()
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 p-3">
       <TableCardField label="Trade ID">
-        <HStack className="min-w-0 items-center gap-2">
+        <HStack className="min-w-0 flex-wrap items-center gap-2">
           {positionId ? <ShortenedId value={positionId} /> : <TableCardValueFallback />}
-          {normalizedTokenSymbol && <TokenChip symbol={normalizedTokenSymbol} />}
+          <span className="inline-flex min-w-0 items-center gap-2">
+            {normalizedTokenSymbol && <TokenChip symbol={normalizedTokenSymbol} />}
+            {tokenBadge}
+          </span>
         </HStack>
       </TableCardField>
       <TableCardField align="right" label={metricLabel}>

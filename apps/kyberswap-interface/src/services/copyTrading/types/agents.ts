@@ -127,7 +127,7 @@ export type AgentCard = {
 export type AgentProfile = AgentCard & {
   bio?: string
   liveSince?: Timestamp
-  whitelistedSymbols: string[]
+  whitelistedTokens: Token[]
   tags: string[]
   strategyExecutionItems: StrategyExecutionItem[]
 }

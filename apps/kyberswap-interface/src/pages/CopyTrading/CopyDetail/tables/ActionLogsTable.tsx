@@ -5,7 +5,10 @@ import type { ActivitySubtype } from 'services/copyTrading/types/primitives'
 import { formatUnits } from 'viem'
 
 import Select, { type SelectOption } from 'components/Select'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
+import ActivityTokenFilter, {
+  type ActivityTokenFilterProps,
+} from 'pages/CopyTrading/CopyDetail/tables/ActivityTokenFilter'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import {
   HeaderCell,
@@ -69,7 +72,7 @@ const ActivityGrid = ({ header, className, ...props }: TableGridWrapperProps) =>
   return (
     <Grid
       className={cn(
-        'min-w-[900px] grid-cols-[minmax(84px,0.8fr)_minmax(80px,0.8fr)_minmax(160px,1fr)_minmax(120px,1fr)_minmax(160px,1.3fr)_minmax(104px,0.9fr)] gap-x-3 whitespace-nowrap',
+        'min-w-[980px] grid-cols-[minmax(84px,0.8fr)_repeat(2,minmax(180px,1fr))_minmax(120px,1fr)_minmax(160px,1.3fr)_minmax(104px,0.9fr)] gap-x-3 whitespace-nowrap',
         className,
       )}
       {...props}
@@ -101,20 +104,29 @@ const getActivityAsset = (activity: ActivityRow) => {
 }
 
 const formatActivityAmount = (amountRaw?: string, decimals?: number) => {
-  if (!amountRaw || decimals === undefined) return ''
+  if (!amountRaw || decimals === undefined) return '—'
 
   try {
     return formatTokenAmount(formatUnits(BigInt(amountRaw), decimals))
   } catch {
-    return ''
+    return '—'
   }
 }
 
 const getActivityTypeView = (activity: ActivityRow) => {
   return {
     colorClassName: getActivityToneClassName(getActivityTone(activity.subtype)),
-    label: activityTypeViews.find(type => type.value === activity.subtype)?.label || '',
+    label: activityTypeViews.find(type => type.value === activity.subtype)?.label || '—',
   }
+}
+
+type ActionLogsTableProps = {
+  infiniteScroll: InfiniteScrollState
+  loading?: boolean
+  onTypeFilterChange: (typeFilter: ActivityLogTypeFilter) => void
+  rows: ActivityRow[]
+  typeFilter: ActivityLogTypeFilter
+  tokenFilter: ActivityTokenFilterProps
 }
 
 export const ActionLogsTable = ({
@@ -123,44 +135,49 @@ export const ActionLogsTable = ({
   onTypeFilterChange,
   rows,
   typeFilter,
-}: {
-  infiniteScroll: InfiniteScrollState
-  loading?: boolean
-  onTypeFilterChange: (typeFilter: ActivityLogTypeFilter) => void
-  rows: ActivityRow[]
-  typeFilter: ActivityLogTypeFilter
-}) => {
+  tokenFilter,
+}: ActionLogsTableProps) => {
+  const typeSelect = (
+    <Select
+      arrow="chevron"
+      arrowSize={14}
+      className="w-[180px] min-w-0 bg-white/[0.08] px-3 py-2 text-xs font-medium text-subText hover:bg-white/[0.14]"
+      matchMenuWidth
+      onChange={onTypeFilterChange}
+      optionRender={option => (
+        <span className="flex w-full items-center justify-between gap-3">
+          {option?.label}
+          {option?.value === typeFilter && <Check className="shrink-0 text-subText" size={14} />}
+        </span>
+      )}
+      options={activityTypeFilterOptions}
+      value={typeFilter}
+    />
+  )
+
   return (
     <Stack>
+      <HStack className="flex-wrap gap-2 p-3 lg:hidden">
+        <ActivityTokenFilter {...tokenFilter} />
+        {typeSelect}
+      </HStack>
       <InfiniteScroll {...infiniteScroll}>
         <ActivityGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
-          <HeaderCell>Token</HeaderCell>
           <HeaderCell className="p-0">
-            <Select
-              arrow="chevron"
-              arrowSize={14}
-              className="w-[180px] min-w-0 bg-white/[0.08] px-3 py-2 text-xs font-medium text-subText hover:bg-white/[0.14]"
-              matchMenuWidth
-              onChange={onTypeFilterChange}
-              optionRender={option => (
-                <span className="flex w-full items-center justify-between gap-3">
-                  {option?.label}
-                  {option?.value === typeFilter && <Check className="shrink-0 text-subText" size={14} />}
-                </span>
-              )}
-              options={activityTypeFilterOptions}
-              value={typeFilter}
-            />
+            <ActivityTokenFilter {...tokenFilter} />
           </HeaderCell>
+          <HeaderCell className="p-0">{typeSelect}</HeaderCell>
           <HeaderCell className="justify-end text-right">Amount</HeaderCell>
           <HeaderCell className="justify-end text-right">Closed Time</HeaderCell>
           <HeaderCell className="justify-end text-right">Tx Hash</HeaderCell>
         </ActivityGrid>
         <TableBody
-          className="grid gap-2 bg-transparent lg:block lg:min-w-[900px] lg:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[980px] lg:bg-buttonBlack-60"
           empty={!rows.length}
-          emptyMessage="No action logs found"
+          emptyMessage={
+            typeFilter || tokenFilter.selectedToken ? 'No actions match these filters' : 'No action logs found'
+          }
           loading={loading}
         >
           {rows.map(row => {
@@ -180,7 +197,7 @@ export const ActionLogsTable = ({
                   <TableCell className="text-right">{amount}</TableCell>
                   <TableCell className="text-right text-subText">{formatDateTime(row.occurredAt)}</TableCell>
                   <TableCell className="flex justify-end text-subText">
-                    {row.txHash && <TxHashLink chainId={row.chainId} txHash={row.txHash} />}
+                    <TxHashLink chainId={row.chainId} txHash={txHash} />
                   </TableCell>
                 </ActivityGrid>
 
@@ -197,11 +214,9 @@ export const ActionLogsTable = ({
                     <TableCardField align="right" label="Closed Time" valueClassName="text-subText">
                       {formatDateTime(row.occurredAt)}
                     </TableCardField>
-                    {txHash && (
-                      <TableCardField span="full" label="Tx Hash" valueClassName="text-subText">
-                        <TxHashLink chainId={row.chainId} txHash={txHash} />
-                      </TableCardField>
-                    )}
+                    <TableCardField span="full" label="Tx Hash" valueClassName="text-subText">
+                      <TxHashLink chainId={row.chainId} txHash={txHash} />
+                    </TableCardField>
                   </TableCardGrid>
                 </Stack>
               </div>

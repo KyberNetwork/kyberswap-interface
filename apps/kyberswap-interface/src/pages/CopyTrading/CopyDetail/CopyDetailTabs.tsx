@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { Token } from 'services/copyTrading/types/agents'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import { Stack } from 'components/Stack'
@@ -35,18 +36,7 @@ const getCopyDetailTabCount = (tab: CopyDetailTab, run: CopyRunSummary) => {
   return tab === 'open-positions' ? run.openPositionCount : undefined
 }
 
-type CopyDetailTabsProps = {
-  defaultTab?: CopyDetailTab
-  includeOpenPositions?: boolean
-  run: CopyRunSummary
-}
-
-type CopyRunPanelProps = {
-  enabled?: boolean
-  run: CopyRunSummary
-}
-
-const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
+const OpenPositionsPanel = ({ enabled = true, run }: { enabled?: boolean; run: CopyRunSummary }) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
   const {
@@ -77,7 +67,7 @@ const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   )
 }
 
-const ClosedPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
+const ClosedPositionsPanel = ({ enabled = true, run }: { enabled?: boolean; run: CopyRunSummary }) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
   const {
@@ -92,6 +82,8 @@ const ClosedPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
         ownerAddress: ownerAddress || '',
         copyRunId: run.copyRunId,
         status: 'closed',
+        sortBy: 'closed_at',
+        sortOrder: 'desc',
         cursor,
         limit: PAGE_SIZE,
       }).unwrap(),
@@ -106,9 +98,16 @@ const ClosedPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   )
 }
 
-const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
+const ActionLogsPanel = ({ enabled = true, run }: { enabled?: boolean; run: CopyRunSummary }) => {
   const { ownerAddress } = useCopyTradingContext()
   const [typeFilter, setTypeFilter] = useState<ActivityLogTypeFilter>('')
+  const [selectedToken, setSelectedToken] = useState<Token>()
+  const [filterGeneration, setFilterGeneration] = useState(0)
+  // Product assumption: a run has fewer than 100 historical tokens; load only the first page.
+  const tokenChoices = copyRunApi.useGetCopyRunActivityTokensQuery(
+    { ownerAddress: ownerAddress || '', copyRunId: run.copyRunId, limit: 100 },
+    { skip: !ownerAddress || !enabled, pollingInterval: 10_000 },
+  )
   const [getOwnerActivity] = copyRunApi.useLazyGetOwnerActivityQuery()
   const categoryFilter =
     typeFilter === 'capital' ||
@@ -125,7 +124,16 @@ const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
     items: activities,
   } = useInfiniteCursorQuery({
     enabled: !!ownerAddress && enabled,
-    queryKey: ['copy-trading', 'owner-activity', ownerAddress, run.copyRunId, 'copy_run_log', typeFilter],
+    queryKey: [
+      'copy-trading',
+      'owner-activity',
+      ownerAddress,
+      run.copyRunId,
+      'copy_run_log',
+      typeFilter,
+      selectedToken?.address,
+      filterGeneration,
+    ],
     queryFn: cursor =>
       getOwnerActivity({
         ownerAddress: ownerAddress || '',
@@ -133,6 +141,7 @@ const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
         activitySurface: 'copy_run_log',
         category: categoryFilter,
         subtype: subtypeFilter,
+        tokenAddress: selectedToken?.address,
         cursor,
         limit: PAGE_SIZE,
       }).unwrap(),
@@ -142,11 +151,28 @@ const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
     <ActionLogsTable
       infiniteScroll={infiniteScroll}
       loading={isFetching && !activities.length}
-      onTypeFilterChange={setTypeFilter}
+      onTypeFilterChange={filter => {
+        setTypeFilter(filter)
+        setFilterGeneration(generation => generation + 1)
+      }}
       rows={activities}
       typeFilter={typeFilter}
+      tokenFilter={{
+        tokens: tokenChoices.currentData?.data || [],
+        selectedToken,
+        onChange: token => {
+          setSelectedToken(token)
+          setFilterGeneration(generation => generation + 1)
+        },
+      }}
     />
   )
+}
+
+type CopyDetailTabsProps = {
+  defaultTab?: CopyDetailTab
+  includeOpenPositions?: boolean
+  run: CopyRunSummary
 }
 
 export const CopyDetailTabs = ({
@@ -154,6 +180,7 @@ export const CopyDetailTabs = ({
   includeOpenPositions = true,
   run,
 }: CopyDetailTabsProps) => {
+  const { ownerAddress } = useCopyTradingContext()
   const tabs = includeOpenPositions ? copyDetailTabs : closedCopyDetailTabs
   const { activeTab, setActiveTab } = useTab<CopyDetailTab>({
     tabs,
@@ -186,7 +213,7 @@ export const CopyDetailTabs = ({
         <ClosedPositionsPanel enabled={currentTab === 'closed-positions'} run={run} />
       </div>
       <div className="relative min-h-20" hidden={currentTab !== 'action-logs'} role="tabpanel">
-        <ActionLogsPanel enabled={currentTab === 'action-logs'} run={run} />
+        <ActionLogsPanel key={`${ownerAddress}:${run.copyRunId}`} enabled={currentTab === 'action-logs'} run={run} />
       </div>
     </Stack>
   )

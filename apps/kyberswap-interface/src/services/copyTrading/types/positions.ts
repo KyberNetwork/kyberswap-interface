@@ -88,6 +88,9 @@ export type AgentPositionSummary = {
 }
 
 export type PositionSummary = AgentPositionSummary & {
+  tokensWithdrawn?: boolean
+  withdrawnBaseRaw?: string
+  withdrawnBaseDecimal?: DecimalString
   agentPositionId?: string
   copyRunId?: string
   copyAccount?: Address

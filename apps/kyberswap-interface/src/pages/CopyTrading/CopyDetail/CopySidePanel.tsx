@@ -133,12 +133,7 @@ const RemainingInWalletCard = ({
   )
 }
 
-type CopySidePanelProps = {
-  agent?: AgentProfile
-  run: CopyRunSummary
-}
-
-const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
+const CopySidePanel = ({ agent, run }: { agent?: AgentProfile; run: CopyRunSummary }) => {
   const { openAddCapital, openStopCopy, openWithdraw } = useCopyTradingModal()
 
   const copyAccountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
@@ -193,19 +188,36 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
 
   const capitalCard = (
     <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.capital}>
-      <CopyCapitalCard
-        addCapitalAvailability={run.addCapitalAvailability}
-        capital={<CapitalInCardValue run={run} />}
-        headerRight={
-          run.status === 'closing' || run.status === 'stopped' ? (
-            <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>
-          ) : undefined
-        }
-        stopCopyAvailability={run.stopCopyAvailability}
-        title={capitalCardTitle}
-        onAddCapital={run.status === 'active' ? () => openAddCapital(run) : undefined}
-        onStopCopy={run.status === 'active' ? () => openStopCopy(run) : undefined}
-      />
+      {run.status === 'closed' ? (
+        <SidePanelCard title={capitalCardTitle} bodyClassName="gap-2">
+          <HStack className="items-baseline justify-between gap-3">
+            <span className="text-subText">Capital In</span>
+            <span className="text-right text-lg font-medium tabular-nums text-text">
+              {formatUsd(run.capitalInUsd, 2)}
+            </span>
+          </HStack>
+          <HStack className="items-baseline justify-between gap-3">
+            <span className="text-subText">Capital Out</span>
+            <span className="text-right text-lg font-medium tabular-nums text-text">
+              {formatUsd(run.capitalOutUsd, 2)}
+            </span>
+          </HStack>
+        </SidePanelCard>
+      ) : (
+        <CopyCapitalCard
+          addCapitalAvailability={run.addCapitalAvailability}
+          capital={<CapitalInCardValue run={run} />}
+          headerRight={
+            run.status === 'closing' || run.status === 'stopped' ? (
+              <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>
+            ) : undefined
+          }
+          stopCopyAvailability={run.stopCopyAvailability}
+          title={capitalCardTitle}
+          onAddCapital={run.status === 'active' ? () => openAddCapital(run) : undefined}
+          onStopCopy={run.status === 'active' ? () => openStopCopy(run) : undefined}
+        />
+      )}
     </ResponsiveDetailItem>
   )
 
@@ -241,7 +253,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       )}
       {!isTerminal && agent && (
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.tokens}>
-          <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
+          <WhitelistedTokensCard tokens={agent.whitelistedTokens} />
         </ResponsiveDetailItem>
       )}
     </ResponsiveDetailContents>

@@ -34,6 +34,9 @@ import {
 } from './shared'
 
 type ApiPosition = {
+  tokensWithdrawn?: boolean
+  withdrawnBaseRaw?: string
+  withdrawnBaseDecimal?: ApiMetric
   positionId?: string
   agentPositionId?: string
   copyRunId?: string
@@ -235,6 +238,9 @@ const toPosition = (position: ApiPosition): PositionSummary => {
 
   return {
     ...agentPosition,
+    tokensWithdrawn: position.tokensWithdrawn,
+    withdrawnBaseRaw: position.withdrawnBaseRaw,
+    withdrawnBaseDecimal: metricValue(position.withdrawnBaseDecimal),
     agentPositionId: position.agentPositionId,
     copyRunId: position.copyRunId,
     copyAccount: position.copyAccount as Address | undefined,

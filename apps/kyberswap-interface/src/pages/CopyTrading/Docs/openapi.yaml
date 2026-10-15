@@ -1039,6 +1039,50 @@ paths:
             - ACTIVITY_SUBTYPE_COPY_STARTED
             - ACTIVITY_SUBTYPE_COPY_STOPPED
           default: ACTIVITY_SUBTYPE_UNSPECIFIED
+        - name: tokenAddress
+          description: |-
+            Only supported for COPY_RUN_LOG. Matches the traded base token and related
+            fees/cashback, or the actual token of a capital movement. The copy run
+            supplies chain scope. Changing this filter requires a new first page.
+          in: query
+          required: false
+          type: string
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/copy-runs/{copyRunId}/activity-tokens:
+    get:
+      summary: |-
+        ListOwnerCopyRunActivityTokens lists tokens represented by visible run
+        activity, including historical tokens outside the current whitelist.
+      operationId: listOwnerCopyRunActivityTokens
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerCopyRunActivityTokensResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Historical creation-wallet filter, not current ownership evidence.
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
       tags:
         - Owner Copies
   /users/{ownerAddress}/copy-accounts:
@@ -2809,10 +2853,6 @@ definitions:
       liveSince:
         type: string
         format: date-time
-      whitelistedSymbols:
-        type: array
-        items:
-          type: string
       tags:
         type: array
         items:
@@ -2848,6 +2888,16 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/v1GenerationScopedAgentFeePolicy'
+      whitelistedTokens:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Token'
+        description: |-
+          Replaces whitelisted_symbols with configured token identities and locally
+          available Token metadata. Missing symbol, name, decimals, or logo_url never
+          removes an entry or triggers an external metadata request. Addresses are
+          lowercase, unique, and sorted within this agent's chain.
     description: AgentProfile contains one agent profile.
   v1AgentSnapshot:
     type: object
@@ -3242,6 +3292,17 @@ definitions:
       token:
         $ref: '#/definitions/v1Token'
     description: CopyLifecycleActivityDetail contains typed copy-run lifecycle context.
+  v1CopyRunCapitalOutBreakdown:
+    type: object
+    properties:
+      quoteUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Quote still available plus quote already withdrawn on a settled run.
+      tokensWithdrawnUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: |-
+      CopyRunCapitalOutBreakdown supports the historical run's Capital Out tooltip.
+      Each component has independent availability; do not render an unknown as zero.
   v1CopyRunCashbackPolicy:
     type: object
     properties:
@@ -3359,7 +3420,7 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       capitalOutUsd:
         $ref: '#/definitions/v1DecimalMetric'
-        description: Same Amount Out display contract as CopyRunSummary.capital_out_usd.
+        description: Same withdrawal settlement contract as CopyRunSummary.capital_out_usd.
       portfolioValueUsd:
         $ref: '#/definitions/v1DecimalMetric'
       unrealizedPnlUsd:
@@ -3430,6 +3491,8 @@ definitions:
         description: |-
           Lifetime executed buy plus sell quote volume belonging to this copy run.
           Deposits, withdrawals, skipped trades, and agent volume are excluded.
+      capitalOutBreakdown:
+        $ref: '#/definitions/v1CopyRunCapitalOutBreakdown'
     description: |-
       CopyRunListItem contains one copy-run row for owner copy-run lists. It omits
       the detail-only estimated fee breakdown and Portfolio P&L fields.
@@ -3471,10 +3534,10 @@ definitions:
       capitalOutUsd:
         $ref: '#/definitions/v1DecimalMetric'
         description: |-
-          Amount Out display. For a proven closed run without remaining positions
-          or an in-kind withdrawal, includes quote still held plus prior quote
-          withdrawals, derived from canonical deposits plus net trading quote flow.
-          Other runs expose recorded withdrawals. This is not a withdrawal receipt.
+          On Closed runs without remaining positions: quote still available
+          plus quote already withdrawn, plus settled position-attributed tokens.
+          Stopped runs with active positions include only withdrawn value.
+          Missing settlement evidence remains unavailable.
       portfolioValueUsd:
         $ref: '#/definitions/v1DecimalMetric'
       unrealizedPnlUsd:
@@ -3521,7 +3584,8 @@ definitions:
           Current account equity for the selected copy-run row. Historical rows map
           this from the latest exact current stable balance while it satisfies the
           configured freshness policy; open/closing rows map from current portfolio
-          value when every component is current.
+          value, including a coherent retained or provisional value with its original
+          as-of timestamp and the valuation field group's quality.
       totalPnlUsd:
         $ref: '#/definitions/v1DecimalMetric'
         description: |-
@@ -3554,6 +3618,9 @@ definitions:
         description: |-
           Lifetime executed buy plus sell quote volume belonging to this copy run.
           Deposits, withdrawals, skipped trades, and agent volume are excluded.
+      capitalOutBreakdown:
+        $ref: '#/definitions/v1CopyRunCapitalOutBreakdown'
+        description: Present only when canonical position token withdrawal occurred.
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -4124,6 +4191,22 @@ definitions:
       meta:
         $ref: '#/definitions/v1ResponseMeta'
     description: ListOwnerCopyAccountsResponse is the owner copy-account list envelope.
+  v1ListOwnerCopyRunActivityTokensResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Token'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: |-
+      ListOwnerCopyRunActivityTokensResponse contains token choices across all
+      visible run activity, independent of log filters, page, and current whitelist.
+      Entries are unique and ordered by address. Missing metadata retains identity.
   v1ListOwnerCopyRunPerformanceResponse:
     type: object
     properties:
@@ -4689,8 +4772,9 @@ definitions:
           Net follower Position P&L. Open inventory uses settled quote received plus
           current remaining value minus original quote spent. Actual fees and received
           cashback are already included; estimated cashback is excluded. Closed
-          positions use canonical realized P&L. After proven full withdrawal, residual
-          positions use canonical state and a historical mark at the first Stop.
+          positions use settled realized P&L, including tokens valued at their
+          withdrawal boundary. Residual positions without a canonical withdrawal
+          closure retain the historical first-Stop valuation.
       manualSellAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
         description: Independent guidance remains present when an action is not recommended.
@@ -4705,6 +4789,27 @@ definitions:
           P&L, gas, price impact and slippage. Not a route quote or execution promise.
           Not applicable for closed/withdrawn positions; unavailable when required
           accounting, mark or fee-policy evidence is missing. Render as an estimate.
+      withdrawnBaseRaw:
+        type: string
+        description: |-
+          Position-attributed net base quantity settled by a canonical withdrawal.
+          This excludes wallet dust and unrelated deposits and is not the exact
+          owner receipt for transfer-tax or rebasing tokens. Absent for other exits.
+      withdrawnBaseDecimal:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          withdrawn_base_raw converted with token.decimals. For WITHDRAWAL_CLOSE,
+          display this token quantity instead of quote proceeds. Withdrawal itself
+          earns zero rebate; cashback_received_usd still retains earlier sell rebates.
+      tokensWithdrawn:
+        type: boolean
+        description: |-
+          Display-only withdrawal history for a closed follower position's base token
+          in this copy run. True labels every closed position sharing that token,
+          including earlier sold positions; their exit_kind and accounting are unchanged.
+          False means no recorded withdrawal in the current aggregate snapshot.
+          Absent when inapplicable or invalidated. It does not prove the wallet is
+          empty or attribute a transferred quantity to this particular position.
     description: PositionSummary is a follower position row.
   v1PositionValuation:
     type: object

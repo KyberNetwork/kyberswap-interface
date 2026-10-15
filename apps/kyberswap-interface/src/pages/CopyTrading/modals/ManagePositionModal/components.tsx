@@ -19,12 +19,11 @@ import {
   formatPreparedRate,
   formatSlippage,
   formatWadPercent,
-  withMetricFallback,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { ButtonText } from 'theme/components'
 import { formatDateTime } from 'utils/time'
 
-const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
+const withApproximateMetricFallback = (value: string) => (value === '—' ? '—' : `~${value}`)
 
 const formatSkipReason = (value?: string, message?: string) =>
   value
@@ -32,7 +31,7 @@ const formatSkipReason = (value?: string, message?: string) =>
     .replaceAll('_', ' ')
     .toLowerCase() ||
   message ||
-  'N/A'
+  '—'
 
 type TokenAmountPanelProps = {
   amount?: RawAmountMetric
@@ -43,7 +42,7 @@ type TokenAmountPanelProps = {
 }
 
 const TokenAmountPanel = ({ amount, chainId, isLoading, label, token }: TokenAmountPanelProps) => {
-  const value = withMetricFallback(formatPreparedExactAmountValue(amount, token))
+  const value = formatPreparedExactAmountValue(amount, token)
 
   return (
     <Stack className="gap-2 rounded-xl bg-white-04 p-3">
@@ -70,28 +69,23 @@ const getPreparedBaseToken = (position: PositionSummary, token?: PreparedToken):
   symbol: token?.symbol ?? position.token.symbol,
 })
 
-export const ManagePositionReview = ({
-  isLoading,
-  onRefresh,
-  position,
-  preview,
-}: {
+type ManagePositionReviewProps = {
   isLoading: boolean
   onRefresh: () => void
   position: PositionSummary
   preview?: PositionSellPreview
-}) => {
+}
+
+export const ManagePositionReview = ({ isLoading, onRefresh, position, preview }: ManagePositionReviewProps) => {
   const [invertedRate, setInvertedRate] = useState(false)
 
   const showSkeleton = isLoading && !preview
   const baseToken = getPreparedBaseToken(position, preview?.baseToken)
-  const rate = withMetricFallback(
-    formatPreparedRate(
-      invertedRate ? preview?.swapQuote?.expectedQuote : preview?.sellBase,
-      invertedRate ? preview?.quoteToken : baseToken,
-      invertedRate ? preview?.sellBase : preview?.swapQuote?.expectedQuote,
-      invertedRate ? baseToken : preview?.quoteToken,
-    ),
+  const rate = formatPreparedRate(
+    invertedRate ? preview?.swapQuote?.expectedQuote : preview?.sellBase,
+    invertedRate ? preview?.quoteToken : baseToken,
+    invertedRate ? preview?.sellBase : preview?.swapQuote?.expectedQuote,
+    invertedRate ? baseToken : preview?.quoteToken,
   )
 
   return (
@@ -136,7 +130,7 @@ export const ManagePositionReview = ({
           className="ml-1 flex shrink-0 items-center text-subText hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
           aria-label="Invert rate"
           title="Invert rate"
-          disabled={isLoading || rate === 'N/A'}
+          disabled={isLoading || rate === '—'}
           onClick={() => setInvertedRate(value => !value)}
         >
           <Repeat size={14} />
@@ -144,15 +138,11 @@ export const ManagePositionReview = ({
       </div>
 
       <ReviewSection>
-        <ReviewRow
-          isLoading={showSkeleton}
-          label="Portion To Sell"
-          value={withMetricFallback(formatWadPercent(preview?.sellRatioRaw))}
-        />
+        <ReviewRow isLoading={showSkeleton} label="Portion To Sell" value={formatWadPercent(preview?.sellRatioRaw)} />
         <ReviewRow
           isLoading={showSkeleton}
           label="Minimum Received"
-          value={withMetricFallback(formatPreparedAmount(preview?.swapQuote?.minimumQuote, preview?.quoteToken))}
+          value={formatPreparedAmount(preview?.swapQuote?.minimumQuote, preview?.quoteToken)}
         />
         <ReviewRow
           isLoading={showSkeleton}
@@ -162,43 +152,20 @@ export const ManagePositionReview = ({
         <ReviewRow
           isLoading={showSkeleton}
           label="Effective Slippage"
-          value={withMetricFallback(formatSlippage(preview?.swapQuote?.effectiveSlippageBps))}
+          value={formatSlippage(preview?.swapQuote?.effectiveSlippageBps)}
         />
       </ReviewSection>
     </Stack>
   )
 }
 
-type ManagePositionFormProps = {
-  isPreparing: boolean
-  onCancel: () => void
-  onPrimaryAction: () => void
-  onPreviewRetry: () => void
-  onSlippageChange: (slippage: number) => void
-  position: PositionSummary
-  preview?: PositionSellPreview
-  previewError?: string
-  previewLoading: boolean
-  pendingSellObligations?: PendingSellObligation[]
-  pendingSellObligationsError?: string
-  pendingSellObligationsLoading: boolean
-  primaryActionDisabled: boolean
-  primaryActionLabel: string
-  primaryActionLoading: boolean
-  showClosePositionSummary: boolean
-  slippage: number
-  unavailableMessage?: string
-}
-
-export const ManagePositionTitle = ({
-  actionLabel,
-  isReview,
-  showSkippedActions,
-}: {
+type ManagePositionTitleProps = {
   actionLabel: string
   isReview: boolean
   showSkippedActions: boolean
-}) => {
+}
+
+export const ManagePositionTitle = ({ actionLabel, isReview, showSkippedActions }: ManagePositionTitleProps) => {
   if (isReview) return <>Review Sell</>
   if (!showSkippedActions) return <>{actionLabel}</>
 
@@ -221,15 +188,7 @@ const PositionTrade = ({ position }: { position: PositionSummary }) => (
   </div>
 )
 
-const PositionSellSummary = ({
-  pendingSellObligations,
-  pendingSellObligationsError,
-  pendingSellObligationsLoading,
-  position,
-  preview,
-  previewLoading,
-  showClosePositionSummary,
-}: Pick<
+type PositionSellSummaryProps = Pick<
   ManagePositionFormProps,
   | 'pendingSellObligations'
   | 'pendingSellObligationsError'
@@ -238,13 +197,23 @@ const PositionSellSummary = ({
   | 'preview'
   | 'previewLoading'
   | 'showClosePositionSummary'
->) => {
+>
+
+const PositionSellSummary = ({
+  pendingSellObligations,
+  pendingSellObligationsError,
+  pendingSellObligationsLoading,
+  position,
+  preview,
+  previewLoading,
+  showClosePositionSummary,
+}: PositionSellSummaryProps) => {
   const token: PreparedToken = {
     decimals: position.token.decimals,
     logoUrl: position.token.iconUrl,
     symbol: position.token.symbol,
   }
-  const remainingAmount = withMetricFallback(formatPreparedAmount(position.displayBaseRaw, token))
+  const remainingAmount = formatPreparedAmount(position.displayBaseRaw, token)
   const remainingValue = formatApproximateUsd(position.valueUsd)
   const remaining = (
     <>
@@ -252,9 +221,7 @@ const PositionSellSummary = ({
     </>
   )
 
-  const sellAmount = withMetricFallback(
-    formatPreparedAmount(preview?.sellBase, getPreparedBaseToken(position, preview?.baseToken)),
-  )
+  const sellAmount = formatPreparedAmount(preview?.sellBase, getPreparedBaseToken(position, preview?.baseToken))
   const sellRatio = formatWadPercent(preview?.sellRatioRaw)
   const estimatedOutput = formatPreparedAmount(preview?.swapQuote?.expectedQuote, preview?.quoteToken)
 
@@ -287,9 +254,7 @@ const PositionSellSummary = ({
                   <div className="flex min-w-0 items-center gap-1 whitespace-nowrap">
                     <span className="shrink-0">{formatDateTime(obligation.skippedAt)}</span>
                     <span className="shrink-0">·</span>
-                    <span className="shrink-0 text-primary">
-                      {withMetricFallback(formatWadPercent(obligation.currentRatioRaw))} sell
-                    </span>
+                    <span className="shrink-0 text-primary">{formatWadPercent(obligation.currentRatioRaw)} sell</span>
                     <span className="shrink-0">·</span>
                     <span
                       className="min-w-0 truncate"
@@ -329,7 +294,7 @@ const PositionSellSummary = ({
         <ReviewRow
           isLoading={previewLoading}
           label="Estimated Output"
-          value={estimatedOutput === '—' ? withMetricFallback(estimatedOutput) : `~${estimatedOutput}`}
+          value={withApproximateMetricFallback(estimatedOutput)}
         />
         <ReviewRow
           isLoading={previewLoading}
@@ -339,6 +304,27 @@ const PositionSellSummary = ({
       </ReviewSection>
     </Stack>
   )
+}
+
+type ManagePositionFormProps = {
+  isPreparing: boolean
+  onCancel: () => void
+  onPrimaryAction: () => void
+  onPreviewRetry: () => void
+  onSlippageChange: (slippage: number) => void
+  position: PositionSummary
+  preview?: PositionSellPreview
+  previewError?: string
+  previewLoading: boolean
+  pendingSellObligations?: PendingSellObligation[]
+  pendingSellObligationsError?: string
+  pendingSellObligationsLoading: boolean
+  primaryActionDisabled: boolean
+  primaryActionLabel: string
+  primaryActionLoading: boolean
+  showClosePositionSummary: boolean
+  slippage: number
+  unavailableMessage?: string
 }
 
 export const ManagePositionForm = ({

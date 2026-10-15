@@ -67,6 +67,7 @@ export type CopyRunListItem = {
   capitalInUsd?: DecimalString
   capitalInProjectionStatus: CapitalInProjectionStatus
   capitalOutUsd?: DecimalString
+  capitalOutBreakdown?: CopyRunCapitalOutBreakdown
   portfolioValueUsd?: DecimalString
   unrealizedPnlUsd?: DecimalString
   roiPct?: DecimalString
@@ -93,6 +94,11 @@ export type CopyRunListItem = {
   metrics: Record<string, Metric | undefined>
   agentSnapshot?: AgentSnapshot
   agentStats: AgentStats
+}
+
+export type CopyRunCapitalOutBreakdown = {
+  quoteUsd?: DecimalString
+  tokensWithdrawnUsd?: DecimalString
 }
 
 export type CopyRunFeeBreakdown = {

@@ -118,7 +118,7 @@ export const getAlertFeedItemViewModel = (activity: ActivityRow): AlertFeedItemV
 export const formatAlertFeedTime = (value?: string, now: string | number | Date = Date.now()) => {
   const occurredAt = dayjs(value)
   const currentTime = dayjs(now)
-  if (!value || !occurredAt.isValid() || !currentTime.isValid()) return '-'
+  if (!value || !occurredAt.isValid() || !currentTime.isValid()) return '—'
 
   const seconds = Math.max(0, currentTime.diff(occurredAt, 'second'))
   if (seconds < 60) return 'just now'

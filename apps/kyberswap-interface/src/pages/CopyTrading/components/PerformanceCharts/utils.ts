@@ -15,7 +15,7 @@ export type PerformanceChartPoint = {
   valuePct?: number
 }
 
-export type PnlDataKey = 'totalPnlUsd' | 'valuePct'
+export type PnlDataKey = 'totalPnlUsd' | 'realizedPnlUsd' | 'valuePct'
 
 export type YAxisScale = {
   domain: [number, number]

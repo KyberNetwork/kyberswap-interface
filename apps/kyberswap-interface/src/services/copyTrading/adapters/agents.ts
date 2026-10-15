@@ -97,7 +97,7 @@ type ApiAgentCard = {
 type ApiAgentProfile = ApiAgentCard & {
   bio?: string
   liveSince?: string
-  whitelistedSymbols?: string[]
+  whitelistedTokens?: ApiToken[]
   tags?: string[]
   strategyExecutionItems?: { label?: string; description?: string }[]
 }
@@ -218,7 +218,7 @@ const toAgentProfile = (agent: ApiAgentProfile): AgentProfile => ({
   ...toAgentCard(agent),
   bio: agent.bio,
   liveSince: agent.liveSince,
-  whitelistedSymbols: agent.whitelistedSymbols || [],
+  whitelistedTokens: (agent.whitelistedTokens || []).map(toToken),
   tags: agent.tags || [],
   strategyExecutionItems:
     agent.strategyExecutionItems?.map(item => ({

@@ -1,14 +1,18 @@
 import type { AgentProfile } from 'services/copyTrading/types/agents'
 
+import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { getWinRateClassName, percent } from 'pages/CopyTrading/helpers'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
-type RiskCardProps = Pick<AgentProfile['stats'], 'maxDrawdownPct' | 'winRatePct'>
-
-export const RiskCard = ({ maxDrawdownPct, winRatePct }: RiskCardProps) => {
+export const RiskCard = ({
+  maxDrawdownPct,
+  winRatePct,
+}: Pick<AgentProfile['stats'], 'maxDrawdownPct' | 'winRatePct'>) => {
   return (
     <SidePanelCard bodyClassName="gap-3 py-4">
       <HStack className="min-h-6 items-center justify-between gap-2">
@@ -51,7 +55,7 @@ export const StrategyExecutionCard = ({ items }: { items: AgentProfile['strategy
   )
 }
 
-export const WhitelistedTokensCard = ({ tokens }: { tokens: string[] }) => {
+export const WhitelistedTokensCard = ({ tokens }: { tokens: AgentProfile['whitelistedTokens'] }) => {
   return (
     <SidePanelCard
       title={
@@ -64,12 +68,23 @@ export const WhitelistedTokensCard = ({ tokens }: { tokens: string[] }) => {
       <HStack className="flex-wrap gap-2">
         {tokens.length ? (
           tokens.map(token => (
-            <span
-              key={token}
-              className="rounded-full border border-darkBorder bg-background px-3 py-1 text-sm font-medium text-subText"
+            <MouseoverTooltip
+              key={`${token.chainId}:${token.address}`}
+              placement="top"
+              width="max-content"
+              maxWidth="calc(100vw - 32px)"
+              text={
+                <HStack className="items-center gap-2 whitespace-nowrap">
+                  <span className="text-subText">Address:</span>
+                  <span>{shortenAddress(token.chainId, token.address, 4, false)}</span>
+                  <CopyHelper toCopy={token.address} margin="0" size={14} />
+                </HStack>
+              }
             >
-              {token}
-            </span>
+              <span className="rounded-full border border-darkBorder bg-background px-3 py-1 text-sm font-medium text-subText">
+                {token.symbol?.trim() || `${token.address.slice(0, 6)}...${token.address.slice(-4)}`}
+              </span>
+            </MouseoverTooltip>
           ))
         ) : (
           <p className="text-sm font-medium text-subText">No whitelisted tokens</p>

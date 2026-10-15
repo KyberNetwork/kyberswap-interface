@@ -122,6 +122,8 @@ export type CopyRunPositionClosedExecutionsQuery = CursorQuery &
 
 export type CopyRunPerformanceQuery = CursorQuery & CopyRunQuery & PerformanceQuery
 
+export type CopyRunActivityTokensQuery = CursorQuery & CopyRunQuery
+
 export type OwnerPositionsQuery = CursorQuery &
   OwnerQuery & {
     status?: PositionStatusFilter
@@ -136,6 +138,7 @@ export type OwnerActivityQuery = CursorQuery &
     activityType?: ActivityTypeFilter
     group?: 'buys' | 'sells' | 'deposits_withdrawals' | 'skipped'
     activitySurface?: ActivitySurface
+    tokenAddress?: Address
     category?: ActivityCategory
     subtype?: ActivitySubtype
   }

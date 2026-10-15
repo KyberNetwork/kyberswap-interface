@@ -7,7 +7,7 @@ import { Stack } from 'components/Stack'
 import { formatUsd } from 'pages/CopyTrading/helpers'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { UINT256_MAX_RAW } from 'pages/CopyTrading/modals/WithdrawModal/utils'
 import { shortenAddress } from 'utils/address'
 
@@ -19,11 +19,9 @@ type WithdrawQuoteReviewProps = {
 
 export const WithdrawQuoteReview = ({ chainId, isLoading, preview }: WithdrawQuoteReviewProps) => {
   const showSkeleton = isLoading && !preview
-  const withdrawalAmount = withMetricFallback(
-    formatPreparedAmount(
-      preview?.sweepAmountRaw === UINT256_MAX_RAW ? preview.quoteBalance : preview?.sweepAmountRaw,
-      preview?.quoteToken,
-    ),
+  const withdrawalAmount = formatPreparedAmount(
+    preview?.sweepAmountRaw === UINT256_MAX_RAW ? preview.quoteBalance : preview?.sweepAmountRaw,
+    preview?.quoteToken,
   )
 
   return (
@@ -31,16 +29,30 @@ export const WithdrawQuoteReview = ({ chainId, isLoading, preview }: WithdrawQuo
       <ReviewRow
         isLoading={showSkeleton}
         label="Prepared Balance"
-        value={withMetricFallback(formatPreparedAmount(preview?.quoteBalance, preview?.quoteToken))}
+        value={formatPreparedAmount(preview?.quoteBalance, preview?.quoteToken)}
       />
       <ReviewRow isLoading={showSkeleton} label="Withdrawal Amount" value={withdrawalAmount} />
       <ReviewRow
         isLoading={showSkeleton}
         label="Recipient"
-        value={preview?.recipientAddress ? shortenAddress(chainId, preview.recipientAddress) : 'N/A'}
+        value={preview?.recipientAddress ? shortenAddress(chainId, preview.recipientAddress) : '—'}
       />
     </ReviewSection>
   )
+}
+
+type WithdrawQuoteInputProps = {
+  amount: string
+  amountError?: string
+  isPreparing: boolean
+  onAmountChange: (amount: string) => void
+  onHalf: () => void
+  onMax: () => void
+  presetsEnabled: boolean
+  quoteCurrency: Token
+  selectedChainId: number
+  walletBalanceLoading: boolean
+  walletBalanceText: string
 }
 
 export const WithdrawQuoteInput = ({
@@ -55,19 +67,7 @@ export const WithdrawQuoteInput = ({
   selectedChainId,
   walletBalanceLoading,
   walletBalanceText,
-}: {
-  amount: string
-  amountError?: string
-  isPreparing: boolean
-  onAmountChange: (amount: string) => void
-  onHalf: () => void
-  onMax: () => void
-  presetsEnabled: boolean
-  quoteCurrency: Token
-  selectedChainId: number
-  walletBalanceLoading: boolean
-  walletBalanceText: string
-}) => (
+}: WithdrawQuoteInputProps) => (
   <CapitalAmountInput
     mode="compact"
     amount={amount}
@@ -89,15 +89,13 @@ export const WithdrawQuoteInput = ({
   />
 )
 
-export const WithdrawTokensReview = ({
-  preview,
-  chainId,
-  agentName,
-}: {
+type WithdrawTokensReviewProps = {
   preview?: WithdrawTokensPreview
   chainId: number
   agentName?: string
-}) => (
+}
+
+export const WithdrawTokensReview = ({ preview, chainId, agentName }: WithdrawTokensReviewProps) => (
   <Stack className="gap-4">
     <ReviewSection>
       <p className="text-sm font-medium text-subText">{agentName}</p>
@@ -113,7 +111,7 @@ export const WithdrawTokensReview = ({
       <ReviewRow label="Estimated Rebates at Risk" value={formatUsd(metricValue(preview?.cashbackForfeitedUsd))} />
       <ReviewRow
         label="Recipient"
-        value={preview?.recipientAddress ? shortenAddress(chainId, preview.recipientAddress) : 'N/A'}
+        value={preview?.recipientAddress ? shortenAddress(chainId, preview.recipientAddress) : '—'}
       />
     </ReviewSection>
     <ErrorWarning type="warn" title="This withdrawal permanently stops copying. Pending rebates may be forfeited." />

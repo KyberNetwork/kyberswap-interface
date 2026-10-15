@@ -64,6 +64,6 @@ describe('Copy Trading syncing indicators', () => {
     expect(html).toContain('$0')
     expect(html).not.toContain('Syncing')
     expect(html).not.toContain('Stale')
-    expect(html).not.toContain('N/A')
+    expect(html).not.toContain('—')
   })
 })
