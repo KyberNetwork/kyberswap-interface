@@ -8,7 +8,7 @@ import { getInitialListOrdersArgs, useSupportedLimitOrderChains } from 'componen
 import { StopOrderStatus } from 'components/StopOrder/types'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { isSupportLimitOrder } from 'constants/networks'
+import { isSupportLimitOrder, isSupportStopOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { Tab } from 'pages/Swap/layout/Tabs'
 
@@ -41,8 +41,9 @@ export const LimitTab = ({ onClick, active, customChainId }: Props) => {
   )
 
   // Stop orders live under the same tab, so the badge counts them too. An omitted `chainIds` is the
-  // service's all-chains path; only the total is read.
-  const skipStopOrders = !account
+  // service's all-chains path; only the total is read. Not on a chain without stop orders: the tab
+  // offers no way to reach them there, so the badge would count orders the user cannot find.
+  const skipStopOrders = !account || !isSupportStopOrder(chainId)
   const { data: { totalItems: totalStopOrders = 0 } = {} } = useGetStopOrdersQuery(
     { userWallet: account || '', statuses: [StopOrderStatus.OPEN], page: 1, pageSize: 1 },
     { skip: skipStopOrders, refetchOnFocus: true, pollingInterval: 10_000 },
