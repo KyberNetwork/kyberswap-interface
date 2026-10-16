@@ -41,6 +41,7 @@ const config: Config = {
         text: {
           DEFAULT: 'rgb(var(--ks-text-rgb) / <alpha-value>)',
           '04': 'var(--ks-text-04)',
+          '06': 'var(--ks-text-06)',
           '08': 'var(--ks-text-08)',
           12: 'var(--ks-text-12)',
           60: 'var(--ks-text-60)',

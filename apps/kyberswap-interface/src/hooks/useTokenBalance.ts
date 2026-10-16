@@ -11,12 +11,14 @@ import { Address } from 'utils/viem'
 interface BalanceProps {
   value: bigint
   decimals: number
+  isLoading: boolean
 }
 
-const EMPTY_BALANCE: BalanceProps = { value: 0n, decimals: 18 }
+const EMPTY_BALANCE: BalanceProps = { value: 0n, decimals: 18, isLoading: false }
+const INITIAL_BALANCE: BalanceProps = { ...EMPTY_BALANCE, isLoading: true }
 
 function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
-  const [balance, setBalance] = useState<BalanceProps>(EMPTY_BALANCE)
+  const [balance, setBalance] = useState<BalanceProps>(INITIAL_BALANCE)
   const { account, chainId: activeChainId } = useActiveWeb3React()
   const chainId = customChainId || activeChainId
   const publicClient = usePublicClient({ chainId: chainId as number })
@@ -33,10 +35,11 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
       setBalance(EMPTY_BALANCE)
       return
     }
+    setBalance(currentBalance => ({ ...currentBalance, isLoading: true }))
     try {
       if (addressCheckSum === WETH[chainId].address) {
         const ethBalance = await publicClient.getBalance({ address: account as Address })
-        setBalance({ value: ethBalance, decimals: 18 })
+        setBalance({ value: ethBalance, decimals: 18, isLoading: false })
         return
       }
       const cacheKey = `${chainId}:${addressCheckSum}`
@@ -48,7 +51,7 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
           functionName: 'balanceOf',
           args: [account],
         })) as bigint
-        setBalance({ value: rawBalance, decimals: cachedDecimals })
+        setBalance({ value: rawBalance, decimals: cachedDecimals, isLoading: false })
         return
       }
       const [rawBalance, decimals] = await Promise.all([
@@ -65,7 +68,7 @@ function useTokenBalance(tokenAddress: string, customChainId?: ChainId) {
         }) as Promise<number>,
       ])
       decimalsCacheRef.current.set(cacheKey, decimals)
-      setBalance({ value: rawBalance, decimals })
+      setBalance({ value: rawBalance, decimals, isLoading: false })
     } catch {
       setBalance(EMPTY_BALANCE)
     }
