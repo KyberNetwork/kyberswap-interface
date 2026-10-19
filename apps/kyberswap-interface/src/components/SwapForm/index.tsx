@@ -8,20 +8,22 @@ import { NotificationType } from 'components/Announcement/type'
 import FeeControlGroup from 'components/FeeControlGroup'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { NetworkSelector } from 'components/NetworkSelector'
+import { Center, Stack } from 'components/Stack'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
+import MEVProtection from 'components/SwapForm/MEVProtection'
 import MultichainKNCNote from 'components/SwapForm/MultichainKNCNote'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
-import SlippageSettingGroup from 'components/SwapForm/SlippageSettingGroup'
+import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import SwapActionButton from 'components/SwapForm/SwapActionButton'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import TradeSummary from 'components/SwapForm/TradeSummary'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
-import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
+import useSwapQuote from 'components/SwapForm/hooks/useSwapQuote'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -31,6 +33,7 @@ import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useSlippageSettingByPage } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { cn } from 'utils/cn'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
@@ -60,6 +63,7 @@ export type SwapFormProps = {
 
 const SwapForm: React.FC<SwapFormProps> = props => {
   const notify = useNotify()
+  const { isSlippageControlPinned } = useSlippageSettingByPage()
   const [searchParams] = useSearchParams()
   const {
     hidden,
@@ -176,11 +180,12 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
   const {
-    fetcher: getRoute,
+    refresh,
     result,
     isLoading: routeLoading,
     intendedFeeConfig,
-  } = useGetRoute({
+  } = useSwapQuote({
+    isWrapOrUnwrap,
     currencyIn,
     currencyOut,
     parsedAmount,
@@ -261,12 +266,12 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       recipient={recipient}
       isAdvancedMode={isDegenMode}
     >
-      <div className={cn('flex-col gap-4', hidden ? 'hidden' : 'flex')}>
-        <div id={TutorialIds.SWAP_FORM_CONTENT} className="relative z-[1] bg-background">
-          <div className="flex flex-col gap-3">
-            {omniView ? <NetworkSelector chainId={chainId} /> : null}
+      <Stack className={cn('gap-4', hidden && 'hidden')}>
+        <Stack id={TutorialIds.SWAP_FORM_CONTENT} className="relative z-[1] gap-3 bg-background">
+          {omniView ? <NetworkSelector chainId={chainId} /> : null}
 
-            <div className="flex flex-col gap-2">
+          <Stack className="gap-3">
+            <div className="relative">
               <InputCurrencyPanel
                 wrapType={wrapType}
                 typedValue={displayTypedValue}
@@ -281,84 +286,83 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 customChainId={customChainId}
               />
 
-              <ReverseTokenSelectionButton
-                className="z-20 -my-4 mx-auto"
-                onClick={() => {
-                  trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
-                    from_token: currencyIn?.symbol,
-                    to_token: currencyOut?.symbol,
-                    new_from_token: currencyOut?.symbol,
-                    new_to_token: currencyIn?.symbol,
-                    chain: networkInfo.name,
-                  })
-                  currencyIn && onChangeCurrencyOut(currencyIn)
-                  routeSummary && onRawValue(routeSummary.parsedAmountOut.toExact())
-                }}
-              />
-
-              <OutputCurrencyPanel
-                wrapType={wrapType}
-                parsedAmountIn={parsedAmount}
-                parsedAmountOut={displayAmountOut}
-                currencyIn={currencyIn}
-                currencyOut={currencyOut}
-                amountOutUsd={routeSummary?.amountOutUsd}
-                balanceText={erc8056Info.output.balanceText}
-                highlightToken={erc8056Info.output.isScaled}
-                onChangeCurrencyOut={handleChangeCurrencyOut}
-                customChainId={customChainId}
-                routeLoading={routeLoading}
-              />
+              <Center className="pointer-events-none absolute inset-x-0 -bottom-5 z-20">
+                <ReverseTokenSelectionButton
+                  className="pointer-events-auto"
+                  onClick={() => {
+                    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
+                      from_token: currencyIn?.symbol,
+                      to_token: currencyOut?.symbol,
+                      new_from_token: currencyOut?.symbol,
+                      new_to_token: currencyIn?.symbol,
+                      chain: networkInfo.name,
+                    })
+                    currencyIn && onChangeCurrencyOut(currencyIn)
+                    routeSummary && onRawValue(routeSummary.parsedAmountOut.toExact())
+                  }}
+                />
+              </Center>
             </div>
+            <OutputCurrencyPanel
+              wrapType={wrapType}
+              parsedAmountIn={parsedAmount}
+              parsedAmountOut={displayAmountOut}
+              currencyIn={currencyIn}
+              currencyOut={currencyOut}
+              amountOutUsd={routeSummary?.amountOutUsd}
+              balanceText={erc8056Info.output.balanceText}
+              highlightToken={erc8056Info.output.isScaled}
+              onChangeCurrencyOut={handleChangeCurrencyOut}
+              customChainId={customChainId}
+              routeLoading={routeLoading}
+            />
+          </Stack>
 
-            <ERC8056Info tokens={erc8056Info.tokens} />
+          <ERC8056Info tokens={erc8056Info.tokens} />
 
-            {isDegenMode && !isWrapOrUnwrap && (
-              <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
-            )}
-            <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} />
-            {!isWrapOrUnwrap && <FeeControlGroup />}
-          </div>
-        </div>
-        <div className="flex flex-col gap-4">
+          {isDegenMode && !isWrapOrUnwrap && (
+            <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
+          )}
+        </Stack>
+        <Stack className="gap-2">
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
+          {!isWrapOrUnwrap && isSlippageControlPinned && <SlippageSetting />}
           {!isWrapOrUnwrap && (
             <TradeSummary
               routeSummary={routeSummary}
-              routeLoading={routeLoading}
               slippage={slippage}
-              disableRefresh={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
-              refreshCallback={getRoute}
+              refresh={refresh}
               isFeeTampered={isFeeTampered}
             />
           )}
 
+          {!isWrapOrUnwrap && <FeeControlGroup />}
+          <MEVProtection className="w-fit self-end" />
           <HoneypotWarning message={honeypotWarning} />
 
           <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
-
-          <SwapActionButton
-            isGettingRoute={isGettingRoute}
-            parsedAmountFromTypedValue={parsedAmount}
-            balanceIn={balanceIn}
-            balanceOut={balanceOut}
-            isDegenMode={isDegenMode}
-            typedValue={typedValue}
-            currencyIn={currencyIn}
-            currencyOut={currencyOut}
-            wrapInputError={wrapInputError}
-            wrapType={wrapType}
-            routeSummary={routeSummary}
-            isProcessingSwap={isProcessingSwap}
-            setProcessingSwap={setProcessingSwap}
-            onWrap={onWrap}
-            buildRoute={buildRoute}
-            swapInputError={swapInputError}
-            customChainId={customChainId}
-          />
-        </div>
-      </div>
+        </Stack>
+        <SwapActionButton
+          isGettingRoute={isGettingRoute}
+          parsedAmountFromTypedValue={parsedAmount}
+          balanceIn={balanceIn}
+          balanceOut={balanceOut}
+          isDegenMode={isDegenMode}
+          typedValue={typedValue}
+          currencyIn={currencyIn}
+          currencyOut={currencyOut}
+          wrapInputError={wrapInputError}
+          wrapType={wrapType}
+          routeSummary={routeSummary}
+          isProcessingSwap={isProcessingSwap}
+          setProcessingSwap={setProcessingSwap}
+          onWrap={onWrap}
+          buildRoute={buildRoute}
+          swapInputError={swapInputError}
+          customChainId={customChainId}
+        />
+      </Stack>
     </SwapFormContextProvider>
   )
 }
