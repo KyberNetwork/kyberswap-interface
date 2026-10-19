@@ -93,7 +93,7 @@ const useBuildRoute = (args: Args) => {
     const payload: BuildRoutePayload = {
       routeSummary: rawRouteSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
-      slippageTolerance: slippage,
+      ...(isExactOut ? {} : { slippageTolerance: slippage }),
       sender: account,
       recipient: to || account,
       source: clientId || 'kyberswap',
@@ -155,6 +155,7 @@ const useBuildRoute = (args: Args) => {
     permit,
     currencyIn,
     currencyOut?.decimals,
+    isExactOut,
   ])
 
   return fetcher
