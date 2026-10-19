@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { clusterMarkers, getCrossingArrow, positionMarkers } from 'components/TokenPriceChart/priceMarkers'
+import {
+  type PriceMarkerGroup,
+  clusterMarkers,
+  flattenMarkerGroups,
+  getCrossingArrow,
+  positionMarkers,
+  splitMarkerIdsByGroup,
+} from 'components/TokenPriceChart/priceMarkers'
 
 const marker = (id: string, price: number, y: number) => ({ id, price, y })
 
@@ -63,6 +70,35 @@ describe('positionMarkers', () => {
     expect(result.visible.map(m => m.id)).toEqual(['in'])
     expect(result.above).toBe(1)
     expect(result.below).toBe(1)
+    expect(result.aboveIds).toEqual(['top'])
+    expect(result.belowIds).toEqual(['bottom'])
+  })
+})
+
+describe('marker groups', () => {
+  const group = (key: string, ids: string[]): PriceMarkerGroup => ({
+    key,
+    label: key.toUpperCase(),
+    tone: 'warning',
+    markers: ids.map((id, index) => ({ id, price: index + 1 })),
+    renderDetails: () => null,
+  })
+  const groups = [group('limit', ['1', '2']), group('stop', ['1'])]
+
+  it('scopes each id by its group, so two groups can number their markers alike', () => {
+    expect(flattenMarkerGroups(groups).map(m => m.id)).toEqual(['limit:1', 'limit:2', 'stop:1'])
+  })
+
+  it('splits a line back into its groups with their own ids, in the overlay order', () => {
+    const split = splitMarkerIdsByGroup(['stop:1', 'limit:2'], groups)
+    expect(split.map(entry => [entry.group.key, entry.ids])).toEqual([
+      ['limit', ['2']],
+      ['stop', ['1']],
+    ])
+  })
+
+  it('leaves out groups the line has no marker of', () => {
+    expect(splitMarkerIdsByGroup(['limit:1'], groups).map(entry => entry.group.key)).toEqual(['limit'])
   })
 })
 

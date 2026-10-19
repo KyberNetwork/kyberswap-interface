@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useGetStopOrdersQuery } from 'services/stopOrder'
 
@@ -62,7 +62,16 @@ const getClosedStatusOptions = (): MenuOption[] => [
   { label: t`Expired Orders`, value: StopOrderStatus.EXPIRED },
 ]
 
-const StopOrders = () => {
+type Props = {
+  /**
+   * Set when the panel hosting the list owns the Active / History choice: the list follows it and shows
+   * `toolbar` where its own tabs would be.
+   */
+  isActiveTab?: boolean
+  toolbar?: ReactNode
+}
+
+const StopOrders = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
   const { account, chainId } = useActiveWeb3React()
   const navigate = useNavigate()
   const { setInputValue } = useLimitActionHandlers()
@@ -71,7 +80,9 @@ const StopOrders = () => {
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const [isActiveTab, setIsActiveTab] = useState(true)
+  const [ownActiveTab, setOwnActiveTab] = useState(true)
+  const isHosted = hostedActiveTab !== undefined
+  const isActiveTab = hostedActiveTab ?? ownActiveTab
   const [closedFilter, setClosedFilter] = useState<string>(ALL_CLOSED_VALUE)
   // Starts on All Chains, like the limit-order list, so it covers every order the tab badge counts.
   const [selectedChainValue, setSelectedChainValue] = useState<string>(ALL_CHAINS_VALUE)
@@ -90,6 +101,14 @@ const StopOrders = () => {
     setSelectedChainValue(current => (current === ALL_CHAINS_VALUE ? current : String(chainId)))
     setCurPage(1)
   }, [chainId])
+
+  // Each tab opens on its first page, however the tab was chosen.
+  const previousActiveTab = useRef(isActiveTab)
+  useEffect(() => {
+    if (previousActiveTab.current === isActiveTab) return
+    previousActiveTab.current = isActiveTab
+    setCurPage(1)
+  }, [isActiveTab])
 
   const keyword = searchParams.get('search') || ''
   const debouncedKeyword = useDebounce(keyword, SEARCH_DEBOUNCE_MS)
@@ -243,13 +262,11 @@ const StopOrders = () => {
   return (
     <div className="flex w-full flex-col" data-testid="stop-order-orders">
       <div className="flex min-w-0 items-center border-b border-white-08">
-        <StopOrderTabSelector
-          isActiveTab={isActiveTab}
-          onChange={next => {
-            setIsActiveTab(next)
-            setCurPage(1)
-          }}
-        />
+        {isHosted ? (
+          <div className="flex min-w-0 flex-1 items-center px-4 py-2">{toolbar}</div>
+        ) : (
+          <StopOrderTabSelector isActiveTab={isActiveTab} onChange={setOwnActiveTab} />
+        )}
         {showCancelAll && (
           <div className="flex shrink-0 items-center px-4">
             <CancelAllButton

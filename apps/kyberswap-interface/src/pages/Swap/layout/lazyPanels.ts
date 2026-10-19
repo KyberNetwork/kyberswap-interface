@@ -8,8 +8,8 @@ import { lazy } from 'react'
  * Suspense boundary sits around the whole app body, so that suspension replaces the entire page with
  * the route skeleton — a visible flash on a switch the UI presents as a tab.
  */
+// Limit Order and Stop Order share this one, so switching between them keeps the panel mounted.
 export const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
-export const StopOrderRightPanel = lazy(() => import('components/StopOrder/RightPanel'))
 export const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
 export const TokenInfo = lazy(() => import('components/TokenInfo'))
 export const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/LiquiditySourcesPanel'))

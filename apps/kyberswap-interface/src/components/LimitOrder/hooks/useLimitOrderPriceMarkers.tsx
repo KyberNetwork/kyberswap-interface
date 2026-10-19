@@ -11,8 +11,7 @@ import { formatOrderDisplayAmount, getOrderRate } from 'components/LimitOrder/My
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { calcPercentFilledOrder, isActiveStatus } from 'components/LimitOrder/utils'
 import { HStack, Stack } from 'components/Stack'
-import TokenPriceChart from 'components/TokenPriceChart'
-import type { PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
+import type { PriceMarkerGroup } from 'components/TokenPriceChart/priceMarkers'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -24,12 +23,13 @@ type Props = {
 }
 
 /**
- * The pair's price chart with the user's open limit orders drawn across it. The chart prices the sell
- * token in the receive token, the unit an order's rate is set in. Orders the other way round — selling
- * the receive token for the sell token — are drawn too, at the inverse of their rate, so every order
- * on the pair shows on one scale.
+ * The user's open limit orders on the pair, as lines for its price chart, which prices the sell token
+ * in the receive token — the unit an order's rate is set in. Orders the other way round — selling the
+ * receive token for the sell token — are drawn too, at the inverse of their rate, so every order on the
+ * pair shows on one scale. `modal` is the cancel confirmation a line's details open, to render beside
+ * the chart.
  */
-const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
+export const useLimitOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) => {
   const { account } = useActiveWeb3React()
   const [cancelTargets, setCancelTargets] = useState<LimitOrder[]>([])
 
@@ -106,7 +106,7 @@ const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
                   <span className="text-subText">
                     <Trans>Rate</Trans>
                   </span>
-                  <span className="font-medium text-warning">
+                  <span className="font-medium text-blue">
                     {rate} {receiveSymbol}
                   </span>
                   <span className="text-subText">
@@ -131,9 +131,10 @@ const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
     [orders, isReversed, currencyIn, currencyOut],
   )
 
-  const markerOverlay = useMemo<PriceMarkerOverlay | undefined>(() => {
+  const group = useMemo<PriceMarkerGroup | undefined>(() => {
     if (!hasPair) return undefined
     return {
+      key: 'limit',
       markers: orders
         .map(order => {
           const rate = Number(getOrderRate(order))
@@ -144,30 +145,20 @@ const LimitOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
         })
         .filter(marker => Number.isFinite(marker.price) && marker.price > 0),
       label: t`LIMIT`,
+      tone: 'blue',
       renderDetails,
-      renderOffscreen: (count, direction) =>
-        direction === 'above' ? t`${count} order(s) above` : t`${count} order(s) below`,
     }
   }, [hasPair, orders, isReversed, renderDetails])
 
-  return (
-    <>
-      {/* One element for both cases, so resolving the pair re-renders the chart rather than remounting it. */}
-      <TokenPriceChart
-        flatten
-        tokens={hasPair ? [currencyIn] : [currencyIn, currencyOut]}
-        quoteCurrency={hasPair ? currencyOut : undefined}
-        markerOverlay={markerOverlay}
-      />
-      <CancelOrderModal
-        isOpen={cancelTargets.length > 0}
-        onDismiss={() => setCancelTargets([])}
-        isCancelAll={false}
-        orders={cancelTargets}
-        onOrdersCancelling={setCancellingOrders}
-      />
-    </>
+  const modal = (
+    <CancelOrderModal
+      isOpen={cancelTargets.length > 0}
+      onDismiss={() => setCancelTargets([])}
+      isCancelAll={false}
+      orders={cancelTargets}
+      onOrdersCancelling={setCancellingOrders}
+    />
   )
-}
 
-export default LimitOrderPriceChart
+  return { group, modal }
+}

@@ -14,8 +14,8 @@ import {
   getStopOrderTriggerPrice,
   isActiveStopOrderStatus,
 } from 'components/StopOrder/utils'
-import TokenPriceChart from 'components/TokenPriceChart'
-import type { PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
+import type { PriceMarkerGroup } from 'components/TokenPriceChart/priceMarkers'
+import { isSupportStopOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -27,13 +27,13 @@ type Props = {
 }
 
 /**
- * The pair's price chart with the user's open stop orders drawn across it. The chart prices the
- * sell token in the receive token, the unit every trigger is set in, and shows the oracle price the
- * triggers are checked against instead of the last candle's close. Orders the other way round —
- * selling the receive token for the sell token — are drawn too, at the inverse of their trigger, so
- * every order on the pair shows on one scale.
+ * The user's open stop orders on the pair, as lines for its price chart, which prices the sell token
+ * in the receive token — the unit every trigger is set in. Orders the other way round — selling the
+ * receive token for the sell token — are drawn too, at the inverse of their trigger, so every order on
+ * the pair shows on one scale. `referencePrice` is the oracle price the triggers are checked against,
+ * and `modal` the cancel confirmation a line's details open, to render beside the chart.
  */
-const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
+export const useStopOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) => {
   const { account } = useActiveWeb3React()
   const [cancelTargets, setCancelTargets] = useState<StopOrder[]>([])
   // The list keeps returning a cancelled order as Open until the service catches up; its line and
@@ -43,7 +43,8 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
   const chainId = currencyIn?.chainId as ChainId | undefined
   const tokenIn = currencyIn?.wrapped.address.toLowerCase()
   const tokenOut = currencyOut?.wrapped.address.toLowerCase()
-  const hasPair = !!chainId && !!tokenIn && !!tokenOut && tokenIn !== tokenOut
+  // Nothing to draw on a chain that takes no stop orders.
+  const hasPair = !!chainId && isSupportStopOrder(chainId) && !!tokenIn && !!tokenOut && tokenIn !== tokenOut
 
   const { currentData } = useGetStopOrdersQuery(
     {
@@ -147,9 +148,10 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
     [orders, isReversed, currencyIn, currencyOut, chartQuoteSymbol, oraclePrice],
   )
 
-  const markerOverlay = useMemo<PriceMarkerOverlay | undefined>(() => {
+  const group = useMemo<PriceMarkerGroup | undefined>(() => {
     if (!hasPair) return undefined
     return {
+      key: 'stop',
       markers: orders
         .map(order => {
           const trigger = Number(getStopOrderTriggerPrice(order))
@@ -160,30 +162,19 @@ const StopOrderPriceChart = ({ currencyIn, currencyOut }: Props) => {
         })
         .filter(marker => Number.isFinite(marker.price) && marker.price > 0),
       label: t`STOP`,
-      referencePrice: oraclePriceNumber,
+      tone: 'warning',
       renderDetails,
-      renderOffscreen: (count, direction) =>
-        direction === 'above' ? t`${count} order(s) above` : t`${count} order(s) below`,
     }
-  }, [hasPair, orders, isReversed, oraclePriceNumber, renderDetails])
+  }, [hasPair, orders, isReversed, renderDetails])
 
-  return (
-    <>
-      {/* One element for both cases, so resolving the pair re-renders the chart rather than remounting it. */}
-      <TokenPriceChart
-        flatten
-        tokens={hasPair ? [currencyIn] : [currencyIn, currencyOut]}
-        quoteCurrency={hasPair ? currencyOut : undefined}
-        markerOverlay={markerOverlay}
-      />
-      <CancelStopOrderModal
-        orders={cancelTargets}
-        isCancelAll={false}
-        onDismiss={() => setCancelTargets([])}
-        onCancelled={orderIds => setCancelledIds(ids => [...ids, ...orderIds])}
-      />
-    </>
+  const modal = (
+    <CancelStopOrderModal
+      orders={cancelTargets}
+      isCancelAll={false}
+      onDismiss={() => setCancelTargets([])}
+      onCancelled={orderIds => setCancelledIds(ids => [...ids, ...orderIds])}
+    />
   )
-}
 
-export default StopOrderPriceChart
+  return { group, referencePrice: oraclePriceNumber, modal }
+}

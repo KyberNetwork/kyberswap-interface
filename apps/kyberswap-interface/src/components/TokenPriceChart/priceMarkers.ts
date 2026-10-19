@@ -6,20 +6,50 @@ export type MarkerCrossing = 'up' | 'down'
 /** A price level drawn across the chart, such as an order's trigger. */
 export type PriceMarker = { id: string; price: number; crossing?: MarkerCrossing }
 
-export type PriceMarkerOverlay = {
+/** The colour a group's lines and tags are drawn in. */
+export type MarkerTone = 'warning' | 'blue'
+
+/** One kind of marker on the chart, such as a wallet's stop orders, with its own tag and colour. */
+export type PriceMarkerGroup = {
+  /** Unique among the overlay's groups; it scopes the ids of the group's markers. */
+  key: string
   markers: PriceMarker[]
   /** Short tag on each line, e.g. "STOP". */
   label: string
+  tone: MarkerTone
+  /** Content shown when a line is hovered or tapped; handed every marker of this group the line stands for. */
+  renderDetails: (markerIds: string[]) => ReactNode
+}
+
+export type PriceMarkerOverlay = {
+  groups: PriceMarkerGroup[]
   /**
    * The price the markers are measured against. Drawn as its own line in place of the last candle's
    * close, which can come from a different source.
    */
   referencePrice?: number
-  /** Content shown when a line is hovered or tapped; handed every marker the line stands for. */
-  renderDetails: (markerIds: string[]) => ReactNode
   /** Text for the edge badge counting markers outside the visible price range. */
   renderOffscreen: (count: number, direction: 'above' | 'below') => ReactNode
 }
+
+/** A marker's id on the chart, scoped by its group, since two groups can number their markers alike. */
+export const getGroupedMarkerId = (groupKey: string, markerId: string) => `${groupKey}:${markerId}`
+
+/**
+ * Every group's markers on one list, each id scoped by its group. Lines are placed and grouped across
+ * all of them, so markers of different kinds that sit close together never draw overlapping tags.
+ */
+export const flattenMarkerGroups = (groups: PriceMarkerGroup[]): PriceMarker[] =>
+  groups.flatMap(group => group.markers.map(marker => ({ ...marker, id: getGroupedMarkerId(group.key, marker.id) })))
+
+/** The markers a line stands for, back in their groups with their own ids, in the overlay's order. */
+export const splitMarkerIdsByGroup = (ids: string[], groups: PriceMarkerGroup[]) =>
+  groups
+    .map(group => {
+      const prefix = getGroupedMarkerId(group.key, '')
+      return { group, ids: ids.filter(id => id.startsWith(prefix)).map(id => id.slice(prefix.length)) }
+    })
+    .filter(entry => entry.ids.length > 0)
 
 /** A marker with its vertical pixel position on the chart pane. */
 export type PositionedMarker = PriceMarker & { y: number }
@@ -72,18 +102,18 @@ export const clusterMarkers = (
  */
 export const positionMarkers = (markers: PriceMarker[], toY: (price: number) => number | null, paneHeight: number) => {
   const visible: PositionedMarker[] = []
-  let above = 0
-  let below = 0
+  const aboveIds: string[] = []
+  const belowIds: string[] = []
 
   markers.forEach(marker => {
     const y = toY(marker.price)
     if (y === null) return
-    if (y < 0) above += 1
-    else if (y > paneHeight) below += 1
+    if (y < 0) aboveIds.push(marker.id)
+    else if (y > paneHeight) belowIds.push(marker.id)
     else visible.push({ ...marker, y })
   })
 
-  return { visible, above, below }
+  return { visible, above: aboveIds.length, below: belowIds.length, aboveIds, belowIds }
 }
 
 /**

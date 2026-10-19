@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 
@@ -57,7 +57,17 @@ const EMPTY_LIMIT_ORDERS: LimitOrder[] = []
  */
 const ALL_CHAINS_API_CHAIN_IDS: ChainId[] = []
 
-const MyOrders = () => {
+type MyOrdersProps = {
+  /**
+   * Set when the panel hosting the list owns the Active / History choice: the list follows it and shows
+   * `toolbar` where its own tabs would be.
+   */
+  isActiveTab?: boolean
+  toolbar?: ReactNode
+}
+
+const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
+  const isHosted = hostedActiveTab !== undefined
   const { account } = useActiveWeb3React()
   const limitOrderTracking = useLimitOrderTracking()
   const { isEmbeddedSwap } = usePageLocation()
@@ -72,11 +82,18 @@ const MyOrders = () => {
     tabs: LIST_ORDER_TABS,
     queryKey: 'orderTab',
     defaultTab: LimitOrderStatus.ACTIVE,
-    syncQuery: !isEmbeddedSwap,
+    // A hosting panel keeps the choice in the query itself.
+    syncQuery: !isEmbeddedSwap && !isHosted,
   })
 
   const [pager, setPager] = useState(INITIAL_HISTORY_PAGER_STATE)
-  const [orderType, setOrderType] = useState<LimitOrderStatus>(orderTab || LimitOrderStatus.ACTIVE)
+  const [orderType, setOrderType] = useState<LimitOrderStatus>(
+    isHosted
+      ? hostedActiveTab
+        ? LimitOrderStatus.ACTIVE
+        : LimitOrderStatus.CLOSED
+      : orderTab || LimitOrderStatus.ACTIVE,
+  )
   const [selectedChainValue, setSelectedChainValue] = useState<string>(ALL_CHAINS_VALUE)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
@@ -282,7 +299,7 @@ const MyOrders = () => {
   }, [cursor, isOrdersError, ordersError, onReset])
 
   useEffect(() => {
-    if (!orderTab) return
+    if (!orderTab || isHosted) return
     setOrderType(orderType => {
       if (isActiveStatus(orderType) === isActiveStatus(orderTab)) {
         return orderType
@@ -290,12 +307,28 @@ const MyOrders = () => {
       return orderTab
     })
     onReset()
-  }, [orderTab, onReset])
+  }, [orderTab, isHosted, onReset])
+
+  // The host's choice, keeping the closed status picked within History while History stays chosen.
+  useEffect(() => {
+    if (hostedActiveTab === undefined) return
+    setOrderType(orderType =>
+      isActiveStatus(orderType) === hostedActiveTab
+        ? orderType
+        : hostedActiveTab
+        ? LimitOrderStatus.ACTIVE
+        : LimitOrderStatus.CLOSED,
+    )
+  }, [hostedActiveTab])
 
   return (
     <div className="flex w-full flex-col">
       <div className="flex min-w-0 items-center border-b border-darkBorder">
-        <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} />
+        {isHosted ? (
+          <div className="flex min-w-0 flex-1 items-center px-4 py-2">{toolbar}</div>
+        ) : (
+          <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} />
+        )}
         {showCancelAll && (
           <div className="flex shrink-0 items-center px-4">
             <CancelAllButton

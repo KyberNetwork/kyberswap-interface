@@ -1,10 +1,10 @@
+import OrderListSkeleton from 'components/LimitOrder/OrderList/OrderListSkeleton'
 import StopOrderForm from 'components/StopOrder/Form/StopOrderForm'
-import StopOrderRightPanelSkeleton from 'components/StopOrder/RightPanelSkeleton'
 import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
 import { TAB } from 'pages/Swap/layout/Tabs'
-import { StopOrderRightPanel, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
+import { OrderList, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
 
 /**
  * Stop order is a sub-tab of Limit Order on its own route, so it keeps the Limit Order top-level tab
@@ -16,11 +16,7 @@ const StopOrderPage = () => {
   const { currencies } = useCurrenciesByPage()
 
   return (
-    <SwapLayout
-      controller={controller}
-      rightPanel={<StopOrderRightPanel />}
-      rightPanelFallback={<StopOrderRightPanelSkeleton />}
-    >
+    <SwapLayout controller={controller} rightPanel={<OrderList />} rightPanelFallback={<OrderListSkeleton />}>
       {activeTab === TAB.LIMIT && <StopOrderForm />}
       {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (

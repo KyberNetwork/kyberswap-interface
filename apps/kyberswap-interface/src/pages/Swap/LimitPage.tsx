@@ -1,4 +1,5 @@
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
+import OrderListSkeleton from 'components/LimitOrder/OrderList/OrderListSkeleton'
 import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
@@ -11,7 +12,7 @@ const LimitPage = () => {
   const { currencies } = useCurrenciesByPage()
 
   return (
-    <SwapLayout controller={controller} rightPanel={<OrderList />}>
+    <SwapLayout controller={controller} rightPanel={<OrderList />} rightPanelFallback={<OrderListSkeleton />}>
       {activeTab === TAB.LIMIT && <LimitOrderForm />}
       {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (

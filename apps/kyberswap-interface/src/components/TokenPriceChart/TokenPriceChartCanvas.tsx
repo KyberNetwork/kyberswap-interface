@@ -23,10 +23,14 @@ import { ScrollIndicator } from 'components/DropdownMenu/styles'
 import { Stack } from 'components/Stack'
 import {
   type MarkerCluster,
+  type MarkerTone,
+  type PriceMarkerGroup,
   type PriceMarkerOverlay,
   clusterMarkers,
+  flattenMarkerGroups,
   getCrossingArrow,
   positionMarkers,
+  splitMarkerIdsByGroup,
 } from 'components/TokenPriceChart/priceMarkers'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
@@ -65,7 +69,15 @@ type TokenPriceChartCanvasProps = {
   markerOverlay?: PriceMarkerOverlay
 }
 
-type MarkerLayout = { clusters: MarkerCluster[]; above: number; below: number; scaleWidth: number; paneHeight: number }
+type MarkerLayout = {
+  clusters: MarkerCluster[]
+  above: number
+  below: number
+  aboveIds: string[]
+  belowIds: string[]
+  scaleWidth: number
+  paneHeight: number
+}
 
 const DEFAULT_VISIBLE_CANDLES = 40
 const LOAD_MORE_THRESHOLD = 20
@@ -75,15 +87,38 @@ const MAX_MARKER_LINES = 6
 const MAX_MARKER_LINES_MOBILE = 3
 /** How long a marker's details stay open after the pointer leaves, so it can travel into them. */
 const MARKER_DETAILS_CLOSE_DELAY_MS = 150
-const EMPTY_MARKER_LAYOUT: MarkerLayout = { clusters: [], above: 0, below: 0, scaleWidth: 0, paneHeight: 0 }
+const EMPTY_MARKER_LAYOUT: MarkerLayout = {
+  clusters: [],
+  above: 0,
+  below: 0,
+  aboveIds: [],
+  belowIds: [],
+  scaleWidth: 0,
+  paneHeight: 0,
+}
+
+/** A line or badge standing for markers of more than one group takes neither group's colour. */
+type LineTone = MarkerTone | 'mixed'
+
+/** The tone markers share, or `mixed` when they come from different groups. */
+const getLineTone = (ids: string[], groups: PriceMarkerGroup[]): LineTone => {
+  const tones = new Set(splitMarkerIdsByGroup(ids, groups).map(entry => entry.group.tone))
+  return tones.size === 1 ? [...tones][0] : 'mixed'
+}
+
+const TONE_CLASSES: Record<LineTone, { tag: string; value: string; badge: string }> = {
+  warning: { tag: 'border-warning', value: 'text-warning', badge: 'border-warning/40 text-warning' },
+  blue: { tag: 'border-blue', value: 'text-blue', badge: 'border-blue/40 text-blue' },
+  mixed: { tag: 'border-border', value: 'text-text', badge: 'border-border text-subText' },
+}
 
 const clusterKey = (cluster: MarkerCluster) => cluster.ids.join(',')
 
 const getMarkerLayoutKey = (layout: MarkerLayout) =>
   [
     layout.clusters.map(cluster => `${clusterKey(cluster)}@${Math.round(cluster.y)}`).join('|'),
-    layout.above,
-    layout.below,
+    layout.aboveIds.join(','),
+    layout.belowIds.join(','),
     layout.scaleWidth,
     layout.paneHeight,
   ].join(';')
@@ -487,6 +522,7 @@ const PriceMarkerLayer = ({
   }
 
   const right = layout.scaleWidth + 8
+  const markers = useMemo(() => flattenMarkerGroups(overlay.groups), [overlay.groups])
   // A group can dissolve under an open panel when zooming splits it; the panel goes with it.
   const openCluster = layout.clusters.find(cluster => clusterKey(cluster) === openKey)
   const spaceBelow = openCluster ? layout.paneHeight - openCluster.y - DETAILS_OFFSET_PX - DETAILS_EDGE_PX : 0
@@ -499,6 +535,11 @@ const PriceMarkerLayer = ({
       {layout.clusters.map(cluster => {
         const key = clusterKey(cluster)
         const count = cluster.ids.length
+        const tone = TONE_CLASSES[getLineTone(cluster.ids, overlay.groups)]
+        // A line grouping several kinds names each of them.
+        const label = splitMarkerIdsByGroup(cluster.ids, overlay.groups)
+          .map(entry => entry.group.label)
+          .join(' · ')
         return (
           <button
             key={key}
@@ -510,13 +551,16 @@ const PriceMarkerLayer = ({
             onFocus={() => open(key)}
             onClick={() => open(key)}
             data-price-marker-layer
-            className="absolute z-[2] flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded border border-warning bg-buttonBlack px-1.5 py-0.5 text-[10px] font-medium leading-[14px]"
+            className={cn(
+              'absolute z-[2] flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded border bg-buttonBlack px-1.5 py-0.5 text-[10px] font-medium leading-[14px]',
+              tone.tag,
+            )}
             style={{ top: cluster.y, right }}
           >
             <span className="text-subText">
-              {overlay.label} {getCrossingArrow(cluster.ids, overlay.markers)}
+              {label} {getCrossingArrow(cluster.ids, markers)}
             </span>
-            <span className="text-warning">
+            <span className={tone.value}>
               {count > 1 ? `×${count}` : formatDisplayNumber(cluster.price, { significantDigits: 6 })}
             </span>
           </button>
@@ -543,20 +587,33 @@ const PriceMarkerLayer = ({
           }}
         >
           <MarkerDetailsList contentKey={clusterKey(openCluster)}>
-            {overlay.renderDetails(openCluster.ids)}
+            <Stack className="gap-2.5">
+              {splitMarkerIdsByGroup(openCluster.ids, overlay.groups).map((entry, index) => (
+                <div key={entry.group.key} className={cn(index > 0 && 'border-t border-border pt-2.5')}>
+                  {entry.group.renderDetails(entry.ids)}
+                </div>
+              ))}
+            </Stack>
           </MarkerDetailsList>
         </div>
       )}
 
       {layout.above > 0 && (
-        <span data-testid="price-marker-offscreen-above" className={cn(OFFSCREEN_BADGE_CLASS, 'top-1.5')}>
+        <span
+          data-testid="price-marker-offscreen-above"
+          className={cn(
+            OFFSCREEN_BADGE_CLASS,
+            TONE_CLASSES[getLineTone(layout.aboveIds, overlay.groups)].badge,
+            'top-1.5',
+          )}
+        >
           ↑ {overlay.renderOffscreen(layout.above, 'above')}
         </span>
       )}
       {layout.below > 0 && (
         <span
           data-testid="price-marker-offscreen-below"
-          className={OFFSCREEN_BADGE_CLASS}
+          className={cn(OFFSCREEN_BADGE_CLASS, TONE_CLASSES[getLineTone(layout.belowIds, overlay.groups)].badge)}
           style={{ top: layout.paneHeight - 26 }}
         >
           ↓ {overlay.renderOffscreen(layout.below, 'below')}
@@ -572,7 +629,7 @@ const DETAILS_OFFSET_PX = 14
 const DETAILS_EDGE_PX = 8
 
 const OFFSCREEN_BADGE_CLASS =
-  'pointer-events-none absolute left-2 z-[2] rounded-full border border-warning/40 bg-buttonBlack px-2 py-0.5 text-[10px] font-medium text-warning'
+  'pointer-events-none absolute left-2 z-[2] rounded-full border bg-buttonBlack px-2 py-0.5 text-[10px] font-medium'
 
 const TokenPriceChartCanvas = ({
   chartData,
@@ -633,7 +690,11 @@ const TokenPriceChartCanvas = ({
   const [isViewportReady, setIsViewportReady] = useState(false)
 
   const markerOverlayRef = useRef(markerOverlay)
-  const markerColorRef = useRef(theme.warning)
+  const markerColorsRef = useRef<Record<LineTone, string>>({
+    warning: theme.warning,
+    blue: theme.blue,
+    mixed: theme.subText,
+  })
   const maxMarkerLinesRef = useRef(MAX_MARKER_LINES)
   const markerPriceLinesRef = useRef<IPriceLine[]>([])
   const referenceLineRef = useRef<IPriceLine | null>(null)
@@ -654,20 +715,26 @@ const TokenPriceChartCanvas = ({
       const series = candlestickSeriesRef.current
       if (!chart || !series) return
 
-      const markers = markerOverlayRef.current?.markers ?? []
+      const groups = markerOverlayRef.current?.groups ?? []
+      const markers = flattenMarkerGroups(groups)
       const paneHeight = chartHeightRef.current - chart.timeScale().height()
-      const { visible, above, below } = positionMarkers(markers, price => series.priceToCoordinate(price), paneHeight)
+      const { visible, above, below, aboveIds, belowIds } = positionMarkers(
+        markers,
+        price => series.priceToCoordinate(price),
+        paneHeight,
+      )
       const clusters = clusterMarkers(visible, { minGap: MARKER_MIN_GAP_PX, maxClusters: maxMarkerLinesRef.current })
+      const lineColors = clusters.map(cluster => markerColorsRef.current[getLineTone(cluster.ids, groups)])
 
-      // Lines are only rebuilt when the set of drawn prices changes, not on every scroll frame.
-      const linePricesKey = clusters.map(cluster => cluster.price).join(',') + `|${markerColorRef.current}`
+      // Lines are only rebuilt when the set of drawn prices or their colours changes, not on every scroll frame.
+      const linePricesKey = clusters.map((cluster, index) => `${cluster.price}:${lineColors[index]}`).join(',')
       if (linePricesKey !== markerLinePricesKeyRef.current) {
         markerLinePricesKeyRef.current = linePricesKey
         markerPriceLinesRef.current.forEach(line => series.removePriceLine(line))
-        markerPriceLinesRef.current = clusters.map(cluster =>
+        markerPriceLinesRef.current = clusters.map((cluster, index) =>
           series.createPriceLine({
             price: cluster.price,
-            color: markerColorRef.current,
+            color: lineColors[index],
             lineWidth: 1,
             lineStyle: LineStyle.Dotted,
             lineVisible: true,
@@ -677,7 +744,15 @@ const TokenPriceChartCanvas = ({
         )
       }
 
-      const layout = { clusters, above, below, scaleWidth: chart.priceScale('right').width(), paneHeight }
+      const layout = {
+        clusters,
+        above,
+        below,
+        aboveIds,
+        belowIds,
+        scaleWidth: chart.priceScale('right').width(),
+        paneHeight,
+      }
       const layoutKey = getMarkerLayoutKey(layout)
       if (layoutKey === markerLayoutKeyRef.current) return
       markerLayoutKeyRef.current = layoutKey
@@ -692,10 +767,10 @@ const TokenPriceChartCanvas = ({
 
   useEffect(() => {
     markerOverlayRef.current = markerOverlay
-    markerColorRef.current = theme.warning
+    markerColorsRef.current = { warning: theme.warning, blue: theme.blue, mixed: theme.subText }
     maxMarkerLinesRef.current = upToSmall ? MAX_MARKER_LINES_MOBILE : MAX_MARKER_LINES
     scheduleMarkerUpdate()
-  }, [markerOverlay, theme.warning, upToSmall, scheduleMarkerUpdate])
+  }, [markerOverlay, theme.warning, theme.blue, theme.subText, upToSmall, scheduleMarkerUpdate])
 
   useEffect(() => {
     chartHeightRef.current = chartHeight
