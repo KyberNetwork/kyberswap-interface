@@ -3,14 +3,12 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
-import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { TRIGGER_CLOSE_TO_MARKET_PERCENT } from 'components/StopOrder/constants'
 import { useStopOrderReservedBalance } from 'components/StopOrder/hooks/useStopOrderReservedBalance'
 import {
   useIsStopOrderEligibleToken,
   useStopOrderSupportedTokens,
 } from 'components/StopOrder/hooks/useStopOrderSupportedTokens'
-import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { tryParseAmount } from 'state/swap/hooks'
 
@@ -21,40 +19,13 @@ export type StopOrderWarning = {
   blocking?: boolean
 }
 
-type ReservedBalanceNoticeProps = {
-  symbol?: string
-  stopOrdersTo?: string
-  limitOrdersTo?: string
-}
-
-/**
- * Names whichever open orders hold the claim: the stop order list is on this page, so that link only
- * narrows it to the token, while limit orders live on their own page.
- */
-const ReservedBalanceNotice = ({ symbol, stopOrdersTo, limitOrdersTo }: ReservedBalanceNoticeProps) => {
-  if (stopOrdersTo && limitOrdersTo) {
-    return (
-      <Trans>
-        Your {symbol} balance is fully used by your open orders. Cancel or reduce an order to free up balance. Review
-        your <Link to={stopOrdersTo}>stop orders</Link> and <Link to={limitOrdersTo}>limit orders</Link>.
-      </Trans>
-    )
-  }
-  if (limitOrdersTo) {
-    return (
-      <Trans>
-        Your {symbol} balance is fully used by your open limit orders. Cancel or reduce an order to free up balance.{' '}
-        <Link to={limitOrdersTo}>Review orders</Link>
-      </Trans>
-    )
-  }
-  return (
-    <Trans>
-      Your {symbol} balance is fully used by your open stop orders. Cancel or reduce an order to free up balance.{' '}
-      <Link to={stopOrdersTo ?? ''}>Review orders</Link>
-    </Trans>
-  )
-}
+/** The stop order list sits on this page, so its link only narrows the list to the token. */
+const ReservedBalanceNotice = ({ symbol }: { symbol?: string }) => (
+  <Trans>
+    Your {symbol} balance is fully used by your open stop orders. Cancel or reduce an order to free up balance.{' '}
+    <Link to={`?${new URLSearchParams({ search: symbol ?? '' })}`}>Review orders</Link>
+  </Trans>
+)
 
 type Props = {
   chainId: ChainId
@@ -86,15 +57,15 @@ export const useStopOrderWarnings = ({
     useIsStopOrderEligibleToken(currencyOut)
 
   const parsedInputAmount = useMemo(() => tryParseAmount(inputAmount, currencyIn), [inputAmount, currencyIn])
-  const reservedBalance = useStopOrderReservedBalance({ chainId, currencyIn, parsedInputAmount })
+  const hasReservedBalanceShortfall = useStopOrderReservedBalance({ chainId, currencyIn, parsedInputAmount })
 
   return useMemo(() => {
     /**
      * Two destinations, because they answer different questions.
      *
      * `formWarnings` explain why the CTA is blocked — the chain cannot take a stop order at all, the
-     * pair has no price to place it against, or the balance is already claimed by open orders — so the
-     * review modal never opens on them.
+     * pair has no price to place it against, or the balance is already claimed by open stop orders —
+     * so the review modal never opens on them.
      * `reviewWarnings` belong to the review step, right before signing; one marked `blocking` also
      * disables the confirm button there.
      */
@@ -157,28 +128,8 @@ export const useStopOrderWarnings = ({
      * The order would be funded by taking from what earlier orders still expect to find. Blocked rather
      * than warned: the orders would not all be able to fire, and which one loses is decided by timing.
      */
-    if (reservedBalance.hasShortfall && currencyIn) {
-      const symbol = currencyIn.wrapped.symbol
-      formWarnings.push({
-        type: 'warn',
-        message: (
-          <ReservedBalanceNotice
-            symbol={symbol}
-            stopOrdersTo={
-              reservedBalance.reservedByStopOrders ? `?${new URLSearchParams({ search: symbol ?? '' })}` : undefined
-            }
-            limitOrdersTo={
-              reservedBalance.reservedByLimitOrders
-                ? `${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}?${new URLSearchParams({
-                    tab: LimitOrderTab.MY_ORDER,
-                    orderTab: LimitOrderStatus.ACTIVE,
-                    search: symbol ?? '',
-                  })}`
-                : undefined
-            }
-          />
-        ),
-      })
+    if (hasReservedBalanceShortfall && currencyIn) {
+      formWarnings.push({ type: 'warn', message: <ReservedBalanceNotice symbol={currencyIn.wrapped.symbol} /> })
       shouldDisableAction = true
     }
 
@@ -212,7 +163,7 @@ export const useStopOrderWarnings = ({
     currencyOut,
     triggerPercent,
     marketPriceUnavailable,
-    reservedBalance,
+    hasReservedBalanceShortfall,
     hasEligibleTokens,
     isEligible,
     isReceiveEligible,
