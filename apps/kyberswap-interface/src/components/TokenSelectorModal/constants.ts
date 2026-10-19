@@ -59,3 +59,13 @@ export const BALANCE_COLUMN_CLASS = 'w-[72px] sm:w-[104px]'
  * rows a viewport subscription each.
  */
 export const BALANCE_MAX_LENGTH = 10
+
+// Virtualized row heights. A restricted row the user clicked grows to fit the "not available" notice.
+export const ROW_CONTENT_HEIGHT = 12 * 4 // 48px
+export const NORMAL_ITEM_SIZE = ROW_CONTENT_HEIGHT + 8 // 56px (content + row gap)
+// Rows on either side of the viewport included in `onRowsRendered`, so a scroll lands on rows whose
+// data was already asked for; the debounce turns a fling into one report.
+export const ROWS_RENDERED_MARGIN = 40
+export const ROWS_RENDERED_DEBOUNCE_MS = 150
+export const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 76px
+export const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
