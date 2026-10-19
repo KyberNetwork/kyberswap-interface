@@ -203,6 +203,11 @@ export default createReducer(initialState, builder =>
       if (action.payload.userDegenMode) {
         state.userDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
       } else {
+        // A stop order slippage above the normal cap only stands while degen mode is on; past it, the
+        // stop order goes back to following the pair's suggestion.
+        if (state.stopOrderSlippage !== undefined && state.stopOrderSlippage > MAX_NORMAL_SLIPPAGE_IN_BIPS) {
+          state.stopOrderSlippage = undefined
+        }
         // If max slippage <= 19.99%, no need update slippage.
         if (state.userSlippageTolerance <= MAX_NORMAL_SLIPPAGE_IN_BIPS) {
           return
