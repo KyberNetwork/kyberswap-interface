@@ -6,11 +6,9 @@ import { useMedia } from 'react-use'
 import { Shield } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
-import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useSlippageSettingByPage } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
@@ -34,14 +32,13 @@ export const PriceAlertButton = ({
   </div>
 )
 
-export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwrap: boolean }) {
+export default function MEVProtection({ className }: { className?: string }) {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const { chainId } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const { trackingHandler } = useTracking()
   const { isEmbeddedSwap } = usePageLocation()
-  const { isSlippageControlPinned } = useSlippageSettingByPage()
 
   const addMevProtectionHandler = useCallback(() => {
     setShowMevModal(true)
@@ -54,7 +51,7 @@ export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwra
 
   const rightButton =
     KYBER_SWAP_RPC[chainId] && active && !isEmbeddedSwap && !isMobile && !isTablet ? (
-      <PriceAlertButton onClick={addMevProtectionHandler}>
+      <PriceAlertButton className={className} onClick={addMevProtectionHandler}>
         <Shield size={14} className="text-subText" />
         <span className="inline-flex items-center whitespace-nowrap leading-[normal] text-subText">
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
@@ -63,17 +60,12 @@ export default function SlippageSettingGroup({ isWrapOrUnwrap }: { isWrapOrUnwra
       </PriceAlertButton>
     ) : null
 
+  if (!rightButton) return null
+
   return (
-    <div className="flex items-start justify-between text-xs text-subText">
-      {isWrapOrUnwrap || !isSlippageControlPinned ? (
-        <>
-          <div />
-          {rightButton}
-        </>
-      ) : (
-        <SlippageSetting rightComponent={rightButton} />
-      )}
+    <>
+      {rightButton}
       <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
-    </div>
+    </>
   )
 }
