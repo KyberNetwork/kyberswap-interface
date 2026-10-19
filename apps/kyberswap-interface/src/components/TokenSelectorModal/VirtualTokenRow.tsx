@@ -65,7 +65,7 @@ export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<
   // The trailing slot (present while more pages can load) has no currency yet — show the loader.
   if (!currency) {
     return (
-      <div className="px-2 pt-2" style={style} data-testid="token-list-load-more">
+      <div style={style} data-testid="token-list-load-more">
         <Center className="h-12">
           <Loader size="20px" />
         </Center>
@@ -107,7 +107,7 @@ export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<
   const rowStyle: CSSProperties = { height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT, ...data.itemStyle }
 
   return (
-    <div className="px-2 pt-2" style={style}>
+    <div style={style}>
       <TokenRow
         isFavorite={isFavorite}
         showLoading={!!data.account && !!data.waitingForBalances}

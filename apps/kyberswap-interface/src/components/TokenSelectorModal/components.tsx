@@ -5,6 +5,7 @@ import { ComponentProps, ComponentPropsWithoutRef, forwardRef } from 'react'
 import { Search } from 'react-feather'
 
 import Column, { AutoColumn } from 'components/Column'
+import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
 import { BALANCE_MAX_LENGTH } from 'components/TokenSelectorModal/constants'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { shortenAddress } from 'utils/address'
@@ -23,6 +24,15 @@ export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
       <span className="sr-only">{exact}</span>
     </span>
   )
+}
+
+export const BalanceSkeleton = ({ currency }: { currency: Currency }) => {
+  // Stable per token, including when rows re-sort while balances load.
+  const key = `${currency.chainId}:${currency.isToken ? currency.address.toLowerCase() : 'native'}`
+  const hash = Array.from(key).reduce((value, character) => (value * 31 + character.charCodeAt(0)) >>> 0, 0)
+  const width = 40 + (hash % 4) * 8
+
+  return <TableCellSkeleton width={width} height={14} className="animate-pulse motion-reduce:animate-none" />
 }
 
 export const ContentWrapper = ({ className, ...rest }: ComponentProps<typeof Column>) => (

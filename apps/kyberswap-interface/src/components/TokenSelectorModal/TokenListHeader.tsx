@@ -12,25 +12,35 @@ import { cn } from 'utils/cn'
 // Map the internal sort direction to the shared SortIcon's Direction enum.
 const toDirection = (dir: 'asc' | 'desc'): Direction => (dir === 'asc' ? Direction.ASC : Direction.DESC)
 
+// Cells own column sizing; their content owns the hover and click area.
+type HeaderCellProps = {
+  children: ReactNode
+  className?: string
+  align?: 'left' | 'right'
+}
+
+const HeaderCell = ({ children, className, align = 'right' }: HeaderCellProps) => (
+  <HStack
+    className={cn('min-w-0 shrink-0 items-center', align === 'left' ? 'justify-start' : 'justify-end', className)}
+  >
+    <HStack className="w-fit min-w-0 max-w-full items-center">{children}</HStack>
+  </HStack>
+)
+
 // A clickable, sortable column header (Price & 24h change) with the shared pool-list sort arrows.
 type SortHeaderProps = {
   label: ReactNode
   field: TokenSortField
   sort: TokenSort | null
   onSort?: (field: TokenSortField) => void
-  /** Column width, matching the width the rows give the same column. */
-  className: string
 }
 
-const SortHeader = ({ label, field, sort, onSort, className }: SortHeaderProps) => (
+const SortHeader = ({ label, field, sort, onSort }: SortHeaderProps) => (
   <button
     type="button"
     data-testid={`sort-header-${field}`}
     onClick={() => onSort?.(field)}
-    className={cn(
-      'flex shrink-0 items-center justify-end gap-1 whitespace-nowrap uppercase transition-colors hover:text-text',
-      className,
-    )}
+    className="flex w-fit shrink-0 cursor-pointer items-center gap-1 whitespace-nowrap uppercase transition-colors hover:text-text"
   >
     {label}
     <SortIcon sorted={sort?.field === field ? toDirection(sort.dir) : undefined} />
@@ -69,7 +79,7 @@ type MetricColumnHeaderProps = {
 }
 
 const MetricColumnHeader = ({ metric, onMetricChange, sort, onSort }: MetricColumnHeaderProps) => (
-  <HStack className={cn('shrink-0 items-center justify-end gap-0.5 sm:gap-1', METRIC_COLUMN_CLASS)}>
+  <HStack className="w-fit min-w-0 max-w-full items-center gap-0.5 sm:gap-1">
     {/* The column is a fixed width the rows match, and the labels are translatable — so the switch
         shrinks and its labels ellipsize rather than spilling left over the Price column. English
         needs less than the column holds, so it only bites in locales that translate longer. */}
@@ -87,7 +97,7 @@ const MetricColumnHeader = ({ metric, onMetricChange, sort, onSort }: MetricColu
             onClick={() => (active ? onSort?.(option) : onMetricChange?.(option))}
             className={cn(
               'min-w-0 truncate rounded px-[3px] py-0.5 text-[10px] font-medium transition-colors sm:px-1.5 sm:text-xs',
-              active ? 'bg-buttonGray text-text' : 'text-gray hover:text-text',
+              active ? 'bg-buttonGray text-text' : 'text-subText hover:text-text',
             )}
           >
             {copy.label}
@@ -95,15 +105,12 @@ const MetricColumnHeader = ({ metric, onMetricChange, sort, onSort }: MetricColu
         )
       })}
     </div>
-    {/* The arrows are only 8px wide, so a pseudo-element grows the tap target past the WCAG minimum
-        without widening the column. It stops at the pill's edge and at the header's own padding so it
-        can't swallow clicks meant for the other metric or the first row. */}
     <button
       type="button"
       data-testid={`sort-header-${metric}`}
       aria-label={metricCopy(metric).sort}
       onClick={() => onSort?.(metric)}
-      className="relative flex shrink-0 items-center after:absolute after:-inset-y-2 after:-right-2 after:left-0 after:content-['']"
+      className="flex w-fit shrink-0 cursor-pointer items-center"
     >
       <SortIcon sorted={sort?.field === metric ? toDirection(sort.dir) : undefined} />
     </button>
@@ -124,33 +131,31 @@ export const TokenListHeader = ({ activeTab, metricColumn, sort, onSort, onMetri
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
   return (
-    <HStack className="items-center px-5 pb-2 pt-3 text-xs font-medium uppercase text-gray">
-      <span className="flex-1">
+    <HStack className="shrink-0 items-center px-2 text-xs font-medium uppercase text-subText">
+      <HeaderCell className="flex-1" align="left">
         <Trans>Token</Trans>
-      </span>
+      </HeaderCell>
       <HStack className="shrink-0 items-center gap-3">
         {!isAllTab && (
-          <MouseoverTooltip
-            placement="top"
-            width="fit-content"
-            style={{ zIndex: Z_INDEXS.MODAL }}
-            text={<Trans>Price & 24h change</Trans>}
-          >
-            <SortHeader
-              label={<Trans>Price</Trans>}
-              field="priceChange24h"
-              sort={sort}
-              onSort={onSort}
-              className="w-[72px] sm:w-[132px]"
-            />
-          </MouseoverTooltip>
+          <HeaderCell className="w-[72px] sm:w-[132px]">
+            <MouseoverTooltip
+              placement="top"
+              width="fit-content"
+              style={{ zIndex: Z_INDEXS.MODAL }}
+              text={<Trans>Price & 24h change</Trans>}
+            >
+              <SortHeader label={<Trans>Price</Trans>} field="priceChange24h" sort={sort} onSort={onSort} />
+            </MouseoverTooltip>
+          </HeaderCell>
         )}
         {isTrendingTab || isNewTab ? (
-          <MetricColumnHeader metric={metricColumn} onMetricChange={onMetricChange} sort={sort} onSort={onSort} />
+          <HeaderCell className={METRIC_COLUMN_CLASS}>
+            <MetricColumnHeader metric={metricColumn} onMetricChange={onMetricChange} sort={sort} onSort={onSort} />
+          </HeaderCell>
         ) : (
-          <span className={cn('flex items-center justify-end', BALANCE_COLUMN_CLASS)}>
+          <HeaderCell className={BALANCE_COLUMN_CLASS}>
             <Trans>Balance</Trans>
-          </span>
+          </HeaderCell>
         )}
         {/* Spacer aligning the header with the imported rows' remove-token column. */}
         {isImportedTab && <span className="w-6 shrink-0" aria-hidden="true" />}

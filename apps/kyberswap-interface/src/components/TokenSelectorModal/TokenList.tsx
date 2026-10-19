@@ -253,7 +253,7 @@ const TokenList = ({
   useEffect(() => () => clearTimeout(rowsRenderedTimer.current), [])
 
   return (
-    <div className="flex-1 pb-2" data-testid="token-list">
+    <div className="min-h-0 flex-1" data-testid="token-list">
       <AutoSizer>
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>

@@ -9,19 +9,14 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import { ChainSelector } from 'components/TokenSelectorModal/ChainSelector'
+import { NetworkSidebar } from 'components/TokenSelectorModal/NetworkSidebar'
 import { OtherChainTokens } from 'components/TokenSelectorModal/OtherChainTokens'
 import { PinnedTokens } from 'components/TokenSelectorModal/PinnedTokens'
 import { TabBar, getTabSubtitle } from 'components/TokenSelectorModal/TabBar'
 import TokenList from 'components/TokenSelectorModal/TokenList'
 import { TokenListHeader } from 'components/TokenSelectorModal/TokenListHeader'
 import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenListSkeleton'
-import {
-  ContentWrapper,
-  PaddedColumn,
-  SearchIcon,
-  SearchInput,
-  SearchWrapper,
-} from 'components/TokenSelectorModal/components'
+import { ContentWrapper, SearchIcon, SearchInput, SearchWrapper } from 'components/TokenSelectorModal/components'
 import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { useTokenSelectorData } from 'components/TokenSelectorModal/hooks/useTokenSelectorData'
 import { useTokenSelectorView } from 'components/TokenSelectorModal/hooks/useTokenSelectorView'
@@ -29,12 +24,13 @@ import { TokenSelectionContext } from 'components/TokenSelectorModal/types'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme'
-import { cn } from 'utils/cn'
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
   return (
     <Stack className="h-full p-5" data-testid="no-token-result">
-      <p className="text-center font-medium text-text3">{message || <Trans>No results found.</Trans>}</p>
+      <p className="whitespace-pre-line text-center text-sm font-medium text-text4">
+        {message || <Trans>No results found.</Trans>}
+      </p>
     </Stack>
   )
 }
@@ -42,7 +38,7 @@ const NoResult = ({ message }: { message?: ReactNode }) => {
 const SearchLoading = () => (
   <Stack className="h-full items-center gap-3 p-5 pt-8" data-testid="token-search-loading">
     <Loader size="24px" />
-    <p className="text-center font-medium text-text3">
+    <p className="text-center text-sm font-medium text-text4">
       <Trans>Loading...</Trans>
     </p>
   </Stack>
@@ -182,162 +178,166 @@ export const TokenSelectorContent = ({
     ) : activeTab === TokenSelectorTab.New ? (
       <Trans>No newly whitelisted token recently.</Trans>
     ) : activeTab === TokenSelectorTab.Imported ? (
-      <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
+      <Trans>You haven&apos;t imported any tokens yet.\nSearch a token address in the All tab to import one.</Trans>
     ) : activeTab === TokenSelectorTab.Favorites ? (
       <Trans>You have no saved tokens yet.</Trans>
     ) : undefined
 
   return (
-    <ContentWrapper data-testid="token-selector-modal">
-      <PaddedColumn>
-        <HStack className="items-center justify-between">
-          <HStack className="gap-1 text-xl font-medium">
-            {title || <Trans>Select a token</Trans>}
-            <InfoHelper
-              zIndexTooltip={Z_INDEXS.MODAL}
-              size={16}
-              fontSize={12}
-              text={
-                tooltip || (
-                  <Trans>
-                    Find a token by searching for its name or symbol or by pasting its address below.
-                    <br />
-                    You can select and trade any token on KyberSwap.
-                  </Trans>
-                )
-              }
-            />
-          </HStack>
-          <CloseIcon onClick={onDismiss} data-testid="close-icon" />
-        </HStack>
-
-        <HStack className="items-center gap-3">
-          <SearchWrapper className="flex-1">
-            <SearchInput
-              type="text"
-              id="token-search-input"
-              data-testid="token-search-input"
-              placeholder={t`Search by name, symbol or address`}
-              value={searchQuery}
-              ref={inputRef}
-              onChange={handleInput}
-              onKeyDown={handleEnter}
-              autoComplete="off"
-            />
-            {searchQuery ? (
-              <button
-                type="button"
-                aria-label="Clear search"
-                data-testid="clear-search"
-                onClick={() => {
-                  setSearchQuery('')
-                  inputRef.current?.focus()
-                }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
-              >
-                <X size={16} />
-              </button>
-            ) : (
-              <SearchIcon size={18} className="text-gray" />
-            )}
-          </SearchWrapper>
-          {showDiscoveryTabs && (
-            <ChainSelector chains={rankedChains} selectedChainId={selectedChainId} onChange={handleChainChange} />
-          )}
-        </HStack>
-
-        {showPinnedTokens && (
-          <div
-            className={cn(
-              'grid transition-[grid-template-rows] duration-200 ease-out',
-              quickSelectTokens.length ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-            )}
-          >
-            {/* Top/right padding leaves room for each pill's remove "×" (absolute -top/-right) so the
-                collapse wrapper's overflow-hidden doesn't clip it. */}
-            <div className="overflow-hidden pr-1.5 pt-1.5">
-              <PinnedTokens
-                tokens={quickSelectTokens}
-                onToggleFavorite={handleClickFavorite}
-                onSelect={currency => requestSelect(currency, 'quick_select_pill')}
-                selectedCurrency={selectedCurrency}
-              />
-            </div>
-          </div>
-        )}
-
-        {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={handleTabChange} />}
-      </PaddedColumn>
-      <div
-        key={activeTab}
-        role="tabpanel"
-        id="token-selector-panel"
-        className="flex min-h-0 flex-1 animate-[fadeInUp_0.3s_ease-out_both] flex-col motion-reduce:animate-none"
-      >
-        {subtitle && <div className="px-5 pb-1 pt-3 text-sm text-subText">{subtitle}</div>}
-
-        {(visibleCurrencies.length > 0 || isListLoading) && (
-          <TokenListHeader
-            activeTab={activeTab}
-            metricColumn={metricColumn}
-            sort={sort}
-            onSort={cycleSort}
-            onMetricChange={changeMetricColumn}
+    <ContentWrapper className="min-h-0 gap-3 overflow-hidden p-4" data-testid="token-selector-modal">
+      <HStack className="shrink-0 items-center justify-between gap-3">
+        <HStack className="min-w-0 items-center gap-1 text-xl font-medium">
+          {title || <Trans>Select a token</Trans>}
+          <InfoHelper
+            zIndexTooltip={Z_INDEXS.MODAL}
+            size={16}
+            fontSize={12}
+            text={
+              tooltip || (
+                <Trans>
+                  Find a token by searching for its name or symbol or by pasting its address below.
+                  <br />
+                  You can select and trade any token on KyberSwap.
+                </Trans>
+              )
+            }
           />
+        </HStack>
+        <CloseIcon onClick={onDismiss} data-testid="close-icon" />
+      </HStack>
+      <HStack className="min-h-0 flex-1 gap-3">
+        {showDiscoveryTabs && (
+          <NetworkSidebar chains={rankedChains} selectedChainId={selectedChainId} onChange={handleChainChange} />
         )}
+        <Stack className="min-h-0 min-w-0 flex-1 gap-3">
+          <Stack className="shrink-0 gap-2">
+            <Stack className="gap-3">
+              <HStack className="items-center gap-3">
+                <SearchWrapper className="flex-1">
+                  <SearchInput
+                    className="bg-white-04"
+                    type="text"
+                    id="token-search-input"
+                    data-testid="token-search-input"
+                    placeholder={t`Search by name, symbol or address`}
+                    value={searchQuery}
+                    ref={inputRef}
+                    onChange={handleInput}
+                    onKeyDown={handleEnter}
+                    autoComplete="off"
+                  />
+                  {searchQuery ? (
+                    <button
+                      type="button"
+                      aria-label="Clear search"
+                      data-testid="clear-search"
+                      onClick={() => {
+                        setSearchQuery('')
+                        inputRef.current?.focus()
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
+                    >
+                      <X size={16} />
+                    </button>
+                  ) : (
+                    <SearchIcon size={18} className="text-gray" />
+                  )}
+                </SearchWrapper>
+                {showDiscoveryTabs && (
+                  <div className="sm:hidden">
+                    <ChainSelector
+                      chains={rankedChains}
+                      selectedChainId={selectedChainId}
+                      onChange={handleChainChange}
+                    />
+                  </div>
+                )}
+              </HStack>
 
-        <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
-          {isListLoading ? (
-            <TokenListSkeleton />
-          ) : visibleCurrencies.length > 0 ? (
-            <TokenList
-              listTokenRef={listTokenRef}
-              customChainId={selectedChainId}
-              currencies={visibleCurrencies}
-              balances={balances}
-              nativeBalance={nativeBalance}
-              extras={listExtras}
-              impersonators={impersonators}
-              heldAddresses={heldAddresses}
-              waitingForBalances={waitingForBalances}
-              selectedCurrency={selectedCurrency}
-              otherCurrency={otherSelectedCurrency}
-              scaleERC8056Balances={scaleERC8056Balances}
-              loadMoreRows={handleLoadMore}
-              hasMore={listHasMore}
-              onRowsRendered={handleRowsRendered}
-              onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
-              onToggleFavorite={handleClickFavorite}
-              onCurrencySelect={currency => requestSelect(currency)}
-              onImportToken={token => requestSelect(token, undefined, 'import')}
-              onShowTokenInfo={onShowTokenInfo}
-              showAddress={isAllTab}
-              showCopyAddress={!isAllTab}
-              showPriceColumn={!isAllTab}
-              metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
-              importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
-            />
-          ) : (
-            <Stack className="min-h-0 flex-1">
-              {isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
-                <OtherChainTokens
-                  tokens={otherChainTokens}
-                  loading={isCheckingOtherChains}
-                  loadingFallback={<SearchLoading />}
-                  anchorChainId={anchorChainId}
-                  onSelect={currency => requestSelect(currency)}
+              {showPinnedTokens && quickSelectTokens.length > 0 && (
+                <PinnedTokens
+                  tokens={quickSelectTokens}
+                  onToggleFavorite={handleClickFavorite}
+                  onSelect={currency => requestSelect(currency, 'quick_select_pill')}
+                  selectedCurrency={selectedCurrency}
                 />
-              ) : (
-                <NoResult message={debouncedQuery ? undefined : emptyMessage} />
               )}
             </Stack>
-          )}
-        </motion.div>
-      </div>
 
-      <div className="px-5 py-3 text-left text-xs italic text-subText">
-        <Trans>On-chain data for informational purposes only. Not financial advice.</Trans>
-      </div>
+            {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={handleTabChange} />}
+          </Stack>
+          <div
+            key={activeTab}
+            role="tabpanel"
+            id="token-selector-panel"
+            className="flex min-h-0 flex-1 animate-[fadeInUp_0.3s_ease-out_both] flex-col gap-2 motion-reduce:animate-none"
+          >
+            {subtitle && <div className="shrink-0 px-2 text-sm font-medium leading-5 text-gray">{subtitle}</div>}
+
+            {(visibleCurrencies.length > 0 || isListLoading) && (
+              <TokenListHeader
+                activeTab={activeTab}
+                metricColumn={metricColumn}
+                sort={sort}
+                onSort={cycleSort}
+                onMetricChange={changeMetricColumn}
+              />
+            )}
+
+            <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
+              {isListLoading ? (
+                <TokenListSkeleton activeTab={activeTab} />
+              ) : visibleCurrencies.length > 0 ? (
+                <TokenList
+                  listTokenRef={listTokenRef}
+                  customChainId={selectedChainId}
+                  currencies={visibleCurrencies}
+                  balances={balances}
+                  nativeBalance={nativeBalance}
+                  extras={listExtras}
+                  impersonators={impersonators}
+                  heldAddresses={heldAddresses}
+                  waitingForBalances={waitingForBalances}
+                  selectedCurrency={selectedCurrency}
+                  otherCurrency={otherSelectedCurrency}
+                  scaleERC8056Balances={scaleERC8056Balances}
+                  loadMoreRows={handleLoadMore}
+                  hasMore={listHasMore}
+                  onRowsRendered={handleRowsRendered}
+                  onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
+                  onToggleFavorite={handleClickFavorite}
+                  onCurrencySelect={currency => requestSelect(currency)}
+                  onImportToken={token => requestSelect(token, undefined, 'import')}
+                  onShowTokenInfo={onShowTokenInfo}
+                  showAddress={isAllTab}
+                  showCopyAddress={!isAllTab}
+                  showPriceColumn={!isAllTab}
+                  metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
+                  importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
+                />
+              ) : (
+                <Stack className="min-h-0 flex-1">
+                  {isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
+                    <OtherChainTokens
+                      tokens={otherChainTokens}
+                      loading={isCheckingOtherChains}
+                      loadingFallback={<SearchLoading />}
+                      anchorChainId={anchorChainId}
+                      onSelect={currency => requestSelect(currency)}
+                    />
+                  ) : (
+                    <NoResult message={debouncedQuery ? undefined : emptyMessage} />
+                  )}
+                </Stack>
+              )}
+            </motion.div>
+          </div>
+
+          <div className="shrink-0 text-left text-xs font-medium italic leading-4 text-subText">
+            <Trans>On-chain data for informational purposes only. Not financial advice.</Trans>
+          </div>
+        </Stack>
+      </HStack>
     </ContentWrapper>
   )
 }

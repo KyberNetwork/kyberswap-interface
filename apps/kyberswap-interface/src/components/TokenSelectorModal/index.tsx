@@ -1,6 +1,6 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import { useMedia } from 'react-use'
 
 import Modal from 'components/Modal'
 import TokenInfo from 'components/TokenInfo'
@@ -13,6 +13,7 @@ import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
+import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
 type Props = {
@@ -49,7 +50,7 @@ const TokenSelectorModal = ({
   onCurrencyImport,
   customChainId,
   trackingSource,
-  showDiscoveryTabs,
+  showDiscoveryTabs = true,
   onSelectChain,
 }: Props) => {
   const { chainId: appChainId } = useActiveWeb3React()
@@ -75,8 +76,7 @@ const TokenSelectorModal = ({
       })
     }
   }, [isOpen, lastOpen, trackingHandler, trackingSource, anchorChainId])
-  const minHeight = importToken ? 'fit-content' : 80
-  const isMobileHorizontal = Math.abs(window.orientation) === 90 && isMobile
+  const isDesktopWidth = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall + 1}px)`)
 
   const [tokenToShowInfo, setTokenToShowInfo] = useState<Token | null>(null)
   // Detail view keeps mounting through its slide-out so the "←" back has an exit animation; it
@@ -101,11 +101,11 @@ const TokenSelectorModal = ({
           selection.dismiss()
         }}
         bgColor="var(--ks-background)"
-        margin={isMobile ? undefined : 'auto'}
-        maxWidth="480px"
-        maxHeight={isMobileHorizontal ? 100 : 80}
-        minHeight={minHeight}
-        height={isMobileHorizontal ? '95vh' : undefined}
+        maxWidth={showDiscoveryTabs && isDesktopWidth && !tokenToShowInfo && !importToken ? '720px' : '480px'}
+        width={showDiscoveryTabs && isDesktopWidth ? 'calc(100vw - 32px)' : undefined}
+        className={tokenToShowInfo || importToken ? undefined : '!overflow-hidden'}
+        maxHeight="calc(100dvh - 32px)"
+        height={importToken && !tokenToShowInfo ? undefined : 'min(800px, 75dvh)'}
       >
         {/* Kept mounted (only hidden) behind the token-info / import overlays so the search view's
             selected chain, tab, query and scroll survive those round-trips — unmounting it resets them. */}

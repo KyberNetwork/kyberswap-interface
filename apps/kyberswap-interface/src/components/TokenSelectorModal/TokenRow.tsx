@@ -6,10 +6,9 @@ import { AlertTriangle, Info, Star, X } from 'react-feather'
 import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
-import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
-import { AddressCopy, Balance, formatAgeBadge } from 'components/TokenSelectorModal/components'
+import { AddressCopy, Balance, BalanceSkeleton, formatAgeBadge } from 'components/TokenSelectorModal/components'
 import { BALANCE_COLUMN_CLASS } from 'components/TokenSelectorModal/constants'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { restrictedTokenMessage } from 'hooks/useRestrictedTokens'
@@ -125,8 +124,6 @@ export const TokenRow = ({
 }: TokenRowProps) => {
   const isImport = rightColumn === 'import'
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
-  // Uniform skeleton width so balance rows stay aligned and don't jitter as they re-sort while balances load.
-  const balanceSkeletonWidth = 56
 
   const onClickRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -137,8 +134,7 @@ export const TokenRow = ({
     if (hideBalance) return <span className="max-w-full truncate text-xs text-text sm:text-sm">******</span>
     // A zero balance is an amount like any other and renders as "0".
     if (currencyBalance) return <Balance balance={currencyBalance} />
-    if (showLoading)
-      return <Skeleton width={balanceSkeletonWidth} height={18} className="my-[3px]" variant="darkSubtle" />
+    if (showLoading) return <BalanceSkeleton currency={currency} />
     return (
       <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
         {/* No wallet, nothing to hold; a wallet whose balance never arrived, nothing to claim. */}
