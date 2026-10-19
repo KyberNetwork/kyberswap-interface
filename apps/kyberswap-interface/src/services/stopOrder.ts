@@ -111,6 +111,22 @@ const stopOrderApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_STOP_ORDER_LIST],
     }),
 
+    /**
+     * Replaces an open order with new terms under one signature: the old one is cancelled and the new
+     * one created together, or nothing changes. Both calls take the new order's payload plus the id of
+     * the order it replaces, and the signature is the new order's own intent naming that id.
+     */
+    getStopOrderReplaceSignMessage: builder.mutation<StopOrderTypedData, StopOrderCorePayload & { orderId: number }>({
+      query: body => ({ url: `${ORDERS_PATH}/replace/sign-message`, method: 'POST', body }),
+      transformResponse: (response: ApiEnvelope<StopOrderTypedData>) => response?.data,
+    }),
+
+    replaceStopOrder: builder.mutation<StopOrder, StopOrderCorePayload & { orderId: number; signature: string }>({
+      query: body => ({ url: `${ORDERS_PATH}/replace`, method: 'POST', body }),
+      transformResponse: (response: ApiEnvelope<StopOrder>) => response?.data,
+      invalidatesTags: [RTK_QUERY_TAGS.GET_STOP_ORDER_LIST],
+    }),
+
     // Cancelling is user-signed too, one order per signature — the service takes a single orderId.
     getStopOrderCancelSignMessage: builder.mutation<StopOrderTypedData, StopOrderCancelParams>({
       query: body => ({ url: `${ORDERS_PATH}/cancel/sign-message`, method: 'POST', body }),
@@ -168,6 +184,8 @@ export const {
   useEstimateStopOrderFeeMutation,
   useGetStopOrderSignMessageMutation,
   useCreateStopOrderMutation,
+  useGetStopOrderReplaceSignMessageMutation,
+  useReplaceStopOrderMutation,
   useGetStopOrderCancelSignMessageMutation,
   useCancelStopOrderMutation,
   useGetStopOrderCancelAllSignMessageMutation,

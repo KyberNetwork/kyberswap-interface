@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ButtonHTMLAttributes } from 'react'
+import { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Calendar, ChevronDown } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
@@ -51,6 +51,8 @@ type Props = {
   tooltip?: string
   /** See `SettingGridCells`: splits the header and the panel across the caller's grid. */
   gridCells?: SettingGridCells
+  /** Shown after the value in the header. */
+  rightComponent?: ReactNode
 }
 
 const LimitOrderExpirySection = ({
@@ -59,6 +61,7 @@ const LimitOrderExpirySection = ({
   presetOptions,
   tooltip,
   gridCells,
+  rightComponent,
 }: Props) => {
   const expirePresetOptions = presetOptions ?? [
     { value: TIMES_IN_SECS.ONE_HOUR, label: t`1 Hour` },
@@ -103,6 +106,7 @@ const LimitOrderExpirySection = ({
             </DropdownIcon>
           </HStack>
         </HStack>
+        {rightComponent}
       </HStack>
 
       <div

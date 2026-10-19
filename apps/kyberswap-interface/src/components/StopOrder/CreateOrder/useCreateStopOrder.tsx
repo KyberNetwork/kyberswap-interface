@@ -6,7 +6,9 @@ import {
   useEstimateStopOrderFeeMutation,
   useGetStopOrderActiveMakingAmountQuery,
   useGetStopOrderConfigQuery,
+  useGetStopOrderReplaceSignMessageMutation,
   useGetStopOrderSignMessageMutation,
+  useReplaceStopOrderMutation,
 } from 'services/stopOrder'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -14,10 +16,11 @@ import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/steps
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { DEFAULT_MAX_FEES_PERCENTAGE, DEFAULT_MAX_GAS_PERCENTAGE } from 'components/StopOrder/constants'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
-import { StopOrderFee } from 'components/StopOrder/types'
+import { StopOrder, StopOrderFee } from 'components/StopOrder/types'
 import {
   buildStopOrderPayload,
   getStopOrderServiceErrorMessage,
+  parseRawAmount,
   stripEmptyEip712Salt,
 } from 'components/StopOrder/utils'
 import { useActiveWeb3React } from 'hooks'
@@ -38,6 +41,8 @@ type Props = {
   slippage: number
   expiredAt: number
   onResetForm?: () => void
+  /** The open order these terms replace. Set, the order is placed as its replacement, under one signature. */
+  replacing?: StopOrder
 }
 
 export const useCreateStopOrder = ({
@@ -48,6 +53,7 @@ export const useCreateStopOrder = ({
   slippage,
   expiredAt,
   onResetForm,
+  replacing,
 }: Props) => {
   const { account, chainId } = useActiveWeb3React()
   const notify = useNotify()
@@ -60,6 +66,8 @@ export const useCreateStopOrder = ({
   const [estimateFee, { isLoading: isEstimatingFee }] = useEstimateStopOrderFeeMutation()
   const [getSignMessage] = useGetStopOrderSignMessageMutation()
   const [submitOrder] = useCreateStopOrderMutation()
+  const [getReplaceSignMessage] = useGetStopOrderReplaceSignMessageMutation()
+  const [submitReplacement] = useReplaceStopOrderMutation()
 
   const { data: config } = useGetStopOrderConfigQuery(chainId)
   // Both the contract that pulls tokenIn and the EIP-712 verifying contract.
@@ -109,13 +117,20 @@ export const useCreateStopOrder = ({
   )
   const committedAmount = useMemo(() => {
     if (!approvalCurrency || !activeMakingAmount || activeMakingAmount === '0') return undefined
+    // An order being replaced gives up its claim for the new one, as the service counts it.
+    const released =
+      replacing && replacing.tokenIn.toLowerCase() === approvalCurrency.address.toLowerCase()
+        ? parseRawAmount(replacing.amountIn)
+        : 0n
+    const committed = parseRawAmount(activeMakingAmount) - released
+    if (committed <= 0n) return undefined
     // A malformed or out-of-range figure would throw inside the SDK, so it counts as nothing committed.
     try {
-      return CurrencyAmount.fromRawAmount(approvalCurrency, activeMakingAmount)
+      return CurrencyAmount.fromRawAmount(approvalCurrency, committed.toString())
     } catch {
       return undefined
     }
-  }, [approvalCurrency, activeMakingAmount])
+  }, [approvalCurrency, activeMakingAmount, replacing])
 
   const hasEnoughAllowance = useCallback(
     (allowance: TokenAmount) => {
@@ -179,8 +194,12 @@ export const useCreateStopOrder = ({
     return result
   }, [buildPayload, estimateFee])
 
-  /** For the review: a failed estimate leaves no fee, and the reason to show in its place. */
+  /**
+   * For the review: a failed estimate leaves no fee, and the reason to show in its place. The previous
+   * figure is dropped first, so the review never shows an estimate made for other terms.
+   */
   const refreshFee = useCallback(async () => {
+    setFee(undefined)
     setFeeError(undefined)
     try {
       return await estimateLatestFee()
@@ -205,14 +224,18 @@ export const useCreateStopOrder = ({
     const payload = buildPayload(maxFeesPercentage)
     if (!payload) return false
 
-    const typedData = await getSignMessage(payload).unwrap()
+    const typedData = replacing
+      ? await getReplaceSignMessage({ ...payload, orderId: replacing.id }).unwrap()
+      : await getSignMessage(payload).unwrap()
     const rawSignature = await signTypedDataRaw({
       chainId,
       account: account as Address,
       typedData: stripEmptyEip712Salt(typedData),
     })
+    const signature = formatSignature(rawSignature)
 
-    await submitOrder({ ...payload, signature: formatSignature(rawSignature) }).unwrap()
+    if (replacing) await submitReplacement({ ...payload, orderId: replacing.id, signature }).unwrap()
+    else await submitOrder({ ...payload, signature }).unwrap()
 
     tracking.trackOrderPlaced({
       currencyIn,
@@ -222,6 +245,7 @@ export const useCreateStopOrder = ({
       triggerPrice,
       slippage,
       expiredAt,
+      replacesOrderId: replacing?.id,
     })
 
     const sellSymbol = currencyIn.symbol
@@ -229,8 +253,8 @@ export const useCreateStopOrder = ({
     notify(
       {
         type: NotificationType.SUCCESS,
-        title: t`Stop order placed`,
-        summary: t`Selling ${inputAmount} ${sellSymbol} when the price drops to ${triggerPrice} ${receiveSymbol}.`,
+        title: replacing ? t`Order updated` : t`Stop order placed`,
+        summary: t`Selling ${inputAmount} ${sellSymbol} when the price reaches ${triggerPrice} ${receiveSymbol}.`,
       },
       10000,
     )
@@ -249,6 +273,9 @@ export const useCreateStopOrder = ({
     estimateLatestFee,
     getSignMessage,
     submitOrder,
+    replacing,
+    getReplaceSignMessage,
+    submitReplacement,
     notify,
     tracking,
     onResetForm,

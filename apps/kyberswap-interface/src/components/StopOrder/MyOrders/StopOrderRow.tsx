@@ -1,7 +1,7 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useState } from 'react'
-import { AlertTriangle, ExternalLink as LinkIcon, Repeat, Trash } from 'react-feather'
+import { AlertTriangle, Edit2, ExternalLink as LinkIcon, Repeat, Trash } from 'react-feather'
 
 import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stop_order_recreate.svg'
 import IconButton from 'components/Button/IconButton'
@@ -49,6 +49,7 @@ type Props = {
   /** Position on the page, which staggers the rows' entrance. */
   rowIndex?: number
   onCancel: (order: StopOrder) => void
+  onEdit: (order: StopOrder) => void
   /** `sellAmount` is exact, not the rounded display figure — it goes straight back into the form. */
   onRecreate: (order: StopOrder, sellAmount: string) => void
 }
@@ -65,7 +66,16 @@ const formatPairPrice = (value: number | string | undefined, quoteSymbol?: strin
   return quoteSymbol ? `${amount} ${quoteSymbol}` : amount
 }
 
-const StopOrderRow = ({ order, isActiveTab, isCancelling, funding, rowIndex = 0, onCancel, onRecreate }: Props) => {
+const StopOrderRow = ({
+  order,
+  isActiveTab,
+  isCancelling,
+  funding,
+  rowIndex = 0,
+  onCancel,
+  onEdit,
+  onRecreate,
+}: Props) => {
   const sellCurrency = useStopOrderCurrency(order.tokenInInfo, order.chainId)
   const receiveCurrency = useStopOrderCurrency(order.tokenOutInfo, order.chainId)
 
@@ -266,18 +276,30 @@ const StopOrderRow = ({ order, isActiveTab, isCancelling, funding, rowIndex = 0,
           </>
         )}
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-1">
           {isActiveTab ? (
-            <MouseoverTooltip text={t`Cancel order`} placement="top" width="fit-content">
-              <IconButton
-                disabled={isCancelling}
-                onClick={() => onCancel(order)}
-                data-testid="stop-order-order-cancel-button"
-                className="p-0 text-subText hover:bg-white/10 hover:text-red disabled:text-subText-40 disabled:opacity-100"
-              >
-                <Trash size={16} />
-              </IconButton>
-            </MouseoverTooltip>
+            <>
+              <MouseoverTooltip text={t`Edit order`} placement="top" width="fit-content">
+                <IconButton
+                  disabled={isCancelling}
+                  onClick={() => onEdit(order)}
+                  data-testid="stop-order-order-edit-button"
+                  className="p-0 text-subText hover:bg-white/10 hover:text-text disabled:text-subText-40 disabled:opacity-100"
+                >
+                  <Edit2 size={15} />
+                </IconButton>
+              </MouseoverTooltip>
+              <MouseoverTooltip text={t`Cancel order`} placement="top" width="fit-content">
+                <IconButton
+                  disabled={isCancelling}
+                  onClick={() => onCancel(order)}
+                  data-testid="stop-order-order-cancel-button"
+                  className="p-0 text-subText hover:bg-white/10 hover:text-red disabled:text-subText-40 disabled:opacity-100"
+                >
+                  <Trash size={16} />
+                </IconButton>
+              </MouseoverTooltip>
+            </>
           ) : showTxLink ? (
             <ExternalLink
               href={getEtherscanLink(order.chainId, txHash as string, 'transaction')}
@@ -309,6 +331,20 @@ const StopOrderRow = ({ order, isActiveTab, isCancelling, funding, rowIndex = 0,
           data-cause={retryCause}
         >
           {retryMessage}
+          {/* Slippage is the one cause the order itself can fix. */}
+          {retryCause === 'slippage' && !isCancelling && (
+            <>
+              {' '}
+              <button
+                type="button"
+                className="cursor-pointer border-0 bg-transparent p-0 text-xs font-medium text-primary hover:brightness-110"
+                onClick={() => onEdit(order)}
+                data-testid="stop-order-order-retry-edit"
+              >
+                {t`Edit order`}
+              </button>
+            </>
+          )}
         </p>
       )}
 

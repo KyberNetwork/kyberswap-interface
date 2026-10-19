@@ -34,6 +34,8 @@ type Props = {
   inputAmount?: string
   /** The pair's oracle gave no usable price, so the trigger cannot be placed against the market. */
   marketPriceUnavailable?: boolean
+  /** Raw amount of the open order being edited, whose claim on the balance the edit gives up. */
+  releasedAmount?: string
 }
 
 /**
@@ -46,6 +48,7 @@ export const useStopOrderWarnings = ({
   currencyOut,
   inputAmount,
   marketPriceUnavailable,
+  releasedAmount,
 }: Props) => {
   const { hasEligibleTokens, isLoading: loadingSupportedTokens } = useStopOrderSupportedTokens(chainId)
   const { isEligible, isLoading: loadingEligibility } = useIsStopOrderEligibleToken(currencyIn)
@@ -54,7 +57,12 @@ export const useStopOrderWarnings = ({
     useIsStopOrderEligibleToken(currencyOut)
 
   const parsedInputAmount = useMemo(() => tryParseAmount(inputAmount, currencyIn), [inputAmount, currencyIn])
-  const hasReservedBalanceShortfall = useStopOrderReservedBalance({ chainId, currencyIn, parsedInputAmount })
+  const hasReservedBalanceShortfall = useStopOrderReservedBalance({
+    chainId,
+    currencyIn,
+    parsedInputAmount,
+    releasedAmount,
+  })
 
   return useMemo(() => {
     /**

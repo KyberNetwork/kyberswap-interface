@@ -3,18 +3,15 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { calcOutput } from 'components/LimitOrder/utils'
-import { STOP_ORDER_SLIPPAGE_MULTIPLIER } from 'components/StopOrder/constants'
 import { useStopOrderOraclePrice } from 'components/StopOrder/hooks/useStopOrderOraclePrice'
+import { useStopOrderSlippageOptions } from 'components/StopOrder/hooks/useStopOrderSlippageOptions'
 import { formatTriggerPriceValue, getStopOrderPairKey } from 'components/StopOrder/utils'
-import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY, PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { resetStopOrderForm, updateStopOrderForm } from 'state/stopOrder/reducer'
-import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { updateStopOrderSlippage } from 'state/user/actions'
-import { checkRangeSlippage } from 'utils/slippage'
 import { formatTimeDuration } from 'utils/time'
 
 export type UseStopOrderFormStateProps = {
@@ -45,22 +42,11 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
     customDateExpire: customDateExpireMs,
   } = useAppSelector(s => s.stopOrder)
 
-  // The swap form's suggestion, presets and warning bands for this pair's category, each scaled by the
-  // same multiplier so the stop order stays in step with swap as either changes.
-  const pairCategory = usePairCategory(chainId)
-  const defaultSlippage = useDefaultSlippageByPair(chainId) * STOP_ORDER_SLIPPAGE_MULTIPLIER
+  const { defaultSlippage, slippagePresets, getSlippageStatus } = useStopOrderSlippageOptions(chainId)
   // A recreated order's own slippage first, then what the user last picked, then the pair's suggestion.
   const pickedSlippage = useAppSelector(s => s.user.stopOrderSlippage)
   const slippage = stagedSlippage ?? pickedSlippage ?? defaultSlippage
-  const slippagePresets = useMemo(
-    () =>
-      (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY : DEFAULT_SLIPPAGES).map(
-        preset => preset * STOP_ORDER_SLIPPAGE_MULTIPLIER,
-      ),
-    [pairCategory],
-  )
-  // Scaling the value down against swap's bands is the same as scaling the bands up.
-  const slippageStatus = checkRangeSlippage(slippage / STOP_ORDER_SLIPPAGE_MULTIPLIER, pairCategory)
+  const slippageStatus = getSlippageStatus(slippage)
   const customDateExpire = useMemo(
     () => (customDateExpireMs === undefined ? undefined : new Date(customDateExpireMs)),
     [customDateExpireMs],

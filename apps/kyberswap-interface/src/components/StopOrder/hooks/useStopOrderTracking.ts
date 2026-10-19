@@ -15,6 +15,8 @@ type OrderContext = {
   triggerPercent?: number
   slippage: number
   expiredAt: number
+  /** Set when the order is an edit: it replaces this one, which the placed-order count must not double. */
+  replacesOrderId?: number
 }
 
 const pairOf = (currencyIn?: Currency, currencyOut?: Currency) =>
@@ -40,6 +42,8 @@ export const useStopOrderTracking = () => {
           pair: pairOf(context.currencyIn, context.currencyOut),
           amount: context.inputAmount,
           trigger_pct_below: context.triggerPercent,
+          is_edit: context.replacesOrderId !== undefined,
+          replaces_order_id: context.replacesOrderId,
         }),
 
       trackOrderPlaced: (context: OrderContext) =>
@@ -52,6 +56,8 @@ export const useStopOrderTracking = () => {
           slippage: context.slippage,
           expiry: context.expiredAt,
           order_type: 'stop_order',
+          is_edit: context.replacesOrderId !== undefined,
+          replaces_order_id: context.replacesOrderId,
         }),
 
       trackOrderCancelled: (order: StopOrder) =>

@@ -10,6 +10,8 @@ type Props = {
   chainId: ChainId
   currencyIn?: Currency
   parsedInputAmount?: CurrencyAmount<Currency>
+  /** Raw amount of an order being replaced: the service frees its claim for the new one. */
+  releasedAmount?: string
 }
 
 /**
@@ -19,7 +21,12 @@ type Props = {
  * fill, is an ordinary way to use both. A native sell is wrapped on placement, so its own amount is not
  * deducted: the wrapped balance already held is what has to keep covering the existing orders.
  */
-export const useStopOrderReservedBalance = ({ chainId, currencyIn, parsedInputAmount }: Props): boolean => {
+export const useStopOrderReservedBalance = ({
+  chainId,
+  currencyIn,
+  parsedInputAmount,
+  releasedAmount,
+}: Props): boolean => {
   const { account } = useActiveWeb3React()
   const makingCurrency = useMemo(
     () => (currencyIn ? (currencyIn.isNative ? WETH[chainId] : currencyIn.wrapped) : undefined),
@@ -38,6 +45,7 @@ export const useStopOrderReservedBalance = ({ chainId, currencyIn, parsedInputAm
     }
     const held = BigInt(balance.quotient.toString())
     const remaining = currencyIn.isNative ? held : held - BigInt(parsedInputAmount.quotient.toString())
-    return hasReservedBalanceShortfall(remaining, parseRawAmount(reservedRaw))
-  }, [currencyIn, makingCurrency, parsedInputAmount, balance, reservedRaw])
+    const reserved = parseRawAmount(reservedRaw) - parseRawAmount(releasedAmount)
+    return hasReservedBalanceShortfall(remaining, reserved > 0n ? reserved : 0n)
+  }, [currencyIn, makingCurrency, parsedInputAmount, balance, reservedRaw, releasedAmount])
 }

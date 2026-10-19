@@ -8,6 +8,7 @@ import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
 import RefetchIndicator from 'components/RefetchIndicator'
 import SearchInput from 'components/SearchInput'
 import CancelStopOrderModal from 'components/StopOrder/CancelOrder/CancelStopOrderModal'
+import StopOrderEditModal from 'components/StopOrder/EditOrder/StopOrderEditModal'
 import StopOrderRow from 'components/StopOrder/MyOrders/StopOrderRow'
 import StopOrderTableHeader from 'components/StopOrder/MyOrders/TableHeader'
 import {
@@ -78,6 +79,7 @@ const StopOrders = () => {
   const [cancelTargets, setCancelTargets] = useState<StopOrder[]>([])
   const [isCancelAll, setIsCancelAll] = useState(false)
   const [cancellingIds, setCancellingIds] = useState<number[]>([])
+  const [editingOrder, setEditingOrder] = useState<StopOrder>()
 
   // A single-chain filter follows the wallet when the user switches network, or the list keeps showing
   // the previous chain while the form above creates orders on the new one. All Chains already covers it.
@@ -232,6 +234,12 @@ const StopOrders = () => {
     else changeNetwork(order.chainId, stageDraft)
   }
 
+  // The replacement is signed on the order's own chain, so an order from another one switches the wallet first.
+  const onEdit = (order: StopOrder) => {
+    if (order.chainId === chainId) setEditingOrder(order)
+    else changeNetwork(order.chainId, () => setEditingOrder(order))
+  }
+
   return (
     <div className="flex w-full flex-col" data-testid="stop-order-orders">
       <div className="flex min-w-0 items-center border-b border-white-08">
@@ -316,6 +324,7 @@ const StopOrders = () => {
               setIsCancelAll(false)
               setCancelTargets([target])
             }}
+            onEdit={onEdit}
             onRecreate={onRecreate}
           />
         ))}
@@ -330,6 +339,11 @@ const StopOrders = () => {
       </div>
 
       {totalItems > PAGE_SIZE && <StopOrderPager page={curPage} pageCount={pageCount} onPageChange={setCurPage} />}
+
+      {/* Keyed by order, so editing another one starts from that order's values. */}
+      {editingOrder && (
+        <StopOrderEditModal key={editingOrder.id} order={editingOrder} onDismiss={() => setEditingOrder(undefined)} />
+      )}
 
       <CancelStopOrderModal
         orders={cancelTargets}

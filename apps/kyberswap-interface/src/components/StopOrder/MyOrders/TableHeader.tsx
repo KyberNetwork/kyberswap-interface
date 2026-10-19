@@ -29,10 +29,10 @@ export const StopOrderRowWrapper = ({
     {...rest}
     className={cn(
       'grid items-center gap-x-3 gap-y-1 text-sm max-sm:gap-x-2 max-sm:px-3',
+      // An open order has two actions, edit and cancel; a closed one has one.
       layout === StopOrderRowLayout.ACTIVE
-        ? 'grid-cols-[44px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.7fr)_minmax(0,0.8fr)_28px]'
-        : 'grid-cols-[44px_minmax(0,1.5fr)_minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.7fr)_28px]',
-      'max-sm:grid-cols-[20px_minmax(0,1.1fr)_minmax(0,0.8fr)_28px]',
+        ? 'grid-cols-[44px_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.7fr)_minmax(0,0.8fr)_60px] max-sm:grid-cols-[20px_minmax(0,1.1fr)_minmax(0,0.8fr)_60px]'
+        : 'grid-cols-[44px_minmax(0,1.5fr)_minmax(0,1.2fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.7fr)_28px] max-sm:grid-cols-[20px_minmax(0,1.1fr)_minmax(0,0.8fr)_28px]',
       className,
     )}
   >

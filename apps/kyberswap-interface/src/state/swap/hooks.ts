@@ -365,12 +365,15 @@ export const useOutputCurrency = () => {
   return isSamePair(inputCurrency, outputCurrency) ? undefined : outputCurrency
 }
 
-export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
+/** A pair named by its tokens' addresses, for a category other than the one of the pair on the page. */
+export type PairTokens = { tokenIn: string; tokenOut: string }
+
+export const usePairCategory = (customChainId?: ChainId, pair?: PairTokens): PAIR_CATEGORY => {
   const { chainId } = useActiveWeb3React()
   const inputCurrency = useInputCurrency()
   const outputCurrency = useOutputCurrency()
-  const inputAddress = inputCurrency?.wrapped.address
-  const outputAddress = outputCurrency?.wrapped.address
+  const inputAddress = pair ? pair.tokenIn : inputCurrency?.wrapped.address
+  const outputAddress = pair ? pair.tokenOut : outputCurrency?.wrapped.address
 
   const { data } = useCheckPairQuery(
     {
@@ -385,8 +388,8 @@ export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
 
   return data?.data.category || PAIR_CATEGORY.EXOTIC
 }
-export const useDefaultSlippageByPair = (customChainId?: ChainId) => {
-  const cat = usePairCategory(customChainId)
+export const useDefaultSlippageByPair = (customChainId?: ChainId, pair?: PairTokens) => {
+  const cat = usePairCategory(customChainId, pair)
 
   switch (cat) {
     case PAIR_CATEGORY.STABLE:
