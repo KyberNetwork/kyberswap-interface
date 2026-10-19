@@ -1,9 +1,19 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useGetOracleTokensQuery } from 'services/ksSetting'
 import { useGetStopOrderOracleConfigQuery } from 'services/stopOrder'
 
+import { isTokenNative } from 'utils/tokenInfo'
+
 const EMPTY_ADDRESSES = new Set<string>()
+
+/**
+ * The address a currency's feed is listed under: its wrapped token's, which is what an order holds. The
+ * token list carries each chain's native coin as a plain token at the 0xEeee… placeholder, whose
+ * `wrapped` is itself, so it is resolved to the chain's wrapped native explicitly.
+ */
+export const getOracleLookupAddress = (currency: Currency): string =>
+  (isTokenNative(currency) ? WETH[currency.chainId].address : currency.wrapped.address).toLowerCase()
 
 /**
  * The tokens on a chain that its stop order oracle can price. The oracle differs from chain to chain,
@@ -32,9 +42,8 @@ export const useOracleTokens = (chainId: ChainId | undefined, options?: { skip?:
   // a request that never answered.
   const isError = !skip && (isConfigError || (!!config && !tokenFilter) || isListError)
 
-  // Native currency answers through its wrapped token, which is what an order actually holds.
   const hasOracle = useCallback(
-    (currency: Currency | undefined) => !!currency && addresses.has(currency.wrapped.address.toLowerCase()),
+    (currency: Currency | undefined) => !!currency && addresses.has(getOracleLookupAddress(currency)),
     [addresses],
   )
 
