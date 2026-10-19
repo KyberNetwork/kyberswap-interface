@@ -18,6 +18,48 @@ const ROUTES = [
 ]
 
 describe('SSR render smoke', () => {
+  it.each([
+    '/swap/ethereum/eth-to-usdc',
+    '/swap/linea/eth-to-usdc',
+    '/swap/base/eth-to-wbtc',
+    '/swap/base/wbtc-to-eth',
+  ])('renders the new layout through the existing swap entry %s', async location => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml(location)
+
+    expect(html).toContain('id="swap-currency-input"')
+    expect(html).toContain('id="swap-currency-output"')
+    expect(html).toContain('<aside')
+    expect(html).toContain('Instantly buy or sell tokens at superior prices')
+    expect(html).toContain('Swap')
+    expect(html).toContain('Cross-Chain')
+    expect(html).not.toContain('Swap EVM')
+    expect(html).toContain('Route:')
+    expect(html).not.toContain('<!--$?-->')
+  })
+
+  it('preserves the Limit Order entry on the swap page', async () => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml('/swap/ethereum/eth-to-usdc')
+
+    expect(html).toContain('id="limit-button"')
+  })
+
+  it.each(['/partner-swap', '/user-swap'])(
+    'keeps embedded swap and feature selection working on %s',
+    async pathname => {
+      const { renderRouteBodyHtml } = await import('entry-server')
+      const html = await renderRouteBodyHtml(`${pathname}?chainId=1&features=swap,limit&tab=swap`)
+
+      expect(html).toContain('id="swap-currency-input"')
+      expect(html).toContain('id="swap-currency-output"')
+      expect(html).toContain('id="limit-button"')
+      expect(html).not.toContain('data-testid="cross-chain-tab"')
+      expect(html).not.toContain('Swap EVM')
+      expect(html).not.toContain('<!--$?-->')
+    },
+  )
+
   it.each(ROUTES)('renders %s without throwing', async location => {
     const { renderRouteBodyHtml } = await import('entry-server')
     const html = await renderRouteBodyHtml(location)

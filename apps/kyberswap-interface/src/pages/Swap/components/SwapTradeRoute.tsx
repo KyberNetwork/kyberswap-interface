@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Info } from 'react-feather'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
+import { ReactComponent as RoutingIcon } from 'assets/svg/routing_icon.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { ShieldChecked } from 'components/Icons'
 import Skeleton from 'components/Skeleton'
@@ -128,9 +128,9 @@ const SwapTradeRoute = ({
         className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-background px-4 py-1.5 text-left text-subText"
       >
         <div className="flex min-w-0 items-center gap-2.5">
-          <RoutingIcon className="size-[27px] [&_path]:!fill-subText" />
+          <RoutingIcon className="size-6" />
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-lg font-medium text-subText max-sm:hidden">Route:</span>
+            <span className="text-lg font-medium text-blue max-sm:hidden">Route:</span>
 
             {currencyIn ? (
               <div className="flex items-center gap-1.5">
