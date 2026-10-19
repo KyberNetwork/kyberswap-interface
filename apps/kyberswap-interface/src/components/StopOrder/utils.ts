@@ -1,5 +1,6 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 
+import { removeTrailingZero } from 'components/LimitOrder/utils'
 import {
   StopOrder,
   StopOrderCorePayload,
@@ -72,6 +73,24 @@ const ACTIVE_DISPLAY_STATUSES = [StopOrderDisplayStatus.ACTIVE, StopOrderDisplay
 
 /** Which table an order belongs in: everything still `Open` to the service, settling or not. */
 export const isActiveStopOrderStatus = (status: StopOrderDisplayStatus) => ACTIVE_DISPLAY_STATUSES.includes(status)
+
+/**
+ * Significant digits a trigger price is written with: the precision the oracle price is shown at, so the
+ * Market button puts the very figure on screen into the field, not one rounded to a fixed number of
+ * decimals — which for a pair trading near 1 lands a visible step away from the market.
+ */
+const TRIGGER_PRICE_SIGNIFICANT_DIGITS = 6
+
+/** A price as the trigger field holds it: plain decimal notation, no trailing zeros. */
+export const formatTriggerPriceValue = (value: number | undefined): string => {
+  if (value === undefined || !Number.isFinite(value) || value < 0) return ''
+  if (value === 0) return '0'
+  const fractionDigits = Math.min(
+    100,
+    Math.max(0, TRIGGER_PRICE_SIGNIFICANT_DIGITS - 1 - Math.floor(Math.log10(value))),
+  )
+  return removeTrailingZero(value.toFixed(fractionDigits))
+}
 
 export type TriggerProximity = 'far' | 'near' | 'imminent'
 

@@ -3,13 +3,12 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Repeat } from 'react-feather'
 
-import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { triggerProximityText } from 'components/StopOrder/MyOrders/components'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopOrder/constants'
-import { formatDistanceMagnitude, getTriggerProximity } from 'components/StopOrder/utils'
+import { formatDistanceMagnitude, formatTriggerPriceValue, getTriggerProximity } from 'components/StopOrder/utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -99,8 +98,7 @@ const TriggerPriceSection = ({
   const [invertedDraft, setInvertedDraft] = useState<string>()
 
   // Trailing zeros dropped both ways, so a round number typed on one side does not read as 2000.0000 on the other.
-  const invertedTrigger =
-    Number(triggerPrice) > 0 ? removeTrailingZero(formatPriceInputValue(1 / Number(triggerPrice))) : ''
+  const invertedTrigger = Number(triggerPrice) > 0 ? formatTriggerPriceValue(1 / Number(triggerPrice)) : ''
   const rateValue = showInverted ? invertedDraft ?? invertedTrigger : triggerPrice
   const onRateInput = (value: string) => {
     if (!showInverted) {
@@ -113,8 +111,7 @@ const TriggerPriceSection = ({
       return
     }
     const parsed = Number(value)
-    if (Number.isFinite(parsed) && parsed > 0)
-      onChangeTriggerPrice(removeTrailingZero(formatPriceInputValue(1 / parsed)))
+    if (Number.isFinite(parsed) && parsed > 0) onChangeTriggerPrice(formatTriggerPriceValue(1 / parsed))
   }
 
   const [baseCurrency, quoteCurrency] = showInverted ? [receiveCurrency, sellCurrency] : [sellCurrency, receiveCurrency]

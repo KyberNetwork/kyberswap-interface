@@ -2,10 +2,10 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { calcOutput, formatPriceInputValue } from 'components/LimitOrder/utils'
+import { calcOutput } from 'components/LimitOrder/utils'
 import { STOP_ORDER_SLIPPAGE_MULTIPLIER } from 'components/StopOrder/constants'
 import { useStopOrderOraclePrice } from 'components/StopOrder/hooks/useStopOrderOraclePrice'
-import { getStopOrderPairKey } from 'components/StopOrder/utils'
+import { formatTriggerPriceValue, getStopOrderPairKey } from 'components/StopOrder/utils'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY, PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
@@ -137,13 +137,13 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
         setTriggerPrice('')
         return
       }
-      setTriggerPrice(formatPriceInputValue(marketPrice * (1 + parsed / 100)))
+      setTriggerPrice(formatTriggerPriceValue(marketPrice * (1 + parsed / 100)))
     },
     [marketPrice, setTriggerPrice],
   )
 
   const onSetMarketPrice = useCallback(() => {
-    if (marketPrice) setTriggerPrice(formatPriceInputValue(marketPrice))
+    if (marketPrice) setTriggerPrice(formatTriggerPriceValue(marketPrice))
   }, [marketPrice, setTriggerPrice])
 
   /**
@@ -157,7 +157,7 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
   useEffect(() => {
     if (!pairKey || !marketPrice || loadingMarketPrice || seededPair.current === pairKey) return
     seededPair.current = pairKey
-    if (!triggerPrice) setTriggerPrice(formatPriceInputValue(marketPrice))
+    if (!triggerPrice) setTriggerPrice(formatTriggerPriceValue(marketPrice))
   }, [pairKey, marketPrice, loadingMarketPrice, triggerPrice, setTriggerPrice])
 
   const onChangeExpire = useCallback(

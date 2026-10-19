@@ -13,6 +13,7 @@ import {
   buildStopOrderPayload,
   clampStopOrderDeadline,
   formatDistanceMagnitude,
+  formatTriggerPriceValue,
   getStopOrderCurrentPrice,
   getStopOrderDisplayStatus,
   getStopOrderFills,
@@ -150,6 +151,27 @@ describe('formatDistanceMagnitude', () => {
 
   it('reads zero only for a trigger exactly at the market', () => {
     expect(formatDistanceMagnitude(0)).toBe('0.0')
+  })
+})
+
+describe('formatTriggerPriceValue', () => {
+  it('writes a price with six significant digits, as the oracle price is shown', () => {
+    expect(formatTriggerPriceValue(1.000363975)).toBe('1.00036')
+    expect(formatTriggerPriceValue(2381.750123)).toBe('2381.75')
+    expect(formatTriggerPriceValue(0.001378563)).toBe('0.00137856')
+    expect(formatTriggerPriceValue(0.000000123456789)).toBe('0.000000123457')
+  })
+
+  it('keeps every integer digit and drops trailing zeros', () => {
+    expect(formatTriggerPriceValue(123456789.4)).toBe('123456789')
+    expect(formatTriggerPriceValue(2.5)).toBe('2.5')
+    expect(formatTriggerPriceValue(0)).toBe('0')
+  })
+
+  it('writes nothing for a value that is not a price', () => {
+    expect(formatTriggerPriceValue(undefined)).toBe('')
+    expect(formatTriggerPriceValue(-1)).toBe('')
+    expect(formatTriggerPriceValue(Number.NaN)).toBe('')
   })
 })
 
