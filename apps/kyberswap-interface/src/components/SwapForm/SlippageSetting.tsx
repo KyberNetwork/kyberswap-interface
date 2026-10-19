@@ -106,7 +106,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
 
   return (
     <div className="flex w-full flex-col">
-      <div className="flex items-center justify-between gap-1 text-subText">
+      <div className="flex min-h-5 items-center justify-between gap-1 text-subText">
         <div className="flex items-end gap-1">
           <span className="text-xs font-medium text-subText">
             <Trans>Max Slippage</Trans>:
