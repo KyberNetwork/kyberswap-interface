@@ -26,6 +26,10 @@ export const updatePoolDegenMode = createAction<{ poolDegenMode: boolean; isStab
 )
 export const toggleUseAggregatorForZap = createAction('user/toggleUseAggregatorForZap')
 export const togglePricingChart = createAction('user/togglePricingChart')
+/** Basis points; undefined goes back to following the pair's suggested stop order slippage. */
+export const updateStopOrderSlippage = createAction<{ stopOrderSlippage: number | undefined }>(
+  'user/updateStopOrderSlippage',
+)
 export const toggleTradeRoutes = createAction('user/toggleTradeRoutes')
 export const toggleSuccessSound = createAction('user/toggleSuccessSound')
 export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('user/updateUserLocale')

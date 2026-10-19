@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { resetStopOrderForm, updateStopOrderForm } from 'state/stopOrder/reducer'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
+import { updateStopOrderSlippage } from 'state/user/actions'
 import { checkRangeSlippage } from 'utils/slippage'
 import { formatTimeDuration } from 'utils/time'
 
@@ -39,7 +40,7 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
   const {
     triggerPrice: storedTriggerPrice,
     triggerPair,
-    slippage: pickedSlippage,
+    slippage: stagedSlippage,
     expire,
     customDateExpire: customDateExpireMs,
   } = useAppSelector(s => s.stopOrder)
@@ -48,7 +49,9 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
   // same multiplier so the stop order stays in step with swap as either changes.
   const pairCategory = usePairCategory(chainId)
   const defaultSlippage = useDefaultSlippageByPair(chainId) * STOP_ORDER_SLIPPAGE_MULTIPLIER
-  const slippage = pickedSlippage ?? defaultSlippage
+  // A recreated order's own slippage first, then what the user last picked, then the pair's suggestion.
+  const pickedSlippage = useAppSelector(s => s.user.stopOrderSlippage)
+  const slippage = stagedSlippage ?? pickedSlippage ?? defaultSlippage
   const slippagePresets = useMemo(
     () =>
       (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY : DEFAULT_SLIPPAGES).map(
@@ -82,7 +85,17 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
     (value: string) => dispatch(updateStopOrderForm({ triggerPrice: value, triggerPair: pairKey })),
     [dispatch, pairKey],
   )
-  const setSlippage = useCallback((value: number) => dispatch(updateStopOrderForm({ slippage: value })), [dispatch])
+  /**
+   * Kept for later orders and visits. Picking the suggestion itself clears the pick instead, so the
+   * slippage goes on following the pair rather than freezing one pair's suggestion for every other.
+   */
+  const setSlippage = useCallback(
+    (value: number) => {
+      dispatch(updateStopOrderForm({ slippage: undefined }))
+      dispatch(updateStopOrderSlippage({ stopOrderSlippage: value === defaultSlippage ? undefined : value }))
+    },
+    [dispatch, defaultSlippage],
+  )
 
   // Panel open/closed is presentation, not part of the order, so it stays with the component.
   const [expiryExpanded, setExpiryExpanded] = useState(false)

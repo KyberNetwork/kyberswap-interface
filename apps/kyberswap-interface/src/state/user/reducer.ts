@@ -27,6 +27,7 @@ import {
   updatePoolDegenMode,
   updatePoolSlippageTolerance,
   updateSafeAppAcceptedTermOfUse,
+  updateStopOrderSlippage,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -115,6 +116,11 @@ export interface UserState {
   crossChain: CrossChainSetting
   myEarningChart: boolean
   showPricingChart: boolean
+  /**
+   * The stop order slippage the user picked, in basis points, kept across orders and visits. Unset
+   * while they have not picked one, or picked the suggestion itself, so it follows the pair.
+   */
+  stopOrderSlippage?: number
   showTradeRoutes: boolean
   successSoundEnabled: boolean
   favoriteChains: string[]
@@ -180,6 +186,10 @@ export default createReducer(initialState, builder =>
 
       if (typeof state.showPricingChart !== 'boolean') {
         state.showPricingChart = initialState.showPricingChart
+      }
+
+      if (state.stopOrderSlippage !== undefined && typeof state.stopOrderSlippage !== 'number') {
+        state.stopOrderSlippage = undefined
       }
 
       if (typeof state.successSoundEnabled !== 'boolean') {
@@ -319,6 +329,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(togglePricingChart, state => {
       state.showPricingChart = !state.showPricingChart
+    })
+    .addCase(updateStopOrderSlippage, (state, { payload: { stopOrderSlippage } }) => {
+      state.stopOrderSlippage = stopOrderSlippage
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes

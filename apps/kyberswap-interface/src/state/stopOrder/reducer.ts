@@ -19,9 +19,9 @@ export type StopOrderFormState = {
    */
   triggerPair: string | undefined
   /**
-   * Basis points, once the user has picked one. Until then the form applies a suggestion derived from the
-   * swap form's for the pair's category, which moves with the pair instead of carrying one pair's figure
-   * to the next.
+   * Basis points staged by Recreate for the order it reproduces. It stands in for the user's own pick
+   * (`user.stopOrderSlippage`) on that order only, and goes with the rest of the draft once the order
+   * is placed or the user picks a slippage.
    */
   slippage: number | undefined
   /** Seconds from now, used whenever `customDateExpire` is unset. */
