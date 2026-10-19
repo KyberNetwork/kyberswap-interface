@@ -161,8 +161,12 @@ export type StopOrderCorePayload = {
 }
 
 export type StopOrderFee = {
+  /** The share of the order the protocol fee takes at this size, the minimum fee included. */
   protocol: { percentage: number; category: string }
   gas: { percentage: number; usd: number; wei: string | number }
+  protocolFeeUsd?: number
+  /** The fee is the flat minimum rather than the percentage, so its share grows as the order shrinks. */
+  minProtocolFeeApplied?: boolean
 }
 
 export type StopOrderOraclePrice = {

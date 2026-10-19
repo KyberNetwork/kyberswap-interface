@@ -359,7 +359,6 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
         triggerPercent={form.triggerPercent}
         slippage={form.slippage}
         expiredAt={form.expiredAt}
-        notionalUsd={estimateUsd.rawInput}
         warnings={validation.reviewWarnings}
         onDismiss={() => setShowReview(false)}
         createOrder={createOrder}

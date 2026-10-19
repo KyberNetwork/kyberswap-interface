@@ -32,7 +32,6 @@ type Props = {
   triggerPercent?: number
   slippage: number
   expiredAt: number
-  notionalUsd?: number
   warnings?: StopOrderWarning[]
   onDismiss: () => void
   onResetForm?: () => void
@@ -64,7 +63,6 @@ const StopOrderFlow = ({
   triggerPercent,
   slippage,
   expiredAt,
-  notionalUsd,
   warnings,
   onDismiss,
   createOrder,
@@ -128,7 +126,6 @@ const StopOrderFlow = ({
         feeError={feeError}
         isFeeLoading={isEstimatingFee}
         onRetryFee={refreshFee}
-        notionalUsd={notionalUsd}
         needsWrap={needsWrap}
         warnings={warnings}
         onDismiss={onDismiss}

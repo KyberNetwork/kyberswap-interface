@@ -34,8 +34,6 @@ type Props = {
   /** The fee is being re-estimated for this review; any figure held is from an earlier one. */
   isFeeLoading?: boolean
   onRetryFee?: () => void
-  /** Sell side priced in USD, which is what turns the fee percentage into an amount. */
-  notionalUsd?: number
   needsWrap?: boolean
   warnings?: StopOrderWarning[]
   onDismiss?: () => void
@@ -58,6 +56,9 @@ const SummaryRow = ({
     </div>
   </HStack>
 )
+
+/** The highest tier rate; a fee above it is the flat minimum taking a large share of a small order. */
+const HIGH_FEE_SHARE_PERCENT = 1
 
 // `error` is the zap flows' error note — red text on a 20% red ground — in the review's own shape.
 const NOTE_STYLES = {
@@ -104,18 +105,31 @@ const StopOrderConfirmModal = ({
   feeError,
   isFeeLoading,
   onRetryFee,
-  notionalUsd,
   needsWrap,
   warnings = [],
   onDismiss,
   onSubmit,
 }: Props) => {
   const feePercentage = fee?.protocol?.percentage
-  const feeUsd = feePercentage !== undefined && notionalUsd ? (notionalUsd * feePercentage) / 100 : undefined
+  // Taken from what the order receives, so it is in the receive token and, like that amount, an estimate
+  // at the trigger price.
+  const feeAmount =
+    feePercentage !== undefined && Number(estimatedOutput) > 0
+      ? (Number(estimatedOutput) * feePercentage) / 100
+      : undefined
   // The order stays reviewable so the warning can be read; only signing it is refused. The fee sets the
   // cap signed into the order, so there is nothing to sign until it is known.
   const isBlocked = warnings.some(warning => warning.blocking) || isFeeLoading || !fee
   const showFeeError = !!feeError && !isFeeLoading
+  /**
+   * The minimum fee is flat, so on a small order it takes a large share. Pointed out once it passes 1% —
+   * the highest tier rate — which only the minimum can push it past. Only a warning: the size is the
+   * user's call.
+   */
+  const highFeeShare =
+    !isFeeLoading && feePercentage !== undefined && feePercentage > HIGH_FEE_SHARE_PERCENT
+      ? formatDisplayNumber(feePercentage, { fractionDigits: 2 })
+      : undefined
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
@@ -187,31 +201,22 @@ const StopOrderConfirmModal = ({
               {formatSlippage(slippage)}
             </SummaryRow>
 
-            <SummaryRow label={<Trans>Fee</Trans>} dataTestId="stop-order-confirm-fee">
+            <SummaryRow label={<Trans>Fee (incl. gas)</Trans>} dataTestId="stop-order-confirm-fee">
               {isFeeLoading ? (
                 <span className="flex h-5 items-center justify-end" data-testid="stop-order-confirm-fee-loading">
                   <Skeleton height={12} width={96} borderRadius={6} />
                 </span>
               ) : (
-                <HStack className="items-center gap-1">
+                // An amount, not a rate: once the minimum applies the rate no longer matches the published tier.
+                <span className={cn(showFeeError && 'text-red')}>
                   {showFeeError ? (
-                    <span className="text-red">
-                      <Trans>Unavailable</Trans>
-                    </span>
+                    <Trans>Unavailable</Trans>
+                  ) : feeAmount === undefined ? (
+                    '--'
                   ) : (
-                    <span>
-                      {feePercentage === undefined
-                        ? '--'
-                        : `${formatDisplayNumber(feePercentage, { fractionDigits: 2 })}%`}
-                    </span>
+                    `~${formatDisplayNumber(feeAmount, { significantDigits: 6 })} ${currencyOut?.symbol ?? ''}`
                   )}
-                  {/* The percentage applied to the sell side, so the figure is an estimate like the rest. */}
-                  {feeUsd !== undefined && (
-                    <span className="text-subText">
-                      ~{formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 4 })}
-                    </span>
-                  )}
-                </HStack>
+                </span>
               )}
             </SummaryRow>
 
@@ -237,6 +242,15 @@ const StopOrderConfirmModal = ({
             </ReviewNote>
           ))}
 
+          {highFeeShare !== undefined && (
+            <ReviewNote type="warn" dataTestId="stop-order-confirm-min-fee-warning">
+              <Trans>
+                At this size the fee is {highFeeShare}% of your order. Execution costs the same regardless of order
+                size.
+              </Trans>
+            </ReviewNote>
+          )}
+
           {showFeeError && (
             <ReviewNote type="error" dataTestId="stop-order-confirm-fee-error">
               {feeError}
@@ -261,7 +275,7 @@ const StopOrderConfirmModal = ({
               {needsWrap ? <Trans>Wrap & Confirm Stop Order</Trans> : <Trans>Confirm Stop Order</Trans>}
             </ButtonPrimary>
             <span className="text-center text-xs font-medium italic text-subText">
-              <Trans>No gas to sign · Fee on execution</Trans>
+              <Trans>Free to place and cancel · Fee on execution</Trans>
             </span>
           </Stack>
         </Stack>
