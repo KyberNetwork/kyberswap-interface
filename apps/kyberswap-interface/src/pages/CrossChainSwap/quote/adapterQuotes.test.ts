@@ -6,6 +6,7 @@ import type { Currency, NormalizedQuote, QuoteParams, SwapProvider } from 'pages
 import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
 import { type RoutePlan, kyberCrossApi } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 import * as kyberCrossExecution from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/service'
+import { getKyberCrossRoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { getFallbackQuotes, getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
 import { getSourceFilters } from 'pages/CrossChainSwap/quote/streamQuotes'
@@ -60,10 +61,9 @@ const normalizedQuote: NormalizedQuote = {
   rate: 1,
   timeEstimate: 60,
   priceImpact: 0,
-  gasFeeUsd: 0,
   contractAddress: '0x3333333333333333333333333333333333333333',
   rawQuote: {},
-  protocolFee: 0,
+  additionalFeeUsd: 0,
   platformFeePercent: 0.1,
 }
 
@@ -111,19 +111,13 @@ const setup = (
 const quoteEvent = () =>
   `event: quote\ndata: ${JSON.stringify({
     provider: 'Symbiosis',
-    outputAmount: '1000000',
-    formattedOutputAmount: '1',
+    outputAmount: 1000000,
+    minOutputAmount: 990000,
     inputUsd: 2_000,
     outputUsd: 1,
-    rate: 1,
     timeEstimate: 60,
-    priceImpact: 0,
-    gasFeeUsd: 0,
     contractAddress: '0x3333333333333333333333333333333333333333',
     rawQuote: {},
-    protocolFee: 0,
-    platformFeePercent: 0.1,
-    quoteParams: {},
   })}\n\n`
 
 afterEach(() => {
@@ -273,7 +267,11 @@ describe('getQuotes', () => {
       expect.objectContaining({
         adapter,
         isReadOnly: false,
-        quote: expect.objectContaining({ outputAmount: 1_000_000n }),
+        quote: expect.objectContaining({
+          outputAmount: 1_000_000n,
+          minimumOutputAmount: 990000n,
+          quoteParams: baseParams,
+        }),
       }),
     ])
     expect(getQuote).not.toHaveBeenCalled()
@@ -563,7 +561,7 @@ describe('KyberCross route options', () => {
     const quotes = onQuotes.mock.calls[0][0]
     expect(quotes.map(getQuoteId)).toEqual(['KyberCross:second', 'KyberCross:first'])
     expect(quotes.map(q => q.isReadOnly)).toEqual([true, true])
-    expect(quotes.map(q => q.quote.rawQuote.data.route_plans[0].tags)).toEqual([
+    expect(quotes.map(q => getKyberCrossRoutePlan(q.quote.rawQuote)?.tags)).toEqual([
       ['RECOMMENDED', 'BEST_OUTPUT'],
       ['FASTEST'],
     ])
@@ -573,8 +571,8 @@ describe('KyberCross route options', () => {
       ['99', 99, 1, 40],
       ['98', 98, 2, 20],
     ])
-    expect(quotes[0].quote.rawQuote.data.route_plans).toEqual([routes[1]])
-    expect(quotes[1].quote.rawQuote.data.route_plans).toEqual([routes[0]])
+    expect(quotes[0].quote.rawQuote).toMatchObject({ data: { route_plans: [routes[1]] } })
+    expect(quotes[1].quote.rawQuote).toMatchObject({ data: { route_plans: [routes[0]] } })
 
     const build = vi.spyOn(kyberCrossApi, 'build').mockResolvedValue({
       success: true,
@@ -618,59 +616,65 @@ describe('KyberCross route options', () => {
       [98000000n, 1, '1000'],
       [99000000n, 0, '1001'],
     ])
-    expect(options[1].quote.rawQuote.data.route_plans).toEqual([routes[1]])
+    expect(options[1].quote.rawQuote).toMatchObject({ data: { route_plans: [routes[1]] } })
   })
 
-  it('executes a streamed KyberCross transaction without rebuilding the route summary', async () => {
-    const build = vi.spyOn(kyberCrossApi, 'build')
-    const buildTx = { to: address, data: '0x1234', value: '0' } as const
-    const txHash = `0x${'1'.repeat(64)}` as const
-    const execute = vi.spyOn(kyberCrossExecution, 'executeKyberCross').mockResolvedValue(txHash)
-    const adapter = new KyberCrossAdapter()
-    const registry = new CrossChainSwapAdapterRegistry()
-    registry.registerAdapter(adapter)
-    const event = `event: quote\ndata: ${JSON.stringify({
-      provider: 'kybercross',
-      outputAmount: '99000000',
-      formattedOutputAmount: '99',
-      inputUsd: 100,
-      outputUsd: 99,
-      rate: 0.99,
-      timeEstimate: 30,
-      priceImpact: 1,
-      gasFeeUsd: 0,
-      contractAddress: address,
-      platformFeePercent: 0,
-      quoteParams: { amount: params.amount, feeBps: 0, slippage: 50 },
-      rawQuote: {
-        data: { route_plan: { id: 'stream-route', bridge: { provider: 'across' } }, build: { tx: buildTx } },
-      },
-    })}\n\n`
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      createResponse(createReader({ done: false, value: encoder.encode(event) })),
-    )
-    const onQuotes = vi.fn<[Quote[]], void>()
-    await getQuotes({
-      quoteMode: 'stream',
-      params,
-      registry,
-      category: 'stablePair',
-      currencyIn: params.fromToken,
-      currencyOut: params.toToken,
-      excludedSources: [],
-      signal: new AbortController().signal,
-      isReadOnly: false,
-      onQuotes,
-      onQuoteReady: vi.fn(),
-    })
+  it.each([undefined, '2030-01-01T00:00:00Z'])(
+    'executes a streamed KyberCross transaction with expiry %s without rebuilding',
+    async expiresAt => {
+      const build = vi.spyOn(kyberCrossApi, 'build')
+      const buildTx = { to: address, data: '0x1234', value: '0' } as const
+      const txHash = `0x${'1'.repeat(64)}` as const
+      const execute = vi.spyOn(kyberCrossExecution, 'executeKyberCross').mockResolvedValue(txHash)
+      const adapter = new KyberCrossAdapter()
+      const registry = new CrossChainSwapAdapterRegistry()
+      registry.registerAdapter(adapter)
+      const event = `event: quote\ndata: ${JSON.stringify({
+        provider: 'kybercross',
+        outputAmount: '99000000',
+        minOutputAmount: 98500000,
+        inputUsd: 100,
+        outputUsd: 99,
+        timeEstimate: 30,
+        contractAddress: address,
+        quoteParams: { amount: params.amount, feeBps: 0, slippage: 50 },
+        rawQuote: {
+          data: {
+            route_plan: { id: 'stream-route', expires_at: expiresAt, bridge: { provider: 'across' } },
+            build: { tx: buildTx },
+          },
+        },
+      })}\n\n`
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        createResponse(createReader({ done: false, value: encoder.encode(event) })),
+      )
+      const onQuotes = vi.fn<[Quote[]], void>()
+      await getQuotes({
+        quoteMode: 'stream',
+        params,
+        registry,
+        category: 'stablePair',
+        currencyIn: params.fromToken,
+        currencyOut: params.toToken,
+        excludedSources: [],
+        signal: new AbortController().signal,
+        isReadOnly: false,
+        onQuotes,
+        onQuoteReady: vi.fn(),
+      })
 
-    const quote = onQuotes.mock.calls[0][0][0]
-    expect(quote.quote.protocolFee).toBe(0)
-    const result = await adapter.executeSwap(quote, {} as WalletClient)
-    expect(build).not.toHaveBeenCalled()
-    expect(execute).toHaveBeenCalledWith(expect.objectContaining({ buildTx, inputAmount: BigInt(params.amount) }))
-    expect(result).toMatchObject({ routeId: 'stream-route', outputAmount: '99000000', sourceTxHash: txHash })
-  })
+      const quote = onQuotes.mock.calls[0][0][0]
+      expect(getKyberCrossRoutePlan(quote.quote.rawQuote)).toMatchObject({
+        id: 'stream-route',
+        bridge: { provider: 'across' },
+      })
+      expect(quote.quote.minimumOutputAmount).toBe(98500000n)
+      const result = await adapter.executeSwap(quote, {} as WalletClient)
+      expect(build).not.toHaveBeenCalled()
+      expect(execute).toHaveBeenCalledWith(expect.objectContaining({ buildTx, inputAmount: BigInt(params.amount) }))
+      expect(result).toMatchObject({ routeId: 'stream-route', outputAmount: '99000000', sourceTxHash: txHash })
+    },
+  )
 
   it('rejects an empty route list', async () => {
     vi.spyOn(kyberCrossApi, 'getQuote').mockResolvedValue({

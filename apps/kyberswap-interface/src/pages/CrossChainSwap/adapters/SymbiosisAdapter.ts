@@ -15,6 +15,7 @@ import {
   QuoteParams,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
@@ -200,26 +201,22 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
 
     // Calculate protocol fee from the fees array
-    const protocolFee = (quoteData.fees || []).reduce<number>((total, fee) => {
+    const additionalFeeUsd = (quoteData.fees || []).reduce<number>((total, fee) => {
       const { amount, decimals, priceUsd = 0 } = fee.value
       return total + (Number(amount) / Math.pow(10, decimals)) * priceUsd
     }, 0)
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(quoteData.tokenAmountOut.amount),
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: 0,
       timeEstimate: quoteData.estimatedTime || 0,
       contractAddress: quoteData.approveTo || ZERO_ADDRESS,
       rawQuote: quoteData,
-      protocolFee,
+      additionalFeeUsd,
       platformFeePercent: (params.feeBps * 100) / 10_000,
-    }
+    })
   }
 
   async executeSwap(

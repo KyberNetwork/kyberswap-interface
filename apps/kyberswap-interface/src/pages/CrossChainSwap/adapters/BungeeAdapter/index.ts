@@ -14,8 +14,13 @@ import {
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import { getBungeeQuote, getBungeeStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/api'
-import { type SocketQuoteParams, type SocketQuoteResult } from 'pages/CrossChainSwap/adapters/BungeeAdapter/types'
-import { getSocketTxRoute, normalizeSocketStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/utils'
+import { type SocketQuoteParams } from 'pages/CrossChainSwap/adapters/BungeeAdapter/types'
+import {
+  getSocketTxRoute,
+  normalizeSocketStatus,
+  parseSocketQuote,
+} from 'pages/CrossChainSwap/adapters/BungeeAdapter/utils'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, isWrappedToken } from 'pages/CrossChainSwap/utils'
 
@@ -95,28 +100,24 @@ export class BungeeAdapter extends BaseSwapAdapter {
       ? Number(route.output.valueInUsd)
       : params.tokenOutUsd * +formattedOutputAmount
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(route.output.amount),
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: Number(route.gasFee?.feeInUsd || 0),
       timeEstimate: route.estimatedTime || 0,
       contractAddress: route.approval?.spenderAddress || ZERO_ADDRESS,
       rawQuote: {
         ...quoteResult,
         route,
       },
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10000,
-    }
+    })
   }
 
   async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
-    const route = getSocketTxRoute(quote.rawQuote as SocketQuoteResult)
+    const route = getSocketTxRoute(parseSocketQuote(quote.rawQuote))
     const txData = route?.txData?.object
 
     if (!txData?.to || !txData?.data || !route?.quoteId) {

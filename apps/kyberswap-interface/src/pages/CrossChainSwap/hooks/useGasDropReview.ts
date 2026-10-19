@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { KyberCrossRawQuote } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
 import { getKyberCrossRoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { Quote } from 'pages/CrossChainSwap/registry'
 
@@ -62,7 +61,7 @@ export const useGasDropReview = (initialQuote: Quote | null, active: boolean) =>
 
   useEffect(() => {
     if (!active || !enabled) return
-    const expiresAt = getKyberCrossRoutePlan(currentRef.current?.quote.rawQuote as KyberCrossRawQuote)?.expires_at
+    const expiresAt = getKyberCrossRoutePlan(currentRef.current?.quote.rawQuote)?.expires_at
     if (expiresAt && Date.parse(expiresAt) <= Date.now()) refresh()
     const interval = setInterval(refresh, 30_000)
     return () => {
@@ -73,7 +72,7 @@ export const useGasDropReview = (initialQuote: Quote | null, active: boolean) =>
     }
   }, [active, enabled, initialQuote, refresh])
 
-  const expiresAt = getKyberCrossRoutePlan(current?.quote.rawQuote as KyberCrossRawQuote)?.expires_at
+  const expiresAt = getKyberCrossRoutePlan(current?.quote.rawQuote)?.expires_at
   return {
     quote: pending || current,
     pending,

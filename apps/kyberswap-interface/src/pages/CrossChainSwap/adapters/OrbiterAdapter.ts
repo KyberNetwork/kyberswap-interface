@@ -9,6 +9,8 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { evmTransactionSchema, orbiterQuoteSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/utils'
 
 import { Quote } from '../registry'
@@ -102,22 +104,17 @@ export class OrbiterAdapter extends BaseSwapAdapter {
     const haveApproval = res.steps.some((step: Step) => step.action === 'approve')
     const approvalContract = res.steps.find((step: Step) => step.action === 'swap' || step.action === 'bridge')
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(res.details?.destTokenAmount || '0'),
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      //rate: Number(resp.details?.rate || 0),
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: 0,
       timeEstimate: 10,
       contractAddress: haveApproval ? approvalContract?.tx.to || ZERO_ADDRESS : ZERO_ADDRESS,
       rawQuote: res,
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10000,
-    }
+    })
   }
 
   async executeSwap(
@@ -128,9 +125,11 @@ export class OrbiterAdapter extends BaseSwapAdapter {
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
   ): Promise<NormalizedTxResponse> {
+    const rawQuote = orbiterQuoteSchema.parse(quote.rawQuote)
+
     if (quote.quoteParams.fromChain === 'solana') {
       if (!solanaConnection || !sendSolanaFn) throw new Error('Connection is not defined for Solana swap')
-      const encodedData = quote.rawQuote.steps?.[0]?.tx?.data
+      const encodedData = rawQuote.steps?.[0]?.tx?.data
       const txBuffer = Buffer.from(encodedData, 'base64')
 
       // Try to deserialize as VersionedTransaction first
@@ -207,18 +206,19 @@ export class OrbiterAdapter extends BaseSwapAdapter {
       }
     }
 
-    const steps = quote.rawQuote.steps.filter((st: Step) => st.action !== 'approve') // already approve before
+    const steps = rawQuote.steps.filter(st => st.action !== 'approve') // already approve before
 
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
     const txs = await Promise.all(
-      steps.map(async (step: Step) => {
+      steps.map(async step => {
+        const transaction = evmTransactionSchema.parse(step.tx)
         const tx = await walletClient.sendTransaction({
           chain: undefined,
           account,
-          to: step.tx.to as `0x${string}`,
-          value: BigInt(step.tx.value),
-          data: step.tx.data as `0x${string}`,
+          to: transaction.to,
+          value: BigInt(transaction.value),
+          data: transaction.data,
         })
         return tx
       }),

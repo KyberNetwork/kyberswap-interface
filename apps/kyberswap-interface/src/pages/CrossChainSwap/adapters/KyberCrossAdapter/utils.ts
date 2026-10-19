@@ -1,11 +1,61 @@
+import { z } from 'zod'
+
 import type { SwapStatus } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { BridgeProvider, RoutePlan, TrackingExecution } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 import type { KyberCrossRawQuote } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
 import type { GasDropQuote, GasDropStatus } from 'pages/CrossChainSwap/adapters/types'
+import { evmTransactionSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 
-export const getKyberCrossRoutePlan = (rawQuote?: KyberCrossRawQuote) => {
-  const data = rawQuote?.data
+const routeSummarySchema = z
+  .object({
+    id: z.string(),
+    expires_at: z.string(),
+    tags: z.array(z.string()).optional(),
+    estimated_duration_sec: z.number().optional(),
+    bridge: z.object({ provider: z.string(), metadata: z.record(z.unknown()).optional() }).passthrough(),
+  })
+  .passthrough()
+
+const rawQuoteSchema = z
+  .object({
+    request_id: z.string().optional(),
+    isNativeToken: z.boolean().optional(),
+    data: z.union([
+      z
+        .object({
+          ks_allowance_hub_address: z.string(),
+          route_plans: z
+            .array(
+              routeSummarySchema.extend({
+                expected_output_amount: z.string().regex(/^\d+$/),
+                min_output_amount: z.string().regex(/^\d+$/),
+                request: z.record(z.unknown()),
+              }),
+            )
+            .min(1),
+        })
+        .passthrough(),
+      z
+        .object({
+          route_plan: routeSummarySchema.extend({ expires_at: z.string().optional() }),
+          build: z.object({ tx: evmTransactionSchema }).passthrough(),
+        })
+        .passthrough(),
+    ]),
+  })
+  .passthrough()
+
+// Validate the fields FE consumes; opaque bridge metadata remains owned by the build API.
+export const parseKyberCrossQuote = (value: unknown): KyberCrossRawQuote => {
+  rawQuoteSchema.parse(value)
+  return value as KyberCrossRawQuote
+}
+
+export const getKyberCrossRoutePlan = (rawQuote: unknown) => {
+  const result = rawQuoteSchema.safeParse(rawQuote)
+  if (!result.success) return undefined
+  const data = (rawQuote as KyberCrossRawQuote).data
   return data && ('route_plans' in data ? data.route_plans[0] : data.route_plan)
 }
 

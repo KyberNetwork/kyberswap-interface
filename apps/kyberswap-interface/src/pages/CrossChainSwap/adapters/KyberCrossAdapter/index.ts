@@ -32,7 +32,9 @@ import {
   getKyberCrossRoutePlan,
   mapRouteStateToSwapStatus,
   normalizeProvider,
+  parseKyberCrossQuote,
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 
 // ============================================
@@ -109,28 +111,23 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     const inputUsd = params.tokenInUsd * +formattedInputAmount
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       gasDrop,
-      minimumOutputAmount: routePlan.min_output_amount,
+      minimumOutputAmount: BigInt(routePlan.min_output_amount),
       outputAmount,
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
       timeEstimate: routePlan.estimated_duration_sec ?? 0,
-      priceImpact:
-        !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd - (gasDrop?.amountUsd || 0)) * 100) / inputUsd,
-      gasFeeUsd: 0,
       contractAddress: rawQuote.isNativeToken ? ZERO_ADDRESS : data.ks_allowance_hub_address,
       rawQuote,
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: params.feeBps / 100,
-    }
+    })
   }
 
   getRouteQuotes(quote: NormalizedQuote, isReadOnly: boolean): Quote[] {
-    const rawQuote = quote.rawQuote as KyberCrossRawQuote
+    const rawQuote = parseKyberCrossQuote(quote.rawQuote)
     const data = rawQuote.data
     if (!data || !('route_plans' in data) || !data.route_plans.length)
       throw new Error('No KyberCross route plans found')
@@ -157,7 +154,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
   ): Promise<NormalizedTxResponse> {
     const normalizedQuote = quote.quote
     const quoteParams = normalizedQuote.quoteParams
-    const rawQuote = normalizedQuote.rawQuote as KyberCrossRawQuote
+    const rawQuote = parseKyberCrossQuote(normalizedQuote.rawQuote)
     const quoteData = rawQuote.data
     const routePlan = getKyberCrossRoutePlan(rawQuote)
 

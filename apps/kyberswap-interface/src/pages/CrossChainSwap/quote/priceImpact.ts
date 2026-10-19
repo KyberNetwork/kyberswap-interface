@@ -2,12 +2,12 @@ import { t } from '@lingui/macro'
 
 import type { PairCategory } from 'pages/CrossChainSwap/quote/utils'
 
-export const getPriceImpactInfo = (priceImpact: number, category: PairCategory, isEvmPair: boolean) => {
+export const getPriceImpactInfo = (priceImpact: number | null, category: PairCategory, isEvmPair: boolean) => {
   const highThreshold = isEvmPair ? (category === 'stablePair' ? 1 : 2) : 3
   const veryHighThreshold = isEvmPair ? (category === 'stablePair' ? 3 : 5) : 10
-  const unableToCalculate = isEvmPair && !priceImpact
-  const isHigh = priceImpact > highThreshold
-  const isVeryHigh = unableToCalculate || priceImpact >= veryHighThreshold
+  const unableToCalculate = isEvmPair && (priceImpact === null || !Number.isFinite(priceImpact))
+  const isHigh = priceImpact !== null && priceImpact > highThreshold
+  const isVeryHigh = unableToCalculate || (priceImpact !== null && priceImpact >= veryHighThreshold)
 
   return {
     isHigh,

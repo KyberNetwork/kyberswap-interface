@@ -11,11 +11,13 @@ import {
 } from '@solana/spl-token'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
-import { WalletClient, formatUnits } from 'viem'
+import { WalletClient } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
 import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { parseNearQuote } from 'pages/CrossChainSwap/quote/rawQuote'
 import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'pages/CrossChainSwap/utils'
 
 import { Quote } from '../registry'
@@ -163,27 +165,21 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     }
 
     const quote = await OneClickService.getQuote(quoteRequest)
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const formattedOutputAmount = formatUnits(BigInt(quote.quote.amountOut), params.toToken.decimals)
     const inputUsd = +quote.quote.amountInUsd
     const outputUsd = +quote.quote.amountOutUsd
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(quote.quote.amountOut),
-      formattedOutputAmount,
-      inputUsd: +quote.quote.amountInUsd,
-      outputUsd: +quote.quote.amountOutUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: 0,
+      inputUsd,
+      outputUsd,
       timeEstimate: quote.quote.timeEstimate || 0,
       // Near intent dont need to approve, we send token to contract directly
       contractAddress: ZERO_ADDRESS,
       rawQuote: quote,
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10_000,
-    }
+    })
   }
 
   async executeSwap(
@@ -194,11 +190,13 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
   ): Promise<NormalizedTxResponse> {
-    let depositAddress = quote.rawQuote.quote.depositAddress
+    const rawQuote = parseNearQuote(quote.rawQuote)
+
+    let depositAddress = rawQuote.quote.depositAddress
 
     if (!depositAddress) {
       const quoteParams = {
-        ...quote.rawQuote.quoteRequest,
+        ...rawQuote.quoteRequest,
         dry: false,
         // adjust slippage to 0,01% to accept the rate change
         slippageTolerance:
@@ -223,7 +221,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       ) {
         throw new Error('Near Intent recipient or refundTo is ZERO ADDRESS')
       }
-      if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
+      if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(rawQuote.quote.minAmountOut)) {
         throw new Error('Quote amount out is less than expected')
       }
     }

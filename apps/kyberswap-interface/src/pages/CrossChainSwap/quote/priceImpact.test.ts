@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { getPriceImpactInfo } from 'pages/CrossChainSwap/quote/priceImpact'
 
 describe('price impact for the displayed quote', () => {
+  it('preserves non-EVM handling for unavailable prices', () => {
+    expect(getPriceImpactInfo(null, 'commonPair', false)).toMatchObject({
+      isHigh: false,
+      isVeryHigh: false,
+      message: '',
+    })
+  })
+
   it('raises and clears the warning as a reviewed quote changes', () => {
     expect(getPriceImpactInfo(0.1, 'stablePair', true)).toMatchObject({
       isHigh: false,
@@ -26,8 +34,12 @@ describe('price impact for the displayed quote', () => {
     expect(getPriceImpactInfo(impact, category, evm)).toMatchObject({ isHigh: high, isVeryHigh: veryHigh })
   })
 
+  it('accepts a valid zero impact', () => {
+    expect(getPriceImpactInfo(0, 'stablePair', true)).toMatchObject({ isHigh: false, isVeryHigh: false, message: '' })
+  })
+
   it('preserves the unavailable-price warning on EVM routes', () => {
-    expect(getPriceImpactInfo(NaN, 'commonPair', true)).toMatchObject({
+    expect(getPriceImpactInfo(null, 'commonPair', true)).toMatchObject({
       isVeryHigh: true,
       message: 'Unable to calculate price impact',
     })

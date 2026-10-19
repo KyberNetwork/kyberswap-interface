@@ -7,6 +7,7 @@ import useTheme from 'hooks/useTheme'
 import { Currency } from 'pages/CrossChainSwap/adapters'
 import { GasDropQuoteLine } from 'pages/CrossChainSwap/components/GasDrop'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { getMinimumOutputAmount } from 'pages/CrossChainSwap/quote/utils'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -40,15 +41,7 @@ export const Summary = ({
 
   const priceImpactInfo = getQuotePriceImpactInfo(quote)
   const theme = useTheme()
-  const minimumReceived =
-    quote && tokenOut
-      ? formatUnits(
-          quote.quote.minimumOutputAmount
-            ? BigInt(quote.quote.minimumOutputAmount)
-            : (quote.quote.outputAmount * (10000n - BigInt(slippage))) / 10000n,
-          tokenOut.decimals,
-        )
-      : '--'
+  const minimumReceived = quote && tokenOut ? formatUnits(getMinimumOutputAmount(quote.quote), tokenOut.decimals) : '--'
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-solid border-border p-4 text-xs">
@@ -107,19 +100,19 @@ export const Summary = ({
           }}
         >
           {quote
-            ? !quote.quote.priceImpact
+            ? quote.quote.priceImpact === null || !Number.isFinite(quote.quote.priceImpact)
               ? '--'
               : `${quote.quote.priceImpact < 0.01 ? '<0.01' : Math.abs(quote.quote.priceImpact).toFixed(2)}%`
             : '--'}
         </span>
       </div>
 
-      {quote && quote.quote.protocolFee > 0 && (
+      {quote && (quote.quote.additionalFeeUsd ?? 0) > 0 && (
         <div className="flex justify-between">
           <MouseoverTooltip text={<Trans>Additional fee charged by {quote.adapter.getName()}</Trans>}>
-            <span className={DOTTED_LABEL}>{t`Protocol Fee`}</span>
+            <span className={DOTTED_LABEL}>{t`Additional Fee`}</span>
           </MouseoverTooltip>
-          <span>{formatDisplayNumber(quote.quote.protocolFee, { style: 'currency', fractionDigits: 2 })}</span>
+          <span>{formatDisplayNumber(quote.quote.additionalFeeUsd, { style: 'currency', fractionDigits: 2 })}</span>
         </div>
       )}
 

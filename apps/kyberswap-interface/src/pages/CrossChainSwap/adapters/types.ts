@@ -99,10 +99,10 @@ export interface NearQuoteParams extends QuoteParams {
 }
 
 export interface NormalizedQuote {
-  quoteParams: QuoteParams
+  quoteParams: Readonly<QuoteParams>
 
   gasDrop?: GasDropQuote
-  minimumOutputAmount?: string
+  minimumOutputAmount?: bigint
 
   outputAmount: bigint
   formattedOutputAmount: string
@@ -112,16 +112,14 @@ export interface NormalizedQuote {
 
   rate: number
   timeEstimate: number // in seconds
-  priceImpact: number // percent
-
-  gasFeeUsd: number
+  priceImpact: number | null // percent; null when prices are unavailable
 
   contractAddress: string
 
-  rawQuote: any
+  rawQuote: unknown
 
-  protocolFee: number
-  protocolFeeString?: string
+  additionalFeeUsd?: number // USD value of the additional provider fee.
+  additionalFeeAmount?: string // Display amount with token symbol, e.g. "0.0001 ETH".
   platformFeePercent: number
 }
 

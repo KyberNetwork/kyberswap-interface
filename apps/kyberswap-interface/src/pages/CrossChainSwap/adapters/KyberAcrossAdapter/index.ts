@@ -26,10 +26,12 @@ import { executeSwapAndBridge } from 'pages/CrossChainSwap/adapters/KyberAcrossA
 import {
   ExecuteSwapAndBridgeParams,
   ExecuteSwapAndBridgeResponse,
-  KyberAcrossRawQuote,
   SwapAndDepositData,
 } from 'pages/CrossChainSwap/adapters/KyberAcrossAdapter/types'
-import { transformSwapAndDepositData } from 'pages/CrossChainSwap/adapters/KyberAcrossAdapter/utils'
+import {
+  parseKyberAcrossQuote,
+  transformSwapAndDepositData,
+} from 'pages/CrossChainSwap/adapters/KyberAcrossAdapter/utils'
 import { Quote } from 'pages/CrossChainSwap/registry'
 
 export class KyberAcrossAdapter extends BaseSwapAdapter {
@@ -93,7 +95,7 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
   ): Promise<NormalizedTxResponse> {
     const normalizedQuote = quote.quote
     const quoteParams = normalizedQuote.quoteParams
-    const rawQuote = normalizedQuote.rawQuote as KyberAcrossRawQuote
+    const rawQuote = parseKyberAcrossQuote(normalizedQuote.rawQuote)
 
     // Check if sourceSwap is null - if so, use executeQuote directly to SpokePool
     if (!rawQuote.sourceSwap) {

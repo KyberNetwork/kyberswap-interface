@@ -33,7 +33,8 @@ export const chainIdToKyberCrossChainName: Partial<Record<ChainId, ChainName>> =
 
 // The aggregator supplies a route summary and a built transaction, not a rebuildable route plan.
 export type KyberCrossStreamQuoteData = {
-  route_plan: Pick<RoutePlan, 'id' | 'expires_at' | 'tags' | 'estimated_duration_sec'> & {
+  route_plan: Pick<RoutePlan, 'id' | 'tags' | 'estimated_duration_sec'> & {
+    expires_at?: string
     bridge: Pick<RoutePlan['bridge'], 'provider'> & Partial<Pick<RoutePlan['bridge'], 'metadata'>>
   }
   build: BuildResult

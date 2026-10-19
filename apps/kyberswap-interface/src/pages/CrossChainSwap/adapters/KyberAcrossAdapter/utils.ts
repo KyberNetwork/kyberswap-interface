@@ -1,6 +1,8 @@
 import { type Address, type Hex } from 'viem'
+import { z } from 'zod'
 
 import {
+  type KyberAcrossRawQuote,
   RawSwapAndDepositData,
   SwapAndDepositData,
   TransferType,
@@ -35,4 +37,34 @@ export function transformSwapAndDepositData(raw: RawSwapAndDepositData): SwapAnd
     spokePool: raw.spokePool as Address,
     nonce: BigInt(raw.nonce || '0'),
   }
+}
+
+// Validate the execution branch before handing its protocol payload to the Across SDK.
+export const parseKyberAcrossQuote = (value: unknown): KyberAcrossRawQuote => {
+  const quote = z
+    .object({
+      sourceSwap: z.unknown(),
+      bridge: z.object({ deposit: z.object({}).passthrough().optional() }).passthrough(),
+      swapAndDepositData: z
+        .object({
+          submissionFees: z.object({ amount: z.string(), recipient: z.string() }),
+          depositData: z
+            .object({ inputToken: z.string(), outputToken: z.string(), outputAmount: z.string() })
+            .passthrough(),
+          swapToken: z.string(),
+          exchange: z.string(),
+          routerCalldata: z.string(),
+          spokePool: z.string(),
+        })
+        .passthrough()
+        .optional(),
+      spokePoolPeripheryAddress: z.string().optional(),
+      destinationSpokePoolAddress: z.string().optional(),
+    })
+    .passthrough()
+    .parse(value)
+  if (quote.sourceSwap ? !quote.swapAndDepositData : !quote.bridge.deposit) {
+    throw new Error('Missing KyberAcross execution data')
+  }
+  return value as KyberAcrossRawQuote
 }

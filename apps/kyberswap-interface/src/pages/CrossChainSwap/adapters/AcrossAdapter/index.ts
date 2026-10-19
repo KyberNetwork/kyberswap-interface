@@ -43,6 +43,8 @@ import {
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { parseAcrossQuote } from 'pages/CrossChainSwap/quote/rawQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
 
@@ -156,7 +158,6 @@ export class AcrossAdapter extends BaseSwapAdapter {
       let outputAmount: bigint
       let contractAddress: string
       let timeEstimate: number
-      let gasFeeUsd = 0
 
       if (isFromSol && isEvmChain(params.toChain)) {
         const fromToken = params.fromToken as SolanaToken
@@ -196,7 +197,6 @@ export class AcrossAdapter extends BaseSwapAdapter {
         outputAmount = BigInt(swapQuote.expectedOutputAmount)
         contractAddress = swapQuote.checks.allowance.spender
         timeEstimate = swapQuote.expectedFillTime
-        gasFeeUsd = Number(swapQuote.fees.originGas.amountUsd || 0)
       }
 
       // across only have bridge then we can treat token in and out price usd are the same in case price service is not supported
@@ -216,22 +216,18 @@ export class AcrossAdapter extends BaseSwapAdapter {
       const inputUsd = tokenInUsd * +formattedInputAmount
       const outputUsd = tokenOutUsd * +formattedOutputAmount
 
-      return {
+      return normalizeQuote({
         quoteParams: params,
         outputAmount,
-        formattedOutputAmount,
         inputUsd,
         outputUsd,
-        rate: +formattedOutputAmount / +formattedInputAmount,
         timeEstimate,
-        priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-        gasFeeUsd,
         contractAddress,
         rawQuote,
 
-        protocolFee: 0,
+        additionalFeeUsd: 0,
         platformFeePercent: (params.feeBps * 100) / 10_000,
-      }
+      })
     } catch (error) {
       console.log('Across getQuote error', error)
       throw error
@@ -254,7 +250,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       this.acrossClient
         .executeSwapQuote({
           walletClient: walletClient as AcrossWalletClient,
-          swapQuote: normalizedQuote.rawQuote as AcrossSwapQuote,
+          swapQuote: parseAcrossQuote(normalizedQuote.rawQuote),
           onProgress: progress => {
             if (progress.step === 'swap' && 'txHash' in progress) {
               resolve({

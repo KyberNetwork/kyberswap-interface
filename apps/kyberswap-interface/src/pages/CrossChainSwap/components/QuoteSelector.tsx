@@ -13,7 +13,6 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { Currency } from 'pages/CrossChainSwap/adapters'
-import type { KyberCrossRawQuote } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
 import { getKyberCrossRoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { formatTime } from 'pages/CrossChainSwap/components/Summary'
@@ -103,9 +102,7 @@ export const QuoteSelector = ({
           {quotes.map((quote, index) => {
             const isKyberCross = quote.adapter.getName() === 'KyberCross'
             const routeTags =
-              isKyberCross && quoteMode === 'direct'
-                ? getKyberCrossRoutePlan(quote.quote.rawQuote as KyberCrossRawQuote)?.tags || []
-                : []
+              isKyberCross && quoteMode === 'direct' ? getKyberCrossRoutePlan(quote.quote.rawQuote)?.tags || [] : []
             if (showStreamTags) {
               if (index === fastestQuoteIndex) routeTags.push('FASTEST')
               if (index === bestOutputQuoteIndex) routeTags.push('BEST_OUTPUT')
@@ -205,17 +202,17 @@ export const QuoteSelector = ({
                   <HStack className="items-center justify-between gap-2 text-sm text-subText">
                     <HStack className="min-w-0 flex-wrap items-center gap-2">
                       <QuoteProviderName quote={quote} />
-                      {quote.quote.protocolFee > 0 ? (
+                      {(quote.quote.additionalFeeUsd ?? 0) > 0 ? (
                         <span>
-                          {t`Protocol fee:`}{' '}
-                          {formatDisplayNumber(quote.quote.protocolFee, {
+                          {t`Additional fee:`}{' '}
+                          {formatDisplayNumber(quote.quote.additionalFeeUsd, {
                             style: 'currency',
                             significantDigits: 3,
                           })}
                         </span>
-                      ) : quote.quote.protocolFeeString ? (
+                      ) : quote.quote.additionalFeeAmount ? (
                         <span>
-                          {t`Protocol fee:`} {quote.quote.protocolFeeString}
+                          {t`Additional fee:`} {quote.quote.additionalFeeAmount}
                         </span>
                       ) : null}
                     </HStack>

@@ -1,7 +1,8 @@
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
 import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
-import { PairCategory, getCurrencyAddress, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
+import { normalizeStreamQuote, parseQuoteResponse } from 'pages/CrossChainSwap/quote/parseStreamQuote'
+import { PairCategory, getCurrencyAddress, sortQuotesByOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
 import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 
@@ -165,7 +166,7 @@ export const streamQuotes = async ({
 
         try {
           const jsonStr = line.startsWith('data: ') ? line.slice(6) : line.slice(5)
-          const data = JSON.parse(jsonStr)
+          const data = currentEvent === SSE_EVENT.QUOTE ? parseQuoteResponse(jsonStr) : JSON.parse(jsonStr)
 
           if (currentEvent === SSE_EVENT.INIT) {
             console.log('SSE connection initialized. Request ID:', data.requestID)
@@ -214,34 +215,9 @@ export const streamQuotes = async ({
           quotes.push({
             adapter,
             isReadOnly,
-            quote: {
-              quoteParams: {
-                ...data.quoteParams,
-                fromChain: params.fromChain,
-                toChain: params.toChain,
-                fromToken: params.fromToken,
-                toToken: params.toToken,
-                publicKey: params.publicKey,
-                walletClient: params.walletClient,
-                sender: params.sender,
-                recipient: params.recipient,
-              },
-              outputAmount: BigInt(data.outputAmount),
-              formattedOutputAmount: data.formattedOutputAmount,
-              inputUsd: data.inputUsd,
-              outputUsd: data.outputUsd,
-              rate: data.rate,
-              timeEstimate: data.timeEstimate,
-              priceImpact: data.priceImpact,
-              gasFeeUsd: data.gasFeeUsd,
-              contractAddress: data.contractAddress,
-              rawQuote: data.rawQuote,
-              protocolFee: data.protocolFee ?? 0,
-              protocolFeeString: data.protocolFeeString,
-              platformFeePercent: data.platformFeePercent,
-            },
+            quote: normalizeStreamQuote(data, params),
           })
-          onQuotes(sortQuotesByNetOutput(quotes))
+          onQuotes(sortQuotesByOutput(quotes))
         } catch (error) {
           console.error('Failed to parse SSE data:', error)
           console.error('Problematic line:', line)

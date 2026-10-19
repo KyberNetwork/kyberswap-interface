@@ -1,7 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
   ChainName,
-  Quote as MayanQuote,
   type SolanaTransactionSigner,
   addresses,
   fetchQuote,
@@ -16,6 +15,8 @@ import { WalletClient, formatUnits, parseUnits } from 'viem'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { parseMayanQuote } from 'pages/CrossChainSwap/quote/rawQuote'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/utils'
 
 import { Quote } from '../registry'
@@ -98,26 +99,21 @@ export class MayanAdapter extends BaseSwapAdapter {
     const inputUsd = tokenInUsd * +formattedInputAmount
     const outputUsd = tokenOutUsd * quotes[0].expectedAmountOut
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
 
       outputAmount: parseUnits(quotes[0].expectedAmountOut.toString(), params.toToken.decimals),
 
-      formattedOutputAmount: quotes[0].expectedAmountOut.toString(),
-
       inputUsd,
       outputUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: quotes[0].expectedAmountOut / +formattedInputAmount,
-      gasFeeUsd: 0,
 
       timeEstimate: quotes[0].etaSeconds,
       contractAddress: addresses.MAYAN_FORWARDER_CONTRACT,
       rawQuote: quotes[0],
 
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10_000,
-    }
+    })
   }
 
   async executeSwap(
@@ -128,6 +124,8 @@ export class MayanAdapter extends BaseSwapAdapter {
     _sendTransaction?: WalletAdapterProps['sendTransaction'],
     connection?: Connection,
   ): Promise<NormalizedTxResponse> {
+    const rawQuote = parseMayanQuote(quote.rawQuote)
+
     if (quote.quoteParams.fromChain === NonEvmChain.Solana) {
       if (!connection) throw new Error('Connection is not defined for Solana swap')
 
@@ -135,7 +133,7 @@ export class MayanAdapter extends BaseSwapAdapter {
       const { signTransaction } = walletClient
 
       const swapRes = await swapFromSolana(
-        quote.rawQuote,
+        rawQuote,
         quote.quoteParams.sender,
         quote.quoteParams.recipient,
         {
@@ -209,7 +207,7 @@ export class MayanAdapter extends BaseSwapAdapter {
     if (!account) throw new Error('WalletClient account is not defined')
 
     const res = await getSwapFromEvmTxPayload(
-      quote.rawQuote as MayanQuote,
+      rawQuote,
       account,
       quote.quoteParams.recipient,
       {
