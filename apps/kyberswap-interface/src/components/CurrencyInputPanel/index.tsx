@@ -357,7 +357,6 @@ interface CurrencyInputPanelProps {
   error?: boolean
   maxLength?: number
   outline?: boolean
-  filterWrap?: boolean
   loadingText?: string
   lockIcon?: boolean
   tight?: boolean
@@ -406,7 +405,6 @@ export default function CurrencyInputPanel({
   maxCurrencySymbolLength,
   maxLength,
   outline,
-  filterWrap,
   lockIcon = false, // lock when need approve
   tight: tightProp,
   loadingText,
@@ -521,7 +519,6 @@ export default function CurrencyInputPanel({
             otherSelectedCurrency={otherCurrency}
             scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
-            filterWrap={filterWrap}
             customChainId={customChainId}
             trackingSource={trackingSource}
             requireOracle={requireOracle}

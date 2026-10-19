@@ -76,7 +76,6 @@ export const LimitOrderInputTokenPanel = ({
       id="create-limit-order-input-tokena"
       dataTestId="limit-order-input-tokena"
       maxCurrencySymbolLength={6}
-      filterWrap
       onClickSelect={events.onTokenSelectorOpen}
       label={
         <Label>
@@ -113,7 +112,6 @@ export const LimitOrderOutputTokenPanel = ({
       positionMax="top"
       showPinnedTokens
       maxCurrencySymbolLength={6}
-      filterWrap
       onClickSelect={events.onTokenSelectorOpen}
       label={
         <Label>

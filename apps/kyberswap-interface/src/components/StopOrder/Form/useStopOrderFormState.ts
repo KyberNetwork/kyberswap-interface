@@ -33,7 +33,7 @@ const resolveExpiredAt = (start: number, expire: number, customDateExpire: Date 
 export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderFormStateProps) => {
   const { chainId } = useActiveWeb3React()
   const { inputAmount } = useLimitState()
-  const { setCurrencyIn, setCurrencyOut, setInputValue, switchCurrency } = useLimitActionHandlers()
+  const { setCurrencyIn, setCurrencyOut, setPair, setInputValue, switchCurrency } = useLimitActionHandlers()
 
   const dispatch = useAppDispatch()
   const {
@@ -158,23 +158,6 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
     [dispatch],
   )
 
-  const onSelectCurrencyIn = useCallback(
-    (currency: Currency) => {
-      // Picking the token already on the other side swaps them rather than leaving a same-token pair.
-      if (currencyOut && currency.equals(currencyOut)) setCurrencyOut(currencyIn)
-      setCurrencyIn(currency)
-    },
-    [currencyIn, currencyOut, setCurrencyIn, setCurrencyOut],
-  )
-
-  const onSelectCurrencyOut = useCallback(
-    (currency: Currency) => {
-      if (currencyIn && currency.equals(currencyIn)) setCurrencyIn(currencyOut)
-      setCurrencyOut(currency)
-    },
-    [currencyIn, currencyOut, setCurrencyIn, setCurrencyOut],
-  )
-
   const onResetForm = useCallback(() => {
     setInputValue('')
     dispatch(resetStopOrderForm())
@@ -202,6 +185,36 @@ export const useStopOrderFormState = ({ currencyIn, currencyOut }: UseStopOrderF
     switchCurrency()
     setInputValue(estimatedOutput)
   }, [switchCurrency, setInputValue, estimatedOutput])
+
+  /**
+   * Picking the asset the other side already holds — the very token, or its native or wrapped form —
+   * turns the pair round as the switch button does, amount included, and keeps the form the user
+   * picked: with WBNB to receive, choosing BNB to sell leaves BNB sold and the previous sell token
+   * received. Both sides are set in one step, since each single-side setter would undo the other.
+   */
+  const onSelectCurrencyIn = useCallback(
+    (currency: Currency) => {
+      if (currencyIn && currencyOut && currency.wrapped.equals(currencyOut.wrapped)) {
+        setPair(currency, currencyIn)
+        setInputValue(estimatedOutput)
+        return
+      }
+      setCurrencyIn(currency)
+    },
+    [currencyIn, currencyOut, setPair, setCurrencyIn, setInputValue, estimatedOutput],
+  )
+
+  const onSelectCurrencyOut = useCallback(
+    (currency: Currency) => {
+      if (currencyIn && currencyOut && currency.wrapped.equals(currencyIn.wrapped)) {
+        setPair(currencyOut, currency)
+        setInputValue(estimatedOutput)
+        return
+      }
+      setCurrencyOut(currency)
+    },
+    [currencyIn, currencyOut, setPair, setCurrencyOut, setInputValue, estimatedOutput],
+  )
 
   /**
    * A preset expiry counts from `expiryStart`, which `startExpiry` resets as each order goes to review:

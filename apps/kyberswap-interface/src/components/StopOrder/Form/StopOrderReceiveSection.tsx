@@ -50,7 +50,6 @@ const StopOrderReceiveSection = ({
       positionLabel="in"
       showPinnedTokens
       maxCurrencySymbolLength={6}
-      filterWrap
       // The trigger prices the sell token in this one, so the receive side needs an oracle feed too.
       requireOracle
       label={

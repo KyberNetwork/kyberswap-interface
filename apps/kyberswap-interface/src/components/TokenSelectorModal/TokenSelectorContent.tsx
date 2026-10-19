@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { motion, useAnimationControls, useReducedMotion } from 'framer-motion'
@@ -111,7 +111,6 @@ interface TokenSelectorContentProps {
   showPinnedTokens?: boolean
   onImportToken?: (token: Token) => void
   customChainId?: ChainId
-  filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
   trackingSource?: string
@@ -276,7 +275,6 @@ export const TokenSelectorContent = ({
   isOpen,
   onImportToken,
   customChainId,
-  filterWrap = false,
   title,
   tooltip,
   trackingSource,
@@ -409,22 +407,7 @@ export const TokenSelectorContent = ({
     loading: newLoading,
   } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab, searchFilters)
 
-  const filterWrapFunc = useCallback(
-    (token: Currency | undefined) => {
-      if (filterWrap && otherSelectedCurrency?.equals(WETH[primaryChainId])) {
-        return !isTokenNative(token)
-      }
-      if (filterWrap && otherSelectedCurrency && isTokenNative(otherSelectedCurrency)) {
-        return !token?.equals(WETH[primaryChainId])
-      }
-      return true
-    },
-    [primaryChainId, otherSelectedCurrency, filterWrap],
-  )
-  const isListable = useCallback(
-    (token: Currency | undefined) => filterWrapFunc(token) && passesOracleFilter(token),
-    [filterWrapFunc, passesOracleFilter],
-  )
+  const isListable = passesOracleFilter
 
   const {
     data: tokenSearchData,
@@ -634,9 +617,8 @@ export const TokenSelectorContent = ({
   // Quick-select pills: always lead with the chain's native token, then fill the rest from config /
   // favorites (dropping any native duplicate). Capped at 5 (4 on mobile) when the Favorites tab exists
   // to hold the overflow; uncapped otherwise (see the discovery-off note below). The native lead is
-  // hidden by a non-matching text search and by the same rules as every listed row — the wrap filter
-  // (the other side already holds its wrapped token) and the oracle filter (its wrapped token has no
-  // feed).
+  // hidden by a non-matching text search and by the same rule as every listed row — the oracle filter
+  // (its wrapped token has no feed).
   const quickSelectTokens = useMemo(() => {
     const native = NativeCurrencies[primaryChainId] as Currency | undefined
     const nativeMatchesSearch =

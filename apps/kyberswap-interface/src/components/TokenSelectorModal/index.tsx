@@ -26,7 +26,6 @@ interface TokenSelectorModalProps {
   /** Show the selected tokens' ERC-8056 balances in display units; only for forms whose own balance labels do the same. */
   scaleERC8056Balances?: boolean
   showPinnedTokens?: boolean
-  filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
   onCurrencyImport?: (token: Token) => void
@@ -53,7 +52,6 @@ const TokenSelectorModal = ({
   otherSelectedCurrency,
   scaleERC8056Balances,
   showPinnedTokens,
-  filterWrap,
   title,
   tooltip,
   onCurrencyImport,
@@ -175,7 +173,6 @@ const TokenSelectorModal = ({
             scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
             onImportToken={onImportToken}
-            filterWrap={filterWrap}
             title={title}
             tooltip={tooltip}
             customChainId={customChainId}
