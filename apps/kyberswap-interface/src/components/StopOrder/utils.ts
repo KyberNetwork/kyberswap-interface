@@ -77,13 +77,14 @@ export type TriggerProximity = 'far' | 'near' | 'imminent'
 
 /**
  * How close an order is to filling, from its trigger's signed distance to the market in percent — the
- * colour the order list and the form give that distance. The same on either side: below the market the
- * price has to fall to the trigger, above it the price has to rise to the fill floor just under it.
- * Judged on the distance rounded to one decimal, as it is shown, so "10.0%" is never treated as under 10.
+ * colour the order list and the form give that distance: neutral past 5%, amber from 1% to 5%, red under
+ * 1%. The same on either side: below the market the price has to fall to the trigger, above it the price
+ * has to rise to the fill floor just under it. Judged on the distance rounded to one decimal, as it is
+ * shown, so "5.0%" is never treated as past 5.
  */
 export const getTriggerProximity = (percent: number): TriggerProximity => {
   const magnitude = Math.round(Math.abs(percent) * 10) / 10
-  return magnitude >= 10 ? 'far' : magnitude >= 5 ? 'near' : 'imminent'
+  return magnitude > 5 ? 'far' : magnitude >= 1 ? 'near' : 'imminent'
 }
 
 /**

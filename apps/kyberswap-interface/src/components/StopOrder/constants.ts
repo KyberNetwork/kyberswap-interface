@@ -23,9 +23,6 @@ export const getStopOrderExpiryPresets = () => [
  */
 export const STOP_ORDER_SLIPPAGE_MULTIPLIER = 2
 
-/** Below this distance the trigger is close enough to fire on ordinary price noise. */
-export const TRIGGER_CLOSE_TO_MARKET_PERCENT = 2
-
 /** Percent-below-market shortcuts offered next to the editable percent chip. */
 export const TRIGGER_PERCENT_PRESETS = [-20, -50]
 

@@ -309,8 +309,8 @@ export const AmountCell = ({
 export const triggerProximityText = cva('transition-colors duration-200', {
   variants: {
     proximity: {
-      far: 'text-green2',
-      near: 'text-darkOrange',
+      far: 'text-text',
+      near: 'text-warning',
       imminent: 'text-red',
       unknown: 'text-subText',
     },

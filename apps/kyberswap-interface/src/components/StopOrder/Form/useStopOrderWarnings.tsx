@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
-import { TRIGGER_CLOSE_TO_MARKET_PERCENT } from 'components/StopOrder/constants'
 import { useStopOrderReservedBalance } from 'components/StopOrder/hooks/useStopOrderReservedBalance'
 import {
   useIsStopOrderEligibleToken,
@@ -33,7 +32,6 @@ type Props = {
   currencyOut?: Currency
   /** The sell amount as typed, so the balance check sees the order about to be placed. */
   inputAmount?: string
-  triggerPercent?: number
   /** The pair's oracle gave no usable price, so the trigger cannot be placed against the market. */
   marketPriceUnavailable?: boolean
 }
@@ -47,7 +45,6 @@ export const useStopOrderWarnings = ({
   currencyIn,
   currencyOut,
   inputAmount,
-  triggerPercent,
   marketPriceUnavailable,
 }: Props) => {
   const { hasEligibleTokens, isLoading: loadingSupportedTokens } = useStopOrderSupportedTokens(chainId)
@@ -78,7 +75,6 @@ export const useStopOrderWarnings = ({
     // The token with no feed, which names the blocked CTA and points the user at the supported list.
     let unavailableToken: Currency | undefined
     let shouldDisableAction = false
-    let shouldWarningAction = false
 
     if (!loadingSupportedTokens && !hasEligibleTokens) {
       formWarnings.push({
@@ -133,20 +129,6 @@ export const useStopOrderWarnings = ({
       shouldDisableAction = true
     }
 
-    // Near the market on either side, ordinary price movement is enough to fill it right away.
-    if (triggerPercent !== undefined && Math.abs(triggerPercent) < TRIGGER_CLOSE_TO_MARKET_PERCENT) {
-      reviewWarnings.push({
-        type: 'warn',
-        message: (
-          <Trans>
-            Your trigger is close to the current price. This order may trigger quickly, including from normal price
-            fluctuations.
-          </Trans>
-        ),
-      })
-      shouldWarningAction = true
-    }
-
     return {
       formWarnings,
       reviewWarnings,
@@ -154,14 +136,12 @@ export const useStopOrderWarnings = ({
       receiveTokenWarning,
       unavailableToken,
       shouldDisableAction,
-      shouldWarningAction,
       hasIneligibleToken: !!currencyIn && !loadingEligibility && !isEligible && hasEligibleTokens,
     }
   }, [
     chainId,
     currencyIn,
     currencyOut,
-    triggerPercent,
     marketPriceUnavailable,
     hasReservedBalanceShortfall,
     hasEligibleTokens,

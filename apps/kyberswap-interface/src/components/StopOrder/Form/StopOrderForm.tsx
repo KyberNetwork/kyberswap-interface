@@ -88,7 +88,6 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
     currencyIn,
     currencyOut,
     inputAmount: form.inputAmount,
-    triggerPercent: form.triggerPercent,
     marketPriceUnavailable: form.marketPriceUnavailable,
   })
 
