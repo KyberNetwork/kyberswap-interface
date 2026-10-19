@@ -193,7 +193,7 @@ describe('getQuotes', () => {
     expect(getQuote).toHaveBeenCalledTimes(2)
     expect(fetch).toHaveBeenCalledOnce()
     const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string)
-    expect(url.searchParams.get('fee')).toBe('0')
+    expect(url.searchParams.get('fee')).toBe(baseParams.feeBps.toString())
     expect(url.searchParams.get('fromChain')).toBe(baseParams.fromChain.toString())
     expect(url.searchParams.get('toChain')).toBe(baseParams.toChain.toString())
     expect(onQuotes).toHaveBeenCalledTimes(3)

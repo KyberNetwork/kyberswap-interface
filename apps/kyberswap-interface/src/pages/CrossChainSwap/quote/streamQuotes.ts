@@ -71,8 +71,7 @@ const getStreamingUrl = ({
     toToken: getCurrencyAddress(params.toToken),
     toTokenDecimals: params.toToken.decimals.toString(),
     toAddress: params.recipient,
-    // Internal stream testing waives the UI fee for every source.
-    fee: '0',
+    fee: params.feeBps.toString(),
     integrator: 'kyberswap',
     stream: 'true',
     slippage: params.slippage.toString(),
