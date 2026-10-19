@@ -69,6 +69,55 @@ export const getStopOrderDisplayStatus = (order: StopOrder): StopOrderDisplaySta
   }
 }
 
+/**
+ * Log entries that mean the trigger was reached and the attempt did not go through: a simulation that
+ * reverted (no transaction sent), a transaction that reverted, an attempt the service declined (stale
+ * or diverging oracle, fees over the cap) or one held back for gas.
+ */
+const FAILED_ATTEMPT_LOG_TYPES = [
+  'LogTypePreSubmitRevert',
+  'LogTypeExecutionFailed',
+  'LogTypeSkipped',
+  'LogTypeMaxGasExceeded',
+]
+
+export type StopOrderRetryCause = 'slippage' | 'balance' | 'allowance' | 'unknown'
+
+/** Reads a revert reason for the cause the user can act on. The chain gives free text, not a code. */
+const getRetryCause = (error: string | undefined): StopOrderRetryCause => {
+  const text = (error ?? '').toLowerCase()
+  if (/exceeds balance|insufficient balance/.test(text)) return 'balance'
+  if (/exceeds allowance|insufficient allowance/.test(text)) return 'allowance'
+  if (/insufficientoutput|insufficient output|return amount is not enough/.test(text)) return 'slippage'
+  return 'unknown'
+}
+
+/**
+ * Whether an open order has reached its trigger without filling: the service keeps trying it on every
+ * scan, so it stays in Active Orders, but the user needs to see why it has not sold. Derived from the
+ * failed attempts the order carries — most leave a log rather than an execution, since a simulation
+ * that would revert sends nothing — with the cause read from the latest one. An attempt in flight is
+ * Triggered, not Retrying.
+ */
+export const getStopOrderRetry = (order: StopOrder): { cause: StopOrderRetryCause } | undefined => {
+  if (getStopOrderDisplayStatus(order) !== StopOrderDisplayStatus.ACTIVE) return undefined
+  const attempts = [
+    ...(Array.isArray(order.logs) ? order.logs : [])
+      .filter(log => FAILED_ATTEMPT_LOG_TYPES.includes(log?.type))
+      .map(log => ({ at: log.createdAt ?? 0, error: log.detail?.error })),
+    ...(order.executions ?? [])
+      .filter(
+        execution =>
+          execution.status === StopOrderExecutionStatus.FAILED ||
+          execution.status === StopOrderExecutionStatus.NOT_MINED,
+      )
+      .map(execution => ({ at: execution.createdAt ?? 0, error: execution.extraData?.error })),
+  ]
+  if (!attempts.length) return undefined
+  const latest = attempts.reduce((newest, attempt) => (attempt.at > newest.at ? attempt : newest))
+  return { cause: getRetryCause(latest.error) }
+}
+
 const ACTIVE_DISPLAY_STATUSES = [StopOrderDisplayStatus.ACTIVE, StopOrderDisplayStatus.TRIGGERED]
 
 /** Which table an order belongs in: everything still `Open` to the service, settling or not. */

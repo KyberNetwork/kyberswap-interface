@@ -92,13 +92,29 @@ export type StopOrderOracleEstimate = {
   expectedAmountOutUsd: string
 }
 
+/**
+ * One entry of an order's history as the service records it: an attempt it declined or that reverted,
+ * or a status change. `detail` depends on `type`; a type this app does not know arrives with no detail.
+ */
+export type StopOrderLog = {
+  id: number
+  type: string
+  /** Unix seconds. */
+  createdAt: number
+  detail?: { error?: string; reason?: string; message?: string } | null
+}
+
 export type StopOrderExecution = {
   /** Settlement transaction hash. This is the one to link on a block explorer. */
   hash: string
   executionNum: number
   operatorWallet: string
   status: StopOrderExecutionStatus
+  /** Unix seconds: when the transaction was submitted. */
+  createdAt?: number
   extraData?: {
+    /** The decoded revert reason of a failed attempt, when the chain gave one. */
+    error?: string
     amountIn?: StopOrderExecutionAmount
     amountOut?: StopOrderExecutionAmount
     /** tokenIn priced in tokenOut at the moment of execution. */
@@ -137,6 +153,8 @@ export type StopOrder = {
   /** Unix seconds. */
   createdAt: number
   executions?: StopOrderExecution[]
+  /** What happened to the order between executions, newest first. */
+  logs?: StopOrderLog[]
   oracleEstimate?: StopOrderOracleEstimate | null
   warnings?: StopOrderWarning[]
 }

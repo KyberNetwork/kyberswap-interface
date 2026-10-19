@@ -21,6 +21,7 @@ import {
   getStopOrderFundingShortfalls,
   getStopOrderPairKey,
   getStopOrderRecreateDraft,
+  getStopOrderRetry,
   getStopOrderSellAmountUsd,
   getStopOrderServiceErrorMessage,
   getStopOrderWarnings,
@@ -414,6 +415,76 @@ describe('getStopOrderServiceErrorMessage', () => {
     ).toBeUndefined()
     expect(getStopOrderServiceErrorMessage({ status: 500, data: '<html>' })).toBeUndefined()
     expect(getStopOrderServiceErrorMessage(undefined)).toBeUndefined()
+  })
+})
+
+describe('getStopOrderRetry', () => {
+  const open = { ...ORDER, status: StopOrderStatus.OPEN, executions: [], logs: [] }
+  const log = (type: string, createdAt: number, detail: Record<string, string> | null = null) => ({
+    id: createdAt,
+    type,
+    createdAt,
+    detail,
+  })
+
+  it('is not retrying until an attempt has failed', () => {
+    expect(getStopOrderRetry(open)).toBeUndefined()
+    expect(
+      getStopOrderRetry({
+        ...open,
+        logs: [log('LogTypeOrderStatusUpdate', 1, { reason: 'UpdateStatusReasonUserAPIUpdate' })],
+      }),
+    ).toBeUndefined()
+  })
+
+  it('reads the cause from a simulation that reverted, which leaves no execution', () => {
+    const order = {
+      ...open,
+      logs: [
+        log('LogTypePreSubmitRevert', 10, { error: 'execution reverted: ERC20: transfer amount exceeds balance' }),
+      ],
+    }
+    expect(getStopOrderRetry(order)).toEqual({ cause: 'balance' })
+    const allowance = { ...open, logs: [log('LogTypePreSubmitRevert', 10, { error: 'ERC20: insufficient allowance' })] }
+    expect(getStopOrderRetry(allowance)).toEqual({ cause: 'allowance' })
+  })
+
+  it('goes by the latest failed attempt', () => {
+    const order = {
+      ...open,
+      logs: [
+        log('LogTypePreSubmitRevert', 20, { error: 'InsufficientOutput: min 1994.2, got 1988.7' }),
+        log('LogTypePreSubmitRevert', 10, { error: 'ERC20: transfer amount exceeds balance' }),
+      ],
+    }
+    expect(getStopOrderRetry(order)).toEqual({ cause: 'slippage' })
+  })
+
+  it('counts a reverted transaction and an attempt the service declined', () => {
+    const reverted = {
+      ...open,
+      executions: [
+        {
+          ...execution(StopOrderExecutionStatus.FAILED),
+          createdAt: 30,
+          extraData: { error: 'InsufficientOutput: min 10, got 9' },
+        },
+      ],
+    }
+    expect(getStopOrderRetry(reverted)).toEqual({ cause: 'slippage' })
+    const skipped = { ...open, logs: [log('LogTypeSkipped', 5, { reason: 'SkipReasonOracleStale', message: 'stale' })] }
+    expect(getStopOrderRetry(skipped)).toEqual({ cause: 'unknown' })
+  })
+
+  it('is not retrying while an attempt is in flight or once the order has closed', () => {
+    const failedLog = [log('LogTypePreSubmitRevert', 10, { error: 'x' })]
+    const inFlight = {
+      ...open,
+      logs: failedLog,
+      executions: [{ ...execution(StopOrderExecutionStatus.PENDING), createdAt: 20 }],
+    }
+    expect(getStopOrderRetry(inFlight)).toBeUndefined()
+    expect(getStopOrderRetry({ ...open, status: StopOrderStatus.CANCELLED, logs: failedLog })).toBeUndefined()
   })
 })
 

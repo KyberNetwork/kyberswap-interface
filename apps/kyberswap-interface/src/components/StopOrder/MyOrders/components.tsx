@@ -3,7 +3,15 @@ import { Trans, t } from '@lingui/macro'
 import { cva } from 'class-variance-authority'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
-import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, ExternalLink as LinkIcon, Trash } from 'react-feather'
+import {
+  AlertTriangle,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink as LinkIcon,
+  RefreshCw,
+  Trash,
+} from 'react-feather'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -317,6 +325,20 @@ export const triggerProximityText = cva('transition-colors duration-200', {
   },
   defaultVariants: { proximity: 'unknown' },
 })
+
+/**
+ * Stands in for the distance once the trigger has been reached without a fill: a distance would say the
+ * order is still waiting for the price, when it is the swap that has not gone through.
+ */
+export const RetryingCell = () => (
+  <HStack
+    className="items-center gap-1 text-sm font-medium text-warning motion-safe:animate-pulse"
+    data-testid="stop-order-order-retrying"
+  >
+    <RefreshCw size={12} className="shrink-0" />
+    <Trans>Retrying</Trans>
+  </HStack>
+)
 
 /**
  * How far the trigger sits from the market. The arrow follows the sign: below the market the order

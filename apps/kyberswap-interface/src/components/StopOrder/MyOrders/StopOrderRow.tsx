@@ -13,6 +13,7 @@ import {
   DistanceCell,
   ExpiryCell,
   PairCell,
+  RetryingCell,
   StatusCell,
   StopOrderExecutionDetail,
 } from 'components/StopOrder/MyOrders/components'
@@ -25,6 +26,7 @@ import {
   getStopOrderExecutionTxHash,
   getStopOrderFills,
   getStopOrderFundingShortfalls,
+  getStopOrderRetry,
   getStopOrderSellAmountUsd,
   getStopOrderTriggerPrice,
   getStopOrderWarnings,
@@ -108,13 +110,51 @@ const StopOrderRow = ({ order, isActiveTab, isCancelling, funding, rowIndex = 0,
   // or allowance has since fallen short will fail when it fires, and the wallet is the first to know.
   const fundingShortfalls =
     isActiveTab && funding ? getStopOrderFundingShortfalls(order.amountIn, funding.balance, funding.allowance) : []
+
+  /**
+   * The trigger was reached and the swap has not gone through. The revert reason names the cause when it
+   * can; when it does not, a shortfall the wallet shows right now is the likeliest one. The note takes
+   * over from the funding warnings, which would say the same thing again.
+   */
+  const retry = isActiveTab ? getStopOrderRetry(order) : undefined
+  const retryCause =
+    retry && retry.cause === 'unknown'
+      ? fundingShortfalls.includes('balance')
+        ? 'balance'
+        : fundingShortfalls.includes('allowance')
+        ? 'allowance'
+        : 'unknown'
+      : retry?.cause
+  const balanceShort =
+    funding?.balance !== undefined && funding.balance < BigInt(order.amountIn)
+      ? CurrencyAmount.fromRawAmount(sellCurrency, (BigInt(order.amountIn) - funding.balance).toString()).toSignificant(
+          6,
+        )
+      : undefined
+  const sellSymbol = sellCurrency.symbol ?? ''
+  const maxSlippage = formatSlippage(order.slippage)
+  const retryMessage =
+    retryCause === 'slippage'
+      ? t`Trigger price reached, but your ${maxSlippage} max slippage is too tight for current market conditions. Still retrying — raise your slippage to fill sooner.`
+      : retryCause === 'balance'
+      ? balanceShort
+        ? t`Trigger price reached, but your balance is short. You need ${balanceShort} more ${sellSymbol} — still retrying, so the order will fill once your balance is topped up.`
+        : t`Trigger price reached, but your balance is short — still retrying, so the order will fill once your balance is topped up.`
+      : retryCause === 'allowance'
+      ? t`Trigger price reached, but your ${sellSymbol} approval is too low — still retrying, so the order will fill once it is raised.`
+      : retryCause === 'unknown'
+      ? t`Trigger price reached but the order hasn't filled yet. Still retrying.`
+      : undefined
+
   const warnings = [
     ...getStopOrderWarnings(order).map(warning => ({ code: warning.code, message: warning.message })),
-    ...fundingShortfalls.map(shortfall =>
-      shortfall === 'balance'
-        ? { code: 'INSUFFICIENT_BALANCE', message: t`Insufficient balance — order may fail` }
-        : { code: 'INSUFFICIENT_ALLOWANCE', message: t`Insufficient allowance — order may fail` },
-    ),
+    ...(retry
+      ? []
+      : fundingShortfalls.map(shortfall =>
+          shortfall === 'balance'
+            ? { code: 'INSUFFICIENT_BALANCE', message: t`Insufficient balance — order may fail` }
+            : { code: 'INSUFFICIENT_ALLOWANCE', message: t`Insufficient allowance — order may fail` },
+        )),
   ]
 
   // An executed row only has a story to tell once its fills carry both their prices and what they received.
@@ -195,9 +235,7 @@ const StopOrderRow = ({ order, isActiveTab, isCancelling, funding, rowIndex = 0,
                 {formatPairPrice(isPriceInverted && currentPrice ? 1 / currentPrice : currentPrice)}
               </span>
             </Stack>
-            <div className="max-sm:hidden">
-              <DistanceCell percent={distancePercent} />
-            </div>
+            <div className="max-sm:hidden">{retry ? <RetryingCell /> : <DistanceCell percent={distancePercent} />}</div>
             <div className="max-sm:hidden">
               <ExpiryCell deadline={order.deadline} />
             </div>
@@ -261,6 +299,18 @@ const StopOrderRow = ({ order, isActiveTab, isCancelling, funding, rowIndex = 0,
           )}
         </div>
       </StopOrderRowWrapper>
+
+      {retryMessage && (
+        // Default text colour: the amber cell already carries the signal, and an amber explanation would
+        // make an order that is still being worked on read as alarming.
+        <p
+          className="m-0 px-4 pb-2.5 text-xs text-text max-sm:px-3"
+          data-testid="stop-order-order-retry-message"
+          data-cause={retryCause}
+        >
+          {retryMessage}
+        </p>
+      )}
 
       {warnings.length > 0 && (
         <Stack className="gap-1 px-4 pb-2.5 max-sm:px-3" data-testid="stop-order-order-warnings">
