@@ -1,21 +1,9 @@
-import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useInfiniteQuery } from '@tanstack/react-query'
-import { motion, useAnimationControls, useReducedMotion } from 'framer-motion'
-import {
-  ChangeEvent,
-  KeyboardEvent,
-  MouseEvent,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { motion } from 'framer-motion'
+import { KeyboardEvent, ReactNode, useCallback, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
-import { useMedia } from 'react-use'
 
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
@@ -23,9 +11,9 @@ import { HStack, Stack } from 'components/Stack'
 import { ChainSelector } from 'components/TokenSelectorModal/ChainSelector'
 import { OtherChainTokens } from 'components/TokenSelectorModal/OtherChainTokens'
 import { PinnedTokens } from 'components/TokenSelectorModal/PinnedTokens'
-import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
 import { TabBar, getTabSubtitle } from 'components/TokenSelectorModal/TabBar'
 import TokenList from 'components/TokenSelectorModal/TokenList'
+import { TokenListHeader } from 'components/TokenSelectorModal/TokenListHeader'
 import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenListSkeleton'
 import {
   ContentWrapper,
@@ -34,91 +22,14 @@ import {
   SearchInput,
   SearchWrapper,
 } from 'components/TokenSelectorModal/components'
-import {
-  BALANCE_COLUMN_CLASS,
-  METRIC_COLUMN_CLASS,
-  TOKEN_SELECTOR_TAB_ORDER,
-  TRENDING_PRICE_FALLBACK_ENABLED,
-  TokenSelectorTab,
-  isTrendingSupportedChain,
-} from 'components/TokenSelectorModal/constants'
-import { useCatalogPriceFallback } from 'components/TokenSelectorModal/hooks/useCatalogPriceFallback'
-import { useChainsVolume } from 'components/TokenSelectorModal/hooks/useChainsVolume'
-import { useInventoryDiscoveries } from 'components/TokenSelectorModal/hooks/useInventoryDiscoveries'
-import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
-import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
-import { useTokensMetrics } from 'components/TokenSelectorModal/hooks/useTokensMetrics'
-import { useTrendingTokens } from 'components/TokenSelectorModal/hooks/useTrendingTokens'
-import {
-  TOKEN_METRIC_COLUMNS,
-  TokenMetricColumn,
-  TokenRowExtraMap,
-  TokenSort,
-  TokenSortField,
-  tokenRowKey,
-} from 'components/TokenSelectorModal/types'
-import {
-  TOKEN_SEARCH_PAGE_SIZE,
-  concatUnseenTokens,
-  fetchTokens,
-  getNeedsImport,
-  mergeHeldSearchResults,
-  useAddressRpcTokenSearch,
-  useTokenComparator,
-} from 'components/TokenSelectorModal/utils'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { ETHER_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
+import { useTokenSelectorData } from 'components/TokenSelectorModal/hooks/useTokenSelectorData'
+import { useTokenSelectorView } from 'components/TokenSelectorModal/hooks/useTokenSelectorView'
+import { TokenSelectionContext } from 'components/TokenSelectorModal/types'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks'
-import { useBalanceWait } from 'hooks/useBalanceWait'
-import useChainsConfig from 'hooks/useChainsConfig'
-import useDebounce from 'hooks/useDebounce'
-import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
-import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
-import {
-  useIsTokenImported,
-  useRemoveUserAddedToken,
-  useUserAddedTokens,
-  useUserFavoriteTokens,
-} from 'state/user/hooks'
-import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
-import { isTokenListReady } from 'state/walletInventory/assets'
-import { useInventoryTokenBalances, useWalletInventory } from 'state/walletInventory/hooks'
-import { ensureTokenMetadata } from 'state/walletInventory/metadata'
-import { CloseIcon, MEDIA_WIDTHS } from 'theme'
-import { isAddress } from 'utils/address'
-import { filterTruthy } from 'utils/array'
+import { CloseIcon } from 'theme'
 import { cn } from 'utils/cn'
-import { filterTokens } from 'utils/filtering'
-import { isTokenNative } from 'utils/tokenInfo'
-
-interface TokenSelectorContentProps {
-  isOpen: boolean
-  onDismiss?: () => void
-  selectedCurrency?: Currency | null
-  onCurrencySelect?: (currency: Currency) => void
-  otherSelectedCurrency?: Currency | null
-  /** Show the selected tokens' ERC-8056 balances in display units; only for forms whose own balance labels do the same. */
-  scaleERC8056Balances?: boolean
-  showPinnedTokens?: boolean
-  onImportToken?: (token: Token) => void
-  customChainId?: ChainId
-  filterWrap?: boolean
-  title?: string
-  tooltip?: ReactNode
-  trackingSource?: string
-  onShowTokenInfo?: (token: Token) => void
-  /** Show the discovery tab bar (Trending / New / …). Off for surfaces that want a plain search + list (cross-chain). */
-  showDiscoveryTabs?: boolean
-  /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
-  onSelectChain?: (chainId: ChainId) => void
-}
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
   return (
@@ -137,974 +48,133 @@ const SearchLoading = () => (
   </Stack>
 )
 
-// Stable empty list so `useTokensMetrics` doesn't refetch on tabs that don't need metrics.
-const EMPTY_CURRENCIES: Currency[] = []
-// Stable empty list so the tabs that show no balance column register no balanceOf multicall.
-const EMPTY_TOKENS: Token[] = []
-// Stable empty address list so `useTokenPrices` doesn't fetch on tabs that don't need it.
-const EMPTY_ADDRESSES: string[] = []
-// Stable empty extras so the All tab's `listExtras` keeps the same reference and doesn't re-render
-// the list every time a background discovery query (trending / new / metrics) resolves.
-const EMPTY_EXTRAS: TokenRowExtraMap = {}
-
-// Map the internal sort direction to the shared SortIcon's Direction enum.
-const toDirection = (dir: 'asc' | 'desc'): Direction => (dir === 'asc' ? Direction.ASC : Direction.DESC)
-
-// A clickable, sortable column header (Price & 24h change) with the shared pool-list sort arrows.
-const SortHeader = ({
-  label,
-  field,
-  sort,
-  onSort,
-  className,
-}: {
-  label: ReactNode
-  field: TokenSortField
-  sort: TokenSort | null
-  onSort: (field: TokenSortField) => void
-  /** Column width, matching the width the rows give the same column. */
-  className: string
-}) => (
-  <button
-    type="button"
-    data-testid={`sort-header-${field}`}
-    onClick={() => onSort(field)}
-    className={cn(
-      'flex shrink-0 items-center justify-end gap-1 whitespace-nowrap uppercase transition-colors hover:text-text',
-      className,
-    )}
-  >
-    {label}
-    <SortIcon sorted={sort?.field === field ? toDirection(sort.dir) : undefined} />
-  </button>
-)
-
-// Copy for one of the switchable metrics. Built per render so the `t` macro picks up locale changes.
-// The labels carry their own casing — the period qualifier reads as "24h", not "24H". That qualifier
-// only fits from `sm` up; below it the wider column would leave the token name a few pixels.
-const metricCopy = (metric: TokenMetricColumn) =>
-  metric === 'volume24h'
-    ? {
-        label: (
-          <>
-            <span className="sm:hidden">
-              <Trans>VOL</Trans>
-            </span>
-            <span className="hidden sm:inline">
-              <Trans>24h VOL</Trans>
-            </span>
-          </>
-        ),
-        show: t`Show 24h volume`,
-        sort: t`Sort by 24h volume`,
-      }
-    : { label: <Trans>FDV</Trans>, show: t`Show fully diluted valuation`, sort: t`Sort by fully diluted valuation` }
-
-// The Trending / New tabs' third column header: a switch choosing which metric the rows show — 24h
-// volume or FDV — plus the sort control for whichever metric is active. The showing metric's
-// own button doubles as a sort target, so the sort stays reachable without aiming at the small arrows.
-const MetricColumnHeader = ({
-  metric,
-  onMetricChange,
-  sort,
-  onSort,
-}: {
-  metric: TokenMetricColumn
-  onMetricChange: (metric: TokenMetricColumn) => void
-  sort: TokenSort | null
-  onSort: (field: TokenSortField) => void
-}) => (
-  <HStack className={cn('shrink-0 items-center justify-end gap-0.5 sm:gap-1', METRIC_COLUMN_CLASS)}>
-    {/* The column is a fixed width the rows match, and the labels are translatable — so the switch
-        shrinks and its labels ellipsize rather than spilling left over the Price column. English
-        needs less than the column holds, so it only bites in locales that translate longer. */}
-    <div className="flex min-w-0 items-center rounded-md bg-buttonBlack p-0.5" role="group" aria-label={t`Metric`}>
-      {TOKEN_METRIC_COLUMNS.map(option => {
-        const active = option === metric
-        const copy = metricCopy(option)
-        return (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={active}
-            aria-label={active ? copy.sort : copy.show}
-            data-testid={`metric-column-${option}`}
-            onClick={() => (active ? onSort(option) : onMetricChange(option))}
-            className={cn(
-              'min-w-0 truncate rounded px-[3px] py-0.5 text-[10px] font-medium transition-colors sm:px-1.5 sm:text-xs',
-              active ? 'bg-buttonGray text-text' : 'text-gray hover:text-text',
-            )}
-          >
-            {copy.label}
-          </button>
-        )
-      })}
-    </div>
-    {/* The arrows are only 8px wide, so a pseudo-element grows the tap target past the WCAG minimum
-        without widening the column. It stops at the pill's edge and at the header's own padding so it
-        can't swallow clicks meant for the other metric or the first row. */}
-    <button
-      type="button"
-      data-testid={`sort-header-${metric}`}
-      aria-label={metricCopy(metric).sort}
-      onClick={() => onSort(metric)}
-      className="relative flex shrink-0 items-center after:absolute after:-inset-y-2 after:-right-2 after:left-0 after:content-['']"
-    >
-      <SortIcon sorted={sort?.field === metric ? toDirection(sort.dir) : undefined} />
-    </button>
-  </HStack>
-)
-
-// How a token pick was initiated, reported on the Token Selected event so the discovery funnel can
-// tell quick-select taps from list browsing and from search-result picks.
-type TokenSelectionMethod = 'browse' | 'search' | 'quick_select_pill'
+type Props = {
+  anchorChainId: ChainId
+  importChainId?: ChainId
+  selectedCurrency?: Currency | null
+  otherSelectedCurrency?: Currency | null
+  scaleERC8056Balances?: boolean
+  showPinnedTokens?: boolean
+  showDiscoveryTabs?: boolean
+  filterWrap?: boolean
+  title?: string
+  tooltip?: ReactNode
+  trackingSource?: string
+  onRequestSelect?: (currency: Currency, context: TokenSelectionContext, intent?: 'select' | 'import') => void
+  onDismiss?: () => void
+  onShowTokenInfo?: (token: Token) => void
+}
 
 export const TokenSelectorContent = ({
+  anchorChainId,
+  importChainId,
   selectedCurrency,
-  onCurrencySelect,
   otherSelectedCurrency,
   scaleERC8056Balances,
   showPinnedTokens,
-  onDismiss,
-  isOpen,
-  onImportToken,
-  customChainId,
+  showDiscoveryTabs = true,
   filterWrap = false,
   title,
   tooltip,
   trackingSource,
+  onRequestSelect,
+  onDismiss,
   onShowTokenInfo,
-  showDiscoveryTabs = true,
-  onSelectChain,
-}: TokenSelectorContentProps) => {
-  const { chainId: web3ChainId, account } = useActiveWeb3React()
-  const anchorChainId = customChainId || web3ChainId
-  const { supportedChains } = useChainsConfig()
-  const { trackingHandler } = useTracking()
-  // Rank the chain dropdown by trailing volume (busiest first); chains the volume API omits keep their
-  // config order at the bottom. Only fetched when the dropdown is actually shown.
-  const chainVolumes = useChainsVolume(showDiscoveryTabs)
-  const rankedChains = useMemo(() => {
-    if (!Object.keys(chainVolumes).length) return supportedChains
-    return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
-  }, [supportedChains, chainVolumes])
-  const removeToken = useRemoveUserAddedToken()
-  const isTokenImported = useIsTokenImported()
-  const isTokenRestricted = useIsTokenRestricted()
-  const notifyRestrictedToken = useNotifyRestrictedToken()
+}: Props) => {
+  const view = useTokenSelectorView({ anchorChainId, importChainId, showDiscoveryTabs, trackingSource })
+  const {
+    activeTab,
+    selectedChainId,
+    debouncedQuery,
+    searchQuery,
+    sort,
+    inputRef,
+    listTokenRef,
+    listAnimation,
+    metricColumn,
+    rankedChains,
+    visibleTabs,
+    setSearchQuery,
+    handleInput,
+    handleChainChange,
+    handleTabChange,
+    cycleSort,
+    changeMetricColumn,
+    animateSortedRows,
+  } = view
+  const data = useTokenSelectorData({
+    primaryChainId: selectedChainId,
+    activeTab,
+    debouncedQuery,
+    sort,
+    showDiscoveryTabs,
+    filterWrap,
+    otherSelectedCurrency,
+  })
+  const {
+    visibleCurrencies,
+    impersonators,
+    quickSelectTokens,
+    isListLoading,
+    waitingForBalances,
+    removeImportedToken,
+    handleClickFavorite,
+    handleLoadMore,
+    handleRowsRendered,
+    listHasMore,
+    balances,
+    nativeBalance,
+    listExtras,
+    heldAddresses,
+    otherChainTokens,
+    isCheckingOtherChains,
+  } = data
 
-  const [selectedChainId, setSelectedChainId] = useState<ChainId>(anchorChainId)
-  const primaryChainId = selectedChainId
-  const chainIdList = useMemo(() => [selectedChainId], [selectedChainId])
-  const trendingSupported = isTrendingSupportedChain(primaryChainId)
+  useEffect(() => {
+    if (!isMobile) inputRef.current?.focus()
+  }, [inputRef])
+  useEffect(() => {
+    animateSortedRows()
+  }, [visibleCurrencies, animateSortedRows])
 
-  const visibleTabs = useMemo(
-    () => TOKEN_SELECTOR_TAB_ORDER.filter(tab => tab !== TokenSelectorTab.Trending || trendingSupported),
-    [trendingSupported],
+  const requestSelect = useCallback(
+    (currency: Currency, method?: TokenSelectionContext['method'], intent: 'select' | 'import' = 'select') => {
+      const rowIndex = visibleCurrencies.findIndex(item => item.equals(currency))
+      onRequestSelect?.(
+        currency,
+        {
+          tab: activeTab,
+          query: debouncedQuery,
+          method: method ?? (debouncedQuery ? 'search' : 'browse'),
+          rowIndex: rowIndex >= 0 ? rowIndex : undefined,
+        },
+        intent,
+      )
+    },
+    [visibleCurrencies, activeTab, debouncedQuery, onRequestSelect],
   )
-  const defaultTab =
-    !showDiscoveryTabs || account
-      ? TokenSelectorTab.All
-      : trendingSupported
-      ? TokenSelectorTab.Trending
-      : TokenSelectorTab.All
 
-  const [activeTab, setActiveTab] = useState<TokenSelectorTab>(defaultTab)
-  const [searchQuery, setSearchQuery] = useState<string>('')
-  const [pinnedTokens, setPinnedTokens] = useState<(Token | Currency)[]>([])
-  const [switchChainToken, setSwitchChainToken] = useState<Currency | null>(null)
-
-  const inputRef = useRef<HTMLInputElement>(null)
-  const listTokenRef = useRef<HTMLDivElement>(null)
-
-  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(primaryChainId)
-  const debouncedQuery = useDebounce(searchQuery, 200)
-  const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
-  const isQueryValidEVMAddress = !!isAddress(primaryChainId, debouncedQuery)
+  const handleEnter = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key !== 'Enter') return
+      const query = searchQuery.toLowerCase().trim()
+      const native = NativeCurrencies[selectedChainId]
+      if (query === native.symbol?.toLowerCase() || query === native.name?.toLowerCase()) {
+        requestSelect(native)
+        return
+      }
+      const candidate = visibleCurrencies[0]
+      if (!candidate || (visibleCurrencies.length !== 1 && candidate.symbol?.toLowerCase() !== query)) return
+      if (candidate.isToken && impersonators.has(candidate.address)) return
+      requestSelect(candidate)
+    },
+    [searchQuery, selectedChainId, visibleCurrencies, impersonators, requestSelect],
+  )
 
   const isAllTab = activeTab === TokenSelectorTab.All
   const isImportedTab = activeTab === TokenSelectorTab.Imported
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
-  const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
-  // The narrower mobile modal fits one fewer quick-select pill per row.
-  const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  // Column sort. Trending and New resolve it server-side (24h change / volume); Imported / Favorites
-  // sort by 24h change in-memory. `null` = the tab's natural order. Cleared on tab / chain change.
-  const [sort, setSort] = useState<TokenSort | null>(null)
-  const listAnimation = useAnimationControls()
-  const prefersReducedMotion = useReducedMotion()
-  // Flagged when the user clicks a sort header so the list can crossfade exactly when the re-sorted
-  // rows commit — which is the same tick for in-memory sorts and a later tick for Trending's async
-  // server re-fetch.
-  const pendingSortAnim = useRef(false)
-  const cycleSort = useCallback((field: TokenSortField) => {
-    pendingSortAnim.current = true
-    setSort(prev => {
-      if (!prev || prev.field !== field) return { field, dir: 'desc' }
-      if (prev.dir === 'desc') return { field, dir: 'asc' }
-      return null
-    })
-  }, [])
-
-  // Which metric the Trending / New tabs' third column shows. A view preference, so it survives tab
-  // and chain changes (unlike the sort, which resets to each tab's natural order).
-  const [metricColumn, setMetricColumn] = useState<TokenMetricColumn>('volume24h')
-  const changeMetricColumn = useCallback(
-    (metric: TokenMetricColumn) => {
-      setMetricColumn(metric)
-      // Carry an active metric sort over to the newly shown metric so the list stays sorted by what
-      // it displays; a price sort (or no sort) is left alone, and so is a no-op re-pick.
-      if (sort && sort.field !== 'priceChange24h' && sort.field !== metric) {
-        pendingSortAnim.current = true
-        setSort({ field: metric, dir: sort.dir })
-      }
-    },
-    [sort],
-  )
-
-  const defaultTokens = useAllTokens(false, primaryChainId)
-  const tokenImports = useUserAddedTokens(primaryChainId)
-  // On the All tab, favorites float above non-favorites (but only after wallet value / balance).
-  const favoriteAddressSet = useMemo(() => new Set(favoriteTokens ?? []), [favoriteTokens])
-
-  const {
-    tokens: trendingTokens,
-    extras: trendingExtras,
-    loading: trendingLoading,
-    hasMore: trendingHasMore,
-    fetchMore: fetchMoreTrending,
-  } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab)
-  const {
-    tokens: newTokens,
-    extras: newExtras,
-    loading: newLoading,
-  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab)
-
-  const filterWrapFunc = useCallback(
-    (token: Currency | undefined) => {
-      if (filterWrap && otherSelectedCurrency?.equals(WETH[primaryChainId])) {
-        return !isTokenNative(token)
-      }
-      if (filterWrap && otherSelectedCurrency && isTokenNative(otherSelectedCurrency)) {
-        return !token?.equals(WETH[primaryChainId])
-      }
-      return true
-    },
-    [primaryChainId, otherSelectedCurrency, filterWrap],
-  )
-
-  const {
-    data: tokenSearchData,
-    fetchNextPage,
-    hasNextPage,
-    isFetched: isFetchedTokenSearch,
-    isFetching: isFetchingTokenSearch,
-    isLoading: isLoadingTokenSearch,
-  } = useInfiniteQuery({
-    queryKey: ['currency-search-tokens', selectedChainId, debouncedQuery],
-    initialPageParam: 1,
-    enabled: !!debouncedQuery && isAllTab,
-    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList),
-    getNextPageParam: (lastPage, allPages) =>
-      debouncedQuery && !isQueryValidEVMAddress && lastPage.length === TOKEN_SEARCH_PAGE_SIZE
-        ? allPages.length + 1
-        : undefined,
-    // Search results are stable on an alt-tab timescale; don't re-fire the /v1/tokens search on refocus.
-    staleTime: 30_000,
-    refetchOnWindowFocus: false,
-    retry: false,
-  })
-
-  // De-duplicate by chain+address: a paginated search feed can repeat a token across pages when the
-  // server-side ranking shifts (mirrors mapCatalogTokens), which would otherwise render duplicate rows.
-  const tokenSearchResults = useMemo(() => {
-    const flat = tokenSearchData?.pages.flatMap(page => page) ?? []
-    const seen = new Set<string>()
-    return flat.filter(token => {
-      const key = tokenRowKey(token.chainId, token.wrapped.address)
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-  }, [tokenSearchData?.pages])
-
-  const { currentChainRpcToken, otherChainTokens, isCheckingOtherChains } = useAddressRpcTokenSearch({
-    chainId: primaryChainId,
-    debouncedQuery,
-    supportedChains,
-    isImportedTab: !isAllTab,
-    isQueryValidEVMAddress,
-    isFetchedTokenSearch,
-    isFetchingTokenSearch,
-    hasTokenSearchResults: !!tokenSearchResults.length,
-  })
-
-  // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
-  // per-block balanceOf multicall over the whole visible set. Only one of the two paths is ever fed
-  // tokens, so the unused one registers no work; chains without inventory keep the multicall.
-  const inventory = useWalletInventory(primaryChainId, isOpen)
-
-  // Held tokens on no list. They sit in the All tab alongside everything else as dimmed rows that
-  // import on click, and search matches them directly: someone typing a symbol they hold is looking
-  // for it.
-  const { tokens: discoveryTokens, impersonators } = useInventoryDiscoveries(
-    inventory,
-    defaultTokens,
-    tokenImports,
-    primaryChainId,
-  )
-  const showDiscoveries = isAllTab && !debouncedQuery && discoveryTokens.length > 0
-  const unlistedAddresses = useMemo(
-    () => (discoveryTokens.length ? new Set(discoveryTokens.map(token => token.address)) : undefined),
-    [discoveryTokens],
-  )
-
-  const searchDiscoveryMatches = useMemo<Currency[]>(
-    () =>
-      isAllTab && debouncedQuery && discoveryTokens.length
-        ? filterTokens(primaryChainId, discoveryTokens, debouncedQuery)
-        : EMPTY_CURRENCIES,
-    [isAllTab, debouncedQuery, discoveryTokens, primaryChainId],
-  )
-  // Imported tokens live only in local state, and the catalog answers a symbol query with its
-  // whitelisted entries alone. Matching them here keeps a token the empty-box list shows from
-  // vanishing the moment its own symbol is typed.
-  const searchImportMatches = useMemo<Currency[]>(
-    () =>
-      isAllTab && debouncedQuery && tokenImports.length
-        ? filterTokens(primaryChainId, tokenImports, debouncedQuery)
-        : EMPTY_CURRENCIES,
-    [isAllTab, debouncedQuery, tokenImports, primaryChainId],
-  )
-  // Every address the wallet holds; only set while searching, to lead with held matches and badge them.
-  const heldAddresses = useMemo(
-    () => (isAllTab && debouncedQuery && inventory.active ? new Set(Object.keys(inventory.rows)) : undefined),
-    [isAllTab, debouncedQuery, inventory],
-  )
-
-  // One balanceOf multicall for the whole modal: the sort-by-wallet-value comparator and the list's
-  // balance column need the same tokens, and registering them apart doubles the RPC traffic. The set
-  // comes from each tab's *unsorted* source so it stays put while the rows re-sort on top of it, and
-  // it covers only the rows a tab actually shows — the Trending / New tabs render a metric column
-  // instead of a balance, so they read nothing.
-  const balanceTokens = useMemo<Token[]>(() => {
-    if (isTrendingTab || isNewTab) return EMPTY_TOKENS
-    const source: (Currency | undefined)[] = isImportedTab
-      ? tokenImports
-      : isFavoritesTab
-      ? pinnedTokens
-      : debouncedQuery
-      ? [...tokenSearchResults, currentChainRpcToken, ...searchDiscoveryMatches, ...searchImportMatches]
-      : Object.values(defaultTokens)
-    // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
-    // search hit) have no balance to show here either.
-    return source.filter(
-      (token): token is Token => !!token && !isTokenNative(token) && token.chainId === primaryChainId,
-    )
-  }, [
-    isTrendingTab,
-    isNewTab,
-    isImportedTab,
-    isFavoritesTab,
-    debouncedQuery,
-    tokenImports,
-    pinnedTokens,
-    tokenSearchResults,
-    currentChainRpcToken,
-    searchDiscoveryMatches,
-    searchImportMatches,
-    defaultTokens,
-    primaryChainId,
-  ])
-
-  const balanceTokensWithDiscoveries = useMemo(
-    () => (showDiscoveries ? [...balanceTokens, ...discoveryTokens] : balanceTokens),
-    [showDiscoveries, balanceTokens, discoveryTokens],
-  )
-
-  // The multicall answers until the inventory can. Its cost is one sweep per open, ended the moment a
-  // walk lands; what the inventory saves is the per-block repeat of that sweep, which is the expensive
-  // part. A wallet is walked page by page, and no screen waits on that to show a balance.
-  const multicallTokens = inventory.active ? EMPTY_TOKENS : balanceTokensWithDiscoveries
-  const multicallBalances = useTokenBalances(multicallTokens, primaryChainId)
-  const inventoryBalances = useInventoryTokenBalances(balanceTokensWithDiscoveries, inventory)
-  const balances = inventory.active ? inventoryBalances : multicallBalances
-  // Whichever source answers, a balance it never delivers stops reading as "loading": every new map
-  // restarts the wait, so a source still working keeps its rows on a loader and a stalled one does not.
-  const waitingForBalances = useBalanceWait(balances, !!account)
-  const nativeBalance = useNativeBalance(primaryChainId)
-
-  // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
-  // rest never register its /prices fetch.
-  const needsComparator = (isAllTab && !debouncedQuery) || isImportedTab
-  const tokenComparator = useTokenComparator(
-    balances,
-    nativeBalance,
-    primaryChainId,
-    needsComparator,
-    isAllTab ? favoriteAddressSet : undefined,
-    isAllTab ? unlistedAddresses : undefined,
-  )
-
-  // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
-  // tokens. Only computed for the All tab — the other tabs never read it, so skip the whole-whitelist
-  // sort there. Object.values already returns a fresh array, so sort it in place.
-  const allTabTokens: Currency[] = useMemo(() => {
-    if (!isAllTab) return EMPTY_CURRENCIES
-    if (debouncedQuery) {
-      return mergeHeldSearchResults(
-        concatUnseenTokens(tokenSearchResults.concat(filterTruthy([currentChainRpcToken])), searchImportMatches),
-        searchDiscoveryMatches,
-        heldAddresses,
-        impersonators,
-      ).filter(filterWrapFunc)
-    }
-    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
-  }, [
-    isAllTab,
-    debouncedQuery,
-    tokenSearchResults,
-    currentChainRpcToken,
-    searchDiscoveryMatches,
-    searchImportMatches,
-    heldAddresses,
-    defaultTokens,
-    discoveryTokens,
-    tokenComparator,
-    filterWrapFunc,
-    impersonators,
-  ])
-
-  // Client-side search filter for the non-All tabs (their datasets are already in memory).
-  const localFilter = useCallback(
-    (tokens: Currency[]): Currency[] => {
-      const filtered = debouncedQuery
-        ? (filterTokens(primaryChainId, tokens as Token[], debouncedQuery) as Currency[])
-        : tokens
-      return filtered.filter(filterWrapFunc)
-    },
-    [debouncedQuery, primaryChainId, filterWrapFunc],
-  )
-
-  // Filter to the current chain synchronously so stale pills from the previous chain never render
-  // during the (async) refetch after a chain switch.
-  const favoriteCurrenciesBase = useMemo(
-    () => localFilter((pinnedTokens as Currency[]).filter(token => token.chainId === primaryChainId)),
-    [localFilter, pinnedTokens, primaryChainId],
-  )
-
-  // Quick-select pills: always lead with the chain's native token, then fill the rest from config /
-  // favorites (dropping any native duplicate). Capped at 5 (4 on mobile) when the Favorites tab exists
-  // to hold the overflow; uncapped otherwise (see the discovery-off note below). The native lead is
-  // only hidden by a non-matching text search — never by the wrap filter — so it's always present.
-  const quickSelectTokens = useMemo(() => {
-    const native = NativeCurrencies[primaryChainId] as Currency | undefined
-    const nativeMatchesSearch =
-      !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
-    const nativeLead = nativeMatchesSearch && native ? [native] : []
-    const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
-    const list = [...nativeLead, ...rest]
-    return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
-  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth])
-
-  const importedCurrenciesBase = useMemo(
-    () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
-    [localFilter, tokenImports, tokenComparator],
-  )
-  // Trending is already ordered server-side; the others keep their own natural order until sorted.
-  const trendingCurrencies = useMemo(() => localFilter(trendingTokens), [localFilter, trendingTokens])
-  const newCurrenciesBase = useMemo(() => localFilter(newTokens), [localFilter, newTokens])
-
-  // Price / 24h-change metrics for the local-sourced tabs (Imported / Favorites); Trending and New
-  // already carry metrics from their own catalog fetch.
-  const metricsSource = isImportedTab
-    ? importedCurrenciesBase
-    : isFavoritesTab
-    ? favoriteCurrenciesBase
-    : EMPTY_CURRENCIES
-  const metricsExtras = useTokensMetrics(metricsSource, primaryChainId)
-
-  // Imported and Favorites take their price from the live prices endpoint (buy/sell mid — the same
-  // source the All tab and the wallet-value sort use, so a token reads the same on every tab), while
-  // 24h change / volume / FDV stay from the tokens-list metrics.
-  const localPriceAddresses = useMemo(
-    () => (metricsSource.length ? metricsSource.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
-    [metricsSource],
-  )
-  const localPrices = useTokenPrices(localPriceAddresses, primaryChainId)
-  const localExtras = useMemo<TokenRowExtraMap>(() => {
-    const result: TokenRowExtraMap = {}
-    metricsSource.forEach(currency => {
-      const key = tokenRowKey(currency.chainId, currency.wrapped.address)
-      const livePrice = localPrices[currency.wrapped.address.toLowerCase()]
-      result[key] = { ...metricsExtras[key], price: livePrice || metricsExtras[key]?.price }
-    })
-    return result
-  }, [metricsSource, localPrices, metricsExtras])
-
-  // Both catalog-sourced tabs can come back short of `metrics.price` (Robinhood especially), so top
-  // their rows up from the live prices endpoint — on Trending only while TRENDING_PRICE_FALLBACK_ENABLED.
-  const newExtrasWithPrice = useCatalogPriceFallback(newCurrenciesBase, newExtras, primaryChainId, isNewTab)
-  const trendingExtrasWithPrice = useCatalogPriceFallback(
-    trendingCurrencies,
-    trendingExtras,
-    primaryChainId,
-    isTrendingTab && TRENDING_PRICE_FALLBACK_ENABLED,
-  )
-
-  const listExtras: TokenRowExtraMap = useMemo(() => {
-    if (isTrendingTab) return trendingExtrasWithPrice
-    if (isNewTab) return newExtrasWithPrice
-    if (isImportedTab || isFavoritesTab) return localExtras
-    return EMPTY_EXTRAS
-  }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtrasWithPrice, newExtrasWithPrice, localExtras])
-
-  // In-memory metric sort for the Imported / Favorites tabs, whose only sortable column is "Price &
-  // 24h change" (Trending and New sort server-side). Rows are tiered so those missing the sorted
-  // metric always sink to the very bottom regardless of direction; for 24h change, priced-but-no-change
-  // rows sit above no-price rows.
-  const sortByMetric = useCallback(
-    (list: Currency[]): Currency[] => {
-      if (!sort) return list
-      const field = sort.field
-      const dir = sort.dir === 'asc' ? 1 : -1
-      const extraOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
-      const rankOf = (currency: Currency): number => {
-        const extra = extraOf(currency)
-        if (field !== 'priceChange24h') return extra?.[field] !== undefined ? 0 : 1
-        if (extra?.priceChange24h !== undefined) return 0
-        if (extra?.price) return 1
-        return 2
-      }
-      return [...list].sort((a, b) => {
-        const ra = rankOf(a)
-        const rb = rankOf(b)
-        if (ra !== rb) return ra - rb
-        if (ra !== 0) return 0
-        const va = extraOf(a)?.[field] ?? 0
-        const vb = extraOf(b)?.[field] ?? 0
-        return (va - vb) * dir
-      })
-    },
-    [sort, listExtras],
-  )
-
-  // The Favorites tab's natural order is descending FDV; tokens with no FDV sink to the bottom.
-  const sortByFdv = useCallback(
-    (list: Currency[]): Currency[] => {
-      const fdvOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.fdv
-      return [...list].sort((a, b) => {
-        const ca = fdvOf(a)
-        const cb = fdvOf(b)
-        if (ca === undefined && cb === undefined) return 0
-        if (ca === undefined) return 1
-        if (cb === undefined) return -1
-        return cb - ca
-      })
-    },
-    [listExtras],
-  )
-
-  const visibleCurrencies: Currency[] = useMemo(() => {
-    switch (activeTab) {
-      // Trending and New both sort server-side (24h change / volume via the catalog API's `sort` param).
-      case TokenSelectorTab.Trending:
-        return trendingCurrencies
-      case TokenSelectorTab.New:
-        return newCurrenciesBase
-      case TokenSelectorTab.Imported:
-        return sortByMetric(importedCurrenciesBase)
-      // Favorites default to FDV desc; a clicked sort header (24h change) overrides that.
-      case TokenSelectorTab.Favorites:
-        return sort ? sortByMetric(favoriteCurrenciesBase) : sortByFdv(favoriteCurrenciesBase)
-      case TokenSelectorTab.All:
-      default:
-        return allTabTokens
-    }
-  }, [
-    activeTab,
-    trendingCurrencies,
-    newCurrenciesBase,
-    importedCurrenciesBase,
-    favoriteCurrenciesBase,
-    allTabTokens,
-    sort,
-    sortByMetric,
-    sortByFdv,
-  ])
-
-  // Show skeleton rows while a tab's whole list is loading from the API.
-  const isListLoading =
-    (isAllTab && (debouncedQuery ? isLoadingTokenSearch : Object.keys(defaultTokens).length === 0)) ||
-    (isNewTab && newLoading && !newTokens.length) ||
-    (isTrendingTab && trendingLoading && !trendingTokens.length)
-
-  // Reported only once a pick actually reaches the consumer, so a selection blocked by the restricted
-  // check or still awaiting its chain-switch confirm doesn't count. Shared by every entry point — row
-  // click, quick-select, Enter, and the cross-chain confirm — so they all land the same shape.
-  const trackTokenSelected = useCallback(
-    (currency: Currency, needsChainSwitch: boolean, method: TokenSelectionMethod) => {
-      const address = currency.wrapped.address
-      const rowIndex = visibleCurrencies.findIndex(item => item.wrapped.address === address)
-      trackingHandler(TRACKING_EVENT_TYPE.TS_TOKEN_SELECTED, {
-        source: trackingSource,
-        tab: activeTab,
-        token_symbol: currency.symbol,
-        token_address: isTokenNative(currency) ? 'NATIVE' : address,
-        chain: NETWORKS_INFO[currency.chainId].name,
-        chain_id: currency.chainId,
-        // Absent when the pick came from quick-select or the other-chain group rather than the list.
-        row_index: rowIndex >= 0 ? rowIndex : undefined,
-        is_search_result: !!debouncedQuery,
-        selection_method: method,
-        needs_chain_switch: needsChainSwitch,
-      })
-    },
-    [activeTab, debouncedQuery, trackingHandler, trackingSource, visibleCurrencies],
-  )
-
-  // Carries how a cross-chain pick was initiated across the deferred Switch-Chain confirm so it reports
-  // the same selection_method the immediate (same-chain) path would have.
-  const pendingSelectMethodRef = useRef<TokenSelectionMethod>('browse')
-  const handleCurrencySelect = useCallback(
-    (currency: Currency, method?: TokenSelectionMethod) => {
-      const resolved = isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency
-      // Quick-select pills pass their method explicitly; every other entry point (row click, Enter,
-      // other-chain group) is browsing unless a search is active.
-      const selectionMethod: TokenSelectionMethod = method ?? (debouncedQuery ? 'search' : 'browse')
-      // Restricted in the user's jurisdiction — block selection and keep the modal open with a notice.
-      if (isTokenRestricted(resolved)) {
-        notifyRestrictedToken(resolved)
-        return
-      }
-      // Cross-chain forms own their chain state, so update that form and select immediately without
-      // switching the connected app/wallet chain. Other surfaces keep the existing confirm flow.
-      if (resolved.chainId !== anchorChainId) {
-        if (onSelectChain) {
-          trackTokenSelected(resolved, true, selectionMethod)
-          onSelectChain(resolved.chainId)
-          onCurrencySelect?.(resolved)
-          onDismiss?.()
-          return
-        }
-        pendingSelectMethodRef.current = selectionMethod
-        setSwitchChainToken(resolved)
-        return
-      }
-      trackTokenSelected(resolved, false, selectionMethod)
-      onCurrencySelect?.(resolved)
-      onDismiss?.()
-    },
-    [
-      anchorChainId,
-      debouncedQuery,
-      onCurrencySelect,
-      onDismiss,
-      isTokenRestricted,
-      notifyRestrictedToken,
-      trackTokenSelected,
-      onSelectChain,
-    ],
-  )
-
-  // Once the switch lands the app sits on the token's chain, so the selector follows it there and an
-  // unlisted token still has to clear the import gate before it can be picked.
-  const importAfterSwitchRef = useRef(false)
-  const handleSelectAfterSwitch = useCallback(
-    (token: Currency) => {
-      setSelectedChainId(token.chainId)
-      if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
-        importAfterSwitchRef.current = true
-        onImportToken?.(token.wrapped)
-        return
-      }
-      onCurrencySelect?.(token)
-    },
-    [isTokenImported, onCurrencySelect, onImportToken],
-  )
-  // The import view lives inside this same modal, so a hand-off to it keeps the modal open.
-  const handleDismissAfterSwitch = useCallback(() => {
-    if (importAfterSwitchRef.current) {
-      importAfterSwitchRef.current = false
-      return
-    }
-    onDismiss?.()
-  }, [onDismiss])
-
-  // On confirm, switch to the token's chain and select it once the switch lands (see the hook — it
-  // defers the selection past the network-param sync that would otherwise reset the pair to defaults).
-  const { switchChainAndSelect, resetPending } = usePendingCrossChainSelect(
-    handleSelectAfterSwitch,
-    handleDismissAfterSwitch,
-  )
-  const confirmSwitchChain = useCallback(() => {
-    if (!switchChainToken) return
-    const token = switchChainToken
-    setSwitchChainToken(null)
-    trackTokenSelected(token, true, pendingSelectMethodRef.current)
-    switchChainAndSelect(token)
-  }, [switchChainToken, switchChainAndSelect, trackTokenSelected])
-
-  // A hit in the "other chains" group is other-chain only relative to the chain selector, which the
-  // wallet need not be on — so the token can well sit on the app's own chain. Hand off to the row select
-  // path, which gates on the app chain and so asks for a network switch only when one is really needed.
-  const handleOtherChainSelect = useCallback(
-    (token: WrappedTokenInfo) => {
-      // A pick that needs the app on another chain answers the Switch Chain confirm first — the import
-      // gate belongs to the chain the app lands on, and nothing here moves until the user agrees: aiming
-      // the selector early would strand the row in that chain's list with its Switch Chain button gone.
-      if (token.chainId !== anchorChainId && !onSelectChain) {
-        handleCurrencySelect(token)
-        return
-      }
-      setSelectedChainId(token.chainId)
-      if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
-        onImportToken?.(token.wrapped)
-        return
-      }
-      handleCurrencySelect(token)
-    },
-    [anchorChainId, handleCurrencySelect, isTokenImported, onImportToken, onSelectChain],
-  )
-
-  const handleTabChange = useCallback(
-    (tab: TokenSelectorTab) => {
-      setActiveTab(tab)
-      trackingHandler(TRACKING_EVENT_TYPE.TS_TAB_SELECTED, {
-        source: trackingSource,
-        tab,
-        previous_tab: activeTab,
-        chain: NETWORKS_INFO[primaryChainId].name,
-        chain_id: primaryChainId,
-      })
-    },
-    [activeTab, primaryChainId, trackingHandler, trackingSource],
-  )
-
-  const handleChainChange = useCallback(
-    (chainId: ChainId) => {
-      setSelectedChainId(chainId)
-      trackingHandler(TRACKING_EVENT_TYPE.TS_CHAIN_SWITCHED, {
-        source: trackingSource,
-        from_chain: NETWORKS_INFO[selectedChainId].name,
-        from_chain_id: selectedChainId,
-        to_chain: NETWORKS_INFO[chainId].name,
-        to_chain_id: chainId,
-        tab: activeTab,
-      })
-    },
-    [activeTab, selectedChainId, trackingHandler, trackingSource],
-  )
-
-  const handleInput = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const input = event.target.value
-      const checksumInput = isAddress(primaryChainId, input)
-      setSearchQuery(checksumInput || input)
-      if (listTokenRef?.current) listTokenRef.current.scrollTop = 0
-    },
-    [primaryChainId],
-  )
-
-  // Catalog metadata (name, logo) for the unlisted holdings being looked at, and only those: a
-  // spam-heavy wallet can hold hundreds, and the modal should not spend its opening on them. Before
-  // the chain's list lands every held token classifies as unlisted, so the ask waits for it.
-  const handleRowsRendered = useCallback(
-    (rows: Currency[]) => {
-      if (!unlistedAddresses?.size || !isTokenListReady(defaultTokens, tokenImports)) return
-      const addresses = rows.flatMap(currency =>
-        currency.isToken && unlistedAddresses.has(currency.address) ? [currency.address] : [],
-      )
-      if (addresses.length) void ensureTokenMetadata(primaryChainId, addresses)
-    },
-    [unlistedAddresses, defaultTokens, tokenImports, primaryChainId],
-  )
-
-  const handleEnter = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key !== 'Enter') return
-      const s = searchQuery.toLowerCase().trim()
-      const native = NativeCurrencies[primaryChainId]
-      if (s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) {
-        handleCurrencySelect(native)
-        return
-      }
-      const totalToken = visibleCurrencies.length
-      if (totalToken && (visibleCurrencies[0].symbol?.toLowerCase() === s || totalToken === 1)) {
-        const candidate = visibleCurrencies[0]
-        // A token flagged as borrowing a whitelisted symbol is never picked blind: its row carries
-        // the warning, so it has to be clicked with that in view.
-        if (candidate.isToken && impersonators.has(candidate.address)) return
-        // Honor the same import gate the row click enforces: a non-whitelisted result opens the
-        // import-warning screen instead of being selected directly.
-        if (
-          getNeedsImport(candidate, address => tokenImports.some(token => token.address === address), !!onImportToken)
-        ) {
-          onImportToken?.(candidate.wrapped)
-          return
-        }
-        handleCurrencySelect(candidate)
-      }
-    },
-    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken, impersonators],
-  )
-
-  const handleClickFavorite = useCallback(
-    (event: MouseEvent, currency: Currency) => {
-      event.stopPropagation()
-      // The native currency is favorited under its sentinel address. Its wrapped address is a real,
-      // different token: toggling that would add or remove the wrapped token's own pin.
-      const address = isTokenNative(currency) ? ETHER_ADDRESS : currency.wrapped.address
-      if (!address) return
-      toggleFavoriteToken({ chainId: currency.chainId, address })
-    },
-    [toggleFavoriteToken],
-  )
-
-  const fetchListTokens = useCallback(async () => {
-    if (!hasNextPage || isFetchingTokenSearch) return
-    await fetchNextPage()
-  }, [fetchNextPage, hasNextPage, isFetchingTokenSearch])
-
-  // Infinite scroll: All-tab search paginates via the search query; Trending paginates its KyberScore list.
-  const listHasMore = (isAllTab && !!hasNextPage) || (isTrendingTab && trendingHasMore)
-  const handleLoadMore = useCallback(async () => {
-    if (isTrendingTab) {
-      if (trendingHasMore) fetchMoreTrending()
-      return
-    }
-    if (isAllTab) await fetchListTokens()
-  }, [isTrendingTab, isAllTab, trendingHasMore, fetchMoreTrending, fetchListTokens])
-
-  // Tracks the current chain so an in-flight fetchPinnedTokens started before a chain switch can bail
-  // out instead of overwriting pinnedTokens with the previous chain's (now filtered-out) tokens.
-  const pinnedChainRef = useRef(primaryChainId)
-  pinnedChainRef.current = primaryChainId
-  // Monotonic id so two concurrent same-chain fetches (rapid star/unstar) can't let a slow one
-  // overwrite the newest result — the chain guard alone can't distinguish them.
-  const pinnedReqIdRef = useRef(0)
-
-  const fetchPinnedTokens = useCallback(async () => {
-    const requestedChainId = primaryChainId
-    const reqId = ++pinnedReqIdRef.current
-    try {
-      if (!Object.keys(defaultTokens).length) return
-      // Lowercased address → token, so each favorite is an O(1) lookup instead of scanning the whole map.
-      const byAddress = new Map<string, Token | Currency>()
-      Object.entries(defaultTokens).forEach(([address, token]) => byAddress.set(address.toLowerCase(), token))
-
-      const result: (Token | Currency)[] = []
-      const addressesToFetch: string[] = []
-      favoriteTokens?.forEach(address => {
-        const token = byAddress.get(address.toLowerCase())
-        if (token) result.push(token)
-        else addressesToFetch.push(address)
-      })
-
-      let resolved = result
-      if (addressesToFetch.length) {
-        const tokens = await fetchListTokenByAddresses(addressesToFetch, primaryChainId)
-        // Sort the returned token list to match the order of the passed address list.
-        resolved = result.concat(
-          tokens.sort(
-            (x, y) => addressesToFetch.indexOf(x.wrapped.address) - addressesToFetch.indexOf(y.wrapped.address),
-          ),
-        )
-      }
-      // Commit only if this is still the newest invocation and the chain hasn't changed.
-      if (reqId !== pinnedReqIdRef.current || pinnedChainRef.current !== requestedChainId) return
-      setPinnedTokens(resolved)
-    } catch {
-      // Pinned tokens are a convenience row; on failure keep the previous set rather than clearing it.
-    }
-  }, [primaryChainId, favoriteTokens, defaultTokens])
-
-  const removeImportedToken = useCallback(
-    (token: Token) => {
-      removeToken(primaryChainId, token.address)
-      if (favoriteTokens?.some(el => el.toLowerCase() === token.address.toLowerCase()))
-        toggleFavoriteToken({
-          chainId: primaryChainId,
-          address: token.address,
-        })
-    },
-    [primaryChainId, toggleFavoriteToken, removeToken, favoriteTokens],
-  )
-
-  useEffect(() => {
-    if (isOpen) {
-      setSearchQuery('')
-      setSelectedChainId(anchorChainId)
-      setActiveTab(defaultTab)
-      resetPending()
-      if (!isMobile) inputRef.current?.focus()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen])
-
-  // Keep the active tab valid when the selected chain drops Trending support.
-  useEffect(() => {
-    if (!visibleTabs.includes(activeTab)) setActiveTab(TokenSelectorTab.All)
-  }, [visibleTabs, activeTab])
-
-  // Reset the column sort to a tab's natural order whenever the tab or chain changes. Also drop any
-  // pending sort animation so a sort click that never committed can't leak a stray fade onto the next tab.
-  useEffect(() => {
-    setSort(null)
-    pendingSortAnim.current = false
-  }, [activeTab, primaryChainId])
-
-  // Reset scroll to the top of the list on a deliberate context switch (tab or chain change).
-  // Sort-driven scroll resets happen in the crossfade effect below, timed to the re-sorted rows.
-  useEffect(() => {
-    if (listTokenRef.current) listTokenRef.current.scrollTop = 0
-  }, [activeTab, primaryChainId])
-
-  // When a user-triggered sort actually reorders the rows, scroll back to the top and crossfade the
-  // list. Watching `visibleCurrencies` runs this on the tick the new order becomes visible, so both
-  // the scroll reset and the fade land with the sorted rows — never on the old rows before
-  // Trending's async re-fetch resolves (which would jump a scrolled list before the data updates).
-  useEffect(() => {
-    if (!pendingSortAnim.current) return
-    pendingSortAnim.current = false
-    if (listTokenRef.current) listTokenRef.current.scrollTop = 0
-    if (prefersReducedMotion) return
-    listAnimation.start({ opacity: [0.4, 1], transition: { duration: 0.25, ease: 'easeOut' } })
-  }, [visibleCurrencies, prefersReducedMotion, listAnimation])
-
-  // Full server/RPC token search only runs on the All tab, so route any search there — otherwise a
-  // search on Trending/New/etc. would only local-filter that tab's list and miss searchable tokens.
-  // Remember the tab we came from so clearing the search returns there instead of stranding on All.
-  const preSearchTabRef = useRef<TokenSelectorTab | null>(null)
-  useEffect(() => {
-    if (debouncedQuery) {
-      if (preSearchTabRef.current === null) preSearchTabRef.current = activeTab
-      setActiveTab(TokenSelectorTab.All)
-    } else if (preSearchTabRef.current !== null) {
-      setActiveTab(preSearchTabRef.current)
-      preSearchTabRef.current = null
-    }
-    // Query-driven only; reads activeTab as a snapshot without re-running on tab changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery])
-
-  useEffect(() => {
-    fetchPinnedTokens()
-  }, [fetchPinnedTokens])
-
-  useEffect(() => {
-    if (!trackingDebouncedQuery || !trackingSource) return
-    trackingHandler(TRACKING_EVENT_TYPE.TS_SEARCHED, {
-      source: trackingSource,
-      search_query: trackingDebouncedQuery,
-      chain: NETWORKS_INFO[primaryChainId].name,
-      chain_id: primaryChainId,
-      is_address: !!isAddress(primaryChainId, trackingDebouncedQuery),
-    })
-  }, [trackingDebouncedQuery, trackingSource, primaryChainId, trackingHandler])
-
   const subtitle = getTabSubtitle(activeTab)
   const emptyMessage =
     activeTab === TokenSelectorTab.Trending ? (
@@ -1189,7 +259,7 @@ export const TokenSelectorContent = ({
               <PinnedTokens
                 tokens={quickSelectTokens}
                 onToggleFavorite={handleClickFavorite}
-                onSelect={token => handleCurrencySelect(token, 'quick_select_pill')}
+                onSelect={currency => requestSelect(currency, 'quick_select_pill')}
                 selectedCurrency={selectedCurrency}
               />
             </div>
@@ -1198,7 +268,6 @@ export const TokenSelectorContent = ({
 
         {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={handleTabChange} />}
       </PaddedColumn>
-
       <div
         key={activeTab}
         role="tabpanel"
@@ -1208,76 +277,45 @@ export const TokenSelectorContent = ({
         {subtitle && <div className="px-5 pb-1 pt-3 text-sm text-subText">{subtitle}</div>}
 
         {(visibleCurrencies.length > 0 || isListLoading) && (
-          <HStack className="items-center px-5 pb-2 pt-3 text-xs font-medium uppercase text-gray">
-            <span className="flex-1">
-              <Trans>Token</Trans>
-            </span>
-            <HStack className="shrink-0 items-center gap-3">
-              {!isAllTab && (
-                <MouseoverTooltip
-                  placement="top"
-                  width="fit-content"
-                  style={{ zIndex: Z_INDEXS.MODAL }}
-                  text={<Trans>Price & 24h change</Trans>}
-                >
-                  <SortHeader
-                    label={<Trans>Price</Trans>}
-                    field="priceChange24h"
-                    sort={sort}
-                    onSort={cycleSort}
-                    className="w-[72px] sm:w-[132px]"
-                  />
-                </MouseoverTooltip>
-              )}
-              {isTrendingTab || isNewTab ? (
-                <MetricColumnHeader
-                  metric={metricColumn}
-                  onMetricChange={changeMetricColumn}
-                  sort={sort}
-                  onSort={cycleSort}
-                />
-              ) : (
-                <span className={cn('flex items-center justify-end', BALANCE_COLUMN_CLASS)}>
-                  <Trans>Balance</Trans>
-                </span>
-              )}
-              {/* Spacer aligning the header with the imported rows' remove-token column. */}
-              {isImportedTab && <span className="w-6 shrink-0" aria-hidden="true" />}
-            </HStack>
-          </HStack>
+          <TokenListHeader
+            activeTab={activeTab}
+            metricColumn={metricColumn}
+            sort={sort}
+            onSort={cycleSort}
+            onMetricChange={changeMetricColumn}
+          />
         )}
 
         <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
           {isListLoading ? (
             <TokenListSkeleton />
-          ) : visibleCurrencies?.length > 0 ? (
+          ) : visibleCurrencies.length > 0 ? (
             <TokenList
               listTokenRef={listTokenRef}
-              onRowsRendered={handleRowsRendered}
-              waitingForBalances={waitingForBalances}
-              onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
+              customChainId={selectedChainId}
               currencies={visibleCurrencies}
-              onToggleFavorite={handleClickFavorite}
-              onCurrencySelect={handleCurrencySelect}
-              otherCurrency={otherSelectedCurrency}
-              scaleERC8056Balances={scaleERC8056Balances}
-              selectedCurrency={selectedCurrency}
-              onImportToken={onImportToken}
-              loadMoreRows={handleLoadMore}
-              hasMore={listHasMore}
-              customChainId={primaryChainId}
               balances={balances}
               nativeBalance={nativeBalance}
               extras={listExtras}
+              impersonators={impersonators}
+              heldAddresses={heldAddresses}
+              waitingForBalances={waitingForBalances}
+              selectedCurrency={selectedCurrency}
+              otherCurrency={otherSelectedCurrency}
+              scaleERC8056Balances={scaleERC8056Balances}
+              loadMoreRows={handleLoadMore}
+              hasMore={listHasMore}
+              onRowsRendered={handleRowsRendered}
+              onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
+              onToggleFavorite={handleClickFavorite}
+              onCurrencySelect={currency => requestSelect(currency)}
+              onImportToken={token => requestSelect(token, undefined, 'import')}
+              onShowTokenInfo={onShowTokenInfo}
               showAddress={isAllTab}
               showCopyAddress={!isAllTab}
               showPriceColumn={!isAllTab}
               metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
-              // While searching, surface the Import button (not the dimmed row) for non-whitelisted hits.
               importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
-              impersonators={impersonators}
-              heldAddresses={heldAddresses}
-              onShowTokenInfo={onShowTokenInfo}
             />
           ) : (
             <Stack className="min-h-0 flex-1">
@@ -1287,7 +325,7 @@ export const TokenSelectorContent = ({
                   loading={isCheckingOtherChains}
                   loadingFallback={<SearchLoading />}
                   anchorChainId={anchorChainId}
-                  onSelect={handleOtherChainSelect}
+                  onSelect={currency => requestSelect(currency)}
                 />
               ) : (
                 <NoResult message={debouncedQuery ? undefined : emptyMessage} />
@@ -1300,12 +338,6 @@ export const TokenSelectorContent = ({
       <div className="px-5 py-3 text-left text-xs italic text-subText">
         <Trans>On-chain data for informational purposes only. Not financial advice.</Trans>
       </div>
-
-      <SwitchChainModal
-        token={switchChainToken}
-        onDismiss={() => setSwitchChainToken(null)}
-        onConfirm={confirmSwitchChain}
-      />
     </ContentWrapper>
   )
 }
