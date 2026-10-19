@@ -34,13 +34,13 @@ const TAB_META: Record<TokenSelectorTab, TabMeta> = {
   },
   [TokenSelectorTab.New]: {
     icon: NewIcon,
-    iconColor: 'text-[#FBB324]',
+    iconColor: '',
     label: <Trans>New</Trans>,
     subtitle: <Trans>Recently whitelisted on KyberSwap</Trans>,
   },
   [TokenSelectorTab.Imported]: {
     icon: ImportedIcon,
-    iconColor: 'text-primary',
+    iconColor: '',
     label: <Trans>Imported</Trans>,
     subtitle: <Trans>Your custom imported tokens</Trans>,
   },
@@ -73,11 +73,7 @@ type TabBarProps = {
 
 export const TabBar = memo(({ tabs, activeTab, onChange }: TabBarProps) => {
   return (
-    <HStack
-      role="tablist"
-      aria-label="Token lists"
-      className="ks-scrollbar mt-1 gap-x-4 overflow-x-auto border-b border-white-08"
-    >
+    <HStack role="tablist" aria-label="Token lists" className="ks-scrollbar overflow-x-auto border-b border-white-08">
       {tabs.map(tab => {
         const { icon: Icon, iconColor, label } = TAB_META[tab]
         const isActive = tab === activeTab
@@ -92,9 +88,9 @@ export const TabBar = memo(({ tabs, activeTab, onChange }: TabBarProps) => {
             data-testid={`tab-${tab}`}
             onClick={() => onChange(tab)}
             className={cn(
-              '-mb-px flex shrink-0 items-center gap-1 border-b-2 pb-2 text-sm font-medium transition-colors',
-              'focus-visible:outline-none',
-              isActive ? 'border-primary text-primary' : 'border-transparent text-text',
+              'flex shrink-0 cursor-pointer items-center gap-0.5 rounded-t-lg border-b-2 px-2 py-1.5 text-sm font-medium transition-colors duration-150',
+              'hover:bg-white-04 focus-visible:bg-white-04 focus-visible:outline-none',
+              isActive ? 'border-primary text-primary' : 'border-transparent text-subText',
             )}
           >
             <Icon className={cn('size-4 shrink-0', iconColor)} />
