@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
+import type { Chain } from 'pages/CrossChainSwap/adapters/types'
 
 /** Extra per-row metadata shown next to a token depending on the active tab. */
 export type TokenRowExtra = {
@@ -47,3 +48,5 @@ export type TokenSelectionContext = {
 export type TokenSearchFilters = {
   oracleTokenFilter?: string
 }
+export type TokenSelectorNetwork = { chainId: Chain; name: string; icon: string }
+

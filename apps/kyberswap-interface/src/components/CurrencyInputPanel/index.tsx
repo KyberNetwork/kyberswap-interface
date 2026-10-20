@@ -12,7 +12,9 @@ import Wallet from 'components/Icons/Wallet'
 import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import TokenSelectorModal from 'components/TokenSelectorModal'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -276,6 +278,7 @@ const AmountInputControls = ({
 }
 
 type CurrencySelectContentProps = {
+  showChain?: boolean
   currency?: Currency | null
   disableCurrencySelect: boolean
   fontSize?: string
@@ -288,6 +291,7 @@ type CurrencySelectContentProps = {
 }
 
 const CurrencySelectContent = ({
+  showChain,
   currency,
   disableCurrencySelect,
   fontSize,
@@ -306,7 +310,19 @@ const CurrencySelectContent = ({
   return (
     <Aligner className="gap-1">
       <RowFixed className="gap-2">
-        {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
+        {currency && !hideLogo ? (
+          <div className="relative shrink-0">
+            <CurrencyLogo currency={currency} size="20px" />
+            {showChain && (
+              <img
+                src={NETWORKS_INFO[currency.chainId].icon}
+                alt={NETWORKS_INFO[currency.chainId].name}
+                title={NETWORKS_INFO[currency.chainId].name}
+                className="absolute -bottom-1 -right-1 size-3 rounded border border-background"
+              />
+            )}
+          </div>
+        ) : null}
         <StyledTokenName
           tight={tight}
           className="token-symbol-container"
@@ -362,6 +378,8 @@ interface CurrencyInputPanelProps {
    */
   footer?: CurrencyInputPanelFooter
   positionLabel?: 'in' | 'out'
+  chainSelectionMode?: 'wallet' | 'form'
+  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
   currency?: Currency | null
@@ -400,7 +418,7 @@ interface CurrencyInputPanelProps {
   requireOracle?: boolean
 }
 
-export default function CurrencyInputPanel({
+const CurrencyInputPanel = ({
   value,
   error,
   onUserInput,
@@ -412,6 +430,8 @@ export default function CurrencyInputPanel({
   footer,
   positionLabel = 'out',
   onCurrencySelect,
+  chainSelectionMode,
+  onSelectNonEvmCurrency,
   onSwitchCurrency,
   onFocus,
   onClickSelect,
@@ -445,7 +465,7 @@ export default function CurrencyInputPanel({
   trackingSource,
   scaleERC8056Balances,
   requireOracle,
-}: CurrencyInputPanelProps) {
+}: CurrencyInputPanelProps) => {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
   const { account } = useActiveWeb3React()
@@ -526,6 +546,7 @@ export default function CurrencyInputPanel({
                 style={styleSelect}
               >
                 <CurrencySelectContent
+                  showChain={chainSelectionMode === 'form'}
                   currency={currency}
                   disableCurrencySelect={disableCurrencySelect}
                   fontSize={fontSize}
@@ -547,6 +568,8 @@ export default function CurrencyInputPanel({
             isOpen={modalOpen}
             onDismiss={handleDismissSearch}
             onCurrencySelect={onCurrencySelect}
+            chainSelectionMode={chainSelectionMode}
+            onSelectNonEvmCurrency={onSelectNonEvmCurrency}
             selectedCurrency={currency}
             otherSelectedCurrency={otherCurrency}
             scaleERC8056Balances={scaleERC8056Balances}
@@ -560,3 +583,5 @@ export default function CurrencyInputPanel({
     </div>
   )
 }
+
+export default CurrencyInputPanel

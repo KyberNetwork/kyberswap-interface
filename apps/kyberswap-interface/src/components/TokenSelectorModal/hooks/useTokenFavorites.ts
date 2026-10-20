@@ -11,6 +11,7 @@ export const useTokenFavorites = (primaryChainId: ChainId, defaultTokens: Return
   const removeToken = useRemoveUserAddedToken()
   const [pinnedTokens, setPinnedTokens] = useState<Currency[]>([])
   const favoriteAddressSet = useMemo(() => new Set(favoriteTokens ?? []), [favoriteTokens])
+
   const handleClickFavorite = useCallback(
     (event: MouseEvent, currency: Currency) => {
       event.stopPropagation()
@@ -81,5 +82,6 @@ export const useTokenFavorites = (primaryChainId: ChainId, defaultTokens: Return
   useEffect(() => {
     void fetchPinnedTokens()
   }, [fetchPinnedTokens])
+
   return { pinnedTokens, favoriteAddressSet, handleClickFavorite, removeImportedToken }
 }

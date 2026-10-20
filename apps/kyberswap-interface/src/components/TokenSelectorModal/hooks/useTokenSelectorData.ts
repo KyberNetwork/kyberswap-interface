@@ -35,6 +35,7 @@ type Props = {
   filterWrap: boolean
   otherSelectedCurrency?: Currency | null
 }
+
 export const useTokenSelectorData = ({
   primaryChainId,
   activeTab,
@@ -45,18 +46,24 @@ export const useTokenSelectorData = ({
   otherSelectedCurrency,
 }: Props) => {
   const { account } = useActiveWeb3React()
+
   const isAllTab = activeTab === TokenSelectorTab.All
   const isImportedTab = activeTab === TokenSelectorTab.Imported
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
   const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
+
   const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   const defaultTokens = useAllTokens(false, primaryChainId)
   const tokenImports = useUserAddedTokens(primaryChainId)
+
   const favorites = useTokenFavorites(primaryChainId, defaultTokens)
   const { pinnedTokens, favoriteAddressSet } = favorites
+
   const search = useTokenSearch(primaryChainId, debouncedQuery, isAllTab)
   const { tokenSearchResults, currentChainRpcToken } = search
+
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
       if (filterWrap && otherSelectedCurrency?.equals(WETH[primaryChainId])) {
@@ -264,12 +271,15 @@ export const useTokenSelectorData = ({
     importedCurrenciesBase,
     favoriteCurrenciesBase,
   })
+
   const { hasMore: tabHasMore, fetchMore: fetchMoreTab } = tabData
   const { fetchMore: fetchMoreSearch } = search
+
   const handleLoadMore = useCallback(async () => {
     if (isTrendingTab && tabHasMore) fetchMoreTab()
     else if (isAllTab) await fetchMoreSearch()
   }, [isTrendingTab, tabHasMore, fetchMoreTab, isAllTab, fetchMoreSearch])
+
   return {
     visibleCurrencies: isAllTab ? allTabTokens : tabData.currencies,
     listExtras: tabData.extras,

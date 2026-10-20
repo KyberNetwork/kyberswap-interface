@@ -24,7 +24,8 @@ export const BitcoinToken = {
 }
 
 export type Chain = ChainId | NonEvmChain
-export type Currency = EvmCurrency | NearToken | typeof BitcoinToken | SolanaToken
+export type NonEvmCurrency = NearToken | typeof BitcoinToken | SolanaToken
+export type Currency = EvmCurrency | NonEvmCurrency
 
 export const isEvmChain = (chain: Chain) => Object.values(ChainId).includes(chain)
 

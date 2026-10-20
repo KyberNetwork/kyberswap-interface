@@ -30,6 +30,7 @@ import useDebounce from 'hooks/useDebounce'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
@@ -57,6 +58,9 @@ export type SwapFormProps = {
 
   onChangeCurrencyIn: (c: Currency) => void
   onChangeCurrencyOut: (c: Currency) => void
+  onSelectNonEvmCurrencyIn?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
+  onSelectNonEvmCurrencyOut?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
+  chainSelectionMode?: 'wallet' | 'form'
   customChainId?: ChainId
   omniView?: boolean
 }
@@ -78,7 +82,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     permit,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
+    onSelectNonEvmCurrencyIn,
+    onSelectNonEvmCurrencyOut,
     customChainId,
+    chainSelectionMode,
     omniView,
   } = props
 
@@ -283,6 +290,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 balanceText={erc8056Info.input.balanceText}
                 highlightToken={erc8056Info.input.isScaled}
                 onChangeCurrencyIn={handleChangeCurrencyIn}
+                onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
+                chainSelectionMode={chainSelectionMode}
                 customChainId={customChainId}
               />
 
@@ -313,6 +322,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               balanceText={erc8056Info.output.balanceText}
               highlightToken={erc8056Info.output.isScaled}
               onChangeCurrencyOut={handleChangeCurrencyOut}
+              onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
+              chainSelectionMode={chainSelectionMode}
               customChainId={customChainId}
               routeLoading={routeLoading}
             />

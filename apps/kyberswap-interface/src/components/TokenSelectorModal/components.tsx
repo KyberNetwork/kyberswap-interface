@@ -1,18 +1,19 @@
 import { formatBalance } from '@kyber/utils/balance'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ComponentProps, ComponentPropsWithoutRef, forwardRef } from 'react'
-import { Search } from 'react-feather'
+import { ComponentProps, ComponentPropsWithoutRef, ReactNode, forwardRef } from 'react'
+import { Search, X } from 'react-feather'
 
 import Column, { AutoColumn } from 'components/Column'
 import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
+import { Stack } from 'components/Stack'
 import { BALANCE_MAX_LENGTH } from 'components/TokenSelectorModal/constants'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
-export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
-  const exact = balance.toExact()
+export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> | string }) => {
+  const exact = typeof balance === 'string' ? balance : balance.toExact()
 
   return (
     <span className="max-w-full truncate text-xs tabular-nums text-text sm:text-sm" title={exact}>
@@ -51,6 +52,21 @@ export const SearchWrapper = ({ className, ...props }: ComponentPropsWithoutRef<
 export const SearchIcon = ({ className, ...props }: ComponentProps<typeof Search>) => (
   <Search className={cn('absolute right-3 top-1/2 -translate-y-1/2', className)} {...props} />
 )
+
+export const SearchControl = ({ query, onClear }: { query: string; onClear: () => void }) =>
+  query ? (
+    <button
+      type="button"
+      aria-label="Clear search"
+      data-testid="clear-search"
+      onClick={onClear}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
+    >
+      <X size={16} />
+    </button>
+  ) : (
+    <SearchIcon size={18} className="text-gray" />
+  )
 
 export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
   ({ className, ...props }, ref) => (
@@ -103,5 +119,15 @@ export const AddressCopy = ({ chainId, address }: { chainId: ChainId; address: s
         </span>
       )}
     </span>
+  )
+}
+
+export const NoResult = ({ message }: { message?: ReactNode }) => {
+  return (
+    <Stack className="h-full p-5" data-testid="no-token-result">
+      <p className="whitespace-pre-line text-center text-sm font-medium text-text4">
+        {message || <Trans>No results found.</Trans>}
+      </p>
+    </Stack>
   )
 }
