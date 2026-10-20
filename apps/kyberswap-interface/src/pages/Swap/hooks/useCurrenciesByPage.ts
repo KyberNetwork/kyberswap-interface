@@ -34,10 +34,16 @@ export const useCurrenciesByPage = () => {
   const shareUrl = useMemo(() => {
     const path = `${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
       currencyIn && currencyOut
-        ? `?${new URLSearchParams({
-            inputCurrency: currencyId(currencyIn, chainId),
-            outputCurrency: currencyId(currencyOut, chainId),
-          }).toString()}`
+        ? `?${new URLSearchParams(
+            isSwapPage
+              ? {
+                  from: String(currencyIn.chainId),
+                  to: String(currencyOut.chainId),
+                  tokenIn: currencyId(currencyIn, currencyIn.chainId),
+                  tokenOut: currencyId(currencyOut, currencyOut.chainId),
+                }
+              : { inputCurrency: currencyId(currencyIn, chainId), outputCurrency: currencyId(currencyOut, chainId) },
+          ).toString()}`
         : ''
     }`
     return `${window.location.origin}${isCrossChainPage ? APP_PATHS.CROSS_CHAIN : path}`

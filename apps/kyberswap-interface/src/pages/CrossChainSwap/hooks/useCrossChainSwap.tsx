@@ -17,9 +17,9 @@ import { useCurrencyV2 } from 'hooks/useTokens'
 import { BitcoinToken, Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { kyberCrossSupportedChains } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
-import { isEvmChain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
-import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
+import { type NearToken, isEvmChain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { registry } from 'pages/CrossChainSwap/factory'
+import { useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
 import { getPairInfo } from 'pages/CrossChainSwap/quote/getPairInfo'
@@ -47,11 +47,6 @@ const getDefaultTokenForChain = (chain: string | null | undefined) => {
   if (chain && isEvmChain(+chain)) return NativeCurrencies[+chain as ChainId]?.symbol?.toLowerCase() || ''
   return ''
 }
-
-export const registry = new CrossChainSwapAdapterRegistry()
-CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
-  registry.registerAdapter(adapter)
-})
 
 const RegistryContext = createContext<
   | {

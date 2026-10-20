@@ -1,18 +1,19 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Fragment, type ReactNode } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import { isSupportLimitOrder } from 'constants/networks'
+import { NETWORKS_INFO, isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { prefetchCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { LimitTab } from 'pages/Swap/layout/LimitTab'
+import { useCurrencyFromUrl } from 'state/swap/hooks'
 import { cn } from 'utils/cn'
 import { isSwapLikePath } from 'utils/routes'
 
@@ -63,9 +64,10 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const crossChainIntent = usePrefetchOnIntent(prefetchCrossChainSwap)
-  const chainId = customChainId || walletChainId
-
-  const { currency: currencyParam } = useParams()
+  const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
+  const sameChain = typeof inputChain === 'number' && inputChain === outputChain
+  const chainId = customChainId || (sameChain ? inputChain : walletChainId)
+  const currencyParam = sameChain ? `${fromCurrency}-to-${toCurrency}` : ''
 
   const { pathname, isEmbeddedSwap } = usePageLocation()
 
@@ -105,7 +107,9 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
       pathname:
         tab === TAB.CROSS_CHAIN
           ? APP_PATHS.CROSS_CHAIN
-          : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}/${currencyParam || ''}`,
+          : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${
+              NETWORKS_INFO[chainId]?.route || networkInfo.route
+            }/${currencyParam || ''}`,
     })
   }
 

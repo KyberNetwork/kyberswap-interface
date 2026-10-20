@@ -410,7 +410,7 @@ export function useCurrencyV2(currencyId: string | undefined, customChainId?: Ch
     ? whitelistTokens[currencyId] || whitelistTokens[currencyId?.toLowerCase()]
     : undefined
 
-  const { data: token } = ksSettingApi.useGetTokenByAddressQuery(
+  const { currentData: token } = ksSettingApi.useGetTokenByAddressQuery(
     { address: isAddress(chainId, currencyId) || '', chainId },
     { skip: chainId === ChainId.ABSTRACT || isETH || !!tokenInWhitelist || !isAddress(chainId, currencyId) },
   )

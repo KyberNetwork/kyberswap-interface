@@ -14,7 +14,7 @@ import {
   type NormalizedTxResponse,
   type SwapStatus,
 } from 'pages/CrossChainSwap/adapters/types'
-import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { registry } from 'pages/CrossChainSwap/factory'
 import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useNotify } from 'state/application/hooks'
 import { useCrossChainTransactions } from 'state/crossChainSwap'

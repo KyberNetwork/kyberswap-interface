@@ -35,14 +35,16 @@ export const TokenInfoButton = ({ onClick, size }: TokenInfoButtonProps) => (
 type HeaderRightMenuProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
+  isCrossChainMode?: boolean
   activeMainTab?: TAB
 }
 
-export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
+export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab, isCrossChainMode }: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
   const isSwapPage = isSwapLikePath(pathname) || activeMainTab === TAB.SWAP
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
+  const isCrossChainPage =
+    isCrossChainMode || pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
   const defaultTab =
     activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)
 

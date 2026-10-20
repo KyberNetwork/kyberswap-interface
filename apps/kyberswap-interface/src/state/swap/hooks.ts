@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { APP_PATHS, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
@@ -18,7 +18,8 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress } from 'utils/address'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
-import { getSwapIntentFromPath, resolveSwapIntentPair } from 'utils/routes'
+import { getSwapIntentFromPath, isSwapLikePath, resolveSwapIntentPair } from 'utils/routes'
+import { getSwapChains } from 'utils/swapFlow'
 
 interface ParsedUrlQuery {
   [key: string]: string | string[]
@@ -250,8 +251,12 @@ export const useCurrencyFromUrl = () => {
   const { chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const { currency: currencyParam, token: tokenParam } = useParams()
+  const [params] = useSearchParams()
+  const isSwapPage =
+    isSwapLikePath(pathname) || pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
+  const { fromChain, toChain } = getSwapChains(isSwapPage ? params : new URLSearchParams(), chainId)
 
-  return useMemo(() => {
+  const pathPair = useMemo(() => {
     const swapIntent = getSwapIntentFromPath(pathname)
     const nativeToken = NativeCurrencies[chainId]
     const stableCounterSymbol = STABLE_TOKENS[chainId]?.symbol
@@ -291,11 +296,33 @@ export const useCurrencyFromUrl = () => {
       toCurrency: toCurrency || defaultOutput,
     }
   }, [chainId, currencyParam, pathname, tokenParam])
+
+  return {
+    fromCurrency: isSwapPage
+      ? params.get('tokenIn') ??
+        (params.has('from')
+          ? typeof fromChain === 'number'
+            ? NativeCurrencies[fromChain].symbol || ''
+            : ''
+          : pathPair.fromCurrency)
+      : pathPair.fromCurrency,
+    toCurrency: isSwapPage
+      ? params.get('tokenOut') ??
+        (params.has('to')
+          ? typeof toChain === 'number'
+            ? NativeCurrencies[toChain].symbol || ''
+            : ''
+          : pathPair.toCurrency)
+      : pathPair.toCurrency,
+    inputChain: fromChain,
+    outputChain: toChain,
+  }
 }
 
-const useCurrencyById = (currencyId: string) => {
-  const { chainId } = useActiveWeb3React()
-  const allTokens = useAllTokens()
+const useCurrencyById = (currencyId: string, selectedChain: ReturnType<typeof getSwapChains>['fromChain']) => {
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = typeof selectedChain === 'number' ? selectedChain : walletChainId
+  const allTokens = useAllTokens(false, chainId)
   const defaultOutputToken = DEFAULT_OUTPUT_TOKENS[chainId]
   const stableCounterToken = STABLE_TOKENS[chainId]
   const normalizedCurrencyId = currencyId.toLowerCase()
@@ -307,7 +334,7 @@ const useCurrencyById = (currencyId: string) => {
     )
   }, [allTokens, normalizedCurrencyId])
 
-  const currency = useCurrencyV2(token ? token.address : currencyId)
+  const currency = useCurrencyV2(token ? token.address : currencyId, chainId)
   const mappedToken = [defaultOutputToken, stableCounterToken].find(item => {
     return (
       item &&
@@ -315,12 +342,20 @@ const useCurrencyById = (currencyId: string) => {
     )
   })
 
-  return currency || mappedToken
+  if (typeof selectedChain !== 'number') return undefined
+  const requestedId = token?.address.toLowerCase() || normalizedCurrencyId
+  const matchesNative =
+    currency?.equals(NativeCurrencies[chainId]) &&
+    [NativeCurrencies[chainId].symbol?.toLowerCase(), 'eth', ETHER_ADDRESS.toLowerCase()].includes(requestedId)
+  return currency?.chainId === selectedChain &&
+    (currency.wrapped.address.toLowerCase() === requestedId || matchesNative)
+    ? currency
+    : mappedToken
 }
 
 export const useInputCurrency = () => {
-  const { fromCurrency } = useCurrencyFromUrl()
-  return useCurrencyById(fromCurrency)
+  const { fromCurrency, inputChain } = useCurrencyFromUrl()
+  return useCurrencyById(fromCurrency, inputChain)
 }
 
 /**
@@ -333,9 +368,9 @@ const isSamePair = (input: Currency | null | undefined, output: Currency | null 
   !!input && !!output && input.equals(output)
 
 export const useOutputCurrency = () => {
-  const { fromCurrency, toCurrency } = useCurrencyFromUrl()
-  const inputCurrency = useCurrencyById(fromCurrency)
-  const outputCurrency = useCurrencyById(toCurrency)
+  const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
+  const inputCurrency = useCurrencyById(fromCurrency, inputChain)
+  const outputCurrency = useCurrencyById(toCurrency, outputChain)
   // Dropped rather than replaced with the chain's default output, which on such a chain is that
   // same token and would land right back here.
   return isSamePair(inputCurrency, outputCurrency) ? undefined : outputCurrency
@@ -350,12 +385,12 @@ export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
 
   const { data } = useCheckPairQuery(
     {
-      chainId: customChainId || chainId,
+      chainId: customChainId || inputCurrency?.chainId || chainId,
       tokenIn: inputAddress || '',
       tokenOut: outputAddress || '',
     },
     {
-      skip: !inputAddress || !outputAddress,
+      skip: !inputAddress || !outputAddress || inputCurrency?.chainId !== outputCurrency?.chainId,
     },
   )
 
@@ -380,11 +415,14 @@ export const useDefaultSlippageByPair = (customChainId?: ChainId) => {
 
 export const useCheckStablePairSwap = () => {
   const { chainId } = useActiveWeb3React()
-  const { isStableCoin } = useStableCoins(chainId)
   const inputCurrency = useInputCurrency()
   const outputCurrency = useOutputCurrency()
+  const { isStableCoin } = useStableCoins(inputCurrency?.chainId || chainId)
 
-  const isStablePairSwap = isStableCoin(inputCurrency?.wrapped.address) && isStableCoin(outputCurrency?.wrapped.address)
+  const isStablePairSwap =
+    inputCurrency?.chainId === outputCurrency?.chainId &&
+    isStableCoin(inputCurrency?.wrapped.address) &&
+    isStableCoin(outputCurrency?.wrapped.address)
 
   return isStablePairSwap
 }
@@ -392,14 +430,16 @@ export const useCheckStablePairSwap = () => {
 export const useSwitchPairToLimitOrder = () => {
   const navigate = useNavigate()
 
-  const inputCurrencyId = useInputCurrency()?.wrapped.address
+  const inputCurrency = useInputCurrency()
+  const inputCurrencyId = inputCurrency?.wrapped.address
   const outputCurrencyId = useOutputCurrency()?.wrapped.address
 
   const { networkInfo } = useActiveWeb3React()
 
+  const route = NETWORKS_INFO[inputCurrency?.chainId || networkInfo.chainId]?.route || networkInfo.route
   return useCallback(
-    () => navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${inputCurrencyId}-to-${outputCurrencyId}`),
-    [networkInfo, inputCurrencyId, outputCurrencyId, navigate],
+    () => navigate(`${APP_PATHS.LIMIT}/${route}/${inputCurrencyId}-to-${outputCurrencyId}`),
+    [route, inputCurrencyId, outputCurrencyId, navigate],
   )
 }
 

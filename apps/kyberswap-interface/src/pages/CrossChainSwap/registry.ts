@@ -1,4 +1,4 @@
-import type { NormalizedQuote, SwapProvider } from 'pages/CrossChainSwap/adapters'
+import type { NormalizedQuote, SwapProvider } from 'pages/CrossChainSwap/adapters/types'
 import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 
 export interface Quote {

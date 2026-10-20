@@ -25,6 +25,9 @@ const slice = createSlice({
     excludedSources: [] as string[],
   } as CrossChainSwapState,
   reducers: {
+    addTransaction: (state, { payload }: { payload: NormalizedTxResponse }) => {
+      state.transactions = [payload, ...state.transactions].slice(0, MAX_CROSS_CHAIN_TRANSACTIONS)
+    },
     updateGasDropFeatureEnabled: (state, { payload }: { payload: boolean }) => {
       state.gasDropFeatureEnabled = payload
     },
@@ -59,6 +62,7 @@ const slice = createSlice({
 })
 
 export const {
+  addTransaction,
   updateTransactions,
   updateTransactionStatus,
   updateExcludedSources,

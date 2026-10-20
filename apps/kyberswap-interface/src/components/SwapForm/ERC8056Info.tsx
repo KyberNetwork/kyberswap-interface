@@ -21,8 +21,8 @@ export const useERC8056SwapInfo = ({
   balanceIn,
   balanceOut,
 }: UseERC8056SwapInfoProps) => {
-  const inputInfo = useERC8056TokenInfo(currencyIn, chainId)
-  const outputInfo = useERC8056TokenInfo(currencyOut, chainId)
+  const inputInfo = useERC8056TokenInfo(currencyIn, currencyIn?.chainId ?? chainId)
+  const outputInfo = useERC8056TokenInfo(currencyOut, currencyOut?.chainId ?? chainId)
   const displayBalanceIn = useERC8056DisplayBalance(inputInfo, balanceIn)
   const displayBalanceOut = useERC8056DisplayBalance(outputInfo, balanceOut)
 

@@ -182,6 +182,7 @@ const SwapTradeRoute = ({
         <div className="border-t border-darkBorder p-4">
           <Suspense fallback={<TradeRouteSkeleton />}>
             <TradeRouting
+              customChainId={currencyIn?.chainId}
               tradeComposition={tradeComposition}
               currencyIn={currencyIn}
               currencyOut={currencyOut}

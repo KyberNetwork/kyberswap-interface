@@ -134,8 +134,7 @@ const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HT
 )
 
 type BalanceRowProps = {
-  account?: string | null
-  currency?: Currency | null
+  balanceActionsEnabled: boolean
   customBalanceText?: string
   label?: ReactNode
   onHalf?: () => void
@@ -146,8 +145,7 @@ type BalanceRowProps = {
 }
 
 const BalanceRow = ({
-  account,
-  currency,
+  balanceActionsEnabled,
   customBalanceText,
   label,
   onHalf,
@@ -156,7 +154,7 @@ const BalanceRow = ({
   positionMax,
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
-  const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
+  const showTopActions = (onMax || onHalf) && positionMax === 'top' && balanceActionsEnabled
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   return (
@@ -190,8 +188,7 @@ const BalanceRow = ({
 }
 
 type AmountInputControlsProps = {
-  account?: string | null
-  currency?: Currency | null
+  balanceActionsEnabled: boolean
   disabledInput?: boolean
   error?: boolean
   estimatedUsd?: string
@@ -205,8 +202,7 @@ type AmountInputControlsProps = {
 }
 
 const AmountInputControls = ({
-  account,
-  currency,
+  balanceActionsEnabled,
   disabledInput,
   error,
   estimatedUsd,
@@ -218,7 +214,7 @@ const AmountInputControls = ({
   positionMax,
   value,
 }: AmountInputControlsProps) => {
-  const showInlineMax = account && currency && onMax && positionMax === 'inline'
+  const showInlineMax = balanceActionsEnabled && onMax && positionMax === 'inline'
 
   return (
     <>
@@ -373,6 +369,7 @@ interface CurrencyInputPanelProps {
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
+  balanceActionsEnabled?: boolean
 }
 
 const CurrencyInputPanel = ({
@@ -419,6 +416,7 @@ const CurrencyInputPanel = ({
   customChainId,
   trackingSource,
   scaleERC8056Balances,
+  balanceActionsEnabled,
 }: CurrencyInputPanelProps) => {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -445,8 +443,7 @@ const CurrencyInputPanel = ({
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
             <BalanceRow
-              account={account}
-              currency={currency}
+              balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
               customBalanceText={customBalanceText}
               label={label}
               onHalf={onHalf}
@@ -460,8 +457,7 @@ const CurrencyInputPanel = ({
           <InputRow>
             {!hideInput && (
               <AmountInputControls
-                account={account}
-                currency={currency}
+                balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
                 disabledInput={disabledInput}
                 error={error}
                 estimatedUsd={estimatedUsd}
