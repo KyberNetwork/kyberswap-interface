@@ -12,6 +12,8 @@ import { NetworkInfo } from 'constants/networks/type'
 import { useAccount } from 'hooks/useAccount'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { AppState } from 'state'
+import { isSwapLikePath } from 'utils/routes'
+import { getSwapChains } from 'utils/swapFlow'
 
 export function useActiveWeb3React(): {
   chainId: ChainId
@@ -24,7 +26,10 @@ export function useActiveWeb3React(): {
   const rawChainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const { chainId } = useAccountWagmi()
   const { pathname } = useLocation()
-  const isCrossChain = pathname === APP_PATHS.CROSS_CHAIN
+  const isUnifiedSwap =
+    isSwapLikePath(pathname) || pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
+  const isCrossChain =
+    pathname === APP_PATHS.CROSS_CHAIN || (isUnifiedSwap && getSwapChains(searchParams, rawChainIdState).isCrossChain)
   const isWrongNetwork =
     !!chainId && (!isSupportedChainId(chainId) || (!isCrossChain && CROSS_CHAIN_ONLY_NETWORKS.includes(chainId)))
   const { connector } = useAccount()

@@ -6,7 +6,7 @@ import { WalletClient, formatUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
 import { CROSS_CHAIN_ONLY_NETWORKS, MAINNET_NETWORKS } from 'constants/networks'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import type { SolanaToken } from 'pages/CrossChainSwap/adapters/types'
 import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 import { evmTransactionSchema, lifiQuoteSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'

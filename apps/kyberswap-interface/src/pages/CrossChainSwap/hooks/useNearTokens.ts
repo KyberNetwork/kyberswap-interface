@@ -1,15 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-export interface NearToken {
-  assetId: string
-  decimals: number
-  blockchain: string
-  symbol: string
-  price: number
-  priceUpdatedAt: number
-  contractAddress: string
-  logo: string
-}
+import type { NearToken } from 'pages/CrossChainSwap/adapters/types'
 
 // Keep quote and balance effect dependencies stable while the query has no data.
 const EMPTY_NEAR_TOKENS: NearToken[] = []
@@ -105,8 +96,6 @@ const fetchNearTokens = async () => {
     })) || []),
   ]
 }
-
-const EMPTY_NEAR_TOKENS: NearToken[] = []
 
 export const useNearTokens = (skip = false) => {
   const { data, isLoading } = useQuery({

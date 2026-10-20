@@ -49,6 +49,7 @@ type Props = {
   onWrap: (() => Promise<string | undefined>) | undefined
   buildRoute: () => Promise<BuildRouteResult>
   customChainId?: ChainId
+  chainError?: string
 }
 
 const SwapActionButton: React.FC<Props> = ({
@@ -73,6 +74,7 @@ const SwapActionButton: React.FC<Props> = ({
   onWrap,
   buildRoute,
   customChainId,
+  chainError,
 }) => {
   const theme = useTheme()
   const { changeNetwork } = useChangeNetwork()
@@ -216,6 +218,14 @@ const SwapActionButton: React.FC<Props> = ({
       </Trans>
     )
   }
+  if (chainError) {
+    return (
+      <ButtonPrimary id="swap-button" className="whitespace-nowrap text-sm" disabled>
+        {chainError}
+      </ButtonPrimary>
+    )
+  }
+
   if (!account) {
     return (
       <ButtonLight onClick={toggleWalletModal}>

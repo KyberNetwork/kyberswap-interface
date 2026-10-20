@@ -35,7 +35,6 @@ import { useActiveWeb3React } from 'hooks'
 import { getERC8056DisplayAmount, getERC8056DisplayPrice } from 'hooks/useERC8056Token'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
@@ -147,7 +146,8 @@ export default function ConfirmSwapModalContent({
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
-  const { currencyIn, currencyOut } = useCurrenciesByPage()
+  const currencyIn = routeSummary?.parsedAmountIn.currency
+  const currencyOut = routeSummary?.parsedAmountOut.currency
   const { chainId, account } = useActiveWeb3React()
   const { honeypot } = useHoneypotWarning({
     chainId,

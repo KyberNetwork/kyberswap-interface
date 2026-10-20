@@ -15,7 +15,6 @@ import { TextDashed } from 'components/Text'
 import MarketInfo from 'components/TokenInfo/MarketInfo'
 import SecurityInfo from 'components/TokenInfo/SecurityInfo'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
@@ -64,7 +63,6 @@ export const TokenTabButton = ({ currency, isActive, onClick }: TokenTabButtonPr
 )
 
 const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Currency }; onBack?: () => void }) => {
-  const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const inputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT])
   const outputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT])
@@ -74,13 +72,13 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
   const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
 
   const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
-  const isOneToken = !!inputToken?.address && inputToken.address === outputToken?.address
+  const isOneToken = !!inputToken && !!outputToken && inputToken.equals(outputToken)
   const isActiveTokenIn = activeTab === TAB.TOKEN_IN
   const isActiveTokenOut = activeTab === TAB.TOKEN_OUT
 
   useEffect(() => {
     inputToken?.address && setActiveTab(TAB.TOKEN_IN)
-  }, [chainId, inputToken?.address])
+  }, [inputToken?.chainId, inputToken?.address])
 
   return (
     <div className="flex flex-col">

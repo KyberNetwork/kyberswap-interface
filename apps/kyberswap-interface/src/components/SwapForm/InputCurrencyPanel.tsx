@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
@@ -11,6 +10,7 @@ import { halfAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
+  amountInUsd?: string
   wrapType: WrapType
   typedValue: string
   currencyIn: Currency | undefined
@@ -26,6 +26,7 @@ type Props = {
   customChainId?: ChainId
 }
 const InputCurrencyPanel: React.FC<Props> = ({
+  amountInUsd,
   wrapType,
   typedValue,
   setTypedValue,
@@ -40,11 +41,10 @@ const InputCurrencyPanel: React.FC<Props> = ({
   chainSelectionMode,
   onSelectNonEvmCurrency,
 }) => {
-  const { routeSummary } = useSwapFormContext()
   const { networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const trade = showWrap ? undefined : routeSummary
+  const inputUsd = showWrap ? undefined : amountInUsd
 
   const handleMaxInput = () => {
     const gasReservation = getGasReservation(balanceIn)
@@ -53,7 +53,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       token_symbol: currencyIn?.symbol,
       token_address: currencyIn?.isNative ? 'NATIVE' : currencyIn?.wrapped?.address,
       max_balance: max,
-      max_balance_usd: trade?.amountInUsd,
+      max_balance_usd: inputUsd,
       chain: networkInfo.name,
     })
     setTypedValue(max || '')
@@ -79,11 +79,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       showPinnedTokens={true}
       customBalanceText={balanceText}
       highlightCurrencySelect={highlightToken}
-      estimatedUsd={
-        trade?.amountInUsd
-          ? formatDisplayNumber(trade.amountInUsd, { style: 'currency', significantDigits: 4 })
-          : undefined
-      }
+      estimatedUsd={inputUsd ? formatDisplayNumber(inputUsd, { style: 'currency', significantDigits: 4 }) : undefined}
       customChainId={customChainId}
       chainSelectionMode={chainSelectionMode}
       onSelectNonEvmCurrency={onSelectNonEvmCurrency}

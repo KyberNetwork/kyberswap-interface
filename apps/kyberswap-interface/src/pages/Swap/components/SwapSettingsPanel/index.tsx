@@ -19,6 +19,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { DegenModeSetting } from 'pages/Swap/components/SwapSettingsPanel/DegenModeSetting'
 import { GasDropFeatureSetting } from 'pages/Swap/components/SwapSettingsPanel/GasDropFeatureSetting'
 import { LiquiditySourcesSetting } from 'pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 import {
   useShowPricingChart,
   useShowTradeRoutes,
@@ -65,6 +66,7 @@ type SwapSettingsPanelProps = {
    * chart it shares with Swap; the rest of Swap's trade settings do not apply to it.
    */
   isStopMarketPage?: boolean
+  crossChainQuoteMode?: CrossChainQuoteMode
   highlightDegenMode?: boolean
   displaySettings?: {
     isShowPricingChart?: boolean
@@ -79,6 +81,7 @@ const SwapSettingsPanel = ({
   isCrossChainPage,
   isLimitPage,
   isStopMarketPage,
+  crossChainQuoteMode,
   highlightDegenMode,
   onBack,
   onClickLiquiditySources,
@@ -130,10 +133,10 @@ const SwapSettingsPanel = ({
               highlight={highlightDegenMode}
             />
             {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-            {isCrossChainPage && KYBERCROSS && <GasDropFeatureSetting />}
+            {isCrossChainPage && crossChainQuoteMode !== 'stream' && KYBERCROSS && <GasDropFeatureSetting />}
             {isCrossChainPage && (
               <Suspense fallback={null}>
-                <CrossChainSourceSetting onClick={onClickCrossChainSources} />
+                <CrossChainSourceSetting onClick={onClickCrossChainSources} quoteMode={crossChainQuoteMode} />
               </Suspense>
             )}
           </SettingsSection>

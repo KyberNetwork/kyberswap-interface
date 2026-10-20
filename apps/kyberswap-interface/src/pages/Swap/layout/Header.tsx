@@ -18,10 +18,11 @@ type HeaderProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   customChainId?: ChainId
+  isCrossChainMode?: boolean
   activeMainTab?: TAB
 }
 
-export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: HeaderProps) => {
+export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab, isCrossChainMode }: HeaderProps) => {
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
@@ -38,7 +39,12 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
       <Stack className="w-full items-center gap-2">
         <HStack className="min-h-9 w-full items-center justify-between gap-0">
           <Tabs activeTab={selectedTab} setActiveTab={setActiveTab} customChainId={customChainId} />
-          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
+          <HeaderRightMenu
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            activeMainTab={activeMainTab}
+            isCrossChainMode={isCrossChainMode}
+          />
         </HStack>
         <HStack
           className={cn(

@@ -14,8 +14,8 @@ import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.
 import { WalletClient } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import type { SolanaToken } from 'pages/CrossChainSwap/adapters/types'
+import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/nearPendingTransaction'
 import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 import { parseNearQuote } from 'pages/CrossChainSwap/quote/rawQuote'
 import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'pages/CrossChainSwap/utils'
