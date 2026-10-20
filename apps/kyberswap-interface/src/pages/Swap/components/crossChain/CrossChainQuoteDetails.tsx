@@ -13,19 +13,8 @@ import { useSlippageSettingByPage } from 'state/user/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const CrossChainQuoteDetails = () => {
-  const {
-    selectedQuote,
-    quotes,
-    setSelectedAdapter,
-    currencyIn,
-    currencyOut,
-    warning,
-    slippage,
-    loading,
-    allLoading,
-    disable,
-    refresh,
-  } = useCrossChainSwap()
+  const { selectedQuote, quotes, setSelectedAdapter, currencyIn, currencyOut, warning, slippage, refresh } =
+    useCrossChainSwap()
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const [revertPrice, setRevertPrice] = useState(false)
   const quote = selectedQuote?.quote
@@ -60,20 +49,12 @@ export const CrossChainQuoteDetails = () => {
         showSlippage={!isSlippageControlPinned}
       />
       <HStack className="min-h-5 items-center justify-end text-xs text-subText">
-        {selectedQuote ? (
-          <QuoteSelector
-            quotes={quotes}
-            selectedQuote={selectedQuote}
-            tokenOut={currencyOut}
-            onChange={quote => setSelectedAdapter(quote.adapter.getName())}
-          />
-        ) : disable ? (
-          <Trans>Enter an amount</Trans>
-        ) : loading || allLoading ? (
-          <Trans>Finding routes...</Trans>
-        ) : (
-          <Trans>No route found</Trans>
-        )}
+        <QuoteSelector
+          quotes={quotes}
+          selectedQuote={selectedQuote}
+          tokenOut={currencyOut}
+          onChange={quote => setSelectedAdapter(quote.adapter.getName())}
+        />
       </HStack>
     </QuoteDetails>
   )

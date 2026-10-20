@@ -39,11 +39,12 @@ export const QuoteSelector = ({
   tokenOut,
 }: {
   quotes: Quote[]
-  selectedQuote: Quote
+  selectedQuote: Quote | null
   onChange: (quote: Quote) => void
   tokenOut?: Currency
 }) => {
-  const { allLoading, fromChainId, toChainId } = useCrossChainSwap()
+  const { loading, allLoading, disable, fromChainId, toChainId } = useCrossChainSwap()
+  const isLoading = !disable && (loading || allLoading)
   const { trackingHandler } = useTracking()
   const [show, setShow] = useState(false)
 
@@ -61,12 +62,12 @@ export const QuoteSelector = ({
             return (
               <QuoteRow
                 key={getQuoteId(quote)}
-                selected={getQuoteId(selectedQuote) === getQuoteId(quote)}
+                selected={(selectedQuote ? getQuoteId(selectedQuote) : null) === getQuoteId(quote)}
                 role="button"
                 onClick={() => {
                   onChange(quote)
                   setShow(false)
-                  if (getQuoteId(quote) !== getQuoteId(selectedQuote)) {
+                  if (getQuoteId(quote) !== (selectedQuote ? getQuoteId(selectedQuote) : null)) {
                     trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTE_VIEWED, {
                       routing_source: quote.adapter.getName(),
                       amount_out: quote.quote.formattedOutputAmount,
@@ -138,7 +139,7 @@ export const QuoteSelector = ({
               </QuoteRow>
             )
           })}
-          {allLoading &&
+          {isLoading &&
             Array.from({ length: Math.max(1, 6 - quotes.length) }).map((_, index) => {
               return (
                 <QuoteRow key={index}>
@@ -149,6 +150,9 @@ export const QuoteSelector = ({
                 </QuoteRow>
               )
             })}
+          {!quotes.length && !isLoading && (
+            <div className="py-6 text-center text-sm font-medium text-subText">{t`No route found`}</div>
+          )}
         </ScrollableWithSignal>
       </Stack>
     </Stack>
