@@ -1,82 +1,47 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 
-import SwapForm, { SwapFormProps } from 'components/SwapForm'
-import usePageLocation from 'hooks/usePageLocation'
-import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency, usePermitData, useSwapActionHandlers } from 'state/swap/hooks'
+import { useActiveWeb3React } from 'hooks'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
+import SingleChainSwap from 'pages/Swap/components/SingleChainSwap'
+import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
+import { useCurrencyBalance } from 'state/wallet/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
-type Props = {
-  routeSummary: DetailedRouteSummary | undefined
-  setRouteSummary: React.Dispatch<React.SetStateAction<DetailedRouteSummary | undefined>>
+export type PopulatedSwapFormProps = {
+  chainId: ChainId
+  currencyIn?: Currency
+  currencyOut?: Currency
+  onChangeCurrencyIn: (currency: Currency) => void
+  onChangeCurrencyOut: (currency: Currency) => void
+  onSelectNonEvmCurrencyIn?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
+  onSelectNonEvmCurrencyOut?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
+  onRouteChange: (route: DetailedRouteSummary | undefined) => void
   hidden: boolean
 }
 
-export const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSummary, hidden }) => {
-  const currencyIn = useInputCurrency()
-  const currencyOut = useOutputCurrency()
-
-  const [balanceIn, balanceOut] = useCurrencyBalances(
-    useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
-  )
+export const PopulatedSwapForm = ({ chainId, currencyIn, currencyOut, ...props }: PopulatedSwapFormProps) => {
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const balanceIn = useCurrencyBalance(currencyIn, currencyIn?.chainId)
+  const balanceOut = useCurrencyBalance(currencyOut, currencyOut?.chainId)
   const [ttl] = useUserTransactionTTL()
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
-  const permitData = usePermitData(currencyIn?.wrapped.address)
+  const permitData = usePermitData(currencyIn?.chainId === walletChainId ? currencyIn.wrapped.address : undefined)
 
-  const { onCurrencySelection } = useSwapActionHandlers()
-
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { isEmbeddedSwap } = usePageLocation()
-
-  const outId =
-    searchParams.get('outputCurrency') || (currencyOut?.isNative ? currencyOut.symbol : currencyOut?.wrapped.address)
-  const inId =
-    searchParams.get('inputCurrency') || (currencyIn?.isNative ? currencyIn.symbol : currencyIn?.wrapped.address)
-
-  const onChangeCurrencyIn = useCallback(
-    (c: Currency) => {
-      if (isEmbeddedSwap) {
-        const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-        if (value === outId) searchParams.set('outputCurrency', inId || '')
-        searchParams.set('inputCurrency', value)
-        setSearchParams(searchParams)
-      } else onCurrencySelection(Field.INPUT, c)
-    },
-    [searchParams, setSearchParams, isEmbeddedSwap, onCurrencySelection, inId, outId],
+  return (
+    <SingleChainSwap
+      {...props}
+      currencyIn={currencyIn}
+      currencyOut={currencyOut}
+      balanceIn={balanceIn}
+      balanceOut={balanceOut}
+      isDegenMode={isDegenMode}
+      slippage={slippage}
+      transactionTimeout={ttl}
+      permit={permitData?.rawSignature}
+      customChainId={chainId}
+      chainSelectionMode="form"
+    />
   )
-
-  const onChangeCurrencyOut = useCallback(
-    (c: Currency) => {
-      if (isEmbeddedSwap) {
-        const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-        if (value === inId) searchParams.set('inputCurrency', outId || '')
-        searchParams.set('outputCurrency', value)
-        setSearchParams(searchParams)
-      } else onCurrencySelection(Field.OUTPUT, c)
-    },
-    [searchParams, setSearchParams, isEmbeddedSwap, onCurrencySelection, inId, outId],
-  )
-
-  const props: SwapFormProps = {
-    hidden,
-    routeSummary,
-    setRouteSummary,
-    currencyIn,
-    currencyOut,
-    balanceIn,
-    balanceOut,
-    isDegenMode,
-    slippage,
-    transactionTimeout: ttl,
-    permit: permitData?.rawSignature,
-    onChangeCurrencyIn,
-    onChangeCurrencyOut,
-  }
-
-  return <SwapForm {...props} />
 }

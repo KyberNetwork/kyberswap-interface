@@ -2,6 +2,7 @@ import type { Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 
 import TokenPriceChart from 'components/TokenPriceChart'
+import { NETWORKS_INFO } from 'constants/networks'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -19,7 +20,10 @@ type Props = {
 }
 
 export const SwapRightPanel = ({ currencyIn, currencyOut, routeSummary }: Props) => {
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { chainId: walletChainId } = useActiveWeb3React()
+  const chainId = currencyIn?.chainId ?? walletChainId
+  const networkInfo = NETWORKS_INFO[chainId]
+  const isSameChain = !currencyIn || !currencyOut || currencyIn.chainId === currencyOut.chainId
   const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const { trackingHandler } = useTracking({
@@ -55,8 +59,8 @@ export const SwapRightPanel = ({ currencyIn, currencyOut, routeSummary }: Props)
 
   return (
     <>
-      {isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
-      {isShowTradeRoutes && (
+      {isSameChain && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
+      {isSameChain && isShowTradeRoutes && (
         <SwapTradeRoute
           tradeComposition={tradeRouteComposition}
           currencyIn={currencyIn}

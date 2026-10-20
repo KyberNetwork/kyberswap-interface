@@ -28,6 +28,7 @@ export type ArgsGetRoute = {
   currencyOut: Currency | undefined
 
   customChain?: ChainId
+  enabled?: boolean
   isProcessingSwap?: boolean
   clientId?: string
 }
@@ -83,7 +84,7 @@ export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver'
 
 const useGetRoute = (args: ArgsGetRoute) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
+  const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId, enabled = true } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
   const [isLoading, setIsLoading] = useState(false)
@@ -108,14 +109,23 @@ const useGetRoute = (args: ArgsGetRoute) => {
   // After receive new route summary, we reset this flag to false.s
   const dismissSwapModalFlag = useRef(false)
   const result: typeof _result = useMemo(() => {
-    if (dismissSwapModalFlag.current) {
+    const request = _result.originalArgs?.params
+    const matchesPair =
+      !!currencyIn &&
+      !!currencyOut &&
+      currencyIn.chainId === currencyOut.chainId &&
+      request?.chainId === chainId &&
+      request.tokenIn.toLowerCase() === getRouteTokenAddressParam(currencyIn, 'in').toLowerCase() &&
+      request.tokenOut.toLowerCase() === getRouteTokenAddressParam(currencyOut, 'out').toLowerCase()
+    // A retained response must never be parsed or built for another pair or network.
+    if (!enabled || dismissSwapModalFlag.current || !matchesPair || !_result.currentData) {
       return {
         ..._result,
         data: undefined,
       } as typeof _result
     }
     return _result
-  }, [_result])
+  }, [_result, chainId, currencyIn, currencyOut, enabled])
 
   const dispatch = useAppDispatch()
   useEffect(() => {
@@ -146,6 +156,8 @@ const useGetRoute = (args: ArgsGetRoute) => {
       ),
     [trigger, clientId],
   )
+
+  useEffect(() => () => triggerDebounced.cancel(), [triggerDebounced])
 
   const safeAppFeeConfig = useMemo(() => {
     let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
@@ -198,7 +210,14 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const fetcher = useCallback(async () => {
     const amountIn = parsedAmount ? routeAmountIn(parsedAmount) : ''
 
-    if (isProcessingSwap || !currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
+    if (
+      !enabled ||
+      isProcessingSwap ||
+      !currencyIn ||
+      !currencyOut ||
+      !amountIn ||
+      !parsedAmount?.currency?.equals(currencyIn)
+    ) {
       return undefined
     }
 
@@ -246,6 +265,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     return undefined
   }, [
+    enabled,
     safeAppFeeConfig,
     aggregatorDomain,
     chainId,

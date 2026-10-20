@@ -41,8 +41,7 @@ import {
   QuoteParams,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
-import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { type SolanaToken, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 import { parseAcrossQuote } from 'pages/CrossChainSwap/quote/rawQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'

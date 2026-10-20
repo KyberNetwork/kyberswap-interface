@@ -14,20 +14,22 @@ import {
   SourceList,
   SourceName,
 } from 'pages/Swap/components/LiquiditySourcesPanel/components'
-import { updateExcludedSources, useCrossChainQuoteMode } from 'state/crossChainSwap'
+import { type CrossChainQuoteMode, updateExcludedSources, useCrossChainQuoteMode } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 type Props = {
   onBack?: () => void
+  quoteMode?: CrossChainQuoteMode
 }
 
-const CrossChainSwapSources = ({ onBack }: Props) => {
+const CrossChainSwapSources = ({ onBack, quoteMode: mode }: Props) => {
   const { trackingHandler } = useTracking()
   const [searchText, setSearchText] = useState('')
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
 
-  const quoteMode = useCrossChainQuoteMode()
+  const storedQuoteMode = useCrossChainQuoteMode()
+  const quoteMode = mode ?? storedQuoteMode
   const sources = useMemo(() => CrossChainSwapFactory.getSelectableSources(quoteMode), [quoteMode])
   const sourceNames = useMemo(() => sources.map(item => item.getName()), [sources])
   const storedExcludedSources = useAppSelector(state => state.crossChainSwap.excludedSources || [])

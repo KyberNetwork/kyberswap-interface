@@ -155,9 +155,8 @@ export const AmountShortcutChips = ({ shortcuts }: { shortcuts: AmountShortcut[]
 )
 
 type BalanceRowProps = {
-  account?: string | null
   amountShortcuts?: AmountShortcut[]
-  currency?: Currency | null
+  balanceActionsEnabled: boolean
   customBalanceText?: string
   label?: ReactNode
   onHalf?: () => void
@@ -168,9 +167,8 @@ type BalanceRowProps = {
 }
 
 const BalanceRow = ({
-  account,
   amountShortcuts,
-  currency,
+  balanceActionsEnabled,
   customBalanceText,
   label,
   onHalf,
@@ -179,7 +177,7 @@ const BalanceRow = ({
   positionMax,
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
-  const showTopActions = (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && currency && account
+  const showTopActions = (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && balanceActionsEnabled
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   // Shortcuts, when given, stand in for Max and Half and sit beside the balance they split.
@@ -219,8 +217,7 @@ const BalanceRow = ({
 }
 
 type AmountInputControlsProps = {
-  account?: string | null
-  currency?: Currency | null
+  balanceActionsEnabled: boolean
   disabledInput?: boolean
   readOnlyInput?: boolean
   error?: boolean
@@ -235,8 +232,7 @@ type AmountInputControlsProps = {
 }
 
 const AmountInputControls = ({
-  account,
-  currency,
+  balanceActionsEnabled,
   disabledInput,
   readOnlyInput,
   error,
@@ -249,7 +245,7 @@ const AmountInputControls = ({
   positionMax,
   value,
 }: AmountInputControlsProps) => {
-  const showInlineMax = account && currency && onMax && positionMax === 'inline'
+  const showInlineMax = balanceActionsEnabled && onMax && positionMax === 'inline'
 
   return (
     <>
@@ -417,6 +413,7 @@ interface CurrencyInputPanelProps {
   scaleERC8056Balances?: boolean
   /** The token selector lists only tokens the chain's stop market order oracle can price. */
   requireOracle?: boolean
+  balanceActionsEnabled?: boolean
 }
 
 const CurrencyInputPanel = ({
@@ -466,6 +463,7 @@ const CurrencyInputPanel = ({
   trackingSource,
   scaleERC8056Balances,
   requireOracle,
+  balanceActionsEnabled,
 }: CurrencyInputPanelProps) => {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -492,9 +490,8 @@ const CurrencyInputPanel = ({
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
             <BalanceRow
-              account={account}
               amountShortcuts={amountShortcuts}
-              currency={currency}
+              balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
               customBalanceText={customBalanceText}
               label={label}
               onHalf={onHalf}
@@ -508,8 +505,7 @@ const CurrencyInputPanel = ({
           <InputRow>
             {!hideInput && (
               <AmountInputControls
-                account={account}
-                currency={currency}
+                balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
                 disabledInput={disabledInput}
                 readOnlyInput={readOnlyInput}
                 error={error}

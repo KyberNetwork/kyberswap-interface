@@ -24,8 +24,7 @@ import {
 } from 'pages/CrossChainSwap/adapters/types'
 import { GasDropTransactionLine } from 'pages/CrossChainSwap/components/GasDrop'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
-import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
-import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { CrossChainSwapFactory, registry } from 'pages/CrossChainSwap/factory'
 import {
   type TransactionStatus,
   isProcessingTransactionStatus,

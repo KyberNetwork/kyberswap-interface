@@ -1,5 +1,5 @@
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
-import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters'
+import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters/types'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { normalizeStreamQuote, parseQuoteResponse } from 'pages/CrossChainSwap/quote/parseStreamQuote'
 import { PairCategory, getCurrencyAddress, sortQuotesByOutput } from 'pages/CrossChainSwap/quote/utils'

@@ -1,8 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { fetchTokenCategories, fetchTokenPrices } from 'services/tokenCatalog'
 
-import { Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
-import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { Chain, Currency, NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import {
   PairCategory,
   TokenPricesResponse,

@@ -1,8 +1,7 @@
 import React from 'react'
 
 import { getKyberCrossRoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
-import { CrossChainSource, CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
-import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { CrossChainSource, CrossChainSwapFactory, registry } from 'pages/CrossChainSwap/factory'
 import { Quote } from 'pages/CrossChainSwap/registry'
 
 const KYBER_CROSS_ADAPTER_NAME = 'kybercross'

@@ -4,7 +4,6 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { useGetTipLinkQuery } from 'services/tipLink'
 
-import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, PRICE_CHART_QUOTES } from 'constants/tokens'
@@ -13,6 +12,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PartnerSwapLayout } from 'pages/PartnerSwap/PartnerSwapLayout'
+import SingleChainSwap, { SingleChainSwapProps } from 'pages/Swap/components/SingleChainSwap'
 import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
 import { TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
 import Updater from 'state/customizeDexes/updater'
@@ -30,8 +30,8 @@ const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/Liquidity
 const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
 const TokenInfo = lazy(() => import('components/TokenInfo'))
 const CrossChainSwap = lazy(() => import('pages/CrossChainSwap'))
-const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
-const TransactionHistory = lazy(() => import('pages/CrossChainSwap/components/TransactionHistory'))
+const CrossChainSwapSources = lazy(() => import('pages/Swap/components/crossChain/CrossChainSwapSources'))
+const TransactionHistory = lazy(() => import('pages/Swap/components/crossChain/TransactionHistory'))
 const SwapTradeRoute = lazy(() => import('pages/Swap/components/SwapTradeRoute'))
 const TokenPriceChart = lazy(() => import('components/TokenPriceChart'))
 
@@ -242,10 +242,9 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
     [searchParams, setSearchParams, inputCurrencyId, outputCurrencyId],
   )
 
-  const props: SwapFormProps = {
+  const props: SingleChainSwapProps = {
     hidden: activeTab !== TAB.SWAP,
-    routeSummary,
-    setRouteSummary,
+    onRouteChange: setRouteSummary,
     currencyIn: currencyIn || undefined,
     currencyOut: currencyOut || undefined,
     balanceIn,
@@ -291,7 +290,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
         rightPanel={rightPanel}
         setActiveTab={setActiveTab}
       >
-        {isSwapPage && <SwapForm {...props} />}
+        {isSwapPage && <SingleChainSwap {...props} />}
         {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToSwapTab} />}
         {activeTab === TAB.SETTINGS && (
           <SwapSettingsPanel
