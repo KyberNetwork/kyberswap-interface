@@ -38,6 +38,7 @@ import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import LimitPage from 'pages/Swap/LimitPage'
 import SwapPage from 'pages/Swap/SwapPage'
+import SwapRoute from 'pages/Swap/SwapRoute'
 import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useIsSafeAppAcceptedTerm } from 'state/user/hooks'
@@ -250,15 +251,8 @@ export default function App() {
             )}
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
-              <Route path={APP_PATHS.SWAP} element={<RedirectPathToTradeNetwork />} />
-              <Route
-                path={`${APP_PATHS.SWAP}/:network/:currency?`}
-                element={
-                  <NetworkSyncedPage>
-                    <SwapPage />
-                  </NetworkSyncedPage>
-                }
-              />
+              <Route path={APP_PATHS.SWAP} element={<SwapRoute />} />
+              <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapRoute />} />
               <Route path={`${APP_PATHS.BUY}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.BUY} />} />
               <Route path={`${APP_PATHS.SELL}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.SELL} />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
