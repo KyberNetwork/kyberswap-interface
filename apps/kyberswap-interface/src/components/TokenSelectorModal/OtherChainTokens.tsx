@@ -14,6 +14,7 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 
 type OtherChainTokensProps = {
+  chainSelectionMode?: 'wallet' | 'form'
   tokens: WrappedTokenInfo[]
   loading: boolean
   loadingFallback: ReactNode
@@ -27,6 +28,7 @@ type OtherChainTokensProps = {
 }
 
 export const OtherChainTokens = ({
+  chainSelectionMode,
   tokens,
   loading,
   loadingFallback,
@@ -110,7 +112,7 @@ export const OtherChainTokens = ({
                     onSelect(token)
                   }}
                 >
-                  <Trans>Switch Chain</Trans>
+                  {chainSelectionMode === 'form' ? <Trans>Select</Trans> : <Trans>Switch Chain</Trans>}
                 </ButtonPrimary>
               ) : (
                 renderBalance(token)

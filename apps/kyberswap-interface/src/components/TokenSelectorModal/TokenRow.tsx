@@ -9,7 +9,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { AddressCopy, Balance, BalanceSkeleton, formatAgeBadge } from 'components/TokenSelectorModal/components'
-import { BALANCE_COLUMN_CLASS } from 'components/TokenSelectorModal/constants'
+import { BALANCE_COLUMN_CLASS, TOKEN_ROW_CLASS, TOKEN_ROW_HOVER_CLASS } from 'components/TokenSelectorModal/constants'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { restrictedTokenMessage } from 'hooks/useRestrictedTokens'
 import { cn } from 'utils/cn'
@@ -169,7 +169,7 @@ export const TokenRow = ({
           <HStack className="min-w-0 items-center gap-1">
             <span
               title={currency.name}
-              className="truncate text-xs font-normal text-text sm:text-sm"
+              className="truncate text-xs font-medium text-text sm:text-sm"
               data-testid="token-symbol"
             >
               {customName || symbol}
@@ -369,12 +369,10 @@ export const TokenRow = ({
         }
       }}
       className={cn(
-        'flex h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1 sm:gap-3',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[selected=true]:bg-primary-20',
+        TOKEN_ROW_CLASS,
         // Not-yet-imported token: keep the row normal but dimmed to 50% to hint it needs importing.
         importOnClick && 'opacity-50',
-        !hoverColor &&
-          '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
+        !hoverColor && TOKEN_ROW_HOVER_CLASS,
       )}
     >
       {rowInner}

@@ -12,6 +12,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { Field } from 'state/swap/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
@@ -21,6 +22,11 @@ type Props = {
   selectedCurrency?: Currency | null
   otherSelectedCurrency?: Currency | null
   customChainId?: ChainId
+  /** Commit the selected Currency without switching the app/wallet network in form mode. */
+  chainSelectionMode?: 'wallet' | 'form'
+  initialNonEvmChain?: NonEvmChain
+  selectedNonEvmCurrency?: NonEvmCurrency
+  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   /** Display-unit balances only for forms that also scale their ERC-8056 balance labels. */
   scaleERC8056Balances?: boolean
   showPinnedTokens?: boolean
@@ -32,7 +38,6 @@ type Props = {
   onDismiss?: () => void
   onCurrencySelect?: (currency: Currency) => void
   onCurrencyImport?: (token: Token) => void
-  /** The form owns its chain state when supplied; otherwise selection switches the app/wallet. */
   onSelectChain?: (chainId: ChainId) => void
 }
 
@@ -51,6 +56,10 @@ const TokenSelectorModal = ({
   customChainId,
   trackingSource,
   showDiscoveryTabs = true,
+  chainSelectionMode = 'wallet',
+  onSelectNonEvmCurrency,
+  initialNonEvmChain,
+  selectedNonEvmCurrency,
   onSelectChain,
 }: Props) => {
   const { chainId: appChainId } = useActiveWeb3React()
@@ -62,6 +71,7 @@ const TokenSelectorModal = ({
     onCurrencySelect,
     onCurrencyImport,
     onSelectChain,
+    chainSelectionMode,
     onDismiss,
   })
   const { importToken } = selection
@@ -114,6 +124,17 @@ const TokenSelectorModal = ({
             onDismiss={selection.dismiss}
             onRequestSelect={selection.requestSelection}
             anchorChainId={anchorChainId}
+            chainSelectionMode={chainSelectionMode}
+            initialNonEvmChain={initialNonEvmChain}
+            selectedNonEvmCurrency={selectedNonEvmCurrency}
+            onSelectNonEvmCurrency={
+              onSelectNonEvmCurrency
+                ? (chain, currency) => {
+                    selection.dismiss()
+                    onSelectNonEvmCurrency(chain, currency)
+                  }
+                : undefined
+            }
             importChainId={importToken?.chainId}
             selectedCurrency={selectedCurrency}
             otherSelectedCurrency={otherSelectedCurrency}

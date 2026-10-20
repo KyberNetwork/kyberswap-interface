@@ -5,6 +5,7 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { getGasReservation } from 'utils/gasReserve'
 import { halfAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -20,6 +21,8 @@ type Props = {
   onChangeCurrencyIn: (c: Currency) => void
   setTypedValue: (v: string) => void
   onUserInput: (v: string) => void
+  chainSelectionMode?: 'wallet' | 'form'
+  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   customChainId?: ChainId
 }
 const InputCurrencyPanel: React.FC<Props> = ({
@@ -34,6 +37,8 @@ const InputCurrencyPanel: React.FC<Props> = ({
   highlightToken,
   onChangeCurrencyIn,
   customChainId,
+  chainSelectionMode,
+  onSelectNonEvmCurrency,
 }) => {
   const { routeSummary } = useSwapFormContext()
   const { networkInfo } = useActiveWeb3React()
@@ -80,6 +85,8 @@ const InputCurrencyPanel: React.FC<Props> = ({
           : undefined
       }
       customChainId={customChainId}
+      chainSelectionMode={chainSelectionMode}
+      onSelectNonEvmCurrency={onSelectNonEvmCurrency}
       trackingSource="swap"
       scaleERC8056Balances
     />

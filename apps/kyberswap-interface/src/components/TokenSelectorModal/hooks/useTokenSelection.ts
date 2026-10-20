@@ -30,6 +30,7 @@ type Props = {
   trackingSource?: string
   onCurrencySelect?: (currency: Currency) => void
   onCurrencyImport?: (token: Token) => void
+  chainSelectionMode?: 'wallet' | 'form'
   onSelectChain?: (chainId: ChainId) => void
   onDismiss?: () => void
 }
@@ -41,6 +42,7 @@ export const useTokenSelection = ({
   trackingSource,
   onCurrencySelect,
   onCurrencyImport,
+  chainSelectionMode = 'wallet',
   onSelectChain,
   onDismiss,
 }: Props) => {
@@ -141,22 +143,22 @@ export const useTokenSelection = ({
       generation.current += 1
       const selection = { currency: resolved, context, needsChainSwitch: resolved.chainId !== anchorChainId }
       if (intent === 'import') openImport(selection)
-      else if (resolved.chainId !== anchorChainId && !onSelectChain) {
+      else if (resolved.chainId !== anchorChainId && !onSelectChain && chainSelectionMode === 'wallet') {
         setStep({ kind: 'confirm-chain', selection })
       } else importOrSelectToken(selection)
     },
-    [anchorChainId, onSelectChain, isRestricted, notifyRestricted, openImport, importOrSelectToken],
+    [anchorChainId, onSelectChain, chainSelectionMode, isRestricted, notifyRestricted, openImport, importOrSelectToken],
   )
 
   const confirmImport = useCallback(
     (currencies: Currency[]) => {
       if (step.kind !== 'import' || !currencies[0] || !openRef.current) return
       const selection = { ...step.selection, currency: currencies[0], imported: true }
-      if (selection.currency.chainId !== anchorChainId && !onSelectChain) {
+      if (selection.currency.chainId !== anchorChainId && !onSelectChain && chainSelectionMode === 'wallet') {
         setStep({ kind: 'confirm-chain', selection })
       } else commitSelection(selection)
     },
-    [step, anchorChainId, onSelectChain, commitSelection],
+    [step, anchorChainId, onSelectChain, chainSelectionMode, commitSelection],
   )
 
   const confirmChain = useCallback(() => {

@@ -106,6 +106,8 @@ const fetchNearTokens = async () => {
   ]
 }
 
+const EMPTY_NEAR_TOKENS: NearToken[] = []
+
 export const useNearTokens = (skip = false) => {
   const { data, isLoading } = useQuery({
     queryKey: ['cross-chain-near-tokens'],

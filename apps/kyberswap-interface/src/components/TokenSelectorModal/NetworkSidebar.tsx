@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { Check } from 'react-feather'
@@ -6,13 +5,14 @@ import { Check } from 'react-feather'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { Stack } from 'components/Stack'
 import { SearchInput, SearchWrapper } from 'components/TokenSelectorModal/components'
-import type { NetworkInfo } from 'constants/networks/type'
+import type { TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
+import type { Chain } from 'pages/CrossChainSwap/adapters/types'
 import { cn } from 'utils/cn'
 
 type Props = {
-  chains: NetworkInfo[]
-  selectedChainId: ChainId
-  onChange?: (chainId: ChainId) => void
+  chains: TokenSelectorNetwork[]
+  selectedChainId: Chain
+  onChange?: (chainId: Chain) => void
 }
 
 export const NetworkSidebar = ({ chains, selectedChainId, onChange }: Props) => {
@@ -57,7 +57,7 @@ export const NetworkSidebar = ({ chains, selectedChainId, onChange }: Props) => 
               )}
             >
               <img src={chain.icon} alt="" className="size-5 shrink-0 rounded" />
-              <span className="min-w-0 flex-1 truncate">{chain.name}</span>
+              <span className="min-w-0 flex-1 truncate font-medium">{chain.name}</span>
               {chain.chainId === selectedChainId && (
                 <Check size={16} className="shrink-0 text-primary" aria-hidden="true" />
               )}
