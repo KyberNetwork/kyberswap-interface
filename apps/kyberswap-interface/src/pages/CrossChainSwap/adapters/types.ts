@@ -6,9 +6,28 @@ import type { Connection } from '@solana/web3.js'
 import type { WalletClient } from 'viem'
 
 import SolanaIcon from 'assets/networks/solana.svg'
-import type { NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import type { Quote } from 'pages/CrossChainSwap/registry'
+
+export interface NearToken {
+  assetId: string
+  decimals: number
+  blockchain: string
+  symbol: string
+  price: number
+  priceUpdatedAt: number
+  contractAddress: string
+  logo: string
+}
+
+export interface SolanaToken {
+  id: string
+  name: string
+  symbol: string
+  icon: string
+  logo: string
+  decimals: number
+  tokenProgram: string
+}
 
 export enum NonEvmChain {
   Near = 'near',

@@ -3,9 +3,14 @@ import { isAbstractStableToken } from 'services/crossChainTokens'
 import { parseUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import { Chain, Currency, NonEvmChain, NormalizedQuote } from 'pages/CrossChainSwap/adapters'
-import { type NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
-import { type SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import {
+  Chain,
+  Currency,
+  type NearToken,
+  NonEvmChain,
+  NormalizedQuote,
+  type SolanaToken,
+} from 'pages/CrossChainSwap/adapters/types'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS } from 'pages/CrossChainSwap/utils'
 

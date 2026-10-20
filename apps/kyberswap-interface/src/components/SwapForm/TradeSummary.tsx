@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { ErrorWarning } from 'components/ErrorWarning'
@@ -114,10 +114,6 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
         })
       : ''
 
-  if (!feeAmount) {
-    return null
-  }
-
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
   const feePercent = formatSwapFeePercent(routeSummary?.extraFee?.feeAmount)
   const feeValue = feePercent || feeAmountWithSymbol || '--'
@@ -125,7 +121,7 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
 
   if (isInSafeApp) {
     return (
-      <HStack className="min-h-5 w-full items-center justify-between">
+      <HStack className="min-h-5 w-full items-center justify-between gap-3">
         <TextHelper
           fontSize={12}
           color={labelColor}
@@ -142,13 +138,15 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
           Platform Fee
         </TextHelper>
 
-        <p className={cn('m-0 text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>0.1%</p>
+        <span className={cn('text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>
+          {routeSummary ? '0.1%' : '--'}
+        </span>
       </HStack>
     )
   }
 
   return (
-    <HStack className="min-h-5 w-full items-center justify-between">
+    <HStack className="min-h-5 w-full items-center justify-between gap-3">
       <TextHelper
         fontSize={12}
         color={labelColor}
@@ -160,15 +158,15 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
         <SwapFeeLabel />
       </TextHelper>
 
-      <p
+      <span
         className={cn(
-          'm-0 flex flex-nowrap items-center gap-1 text-[12px] font-medium',
+          'flex flex-nowrap items-center gap-1 text-[12px] font-medium',
           isFeeTampered ? 'text-warning' : 'text-text',
         )}
       >
         <span>{feeValue}</span>
         {feePercent && feeAmountUsdText && <span className="text-subText">(~{feeAmountUsdText})</span>}
-      </p>
+      </span>
     </HStack>
   )
 }
@@ -180,16 +178,8 @@ type Props = {
   isFeeTampered?: boolean
 }
 const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, refresh, isFeeTampered }) => {
-  const [alreadyVisible, setAlreadyVisible] = useState(false)
   const { inputERC8056Info, outputERC8056Info } = useSwapFormContext()
   const { parsedAmountOut, priceImpact } = routeSummary || {}
-  const hasTrade = !!routeSummary?.route
-
-  useEffect(() => {
-    if (hasTrade) {
-      setAlreadyVisible(true)
-    }
-  }, [hasTrade])
 
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -207,23 +197,25 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, refresh, isFeeT
       ''
     )
 
-  if (!alreadyVisible) return null
-
   return (
     <>
-      <HStack className="min-h-5 w-full items-center justify-between">
+      <HStack className="min-h-5 w-full items-center justify-between gap-3">
         <span className="text-xs font-normal text-subText">
           <Trans>Rate</Trans>
         </span>
         <HStack className="items-center gap-1">
           <RefreshIndicator {...refresh} size={20} clickable />
-          <TradePrice
-            price={getERC8056DisplayPrice(routeSummary?.executionPrice, inputERC8056Info, outputERC8056Info)}
-            className="text-text [&>button]:size-5"
-          />
+          {routeSummary?.executionPrice ? (
+            <TradePrice
+              price={getERC8056DisplayPrice(routeSummary.executionPrice, inputERC8056Info, outputERC8056Info)}
+              className="text-text [&>button]:size-5"
+            />
+          ) : (
+            <span className="text-xs font-medium text-text">--</span>
+          )}
         </HStack>
       </HStack>
-      <HStack className="min-h-5 w-full items-center justify-between">
+      <HStack className="min-h-5 w-full items-center justify-between gap-3">
         <TextHelper
           fontSize={12}
           fontWeight={400}
@@ -253,10 +245,10 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, refresh, isFeeT
         >
           <Trans>Minimum Received</Trans>
         </TextHelper>
-        <p className="m-0 text-[12px] font-medium text-text">{minimumAmountOutStr || '--'}</p>
+        <span className="text-[12px] font-medium text-text">{minimumAmountOutStr || '--'}</span>
       </HStack>
 
-      <HStack className="min-h-5 w-full items-center justify-between">
+      <HStack className="min-h-5 w-full items-center justify-between gap-3">
         <TextHelper
           fontSize={12}
           fontWeight={400}
@@ -282,14 +274,20 @@ const TradeSummary: React.FC<Props> = ({ routeSummary, slippage, refresh, isFeeT
         >
           <Trans>Price Impact</Trans>
         </TextHelper>
-        <p
+        <span
           className={cn(
-            'm-0 text-[12px] font-medium',
-            priceImpactResult.isVeryHigh ? 'text-red' : priceImpactResult.isHigh ? 'text-warning' : 'text-text',
+            'text-[12px] font-medium',
+            typeof priceImpact !== 'number' || priceImpactResult.isInvalid
+              ? 'text-text'
+              : priceImpactResult.isVeryHigh
+              ? 'text-red'
+              : priceImpactResult.isHigh
+              ? 'text-warning'
+              : 'text-text',
           )}
         >
           {priceImpactResult.isInvalid || typeof priceImpact !== 'number' ? '--' : formatPriceImpact(priceImpact)}
-        </p>
+        </span>
       </HStack>
 
       <SwapFee isFeeTampered={isFeeTampered} />

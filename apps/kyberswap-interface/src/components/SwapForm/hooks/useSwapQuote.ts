@@ -12,7 +12,12 @@ export default function useSwapQuote(args: ArgsGetRoute & { isWrapOrUnwrap: bool
   const quote = useGetRoute(args)
   const { fetcher, isLoading } = quote
   const enabled = Boolean(
-    args.currencyIn && args.currencyOut && args.parsedAmount && !args.isProcessingSwap && !args.isWrapOrUnwrap,
+    args.enabled !== false &&
+      args.currencyIn &&
+      args.currencyOut &&
+      args.parsedAmount &&
+      !args.isProcessingSwap &&
+      !args.isWrapOrUnwrap,
   )
   const [countdown, setCountdown] = useState(0)
   const nextManualRefreshAt = useRef(0)

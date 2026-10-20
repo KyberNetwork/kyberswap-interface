@@ -17,6 +17,7 @@ import { BungeeAdapter } from './adapters/BungeeAdapter'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
+import { CrossChainSwapAdapterRegistry } from './registry'
 import { normalizeAdapterName } from './utils'
 
 export type CrossChainSource = Pick<SwapProvider, 'getName'> & Partial<Pick<SwapProvider, 'getIcon' | 'canSupport'>>
@@ -156,3 +157,6 @@ export class CrossChainSwapFactory {
     ]
   }
 }
+
+export const registry = new CrossChainSwapAdapterRegistry()
+CrossChainSwapFactory.getAllAdapters().forEach(adapter => registry.registerAdapter(adapter))
