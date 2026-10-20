@@ -2,15 +2,14 @@ import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
-import { currencyId } from 'utils/currencyId'
+import { useCurrencyFromUrl, useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { isSwapLikePath } from 'utils/routes'
+import { getDefaultSwapTokenId, getTradeLocation } from 'utils/swapFlow'
 
 export const useCurrenciesByPage = () => {
-  const { networkInfo, chainId } = useActiveWeb3React()
+  const { inputChain, outputChain, fromCurrency, toCurrency } = useCurrencyFromUrl()
   const { pathname } = useLocation()
   const isSwapPage =
     isSwapLikePath(pathname) || pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
@@ -32,22 +31,14 @@ export const useCurrenciesByPage = () => {
   )
 
   const shareUrl = useMemo(() => {
-    const path = `${isSwapPage ? APP_PATHS.SWAP : APP_PATHS.LIMIT}/${networkInfo.route}${
-      currencyIn && currencyOut
-        ? `?${new URLSearchParams(
-            isSwapPage
-              ? {
-                  from: String(currencyIn.chainId),
-                  to: String(currencyOut.chainId),
-                  tokenIn: currencyId(currencyIn, currencyIn.chainId),
-                  tokenOut: currencyId(currencyOut, currencyOut.chainId),
-                }
-              : { inputCurrency: currencyId(currencyIn, chainId), outputCurrency: currencyId(currencyOut, chainId) },
-          ).toString()}`
-        : ''
-    }`
-    return `${window.location.origin}${isCrossChainPage ? APP_PATHS.CROSS_CHAIN : path}`
-  }, [networkInfo.route, currencyIn, currencyOut, chainId, isSwapPage, isCrossChainPage])
+    const target = getTradeLocation(isCrossChainPage ? 'cross-chain' : isSwapPage ? 'swap' : 'limit', {
+      fromChain: inputChain,
+      toChain: outputChain,
+      tokenIn: fromCurrency || getDefaultSwapTokenId(inputChain),
+      tokenOut: toCurrency || getDefaultSwapTokenId(outputChain),
+    })
+    return `${window.location.origin}${target.pathname}${target.search}`
+  }, [inputChain, outputChain, fromCurrency, toCurrency, isSwapPage, isCrossChainPage])
 
   return {
     currencies,

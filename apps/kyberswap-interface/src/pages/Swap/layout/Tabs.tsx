@@ -6,7 +6,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO, isSupportLimitOrder } from 'constants/networks'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
@@ -16,6 +16,7 @@ import { LimitTab } from 'pages/Swap/layout/LimitTab'
 import { useCurrencyFromUrl } from 'state/swap/hooks'
 import { cn } from 'utils/cn'
 import { isSwapLikePath } from 'utils/routes'
+import { getDefaultSwapTokenId, getTradeLocation } from 'utils/swapFlow'
 
 export enum TAB {
   SWAP = 'swap',
@@ -67,7 +68,6 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
   const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
   const sameChain = typeof inputChain === 'number' && inputChain === outputChain
   const chainId = customChainId || (sameChain ? inputChain : walletChainId)
-  const currencyParam = sameChain ? `${fromCurrency}-to-${toCurrency}` : ''
 
   const { pathname, isEmbeddedSwap } = usePageLocation()
 
@@ -103,14 +103,21 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
     ) {
       return
     }
-    navigateFn({
-      pathname:
-        tab === TAB.CROSS_CHAIN
-          ? APP_PATHS.CROSS_CHAIN
-          : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${
-              NETWORKS_INFO[chainId]?.route || networkInfo.route
-            }/${currencyParam || ''}`,
-    })
+    const pair = {
+      fromChain: inputChain,
+      toChain: outputChain,
+      tokenIn: fromCurrency || getDefaultSwapTokenId(inputChain),
+      tokenOut: toCurrency || getDefaultSwapTokenId(outputChain),
+    }
+    if (tab === TAB.CROSS_CHAIN) {
+      navigateFn(!sameChain ? getTradeLocation('cross-chain', pair, searchParams) : APP_PATHS.CROSS_CHAIN)
+    } else if (tab === TAB.SWAP) {
+      navigateFn(getTradeLocation('swap', pair, searchParams))
+    } else if (sameChain) {
+      navigateFn(getTradeLocation('limit', pair, searchParams))
+    } else {
+      navigateFn(`${APP_PATHS.LIMIT}/${networkInfo.route}`)
+    }
   }
 
   const tabs: { key: TAB; node: ReactNode }[] = []
