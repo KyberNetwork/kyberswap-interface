@@ -18,11 +18,13 @@ type Selection = {
   imported?: boolean
   needsChainSwitch: boolean
 }
+
 type SelectionStep =
   | { kind: 'idle' }
   | { kind: 'import'; selection: Selection }
   | { kind: 'confirm-chain'; selection: Selection }
   | { kind: 'switching-chain'; selection: Selection }
+  | { kind: 'awaiting-chain'; selection: Selection }
 
 type Props = {
   isOpen: boolean
@@ -42,17 +44,23 @@ export const useTokenSelection = ({
   trackingSource,
   onCurrencySelect,
   onCurrencyImport,
-  chainSelectionMode = 'wallet',
+  chainSelectionMode,
   onSelectChain,
   onDismiss,
 }: Props) => {
-  const [step, setStep] = useState<SelectionStep>({ kind: 'idle' })
+  // Legacy cross-chain callers provide onSelectChain; explicit modes take precedence.
+  // Return the resolved mode so the UI and selection gates use the same contract.
+  const selectionMode = chainSelectionMode ?? (onSelectChain ? 'form' : 'wallet')
+
   const { chainId: appChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const isImported = useIsTokenImported()
   const isRestricted = useIsTokenRestricted()
   const notifyRestricted = useNotifyRestrictedToken()
   const { trackingHandler } = useTracking()
+
+  const [step, setStep] = useState<SelectionStep>({ kind: 'idle' })
+
   // Invalidates callbacks from an earlier wallet request or modal session.
   const generation = useRef(0)
   const openRef = useRef(isOpen)
@@ -62,8 +70,10 @@ export const useTokenSelection = ({
     generation.current += 1
     setStep({ kind: 'idle' })
   }, [])
+
   useEffect(() => {
     if (!isOpen) reset()
+
     return () => {
       generation.current += 1
     }
@@ -78,12 +88,15 @@ export const useTokenSelection = ({
     (selection: Selection) => {
       const { currency, context } = selection
       if (!openRef.current) return
+
       if (isRestricted(currency)) {
         notifyRestricted(currency)
         reset()
         return
       }
+
       if (onSelectChain && currency.chainId !== anchorChainId) onSelectChain(currency.chainId)
+
       trackingHandler(TRACKING_EVENT_TYPE.TS_TOKEN_SELECTED, {
         source: trackingSource,
         tab: context.tab,
@@ -96,6 +109,7 @@ export const useTokenSelection = ({
         selection_method: context.method,
         needs_chain_switch: selection.needsChainSwitch,
       })
+
       onCurrencySelect?.(currency)
       dismiss()
     },
@@ -127,6 +141,7 @@ export const useTokenSelection = ({
         openImport(selection)
         return
       }
+
       commitSelection(selection)
     },
     [isImported, openImport, commitSelection],
@@ -135,53 +150,71 @@ export const useTokenSelection = ({
   const requestSelection = useCallback(
     (currency: Currency, context: TokenSelectionContext, intent: 'select' | 'import' = 'select') => {
       if (!openRef.current) return
+
       const resolved = isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency
       if (isRestricted(resolved)) {
         notifyRestricted(resolved)
         return
       }
+
       generation.current += 1
       const selection = { currency: resolved, context, needsChainSwitch: resolved.chainId !== anchorChainId }
+
       if (intent === 'import') openImport(selection)
-      else if (resolved.chainId !== anchorChainId && !onSelectChain && chainSelectionMode === 'wallet') {
+      else if (resolved.chainId !== anchorChainId && selectionMode === 'wallet') {
         setStep({ kind: 'confirm-chain', selection })
       } else importOrSelectToken(selection)
     },
-    [anchorChainId, onSelectChain, chainSelectionMode, isRestricted, notifyRestricted, openImport, importOrSelectToken],
+    [anchorChainId, selectionMode, isRestricted, notifyRestricted, openImport, importOrSelectToken],
   )
 
   const confirmImport = useCallback(
     (currencies: Currency[]) => {
       if (step.kind !== 'import' || !currencies[0] || !openRef.current) return
+
       const selection = { ...step.selection, currency: currencies[0], imported: true }
-      if (selection.currency.chainId !== anchorChainId && !onSelectChain && chainSelectionMode === 'wallet') {
+
+      if (selection.currency.chainId !== anchorChainId && selectionMode === 'wallet') {
         setStep({ kind: 'confirm-chain', selection })
       } else commitSelection(selection)
     },
-    [step, anchorChainId, onSelectChain, chainSelectionMode, commitSelection],
+    [step, anchorChainId, selectionMode, commitSelection],
   )
 
   const confirmChain = useCallback(() => {
     if (step.kind !== 'confirm-chain' || !openRef.current) return
+
     const requestId = ++generation.current
     setStep({ kind: 'switching-chain', selection: step.selection })
-    void changeNetwork(step.selection.currency.chainId, undefined, () => {
-      if (requestId === generation.current) reset()
-    })
+
+    void changeNetwork(
+      step.selection.currency.chainId,
+      () => {
+        if (requestId === generation.current && openRef.current) {
+          setStep({ kind: 'awaiting-chain', selection: step.selection })
+        }
+      },
+      () => {
+        if (requestId === generation.current) reset()
+      },
+    )
   }, [step, changeNetwork, reset])
 
   // Commit after the app's network-param sync has reset its default pair. A close/reopen or
   // cancelled request invalidates this timer, including when the wallet replies much later.
   useEffect(() => {
-    if (!isOpen || step.kind !== 'switching-chain' || step.selection.currency.chainId !== appChainId) return
+    if (!isOpen || step.kind !== 'awaiting-chain' || step.selection.currency.chainId !== appChainId) return
+
     const requestId = generation.current
     const timer = setTimeout(() => {
       if (requestId === generation.current && openRef.current) importOrSelectToken(step.selection)
     }, 0)
+
     return () => clearTimeout(timer)
   }, [isOpen, step, appChainId, importOrSelectToken])
 
   return {
+    chainSelectionMode: selectionMode,
     requestSelection,
     dismiss,
     reset,

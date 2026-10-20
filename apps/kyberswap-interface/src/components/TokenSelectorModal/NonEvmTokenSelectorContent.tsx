@@ -36,15 +36,21 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const debouncedQuery = useDebounce(query, 300)
+
   const isSolana = chain === NonEvmChain.Solana
   const isBitcoin = chain === NonEvmChain.Bitcoin
+
+  // Wallet balances and token catalogs for the selected network.
   const { balances: nearBalances } = useNearBalances(chain === NonEvmChain.Near)
   const solanaBalances = useSolanaTokenBalances()
   const { publicKey: solanaAddress } = useWallet()
   const { balance: bitcoinBalance, walletInfo: bitcoinWallet } = useBitcoinWallet()
+
   const { nearTokens, isLoadingNearTokens } = useNearTokens(chain !== NonEvmChain.Near)
   const { solanaTokens, isLoadingSolanaTokens } = useSolanaTokens(debouncedQuery, !isSolana)
   const loading = !isBitcoin && (isSolana ? isLoadingSolanaTokens : isLoadingNearTokens)
+
+  // Match search results and prioritize held Solana tokens.
   const tokens = useMemo<NonEvmCurrency[]>(() => {
     if (isBitcoin) {
       const search = query.trim().toLowerCase()
@@ -52,11 +58,13 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
         [token.symbol, token.name].some(value => value.toLowerCase().includes(search)),
       )
     }
+
     if (isSolana) {
       return [...solanaTokens].sort(
         (a, b) => (solanaBalances?.[b.id]?.balance || 0) - (solanaBalances?.[a.id]?.balance || 0),
       )
     }
+
     const search = query.trim().toLowerCase()
     return nearTokens.filter(
       token =>
@@ -64,11 +72,13 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
         [token.symbol, token.contractAddress, token.assetId].some(value => value.toLowerCase().includes(search)),
     )
   }, [isBitcoin, isSolana, solanaTokens, solanaBalances, nearTokens, query])
+
   const getRawBalance = (id: string) => {
     if (isBitcoin) return bitcoinWallet.address ? bitcoinBalance : undefined
     if (isSolana) return solanaAddress ? solanaBalances[id]?.rawAmount : undefined
     return nearBalances[id]
   }
+
   const selectedId =
     selectedCurrency &&
     ('assetId' in selectedCurrency

@@ -105,6 +105,8 @@ export const TokenSelectorContent = ({
     changeMetricColumn,
     animateSortedRows,
   } = view
+
+  // Networks available to this caller and the temporary browsing chain.
   const networks: TokenSelectorNetwork[] = onSelectNonEvmCurrency
     ? [
         ...rankedChains,
@@ -114,6 +116,7 @@ export const TokenSelectorContent = ({
         ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] })),
       ]
     : rankedChains
+
   const selectNetwork = (chain: Chain) => {
     if (typeof chain === 'number') {
       setNonEvmChain(undefined)
@@ -122,6 +125,8 @@ export const TokenSelectorContent = ({
       setNonEvmChain(chain)
     }
   }
+
+  // EVM list data; non-EVM content owns its own data sources.
   const data = useTokenSelectorData({
     primaryChainId: selectedChainId,
     activeTab,
@@ -153,10 +158,12 @@ export const TokenSelectorContent = ({
   useEffect(() => {
     if (!isMobile) inputRef.current?.focus()
   }, [inputRef])
+
   useEffect(() => {
     animateSortedRows()
   }, [visibleCurrencies, animateSortedRows])
 
+  // Every selection entry point carries the same browsing context.
   const requestSelect = useCallback(
     (currency: Currency, method?: TokenSelectionContext['method'], intent: 'select' | 'import' = 'select') => {
       const rowIndex = visibleCurrencies.findIndex(item => item.equals(currency))
@@ -177,24 +184,29 @@ export const TokenSelectorContent = ({
   const handleEnter = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key !== 'Enter') return
+
       const query = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[selectedChainId]
       if (query === native.symbol?.toLowerCase() || query === native.name?.toLowerCase()) {
         requestSelect(native)
         return
       }
+
       const candidate = visibleCurrencies[0]
       if (!candidate || (visibleCurrencies.length !== 1 && candidate.symbol?.toLowerCase() !== query)) return
       if (candidate.isToken && impersonators.has(candidate.address)) return
+
       requestSelect(candidate)
     },
     [searchQuery, selectedChainId, visibleCurrencies, impersonators, requestSelect],
   )
 
+  // Display state for the active EVM tab.
   const isAllTab = activeTab === TokenSelectorTab.All
   const isImportedTab = activeTab === TokenSelectorTab.Imported
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
+
   const subtitle = getTabSubtitle(activeTab)
   const emptyMessage =
     activeTab === TokenSelectorTab.Trending ? (

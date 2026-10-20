@@ -22,6 +22,7 @@ type Props = {
   importedCurrenciesBase: Currency[]
   favoriteCurrenciesBase: Currency[]
 }
+
 export const useTokenTabData = ({
   primaryChainId,
   activeTab,
@@ -35,6 +36,7 @@ export const useTokenTabData = ({
   const isNewTab = activeTab === TokenSelectorTab.New
   const isImportedTab = activeTab === TokenSelectorTab.Imported
   const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
+
   const {
     tokens: trendingTokens,
     extras: trendingExtras,
@@ -42,6 +44,7 @@ export const useTokenTabData = ({
     hasMore: trendingHasMore,
     fetchMore: fetchMoreTrending,
   } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab)
+
   const {
     tokens: newTokens,
     extras: newExtras,
@@ -165,6 +168,7 @@ export const useTokenTabData = ({
     sortByMetric,
     sortByFdv,
   ])
+
   return {
     currencies,
     extras: listExtras,
