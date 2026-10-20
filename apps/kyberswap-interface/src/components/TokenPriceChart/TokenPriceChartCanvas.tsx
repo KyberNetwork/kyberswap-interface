@@ -27,6 +27,7 @@ import {
   type PriceMarkerGroup,
   type PriceMarkerOverlay,
   clusterMarkers,
+  countMarkersByGroup,
   flattenMarkerGroups,
   getCrossingArrow,
   positionMarkers,
@@ -67,12 +68,14 @@ type TokenPriceChartCanvasProps = {
   /** Formats prices in the candle tooltip; defaults to USD. */
   formatValue?: (value?: number) => string
   markerOverlay?: PriceMarkerOverlay
+  /** Draws the market price — the reference price, or the last candle's close — as its own line. */
+  showMarketPrice?: boolean
+  /** Told, by group key, how many markers sit outside the visible price range whenever that changes. */
+  onOffscreenChange?: (counts: Record<string, number>) => void
 }
 
 type MarkerLayout = {
   clusters: MarkerCluster[]
-  above: number
-  below: number
   aboveIds: string[]
   belowIds: string[]
   scaleWidth: number
@@ -89,15 +92,13 @@ const MAX_MARKER_LINES_MOBILE = 3
 const MARKER_DETAILS_CLOSE_DELAY_MS = 150
 const EMPTY_MARKER_LAYOUT: MarkerLayout = {
   clusters: [],
-  above: 0,
-  below: 0,
   aboveIds: [],
   belowIds: [],
   scaleWidth: 0,
   paneHeight: 0,
 }
 
-/** A line or badge standing for markers of more than one group takes neither group's colour. */
+/** A line standing for markers of more than one group takes neither group's colour. */
 type LineTone = MarkerTone | 'mixed'
 
 /** The tone markers share, or `mixed` when they come from different groups. */
@@ -106,10 +107,10 @@ const getLineTone = (ids: string[], groups: PriceMarkerGroup[]): LineTone => {
   return tones.size === 1 ? [...tones][0] : 'mixed'
 }
 
-const TONE_CLASSES: Record<LineTone, { tag: string; value: string; badge: string }> = {
-  warning: { tag: 'border-warning', value: 'text-warning', badge: 'border-warning/40 text-warning' },
-  blue: { tag: 'border-blue', value: 'text-blue', badge: 'border-blue/40 text-blue' },
-  mixed: { tag: 'border-border', value: 'text-text', badge: 'border-border text-subText' },
+const TONE_CLASSES: Record<LineTone, { tag: string; value: string }> = {
+  warning: { tag: 'border-warning', value: 'text-warning' },
+  blue: { tag: 'border-blue', value: 'text-blue' },
+  mixed: { tag: 'border-border', value: 'text-text' },
 }
 
 const clusterKey = (cluster: MarkerCluster) => cluster.ids.join(',')
@@ -597,39 +598,13 @@ const PriceMarkerLayer = ({
           </MarkerDetailsList>
         </div>
       )}
-
-      {layout.above > 0 && (
-        <span
-          data-testid="price-marker-offscreen-above"
-          className={cn(
-            OFFSCREEN_BADGE_CLASS,
-            TONE_CLASSES[getLineTone(layout.aboveIds, overlay.groups)].badge,
-            'top-1.5',
-          )}
-        >
-          ↑ {overlay.renderOffscreen(layout.above, 'above')}
-        </span>
-      )}
-      {layout.below > 0 && (
-        <span
-          data-testid="price-marker-offscreen-below"
-          className={cn(OFFSCREEN_BADGE_CLASS, TONE_CLASSES[getLineTone(layout.belowIds, overlay.groups)].badge)}
-          style={{ top: layout.paneHeight - 26 }}
-        >
-          ↓ {overlay.renderOffscreen(layout.below, 'below')}
-        </span>
-      )}
     </>
   )
 }
 
-// On the left edge, clear of the line labels that sit against the price axis.
 /** Gap between a line's label and its details panel, and between the panel and the pane edge. */
 const DETAILS_OFFSET_PX = 14
 const DETAILS_EDGE_PX = 8
-
-const OFFSCREEN_BADGE_CLASS =
-  'pointer-events-none absolute left-2 z-[2] rounded-full border bg-buttonBlack px-2 py-0.5 text-[10px] font-medium'
 
 const TokenPriceChartCanvas = ({
   chartData,
@@ -638,6 +613,8 @@ const TokenPriceChartCanvas = ({
   timeFrame,
   formatValue = formatPrice,
   markerOverlay,
+  showMarketPrice = true,
+  onOffscreenChange,
 }: TokenPriceChartCanvasProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -664,7 +641,8 @@ const TokenPriceChartCanvas = ({
   const referencePrice = markerOverlay?.referencePrice
   // The reference line replaces the last candle's tag; two "current" prices from two sources would
   // only leave the reader guessing which one the markers answer to.
-  const showLastValue = referencePrice === undefined
+  const showLastValue = showMarketPrice && referencePrice === undefined
+  const drawnReferencePrice = showMarketPrice ? referencePrice : undefined
   const candlestickSeriesOptions = useMemo(
     () =>
       getCandlestickSeriesOptions({
@@ -690,6 +668,8 @@ const TokenPriceChartCanvas = ({
   const [isViewportReady, setIsViewportReady] = useState(false)
 
   const markerOverlayRef = useRef(markerOverlay)
+  const onOffscreenChangeRef = useRef(onOffscreenChange)
+  const showMarketPriceRef = useRef(showMarketPrice)
   const markerColorsRef = useRef<Record<LineTone, string>>({
     warning: theme.warning,
     blue: theme.blue,
@@ -718,7 +698,7 @@ const TokenPriceChartCanvas = ({
       const groups = markerOverlayRef.current?.groups ?? []
       const markers = flattenMarkerGroups(groups)
       const paneHeight = chartHeightRef.current - chart.timeScale().height()
-      const { visible, above, below, aboveIds, belowIds } = positionMarkers(
+      const { visible, aboveIds, belowIds } = positionMarkers(
         markers,
         price => series.priceToCoordinate(price),
         paneHeight,
@@ -746,8 +726,6 @@ const TokenPriceChartCanvas = ({
 
       const layout = {
         clusters,
-        above,
-        below,
         aboveIds,
         belowIds,
         scaleWidth: chart.priceScale('right').width(),
@@ -757,6 +735,7 @@ const TokenPriceChartCanvas = ({
       if (layoutKey === markerLayoutKeyRef.current) return
       markerLayoutKeyRef.current = layoutKey
       setMarkerLayout(layout)
+      onOffscreenChangeRef.current?.(countMarkersByGroup([...aboveIds, ...belowIds], groups))
     })
   }, [])
 
@@ -764,6 +743,25 @@ const TokenPriceChartCanvas = ({
     chartDataRef.current = chartData
     chartDataByTimeRef.current = new Map(chartData.map(candle => [candle.time, candle]))
   }, [chartData])
+
+  useEffect(() => {
+    onOffscreenChangeRef.current = onOffscreenChange
+  }, [onOffscreenChange])
+
+  // A hidden market price no longer holds the price scale open, so the scale is fitted again to what is
+  // drawn — only when the line is switched, not on every price tick.
+  const isFirstMarketPriceRender = useRef(true)
+  useEffect(() => {
+    showMarketPriceRef.current = showMarketPrice
+    if (isFirstMarketPriceRender.current) {
+      isFirstMarketPriceRender.current = false
+      return
+    }
+    chartRef.current?.priceScale('right').applyOptions({ autoScale: true })
+  }, [showMarketPrice])
+
+  // A chart that goes away takes its count with it; the next one reports its own.
+  useEffect(() => () => onOffscreenChangeRef.current?.({}), [])
 
   useEffect(() => {
     markerOverlayRef.current = markerOverlay
@@ -793,7 +791,7 @@ const TokenPriceChartCanvas = ({
         chartDataRef,
         // The reference price replaces the last candle's tag, so it has to stay on the pane. Marker
         // prices are left out: a stop far below the market would flatten every candle.
-        getPinnedPrice: () => markerOverlayRef.current?.referencePrice,
+        getPinnedPrice: () => (showMarketPriceRef.current ? markerOverlayRef.current?.referencePrice : undefined),
         getVisibleLogicalRange: () => chart.timeScale().getVisibleLogicalRange(),
       }),
     })
@@ -919,13 +917,13 @@ const TokenPriceChartCanvas = ({
     const series = candlestickSeriesRef.current
     if (!series) return
 
-    if (referencePrice === undefined) {
+    if (drawnReferencePrice === undefined) {
       if (referenceLineRef.current) series.removePriceLine(referenceLineRef.current)
       referenceLineRef.current = null
       return
     }
 
-    const options = { price: referencePrice, color: theme.primary }
+    const options = { price: drawnReferencePrice, color: theme.primary }
     if (referenceLineRef.current) {
       referenceLineRef.current.applyOptions(options)
       return
@@ -938,7 +936,7 @@ const TokenPriceChartCanvas = ({
       axisLabelVisible: true,
       title: '',
     })
-  }, [referencePrice, theme.primary])
+  }, [drawnReferencePrice, theme.primary])
 
   // Drawing to a canvas neither pulls a webfont in nor repaints once one arrives, so request the symbol
   // face directly and redraw when it lands. Without this the labels can keep the system fallback's

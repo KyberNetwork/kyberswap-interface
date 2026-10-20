@@ -1,16 +1,13 @@
-import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { StopOrderRowsSkeleton } from 'components/StopOrder/MyOrders/components'
-import { APP_PATHS } from 'constants/index'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { useShowPricingChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { getTradeProductPath } from 'utils/routes'
 
 /** The limit-order panel's card, which both cards of the order panel use; on phones each runs edge to edge. */
 export const ORDER_PANEL_CARD_CLASS =
@@ -61,9 +58,10 @@ const ChartSkeleton = () => {
 /** The orders card with its controls in place and the table on its first load. */
 const OrdersCardSkeleton = () => (
   <Stack className={ORDER_PANEL_CARD_CLASS}>
-    <TabsRowSkeleton widths={[130, 110]} />
-    <HStack className="items-center border-b border-darkBorder px-4 py-2">
-      <Skeleton height={30} width={150} borderRadius={16} />
+    <TabsRowSkeleton widths={[110, 110]} />
+    <HStack className="min-h-12 items-center gap-6 border-b border-darkBorder px-4 py-2">
+      <Skeleton height={14} width={76} borderRadius={6} />
+      <Skeleton height={14} width={76} borderRadius={6} />
     </HStack>
     <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
       <Skeleton height={36} width={130} borderRadius={16} />
@@ -79,30 +77,26 @@ const OrdersCardSkeleton = () => (
 
 /**
  * Stands in for the order panel while its code loads, card for card, so the page keeps its shape
- * instead of showing a spinner. The market card follows the same rules as the panel: the chart by the
- * Pricing Chart setting and the chain, the order book beside the limit form only.
+ * instead of showing a spinner. The market card opens on the chart where the panel would, which
+ * follows the Pricing Chart setting and the chain.
  */
 const OrderListSkeleton = () => {
   const { chainId } = useLimitOrderContext()
-  const { pathname } = useLocation()
-  const isStopOrderPage = getTradeProductPath(pathname) === APP_PATHS.STOP_ORDER
   const isShowPricingChart = useShowPricingChart()
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
 
   return (
     <>
-      {(hasChart || !isStopOrderPage) && (
-        <Stack className={ORDER_PANEL_CARD_CLASS}>
-          <TabsRowSkeleton widths={isStopOrderPage ? [44] : [44, 130]} />
-          {hasChart ? (
-            <ChartSkeleton />
-          ) : (
-            <div className="min-h-20">
-              <StopOrderRowsSkeleton isActiveTab />
-            </div>
-          )}
-        </Stack>
-      )}
+      <Stack className={ORDER_PANEL_CARD_CLASS}>
+        <TabsRowSkeleton widths={hasChart ? [60, 130] : [130]} />
+        {hasChart ? (
+          <ChartSkeleton />
+        ) : (
+          <div className="min-h-20">
+            <StopOrderRowsSkeleton isActiveTab />
+          </div>
+        )}
+      </Stack>
       <OrdersCardSkeleton />
     </>
   )

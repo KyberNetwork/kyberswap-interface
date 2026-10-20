@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useLayoutEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
@@ -14,6 +14,7 @@ import {
 import StopOrderConfirmModal from 'components/StopOrder/CreateOrder/StopOrderConfirmModal'
 import { useCreateStopOrder } from 'components/StopOrder/CreateOrder/useCreateStopOrder'
 import { StopOrderWarning } from 'components/StopOrder/Form/useStopOrderWarnings'
+import { StopOrderFee } from 'components/StopOrder/types'
 import { getStopOrderServiceErrorMessage } from 'components/StopOrder/utils'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -27,12 +28,16 @@ type Props = {
   inputAmount: string
   estimatedOutput: string
   estimatedUsdIn?: string
-  estimatedUsdOut?: string
   triggerPrice: string
   triggerPercent?: number
   slippage: number
   expiredAt: number
   warnings?: StopOrderWarning[]
+  /** The fee for these terms, as the form estimated it. Signing estimates again for the cap. */
+  fee?: StopOrderFee
+  isFeeLoading?: boolean
+  feeError?: string
+  onRetryFee?: () => void
   onDismiss: () => void
   createOrder: ReturnType<typeof useCreateStopOrder>
 }
@@ -51,8 +56,6 @@ const getStepErrorMessage = (failure: ProcessingStepFailure): string | undefined
 }
 
 type ProcessingParams = {
-  /** The review is on screen; its fee is estimated as it opens. */
-  isReviewOpen: boolean
   currencyIn?: Currency
   currencyOut?: Currency
   /** An edit of an open order rather than a new one, which only changes the wording. */
@@ -65,11 +68,10 @@ type ProcessingParams = {
 }
 
 /**
- * The review's fee and the signing run behind it, for whichever dialog hosts the review: the creation
- * flow's own modal, or the edit modal that shows it as a step of its own.
+ * The signing run behind a stop order, with the modal that reports it: started from the creation
+ * review, or straight from the edit modal.
  */
 export const useStopOrderProcessing = ({
-  isReviewOpen,
   currencyIn,
   currencyOut,
   isEdit,
@@ -83,16 +85,6 @@ export const useStopOrderProcessing = ({
   const [stepError, setStepError] = useState<string | undefined>()
   // Held until the processing modal closes, so the success state stays on screen until the user leaves it.
   const [isCompleted, setIsCompleted] = useState(false)
-
-  const { refreshFee } = createOrder
-  /**
-   * The fee decides the cap carried in the signed intent, so it is fetched as soon as review opens.
-   * Before paint, so the review opens on the estimate's placeholder rather than a figure from an
-   * earlier one.
-   */
-  useLayoutEffect(() => {
-    if (isReviewOpen) refreshFee()
-  }, [isReviewOpen, refreshFee])
 
   const { chainId } = createOrder.processing
 
@@ -154,23 +146,25 @@ const StopOrderFlow = ({
   inputAmount,
   estimatedOutput,
   estimatedUsdIn,
-  estimatedUsdOut,
   triggerPrice,
   triggerPercent,
   slippage,
   expiredAt,
   warnings,
+  fee,
+  isFeeLoading,
+  feeError,
+  onRetryFee,
   onDismiss,
   createOrder,
 }: Props) => {
   const { start, processingModal } = useStopOrderProcessing({
-    isReviewOpen: isOpen,
     currencyIn,
     currencyOut,
     createOrder,
     onStart: onDismiss,
   })
-  const { fee, feeError, isEstimatingFee, refreshFee, needsWrap } = createOrder
+  const { needsWrap } = createOrder
 
   return (
     <>
@@ -181,15 +175,14 @@ const StopOrderFlow = ({
         inputAmount={inputAmount}
         estimatedOutput={estimatedOutput}
         estimatedUsdIn={estimatedUsdIn}
-        estimatedUsdOut={estimatedUsdOut}
         triggerPrice={triggerPrice}
         triggerPercent={triggerPercent}
         slippage={slippage}
         expiredAt={expiredAt}
         fee={fee}
         feeError={feeError}
-        isFeeLoading={isEstimatingFee}
-        onRetryFee={refreshFee}
+        isFeeLoading={isFeeLoading}
+        onRetryFee={onRetryFee}
         needsWrap={needsWrap}
         warnings={warnings}
         onDismiss={onDismiss}

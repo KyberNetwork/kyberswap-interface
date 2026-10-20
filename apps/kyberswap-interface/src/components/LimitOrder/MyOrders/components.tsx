@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { Repeat, Trash } from 'react-feather'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
-import { ButtonOutlined } from 'components/Button'
 import { LIST_ORDER_TABS, formatStatus } from 'components/LimitOrder/MyOrders/utils'
 import { ClippedText } from 'components/LimitOrder/components'
 import { LimitOrderStatus } from 'components/LimitOrder/types'
@@ -16,20 +15,25 @@ import { formatDisplayNumber } from 'utils/numbers'
 // Components used by MyOrders index
 
 type CancelAllButtonProps = {
-  disabled: boolean
-  isLoading: boolean
+  disabled?: boolean
+  /** The open orders it would cancel are still being fetched. */
+  isLoading?: boolean
   onClick: () => void
+  dataTestId?: string
 }
 
-export const CancelAllButton = ({ disabled, isLoading, onClick }: CancelAllButtonProps) => (
-  <ButtonOutlined
+/** The one Cancel All button, which the limit and the stop order lists both offer. */
+export const CancelAllButton = ({ disabled, isLoading, onClick, dataTestId }: CancelAllButtonProps) => (
+  <button
+    type="button"
     onClick={onClick}
     disabled={disabled}
-    className={cn('w-fit gap-1.5 px-3 py-1 text-sm', !disabled && '!border-red-35 !text-red')}
+    data-testid={dataTestId}
+    className="flex w-fit animate-[fadeIn_0.2s_ease-out_both] cursor-pointer items-center gap-1.5 rounded-[16px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text disabled:cursor-default disabled:opacity-50 disabled:hover:text-subText motion-reduce:animate-none"
   >
     {isLoading ? <Loader size="14px" /> : <Trash size={14} />}
     <Trans>Cancel All</Trans>
-  </ButtonOutlined>
+  </button>
 )
 
 type TabSelectorProps = {

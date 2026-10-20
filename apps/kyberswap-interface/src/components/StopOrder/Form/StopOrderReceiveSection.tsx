@@ -64,8 +64,7 @@ const StopOrderReceiveSection = ({
           <span className="text-xs font-medium text-subText" data-testid="stop-order-receive-note">
             {triggerPrice ? (
               <Trans>
-                Estimated at your {triggerPrice} {receiveCurrency?.symbol} trigger. Actual amount depends on market
-                conditions at trigger time.
+                Estimated at your {triggerPrice} {receiveCurrency?.symbol} trigger, at today&apos;s liquidity.
               </Trans>
             ) : (
               <Trans>Set a trigger price to see your estimated output.</Trans>

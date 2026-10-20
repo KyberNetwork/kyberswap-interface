@@ -12,12 +12,15 @@ import { calcUsdPrices } from 'components/LimitOrder/utils'
 import { HStack, Stack } from 'components/Stack'
 import StopOrderFlow from 'components/StopOrder/CreateOrder/StopOrderFlow'
 import { useCreateStopOrder } from 'components/StopOrder/CreateOrder/useCreateStopOrder'
+import { StopOrderFeeNotes, StopOrderFeeValue } from 'components/StopOrder/Form/StopOrderFeeSummary'
 import StopOrderReceiveSection from 'components/StopOrder/Form/StopOrderReceiveSection'
 import TriggerPriceSection from 'components/StopOrder/Form/TriggerPriceSection'
 import { useStopOrderFormState } from 'components/StopOrder/Form/useStopOrderFormState'
 import { useStopOrderWarnings } from 'components/StopOrder/Form/useStopOrderWarnings'
 import OrderTypeSubTabs from 'components/StopOrder/OrderTypeSubTabs'
 import { getStopOrderExpiryPresets } from 'components/StopOrder/constants'
+import { useStopOrderAmountShortcuts } from 'components/StopOrder/hooks/useStopOrderAmountShortcuts'
+import { useStopOrderFeeEstimate } from 'components/StopOrder/hooks/useStopOrderFeeEstimate'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
@@ -27,7 +30,6 @@ import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestricte
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import { SLIPPAGE_STATUS } from 'utils/slippage'
 
 type StopOrderFormProps = {
@@ -111,6 +113,23 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
   const balance = useCurrencyBalance(currencyIn ?? undefined, form.chainId)
   const insufficientBalance = createOrder.insufficientBalance
 
+  const amountShortcuts = useStopOrderAmountShortcuts(
+    balance,
+    form.inputAmount,
+    form.setInputValue,
+    'stop-order-amount',
+  )
+
+  // Shown while the terms are set and again in the review; signing estimates once more for the cap.
+  const feeEstimate = useStopOrderFeeEstimate({
+    currencyIn,
+    currencyOut,
+    inputAmount: form.inputAmount,
+    triggerPrice: form.triggerPrice,
+    slippage: form.slippage,
+    expiredAt: form.expiredAt,
+  })
+
   const estimateUsd = calcUsdPrices({
     inputAmount: form.inputAmount,
     outputAmount: form.estimatedOutput,
@@ -192,17 +211,11 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
           estimateUsd={estimateUsd}
           events={{
             onInputAmountChange: form.setInputValue,
-            // Go through the shared spend helpers so native currency keeps whatever they hold back.
-            onMaxInput: () => {
-              const max = maxAmountSpend(balance)
-              if (max) form.setInputValue(max.toExact())
-            },
-            onHalfInput: () => {
-              const half = halfAmountSpend(balance)
-              if (half) form.setInputValue(half.toExact())
-            },
+            // Clicking the balance does what Max does.
+            onMaxInput: amountShortcuts[amountShortcuts.length - 1]?.onClick,
             onInputTokenSelect: onSelectSellToken,
           }}
+          amountShortcuts={amountShortcuts}
           footer={
             validation.sellTokenWarning
               ? openTokenSelector => (
@@ -227,10 +240,36 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
           onSetMarketPrice={form.onSetMarketPrice}
         />
 
-        {/* Sits 8px from both boxes, as in the limit-order form. */}
-        <HStack className="-my-2 justify-center" data-testid="stop-order-switch-pair">
-          <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.onSwitchPair} />
-        </HStack>
+        {/* Between the trigger and what it yields, with the switch at its end as the design lays it out. */}
+        <div className="-my-1 px-1">
+          <SlippageSetting
+            alwaysVisible
+            // The default copy describes a swap the user sends themselves; a stop order is settled by
+            // an operator, so there is no transaction of theirs to revert.
+            tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
+            slippage={{ value: form.slippage, onChange: form.setSlippage }}
+            // The swap form's numbers for this pair's category, scaled for a stop order; the wording stays the
+            // stop order's own, since the setting is measured against the oracle at execution rather than a
+            // fresh quote.
+            slippageInfo={{
+              default: form.defaultSlippage,
+              presets: form.slippagePresets,
+              isLow: form.slippageStatus === SLIPPAGE_STATUS.LOW,
+              isHigh: form.slippageStatus === SLIPPAGE_STATUS.HIGH,
+              message:
+                form.slippageStatus === SLIPPAGE_STATUS.LOW
+                  ? t`Slippage this low may cause your stop order to fail during volatile markets — the conditions it exists for.`
+                  : form.slippageStatus === SLIPPAGE_STATUS.HIGH
+                  ? t`Slippage this high means your order could fill meaningfully below the market price at the moment it executes.`
+                  : '',
+            }}
+            rightComponent={
+              <div data-testid="stop-order-switch-pair">
+                <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.onSwitchPair} />
+              </div>
+            }
+          />
+        </div>
 
         <StopOrderReceiveSection
           sellCurrency={currencyIn}
@@ -251,40 +290,9 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
           selectClassName={validation.receiveTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
         />
 
-        {/* The two headers sit side by side, but an open panel spans the whole row: half the form is
-            189px, where the slippage presets shrink under their own labels and the expiry pills wrap
-            out of their border. Each control places its own header and panel into this grid, so
-            opening one never moves the other's header. Below xxs the row is a single column. */}
-        <div className="grid grid-cols-2 items-start gap-x-4 max-xxs:grid-cols-1">
-          <SlippageSetting
-            alwaysVisible
-            // The default copy describes a swap the user sends themselves; a stop order is settled by
-            // an operator, so there is no transaction of theirs to revert.
-            tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
-            gridCells={{ header: 'col-start-1 row-start-1 min-w-0', panel: 'col-span-full row-start-2' }}
-            slippage={{ value: form.slippage, onChange: form.setSlippage }}
-            // The swap form's numbers for this pair's category, scaled for a stop order; the wording stays the
-            // stop order's own, since the setting is measured against the oracle at execution rather than a
-            // fresh quote.
-            slippageInfo={{
-              default: form.defaultSlippage,
-              presets: form.slippagePresets,
-              isLow: form.slippageStatus === SLIPPAGE_STATUS.LOW,
-              isHigh: form.slippageStatus === SLIPPAGE_STATUS.HIGH,
-              message:
-                form.slippageStatus === SLIPPAGE_STATUS.LOW
-                  ? t`Slippage this low may cause your stop order to fail during volatile markets — the conditions it exists for.`
-                  : form.slippageStatus === SLIPPAGE_STATUS.HIGH
-                  ? t`Slippage this high means your order could fill meaningfully below the market price at the moment it executes.`
-                  : '',
-            }}
-          />
-
+        {/* The fee sits beside the expiry, and what it means for a small order right under them. */}
+        <Stack className="-mt-1 gap-3 px-1">
           <LimitOrderExpirySection
-            gridCells={{
-              header: 'col-start-2 row-start-1 min-w-0 max-xxs:col-start-1 max-xxs:row-start-3 max-xxs:mt-4',
-              panel: 'col-span-full row-start-3 max-xxs:row-start-4',
-            }}
             expiry={{
               expire: form.expire,
               expanded: form.expiryExpanded,
@@ -298,8 +306,14 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
             }}
             presetOptions={expiryPresets}
             tooltip={t`You can cancel anytime before expiry at no cost.`}
+            rightComponent={<StopOrderFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} />}
           />
-        </div>
+          <StopOrderFeeNotes
+            fee={feeEstimate.fee}
+            isLoading={feeEstimate.isLoading}
+            errorMessage={feeEstimate.errorMessage}
+          />
+        </Stack>
 
         {validation.formWarnings.length > 0 && (
           <Stack className="gap-3" data-testid="stop-order-warnings">
@@ -353,12 +367,15 @@ const StopOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPro
         inputAmount={form.inputAmount}
         estimatedOutput={form.estimatedOutput}
         estimatedUsdIn={estimateUsd.input}
-        estimatedUsdOut={estimateUsd.output}
         triggerPrice={form.triggerPrice}
         triggerPercent={form.triggerPercent}
         slippage={form.slippage}
         expiredAt={form.expiredAt}
         warnings={validation.reviewWarnings}
+        fee={feeEstimate.fee}
+        isFeeLoading={feeEstimate.isLoading}
+        feeError={feeEstimate.errorMessage}
+        onRetryFee={feeEstimate.refetch}
         onDismiss={() => setShowReview(false)}
         createOrder={createOrder}
       />

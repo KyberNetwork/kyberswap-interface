@@ -39,12 +39,6 @@ export const DropdownIcon = ({
   </div>
 )
 
-/**
- * Grid placement for a setting that renders a compact header plus an expanding panel, where the two
- * belong in different cells. `header` and `panel` are the caller's placement classes.
- */
-export type SettingGridCells = { header?: string; panel?: string }
-
 type Props = {
   rightComponent?: ReactNode
   tooltip?: ReactNode
@@ -62,15 +56,8 @@ type Props = {
   slippage?: { value: number; onChange: (value: number) => void }
   /** Renders regardless of the Swap settings pin, for forms that own the control outright. */
   alwaysVisible?: boolean
-  /**
-   * Places the header and the expanding panel as separate cells of the caller's grid: the root stops
-   * being a box (`display: contents`) so its two children become grid items directly. Lets a caller
-   * keep a narrow header column while the panel, which needs more room than the column has, spans
-   * the full grid width. Requires the caller to be a grid; leave unset everywhere else.
-   */
-  gridCells?: SettingGridCells
 }
-const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwaysVisible, gridCells }: Props) => {
+const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwaysVisible }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
@@ -132,8 +119,8 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwa
   }
 
   return (
-    <div className={cn('flex w-full flex-col', gridCells && 'contents')} data-testid="slippage-setting">
-      <div className={cn('flex items-center justify-between gap-1 text-subText', gridCells?.header)}>
+    <div className="flex w-full flex-col" data-testid="slippage-setting">
+      <div className="flex items-center justify-between gap-1 text-subText">
         <div className="flex items-end gap-1">
           <span className="text-xs font-medium text-subText">
             <Trans>Max Slippage</Trans>:
@@ -189,9 +176,6 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwa
         className={cn(
           'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
           expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-          // As a grid item the panel's automatic minimum size would hold the collapsed 0fr row open.
-          gridCells && 'min-h-0',
-          gridCells?.panel,
         )}
       >
         <div className={cn('min-h-0', isHighlight ? 'overflow-visible' : 'overflow-hidden')}>

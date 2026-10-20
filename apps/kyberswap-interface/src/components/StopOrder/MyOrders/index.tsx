@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useGetStopOrdersQuery } from 'services/stopOrder'
 
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
+import { CancelAllButton } from 'components/LimitOrder/MyOrders/components'
 import RefetchIndicator from 'components/RefetchIndicator'
 import SearchInput from 'components/SearchInput'
 import CancelStopOrderModal from 'components/StopOrder/CancelOrder/CancelStopOrderModal'
@@ -12,7 +13,6 @@ import StopOrderEditModal from 'components/StopOrder/EditOrder/StopOrderEditModa
 import StopOrderRow from 'components/StopOrder/MyOrders/StopOrderRow'
 import StopOrderTableHeader from 'components/StopOrder/MyOrders/TableHeader'
 import {
-  CancelAllButton,
   StopOrderEmptyOrders,
   StopOrderPager,
   StopOrderRowsSkeleton,
@@ -263,13 +263,15 @@ const StopOrders = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
     <div className="flex w-full flex-col" data-testid="stop-order-orders">
       <div className="flex min-w-0 items-center border-b border-white-08">
         {isHosted ? (
-          <div className="flex min-w-0 flex-1 items-center px-4 py-2">{toolbar}</div>
+          <div className="flex min-w-0 flex-1 items-center px-4 py-3">{toolbar}</div>
         ) : (
           <StopOrderTabSelector isActiveTab={isActiveTab} onChange={setOwnActiveTab} />
         )}
         {showCancelAll && (
           <div className="flex shrink-0 items-center px-4">
+            {/* The confirmation modal covers it while a batch runs, so it has no busy state of its own. */}
             <CancelAllButton
+              dataTestId="stop-order-cancel-all-button"
               disabled={cancellableOrders.length === 0}
               onClick={() => {
                 setIsCancelAll(true)
@@ -318,7 +320,7 @@ const StopOrders = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
         <SearchInput
           className="h-9 min-h-9 max-w-[360px] flex-1 rounded-2xl bg-raisedBlack py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
           dataTestId="stop-order-search-input"
-          placeholder={t`Search by token symbol or address`}
+          placeholder={t`Search by token symbol or token address`}
           maxLength={255}
           value={keyword}
           onChange={onChangeKeyword}

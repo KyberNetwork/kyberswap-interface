@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Calendar, ChevronDown } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
-import { DropdownIcon, type SettingGridCells } from 'components/SwapForm/SlippageSetting'
+import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TIMES_IN_SECS } from 'constants/index'
@@ -49,8 +49,6 @@ type Props = {
   /** Durations in seconds offered above the Custom Date entry. */
   presetOptions?: ExpiryPresetOption[]
   tooltip?: string
-  /** See `SettingGridCells`: splits the header and the panel across the caller's grid. */
-  gridCells?: SettingGridCells
   /** Shown after the value in the header. */
   rightComponent?: ReactNode
 }
@@ -60,7 +58,6 @@ const LimitOrderExpirySection = ({
   events = {},
   presetOptions,
   tooltip,
-  gridCells,
   rightComponent,
 }: Props) => {
   const expirePresetOptions = presetOptions ?? [
@@ -79,8 +76,8 @@ const LimitOrderExpirySection = ({
     : expirePresetOptions.find(item => item.value === expire)?.label || displayTime
 
   return (
-    <Stack className={cn(gridCells && 'contents')} data-testid="expiry-setting">
-      <HStack className={cn('items-center justify-between gap-1 text-subText', gridCells?.header)}>
+    <Stack data-testid="expiry-setting">
+      <HStack className="items-center justify-between gap-1 text-subText">
         <HStack className="items-center gap-2">
           <TextDashed fontSize={14} className="flex h-fit items-center text-subText">
             <MouseoverTooltip
@@ -113,9 +110,6 @@ const LimitOrderExpirySection = ({
         className={cn(
           'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
           expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-          // As a grid item the panel's automatic minimum size would hold the collapsed 0fr row open.
-          gridCells && 'min-h-0',
-          gridCells?.panel,
         )}
       >
         <div className="min-h-0 overflow-hidden">

@@ -147,6 +147,7 @@ export const useLimitOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) =>
       label: t`LIMIT`,
       tone: 'blue',
       renderDetails,
+      renderOffscreen: count => (count === 1 ? t`Limit Order` : t`Limit Orders`),
     }
   }, [hasPair, orders, isReversed, renderDetails])
 

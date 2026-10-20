@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
-import CurrencyInputPanel, { CurrencyInputPanelFooter } from 'components/CurrencyInputPanel'
+import CurrencyInputPanel, { AmountShortcut, CurrencyInputPanelFooter } from 'components/CurrencyInputPanel'
 
 const Label = ({ children }: { children: ReactNode }) => (
   <div className="text-xs font-medium text-subText">{children}</div>
@@ -19,6 +19,8 @@ export type LimitOrderTokenPanelProps = {
   selectClassName?: string
   /** The token selector lists only tokens the chain's stop order oracle can price. */
   requireOracle?: boolean
+  /** Quick amounts in place of Max and Half. */
+  amountShortcuts?: AmountShortcut[]
 }
 
 type TokenSectionTokens = {
@@ -54,6 +56,7 @@ export const LimitOrderInputTokenPanel = ({
   footer,
   selectClassName,
   requireOracle,
+  amountShortcuts,
 }: LimitOrderTokenPanelProps) => {
   const { currencyIn, currencyOut, inputAmount = '' } = tokens
 
@@ -67,6 +70,7 @@ export const LimitOrderInputTokenPanel = ({
       onUserInput={events.onInputAmountChange}
       onMax={events.onMaxInput}
       onHalf={events.onHalfInput}
+      amountShortcuts={amountShortcuts}
       otherCurrency={currencyOut}
       estimatedUsd={estimateUsd.input}
       onFocus={events.onInputFocus}

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   type PriceMarkerGroup,
   clusterMarkers,
+  countMarkersByGroup,
   flattenMarkerGroups,
   getCrossingArrow,
   positionMarkers,
@@ -82,6 +83,7 @@ describe('marker groups', () => {
     tone: 'warning',
     markers: ids.map((id, index) => ({ id, price: index + 1 })),
     renderDetails: () => null,
+    renderOffscreen: () => null,
   })
   const groups = [group('limit', ['1', '2']), group('stop', ['1'])]
 
@@ -99,6 +101,11 @@ describe('marker groups', () => {
 
   it('leaves out groups the line has no marker of', () => {
     expect(splitMarkerIdsByGroup(['limit:1'], groups).map(entry => entry.group.key)).toEqual(['limit'])
+  })
+
+  it('counts markers by group, leaving out groups with none', () => {
+    expect(countMarkersByGroup(['limit:1', 'limit:2'], groups)).toEqual({ limit: 2 })
+    expect(countMarkersByGroup([], groups)).toEqual({})
   })
 })
 

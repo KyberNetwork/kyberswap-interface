@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { ReactNode, useEffect, useRef, useState } from 'react'
-import { ChevronRight } from 'react-feather'
+import { ChevronRight, ChevronUp, TrendingUp } from 'react-feather'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
@@ -12,7 +12,6 @@ import { ORDER_PANEL_CARD_CLASS } from 'components/LimitOrder/OrderList/OrderLis
 import OrdersPriceChart from 'components/LimitOrder/OrderList/OrdersPriceChart'
 import { useOpenOrderCounts } from 'components/LimitOrder/hooks/useOpenOrderCounts'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
-import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import StopOrders from 'components/StopOrder/MyOrders'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -37,17 +36,7 @@ type MarketTab = LimitOrderTab.PRICE | LimitOrderTab.ORDER_BOOK
 const isMarketTab = (value: string | null): value is MarketTab =>
   value === LimitOrderTab.PRICE || value === LimitOrderTab.ORDER_BOOK
 
-/** How many open orders a tab or pill stands for, in the badge the Limit Order tab carries. */
-const CountBadge = ({ count, dataTestId }: { count: number; dataTestId?: string }) => (
-  <span
-    className="min-w-4 rounded-full bg-primary-30 px-1.5 py-px text-xs font-medium text-primary"
-    data-testid={dataTestId}
-  >
-    {count}
-  </span>
-)
-
-type PanelTab<T extends string> = { id: T; label: ReactNode; badge?: ReactNode }
+type PanelTab<T extends string> = { id: T; label: ReactNode }
 
 /** The tab bar each card of the panel opens with, as the limit-order panel has always drawn it. */
 const PanelTabs = <T extends string>({
@@ -55,11 +44,14 @@ const PanelTabs = <T extends string>({
   activeTab,
   onChange,
   dataTestId,
+  rightSlot,
 }: {
   tabs: PanelTab<T>[]
   activeTab: T
   onChange: (tab: T) => void
   dataTestId: string
+  /** Controls for the whole card, at the far end of the bar. */
+  rightSlot?: ReactNode
 }) => (
   <HStack className="items-center gap-3 bg-background pr-4">
     <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist" data-testid={dataTestId}>
@@ -82,20 +74,20 @@ const PanelTabs = <T extends string>({
                 : 'bg-transparent text-subText hover:bg-tabActive-80 hover:text-text',
             )}
           >
-            <span className="text-base font-medium leading-[normal]">{tab.label}</span>
-            {tab.badge}
+            <span className="flex items-center gap-1.5 text-base font-medium leading-[normal]">{tab.label}</span>
           </button>
         )
       })}
     </div>
+    {rightSlot}
   </HStack>
 )
 
 /**
- * Picks which kind of order the list below shows, in the segmented control the chart's time frames use;
- * each option carries how many of that kind are open.
+ * Picks which kind of order the list below shows, as text tabs split by a rule. On the Active tab each
+ * carries how many orders of its kind are open; History has no such count to give.
  */
-const OrderKindPills = ({
+const OrderKindTabs = ({
   kind,
   onChange,
   counts,
@@ -104,40 +96,68 @@ const OrderKindPills = ({
 }: {
   kind: OrderKind
   onChange: (kind: OrderKind) => void
-  counts: { limit: number; stop: number }
+  /** Open orders by kind, or nothing to show none. */
+  counts?: { limit: number; stop: number }
   insufficientFundOrders: number
   showStopOrders: boolean
 }) => {
-  const options = [
-    { value: OrderKind.LIMIT, label: <Trans>Limit</Trans>, count: counts.limit },
-    ...(showStopOrders ? [{ value: OrderKind.STOP, label: <Trans>Stop</Trans>, count: counts.stop }] : []),
-  ].map(option => ({
-    value: option.value,
-    label: (
-      <HStack as="span" className="items-center justify-center gap-1.5" data-testid={`order-kind-pill-${option.value}`}>
-        {option.label}
-        {option.count > 0 && <span className="text-xs text-subText">{option.count}</span>}
-        {option.value === OrderKind.LIMIT && insufficientFundOrders > 0 && (
-          <MouseoverTooltip
-            placement="top"
-            text={<Trans>You have {insufficientFundOrders} active orders that don&apos;t have sufficient funds.</Trans>}
-          >
-            <span
-              className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning"
-              data-testid="order-list-insufficient-funds-badge"
-            >
-              {insufficientFundOrders}
-            </span>
-          </MouseoverTooltip>
-        )}
-      </HStack>
-    ),
-  }))
+  const tabs = [
+    { id: OrderKind.LIMIT, label: <Trans>Limit Order</Trans>, count: counts?.limit },
+    ...(showStopOrders ? [{ id: OrderKind.STOP, label: <Trans>Stop Order</Trans>, count: counts?.stop }] : []),
+  ]
 
   return (
-    <div data-testid="order-kind-pills">
-      <SegmentedControl size="sm" options={options} value={kind} onChange={onChange} />
-    </div>
+    <HStack className="items-center gap-0 text-sm font-medium" role="tablist" data-testid="order-kind-tabs">
+      {tabs.map((tab, index) => {
+        const active = tab.id === kind
+        const isLast = index === tabs.length - 1
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            data-testid={`order-kind-tab-${tab.id}`}
+            onClick={() => onChange(tab.id)}
+            className={cn(
+              'flex cursor-pointer items-center gap-1.5 border-0 bg-transparent transition-colors',
+              index === 0 ? 'pr-3' : 'pl-3',
+              !isLast && 'border-r border-darkBorder',
+              active ? 'text-primary' : 'text-subText hover:text-text',
+            )}
+          >
+            {tab.label}
+            {!!tab.count && (
+              <span
+                className={cn(
+                  'flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium leading-none transition-colors',
+                  active ? 'bg-primary-20 text-primary' : 'bg-white-08 text-subText',
+                )}
+                data-testid={`order-kind-count-${tab.id}`}
+              >
+                {tab.count}
+              </span>
+            )}
+            {/* A live warning, not a count: shown only while some limit orders cannot be funded. */}
+            {tab.id === OrderKind.LIMIT && insufficientFundOrders > 0 && (
+              <MouseoverTooltip
+                placement="top"
+                text={
+                  <Trans>You have {insufficientFundOrders} active orders that don&apos;t have sufficient funds.</Trans>
+                }
+              >
+                <span
+                  className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning"
+                  data-testid="order-list-insufficient-funds-badge"
+                >
+                  {insufficientFundOrders}
+                </span>
+              </MouseoverTooltip>
+            )}
+          </button>
+        )
+      })}
+    </HStack>
   )
 }
 
@@ -161,8 +181,7 @@ const MyOpenOrdersLink = ({ count, onClick }: { count: number; onClick: () => vo
 
 /**
  * The right column Limit Order and Stop Order share: the market — the pair's chart with every open order
- * on it and, beside the limit form, the book of open limit orders — and below it the user's own orders,
- * one kind at a time.
+ * on it, and the book of open limit orders — and below it the user's own orders, one kind at a time.
  */
 const OrderList = () => {
   const { account } = useActiveWeb3React()
@@ -173,30 +192,39 @@ const OrderList = () => {
   const isStopOrderPage = getTradeProductPath(pathname) === APP_PATHS.STOP_ORDER
   const showStopOrders = isSupportStopOrder(chainId)
 
-  // The chart follows the Pricing Chart display setting it shares with Swap; the book of open limit
-  // orders is about the limit form, so it stays beside that form only.
+  // The chart follows the Pricing Chart display setting it shares with Swap.
   const isShowPricingChart = useShowPricingChart()
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
   const marketTabs: PanelTab<MarketTab>[] = [
-    ...(hasChart ? [{ id: LimitOrderTab.PRICE as const, label: <Trans>Price</Trans> }] : []),
-    ...(!isStopOrderPage
+    ...(hasChart
       ? [
           {
-            id: LimitOrderTab.ORDER_BOOK as const,
+            id: LimitOrderTab.PRICE as const,
             label: (
               <>
-                <span className="max-sm:hidden">
-                  <Trans>Open Limit Orders</Trans>
-                </span>
-                <span className="sm:hidden">
-                  <Trans>Open Orders</Trans>
-                </span>
+                <TrendingUp size={16} aria-hidden="true" />
+                <Trans>Price</Trans>
               </>
             ),
           },
         ]
       : []),
+    {
+      id: LimitOrderTab.ORDER_BOOK,
+      label: (
+        <>
+          <span className="max-sm:hidden">
+            <Trans>Open Limit Orders</Trans>
+          </span>
+          <span className="sm:hidden">
+            <Trans>Open Orders</Trans>
+          </span>
+        </>
+      ),
+    },
   ]
+  // Folds the market card to its tab bar, leaving the page to the orders.
+  const [isMarketCollapsed, setIsMarketCollapsed] = useState(false)
 
   // A link can name the market tab in `tab`; any other value leaves the choice as it is.
   const tabQuery = searchParams.get('tab')
@@ -206,7 +234,8 @@ const OrderList = () => {
   useEffect(() => {
     if (isMarketTab(tabQuery)) setChosenMarketTab(tabQuery)
   }, [tabQuery])
-  const marketTab = marketTabs.find(tab => tab.id === chosenMarketTab)?.id ?? marketTabs[0]?.id
+  // The open limit orders are always offered, so the bar always has a tab to fall back to.
+  const marketTab = marketTabs.find(tab => tab.id === chosenMarketTab)?.id ?? LimitOrderTab.ORDER_BOOK
   const selectMarketTab = (tab: MarketTab) => {
     setChosenMarketTab(tab)
     if (!syncOrderListTabWithQuery) return
@@ -248,11 +277,11 @@ const OrderList = () => {
     ordersCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [tabQuery])
 
-  const pills = (
-    <OrderKindPills
+  const kindTabs = (
+    <OrderKindTabs
       kind={kind}
       onChange={setChosenKind}
-      counts={counts}
+      counts={isActiveTab ? counts : undefined}
       insufficientFundOrders={insufficientFundOrders}
       showStopOrders={showStopOrders}
     />
@@ -260,9 +289,32 @@ const OrderList = () => {
 
   return (
     <>
-      {marketTab && (
-        <Stack className={ORDER_PANEL_CARD_CLASS} data-testid="order-panel-market">
-          <PanelTabs tabs={marketTabs} activeTab={marketTab} onChange={selectMarketTab} dataTestId="order-market-tab" />
+      <Stack className={ORDER_PANEL_CARD_CLASS} data-testid="order-panel-market">
+        <PanelTabs
+          tabs={marketTabs}
+          activeTab={marketTab}
+          onChange={tab => {
+            selectMarketTab(tab)
+            setIsMarketCollapsed(false)
+          }}
+          dataTestId="order-market-tab"
+          rightSlot={
+            <button
+              type="button"
+              aria-label={isMarketCollapsed ? t`Expand` : t`Collapse`}
+              aria-expanded={!isMarketCollapsed}
+              data-testid="order-market-collapse"
+              onClick={() => setIsMarketCollapsed(collapsed => !collapsed)}
+              className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-subText transition-colors hover:bg-tabActive-80 hover:text-text"
+            >
+              <ChevronUp
+                size={18}
+                className={cn('transition-transform duration-200', isMarketCollapsed && 'rotate-180')}
+              />
+            </button>
+          }
+        />
+        {!isMarketCollapsed && (
           <Stack className="border-t border-darkBorder">
             {marketTab === LimitOrderTab.PRICE ? (
               <OrdersPriceChart currencyIn={currencyIn} currencyOut={currencyOut} isStopOrderPage={isStopOrderPage} />
@@ -273,17 +325,13 @@ const OrderList = () => {
               </>
             )}
           </Stack>
-        </Stack>
-      )}
+        )}
+      </Stack>
 
       <Stack ref={ordersCardRef} className={cn(ORDER_PANEL_CARD_CLASS, 'scroll-mt-4')} data-testid="order-panel-orders">
         <PanelTabs
           tabs={[
-            {
-              id: LimitOrderStatus.ACTIVE,
-              label: <Trans>Active Orders</Trans>,
-              badge: counts.total > 0 && <CountBadge count={counts.total} dataTestId="order-tab-active-count" />,
-            },
+            { id: LimitOrderStatus.ACTIVE, label: <Trans>Active Order</Trans> },
             {
               id: LimitOrderStatus.CLOSED,
               label: (
@@ -304,9 +352,9 @@ const OrderList = () => {
         />
         <Stack className="border-t border-darkBorder">
           {kind === OrderKind.STOP ? (
-            <StopOrders isActiveTab={isActiveTab} toolbar={pills} />
+            <StopOrders isActiveTab={isActiveTab} toolbar={kindTabs} />
           ) : (
-            <MyOrders isActiveTab={isActiveTab} toolbar={pills} />
+            <MyOrders isActiveTab={isActiveTab} toolbar={kindTabs} />
           )}
         </Stack>
       </Stack>

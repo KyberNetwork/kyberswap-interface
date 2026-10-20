@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import {
   useCreateStopOrderMutation,
   useEstimateStopOrderFeeMutation,
@@ -17,12 +17,7 @@ import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrder
 import { DEFAULT_MAX_FEES_PERCENTAGE, DEFAULT_MAX_GAS_PERCENTAGE } from 'components/StopOrder/constants'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
 import { StopOrder, StopOrderFee } from 'components/StopOrder/types'
-import {
-  buildStopOrderPayload,
-  getStopOrderServiceErrorMessage,
-  parseRawAmount,
-  stripEmptyEip712Salt,
-} from 'components/StopOrder/utils'
+import { buildStopOrderPayload, parseRawAmount, stripEmptyEip712Salt } from 'components/StopOrder/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
@@ -59,11 +54,7 @@ export const useCreateStopOrder = ({
   const notify = useNotify()
   const tracking = useStopOrderTracking()
 
-  const [fee, setFee] = useState<StopOrderFee | undefined>()
-  // Why the last estimate failed, for the review to show beside the missing fee.
-  const [feeError, setFeeError] = useState<string | undefined>()
-
-  const [estimateFee, { isLoading: isEstimatingFee }] = useEstimateStopOrderFeeMutation()
+  const [estimateFee] = useEstimateStopOrderFeeMutation()
   const [getSignMessage] = useGetStopOrderSignMessageMutation()
   const [submitOrder] = useCreateStopOrderMutation()
   const [getReplaceSignMessage] = useGetStopOrderReplaceSignMessageMutation()
@@ -185,30 +176,11 @@ export const useCreateStopOrder = ({
    * The protocol fee has to be known before signing, because the cap is signed into the intent and
    * the BE doc requires it to be at least the live fee. Throws when the service cannot estimate it.
    */
-  const estimateLatestFee = useCallback(async () => {
+  const estimateLatestFee = useCallback(async (): Promise<StopOrderFee | undefined> => {
     const payload = buildPayload(DEFAULT_MAX_FEES_PERCENTAGE)
     if (!payload) return undefined
-    const result = await estimateFee(payload).unwrap()
-    setFee(result)
-    setFeeError(undefined)
-    return result
+    return estimateFee(payload).unwrap()
   }, [buildPayload, estimateFee])
-
-  /**
-   * For the review: a failed estimate leaves no fee, and the reason to show in its place. The previous
-   * figure is dropped first, so the review never shows an estimate made for other terms.
-   */
-  const refreshFee = useCallback(async () => {
-    setFee(undefined)
-    setFeeError(undefined)
-    try {
-      return await estimateLatestFee()
-    } catch (error) {
-      setFee(undefined)
-      setFeeError(getStopOrderServiceErrorMessage(error) ?? t`The fee could not be estimated. Please try again.`)
-      return undefined
-    }
-  }, [estimateLatestFee])
 
   const submit = useCallback(async () => {
     if (!account || !currencyIn || !currencyOut) return false
@@ -282,10 +254,6 @@ export const useCreateStopOrder = ({
   ])
 
   return {
-    fee,
-    feeError,
-    isEstimatingFee,
-    refreshFee,
     insufficientBalance,
     needsWrap: !!wrapAmount,
     processing: {

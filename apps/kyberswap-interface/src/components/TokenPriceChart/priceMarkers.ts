@@ -19,6 +19,8 @@ export type PriceMarkerGroup = {
   tone: MarkerTone
   /** Content shown when a line is hovered or tapped; handed every marker of this group the line stands for. */
   renderDetails: (markerIds: string[]) => ReactNode
+  /** What the badge counting this group's markers outside the visible price range calls them. */
+  renderOffscreen: (count: number) => ReactNode
 }
 
 export type PriceMarkerOverlay = {
@@ -28,8 +30,6 @@ export type PriceMarkerOverlay = {
    * close, which can come from a different source.
    */
   referencePrice?: number
-  /** Text for the edge badge counting markers outside the visible price range. */
-  renderOffscreen: (count: number, direction: 'above' | 'below') => ReactNode
 }
 
 /** A marker's id on the chart, scoped by its group, since two groups can number their markers alike. */
@@ -41,6 +41,10 @@ export const getGroupedMarkerId = (groupKey: string, markerId: string) => `${gro
  */
 export const flattenMarkerGroups = (groups: PriceMarkerGroup[]): PriceMarker[] =>
   groups.flatMap(group => group.markers.map(marker => ({ ...marker, id: getGroupedMarkerId(group.key, marker.id) })))
+
+/** How many of the given markers each group has, by group key; groups with none are left out. */
+export const countMarkersByGroup = (ids: string[], groups: PriceMarkerGroup[]): Record<string, number> =>
+  Object.fromEntries(splitMarkerIdsByGroup(ids, groups).map(entry => [entry.group.key, entry.ids.length]))
 
 /** The markers a line stands for, back in their groups with their own ids, in the overlay's order. */
 export const splitMarkerIdsByGroup = (ids: string[], groups: PriceMarkerGroup[]) =>

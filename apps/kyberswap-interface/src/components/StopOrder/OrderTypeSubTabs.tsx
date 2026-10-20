@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { startTransition } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import { HStack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -10,8 +10,18 @@ import { cn } from 'utils/cn'
 import { getTradeProductPath } from 'utils/routes'
 
 const TABS = [
-  { path: APP_PATHS.LIMIT, key: 'limit', label: <Trans>Limit Orders</Trans> },
-  { path: APP_PATHS.STOP_ORDER, key: 'stop-order', label: <Trans>Stop Order</Trans> },
+  {
+    path: APP_PATHS.LIMIT,
+    key: 'limit',
+    label: <Trans>Limit Order</Trans>,
+    subtitle: <Trans>Trade at exactly your price</Trans>,
+  },
+  {
+    path: APP_PATHS.STOP_ORDER,
+    key: 'stop-order',
+    label: <Trans>Stop Order</Trans>,
+    subtitle: <Trans>Trade the moment your price is hit</Trans>,
+  },
 ] as const
 
 /**
@@ -29,40 +39,48 @@ const OrderTypeSubTabs = () => {
   if (!isSupportStopOrder(chainId)) return null
 
   const activePath = getTradeProductPath(pathname)
+  const subtitle = TABS.find(tab => tab.path === activePath)?.subtitle
 
   return (
-    <HStack className="items-center gap-0 text-xs font-medium tracking-[0.04em]" data-testid="order-type-tabs">
-      {TABS.map(({ path, key, label }, index) => (
-        <button
-          key={path}
-          type="button"
-          data-testid={`order-type-tab-${key}`}
-          aria-current={path === activePath ? 'page' : undefined}
-          onClick={() => {
-            // `tab` names a panel of the product being left, so it must not ride along.
-            const nextSearch = new URLSearchParams(search)
-            nextSearch.delete('tab')
-            // The destination page is code-split, and the app's only Suspense boundary wraps the whole
-            // body — so without a transition React swaps the entire page for the route skeleton while
-            // the chunk loads. A transition keeps the current card on screen until the next one is ready.
-            startTransition(() => {
-              navigate({
-                pathname: `${path}/${network || networkInfo.route}${currency ? `/${currency}` : ''}`,
-                search: nextSearch.toString(),
+    <Stack className="gap-1">
+      <HStack className="items-center gap-0 text-xs font-medium tracking-[0.04em]" data-testid="order-type-tabs">
+        {TABS.map(({ path, key, label }, index) => (
+          <button
+            key={path}
+            type="button"
+            data-testid={`order-type-tab-${key}`}
+            aria-current={path === activePath ? 'page' : undefined}
+            onClick={() => {
+              // `tab` names a panel of the product being left, so it must not ride along.
+              const nextSearch = new URLSearchParams(search)
+              nextSearch.delete('tab')
+              // The destination page is code-split, and the app's only Suspense boundary wraps the whole
+              // body — so without a transition React swaps the entire page for the route skeleton while
+              // the chunk loads. A transition keeps the current card on screen until the next one is ready.
+              startTransition(() => {
+                navigate({
+                  pathname: `${path}/${network || networkInfo.route}${currency ? `/${currency}` : ''}`,
+                  search: nextSearch.toString(),
+                })
               })
-            })
-          }}
-          className={cn(
-            // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
-            'cursor-pointer border-0 bg-transparent px-3 py-1 uppercase transition-colors first:pl-0 hover:text-text',
-            index < TABS.length - 1 && 'border-r border-darkBorder',
-            path === activePath ? 'text-primary' : 'text-gray',
-          )}
-        >
-          {label}
-        </button>
-      ))}
-    </HStack>
+            }}
+            className={cn(
+              // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
+              'cursor-pointer border-0 bg-transparent px-3 py-1 uppercase transition-colors first:pl-0 hover:text-text',
+              index < TABS.length - 1 && 'border-r border-darkBorder',
+              path === activePath ? 'text-primary' : 'text-gray',
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </HStack>
+      {subtitle && (
+        <span className="text-xs text-subText" data-testid="order-type-subtitle">
+          {subtitle}
+        </span>
+      )}
+    </Stack>
   )
 }
 

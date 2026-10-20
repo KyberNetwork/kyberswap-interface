@@ -183,14 +183,14 @@ const TriggerPriceSection = ({
           <button
             key={percent}
             type="button"
-            data-testid={`stop-order-trigger-percent-preset-${Math.abs(percent)}`}
+            data-testid={`stop-order-trigger-percent-preset-${percent < 0 ? 'minus' : 'plus'}-${Math.abs(percent)}`}
             className={cn(
               PERCENT_CHIP_CLASSES,
               'border-border/60 text-subText hover:border-border-primary hover:text-primary',
             )}
             onClick={() => onChangeTriggerPercent(String(percent))}
           >
-            {percent}%
+            {percent > 0 ? `+${percent}` : percent}%
           </button>
         ))}
       </div>

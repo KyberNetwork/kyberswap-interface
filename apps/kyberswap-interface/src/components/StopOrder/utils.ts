@@ -321,6 +321,8 @@ export type StopOrderFill = {
   amountOut?: number
   /** tokenIn priced in tokenOut by the oracle when this fill settled. */
   price?: number
+  /** Unix seconds: when the fill's transaction was submitted. */
+  createdAt?: number
 }
 
 /**
@@ -338,10 +340,28 @@ export const getStopOrderFills = (order: StopOrder): StopOrderFill[] =>
         amountIn: resolveExecutionAmountIn(execution),
         amountOut: resolveExecutionAmountOut(execution),
         price: Number.isFinite(price) && price > 0 ? price : undefined,
+        createdAt: execution.createdAt,
       }
     })
 
 export type StopOrderFillSummary = { amountIn?: number; amountOut?: number; price?: number }
+
+/**
+ * The least an order pays out when it fills: what it sells is worth `estimatedOutput` at the trigger,
+ * and the fill may fall short of that by up to `slippage` (basis points). The service measures that
+ * floor net of its fee, so the fee is not taken off again. Worked out here because the service reports
+ * no floor of its own.
+ */
+export const getStopOrderMinReceive = ({
+  estimatedOutput,
+  slippage,
+}: {
+  estimatedOutput: number
+  slippage: number
+}): number | undefined => {
+  if (!Number.isFinite(estimatedOutput) || estimatedOutput <= 0 || !Number.isFinite(slippage)) return undefined
+  return Math.max(estimatedOutput * (1 - slippage / 10_000), 0)
+}
 
 /** The total, or nothing when any part is unknown — a partial sum would understate the order. */
 const sumIfComplete = (values: Array<number | undefined>) => {

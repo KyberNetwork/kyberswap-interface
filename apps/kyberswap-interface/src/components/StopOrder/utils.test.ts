@@ -19,6 +19,7 @@ import {
   getStopOrderFills,
   getStopOrderFundingKey,
   getStopOrderFundingShortfalls,
+  getStopOrderMinReceive,
   getStopOrderPairKey,
   getStopOrderRecreateDraft,
   getStopOrderRetry,
@@ -796,5 +797,21 @@ describe('getStopOrderRecreateDraft', () => {
   it('yields an empty trigger when the condition is missing rather than throwing', () => {
     const noCondition = { ...ORDER, condition: undefined } as unknown as typeof ORDER
     expect(getStopOrderRecreateDraft(noCondition, EXPIRY).triggerPrice).toBe('')
+  })
+})
+
+describe('getStopOrderMinReceive', () => {
+  it('takes the slippage allowed off the output at the trigger, and nothing more', () => {
+    // 1,000 at the trigger with 0.5% slippage (50 bps); the fee is already inside that floor.
+    expect(getStopOrderMinReceive({ estimatedOutput: 1000, slippage: 50 })).toBeCloseTo(995)
+  })
+
+  it('never goes below nothing', () => {
+    expect(getStopOrderMinReceive({ estimatedOutput: 10, slippage: 20_000 })).toBe(0)
+  })
+
+  it('has no floor without an output to take it from', () => {
+    expect(getStopOrderMinReceive({ estimatedOutput: 0, slippage: 50 })).toBeUndefined()
+    expect(getStopOrderMinReceive({ estimatedOutput: Number.NaN, slippage: 50 })).toBeUndefined()
   })
 })

@@ -2,7 +2,7 @@ import { ChainId, type Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import { ReactNode, Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import tokenChartApi, {
@@ -64,9 +64,20 @@ type TokenPriceChartProps = {
   /** Prices the tokens in this currency instead of the chain's USD stablecoin. */
   quoteCurrency?: Currency
   markerOverlay?: PriceMarkerOverlay
+  /** Draws the market price as its own line; see the canvas. */
+  showMarketPrice?: boolean
+  /** Shown under the chart, inside its card — controls for what the chart draws, say. */
+  footer?: ReactNode
 }
 
-const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay }: TokenPriceChartProps) => {
+const TokenPriceChart = ({
+  tokens,
+  flatten,
+  quoteCurrency,
+  markerOverlay,
+  showMarketPrice,
+  footer,
+}: TokenPriceChartProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -94,6 +105,8 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay }: Toke
   const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1d')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [isExpanded, setIsExpanded] = useState(!upToSmall)
+  // By marker group, as the canvas last counted them outside the visible price range.
+  const [offscreenCounts, setOffscreenCounts] = useState<Record<string, number>>({})
 
   const resolvedActiveTabIndex = activeTabIndex < filteredTokens.length ? activeTabIndex : 0
   const activeToken = filteredTokens[resolvedActiveTabIndex] ?? filteredTokens[0]
@@ -320,14 +333,31 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay }: Toke
                 )}
               </Stack>
 
-              <Stack className="ml-auto">
+              <HStack className="ml-auto flex-wrap items-center justify-end gap-2">
+                {/* Each kind of marker counts its own outside the visible price range, in its own colour. */}
+                {markerOverlay?.groups.map(group => {
+                  const count = offscreenCounts[group.key] ?? 0
+                  if (!count) return null
+                  return (
+                    <span
+                      key={group.key}
+                      data-testid={`price-marker-offscreen-${group.key}`}
+                      className={cn(
+                        'rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase leading-[14px]',
+                        group.tone === 'blue' ? 'border-blue text-blue' : 'border-warning text-warning',
+                      )}
+                    >
+                      +{count} {group.renderOffscreen(count)}
+                    </span>
+                  )
+                })}
                 <SegmentedControl
                   onChange={setTimeFrame}
                   options={CHART_TIME_FRAME_OPTIONS}
                   size="sm"
                   value={timeFrame}
                 />
-              </Stack>
+              </HStack>
             </HStack>
 
             <div className="relative rounded-lg">
@@ -359,6 +389,8 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay }: Toke
                     timeFrame={timeFrame}
                     formatValue={formatValue}
                     markerOverlay={markerOverlay}
+                    showMarketPrice={showMarketPrice}
+                    onOffscreenChange={setOffscreenCounts}
                   />
                 </Suspense>
               </PoolChartState>
@@ -375,6 +407,8 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay }: Toke
                 </Stack>
               )}
             </div>
+
+            {footer}
 
             {upToSmall && (
               <div className="w-fit">

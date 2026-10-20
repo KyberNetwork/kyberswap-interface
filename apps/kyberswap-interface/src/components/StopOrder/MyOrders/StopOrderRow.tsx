@@ -26,6 +26,7 @@ import {
   getStopOrderExecutionTxHash,
   getStopOrderFills,
   getStopOrderFundingShortfalls,
+  getStopOrderMinReceive,
   getStopOrderRetry,
   getStopOrderSellAmountUsd,
   getStopOrderTriggerPrice,
@@ -187,8 +188,8 @@ const StopOrderRow = ({
         // `duration-*` also sets the animation's length under tailwindcss-animate, so the background
         // transition takes its 200ms from a plain property instead.
         'animate-[fadeInUp_0.3s_ease-out_both] transition-colors [transition-duration:200ms] motion-reduce:animate-none',
-        // A warned row is tinted whole, so the note under it reads as part of the order.
-        warnings.length > 0 && 'bg-warning-10',
+        // A warned or retrying row is tinted whole, so the note under it reads as part of the order.
+        (warnings.length > 0 || !!retryMessage) && 'bg-warning-10',
         expanded && canExpand && 'bg-raisedBlack',
       )}
       style={{ animationDelay: `${Math.min(rowIndex * 50, 300)}ms` }}
@@ -325,27 +326,25 @@ const StopOrderRow = ({
       {retryMessage && (
         // Default text colour: the amber cell already carries the signal, and an amber explanation would
         // make an order that is still being worked on read as alarming.
-        <p
-          className="m-0 px-4 pb-2.5 text-xs text-text max-sm:px-3"
+        <HStack
+          className="items-center justify-between gap-4 px-4 pb-2.5 max-sm:flex-col max-sm:items-start max-sm:gap-2 max-sm:px-3"
           data-testid="stop-order-order-retry-message"
           data-cause={retryCause}
         >
-          {retryMessage}
+          <p className="m-0 min-w-0 flex-1 text-xs text-text">{retryMessage}</p>
           {/* Slippage is the one cause the order itself can fix. */}
           {retryCause === 'slippage' && !isCancelling && (
-            <>
-              {' '}
-              <button
-                type="button"
-                className="cursor-pointer border-0 bg-transparent p-0 text-xs font-medium text-primary hover:brightness-110"
-                onClick={() => onEdit(order)}
-                data-testid="stop-order-order-retry-edit"
-              >
-                {t`Edit order`}
-              </button>
-            </>
+            <button
+              type="button"
+              className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-0 bg-primary-10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary-20"
+              onClick={() => onEdit(order)}
+              data-testid="stop-order-order-retry-edit"
+            >
+              <Edit2 size={12} />
+              {t`Edit Order`}
+            </button>
           )}
-        </p>
+        </HStack>
       )}
 
       {warnings.length > 0 && (
@@ -382,6 +381,11 @@ const StopOrderRow = ({
               sellSymbol={sellCurrency.symbol || '-'}
               receiveSymbol={receiveCurrency.symbol || '-'}
               triggerPrice={Number(triggerPrice)}
+              minAmountOut={getStopOrderMinReceive({
+                estimatedOutput: Number(sellCurrencyAmount.toExact()) * Number(triggerPrice),
+                slippage: order.slippage,
+              })}
+              createdAt={order.createdAt}
             />
           </div>
         </div>

@@ -23,8 +23,8 @@ export const getStopOrderExpiryPresets = () => [
  */
 export const STOP_ORDER_SLIPPAGE_MULTIPLIER = 2
 
-/** Percent-below-market shortcuts offered next to the editable percent chip. */
-export const TRIGGER_PERCENT_PRESETS = [-20, -50]
+/** Shortcuts for the trigger's distance from the market, offered next to the editable percent chip. */
+export const TRIGGER_PERCENT_PRESETS = [-50, -20, 20, 50]
 
 /**
  * Starting fee cap carried in the signed intent. Raised to the live protocol fee from `estimate-fee`
@@ -34,3 +34,9 @@ export const DEFAULT_MAX_FEES_PERCENTAGE = [1, 1]
 
 /** Ceiling on what the operator may spend on gas, as a percentage of the trade. */
 export const DEFAULT_MAX_GAS_PERCENTAGE = 50
+
+/**
+ * The highest tier rate. A fee taking a larger share of the order is the flat minimum at work on a small
+ * one, which is worth pointing out.
+ */
+export const HIGH_FEE_SHARE_PERCENT = 1

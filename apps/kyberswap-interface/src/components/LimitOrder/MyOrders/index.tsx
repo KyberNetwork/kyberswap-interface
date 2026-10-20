@@ -325,13 +325,14 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
     <div className="flex w-full flex-col">
       <div className="flex min-w-0 items-center border-b border-darkBorder">
         {isHosted ? (
-          <div className="flex min-w-0 flex-1 items-center px-4 py-2">{toolbar}</div>
+          <div className="flex min-w-0 flex-1 items-center px-4 py-3">{toolbar}</div>
         ) : (
           <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} />
         )}
         {showCancelAll && (
           <div className="flex shrink-0 items-center px-4">
             <CancelAllButton
+              dataTestId="limit-order-cancel-all-button"
               onClick={onCancelAllOrder}
               disabled={disabledCancelAll}
               isLoading={isLoadingCancelAllOrders}
@@ -367,7 +368,7 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
         </div>
         <SearchInput
           className="h-9 min-h-9 max-w-[280px] flex-1 rounded-[40px] py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
-          placeholder={t`Search by token symbol or address`}
+          placeholder={t`Search by token symbol or token address`}
           maxLength={255}
           value={keyword}
           onChange={onChangeKeyword}

@@ -100,6 +100,14 @@ const stopOrderApi = createApi({
       transformResponse: (response: ApiEnvelope<StopOrderFee>) => response?.data,
     }),
 
+    // The same estimate, as a query: the cards show the fee while the terms are still being set, so the
+    // answer is cached per set of terms and a repeat of one is not sent again.
+    getStopOrderFeeEstimate: builder.query<StopOrderFee, StopOrderCorePayload>({
+      query: body => ({ url: `${ORDERS_PATH}/estimate-fee`, method: 'POST', body }),
+      transformResponse: (response: ApiEnvelope<StopOrderFee>) => response?.data,
+      keepUnusedDataFor: 30,
+    }),
+
     getStopOrderSignMessage: builder.mutation<StopOrderTypedData, StopOrderCorePayload>({
       query: body => ({ url: `${ORDERS_PATH}/sign-message`, method: 'POST', body }),
       transformResponse: (response: ApiEnvelope<StopOrderTypedData>) => response?.data,
@@ -182,6 +190,7 @@ export const {
   useGetStopOrderOracleConfigQuery,
   useGetStopOrderOraclePriceQuery,
   useEstimateStopOrderFeeMutation,
+  useGetStopOrderFeeEstimateQuery,
   useGetStopOrderSignMessageMutation,
   useCreateStopOrderMutation,
   useGetStopOrderReplaceSignMessageMutation,

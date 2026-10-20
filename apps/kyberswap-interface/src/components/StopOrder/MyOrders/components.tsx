@@ -10,7 +10,6 @@ import {
   ChevronRight,
   ExternalLink as LinkIcon,
   RefreshCw,
-  Trash,
 } from 'react-feather'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
@@ -28,6 +27,7 @@ import {
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { ExternalLink } from 'theme'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -70,24 +70,6 @@ export const StopOrderTabSelector = ({
       </span>
     </button>
   </HStack>
-)
-
-/**
- * The confirmation modal owns the cancelling state and covers this button while a batch runs, so the
- * button itself has no busy state to show. Orders drop out of the cancellable set as they settle,
- * which is what takes it off screen.
- */
-export const CancelAllButton = ({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={disabled}
-    data-testid="stop-order-cancel-all-button"
-    className="flex w-fit animate-[fadeIn_0.2s_ease-out_both] cursor-pointer items-center gap-1.5 rounded-[10px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text disabled:cursor-default disabled:opacity-50 disabled:hover:text-subText motion-reduce:animate-none"
-  >
-    <Trash size={14} />
-    <Trans>Cancel All</Trans>
-  </button>
 )
 
 const pagerArrowClass = (enabled: boolean) =>
@@ -331,11 +313,9 @@ export const triggerProximityText = cva('transition-colors duration-200', {
  * order is still waiting for the price, when it is the swap that has not gone through.
  */
 export const RetryingCell = () => (
-  <HStack
-    className="items-center gap-1 text-sm font-medium text-warning motion-safe:animate-pulse"
-    data-testid="stop-order-order-retrying"
-  >
-    <RefreshCw size={12} className="shrink-0" />
+  <HStack className="items-center gap-1 text-sm font-medium text-warning" data-testid="stop-order-order-retrying">
+    {/* Turning, since the order is still being worked on. */}
+    <RefreshCw size={12} className="shrink-0 motion-safe:animate-spin-slow" />
     <Trans>Retrying</Trans>
   </HStack>
 )
@@ -440,11 +420,32 @@ const getTriggerGapPercent = (price: number | undefined, triggerPrice: number) =
 // Two decimals: a fill usually lands within a fraction of a percent of its trigger.
 const formatTriggerGap = (gapPercent: number) => formatDistanceMagnitude(gapPercent, 2)
 
+/** One labelled figure of the strip an executed order opens. */
+const DetailField = ({
+  label,
+  dataTestId,
+  children,
+}: {
+  label: ReactNode
+  dataTestId: string
+  children: ReactNode
+}) => (
+  <Stack className="min-w-0 gap-0.5">
+    <span className="text-xs text-subText">{label}</span>
+    <span className="truncate text-sm font-medium text-text" data-testid={dataTestId}>
+      {children}
+    </span>
+  </Stack>
+)
+
+const formatDetailTime = (seconds: number | undefined) =>
+  seconds ? dayjs.unix(seconds).format('DD MMM, YYYY HH:mm') : '-'
+
 /**
- * What an executed order actually did, opening under its row across the whole table width. The gap to
- * the trigger is worth stating: the fill follows the oracle at execution, which a fast market can carry
- * well past the trigger. An order settled in several fills gets the totals first, then each fill with
- * its own transaction — the row's link reaches only the latest.
+ * What an executed order actually did, opening under its row across the whole table width: the price it
+ * filled at, the least it could have paid out, when it was placed and filled, and its transaction. An
+ * order settled in several fills lists each fill with its own transaction under the totals — the strip
+ * links only the latest.
  */
 export const StopOrderExecutionDetail = ({
   chainId,
@@ -453,6 +454,8 @@ export const StopOrderExecutionDetail = ({
   sellSymbol,
   receiveSymbol,
   triggerPrice,
+  minAmountOut,
+  createdAt,
 }: {
   chainId: ChainId
   fills: StopOrderFill[]
@@ -460,25 +463,45 @@ export const StopOrderExecutionDetail = ({
   sellSymbol: string
   receiveSymbol: string
   triggerPrice: number
+  minAmountOut?: number
+  /** Unix seconds. */
+  createdAt: number
 }) => {
-  const sold = formatFillAmount(summary.amountIn)
-  const received = formatFillAmount(summary.amountOut)
-  const price = formatFillAmount(summary.price)
-  const gapPercent = getTriggerGapPercent(summary.price, triggerPrice)
-  const gap = gapPercent === undefined ? undefined : formatTriggerGap(gapPercent)
+  const latestFill = fills[fills.length - 1]
 
-  if (fills.length > 1) {
-    const fillCount = fills.length
-    return (
-      <Stack className={cn(DETAIL_CLASS, 'gap-2')} data-testid="stop-order-order-execution-detail">
-        <span>
-          <Trans>
-            Sold <span className="text-text">{sold}</span> {sellSymbol} in {fillCount} fills at ~{price} {receiveSymbol}{' '}
-            per {sellSymbol} on average. You received <span className="text-text">{received}</span> {receiveSymbol}.
-          </Trans>
-        </span>
-        {/* One grid for every fill, so their figures line up in columns; a phone wraps each fill instead. */}
-        <ol className="grid grid-cols-[repeat(4,max-content)_1fr] items-center gap-x-4 gap-y-1 max-sm:flex max-sm:flex-col">
+  return (
+    <Stack className={cn(DETAIL_CLASS, 'gap-3')} data-testid="stop-order-order-execution-detail">
+      <div className="grid grid-cols-5 gap-4 max-sm:grid-cols-2">
+        <DetailField label={<Trans>Execution price</Trans>} dataTestId="stop-order-order-detail-price">
+          {formatFillAmount(summary.price)} {receiveSymbol}
+        </DetailField>
+        <DetailField label={<Trans>Min amount out</Trans>} dataTestId="stop-order-order-detail-min-out">
+          {formatFillAmount(minAmountOut)} {receiveSymbol}
+        </DetailField>
+        <DetailField label={<Trans>Created at</Trans>} dataTestId="stop-order-order-detail-created">
+          {formatDetailTime(createdAt)}
+        </DetailField>
+        <DetailField label={<Trans>Executed at</Trans>} dataTestId="stop-order-order-detail-executed">
+          {formatDetailTime(latestFill?.createdAt)}
+        </DetailField>
+        <DetailField label={<Trans>Transaction</Trans>} dataTestId="stop-order-order-detail-tx">
+          {latestFill ? (
+            <ExternalLink
+              href={getEtherscanLink(chainId, latestFill.hash, 'transaction')}
+              className="inline-flex items-center gap-1 text-text hover:no-underline hover:brightness-125"
+            >
+              {shortenHash(latestFill.hash, 4)}
+              <LinkIcon size={12} />
+            </ExternalLink>
+          ) : (
+            '-'
+          )}
+        </DetailField>
+      </div>
+
+      {fills.length > 1 && (
+        // One grid for every fill, so their figures line up in columns; a phone wraps each fill instead.
+        <ol className="m-0 grid grid-cols-[repeat(4,max-content)_1fr] items-center gap-x-4 gap-y-1 p-0 max-sm:flex max-sm:flex-col">
           {fills.map((fill, index) => {
             const fillNumber = index + 1
             const fillGapPercent = getTriggerGapPercent(fill.price, triggerPrice)
@@ -519,26 +542,6 @@ export const StopOrderExecutionDetail = ({
             )
           })}
         </ol>
-      </Stack>
-    )
-  }
-
-  return (
-    <Stack className={cn(DETAIL_CLASS, 'gap-1')} data-testid="stop-order-order-execution-detail">
-      <span>
-        <Trans>
-          Sold <span className="text-text">{sold}</span> {sellSymbol} at ~{price} {receiveSymbol} per {sellSymbol}. You
-          received <span className="text-text">{received}</span> {receiveSymbol}.
-        </Trans>
-      </span>
-      {gap !== undefined && gapPercent !== undefined && (
-        <span data-testid="stop-order-order-execution-gap">
-          {gapPercent >= 0 ? (
-            <Trans>Executed {gap}% below trigger.</Trans>
-          ) : (
-            <Trans>Executed {gap}% above trigger.</Trans>
-          )}
-        </span>
       )}
     </Stack>
   )

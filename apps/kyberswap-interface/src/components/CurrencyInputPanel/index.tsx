@@ -131,8 +131,29 @@ const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HT
   />
 )
 
+/** A quick amount offered above the input, e.g. a share of the balance. */
+export type AmountShortcut = { label: ReactNode; onClick: () => void; active?: boolean; dataTestId?: string }
+
+/** Quick amounts in the Max chip's style, the one matching the amount entered ringed. */
+export const AmountShortcutChips = ({ shortcuts }: { shortcuts: AmountShortcut[] }) => (
+  <>
+    {shortcuts.map((shortcut, index) => (
+      <StyledBalanceMax
+        key={index}
+        onClick={shortcut.onClick}
+        data-testid={shortcut.dataTestId}
+        aria-pressed={shortcut.active}
+        className={cn(shortcut.active && 'text-text ring-1 ring-subText/60')}
+      >
+        {shortcut.label}
+      </StyledBalanceMax>
+    ))}
+  </>
+)
+
 type BalanceRowProps = {
   account?: string | null
+  amountShortcuts?: AmountShortcut[]
   currency?: Currency | null
   customBalanceText?: string
   label?: ReactNode
@@ -145,6 +166,7 @@ type BalanceRowProps = {
 
 const BalanceRow = ({
   account,
+  amountShortcuts,
   currency,
   customBalanceText,
   label,
@@ -154,7 +176,7 @@ const BalanceRow = ({
   positionMax,
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
-  const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
+  const showTopActions = (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && currency && account
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   return (
@@ -162,12 +184,14 @@ const BalanceRow = ({
       {(label && positionLabel === 'in') || showTopActions ? (
         <div className="flex items-center gap-1">
           {label && positionLabel === 'in' && label}
-          {showTopActions && onMax && (
+          {/* Shortcuts, when given, stand in for Max and Half. */}
+          {showTopActions && !!amountShortcuts?.length && <AmountShortcutChips shortcuts={amountShortcuts} />}
+          {showTopActions && !amountShortcuts?.length && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
             </StyledBalanceMax>
           )}
-          {showTopActions && onHalf && (
+          {showTopActions && !amountShortcuts?.length && onHalf && (
             <StyledBalanceMax onClick={onHalf}>
               <Trans>Half</Trans>
             </StyledBalanceMax>
@@ -321,6 +345,8 @@ interface CurrencyInputPanelProps {
   value: string
   onMax?: () => void
   onHalf?: () => void
+  /** Quick amounts shown above the input in place of Max and Half; needs `positionMax="top"`. */
+  amountShortcuts?: AmountShortcut[]
   onUserInput?: (value: string) => void
   onFocus?: () => void
   onClickSelect?: () => void
@@ -376,6 +402,7 @@ export default function CurrencyInputPanel({
   onUserInput,
   onMax,
   onHalf,
+  amountShortcuts,
   positionMax = 'inline',
   label = '',
   footer,
@@ -441,6 +468,7 @@ export default function CurrencyInputPanel({
           {!hideBalance && (
             <BalanceRow
               account={account}
+              amountShortcuts={amountShortcuts}
               currency={currency}
               customBalanceText={customBalanceText}
               label={label}

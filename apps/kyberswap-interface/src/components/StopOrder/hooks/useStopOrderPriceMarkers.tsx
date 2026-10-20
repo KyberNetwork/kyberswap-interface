@@ -24,6 +24,8 @@ const EMPTY_ORDERS: StopOrder[] = []
 type Props = {
   currencyIn?: Currency
   currencyOut?: Currency
+  /** Off while the chart draws no stop orders and needs no oracle line, so nothing is fetched for it. */
+  enabled: boolean
 }
 
 /**
@@ -33,7 +35,7 @@ type Props = {
  * the pair shows on one scale. `referencePrice` is the oracle price the triggers are checked against,
  * and `modal` the cancel confirmation a line's details open, to render beside the chart.
  */
-export const useStopOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) => {
+export const useStopOrderPriceMarkers = ({ currencyIn, currencyOut, enabled }: Props) => {
   const { account } = useActiveWeb3React()
   const [cancelTargets, setCancelTargets] = useState<StopOrder[]>([])
   // The list keeps returning a cancelled order as Open until the service catches up; its line and
@@ -44,7 +46,7 @@ export const useStopOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) => 
   const tokenIn = currencyIn?.wrapped.address.toLowerCase()
   const tokenOut = currencyOut?.wrapped.address.toLowerCase()
   // Nothing to draw on a chain that takes no stop orders.
-  const hasPair = !!chainId && isSupportStopOrder(chainId) && !!tokenIn && !!tokenOut && tokenIn !== tokenOut
+  const hasPair = enabled && !!chainId && isSupportStopOrder(chainId) && !!tokenIn && !!tokenOut && tokenIn !== tokenOut
 
   const { currentData } = useGetStopOrdersQuery(
     {
@@ -78,8 +80,9 @@ export const useStopOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) => 
     [currentData?.orders, tokenIn, tokenOut, isReversed, cancelledIds],
   )
 
+  // Without a sell token the feed is not asked for, which is how a disabled chart skips it.
   const { price: oraclePrice, priceNumber: oraclePriceNumber } = useStopOrderOraclePrice(
-    currencyIn,
+    enabled ? currencyIn : undefined,
     currencyOut,
     chainId,
   )
@@ -164,6 +167,7 @@ export const useStopOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) => 
       label: t`STOP`,
       tone: 'warning',
       renderDetails,
+      renderOffscreen: count => (count === 1 ? t`Stop Order` : t`Stop Orders`),
     }
   }, [hasPair, orders, isReversed, renderDetails])
 
