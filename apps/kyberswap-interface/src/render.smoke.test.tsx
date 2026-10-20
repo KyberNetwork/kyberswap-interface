@@ -45,6 +45,16 @@ describe('SSR render smoke', () => {
     expect(html).toContain('id="limit-button"')
   })
 
+  it('renders unified cross-chain directly at /swap with a query-only pair', async () => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml('/swap?from=1&to=8453&tokenIn=ETH&tokenOut=ETH')
+
+    expect(html).toContain('Route Options')
+    expect(html).toContain('<aside')
+    expect(html).toContain('data-testid="cross-chain-tab"')
+    expect(html).not.toContain('<!--$?-->')
+  })
+
   it.each(['/partner-swap', '/user-swap'])(
     'keeps embedded swap and feature selection working on %s',
     async pathname => {

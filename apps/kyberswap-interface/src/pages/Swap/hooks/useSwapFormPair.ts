@@ -1,13 +1,13 @@
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { useActiveWeb3React } from 'hooks'
 import { type Chain, type Currency, NonEvmChain, type NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
-import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
+import { useCurrencyFromUrl, useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
-import { getDefaultSwapTokenId, getSwapChains } from 'utils/swapFlow'
+import { SwapPair, getDefaultSwapTokenId, getTradeLocation, isCrossChainPair } from 'utils/swapFlow'
 
 const getSelectedTokenId = (currency: Currency) => {
   if ('isNative' in currency) return currencyId(currency, currency.chainId)
@@ -18,20 +18,18 @@ const getSelectedTokenId = (currency: Currency) => {
 
 /** Owns pair selection and reversal for both unified swap flows. */
 export const useSwapFormPair = () => {
-  const { chainId } = useActiveWeb3React()
+  const navigate = useNavigate()
+  const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
+  const isCrossChain = isCrossChainPair(inputChain, outputChain)
   const resolvedInput = useInputCurrency()
   const resolvedOutput = useOutputCurrency()
-  const [params, setParams] = useSearchParams()
-  const { fromChain: inputChain, toChain: outputChain, isCrossChain } = getSwapChains(params, chainId)
+  const [params] = useSearchParams()
   const [selected, setSelected] = useState<{ currencyIn?: EvmCurrency; currencyOut?: EvmCurrency }>({})
-  const matches = (currency: EvmCurrency | undefined, id: string | null, chain: Chain) =>
-    currency?.chainId === chain && currencyId(currency, currency.chainId).toLowerCase() === id?.toLowerCase()
-  const currencyIn = matches(selected.currencyIn, params.get('tokenIn'), inputChain)
-    ? selected.currencyIn
-    : resolvedInput
-  const selectedOutput = matches(selected.currencyOut, params.get('tokenOut'), outputChain)
-    ? selected.currencyOut
-    : resolvedOutput
+  const matches = (currency: EvmCurrency | undefined, id: string, chain: Chain) =>
+    currency?.chainId === chain &&
+    [currencyId(currency, currency.chainId).toLowerCase(), currency.symbol?.toLowerCase()].includes(id.toLowerCase())
+  const currencyIn = matches(selected.currencyIn, fromCurrency, inputChain) ? selected.currencyIn : resolvedInput
+  const selectedOutput = matches(selected.currencyOut, toCurrency, outputChain) ? selected.currencyOut : resolvedOutput
   const currencyOut = currencyIn && selectedOutput?.equals(currencyIn) ? undefined : selectedOutput
 
   // Resolve path-backed EVM tokens before writing query parameters; preserve non-EVM IDs verbatim.
@@ -40,20 +38,33 @@ export const useSwapFormPair = () => {
       ? 'BTC'
       : currencyIn
       ? currencyId(currencyIn, currencyIn.chainId)
-      : params.get('tokenIn') || getDefaultSwapTokenId(inputChain)
+      : fromCurrency || getDefaultSwapTokenId(inputChain)
   const outputId =
     outputChain === NonEvmChain.Bitcoin
       ? 'BTC'
       : currencyOut
       ? currencyId(currencyOut, currencyOut.chainId)
-      : params.get('tokenOut') || getDefaultSwapTokenId(outputChain)
-  const commitPair = (from: Chain, tokenIn: string, to: Chain, tokenOut: string) => {
-    const next = new URLSearchParams(params)
-    next.set('from', String(from))
-    next.set('to', String(to))
-    next.set('tokenIn', tokenIn)
-    next.set('tokenOut', tokenOut)
-    setParams(next)
+      : toCurrency || getDefaultSwapTokenId(outputChain)
+  const commitPair = (pair: SwapPair, currencies: typeof selected) => {
+    setSelected(currencies)
+    // Keep the legacy symbol/address convention on single-chain paths; cross-chain uses raw token IDs.
+    const pathId = (currency: EvmCurrency | undefined, fallback: string) =>
+      currency && (currency.isNative || (currency instanceof WrappedTokenInfo && currency.isWhitelisted))
+        ? currency.symbol || fallback
+        : fallback
+    navigate(
+      getTradeLocation(
+        'swap',
+        isCrossChainPair(pair.fromChain, pair.toChain)
+          ? pair
+          : {
+              ...pair,
+              tokenIn: pathId(currencies.currencyIn, pair.tokenIn),
+              tokenOut: pathId(currencies.currencyOut, pair.tokenOut),
+            },
+        params,
+      ),
+    )
   }
 
   const select = (field: Field, currency: Currency, chain: Chain) => {
@@ -65,11 +76,25 @@ export const useSwapFormPair = () => {
       (typeof chain === 'number' ? id.toLowerCase() === oppositeId.toLowerCase() : id === oppositeId)
     const evmCurrency = 'isNative' in currency ? currency : undefined
     if (field === Field.INPUT) {
-      setSelected({ currencyIn: evmCurrency, currencyOut: sameToken ? currencyIn : currencyOut })
-      commitPair(chain, id, sameToken ? inputChain : outputChain, sameToken ? inputId : outputId)
+      commitPair(
+        {
+          fromChain: chain,
+          tokenIn: id,
+          toChain: sameToken ? inputChain : outputChain,
+          tokenOut: sameToken ? inputId : outputId,
+        },
+        { currencyIn: evmCurrency, currencyOut: sameToken ? currencyIn : currencyOut },
+      )
     } else {
-      setSelected({ currencyIn: sameToken ? currencyOut : currencyIn, currencyOut: evmCurrency })
-      commitPair(sameToken ? outputChain : inputChain, sameToken ? outputId : inputId, chain, id)
+      commitPair(
+        {
+          fromChain: sameToken ? outputChain : inputChain,
+          tokenIn: sameToken ? outputId : inputId,
+          toChain: chain,
+          tokenOut: id,
+        },
+        { currencyIn: sameToken ? currencyOut : currencyIn, currencyOut: evmCurrency },
+      )
     }
   }
 
@@ -77,8 +102,10 @@ export const useSwapFormPair = () => {
   const selectNonEvmCurrency = (field: Field, chain: NonEvmChain, currency: NonEvmCurrency) =>
     select(field, currency, chain)
   const reversePair = () => {
-    setSelected({ currencyIn: currencyOut, currencyOut: currencyIn })
-    commitPair(outputChain, outputId, inputChain, inputId)
+    commitPair(
+      { fromChain: outputChain, tokenIn: outputId, toChain: inputChain, tokenOut: inputId },
+      { currencyIn: currencyOut, currencyOut: currencyIn },
+    )
   }
 
   return {

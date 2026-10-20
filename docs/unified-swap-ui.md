@@ -1,6 +1,6 @@
 # Unified Swap UI
 
-> English reference copy of the Notion specification. The specification text below preserves the source wording, including unresolved questions and inconsistencies. Formatting, reference links, and the Victor mention have been normalized for Markdown.
+> English reference copy of the Notion specification, with local implementation decisions recorded separately below. Sections 1–13 preserve the source wording, including unresolved questions and inconsistencies. The dated local decisions take precedence where they differ from the source snapshot.
 
 ## Source and scope
 
@@ -8,7 +8,7 @@
 - **Snapshot read on:** 2026-10-06.
 - **Source last edited:** 2026-09-28, according to Notion metadata.
 - All 13 specification sections were available as text. The connector reported `truncated: true` and one unsupported `external_object_instance` block under Figma; the embedded design has not been reviewed.
-- This document records product requirements, not the implementation status of this repository.
+- Sections 1–13 record the original product requirements. The dated local decisions below describe the accepted implementation scope; they are not a complete implementation audit.
 - This is a local snapshot and does not automatically sync with Notion.
 - Appendices are editorial notes and reference-document summaries. They are separate from the source specification and do not resolve its open questions.
 
@@ -21,6 +21,7 @@
 
 ## Contents
 
+- [Current implementation decisions — 2026-10-20](#current-implementation-decisions--2026-10-20)
 - [Terminology](#terminology-from-kybercross-proposal)
 - [1. Problem](#1-problem)
 - [2. Principles](#2-principles)
@@ -40,6 +41,51 @@
 - [Appendix B: Editorial notes and implementation questions](#appendix-b-editorial-notes-and-implementation-questions)
 - [Appendix C: Requirement traceability checklist](#appendix-c-requirement-traceability-checklist)
 - [Appendix D: Data reference for comparison](#appendix-d-data-reference-for-comparison)
+
+## Current implementation decisions — 2026-10-20
+
+These decisions were confirmed during the local Unified Swap review. They supersede the conflicting requirements in the source snapshot and Appendix C; do not treat those superseded requirements as outstanding fixes. See the [Swap README](../apps/kyberswap-interface/src/pages/Swap/README.md) for code ownership.
+
+### Pair URLs and tab navigation
+
+- Single-chain retains `/swap/{network}/{tokenIn}-to-{tokenOut}`, using native/whitelisted symbols or token addresses as before. Do not also write `from`, `to`, `tokenIn` or `tokenOut` into its query.
+- Unified cross-chain uses `/swap?from=…&to=…&tokenIn=…&tokenOut=…`, matching the pair-query contract of `/cross-chain`. It has no stale single-chain network/pair path. Non-EVM token IDs retain their original case.
+- Switching Swap ↔ Limit Order preserves the single-chain network and both tokens. Switching unified cross-chain Swap ↔ Cross-Chain preserves both chains and tokens.
+- Returning from cross-chain to a same-chain EVM pair writes the single-chain path and removes the pair query. Existing mixed Swap URLs are replaced with the appropriate format. Share links use the same pair representation.
+
+### Shared slippage setting, separate pair rules
+
+Keep one stored slippage setting for single-chain and cross-chain. Their form/Review suggestions and warning thresholds use separate logic. Suggested defaults do not overwrite the user's setting when the pair changes; the user applies a Suggestion explicitly.
+
+| Flow / pair category | Suggested default | Low warning | High warning |
+| --- | --- | --- | --- |
+| Single-chain stable | 0.01% | None | > 0.2% |
+| Single-chain correlated | 0.05% | None | > 0.5% |
+| Single-chain high volatility | 1.5% | < 0.5% | > 5% |
+| Other single-chain pairs | 0.5% | < 0.1% | > 2% |
+| Cross-chain EVM stable | 0.1% | < 0.05% | ≥ 1% |
+| Other cross-chain EVM pairs | 0.5% | < 0.3% | ≥ 2% |
+| Cross-chain involving non-EVM | 0.5% | < 0.3% | ≥ 3% |
+
+Cross-chain common, exotic and high-volatility pairs currently share the same thresholds; non-EVM rules do not split by pair category. The separate-storage requirement in §8 is superseded.
+
+### Route Options and quote states
+
+- In the unified cross-chain form, the **Route Options** trigger is always visible and opens the routes panel, including when no quote is selected. Its label does not change to loading, error or empty-state text.
+- The panel shows available routes and skeletons while quotes are loading. When it is not loading and the list is empty, it shows **No route found**, including before an amount is entered. There is no separate **Enter an amount** branch.
+- Quote request failures are logged and clear the live route list, producing the same **No route found** state. A distinct error message and Retry button are not required; this supersedes the corresponding requirements in §4.
+- Cancelled requests caused by changing the pair do not show an error. Outside Review, quote fetching retries/refreshes 10 seconds after a run finishes, including after errors; manual refresh is available in the Rate row.
+
+### Review and execution
+
+Keep the reviewed quote snapshot while Review is open, with periodic refresh paused. Do not add a shared TTL check or automatic re-quote before signing. Existing provider-specific execution behavior remains in the adapters. If execution fails, show the error and retain the reviewed quote for inspection; clearing the live route list after a fetch failure is separate from discarding a reviewed quote. This supersedes the automatic expiry/reconfirmation requirement in §10.
+
+### Deferred work and validation
+
+- Keep the legacy `/cross-chain` screen for now; disabling/removing it is deferred. Preserve its shared adapters, quote engine and wallet dependencies when removing the screen later.
+- The right panel currently shows chart/routes for single-chain and history for cross-chain. Price Chart/History tabs remain deferred scope, not a prerequisite for continuing development on the current implementation.
+- Known inconsistency: presets in the Settings screen still use single-chain logic; they do not yet consume the cross-chain presets used by the form.
+- The current implementation is a basis for further development, not a declaration that every source requirement is complete. During this review, TypeScript, targeted ESLint, 38 routing/quote tests and 17 SSR smoke tests passed. The subsequent Route Options edit passed TypeScript and targeted ESLint; its final text-only adjustment passed ESLint. Browser/wallet E2E was not performed, so production readiness is not established by these checks.
 
 ## Terminology (from KyberCross proposal)
 
@@ -263,11 +309,11 @@ These are observations from reading the specification, **not confirmed product d
 - **Chart payload:** Every row is required to carry `flow_type` and `steps`, while third-party leg-data availability still needs provider-by-provider confirmation.
 - **API contract:** Endpoints in the specification section above follow the UI source. Some TDD sequence diagrams differ from its Public APIs section. Verify the actual HTTP API contract before integration.
 - **Outcome mapping:** Account for bridge-managed routes and third-party refunds, independently of KyberCross destination-execution availability.
-- **Implementation assessment:** Validate both cross-chain requirements and the single-chain behavior that must remain unchanged. This document does not assess the current code against those requirements.
+- **Implementation assessment:** Validate both cross-chain requirements and the single-chain behavior that must remain unchanged, applying the dated local decisions above. Those decisions describe the reviewed scope, not a complete audit of the source requirements.
 
 ## Appendix C: Requirement traceability checklist
 
-This checklist breaks down the source into individual items for future code or QA comparison. It is derived from the specification, not an implementation report. An unchecked box means **not assessed in this document**, not necessarily missing from the application. Items affected by open questions remain subject to clarification.
+This checklist breaks down the source into individual items for future code or QA comparison. It is derived from the specification, not an implementation report. An unchecked box means **not assessed in this document**, not necessarily missing from the application. Items affected by open questions remain subject to clarification. Entries marked superseded are historical requirements, not outstanding fixes; apply the dated local decisions above instead.
 
 ### C.1 Mode selection and single-chain preservation — §§1–2, 9
 
@@ -305,8 +351,7 @@ This checklist breaks down the source into individual items for future code or Q
 - [ ] Selecting token out and setting amount in triggers cross-chain quote requests.
 - [ ] Provider coverage follows the specified list and availability: LI.FI, Relay, Across, Bungee, Symbiosis, and KyberCross when live.
 - [ ] KyberCross quotes and existing meta-aggregator quotes are merged into one list.
-- [ ] Loading, no-route, and quote-error states are distinct.
-- [ ] Quote errors offer Retry.
+- Superseded (2026-10-20): Distinct quote-error state and Retry button. Keep loading and No route found inside the routes panel, with automatic/manual refresh.
 - [ ] The list is titled “Choose your route”.
 - [ ] All valid routes are available through the ranked list rather than a fixed set of 2–3 cards.
 - [ ] The specified five-route initial view and Show more behavior are checked against the unresolved route-count decision.
@@ -393,7 +438,7 @@ This checklist breaks down the source into individual items for future code or Q
 - [ ] KyberCross Fee does not acquire a separate fee-panel line under the preferred UX.
 - [ ] The route chart and Review expose KyberCross Fee at the destination-swap node.
 - [ ] The optional You receive tooltip follows the pending Victor/BD decision.
-- [ ] Cross-chain slippage settings and defaults are stored separately from single-chain.
+- Superseded (2026-10-20): Separate slippage storage. Keep one setting with separate flow-specific suggestions and warnings.
 - [ ] Send to other wallet is available only in cross-chain.
 - [ ] The default recipient is a compatible connected address.
 - [ ] Use My Wallet restores that address.
@@ -408,8 +453,7 @@ This checklist breaks down the source into individual items for future code or Q
 - [ ] Destination gas shortfall exposes supported provider top-up, or warns before Review when unsupported.
 - [ ] Changing source chain mid-quote triggers a new quote.
 - [ ] If the changed source chain equals destination, the flow returns to single-chain.
-- [ ] Expired quotes are refreshed automatically before signing.
-- [ ] A refreshed output change beyond slippage requires confirmation.
+- Superseded (2026-10-20): Shared pre-sign expiry refresh and reconfirmation. Preserve the reviewed quote; surface execution errors without discarding it.
 - [ ] An unexecutable destination swap progresses through Processing to Refunded, with the actual fallback token and fee refund represented.
 - [ ] Bridge expiry or failure stays Processing with “Waiting for provider refund” until a final outcome is available.
 
