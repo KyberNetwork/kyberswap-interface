@@ -1,39 +1,37 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { motion } from 'framer-motion'
-import { KeyboardEvent, ReactNode, useCallback, useEffect } from 'react'
+import { KeyboardEvent, ReactNode, useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { X } from 'react-feather'
 
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import { ChainSelector } from 'components/TokenSelectorModal/ChainSelector'
 import { NetworkSidebar } from 'components/TokenSelectorModal/NetworkSidebar'
+import NonEvmTokenSelectorContent from 'components/TokenSelectorModal/NonEvmTokenSelectorContent'
 import { OtherChainTokens } from 'components/TokenSelectorModal/OtherChainTokens'
 import { PinnedTokens } from 'components/TokenSelectorModal/PinnedTokens'
 import { TabBar, getTabSubtitle } from 'components/TokenSelectorModal/TabBar'
 import TokenList from 'components/TokenSelectorModal/TokenList'
 import { TokenListHeader } from 'components/TokenSelectorModal/TokenListHeader'
 import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenListSkeleton'
-import { ContentWrapper, SearchIcon, SearchInput, SearchWrapper } from 'components/TokenSelectorModal/components'
+import {
+  ContentWrapper,
+  NoResult,
+  SearchControl,
+  SearchInput,
+  SearchWrapper,
+} from 'components/TokenSelectorModal/components'
 import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { useTokenSelectorData } from 'components/TokenSelectorModal/hooks/useTokenSelectorData'
 import { useTokenSelectorView } from 'components/TokenSelectorModal/hooks/useTokenSelectorView'
-import { TokenSelectionContext } from 'components/TokenSelectorModal/types'
+import { TokenSelectionContext, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
+import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
+import { Chain, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { CloseIcon } from 'theme'
-
-const NoResult = ({ message }: { message?: ReactNode }) => {
-  return (
-    <Stack className="h-full p-5" data-testid="no-token-result">
-      <p className="whitespace-pre-line text-center text-sm font-medium text-text4">
-        {message || <Trans>No results found.</Trans>}
-      </p>
-    </Stack>
-  )
-}
 
 const SearchLoading = () => (
   <Stack className="h-full items-center gap-3 p-5 pt-8" data-testid="token-search-loading">
@@ -45,6 +43,10 @@ const SearchLoading = () => (
 )
 
 type Props = {
+  chainSelectionMode?: 'wallet' | 'form'
+  initialNonEvmChain?: NonEvmChain
+  selectedNonEvmCurrency?: NonEvmCurrency
+  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   anchorChainId: ChainId
   importChainId?: ChainId
   selectedCurrency?: Currency | null
@@ -62,6 +64,10 @@ type Props = {
 }
 
 export const TokenSelectorContent = ({
+  chainSelectionMode,
+  onSelectNonEvmCurrency,
+  initialNonEvmChain,
+  selectedNonEvmCurrency,
   anchorChainId,
   importChainId,
   selectedCurrency,
@@ -77,6 +83,7 @@ export const TokenSelectorContent = ({
   onDismiss,
   onShowTokenInfo,
 }: Props) => {
+  const [nonEvmChain, setNonEvmChain] = useState<NonEvmChain | undefined>(initialNonEvmChain)
   const view = useTokenSelectorView({ anchorChainId, importChainId, showDiscoveryTabs, trackingSource })
   const {
     activeTab,
@@ -98,6 +105,28 @@ export const TokenSelectorContent = ({
     changeMetricColumn,
     animateSortedRows,
   } = view
+
+  // Networks available to this caller and the temporary browsing chain.
+  const networks: TokenSelectorNetwork[] = onSelectNonEvmCurrency
+    ? [
+        ...rankedChains,
+        ...[ChainId.BLAST, ...CROSS_CHAIN_ONLY_NETWORKS]
+          .filter(chainId => !rankedChains.some(chain => chain.chainId === chainId))
+          .map(chainId => NETWORKS_INFO[chainId]),
+        ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] })),
+      ]
+    : rankedChains
+
+  const selectNetwork = (chain: Chain) => {
+    if (typeof chain === 'number') {
+      setNonEvmChain(undefined)
+      handleChainChange(chain)
+    } else {
+      setNonEvmChain(chain)
+    }
+  }
+
+  // EVM list data; non-EVM content owns its own data sources.
   const data = useTokenSelectorData({
     primaryChainId: selectedChainId,
     activeTab,
@@ -129,10 +158,12 @@ export const TokenSelectorContent = ({
   useEffect(() => {
     if (!isMobile) inputRef.current?.focus()
   }, [inputRef])
+
   useEffect(() => {
     animateSortedRows()
   }, [visibleCurrencies, animateSortedRows])
 
+  // Every selection entry point carries the same browsing context.
   const requestSelect = useCallback(
     (currency: Currency, method?: TokenSelectionContext['method'], intent: 'select' | 'import' = 'select') => {
       const rowIndex = visibleCurrencies.findIndex(item => item.equals(currency))
@@ -153,24 +184,29 @@ export const TokenSelectorContent = ({
   const handleEnter = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key !== 'Enter') return
+
       const query = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[selectedChainId]
       if (query === native.symbol?.toLowerCase() || query === native.name?.toLowerCase()) {
         requestSelect(native)
         return
       }
+
       const candidate = visibleCurrencies[0]
       if (!candidate || (visibleCurrencies.length !== 1 && candidate.symbol?.toLowerCase() !== query)) return
       if (candidate.isToken && impersonators.has(candidate.address)) return
+
       requestSelect(candidate)
     },
     [searchQuery, selectedChainId, visibleCurrencies, impersonators, requestSelect],
   )
 
+  // Display state for the active EVM tab.
   const isAllTab = activeTab === TokenSelectorTab.All
   const isImportedTab = activeTab === TokenSelectorTab.Imported
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
+
   const subtitle = getTabSubtitle(activeTab)
   const emptyMessage =
     activeTab === TokenSelectorTab.Trending ? (
@@ -207,136 +243,144 @@ export const TokenSelectorContent = ({
       </HStack>
       <HStack className="min-h-0 flex-1 gap-3">
         {showDiscoveryTabs && (
-          <NetworkSidebar chains={rankedChains} selectedChainId={selectedChainId} onChange={handleChainChange} />
+          <NetworkSidebar chains={networks} selectedChainId={nonEvmChain ?? selectedChainId} onChange={selectNetwork} />
         )}
-        <Stack className="min-h-0 min-w-0 flex-1 gap-3">
-          <Stack className="shrink-0 gap-2">
-            <Stack className="gap-3">
-              <HStack className="items-center gap-3">
-                <SearchWrapper className="flex-1">
-                  <SearchInput
-                    className="bg-white-04"
-                    type="text"
-                    id="token-search-input"
-                    data-testid="token-search-input"
-                    placeholder={t`Search by name, symbol or address`}
-                    value={searchQuery}
-                    ref={inputRef}
-                    onChange={handleInput}
-                    onKeyDown={handleEnter}
-                    autoComplete="off"
-                  />
-                  {searchQuery ? (
-                    <button
-                      type="button"
-                      aria-label="Clear search"
-                      data-testid="clear-search"
-                      onClick={() => {
+        {nonEvmChain ? (
+          <NonEvmTokenSelectorContent
+            key={nonEvmChain}
+            chain={nonEvmChain}
+            selectedCurrency={nonEvmChain === initialNonEvmChain ? selectedNonEvmCurrency : undefined}
+            onSelect={currency => onSelectNonEvmCurrency?.(nonEvmChain, currency)}
+            networkSelector={
+              showDiscoveryTabs ? (
+                <div className="sm:hidden">
+                  <ChainSelector chains={networks} selectedChainId={nonEvmChain} onChange={selectNetwork} />
+                </div>
+              ) : undefined
+            }
+          />
+        ) : (
+          <Stack className="min-h-0 min-w-0 flex-1 gap-3">
+            <Stack className="shrink-0 gap-2">
+              <Stack className="gap-3">
+                <HStack className="items-center gap-3">
+                  <SearchWrapper className="flex-1">
+                    <SearchInput
+                      className="bg-white-04"
+                      type="text"
+                      id="token-search-input"
+                      data-testid="token-search-input"
+                      placeholder={t`Search by name, symbol or address`}
+                      value={searchQuery}
+                      ref={inputRef}
+                      onChange={handleInput}
+                      onKeyDown={handleEnter}
+                      autoComplete="off"
+                    />
+                    <SearchControl
+                      query={searchQuery}
+                      onClear={() => {
                         setSearchQuery('')
                         inputRef.current?.focus()
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
-                    >
-                      <X size={16} />
-                    </button>
-                  ) : (
-                    <SearchIcon size={18} className="text-gray" />
-                  )}
-                </SearchWrapper>
-                {showDiscoveryTabs && (
-                  <div className="sm:hidden">
-                    <ChainSelector
-                      chains={rankedChains}
-                      selectedChainId={selectedChainId}
-                      onChange={handleChainChange}
                     />
-                  </div>
+                  </SearchWrapper>
+                  {showDiscoveryTabs && (
+                    <div className="sm:hidden">
+                      <ChainSelector
+                        chains={networks}
+                        selectedChainId={nonEvmChain ?? selectedChainId}
+                        onChange={selectNetwork}
+                      />
+                    </div>
+                  )}
+                </HStack>
+
+                {showPinnedTokens && quickSelectTokens.length > 0 && (
+                  <PinnedTokens
+                    tokens={quickSelectTokens}
+                    onToggleFavorite={handleClickFavorite}
+                    onSelect={currency => requestSelect(currency, 'quick_select_pill')}
+                    selectedCurrency={selectedCurrency}
+                  />
                 )}
-              </HStack>
+              </Stack>
 
-              {showPinnedTokens && quickSelectTokens.length > 0 && (
-                <PinnedTokens
-                  tokens={quickSelectTokens}
-                  onToggleFavorite={handleClickFavorite}
-                  onSelect={currency => requestSelect(currency, 'quick_select_pill')}
-                  selectedCurrency={selectedCurrency}
-                />
-              )}
+              {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={handleTabChange} />}
             </Stack>
+            <div
+              key={activeTab}
+              role="tabpanel"
+              id="token-selector-panel"
+              className="flex min-h-0 flex-1 animate-[fadeInUp_0.3s_ease-out_both] flex-col gap-2 motion-reduce:animate-none"
+            >
+              {subtitle && <div className="shrink-0 px-2 text-sm font-medium leading-5 text-gray">{subtitle}</div>}
 
-            {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={handleTabChange} />}
-          </Stack>
-          <div
-            key={activeTab}
-            role="tabpanel"
-            id="token-selector-panel"
-            className="flex min-h-0 flex-1 animate-[fadeInUp_0.3s_ease-out_both] flex-col gap-2 motion-reduce:animate-none"
-          >
-            {subtitle && <div className="shrink-0 px-2 text-sm font-medium leading-5 text-gray">{subtitle}</div>}
-
-            {(visibleCurrencies.length > 0 || isListLoading) && (
-              <TokenListHeader
-                activeTab={activeTab}
-                metricColumn={metricColumn}
-                sort={sort}
-                onSort={cycleSort}
-                onMetricChange={changeMetricColumn}
-              />
-            )}
-
-            <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
-              {isListLoading ? (
-                <TokenListSkeleton activeTab={activeTab} />
-              ) : visibleCurrencies.length > 0 ? (
-                <TokenList
-                  listTokenRef={listTokenRef}
-                  customChainId={selectedChainId}
-                  currencies={visibleCurrencies}
-                  balances={balances}
-                  nativeBalance={nativeBalance}
-                  extras={listExtras}
-                  impersonators={impersonators}
-                  heldAddresses={heldAddresses}
-                  waitingForBalances={waitingForBalances}
-                  selectedCurrency={selectedCurrency}
-                  otherCurrency={otherSelectedCurrency}
-                  scaleERC8056Balances={scaleERC8056Balances}
-                  loadMoreRows={handleLoadMore}
-                  hasMore={listHasMore}
-                  onRowsRendered={handleRowsRendered}
-                  onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
-                  onToggleFavorite={handleClickFavorite}
-                  onCurrencySelect={currency => requestSelect(currency)}
-                  onImportToken={token => requestSelect(token, undefined, 'import')}
-                  onShowTokenInfo={onShowTokenInfo}
-                  showAddress={isAllTab}
-                  showCopyAddress={!isAllTab}
-                  showPriceColumn={!isAllTab}
-                  metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
-                  importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
+              {(visibleCurrencies.length > 0 || isListLoading) && (
+                <TokenListHeader
+                  activeTab={activeTab}
+                  metricColumn={metricColumn}
+                  sort={sort}
+                  onSort={cycleSort}
+                  onMetricChange={changeMetricColumn}
                 />
-              ) : (
-                <Stack className="min-h-0 flex-1">
-                  {isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
-                    <OtherChainTokens
-                      tokens={otherChainTokens}
-                      loading={isCheckingOtherChains}
-                      loadingFallback={<SearchLoading />}
-                      anchorChainId={anchorChainId}
-                      onSelect={currency => requestSelect(currency)}
-                    />
-                  ) : (
-                    <NoResult message={debouncedQuery ? undefined : emptyMessage} />
-                  )}
-                </Stack>
               )}
-            </motion.div>
-          </div>
 
-          <div className="shrink-0 text-left text-xs font-medium italic leading-4 text-subText">
-            <Trans>On-chain data for informational purposes only. Not financial advice.</Trans>
-          </div>
-        </Stack>
+              <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
+                {isListLoading ? (
+                  <TokenListSkeleton activeTab={activeTab} />
+                ) : visibleCurrencies.length > 0 ? (
+                  <TokenList
+                    listTokenRef={listTokenRef}
+                    customChainId={selectedChainId}
+                    currencies={visibleCurrencies}
+                    balances={balances}
+                    nativeBalance={nativeBalance}
+                    extras={listExtras}
+                    impersonators={impersonators}
+                    heldAddresses={heldAddresses}
+                    waitingForBalances={waitingForBalances}
+                    selectedCurrency={selectedCurrency}
+                    otherCurrency={otherSelectedCurrency}
+                    scaleERC8056Balances={scaleERC8056Balances}
+                    loadMoreRows={handleLoadMore}
+                    hasMore={listHasMore}
+                    onRowsRendered={handleRowsRendered}
+                    onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
+                    onToggleFavorite={handleClickFavorite}
+                    onCurrencySelect={currency => requestSelect(currency)}
+                    onImportToken={token => requestSelect(token, undefined, 'import')}
+                    onShowTokenInfo={onShowTokenInfo}
+                    showAddress={isAllTab}
+                    showCopyAddress={!isAllTab}
+                    showPriceColumn={!isAllTab}
+                    metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
+                    importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
+                  />
+                ) : (
+                  <Stack className="min-h-0 flex-1">
+                    {isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
+                      <OtherChainTokens
+                        tokens={otherChainTokens}
+                        loading={isCheckingOtherChains}
+                        loadingFallback={<SearchLoading />}
+                        anchorChainId={anchorChainId}
+                        chainSelectionMode={chainSelectionMode}
+                        onSelect={currency => requestSelect(currency)}
+                      />
+                    ) : (
+                      <NoResult message={debouncedQuery ? undefined : emptyMessage} />
+                    )}
+                  </Stack>
+                )}
+              </motion.div>
+            </div>
+
+            <div className="shrink-0 text-left text-xs font-medium italic leading-4 text-subText">
+              <Trans>On-chain data for informational purposes only. Not financial advice.</Trans>
+            </div>
+          </Stack>
+        )}
       </HStack>
     </ContentWrapper>
   )

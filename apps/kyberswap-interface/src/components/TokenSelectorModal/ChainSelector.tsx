@@ -1,16 +1,16 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { KeyboardEvent, memo, useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, Globe } from 'react-feather'
 
 import { ScrollIndicator } from 'components/DropdownMenu/styles'
-import type { NetworkInfo } from 'constants/networks/type'
+import type { TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import type { Chain } from 'pages/CrossChainSwap/adapters/types'
 import { cn } from 'utils/cn'
 
 type ChainSelectorProps = {
-  chains: NetworkInfo[]
-  selectedChainId: ChainId
-  onChange: (chainId: ChainId) => void
+  chains: TokenSelectorNetwork[]
+  selectedChainId: Chain
+  onChange: (chainId: Chain) => void
 }
 
 export const ChainSelector = memo(({ chains, selectedChainId, onChange }: ChainSelectorProps) => {
@@ -22,7 +22,7 @@ export const ChainSelector = memo(({ chains, selectedChainId, onChange }: ChainS
 
   const selectedChain = chains.find(chain => chain.chainId === selectedChainId)
 
-  const select = (chainId: ChainId) => {
+  const select = (chainId: Chain) => {
     onChange(chainId)
     setOpen(false)
   }

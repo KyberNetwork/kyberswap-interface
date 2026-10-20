@@ -9,6 +9,7 @@ import { TextHelper } from 'components/Text'
 import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -22,6 +23,8 @@ type Props = {
   balanceText?: string
   highlightToken?: boolean
   onChangeCurrencyOut: (c: Currency) => void
+  chainSelectionMode?: 'wallet' | 'form'
+  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   customChainId?: ChainId
   routeLoading: boolean
 }
@@ -37,6 +40,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   highlightToken,
   onChangeCurrencyOut,
   customChainId,
+  chainSelectionMode,
+  onSelectNonEvmCurrency,
   routeLoading,
 }) => {
   const { chainId: walletChainId } = useActiveWeb3React()
@@ -113,6 +118,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         }
         positionLabel="in"
         customChainId={customChainId}
+        chainSelectionMode={chainSelectionMode}
+        onSelectNonEvmCurrency={onSelectNonEvmCurrency}
         trackingSource="swap"
         scaleERC8056Balances
       />

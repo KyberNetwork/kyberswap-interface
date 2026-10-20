@@ -52,6 +52,8 @@ const fetchSolanaTokens = async (query: string) => {
   return tokens
 }
 
+const EMPTY_SOLANA_TOKENS: SolanaToken[] = []
+
 export const useSolanaTokens = (query: string, skip = false) => {
   const { data, isLoading } = useQuery({
     queryKey: ['cross-chain-solana-tokens', query],
