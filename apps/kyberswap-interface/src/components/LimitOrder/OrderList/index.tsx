@@ -13,10 +13,10 @@ import OrdersPriceChart from 'components/LimitOrder/OrderList/OrdersPriceChart'
 import { useOpenOrderCounts } from 'components/LimitOrder/hooks/useOpenOrderCounts'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
-import StopOrders from 'components/StopOrder/MyOrders'
+import StopMarkets from 'components/StopMarket/MyOrders'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { isSupportStopOrder } from 'constants/networks'
+import { isSupportStopMarket } from 'constants/networks'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTab from 'hooks/useTab'
@@ -92,18 +92,18 @@ const OrderKindTabs = ({
   onChange,
   counts,
   insufficientFundOrders,
-  showStopOrders,
+  showStopMarkets,
 }: {
   kind: OrderKind
   onChange: (kind: OrderKind) => void
   /** Open orders by kind, or nothing to show none. */
   counts?: { limit: number; stop: number }
   insufficientFundOrders: number
-  showStopOrders: boolean
+  showStopMarkets: boolean
 }) => {
   const tabs = [
     { id: OrderKind.LIMIT, label: <Trans>Limit Order</Trans>, count: counts?.limit },
-    ...(showStopOrders ? [{ id: OrderKind.STOP, label: <Trans>Stop Order</Trans>, count: counts?.stop }] : []),
+    ...(showStopMarkets ? [{ id: OrderKind.STOP, label: <Trans>Stop Market</Trans>, count: counts?.stop }] : []),
   ]
 
   return (
@@ -180,7 +180,7 @@ const MyOpenOrdersLink = ({ count, onClick }: { count: number; onClick: () => vo
 }
 
 /**
- * The right column Limit Order and Stop Order share: the market — the pair's chart with every open order
+ * The right column Limit Order and Stop Market share: the market — the pair's chart with every open order
  * on it, and the book of open limit orders — and below it the user's own orders, one kind at a time.
  */
 const OrderList = () => {
@@ -189,8 +189,8 @@ const OrderList = () => {
   const { currencyIn, currencyOut } = useLimitState()
   const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const isStopOrderPage = getTradeProductPath(pathname) === APP_PATHS.STOP_ORDER
-  const showStopOrders = isSupportStopOrder(chainId)
+  const isStopMarketPage = getTradeProductPath(pathname) === APP_PATHS.STOP_MARKET
+  const showStopMarkets = isSupportStopMarket(chainId)
 
   // The chart follows the Pricing Chart display setting it shares with Swap.
   const isShowPricingChart = useShowPricingChart()
@@ -234,8 +234,8 @@ const OrderList = () => {
   useEffect(() => {
     if (isMarketTab(tabQuery)) setChosenMarketTab(tabQuery)
   }, [tabQuery])
-  // The open limit orders are always offered, so the bar always has a tab to fall back to.
-  const marketTab = marketTabs.find(tab => tab.id === chosenMarketTab)?.id ?? LimitOrderTab.ORDER_BOOK
+  // Opens on the chart where there is one, else on the open limit orders, which are always offered.
+  const marketTab = marketTabs.find(tab => tab.id === chosenMarketTab)?.id ?? marketTabs[0].id
   const selectMarketTab = (tab: MarketTab) => {
     setChosenMarketTab(tab)
     if (!syncOrderListTabWithQuery) return
@@ -253,10 +253,10 @@ const OrderList = () => {
   const isActiveTab = orderTab !== LimitOrderStatus.CLOSED
 
   // The list opens on the kind of order the form beside it places, and follows the form when it changes.
-  const formKind = isStopOrderPage && showStopOrders ? OrderKind.STOP : OrderKind.LIMIT
+  const formKind = isStopMarketPage && showStopMarkets ? OrderKind.STOP : OrderKind.LIMIT
   const [chosenKind, setChosenKind] = useState(formKind)
   useEffect(() => setChosenKind(formKind), [formKind])
-  const kind = showStopOrders ? chosenKind : OrderKind.LIMIT
+  const kind = showStopMarkets ? chosenKind : OrderKind.LIMIT
 
   const counts = useOpenOrderCounts(chainId)
   const { data: insufficientFundOrders = 0 } = useGetNumberOfInsufficientFundOrdersQuery(
@@ -283,7 +283,7 @@ const OrderList = () => {
       onChange={setChosenKind}
       counts={isActiveTab ? counts : undefined}
       insufficientFundOrders={insufficientFundOrders}
-      showStopOrders={showStopOrders}
+      showStopMarkets={showStopMarkets}
     />
   )
 
@@ -317,7 +317,7 @@ const OrderList = () => {
         {!isMarketCollapsed && (
           <Stack className="border-t border-darkBorder">
             {marketTab === LimitOrderTab.PRICE ? (
-              <OrdersPriceChart currencyIn={currencyIn} currencyOut={currencyOut} isStopOrderPage={isStopOrderPage} />
+              <OrdersPriceChart currencyIn={currencyIn} currencyOut={currencyOut} isStopMarketPage={isStopMarketPage} />
             ) : (
               <>
                 <OrderBook />
@@ -352,7 +352,7 @@ const OrderList = () => {
         />
         <Stack className="border-t border-darkBorder">
           {kind === OrderKind.STOP ? (
-            <StopOrders isActiveTab={isActiveTab} toolbar={kindTabs} />
+            <StopMarkets isActiveTab={isActiveTab} toolbar={kindTabs} />
           ) : (
             <MyOrders isActiveTab={isActiveTab} toolbar={kindTabs} />
           )}

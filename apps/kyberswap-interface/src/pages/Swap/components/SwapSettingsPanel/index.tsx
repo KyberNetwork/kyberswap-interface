@@ -58,10 +58,10 @@ type SwapSettingsPanelProps = {
   isSwapPage?: boolean
   isCrossChainPage?: boolean
   /**
-   * Stop order shows Swap's degen mode — it lifts the stop order slippage cap as well — and the pricing
+   * Stop market order shows Swap's degen mode — it lifts the stop market order slippage cap as well — and the pricing
    * chart it shares with Swap; the rest of Swap's trade settings do not apply to it.
    */
-  isStopOrderPage?: boolean
+  isStopMarketPage?: boolean
   highlightDegenMode?: boolean
   displaySettings?: {
     isShowPricingChart?: boolean
@@ -74,7 +74,7 @@ type SwapSettingsPanelProps = {
 const SwapSettingsPanel = ({
   isSwapPage,
   isCrossChainPage,
-  isStopOrderPage,
+  isStopMarketPage,
   highlightDegenMode,
   onBack,
   onClickLiquiditySources,
@@ -160,7 +160,7 @@ const SwapSettingsPanel = ({
           </>
         )}
 
-        {isStopOrderPage && (
+        {isStopMarketPage && (
           <>
             <SettingsSection title={<Trans>Advanced Settings</Trans>}>
               <DegenModeSetting

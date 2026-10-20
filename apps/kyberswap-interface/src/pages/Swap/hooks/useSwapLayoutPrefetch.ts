@@ -21,7 +21,7 @@ const RIGHT_PANEL_LOADERS: LazyComponentLoader[] = [
   () => import('components/EarnBanner/FarmingPoolBanner'),
   () => import('components/TokenPriceChart/TokenPriceChartCanvas'),
   () => import('components/TradeRouting'),
-  // Limit Order and Stop Order share this panel.
+  // Limit Order and Stop Market share this panel.
   () => import('components/LimitOrder/OrderList'),
 ]
 

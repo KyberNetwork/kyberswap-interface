@@ -23,7 +23,7 @@ export const LimitTab = ({ onClick, active, customChainId }: Props) => {
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
   const isSupport = isSupportLimitOrder(chainId)
 
-  // Stop orders live under the same tab, so the badge counts them too.
+  // Stop market orders live under the same tab, so the badge counts them too.
   const { total: numberOfActiveOrders } = useOpenOrderCounts(chainId)
 
   if (!isSupport) {

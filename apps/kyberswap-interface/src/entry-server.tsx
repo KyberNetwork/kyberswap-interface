@@ -42,7 +42,7 @@ const distinctPageRoutes = SITEMAP_PAGE_ROUTES.filter(
     route !== '/' &&
     !route.startsWith(`${APP_PATHS.SWAP}/`) &&
     !route.startsWith(`${APP_PATHS.LIMIT}/`) &&
-    !route.startsWith(`${APP_PATHS.STOP_ORDER}/`),
+    !route.startsWith(`${APP_PATHS.STOP_MARKET}/`),
 )
 
 export const prerenderManifest = {
@@ -69,9 +69,9 @@ export const prerenderManifest = {
       outputPath: 'limit/index.html',
     },
     {
-      product: 'stop-order',
-      sourceRoute: `${APP_PATHS.STOP_ORDER}/${DEFAULT_NETWORK_ROUTE}`,
-      outputPath: 'stop-order/index.html',
+      product: 'stop-market',
+      sourceRoute: `${APP_PATHS.STOP_MARKET}/${DEFAULT_NETWORK_ROUTE}`,
+      outputPath: 'stop-market/index.html',
     },
   ],
   ogSkeletons: [
@@ -90,7 +90,7 @@ export const prerenderManifest = {
 } as const
 
 const getRouteNetworkSlug = (url: string) => {
-  const productPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.STOP_ORDER, APP_PATHS.BUY, APP_PATHS.SELL].find(
+  const productPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.STOP_MARKET, APP_PATHS.BUY, APP_PATHS.SELL].find(
     path => url.startsWith(`${path}/`),
   )
   return productPath ? url.slice(productPath.length + 1).split(/[/?#]/, 1)[0] : undefined

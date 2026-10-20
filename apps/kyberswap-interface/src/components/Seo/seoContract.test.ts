@@ -308,7 +308,7 @@ describe('SEO contract', () => {
     it.each([
       ['swap', '/swap'],
       ['limit', '/limit'],
-      ['stop-order', '/stop-order'],
+      ['stop-market', '/stop-market'],
     ] as const)('keeps the shared %s shell safely noindex until OG or RouteSeo replaces it', (product, canonical) => {
       const head = renderTradeShellHeadHtml(product)
 

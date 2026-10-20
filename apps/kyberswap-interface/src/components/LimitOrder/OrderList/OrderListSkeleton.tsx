@@ -3,7 +3,7 @@ import { useMedia } from 'react-use'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import { StopOrderRowsSkeleton } from 'components/StopOrder/MyOrders/components'
+import { StopMarketRowsSkeleton } from 'components/StopMarket/MyOrders/components'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { useShowPricingChart } from 'state/user/hooks'
@@ -70,7 +70,7 @@ const OrdersCardSkeleton = () => (
       </div>
     </div>
     <div className="min-h-20">
-      <StopOrderRowsSkeleton isActiveTab />
+      <StopMarketRowsSkeleton isActiveTab />
     </div>
   </Stack>
 )
@@ -93,7 +93,7 @@ const OrderListSkeleton = () => {
           <ChartSkeleton />
         ) : (
           <div className="min-h-20">
-            <StopOrderRowsSkeleton isActiveTab />
+            <StopMarketRowsSkeleton isActiveTab />
           </div>
         )}
       </Stack>

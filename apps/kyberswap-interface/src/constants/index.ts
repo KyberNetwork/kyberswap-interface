@@ -36,7 +36,7 @@ export const APP_PATHS = {
   KYBERDAO_VOTE: '/kyberdao/vote',
   KYBERDAO_KNC_UTILITY: '/kyberdao/knc-utility',
   LIMIT: '/limit',
-  STOP_ORDER: '/stop-order',
+  STOP_MARKET: '/stop-market',
   PROFILE_MANAGE: '/manage',
   VERIFY_AUTH: '/auth',
 
@@ -125,8 +125,8 @@ export const RTK_QUERY_TAGS = {
   GET_LIMIT_ORDER_INSUFFICIENT: 'GET_LIMIT_ORDER_INSUFFICIENT',
   GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT: 'GET_LIMIT_ORDER_ACTIVE_MAKING_AMOUNT',
 
-  // stop order
-  GET_STOP_ORDER_LIST: 'GET_STOP_ORDER_LIST',
+  // stop market order
+  GET_STOP_MARKET_LIST: 'GET_STOP_MARKET_LIST',
 
   // smart exit
   GET_SMART_EXIT_ORDERS: 'GET_SMART_EXIT_ORDERS',

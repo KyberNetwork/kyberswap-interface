@@ -9,7 +9,7 @@ export type PriceMarker = { id: string; price: number; crossing?: MarkerCrossing
 /** The colour a group's lines and tags are drawn in. */
 export type MarkerTone = 'warning' | 'blue'
 
-/** One kind of marker on the chart, such as a wallet's stop orders, with its own tag and colour. */
+/** One kind of marker on the chart, such as a wallet's stop market orders, with its own tag and colour. */
 export type PriceMarkerGroup = {
   /** Unique among the overlay's groups; it scopes the ids of the group's markers. */
   key: string

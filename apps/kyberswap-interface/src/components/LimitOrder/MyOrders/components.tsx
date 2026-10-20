@@ -22,7 +22,7 @@ type CancelAllButtonProps = {
   dataTestId?: string
 }
 
-/** The one Cancel All button, which the limit and the stop order lists both offer. */
+/** The one Cancel All button, which the limit and the stop market order lists both offer. */
 export const CancelAllButton = ({ disabled, isLoading, onClick, dataTestId }: CancelAllButtonProps) => (
   <button
     type="button"

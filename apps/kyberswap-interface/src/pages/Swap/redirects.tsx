@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 
 import { APP_PATHS, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
-import { isSupportLimitOrder, isSupportStopOrder } from 'constants/networks'
+import { isSupportLimitOrder, isSupportStopMarket } from 'constants/networks'
 import { NativeCurrencies, STABLE_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { type SwapIntent, resolveSwapIntentPair } from 'utils/routes'
@@ -17,8 +17,8 @@ export const RedirectPathToTradeNetwork = () => {
 
   let redirectTo = ''
 
-  if (pathname.startsWith(APP_PATHS.STOP_ORDER) && isSupportStopOrder(chainId)) {
-    redirectTo = APP_PATHS.STOP_ORDER
+  if (pathname.startsWith(APP_PATHS.STOP_MARKET) && isSupportStopMarket(chainId)) {
+    redirectTo = APP_PATHS.STOP_MARKET
   } else if (pathname.startsWith(APP_PATHS.LIMIT) && isSupportLimitOrder(chainId)) {
     redirectTo = APP_PATHS.LIMIT
   } else {

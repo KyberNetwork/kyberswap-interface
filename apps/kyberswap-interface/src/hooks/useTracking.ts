@@ -159,15 +159,15 @@ export enum TRACKING_EVENT_TYPE {
   ANNOUNCEMENT_CLICK_CTA_POPUP,
   ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
 
-  // Stop Order
-  SL_PAGE_VIEWED,
-  SL_TOKEN_SELECTED,
-  SL_REVIEW_OPENED,
-  SL_ORDER_PLACED,
-  SL_ORDER_CANCELLED,
-  SL_RECREATE_CLICKED,
-  SL_INELIGIBLE_TOKEN,
-  SL_EXIT_PRICE_ENTRY_CLICKED,
+  // Stop Market
+  SM_PAGE_VIEWED,
+  SM_TOKEN_SELECTED,
+  SM_REVIEW_OPENED,
+  SM_ORDER_PLACED,
+  SM_ORDER_CANCELLED,
+  SM_RECREATE_CLICKED,
+  SM_INELIGIBLE_TOKEN,
+  SM_EXIT_PRICE_ENTRY_CLICKED,
 
   // Limit Order
   LO_PAGE_VIEWED,
@@ -1240,35 +1240,35 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Gas refund - KNC Utility source click', { source })
           break
         }
-        case TRACKING_EVENT_TYPE.SL_PAGE_VIEWED: {
-          formoTrack('Stop Order - Sub Tab Opened', payload)
+        case TRACKING_EVENT_TYPE.SM_PAGE_VIEWED: {
+          formoTrack('Stop Market - Sub Tab Opened', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SL_TOKEN_SELECTED: {
-          formoTrack('Stop Order - Token Selected', payload)
+        case TRACKING_EVENT_TYPE.SM_TOKEN_SELECTED: {
+          formoTrack('Stop Market - Token Selected', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SL_REVIEW_OPENED: {
-          formoTrack('Stop Order - Review Opened', payload)
+        case TRACKING_EVENT_TYPE.SM_REVIEW_OPENED: {
+          formoTrack('Stop Market - Review Opened', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SL_ORDER_PLACED: {
-          formoTrack('Stop Order - Order Placed', payload)
+        case TRACKING_EVENT_TYPE.SM_ORDER_PLACED: {
+          formoTrack('Stop Market - Order Placed', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SL_ORDER_CANCELLED: {
-          formoTrack('Stop Order - Order Cancelled', payload)
+        case TRACKING_EVENT_TYPE.SM_ORDER_CANCELLED: {
+          formoTrack('Stop Market - Order Cancelled', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SL_RECREATE_CLICKED: {
-          formoTrack('Stop Order - Recreate Clicked', payload)
+        case TRACKING_EVENT_TYPE.SM_RECREATE_CLICKED: {
+          formoTrack('Stop Market - Recreate Clicked', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SL_INELIGIBLE_TOKEN: {
-          formoTrack('Stop Order - Ineligible Token', payload)
+        case TRACKING_EVENT_TYPE.SM_INELIGIBLE_TOKEN: {
+          formoTrack('Stop Market - Ineligible Token', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SL_EXIT_PRICE_ENTRY_CLICKED: {
+        case TRACKING_EVENT_TYPE.SM_EXIT_PRICE_ENTRY_CLICKED: {
           formoTrack('Exit Price Entry Clicked', payload)
           break
         }

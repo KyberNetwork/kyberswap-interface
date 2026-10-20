@@ -1,6 +1,6 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
-import { useGetStopOrderOracleTokensQuery } from 'services/stopOrder'
+import { useGetStopMarketOracleTokensQuery } from 'services/stopMarket'
 
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -15,7 +15,7 @@ export const getOracleLookupAddress = (currency: Currency): string =>
   (isTokenNative(currency) ? WETH[currency.chainId].address : currency.wrapped.address).toLowerCase()
 
 /**
- * The tokens on a chain that its stop order oracle can price, with the token-list filter that finds
+ * The tokens on a chain that its stop market order oracle can price, with the token-list filter that finds
  * them, for callers that narrow a server-side search by it.
  *
  * `isReady` stays false while the list loads and after it fails, so a caller can tell a token with no
@@ -24,7 +24,7 @@ export const getOracleLookupAddress = (currency: Currency): string =>
  */
 export const useOracleTokens = (chainId: ChainId | undefined, options?: { skip?: boolean }) => {
   const skip = !chainId || !!options?.skip
-  const { currentData, isError } = useGetStopOrderOracleTokensQuery(chainId as ChainId, { skip })
+  const { currentData, isError } = useGetStopMarketOracleTokensQuery(chainId as ChainId, { skip })
 
   const addresses = useMemo(() => (currentData ? new Set(currentData.addresses) : EMPTY_ADDRESSES), [currentData])
   const isReady = !skip && currentData !== undefined

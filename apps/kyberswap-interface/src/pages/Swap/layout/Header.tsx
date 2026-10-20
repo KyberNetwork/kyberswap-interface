@@ -26,9 +26,9 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
   const { pathname } = useLocation()
 
   const selectedTab = activeMainTab || activeTab
-  // Stop order lives under the Limit Order top-level tab, so it must be excluded before the limit copy applies.
-  const isStopOrderPage = pathname.startsWith(APP_PATHS.STOP_ORDER)
-  const isLimitPage = !isStopOrderPage && (pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT)
+  // Stop market order lives under the Limit Order top-level tab, so it must be excluded before the limit copy applies.
+  const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
+  const isLimitPage = !isStopMarketPage && (pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT)
   const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
 
@@ -50,7 +50,7 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
               <span className="text-xs font-medium text-subText">{t`Buy or sell tokens at customized prices`}</span>
             </>
           )}
-          {isStopOrderPage && (
+          {isStopMarketPage && (
             <>
               <HiddenH1>Sell automatically when the price drops.</HiddenH1>
               <HiddenH2>

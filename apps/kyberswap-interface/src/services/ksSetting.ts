@@ -239,7 +239,7 @@ const ksSettingApi = createApi({
 
         return { data: tokens.map(token => token.address.toLowerCase()) }
       },
-      // An oracle's feed list changes rarely; `getStopOrderOracleTokens` reads it and holds the answer.
+      // An oracle's feed list changes rarely; `getStopMarketOracleTokens` reads it and holds the answer.
       keepUnusedDataFor: 60 * 60,
     }),
   }),

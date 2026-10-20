@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest'
 // Representative route trees must complete the same async static render used by distinct pages and the
 // shared product shells. This waits for React.lazy route chunks and validates real content, not only fallback UI.
 const ROUTES = [
-  // Limit Orders and Stop Orders - per chain
+  // Limit Orders and Stop Market Orders - per chain
   '/limit/base',
-  '/stop-order/base',
+  '/stop-market/base',
   // Cross-chain and Earn
   '/cross-chain',
   '/earn',
@@ -57,13 +57,13 @@ describe('SSR render smoke', () => {
     expect(prerenderManifest.tradeShells).toEqual([
       { outputPath: 'swap/index.html', product: 'swap', sourceRoute: '/swap/ethereum' },
       { outputPath: 'limit/index.html', product: 'limit', sourceRoute: '/limit/ethereum' },
-      { outputPath: 'stop-order/index.html', product: 'stop-order', sourceRoute: '/stop-order/ethereum' },
+      { outputPath: 'stop-market/index.html', product: 'stop-market', sourceRoute: '/stop-market/ethereum' },
     ])
     expect(prerenderManifest.distinctPages).toHaveLength(11)
     expect(
       prerenderManifest.distinctPages.every(
         ({ pathname }) =>
-          !pathname.startsWith('/swap/') && !pathname.startsWith('/limit/') && !pathname.startsWith('/stop-order/'),
+          !pathname.startsWith('/swap/') && !pathname.startsWith('/limit/') && !pathname.startsWith('/stop-market/'),
       ),
     ).toBe(true)
   })

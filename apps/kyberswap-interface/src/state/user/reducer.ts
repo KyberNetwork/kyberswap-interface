@@ -27,7 +27,7 @@ import {
   updatePoolDegenMode,
   updatePoolSlippageTolerance,
   updateSafeAppAcceptedTermOfUse,
-  updateStopOrderSlippage,
+  updateStopMarketSlippage,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -117,10 +117,10 @@ export interface UserState {
   myEarningChart: boolean
   showPricingChart: boolean
   /**
-   * The stop order slippage the user picked, in basis points, kept across orders and visits. Unset
+   * The stop market order slippage the user picked, in basis points, kept across orders and visits. Unset
    * while they have not picked one, or picked the suggestion itself, so it follows the pair.
    */
-  stopOrderSlippage?: number
+  stopMarketSlippage?: number
   showTradeRoutes: boolean
   successSoundEnabled: boolean
   favoriteChains: string[]
@@ -188,8 +188,8 @@ export default createReducer(initialState, builder =>
         state.showPricingChart = initialState.showPricingChart
       }
 
-      if (state.stopOrderSlippage !== undefined && typeof state.stopOrderSlippage !== 'number') {
-        state.stopOrderSlippage = undefined
+      if (state.stopMarketSlippage !== undefined && typeof state.stopMarketSlippage !== 'number') {
+        state.stopMarketSlippage = undefined
       }
 
       if (typeof state.successSoundEnabled !== 'boolean') {
@@ -203,10 +203,10 @@ export default createReducer(initialState, builder =>
       if (action.payload.userDegenMode) {
         state.userDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
       } else {
-        // A stop order slippage above the normal cap only stands while degen mode is on; past it, the
-        // stop order goes back to following the pair's suggestion.
-        if (state.stopOrderSlippage !== undefined && state.stopOrderSlippage > MAX_NORMAL_SLIPPAGE_IN_BIPS) {
-          state.stopOrderSlippage = undefined
+        // A stop market order slippage above the normal cap only stands while degen mode is on; past it, the
+        // stop market order goes back to following the pair's suggestion.
+        if (state.stopMarketSlippage !== undefined && state.stopMarketSlippage > MAX_NORMAL_SLIPPAGE_IN_BIPS) {
+          state.stopMarketSlippage = undefined
         }
         // If max slippage <= 19.99%, no need update slippage.
         if (state.userSlippageTolerance <= MAX_NORMAL_SLIPPAGE_IN_BIPS) {
@@ -335,8 +335,8 @@ export default createReducer(initialState, builder =>
     .addCase(togglePricingChart, state => {
       state.showPricingChart = !state.showPricingChart
     })
-    .addCase(updateStopOrderSlippage, (state, { payload: { stopOrderSlippage } }) => {
-      state.stopOrderSlippage = stopOrderSlippage
+    .addCase(updateStopMarketSlippage, (state, { payload: { stopMarketSlippage } }) => {
+      state.stopMarketSlippage = stopMarketSlippage
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
