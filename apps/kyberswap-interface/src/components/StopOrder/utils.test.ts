@@ -409,6 +409,29 @@ describe('getStopOrderServiceErrorMessage', () => {
     expect(getStopOrderServiceErrorMessage(error)).toBe('Input is invalid: deadline')
   })
 
+  it('prefers a reason the body sets apart over the one inside the message', () => {
+    const error = {
+      status: 400,
+      data: {
+        code: 4004,
+        message: 'DOMAIN ERROR: {Code: DOMAIN:INVALID, RootCause: old wording}',
+        rootCause: 'order too small',
+      },
+    }
+    expect(getStopOrderServiceErrorMessage(error)).toBe('Order too small')
+  })
+
+  it('falls back to the domain message when a refusal carries no root cause', () => {
+    const error = {
+      status: 404,
+      data: {
+        code: 4040,
+        message: 'DOMAIN ERROR: {Code: DOMAIN:NOT_FOUND, Message: Domain error: Not found, ErrorEntities: [feed]}',
+      },
+    }
+    expect(getStopOrderServiceErrorMessage(error)).toBe('Domain error: Not found')
+  })
+
   it('has nothing to say about errors that are not a service refusal', () => {
     expect(getStopOrderServiceErrorMessage(new Error('User rejected the request.'))).toBeUndefined()
     expect(

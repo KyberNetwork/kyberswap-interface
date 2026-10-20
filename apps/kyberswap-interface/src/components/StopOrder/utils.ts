@@ -482,19 +482,35 @@ export const parseRawAmount = (raw?: string): bigint => {
 export const hasReservedBalanceShortfall = (remainingBalance: bigint, reserved: bigint): boolean =>
   reserved > 0n && remainingBalance < reserved
 
+const readText = (value: unknown): string | undefined =>
+  typeof value === 'string' && value.trim() ? value.trim() : undefined
+
 /**
- * The reason the service gave for refusing a request, readable as is. A domain refusal wraps it as
- * `DOMAIN ERROR: {…, RootCause: <reason>}`, and only the reason is meant for the user — e.g. "slippage
- * must exceed the maximum fees charged on tokenOut: … needs more than 539 bps". Undefined for anything
- * that is not a service refusal, such as a network failure or a wallet error.
+ * The reason the service gave for refusing a request, readable as is. A reason the body sets apart
+ * (`rootCause`, `reason`) is taken first. Otherwise a domain refusal's message, `DOMAIN ERROR: {Code: …,
+ * Message: …, ErrorEntities: […], RootCause: <reason>}`, gives up its reason — e.g. "slippage must
+ * exceed the maximum fees charged on tokenOut: … needs more than 539 bps" — or, without one, its
+ * `Message`. Any other message is passed through. Undefined for anything that is not a service
+ * refusal, such as a network failure or a wallet error.
  */
 export const getStopOrderServiceErrorMessage = (error: unknown): string | undefined => {
   const data = error && typeof error === 'object' && 'data' in error ? (error as { data: unknown }).data : undefined
-  const message =
-    data && typeof data === 'object' && 'message' in data ? (data as { message: unknown }).message : undefined
-  if (typeof message !== 'string' || !message.trim()) return undefined
-  const reason = /RootCause: (.+?)\}?$/s.exec(message.trim())?.[1] ?? message
-  return capitalizeFirstLetter(reason.trim())
+  if (!data || typeof data !== 'object') return undefined
+  const body = data as { message?: unknown; rootCause?: unknown; reason?: unknown }
+
+  const structured = readText(body.rootCause) ?? readText(body.reason)
+  if (structured) return capitalizeFirstLetter(structured)
+
+  const message = readText(body.message)
+  if (!message) return undefined
+  const domain = /^DOMAIN ERROR:\s*\{(.*)\}$/s.exec(message)?.[1]
+  if (domain) {
+    const reason =
+      readText(/RootCause:\s*(.+)$/s.exec(domain)?.[1]) ??
+      readText(/Message:\s*(.+?)(?:,\s*ErrorEntities:|,\s*RootCause:|$)/s.exec(domain)?.[1])
+    if (reason) return capitalizeFirstLetter(reason)
+  }
+  return capitalizeFirstLetter(message)
 }
 
 /** The warnings the service attached that carry something to show; the rest are nothing to read out. */

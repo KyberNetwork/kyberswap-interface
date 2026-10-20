@@ -239,6 +239,8 @@ const ksSettingApi = createApi({
 
         return { data: tokens.map(token => token.address.toLowerCase()) }
       },
+      // An oracle's feed list changes rarely; `getStopOrderOracleTokens` reads it and holds the answer.
+      keepUnusedDataFor: 60 * 60,
     }),
   }),
 })
@@ -250,7 +252,6 @@ export const {
   useGetChainsConfigurationQuery,
   useGetTokenByAddressesQuery,
   useLazySearchTokensBySymbolQuery,
-  useGetOracleTokensQuery,
 } = ksSettingApi
 
 export default ksSettingApi

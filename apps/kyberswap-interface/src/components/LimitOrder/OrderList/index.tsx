@@ -261,7 +261,7 @@ const OrderList = () => {
   const counts = useOpenOrderCounts(chainId)
   const { data: insufficientFundOrders = 0 } = useGetNumberOfInsufficientFundOrdersQuery(
     { chainId, maker: account || '' },
-    { skip: !account, pollingInterval: 10_000 },
+    { skip: !account, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
   const ordersCardRef = useRef<HTMLDivElement>(null)

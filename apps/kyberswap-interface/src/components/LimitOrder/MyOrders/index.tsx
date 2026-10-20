@@ -147,7 +147,7 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
       page: curPage,
       cursor,
     },
-    { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
+    { skip: !account, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
   const orders = listOrdersData?.orders ?? EMPTY_LIMIT_ORDERS

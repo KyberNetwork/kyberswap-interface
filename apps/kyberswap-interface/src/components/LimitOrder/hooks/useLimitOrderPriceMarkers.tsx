@@ -50,7 +50,7 @@ export const useLimitOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) =>
       page: 1,
       pageSize: 100,
     },
-    { skip: !account || !hasPair, pollingInterval: 10_000 },
+    { skip: !account || !hasPair, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
   // A cancel takes a while to reach the list; its line and cancel button must not outlive it.
   const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId })

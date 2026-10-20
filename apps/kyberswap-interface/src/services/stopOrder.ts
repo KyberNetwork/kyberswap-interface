@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import ksSettingApi from 'services/ksSetting'
 
 import {
   StopOrder,
@@ -8,6 +9,7 @@ import {
   StopOrderFee,
   StopOrderOracleConfig,
   StopOrderOraclePrice,
+  StopOrderOracleTokens,
   StopOrderStatus,
   StopOrderTypedData,
 } from 'components/StopOrder/types'
@@ -18,6 +20,13 @@ import { RTK_QUERY_TAGS } from 'constants/index'
 // Every response is wrapped in { code, message, data }; a non-zero code carries `errorEntities`
 // naming the offending fields.
 type ApiEnvelope<T> = { code: number; message: string; data: T }
+
+/** The one way the service says yes. Read into `validateStatus` rather than trusted from the HTTP status alone. */
+const isSuccessEnvelope = (body: unknown): boolean =>
+  !!body && typeof body === 'object' && (body as Partial<ApiEnvelope<unknown>>).code === 0
+
+/** Addresses, contracts and oracles are fixed per chain, so once read they are kept for the session. */
+const KEEP_CHAIN_CONFIG_FOR = 60 * 60
 
 type ListOrdersResponse = { orders: unknown[]; pagination?: { totalItems?: number } }
 type PublicConfigResponse = { config?: { smartIntentAddress?: string } }
@@ -70,7 +79,11 @@ const ORDERS_PATH = '/v1/orders/stop-loss'
 
 const stopOrderApi = createApi({
   reducerPath: 'stopOrderApi',
-  baseQuery: fetchBaseQuery({ baseUrl: CONDITIONAL_SERVICE_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: CONDITIONAL_SERVICE_URL,
+    // A refusal is a refusal whatever status it comes with, and a 2xx carrying a non-zero code is one too.
+    validateStatus: (response, body) => response.ok && isSuccessEnvelope(body),
+  }),
   tagTypes: [RTK_QUERY_TAGS.GET_STOP_ORDER_LIST],
   endpoints: builder => ({
     // The address tokenIn is approved to, and the EIP-712 verifying contract. Shared with Smart Exit.
@@ -79,6 +92,7 @@ const stopOrderApi = createApi({
       transformResponse: (response: ApiEnvelope<PublicConfigResponse>) => ({
         smartIntentAddress: response?.data?.config?.smartIntentAddress ?? '',
       }),
+      keepUnusedDataFor: KEEP_CHAIN_CONFIG_FOR,
     }),
 
     getStopOrders: builder.query<StopOrderListResult, StopOrderListParams>({
@@ -166,10 +180,29 @@ const stopOrderApi = createApi({
       providesTags: [RTK_QUERY_TAGS.GET_STOP_ORDER_LIST],
     }),
 
-    // Which oracle the chain's triggers run on, and the token-list filter that finds the tokens it prices.
-    getStopOrderOracleConfig: builder.query<StopOrderOracleConfig, ChainId>({
-      query: chainId => ({ url: `${ORDERS_PATH}/oracle-config`, params: { chainId } }),
-      transformResponse: (response: ApiEnvelope<StopOrderOracleConfig>) => response?.data,
+    /**
+     * The tokens a chain's triggers can be set on: the chain's oracle config names the token-list filter
+     * that finds that oracle's feeds, and the token list is then read through it. One cached answer per
+     * chain, so the form, the selector and the warnings all read the same list and the lookup is made once.
+     */
+    getStopOrderOracleTokens: builder.query<StopOrderOracleTokens, ChainId>({
+      queryFn: async (chainId, api, _extra, fetchWithBQ) => {
+        const config = await fetchWithBQ({ url: `${ORDERS_PATH}/oracle-config`, params: { chainId } })
+        if (config.error) return { error: config.error }
+        const tokenFilter = (config.data as ApiEnvelope<StopOrderOracleConfig> | undefined)?.data?.tokenFilter
+        // A config that names no filter leaves nothing to look feeds up by.
+        if (!tokenFilter) return { error: { status: 'CUSTOM_ERROR', error: 'The oracle config names no token filter' } }
+
+        try {
+          const addresses = await api
+            .dispatch(ksSettingApi.endpoints.getOracleTokens.initiate({ chainId, tokenFilter }, { subscribe: false }))
+            .unwrap()
+          return { data: { tokenFilter, addresses } }
+        } catch (error) {
+          return { error: { status: 'CUSTOM_ERROR', error: String(error) } }
+        }
+      },
+      keepUnusedDataFor: KEEP_CHAIN_CONFIG_FOR,
     }),
 
     // The exact cross-rate the trigger is evaluated against, so the form shows what actually fires.
@@ -187,7 +220,7 @@ export const {
   useGetStopOrderConfigQuery,
   useGetStopOrdersQuery,
   useGetStopOrderActiveMakingAmountQuery,
-  useGetStopOrderOracleConfigQuery,
+  useGetStopOrderOracleTokensQuery,
   useGetStopOrderOraclePriceQuery,
   useEstimateStopOrderFeeMutation,
   useGetStopOrderFeeEstimateQuery,

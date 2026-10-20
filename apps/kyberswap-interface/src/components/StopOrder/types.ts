@@ -210,6 +210,13 @@ export type StopOrderOracleConfig = {
   tokenFilter: string
 }
 
+/** The tokens a chain's oracle prices, lowercased, with the token-list filter that found them. */
+export type StopOrderOracleTokens = {
+  /** e.g. `hasChainlinkOracle`, `hasPythOracle` — the param a server-side token search narrows by. */
+  tokenFilter: string
+  addresses: string[]
+}
+
 /** Contract the user approves tokenIn to, and the EIP-712 verifying contract. */
 export type StopOrderConfig = {
   smartIntentAddress: string

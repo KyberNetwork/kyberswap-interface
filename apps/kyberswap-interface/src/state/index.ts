@@ -1,4 +1,5 @@
 import { type Middleware, combineReducers, configureStore } from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query'
 import { load, save } from 'redux-localstorage-simple'
 import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
@@ -226,6 +227,9 @@ export const getClientStore = (): AppStore => {
     clientStore = makeStore(getClientPreloadedState())
     cleanupReduxPersist()
     clientStore.dispatch(updateVersion())
+    // Focus and online events, which `refetchOnFocus`, `refetchOnReconnect` and `skipPollingIfUnfocused`
+    // on the RTK Query hooks listen for.
+    setupListeners(clientStore.dispatch)
   }
   return clientStore
 }

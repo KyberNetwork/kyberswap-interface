@@ -19,7 +19,6 @@ import {
   StopOrderTabSelector,
 } from 'components/StopOrder/MyOrders/components'
 import { STOP_ORDER_DEFAULT_EXPIRE, getStopOrderExpiryPresets } from 'components/StopOrder/constants'
-import { useStopOrderNotifications } from 'components/StopOrder/hooks/useStopOrderNotifications'
 import { useStopOrderTracking } from 'components/StopOrder/hooks/useStopOrderTracking'
 import { useStopOrdersFunding } from 'components/StopOrder/hooks/useStopOrdersFunding'
 import { StopOrder, StopOrderStatus } from 'components/StopOrder/types'
@@ -40,9 +39,8 @@ import { updateStopOrderForm } from 'state/stopOrder/reducer'
 
 const PAGE_SIZE = 10
 /**
- * How many of the wallet's newest orders the status toasts and the Cancel All modal work from: a toast
- * needs to see an order before and after it leaves Open, and the modal names the chains it can clear
- * from the open orders in hand — neither can come from the table's own page.
+ * How many of the wallet's newest open orders the Cancel All modal works from: it names the chains it
+ * can clear from the open orders in hand, which cannot come from the table's own page.
  */
 const FETCH_SIZE = 100
 const OPEN_STATUSES = [StopOrderStatus.OPEN]
@@ -163,7 +161,7 @@ const StopOrders = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
       page: curPage,
       pageSize: PAGE_SIZE,
     },
-    { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
+    { skip: !account, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
   const orders = currentData?.orders ?? EMPTY_ORDERS
   const totalItems = currentData?.totalItems ?? 0
@@ -174,13 +172,6 @@ const StopOrders = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
   useEffect(() => {
     if (currentData && curPage > pageCount) setCurPage(pageCount)
   }, [currentData, curPage, pageCount])
-
-  const { currentData: recentData } = useGetStopOrdersQuery(
-    { userWallet: account || '', chainIds: queriedChainIds, page: 1, pageSize: FETCH_SIZE },
-    { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
-  )
-  // Fed every status, so an order is seen before and after it leaves Open; nothing else reads this.
-  useStopOrderNotifications(recentData?.orders ?? EMPTY_ORDERS)
 
   // Only open orders can still fail for want of funds, so History reads nothing.
   const funding = useStopOrdersFunding(orders, isActiveTab)

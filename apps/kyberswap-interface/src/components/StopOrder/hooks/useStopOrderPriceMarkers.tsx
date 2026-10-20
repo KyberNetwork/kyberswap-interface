@@ -59,7 +59,7 @@ export const useStopOrderPriceMarkers = ({ currencyIn, currencyOut, enabled }: P
       page: 1,
       pageSize: 100,
     },
-    { skip: !account || !hasPair, pollingInterval: 10_000 },
+    { skip: !account || !hasPair, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
   /** Whether the order sells the receive token for the sell token, against the chart's direction. */

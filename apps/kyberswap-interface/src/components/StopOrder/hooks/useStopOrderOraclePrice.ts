@@ -36,7 +36,7 @@ export const useStopOrderOraclePrice = (base?: Currency, quote?: Currency, chain
   // trigger seeded or measured against it would belong to the wrong market.
   const { currentData, isError } = useGetStopOrderOraclePriceQuery(
     { chainId: resolvedChainId as ChainId, base: baseAddress ?? '', quote: quoteAddress ?? '' },
-    { skip: !canQuery, pollingInterval: POLL_INTERVAL },
+    { skip: !canQuery, pollingInterval: POLL_INTERVAL, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
   return useMemo(

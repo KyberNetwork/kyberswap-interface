@@ -20,7 +20,7 @@ export const useOpenOrderCounts = (chainId: ChainId) => {
   const skipLimitOrders = !account || !isSupportLimitOrder(chainId) || !isChainListLoaded || !limitOrderChainIds.length
   const { data: { totalOrder = 0 } = {} } = useGetListOrdersQuery(
     getInitialListOrdersArgs(limitOrderChainIds, account),
-    { skip: skipLimitOrders, refetchOnFocus: true, pollingInterval: 10_000 },
+    { skip: skipLimitOrders, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
   // An omitted `chainIds` is the service's all-chains path. Not on a chain without stop orders: nothing
@@ -28,7 +28,7 @@ export const useOpenOrderCounts = (chainId: ChainId) => {
   const skipStopOrders = !account || !isSupportStopOrder(chainId)
   const { data: { totalItems: totalStopOrders = 0 } = {} } = useGetStopOrdersQuery(
     { userWallet: account || '', statuses: [StopOrderStatus.OPEN], page: 1, pageSize: 1 },
-    { skip: skipStopOrders, refetchOnFocus: true, pollingInterval: 10_000 },
+    { skip: skipStopOrders, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
   // `data` outlives a skip, so a skipped side counts as nothing rather than as its last answer.
