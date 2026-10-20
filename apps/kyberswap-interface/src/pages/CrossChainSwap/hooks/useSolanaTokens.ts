@@ -5,6 +5,7 @@ import { SOLANA_NATIVE } from 'pages/CrossChainSwap/utils'
 
 const cached: Record<string, SolanaToken> = {}
 const cachedByQuery: Record<string, SolanaToken[]> = {}
+const EMPTY_SOLANA_TOKENS: SolanaToken[] = []
 
 const nativeSolana: SolanaToken = {
   id: SOLANA_NATIVE,
@@ -61,7 +62,7 @@ export const useSolanaTokens = (query: string, skip = false) => {
   })
 
   return {
-    solanaTokens: data || [],
+    solanaTokens: data ?? EMPTY_SOLANA_TOKENS,
     isLoadingSolanaTokens: isLoading,
   }
 }
