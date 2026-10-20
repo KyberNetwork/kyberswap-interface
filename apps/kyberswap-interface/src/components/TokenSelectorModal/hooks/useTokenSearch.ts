@@ -12,6 +12,7 @@ export const useTokenSearch = (primaryChainId: ChainId, debouncedQuery: string, 
   const chainIdList = useMemo(() => [primaryChainId], [primaryChainId])
   const isAllTab = active
   const isQueryValidEVMAddress = !!isAddress(primaryChainId, debouncedQuery)
+
   const {
     data: tokenSearchData,
     fetchNextPage,
@@ -61,6 +62,7 @@ export const useTokenSearch = (primaryChainId: ChainId, debouncedQuery: string, 
   const fetchMore = useCallback(async () => {
     if (hasNextPage && !isFetchingTokenSearch) await fetchNextPage()
   }, [hasNextPage, isFetchingTokenSearch, fetchNextPage])
+
   return {
     tokenSearchResults,
     currentChainRpcToken,

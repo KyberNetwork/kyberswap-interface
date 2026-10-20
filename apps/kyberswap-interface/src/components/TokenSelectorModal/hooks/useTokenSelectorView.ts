@@ -28,16 +28,20 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
   const { account } = useActiveWeb3React()
   const { supportedChains } = useChainsConfig()
   const { trackingHandler } = useTracking()
+
   const chainVolumes = useChainsVolume(showDiscoveryTabs)
   const rankedChains = useMemo(() => {
     if (!Object.keys(chainVolumes).length) return supportedChains
     return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
   }, [supportedChains, chainVolumes])
+
   const [selectedChainId, setSelectedChainId] = useState(anchorChainId)
+
   // Returning from an other-chain import keeps browsing on that token's chain, as before.
   useEffect(() => {
     if (importChainId !== undefined) setSelectedChainId(importChainId)
   }, [importChainId])
+
   const [activeTab, setActiveTab] = useState(() =>
     showDiscoveryTabs && !account && isTrendingSupportedChain(anchorChainId)
       ? TokenSelectorTab.Trending
@@ -46,6 +50,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
+
   const visibleTabs = useMemo(
     () =>
       TOKEN_SELECTOR_TAB_ORDER.filter(
@@ -53,6 +58,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
       ),
     [selectedChainId],
   )
+
   // Preserve the existing tab/search transitions while keeping their state in one hook.
   useEffect(() => {
     if (!visibleTabs.includes(activeTab)) setActiveTab(TokenSelectorTab.All)
@@ -87,6 +93,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
       return null
     })
   }, [])
+
   const changeMetricColumn = useCallback(
     (metric: TokenMetricColumn) => {
       setMetricColumn(metric)
@@ -97,9 +104,11 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     },
     [sort],
   )
+
   const resetScroll = useCallback(() => {
     if (listTokenRef.current) listTokenRef.current.scrollTop = 0
   }, [])
+
   useEffect(() => {
     setSort(null)
     pendingSortAnimation.current = false
@@ -128,6 +137,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     },
     [activeTab, selectedChainId, trackingHandler, trackingSource],
   )
+
   const handleChainChange = useCallback(
     (chainId: ChainId) => {
       setSelectedChainId(chainId)
@@ -142,6 +152,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     },
     [activeTab, selectedChainId, trackingHandler, trackingSource],
   )
+
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(isAddress(selectedChainId, event.target.value) || event.target.value)

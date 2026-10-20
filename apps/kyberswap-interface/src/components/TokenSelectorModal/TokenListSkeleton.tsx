@@ -13,7 +13,15 @@ const ROW_WIDTHS = [
 ]
 
 /** Match the active tab's columns, with one animation for the entire list. */
-export const TokenListSkeleton = ({ activeTab }: { activeTab: TokenSelectorTab }) => {
+export const TokenListSkeleton = ({
+  activeTab,
+  showFavoriteIcon = true,
+  showUsdBalance = true,
+}: {
+  activeTab: TokenSelectorTab
+  showFavoriteIcon?: boolean
+  showUsdBalance?: boolean
+}) => {
   const showPrice = activeTab !== TokenSelectorTab.All
   const showMetric = activeTab === TokenSelectorTab.Trending || activeTab === TokenSelectorTab.New
   const showRemove = activeTab === TokenSelectorTab.Imported
@@ -29,7 +37,7 @@ export const TokenListSkeleton = ({ activeTab }: { activeTab: TokenSelectorTab }
         return (
           <HStack key={index} className="h-12 shrink-0 items-center justify-between gap-2 px-3 sm:gap-3">
             <HStack className="min-w-0 flex-1 items-center gap-2">
-              <TableCellSkeleton width={16} height={16} />
+              {showFavoriteIcon && <TableCellSkeleton width={16} height={16} />}
               <TableCellSkeleton circle width={24} height={24} />
               <Stack className="min-w-0 gap-0.5">
                 <TextSkeleton width={widths.symbol} size="sm" className="max-w-full" />
@@ -45,7 +53,7 @@ export const TokenListSkeleton = ({ activeTab }: { activeTab: TokenSelectorTab }
               )}
               <Stack className={cn('items-end gap-0.5', showMetric ? METRIC_COLUMN_CLASS : BALANCE_COLUMN_CLASS)}>
                 <TextSkeleton width={widths.balance} size="sm" />
-                {!showMetric && <TextSkeleton width={widths.value} height={10} lineHeight={16} />}
+                {!showMetric && showUsdBalance && <TextSkeleton width={widths.value} height={10} lineHeight={16} />}
               </Stack>
               {showRemove && (
                 <HStack className="w-6 justify-center">

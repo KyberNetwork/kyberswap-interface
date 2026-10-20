@@ -68,7 +68,7 @@ export const getTabSubtitle = (tab: TokenSelectorTab): ReactNode => TAB_META[tab
 type TabBarProps = {
   tabs: TokenSelectorTab[]
   activeTab: TokenSelectorTab
-  onChange: (tab: TokenSelectorTab) => void
+  onChange?: (tab: TokenSelectorTab) => void
 }
 
 export const TabBar = memo(({ tabs, activeTab, onChange }: TabBarProps) => {
@@ -86,7 +86,7 @@ export const TabBar = memo(({ tabs, activeTab, onChange }: TabBarProps) => {
             aria-controls="token-selector-panel"
             data-active={isActive}
             data-testid={`tab-${tab}`}
-            onClick={() => onChange(tab)}
+            onClick={() => onChange?.(tab)}
             className={cn(
               'flex shrink-0 cursor-pointer items-center gap-0.5 rounded-t-lg border-b-2 px-2 py-1.5 text-sm font-medium transition-colors duration-150',
               'hover:bg-white-04 focus-visible:bg-white-04 focus-visible:outline-none',

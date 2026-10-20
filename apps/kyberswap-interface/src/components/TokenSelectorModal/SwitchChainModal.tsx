@@ -1,12 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { X } from 'react-feather'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Modal from 'components/Modal'
 import { HStack } from 'components/Stack'
 import { NETWORKS_INFO } from 'constants/networks'
+import { CloseIcon } from 'theme'
 
 type SwitchChainModalProps = {
   /** The token the user picked that lives on a different chain than the connected one. */
@@ -26,12 +26,7 @@ export const SwitchChainModal = ({ token, onDismiss, onConfirm }: SwitchChainMod
             <span className="text-lg font-medium">
               <Trans>Switch Chain</Trans>
             </span>
-            <X
-              role="button"
-              data-testid="switch-chain-close"
-              className="cursor-pointer text-text"
-              onClick={onDismiss}
-            />
+            <CloseIcon onClick={onDismiss} />
           </HStack>
 
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm font-medium text-text">

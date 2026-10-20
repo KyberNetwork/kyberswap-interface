@@ -360,10 +360,8 @@ export const TokenPanel = ({
           isOpen={modalOpen}
           onDismiss={() => setModalOpen(false)}
           onSelectCurrency={onSelectCurrency}
-          nearBalances={balances}
           selectedChain={selectedChain}
           selectedCurrency={selectedCurrency}
-          solanaBalances={solanaBalances}
         />
       )}
 
