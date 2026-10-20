@@ -19,6 +19,7 @@ import { isAddress } from 'utils/address'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
 import { getSwapIntentFromPath, getTradeProductPath, isSwapLikePath, resolveSwapIntentPair } from 'utils/routes'
+import { getChainIdFromSlug } from 'utils/string'
 import { getSwapChains } from 'utils/swapFlow'
 
 interface ParsedUrlQuery {
@@ -272,12 +273,16 @@ export function queryParametersToSwapState(
 }
 
 export const useCurrencyFromUrl = () => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId: walletChainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const { currency: currencyParam, token: tokenParam } = useParams()
+  const { currency: currencyParam, token: tokenParam, network } = useParams()
+  const chainId = getChainIdFromSlug(network) ?? walletChainId
   const [params] = useSearchParams()
   const isSwapPage =
-    isSwapLikePath(pathname) || pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
+    isSwapLikePath(pathname) ||
+    pathname === APP_PATHS.CROSS_CHAIN ||
+    pathname.startsWith(APP_PATHS.PARTNER_SWAP) ||
+    pathname.startsWith(APP_PATHS.USER_SWAP)
   const { fromChain, toChain } = getSwapChains(isSwapPage ? params : new URLSearchParams(), chainId)
 
   const pathPair = useMemo(() => {
