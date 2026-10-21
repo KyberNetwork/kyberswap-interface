@@ -11,7 +11,6 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { Currency } from 'pages/CrossChainSwap/adapters'
 import { getKyberCrossRoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
@@ -58,37 +57,10 @@ export const QuoteSelector = ({
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { weeks, year } = campaignConfig[CampaignType.NearIntents]
-  const now = Date.now() / 1000
-  const currentYear = new Date().getFullYear()
-  const nearIntentCampaignOnGoing = year === currentYear && weeks.some(week => week.start <= now && week.end > now)
-
   const routeTagLabels: Record<string, string> = {
     RECOMMENDED: t`Recommended`,
     FASTEST: t`Fastest`,
     BEST_OUTPUT: t`Best Output`,
-  }
-  // allLoading stays true while streaming, even after the soft timeout enables swapping.
-  const showStreamTags = quoteMode === 'stream' && !allLoading
-  let fastestQuoteIndex = -1
-  let bestOutputQuoteIndex = -1
-  if (showStreamTags) {
-    for (const [index, { quote }] of quotes.entries()) {
-      const fastestQuote = quotes[fastestQuoteIndex]?.quote
-      if (
-        Number.isFinite(quote.timeEstimate) &&
-        quote.timeEstimate > 0 &&
-        (!fastestQuote ||
-          quote.timeEstimate < fastestQuote.timeEstimate ||
-          (quote.timeEstimate === fastestQuote.timeEstimate && quote.outputAmount > fastestQuote.outputAmount))
-      ) {
-        fastestQuoteIndex = index
-      }
-      const bestOutput = quotes[bestOutputQuoteIndex]?.quote.outputAmount
-      if (quote.outputAmount > 0n && (bestOutput === undefined || quote.outputAmount > bestOutput)) {
-        bestOutputQuoteIndex = index
-      }
-    }
   }
 
   const content = (
@@ -100,15 +72,10 @@ export const QuoteSelector = ({
       <Stack className="flex-1 overflow-y-scroll">
         <ScrollableWithSignal data-open="true" showArrow className="flex max-h-full flex-col gap-3 overflow-y-auto">
           {quotes.map((quote, index) => {
-            const isKyberCross = quote.adapter.getName() === 'KyberCross'
             const routeTags =
-              isKyberCross && quoteMode === 'direct' ? getKyberCrossRoutePlan(quote.quote.rawQuote)?.tags || [] : []
-            if (showStreamTags) {
-              if (index === fastestQuoteIndex) routeTags.push('FASTEST')
-              if (index === bestOutputQuoteIndex) routeTags.push('BEST_OUTPUT')
-            }
-            const ongoingTag =
-              quoteMode === 'direct' && nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
+              quoteMode === 'direct' && quote.adapter.getName() === 'KyberCross'
+                ? getKyberCrossRoutePlan(quote.quote.rawQuote)?.tags || []
+                : []
             return (
               <QuoteRow
                 key={getQuoteId(quote)}
@@ -157,7 +124,7 @@ export const QuoteSelector = ({
                       </span>
                     </HStack>
 
-                    {(routeTags.length > 0 || (quoteMode === 'stream' && isKyberCross)) && (
+                    {routeTags.length > 0 && (
                       <HStack className="shrink-0 items-center gap-1">
                         {routeTags.map(tag => {
                           if (!Object.prototype.hasOwnProperty.call(ROUTE_TAG_ICONS, tag)) return null
@@ -179,21 +146,9 @@ export const QuoteSelector = ({
                             </MouseoverTooltip>
                           )
                         })}
-                        {quoteMode === 'stream' && isKyberCross && (
-                          <span className="shrink-0 rounded-full bg-primary-20 px-2 py-1 text-xs font-medium text-primary">
-                            KyberCross
-                          </span>
-                        )}
                       </HStack>
                     )}
-
-                    {ongoingTag && (
-                      <div className="shrink-0 rounded-full bg-darkBlue px-2 py-1 text-xs font-medium text-white">
-                        {t`On-Going Campaign`}
-                      </div>
-                    )}
-
-                    {quoteMode === 'direct' && index === 0 && !ongoingTag && !isKyberCross && (
+                    {quoteMode === 'stream' && index === 0 && (
                       <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
                         {t`Best Return`}
                       </div>
