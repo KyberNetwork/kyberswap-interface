@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useAnimationControls, useReducedMotion } from 'framer-motion'
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
@@ -81,12 +80,10 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
   const listTokenRef = useRef<HTMLDivElement>(null)
   const [sort, setSort] = useState<TokenSort | null>(null)
   const [metricColumn, setMetricColumn] = useState<TokenMetricColumn>('volume24h')
-  const listAnimation = useAnimationControls()
-  const prefersReducedMotion = useReducedMotion()
-  const pendingSortAnimation = useRef(false)
+  const pendingSortScrollReset = useRef(false)
 
   const cycleSort = useCallback((field: TokenSortField) => {
-    pendingSortAnimation.current = true
+    pendingSortScrollReset.current = true
     setSort(prev => {
       if (!prev || prev.field !== field) return { field, dir: 'desc' }
       if (prev.dir === 'desc') return { field, dir: 'asc' }
@@ -98,7 +95,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     (metric: TokenMetricColumn) => {
       setMetricColumn(metric)
       if (sort && sort.field !== 'priceChange24h' && sort.field !== metric) {
-        pendingSortAnimation.current = true
+        pendingSortScrollReset.current = true
         setSort({ field: metric, dir: sort.dir })
       }
     },
@@ -111,18 +108,15 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
 
   useEffect(() => {
     setSort(null)
-    pendingSortAnimation.current = false
+    pendingSortScrollReset.current = false
     resetScroll()
   }, [activeTab, selectedChainId, resetScroll])
 
-  const animateSortedRows = useCallback(() => {
-    if (!pendingSortAnimation.current) return
-    pendingSortAnimation.current = false
+  const resetScrollAfterSort = useCallback(() => {
+    if (!pendingSortScrollReset.current) return
+    pendingSortScrollReset.current = false
     resetScroll()
-    if (!prefersReducedMotion) {
-      void listAnimation.start({ opacity: [0.4, 1], transition: { duration: 0.25, ease: 'easeOut' } })
-    }
-  }, [resetScroll, prefersReducedMotion, listAnimation])
+  }, [resetScroll])
 
   const handleTabChange = useCallback(
     (nextTab: TokenSelectorTab) => {
@@ -189,7 +183,6 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     cycleSort,
     metricColumn,
     changeMetricColumn,
-    listAnimation,
-    animateSortedRows,
+    resetScrollAfterSort,
   }
 }
