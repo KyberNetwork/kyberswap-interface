@@ -1,14 +1,13 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Repeat } from 'react-feather'
 
 import NumericalInput from 'components/NumericalInput'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import { triggerProximityText } from 'components/StopMarket/MyOrders/components'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopMarket/constants'
-import { formatDistanceMagnitude, formatTriggerPriceValue, getTriggerProximity } from 'components/StopMarket/utils'
+import { formatDistanceMagnitude } from 'components/StopMarket/utils'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -27,7 +26,6 @@ type Props = {
 
 const PERCENT_CHIP_CLASSES = 'h-6 rounded-lg border px-2 text-xs font-medium transition-colors'
 
-/** Takes a magnitude — the arrow beside it carries the direction. */
 /** Editable percent-below-market chip. It and the price field are the same value from two sides. */
 const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (value: string) => void }) => {
   const [draft, setDraft] = useState('')
@@ -73,8 +71,39 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
 }
 
 /**
- * Laid out like the limit-order Rate block, so the two forms read alike; the rate shown beside Market
- * is the oracle price the trigger is evaluated against, not the app's USD-ratio price.
+ * Where the trigger sits against the oracle price: the direction and the colour follow the sign, below in
+ * red and above in green. With no distance to show — no trigger yet, or one right at the oracle — it names
+ * the price the distance is measured from.
+ */
+const TriggerDistance = ({ percent }: { percent?: number }) => {
+  const rounded = percent === undefined ? 0 : Math.round(percent * 10) / 10
+  return (
+    <span
+      className={cn(
+        'text-xs font-medium transition-colors duration-200',
+        rounded === 0 ? 'text-subText' : rounded < 0 ? 'text-red' : 'text-primary',
+      )}
+      data-testid="stop-market-trigger-distance"
+    >
+      {rounded === 0 ? (
+        <Trans>current oracle price</Trans>
+      ) : rounded < 0 ? (
+        <>
+          ↓ {formatDistanceMagnitude(rounded)}% <Trans>below current oracle price</Trans>
+        </>
+      ) : (
+        <>
+          ↑ {formatDistanceMagnitude(rounded)}% <Trans>above current oracle price</Trans>
+        </>
+      )}
+    </span>
+  )
+}
+
+/**
+ * The price the order triggers at, typed as the receive token per sell token — the direction the oracle
+ * quotes the pair in. The rate beside Oracle is that feed's price, not the app's USD-ratio price, and the
+ * chip row sets the trigger as a distance from it.
  */
 const TriggerPriceSection = ({
   sellCurrency,
@@ -87,56 +116,42 @@ const TriggerPriceSection = ({
   onChangeTriggerPercent,
   onSetMarketPrice,
 }: Props) => {
-  /**
-   * Flips how the rate reads, as the limit-order Rate block does — the header rate, the trigger field
-   * and its unit — while the order itself still triggers on the sell token priced in the receive token.
-   * The percent chips and the oracle line keep that direction, since "below" and "above" are defined by it.
-   */
-  const [showInverted, setShowInverted] = useState(false)
-  // What the user is typing into the inverted field, kept as typed: re-deriving it from the trigger on
-  // every keystroke would reformat or erase partial input such as "0.000".
-  const [invertedDraft, setInvertedDraft] = useState<string>()
-
-  // Trailing zeros dropped both ways, so a round number typed on one side does not read as 2000.0000 on the other.
-  const invertedTrigger = Number(triggerPrice) > 0 ? formatTriggerPriceValue(1 / Number(triggerPrice)) : ''
-  const rateValue = showInverted ? invertedDraft ?? invertedTrigger : triggerPrice
-  const onRateInput = (value: string) => {
-    if (!showInverted) {
-      onChangeTriggerPrice(value)
-      return
-    }
-    setInvertedDraft(value)
-    if (!value) {
-      onChangeTriggerPrice('')
-      return
-    }
-    const parsed = Number(value)
-    if (Number.isFinite(parsed) && parsed > 0) onChangeTriggerPrice(formatTriggerPriceValue(1 / parsed))
-  }
-
-  const [baseCurrency, quoteCurrency] = showInverted ? [receiveCurrency, sellCurrency] : [sellCurrency, receiveCurrency]
+  const sellSymbol = sellCurrency?.symbol
+  const receiveSymbol = receiveCurrency?.symbol
 
   return (
     <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4" data-testid="stop-market-trigger-section">
       <HStack className="min-h-7 items-center justify-between gap-3">
         <span className="whitespace-nowrap text-sm font-medium text-subText">
-          <Trans>Rate</Trans>
+          <Trans>Trigger at</Trans>
         </span>
         <HStack className="min-w-0 items-center justify-end gap-2">
-          <button
-            type="button"
-            data-testid="stop-market-market-price-button"
-            className="shrink-0 rounded-lg bg-primary/10 px-2 py-1 text-sm font-medium text-primary transition enabled:hover:brightness-90 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={!marketPrice}
-            onClick={onSetMarketPrice}
+          <MouseoverTooltip
+            placement="top"
+            width="280px"
+            text={
+              <Trans>
+                Derived from each token&apos;s independent price feed. Your order triggers when this price reaches your
+                level.
+              </Trans>
+            }
           >
-            <Trans>Market</Trans>
-          </button>
-          {marketPrice && baseCurrency && quoteCurrency ? (
+            {/* Clicking it puts the trigger right at the oracle price. Disabled, it lets the pointer through,
+                so the tooltip's wrapper still sees the hover — a disabled button swallows mouse events in
+                some browsers. */}
+            <button
+              type="button"
+              data-testid="stop-market-market-price-button"
+              className="shrink-0 rounded-lg bg-primary/10 px-2 py-1 text-sm font-medium text-primary transition enabled:hover:brightness-90 disabled:pointer-events-none disabled:opacity-50"
+              disabled={!marketPrice}
+              onClick={onSetMarketPrice}
+            >
+              <Trans>Oracle</Trans>
+            </button>
+          </MouseoverTooltip>
+          {marketPrice && sellSymbol && receiveSymbol ? (
             <span className="min-w-0 truncate text-sm font-medium text-text" data-testid="stop-market-market-rate">
-              1 {baseCurrency.symbol} ={' '}
-              {formatDisplayNumber(showInverted ? 1 / marketPrice : marketPrice, { significantDigits: 6 })}{' '}
-              {quoteCurrency.symbol}
+              1 {sellSymbol} = {formatDisplayNumber(marketPrice, { significantDigits: 6 })} {receiveSymbol}
             </span>
           ) : isLoadingPrice ? (
             <Skeleton height={20} width={160} />
@@ -150,30 +165,19 @@ const TriggerPriceSection = ({
             maxLength={50}
             className="bg-transparent text-xl font-medium text-primary"
             data-testid="stop-market-trigger-price"
-            value={rateValue}
-            onUserInput={onRateInput}
-            onBlur={() => setInvertedDraft(undefined)}
+            value={triggerPrice}
+            onUserInput={onChangeTriggerPrice}
           />
         </div>
-        {/* Quote token per base token, written the way the limit-order rate row writes its unit. */}
-        {baseCurrency && quoteCurrency && (
-          <HStack className="min-w-0 shrink-0 items-center gap-1.5">
-            <span className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText">
-              {quoteCurrency.symbol}/{baseCurrency.symbol}
-            </span>
-            <button
-              type="button"
-              aria-label={t`Invert rate`}
-              data-testid="stop-market-invert-rate"
-              className="flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText transition hover:brightness-75"
-              onClick={() => {
-                setInvertedDraft(undefined)
-                setShowInverted(value => !value)
-              }}
-            >
-              <Repeat size={14} />
-            </button>
-          </HStack>
+        {sellSymbol && receiveSymbol && (
+          <span
+            className="max-w-[200px] shrink-0 truncate text-base font-medium text-subText"
+            data-testid="stop-market-trigger-unit"
+          >
+            <Trans>
+              {receiveSymbol} per {sellSymbol}
+            </Trans>
+          </span>
         )}
       </HStack>
 
@@ -196,31 +200,9 @@ const TriggerPriceSection = ({
       </div>
 
       {marketPrice ? (
-        <HStack className="flex-wrap items-center gap-2 text-xs font-medium text-subText">
-          <span data-testid="stop-market-oracle-price">
-            {/* Quoted in the receive token, so it carries that symbol rather than a currency sign. */}
-            <Trans>Current oracle price</Trans>: {formatDisplayNumber(marketPrice, { significantDigits: 6 })}{' '}
-            {receiveCurrency?.symbol}
-          </span>
-          {triggerPercent !== undefined && triggerPercent !== 0 && (
-            <span
-              className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}
-              data-testid="stop-market-trigger-distance"
-            >
-              {triggerPercent < 0 ? (
-                <>
-                  ↓ {formatDistanceMagnitude(triggerPercent)}% <Trans>below</Trans>
-                </>
-              ) : (
-                <>
-                  ↑ {formatDistanceMagnitude(triggerPercent)}% <Trans>above</Trans>
-                </>
-              )}
-            </span>
-          )}
-        </HStack>
+        <TriggerDistance percent={triggerPercent} />
       ) : isLoadingPrice ? (
-        // Boxed at the text-xs line the oracle price takes, so it lands without moving the card.
+        // Boxed at the text-xs line the distance takes, so it lands without moving the card.
         <span className="flex h-4 items-center" data-testid="stop-market-oracle-price-loading">
           <Skeleton height={10} width={220} borderRadius={6} />
         </span>

@@ -64,20 +64,14 @@ type TokenPriceChartProps = {
   /** Prices the tokens in this currency instead of the chain's USD stablecoin. */
   quoteCurrency?: Currency
   markerOverlay?: PriceMarkerOverlay
-  /** Draws the market price as its own line; see the canvas. */
-  showMarketPrice?: boolean
-  /** Shown under the chart, inside its card — controls for what the chart draws, say. */
-  footer?: ReactNode
+  /**
+   * Takes the place of the token tabs at the head of the card, for a caller that picks the chart itself.
+   * Handed `expand`, which the tabs call on a tap: the chart starts collapsed on a phone.
+   */
+  header?: (controls: { expand: () => void }) => ReactNode
 }
 
-const TokenPriceChart = ({
-  tokens,
-  flatten,
-  quoteCurrency,
-  markerOverlay,
-  showMarketPrice,
-  footer,
-}: TokenPriceChartProps) => {
+const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header }: TokenPriceChartProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -243,41 +237,45 @@ const TokenPriceChart = ({
   return (
     <Stack className={cn('gap-0 overflow-hidden rounded-xl', flatten ? 'border-0' : 'border border-darkBorder')}>
       <HStack className="items-center gap-3 pr-4">
-        <div role="tablist" className="flex min-w-0 flex-1 items-center overflow-x-auto">
-          {filteredTokens.map((token, index) => {
-            const isActive = index === resolvedActiveTabIndex
-            const isLast = index === filteredTokens.length - 1
-            return (
-              <button
-                type="button"
-                key={getCurrencyKey(token)}
-                onClick={() => {
-                  setActiveTabIndex(index)
-                  setIsExpanded(true)
-                }}
-                className={cn(
-                  'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
-                  !isLast && 'border-r border-darkBorder',
-                  isActive
-                    ? cn(
-                        'text-primary hover:text-primary',
-                        !flatten && 'shadow-[inset_0_-2px_0_var(--ks-primary)]',
-                        flatten ? 'bg-transparent hover:bg-transparent' : 'bg-primary/15 hover:bg-primary/15',
-                      )
-                    : cn(
-                        'bg-transparent text-subText hover:text-text',
-                        flatten ? 'hover:bg-transparent' : 'hover:bg-tableHeader',
-                      ),
-                )}
-              >
-                <CurrencyLogo currency={token} size="20px" />
-                <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
-                  {token.symbol}/{quoteToken.symbol}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+        {header ? (
+          header({ expand: () => setIsExpanded(true) })
+        ) : (
+          <div role="tablist" className="flex min-w-0 flex-1 items-center overflow-x-auto">
+            {filteredTokens.map((token, index) => {
+              const isActive = index === resolvedActiveTabIndex
+              const isLast = index === filteredTokens.length - 1
+              return (
+                <button
+                  type="button"
+                  key={getCurrencyKey(token)}
+                  onClick={() => {
+                    setActiveTabIndex(index)
+                    setIsExpanded(true)
+                  }}
+                  className={cn(
+                    'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
+                    !isLast && 'border-r border-darkBorder',
+                    isActive
+                      ? cn(
+                          'text-primary hover:text-primary',
+                          !flatten && 'shadow-[inset_0_-2px_0_var(--ks-primary)]',
+                          flatten ? 'bg-transparent hover:bg-transparent' : 'bg-primary/15 hover:bg-primary/15',
+                        )
+                      : cn(
+                          'bg-transparent text-subText hover:text-text',
+                          flatten ? 'hover:bg-transparent' : 'hover:bg-tableHeader',
+                        ),
+                  )}
+                >
+                  <CurrencyLogo currency={token} size="20px" />
+                  <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
+                    {token.symbol}/{quoteToken.symbol}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {!upToSmall && (
           <MouseoverTooltip placement="top-end" text={settlementPriceTooltip} width="360px">
@@ -389,7 +387,6 @@ const TokenPriceChart = ({
                     timeFrame={timeFrame}
                     formatValue={formatValue}
                     markerOverlay={markerOverlay}
-                    showMarketPrice={showMarketPrice}
                     onOffscreenChange={setOffscreenCounts}
                   />
                 </Suspense>
@@ -407,8 +404,6 @@ const TokenPriceChart = ({
                 </Stack>
               )}
             </div>
-
-            {footer}
 
             {upToSmall && (
               <div className="w-fit">

@@ -24,8 +24,8 @@ import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
 
-type Props = {
-  isOpen: boolean
+/** The terms of an order as they are reviewed before signing, new or as a replacement of an open one. */
+export type StopMarketReviewProps = {
   currencyIn?: Currency
   currencyOut?: Currency
   inputAmount: string
@@ -41,8 +41,12 @@ type Props = {
   /** The fee is being re-estimated for this review; any figure held is from an earlier one. */
   isFeeLoading?: boolean
   onRetryFee?: () => void
-  needsWrap?: boolean
   warnings?: StopMarketWarning[]
+}
+
+type Props = StopMarketReviewProps & {
+  isOpen: boolean
+  needsWrap?: boolean
   onDismiss?: () => void
   onSubmit?: () => void
 }
@@ -112,12 +116,23 @@ const ReviewNote = ({
 }
 
 /**
+ * Whether the reviewed order can be signed. The order stays reviewable so a warning can be read; only
+ * signing it is refused. The fee sets the cap signed into the order, so there is nothing to sign until it
+ * is known.
+ */
+export const isStopMarketReviewBlocked = ({
+  warnings = [],
+  isFeeLoading,
+  fee,
+}: Pick<StopMarketReviewProps, 'warnings' | 'isFeeLoading' | 'fee'>) =>
+  warnings.some(warning => warning.blocking) || !!isFeeLoading || !fee
+
+/**
  * The order as it will be signed, row by row: what it sells, where it triggers, what it costs and the
  * least it pays out. That floor is worked out here — the sell amount at the trigger, less the slippage
  * allowed, which the service measures net of its fee — since the service reports none.
  */
-const StopMarketConfirmModal = ({
-  isOpen,
+export const StopMarketReviewSummary = ({
   currencyIn,
   currencyOut,
   inputAmount,
@@ -131,11 +146,8 @@ const StopMarketConfirmModal = ({
   feeError,
   isFeeLoading,
   onRetryFee,
-  needsWrap,
   warnings = [],
-  onDismiss,
-  onSubmit,
-}: Props) => {
+}: StopMarketReviewProps) => {
   const feePercentage = fee?.protocol?.percentage
   // Taken from what the order receives, so it is in the receive token and, like that amount, an estimate
   // at the trigger price.
@@ -144,13 +156,138 @@ const StopMarketConfirmModal = ({
       ? (Number(estimatedOutput) * feePercentage) / 100
       : undefined
   const minReceive = getStopMarketMinReceive({ estimatedOutput: Number(estimatedOutput), slippage })
-  // The order stays reviewable so the warning can be read; only signing it is refused. The fee sets the
-  // cap signed into the order, so there is nothing to sign until it is known.
-  const isBlocked = warnings.some(warning => warning.blocking) || isFeeLoading || !fee
   const showFeeError = !!feeError && !isFeeLoading
   // Neither a fee nor a reason yet means the estimate is still on its way, from the moment the review opens.
   const isFeePending = isFeeLoading || (!fee && !feeError)
   const receiveSymbol = currencyOut?.symbol ?? ''
+
+  return (
+    <>
+      <Stack className="gap-3">
+        <SummaryRow label={<Trans>You Sell</Trans>} dataTestId="stop-market-confirm-sell-amount">
+          <span className="text-base font-medium">
+            {formatDisplayNumber(inputAmount, { significantDigits: 6 })} {currencyIn?.symbol}
+          </span>
+          {estimatedUsdIn && (
+            <span className="text-xs text-subText" data-testid="stop-market-confirm-sell-usd">
+              {' '}
+              ~{estimatedUsdIn}
+            </span>
+          )}
+        </SummaryRow>
+
+        <SummaryRow
+          label={<Trans>Trigger Price</Trans>}
+          tooltip={t`The order triggers once the oracle price is at or below this price.`}
+          dataTestId="stop-market-confirm-trigger-price"
+        >
+          <div className="text-base font-medium">
+            1 {currencyIn?.symbol} = {triggerPrice} {receiveSymbol}
+          </div>
+          {triggerPercent !== undefined && triggerPercent !== 0 && (
+            <div data-testid="stop-market-confirm-trigger-distance">
+              <span className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}>
+                {triggerPercent < 0 ? '↓' : '↑'} {formatDistanceMagnitude(triggerPercent)}%
+              </span>{' '}
+              <span className="text-subText">
+                {triggerPercent < 0 ? (
+                  <Trans>below current oracle price</Trans>
+                ) : (
+                  <Trans>above current oracle price</Trans>
+                )}
+              </span>
+            </div>
+          )}
+        </SummaryRow>
+
+        <Divider />
+
+        <SummaryRow
+          label={<Trans>Fee (incl. gas)</Trans>}
+          tooltip={t`Covers the protocol fee plus the gas KyberSwap pays to execute on-chain.`}
+          dataTestId="stop-market-confirm-fee"
+        >
+          {isFeePending ? (
+            <RowSkeleton dataTestId="stop-market-confirm-fee-loading" />
+          ) : (
+            // An amount, not a rate: once the minimum applies the rate no longer matches the published tier.
+            <span className={cn(showFeeError && 'text-red')}>
+              {showFeeError ? (
+                <Trans>Unavailable</Trans>
+              ) : feeAmount === undefined ? (
+                '--'
+              ) : (
+                `${formatDisplayNumber(feeAmount, { significantDigits: 6 })} ${receiveSymbol}`
+              )}
+            </span>
+          )}
+        </SummaryRow>
+
+        <SummaryRow label={<Trans>Max Slippage</Trans>} dataTestId="stop-market-confirm-slippage">
+          {formatSlippage(slippage)}
+        </SummaryRow>
+
+        <Divider />
+
+        <SummaryRow label={<Trans>Min. Receive</Trans>} dataTestId="stop-market-confirm-min-receive">
+          {minReceive === undefined ? (
+            '--'
+          ) : (
+            <HStack className="items-center justify-end gap-1 font-medium">
+              ~{currencyOut && <CurrencyLogo currency={currencyOut} size="16px" />}
+              {formatDisplayNumber(minReceive, { significantDigits: 6 })} {receiveSymbol}
+            </HStack>
+          )}
+        </SummaryRow>
+
+        {/* Show the deadline that actually gets signed, not the pre-clamp value an
+            "expires never" choice produces. */}
+        <SummaryRow label={<Trans>Expires</Trans>} dataTestId="stop-market-confirm-expiry">
+          {dayjs.unix(clampStopMarketDeadline(expiredAt / 1000)).format('DD/MM/YYYY HH:mm')}
+        </SummaryRow>
+      </Stack>
+
+      <HStack className="items-start gap-1.5 text-xs text-blue" data-testid="stop-market-confirm-execution-note">
+        <Info size={14} className="mt-px shrink-0" />
+        <span>
+          <Trans>
+            When the trigger price is reached, your order is submitted for execution at the current market price.
+            Execution depends on market conditions.
+          </Trans>
+        </span>
+      </HStack>
+
+      {warnings.map((warning, index) => (
+        <ReviewNote key={index} type={warning.type} dataTestId="stop-market-confirm-warning">
+          {warning.message}
+        </ReviewNote>
+      ))}
+
+      {showFeeError && (
+        <ReviewNote type="error" dataTestId="stop-market-confirm-fee-error">
+          {feeError}
+          {onRetryFee && (
+            <>
+              {' '}
+              <button
+                type="button"
+                className="cursor-pointer border-0 bg-transparent p-0 font-medium text-red underline hover:brightness-110"
+                onClick={onRetryFee}
+                data-testid="stop-market-confirm-fee-retry"
+              >
+                <Trans>Try again</Trans>
+              </button>
+            </>
+          )}
+        </ReviewNote>
+      )}
+    </>
+  )
+}
+
+/** The review of a new order, in its own dialog over the form. */
+const StopMarketConfirmModal = ({ isOpen, needsWrap, onDismiss, onSubmit, ...review }: Props) => {
+  const isBlocked = isStopMarketReviewBlocked(review)
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
@@ -162,124 +299,7 @@ const StopMarketConfirmModal = ({
           <CloseIcon onClick={onDismiss} data-testid="stop-market-confirm-close" />
         </HStack>
 
-        <Stack className="gap-3">
-          <SummaryRow label={<Trans>You Sell</Trans>} dataTestId="stop-market-confirm-sell-amount">
-            <span className="text-base font-medium">
-              {formatDisplayNumber(inputAmount, { significantDigits: 6 })} {currencyIn?.symbol}
-            </span>
-            {estimatedUsdIn && (
-              <span className="text-xs text-subText" data-testid="stop-market-confirm-sell-usd">
-                {' '}
-                ~{estimatedUsdIn}
-              </span>
-            )}
-          </SummaryRow>
-
-          <SummaryRow
-            label={<Trans>Trigger Price</Trans>}
-            tooltip={t`The order triggers once the oracle price is at or below this price.`}
-            dataTestId="stop-market-confirm-trigger-price"
-          >
-            <div className="text-base font-medium">
-              1 {currencyIn?.symbol} = {triggerPrice} {receiveSymbol}
-            </div>
-            {triggerPercent !== undefined && triggerPercent !== 0 && (
-              <div data-testid="stop-market-confirm-trigger-distance">
-                <span className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}>
-                  {triggerPercent < 0 ? '↓' : '↑'} {formatDistanceMagnitude(triggerPercent)}%
-                </span>{' '}
-                <span className="text-subText">
-                  {triggerPercent < 0 ? (
-                    <Trans>below current oracle price</Trans>
-                  ) : (
-                    <Trans>above current oracle price</Trans>
-                  )}
-                </span>
-              </div>
-            )}
-          </SummaryRow>
-
-          <Divider />
-
-          <SummaryRow
-            label={<Trans>Fee (incl. gas)</Trans>}
-            tooltip={t`Covers the protocol fee plus the gas KyberSwap pays to execute on-chain.`}
-            dataTestId="stop-market-confirm-fee"
-          >
-            {isFeePending ? (
-              <RowSkeleton dataTestId="stop-market-confirm-fee-loading" />
-            ) : (
-              // An amount, not a rate: once the minimum applies the rate no longer matches the published tier.
-              <span className={cn(showFeeError && 'text-red')}>
-                {showFeeError ? (
-                  <Trans>Unavailable</Trans>
-                ) : feeAmount === undefined ? (
-                  '--'
-                ) : (
-                  `${formatDisplayNumber(feeAmount, { significantDigits: 6 })} ${receiveSymbol}`
-                )}
-              </span>
-            )}
-          </SummaryRow>
-
-          <SummaryRow label={<Trans>Max Slippage</Trans>} dataTestId="stop-market-confirm-slippage">
-            {formatSlippage(slippage)}
-          </SummaryRow>
-
-          <Divider />
-
-          <SummaryRow label={<Trans>Min. Receive</Trans>} dataTestId="stop-market-confirm-min-receive">
-            {minReceive === undefined ? (
-              '--'
-            ) : (
-              <HStack className="items-center justify-end gap-1 font-medium">
-                ~{currencyOut && <CurrencyLogo currency={currencyOut} size="16px" />}
-                {formatDisplayNumber(minReceive, { significantDigits: 6 })} {receiveSymbol}
-              </HStack>
-            )}
-          </SummaryRow>
-
-          {/* Show the deadline that actually gets signed, not the pre-clamp value an
-              "expires never" choice produces. */}
-          <SummaryRow label={<Trans>Expires</Trans>} dataTestId="stop-market-confirm-expiry">
-            {dayjs.unix(clampStopMarketDeadline(expiredAt / 1000)).format('DD/MM/YYYY HH:mm')}
-          </SummaryRow>
-        </Stack>
-
-        <HStack className="items-start gap-1.5 text-xs text-blue" data-testid="stop-market-confirm-execution-note">
-          <Info size={14} className="mt-px shrink-0" />
-          <span>
-            <Trans>
-              When triggered, KyberSwap executes your order at the available market price, subject to your slippage
-              setting.
-            </Trans>
-          </span>
-        </HStack>
-
-        {warnings.map((warning, index) => (
-          <ReviewNote key={index} type={warning.type} dataTestId="stop-market-confirm-warning">
-            {warning.message}
-          </ReviewNote>
-        ))}
-
-        {showFeeError && (
-          <ReviewNote type="error" dataTestId="stop-market-confirm-fee-error">
-            {feeError}
-            {onRetryFee && (
-              <>
-                {' '}
-                <button
-                  type="button"
-                  className="cursor-pointer border-0 bg-transparent p-0 font-medium text-red underline hover:brightness-110"
-                  onClick={onRetryFee}
-                  data-testid="stop-market-confirm-fee-retry"
-                >
-                  <Trans>Try again</Trans>
-                </button>
-              </>
-            )}
-          </ReviewNote>
-        )}
+        <StopMarketReviewSummary {...review} />
 
         <Stack className="gap-2">
           {/* Eases into enabled once the fee lands, rather than snapping. */}

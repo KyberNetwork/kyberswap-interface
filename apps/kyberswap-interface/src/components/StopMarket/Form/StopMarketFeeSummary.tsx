@@ -18,13 +18,23 @@ type Props = {
 
 const formatFeeShare = (percentage: number) => formatDisplayNumber(percentage, { significantDigits: 3 })
 
+// The response is not validated, so the share is read as if the service might leave it out.
+const getFeeShare = (fee: StopMarketFee): number | undefined => fee.protocol?.percentage
+
+/** The fee takes a share of the order large enough to be worth pointing out. */
+const isHighFeeShare = (fee: StopMarketFee) => {
+  const share = getFeeShare(fee)
+  return share !== undefined && share > HIGH_FEE_SHARE_PERCENT
+}
+
 /**
- * The fee as a share of the order with its value in dollars, beside the expiry at the foot of a card.
- * The share is the one the service charges at this size, the flat minimum included.
+ * The fee in dollars, beside the expiry at the foot of a card. Its share of the order is added only when
+ * that share is the point — the flat minimum applies, or it is large — and when there is no dollar figure.
  */
 export const StopMarketFeeValue = ({ fee, isLoading }: Props) => {
-  const percentage = fee?.protocol?.percentage
   const feeUsd = fee?.protocolFeeUsd
+  const share = fee ? getFeeShare(fee) : undefined
+  const showShare = !!fee && (fee.minProtocolFeeApplied || isHighFeeShare(fee) || feeUsd === undefined)
 
   return (
     <HStack className="min-w-0 items-center gap-1.5 text-sm" data-testid="stop-market-fee">
@@ -40,15 +50,14 @@ export const StopMarketFeeValue = ({ fee, isLoading }: Props) => {
         <span className="flex h-5 items-center" data-testid="stop-market-fee-loading">
           <Skeleton height={12} width={80} borderRadius={6} />
         </span>
-      ) : percentage === undefined ? (
+      ) : !fee || (share === undefined && feeUsd === undefined) ? (
         <span className="font-medium text-subText">--</span>
       ) : (
         <span className="font-medium text-text" data-testid="stop-market-fee-value">
-          {formatFeeShare(percentage)}%
+          {showShare && share !== undefined && `${formatFeeShare(share)}%`}
           {feeUsd !== undefined && (
-            <span className="text-subText">
-              {' '}
-              ~{formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 4 })}
+            <span className={showShare ? 'text-subText' : undefined}>
+              {showShare && ' '}~{formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 4 })}
             </span>
           )}
         </span>
@@ -75,10 +84,9 @@ export const StopMarketFeeNotes = ({ fee, isLoading, errorMessage }: Props) => {
       </HStack>
     )
   if (!fee) return null
-  const percentage = fee.protocol?.percentage
-  const isHighShare = percentage !== undefined && percentage > HIGH_FEE_SHARE_PERCENT
+  const isHighShare = isHighFeeShare(fee)
   if (!fee.minProtocolFeeApplied && !isHighShare) return null
-  const share = percentage === undefined ? '' : formatFeeShare(percentage)
+  const share = formatFeeShare(getFeeShare(fee) ?? 0)
 
   return (
     <Stack

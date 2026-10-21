@@ -276,7 +276,6 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
           receiveCurrency={currencyOut}
           estimatedOutput={form.estimatedOutput}
           estimatedUsd={estimateUsd.output}
-          triggerPrice={form.triggerPrice}
           onSelectCurrency={onSelectReceiveToken}
           warning={
             validation.receiveTokenWarning

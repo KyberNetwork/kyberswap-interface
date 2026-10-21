@@ -20,6 +20,8 @@ const EMPTY_ORDERS: LimitOrder[] = []
 type Props = {
   currencyIn?: Currency
   currencyOut?: Currency
+  /** Off while the chart draws no limit orders, so nothing is fetched for them. */
+  enabled: boolean
 }
 
 /**
@@ -29,14 +31,14 @@ type Props = {
  * pair shows on one scale. `modal` is the cancel confirmation a line's details open, to render beside
  * the chart.
  */
-export const useLimitOrderPriceMarkers = ({ currencyIn, currencyOut }: Props) => {
+export const useLimitOrderPriceMarkers = ({ currencyIn, currencyOut, enabled }: Props) => {
   const { account } = useActiveWeb3React()
   const [cancelTargets, setCancelTargets] = useState<LimitOrder[]>([])
 
   const chainId = (currencyIn?.chainId ?? ChainId.MAINNET) as ChainId
   const makerAsset = currencyIn?.wrapped.address.toLowerCase()
   const takerAsset = currencyOut?.wrapped.address.toLowerCase()
-  const hasPair = !!currencyIn && !!makerAsset && !!takerAsset && makerAsset !== takerAsset
+  const hasPair = enabled && !!currencyIn && !!makerAsset && !!takerAsset && makerAsset !== takerAsset
 
   // The list has no pair filter, but its search takes a token address and matches it on either side,
   // so asking by the sell token brings back this pair's orders in both directions; the exact pair is

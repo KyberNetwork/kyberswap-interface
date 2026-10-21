@@ -32,6 +32,22 @@ export type PriceMarkerOverlay = {
   referencePrice?: number
 }
 
+/**
+ * The overlay for the pair read the other way round: every price becomes its reciprocal, and a level
+ * the price had to rise to is now one it has to fall to.
+ */
+export const invertMarkerOverlay = (overlay: PriceMarkerOverlay): PriceMarkerOverlay => ({
+  groups: overlay.groups.map(group => ({
+    ...group,
+    markers: group.markers.map(marker => ({
+      ...marker,
+      price: 1 / marker.price,
+      crossing: marker.crossing === 'up' ? 'down' : marker.crossing === 'down' ? 'up' : undefined,
+    })),
+  })),
+  referencePrice: overlay.referencePrice === undefined ? undefined : 1 / overlay.referencePrice,
+})
+
 /** A marker's id on the chart, scoped by its group, since two groups can number their markers alike. */
 export const getGroupedMarkerId = (groupKey: string, markerId: string) => `${groupKey}:${markerId}`
 

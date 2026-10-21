@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { startTransition } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
+import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
@@ -15,12 +16,19 @@ const TABS = [
     key: 'limit',
     label: <Trans>Limit Order</Trans>,
     subtitle: <Trans>Trade at exactly your price</Trans>,
+    tooltip: <Trans>Limit Order: Fills at your exact price, when a taker takes it.</Trans>,
   },
   {
     path: APP_PATHS.STOP_MARKET,
     key: 'stop-market',
     label: <Trans>Stop Market</Trans>,
     subtitle: <Trans>Trade the moment your price is hit</Trans>,
+    tooltip: (
+      <Trans>
+        Stop Market: Triggers a swap via KyberSwap Aggregator when your pre-set price is hit. Output depends on market
+        conditions.
+      </Trans>
+    ),
   },
 ] as const
 
@@ -44,35 +52,41 @@ const OrderTypeSubTabs = () => {
   return (
     <Stack className="gap-1">
       <HStack className="items-center gap-0 text-xs font-medium tracking-[0.04em]" data-testid="order-type-tabs">
-        {TABS.map(({ path, key, label }, index) => (
-          <button
+        {TABS.map(({ path, key, label, tooltip }, index) => (
+          <HStack
             key={path}
-            type="button"
-            data-testid={`order-type-tab-${key}`}
-            aria-current={path === activePath ? 'page' : undefined}
-            onClick={() => {
-              // `tab` names a panel of the product being left, so it must not ride along.
-              const nextSearch = new URLSearchParams(search)
-              nextSearch.delete('tab')
-              // The destination page is code-split, and the app's only Suspense boundary wraps the whole
-              // body — so without a transition React swaps the entire page for the route skeleton while
-              // the chunk loads. A transition keeps the current card on screen until the next one is ready.
-              startTransition(() => {
-                navigate({
-                  pathname: `${path}/${network || networkInfo.route}${currency ? `/${currency}` : ''}`,
-                  search: nextSearch.toString(),
-                })
-              })
-            }}
-            className={cn(
-              // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
-              'cursor-pointer border-0 bg-transparent px-3 py-1 uppercase transition-colors first:pl-0 hover:text-text',
-              index < TABS.length - 1 && 'border-r border-darkBorder',
-              path === activePath ? 'text-primary' : 'text-gray',
-            )}
+            className={cn('items-center gap-1 pr-3', index < TABS.length - 1 && 'border-r border-darkBorder')}
           >
-            {label}
-          </button>
+            <button
+              type="button"
+              data-testid={`order-type-tab-${key}`}
+              aria-current={path === activePath ? 'page' : undefined}
+              onClick={() => {
+                // `tab` names a panel of the product being left, so it must not ride along.
+                const nextSearch = new URLSearchParams(search)
+                nextSearch.delete('tab')
+                // The destination page is code-split, and the app's only Suspense boundary wraps the whole
+                // body — so without a transition React swaps the entire page for the route skeleton while
+                // the chunk loads. A transition keeps the current card on screen until the next one is ready.
+                startTransition(() => {
+                  navigate({
+                    pathname: `${path}/${network || networkInfo.route}${currency ? `/${currency}` : ''}`,
+                    search: nextSearch.toString(),
+                  })
+                })
+              }}
+              className={cn(
+                // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
+                // The padding stays on the button, so the whole cell up to the info icon switches the tab.
+                'cursor-pointer border-0 bg-transparent py-1 pr-1 uppercase transition-colors hover:text-text',
+                index === 0 ? 'pl-0' : 'pl-3',
+                path === activePath ? 'text-primary' : 'text-gray',
+              )}
+            >
+              {label}
+            </button>
+            <InfoHelper text={tooltip} size={12} placement="top" width="280px" margin={false} />
+          </HStack>
         ))}
       </HStack>
       {subtitle && (

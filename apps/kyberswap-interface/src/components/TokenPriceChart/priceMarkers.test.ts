@@ -6,6 +6,7 @@ import {
   countMarkersByGroup,
   flattenMarkerGroups,
   getCrossingArrow,
+  invertMarkerOverlay,
   positionMarkers,
   splitMarkerIdsByGroup,
 } from 'components/TokenPriceChart/priceMarkers'
@@ -128,5 +129,37 @@ describe('getCrossingArrow', () => {
 
   it('carries no arrow when the markers do not say', () => {
     expect(getCrossingArrow(['d'], markers)).toBe('')
+  })
+})
+
+describe('invertMarkerOverlay', () => {
+  const group: PriceMarkerGroup = {
+    key: 'stop',
+    markers: [
+      { id: 'a', price: 4, crossing: 'down' },
+      { id: 'b', price: 0.5, crossing: 'up' },
+      { id: 'c', price: 2 },
+    ],
+    label: 'STOP',
+    tone: 'warning',
+    renderDetails: () => null,
+    renderOffscreen: () => null,
+  }
+
+  it('takes the reciprocal of every price and flips each crossing', () => {
+    const inverted = invertMarkerOverlay({ groups: [group], referencePrice: 8 })
+    expect(inverted.groups[0].markers).toEqual([
+      { id: 'a', price: 0.25, crossing: 'up' },
+      { id: 'b', price: 2, crossing: 'down' },
+      { id: 'c', price: 0.5, crossing: undefined },
+    ])
+    expect(inverted.referencePrice).toBe(0.125)
+  })
+
+  it('keeps the rest of the group and a missing reference price', () => {
+    const inverted = invertMarkerOverlay({ groups: [group] })
+    expect(inverted.groups[0]).toMatchObject({ key: 'stop', label: 'STOP', tone: 'warning' })
+    expect(inverted.referencePrice).toBeUndefined()
+    expect(invertMarkerOverlay(inverted).groups[0].markers).toEqual(group.markers)
   })
 })

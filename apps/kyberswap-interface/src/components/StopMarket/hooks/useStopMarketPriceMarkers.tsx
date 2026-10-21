@@ -24,8 +24,10 @@ const EMPTY_ORDERS: StopMarket[] = []
 type Props = {
   currencyIn?: Currency
   currencyOut?: Currency
-  /** Off while the chart draws no stop market orders and needs no oracle line, so nothing is fetched for it. */
+  /** Off while the chart draws no stop market orders, so nothing is fetched for them. */
   enabled: boolean
+  /** Also fetch the oracle price the triggers are checked against, for the reference line and the details. */
+  withOraclePrice: boolean
 }
 
 /**
@@ -35,7 +37,7 @@ type Props = {
  * the pair shows on one scale. `referencePrice` is the oracle price the triggers are checked against,
  * and `modal` the cancel confirmation a line's details open, to render beside the chart.
  */
-export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled }: Props) => {
+export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled, withOraclePrice }: Props) => {
   const { account } = useActiveWeb3React()
   const [cancelTargets, setCancelTargets] = useState<StopMarket[]>([])
   // The list keeps returning a cancelled order as Open until the service catches up; its line and
@@ -81,15 +83,16 @@ export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled }: 
     [currentData?.orders, tokenIn, tokenOut, isReversed, cancelledIds],
   )
 
-  // Without a sell token the feed is not asked for, which is how a disabled chart skips it.
+  // Without a sell token the feed is not asked for, which is how a chart that does not need it skips it.
   const { price: oraclePrice, priceNumber: oraclePriceNumber } = useStopMarketOraclePrice(
-    enabled ? currencyIn : undefined,
+    hasPair && withOraclePrice ? currencyIn : undefined,
     currencyOut,
     chainId,
   )
 
-  // The oracle line is in the chart's unit: the receive token per sell token.
-  const chartQuoteSymbol = currencyOut?.symbol
+  // The oracle price reads in the pair's own unit — the receive token per sell token, which every
+  // trigger is set in — whichever way round the chart draws the pair.
+  const oracleSymbol = currencyOut?.symbol
 
   const renderDetails = useCallback(
     (markerIds: string[]) => {
@@ -142,14 +145,14 @@ export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled }: 
                 <Trans>Oracle</Trans>
               </span>
               <span className="font-medium text-text">
-                {formatDisplayNumber(oraclePrice, { significantDigits: 6 })} {chartQuoteSymbol}
+                {formatDisplayNumber(oraclePrice, { significantDigits: 6 })} {oracleSymbol}
               </span>
             </HStack>
           )}
         </Stack>
       )
     },
-    [orders, isReversed, currencyIn, currencyOut, chartQuoteSymbol, oraclePrice],
+    [orders, isReversed, currencyIn, currencyOut, oracleSymbol, oraclePrice],
   )
 
   const group = useMemo<PriceMarkerGroup | undefined>(() => {

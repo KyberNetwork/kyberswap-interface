@@ -3,18 +3,16 @@ import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { Stack } from 'components/Stack'
 
 type Props = {
   sellCurrency?: Currency
   receiveCurrency?: Currency
   estimatedOutput: string
   estimatedUsd?: string
-  triggerPrice: string
   onSelectCurrency?: (currency: Currency) => void
   /**
-   * Shown above the estimate note when the receive token cannot be used. As a function it is handed a
-   * callback that opens the receive token selector.
+   * Shown inside the field when the receive token cannot be used. As a function it is handed a callback
+   * that opens the receive token selector.
    */
   warning?: ReactNode | ((openTokenSelector: () => void) => ReactNode)
   /** Extra classes for the token button, e.g. to flag a token that cannot be used here. */
@@ -30,7 +28,6 @@ const StopMarketReceiveSection = ({
   receiveCurrency,
   estimatedOutput,
   estimatedUsd,
-  triggerPrice,
   onSelectCurrency,
   warning,
   selectClassName,
@@ -54,24 +51,11 @@ const StopMarketReceiveSection = ({
       requireOracle
       label={
         <div className="text-xs font-medium text-subText">
-          <Trans>You Receive</Trans>
+          <Trans>Amount Out</Trans>
         </div>
       }
-      // The note qualifies this figure, so it belongs in the same box rather than floating under it.
-      footer={openTokenSelector => (
-        <Stack className="gap-1.5">
-          {typeof warning === 'function' ? warning(openTokenSelector) : warning}
-          <span className="text-xs font-medium text-subText" data-testid="stop-market-receive-note">
-            {triggerPrice ? (
-              <Trans>
-                Estimated at your {triggerPrice} {receiveCurrency?.symbol} trigger, at today&apos;s liquidity.
-              </Trans>
-            ) : (
-              <Trans>Set a trigger price to see your estimated output.</Trans>
-            )}
-          </span>
-        </Stack>
-      )}
+      // A warning about the token belongs in the same box as the token, rather than floating under it.
+      footer={warning}
     />
   </div>
 )
