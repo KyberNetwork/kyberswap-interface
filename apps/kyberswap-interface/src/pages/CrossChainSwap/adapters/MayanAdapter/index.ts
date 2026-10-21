@@ -1,25 +1,12 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import {
-  ChainName,
-  type SolanaTransactionSigner,
-  addresses,
-  fetchQuote,
-  getSwapFromEvmTxPayload,
-  swapFromSolana,
-} from '@mayanfinance/swap-sdk'
+import { ChainName, type SolanaTransactionSigner, swapFromSolana } from '@mayanfinance/swap-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 import { getPublicClient } from '@wagmi/core'
-import { WalletClient, formatUnits, parseUnits } from 'viem'
+import { WalletClient, parseUnits } from 'viem'
+import { z } from 'zod'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { ZERO_ADDRESS } from 'constants/index'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
-import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
-import { parseMayanQuote } from 'pages/CrossChainSwap/quote/rawQuote'
-import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/utils'
-
-import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
@@ -28,9 +15,15 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { buildEvmTransaction } from 'pages/CrossChainSwap/adapters/MayanAdapter/streamExecution'
+import { evmTransactionSchema, parseMayanQuote } from 'pages/CrossChainSwap/quote/rawQuote'
+import { Quote } from 'pages/CrossChainSwap/registry'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/utils'
 
 const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
+
+const streamedTransactionSchema = evmTransactionSchema.extend({ chainId: z.number().optional() })
 
 const mappingChain: Record<string, ChainName> = {
   [ChainId.MAINNET]: 'ethereum',
@@ -67,53 +60,8 @@ export class MayanAdapter extends BaseSwapAdapter {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
-    const quotes = await fetchQuote({
-      amount: +formatUnits(BigInt(params.amount), params.fromToken.decimals),
-      fromToken:
-        params.fromChain === 'solana'
-          ? (params.fromToken as unknown as SolanaToken).id
-          : (params.fromToken as any).isNative
-          ? ZERO_ADDRESS
-          : (params.fromToken as any).wrapped.address,
-      toToken:
-        params.toChain === 'solana'
-          ? (params.toToken as unknown as SolanaToken).id
-          : (params.toToken as any).isNative
-          ? ZERO_ADDRESS
-          : (params.toToken as any).wrapped.address,
-      fromChain: mappingChain[params.fromChain],
-      toChain: mappingChain[params.toChain],
-      slippageBps: params.slippage,
-      referrer: CROSS_CHAIN_FEE_RECEIVER_SOLANA, // only for identifying where the quote request originated from
-      referrerBps: params.feeBps,
-    })
-    if (!quotes?.[0]) {
-      throw new Error('No quotes found')
-    }
-
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-
-    const tokenInUsd = params.tokenInUsd
-    const tokenOutUsd = params.tokenOutUsd || (quotes[0] as any).toTokenPrice
-    const inputUsd = tokenInUsd * +formattedInputAmount
-    const outputUsd = tokenOutUsd * quotes[0].expectedAmountOut
-
-    return normalizeQuote({
-      quoteParams: params,
-
-      outputAmount: parseUnits(quotes[0].expectedAmountOut.toString(), params.toToken.decimals),
-
-      inputUsd,
-      outputUsd,
-
-      timeEstimate: quotes[0].etaSeconds,
-      contractAddress: addresses.MAYAN_FORWARDER_CONTRACT,
-      rawQuote: quotes[0],
-
-      additionalFeeUsd: 0,
-      platformFeePercent: (params.feeBps * 100) / 10_000,
-    })
+  async getQuote(_params: EvmQuoteParams): Promise<NormalizedQuote> {
+    throw new Error('Mayan quotes must come from the aggregator stream')
   }
 
   async executeSwap(
@@ -124,14 +72,16 @@ export class MayanAdapter extends BaseSwapAdapter {
     _sendTransaction?: WalletAdapterProps['sendTransaction'],
     connection?: Connection,
   ): Promise<NormalizedTxResponse> {
-    const rawQuote = parseMayanQuote(quote.rawQuote)
-
     if (quote.quoteParams.fromChain === NonEvmChain.Solana) {
+      const rawQuote = parseMayanQuote(quote.rawQuote)
       if (!connection) throw new Error('Connection is not defined for Solana swap')
 
       if (!hasSolanaSigner(walletClient)) throw new Error('Wallet does not support signTransaction')
       const { signTransaction } = walletClient
 
+      // Direct bridge input is built locally by the SDK using the aggregator quote.
+      // When source-swap instructions are missing, retain the original SDK/API build path.
+      // Call once: this function also signs/submits, so retrying it could duplicate a swap.
       const swapRes = await swapFromSolana(
         rawQuote,
         quote.quoteParams.sender,
@@ -205,21 +155,30 @@ export class MayanAdapter extends BaseSwapAdapter {
 
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
+    if (typeof quote.quoteParams.fromChain !== 'number') throw new Error('Unsupported Mayan source chain')
 
-    const res = await getSwapFromEvmTxPayload(
-      rawQuote,
-      account,
-      quote.quoteParams.recipient,
-      {
-        evm: CROSS_CHAIN_FEE_RECEIVER,
-        solana: CROSS_CHAIN_FEE_RECEIVER_SOLANA,
-        sui: CROSS_CHAIN_FEE_RECEIVER_SUI,
-      },
-      account,
-      quote.quoteParams.fromChain,
-      null,
-      null,
-    )
+    const rawQuote = quote.rawQuote
+    const streamedTx = rawQuote && typeof rawQuote === 'object' && 'tx' in rawQuote ? rawQuote.tx : undefined
+    // Use a complete aggregator transaction when supplied, as with Symbiosis.
+    // Otherwise compose the source swap from stream data and build only the bridge locally.
+    const res =
+      streamedTx != null
+        ? streamedTransactionSchema.parse(streamedTx)
+        : await buildEvmTransaction(
+            parseMayanQuote(rawQuote),
+            account,
+            quote.quoteParams.recipient,
+            {
+              evm: CROSS_CHAIN_FEE_RECEIVER,
+              solana: CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+              sui: CROSS_CHAIN_FEE_RECEIVER_SUI,
+            },
+            quote.quoteParams.fromChain,
+          )
+
+    if (res.chainId !== undefined && Number(res.chainId) !== quote.quoteParams.fromChain) {
+      throw new Error('Mayan transaction chain does not match the quote. Please refresh the quote.')
+    }
 
     if (res.to && res.value != null && res.data) {
       const tx = await walletClient.sendTransaction({

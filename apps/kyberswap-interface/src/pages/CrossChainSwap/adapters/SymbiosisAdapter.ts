@@ -2,6 +2,7 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
 import axios from 'axios'
 import { WalletClient, formatUnits } from 'viem'
+import { z } from 'zod'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
@@ -16,6 +17,7 @@ import {
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { evmTransactionSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
@@ -70,11 +72,20 @@ type SymbiosisSwapResponse = {
     description?: string
   }>
   tokenAmountOut?: SymbiosisTokenAmount & { amount: string }
+  tokenAmountOutMin?: SymbiosisTokenAmount & { amount: string }
   estimatedTime?: number
   approveTo?: string
   type?: string
   kind?: string
 }
+
+const symbiosisEvmQuoteSchema = z.object({
+  tx: evmTransactionSchema.extend({ chainId: z.number().optional() }),
+})
+
+const symbiosisDepositQuoteSchema = z.object({
+  tx: z.object({ depositAddress: z.string().trim().min(1), expiresAt: z.string().optional() }),
+})
 
 enum SymbiosisTxStatusCode {
   NotFound = -1,
@@ -136,7 +147,7 @@ const getSwapBody = (quoteParams: QuoteParams): SymbiosisSwapRequest => ({
  * - Swagger: https://api.symbiosis.finance/crosschain/docs/#/
  *
  * API /v2/quote is quotation-only and does not generate a BTC deposit address.
- * API /v2/swap returns executable tx data and generates BTC deposit addresses, but is rate-limited to 1 request/second.
+ * Execution requires /v2/swap transaction data from the stream (a deposit address for BTC).
  */
 export class SymbiosisAdapter extends BaseSwapAdapter {
   constructor() {
@@ -230,12 +241,16 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     if (isFromBitcoin) {
       if (!sendBtcFn) throw new Error('Bitcoin wallet is not connected')
 
-      const { data: swapData } = await symbiosisClient.post<SymbiosisSwapResponse>(
-        '/swap',
-        getSwapBody(quote.quoteParams),
-      )
-      const depositAddress = (swapData.tx as SymbiosisDepositTx | undefined)?.depositAddress
-      if (!depositAddress) throw new Error('Symbiosis deposit address not found')
+      // The aggregator normally supplies the deposit address. Build only when it is missing.
+      const rawQuote = quote.rawQuote as SymbiosisSwapResponse | undefined
+      const depositTx = rawQuote?.tx as SymbiosisDepositTx | undefined
+      const swapData = depositTx?.depositAddress ? rawQuote : await this.buildFallbackSwap(quote)
+      const result = symbiosisDepositQuoteSchema.safeParse(swapData)
+      if (!result.success) throw new Error('Symbiosis deposit address not found. Please refresh the quote.')
+      const { depositAddress, expiresAt } = result.data.tx
+      if (expiresAt !== undefined && !(Date.parse(expiresAt) > Date.now())) {
+        throw new Error('Symbiosis deposit address has expired. Please refresh the quote.')
+      }
 
       const tx = await sendBtcFn({
         recipient: depositAddress,
@@ -264,19 +279,23 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
-    const { data: swapData } = await symbiosisClient.post<SymbiosisSwapResponse>(
-      '/swap',
-      getSwapBody(quote.quoteParams),
-    )
-    const swapTx = swapData.tx as SymbiosisEvmTx | undefined
-    if (!swapTx?.to || !swapTx.data) throw new Error('Symbiosis transaction data not found')
+    // Prefer the streamed transaction; /swap is only a fallback for missing execution data.
+    const rawQuote = quote.rawQuote as SymbiosisSwapResponse | undefined
+    const tx = rawQuote?.tx as SymbiosisEvmTx | undefined
+    const swapData = tx?.to && tx.data ? rawQuote : await this.buildFallbackSwap(quote)
+    const result = symbiosisEvmQuoteSchema.safeParse(swapData)
+    if (!result.success) throw new Error('Symbiosis transaction data not found. Please refresh the quote.')
+    const swapTx = result.data.tx
+    if (swapTx.chainId !== undefined && swapTx.chainId !== quote.quoteParams.fromChain) {
+      throw new Error('Symbiosis transaction chain does not match the quote. Please refresh the quote.')
+    }
 
     const txHash = await walletClient.sendTransaction({
       chain: undefined,
       account,
-      to: swapTx.to as `0x${string}`,
-      value: BigInt(swapTx.value || '0'),
-      data: swapTx.data as `0x${string}`,
+      to: swapTx.to,
+      value: BigInt(swapTx.value),
+      data: swapTx.data,
     })
     return {
       sender: quote.quoteParams.sender,
@@ -295,6 +314,23 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       platformFeePercent: quote.platformFeePercent,
       recipient: quote.quoteParams.recipient,
     }
+  }
+
+  private async buildFallbackSwap(quote: Quote['quote']): Promise<SymbiosisSwapResponse> {
+    const { data } = await symbiosisClient.post<SymbiosisSwapResponse>('/swap', getSwapBody(quote.quoteParams))
+    // A fresh build must still honor the minimum output the user accepted from the stream.
+    if (quote.minimumOutputAmount !== undefined) {
+      const minimum = data.tokenAmountOutMin?.amount
+      if (!minimum || !/^\d+$/.test(minimum) || BigInt(minimum) < quote.minimumOutputAmount) {
+        throw new Error('Symbiosis quote has changed. Please refresh the quote.')
+      }
+    }
+    const { fromChain, fromToken } = quote.quoteParams
+    const requiresApproval = typeof fromChain === 'number' && !('isNative' in fromToken && fromToken.isNative)
+    if (requiresApproval && data.approveTo && data.approveTo.toLowerCase() !== quote.contractAddress.toLowerCase()) {
+      throw new Error('Symbiosis approval address has changed. Please refresh the quote.')
+    }
+    return data
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {

@@ -194,6 +194,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     let depositAddress = rawQuote.quote.depositAddress
 
+    // The aggregator stream already returns quote.depositAddress with quoteRequest.dry = false.
+    // Fetch a new quote only as a fallback when the response is missing the deposit address.
     if (!depositAddress) {
       const quoteParams = {
         ...rawQuote.quoteRequest,
