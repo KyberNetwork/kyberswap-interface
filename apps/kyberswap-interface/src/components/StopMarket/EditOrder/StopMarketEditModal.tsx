@@ -25,7 +25,7 @@ import { useStopMarketProcessing } from 'components/StopMarket/CreateOrder/StopM
 import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
 import { StopMarketFeeNotes, StopMarketFeeValue } from 'components/StopMarket/Form/StopMarketFeeSummary'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
-import { triggerProximityText } from 'components/StopMarket/MyOrders/components'
+import { triggerDistanceText } from 'components/StopMarket/TriggerDistance'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
 import { useStopMarketAmountShortcuts } from 'components/StopMarket/hooks/useStopMarketAmountShortcuts'
 import { useStopMarketCurrency } from 'components/StopMarket/hooks/useStopMarketCurrency'
@@ -39,7 +39,6 @@ import {
   formatDistanceMagnitude,
   formatTriggerPriceValue,
   getStopMarketTriggerPrice,
-  getTriggerProximity,
 } from 'components/StopMarket/utils'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useActiveWeb3React } from 'hooks'
@@ -451,7 +450,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
             ) : triggerPercent !== undefined ? (
               // Not reached means the trigger still sits below the oracle.
               <span
-                className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}
+                className={triggerDistanceText({ direction: 'below' })}
                 data-testid="stop-market-edit-trigger-distance"
               >
                 • ↓ {formatDistanceMagnitude(triggerPercent)}% <Trans>below</Trans>

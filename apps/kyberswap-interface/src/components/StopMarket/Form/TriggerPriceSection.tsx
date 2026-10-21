@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react'
 import NumericalInput from 'components/NumericalInput'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopMarket/constants'
-import { formatDistanceMagnitude } from 'components/StopMarket/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -67,36 +67,6 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
       />
       <span className="shrink-0">%</span>
     </div>
-  )
-}
-
-/**
- * Where the trigger sits against the oracle price: the direction and the colour follow the sign, below in
- * red and above in green. With no distance to show — no trigger yet, or one right at the oracle — it names
- * the price the distance is measured from.
- */
-const TriggerDistance = ({ percent }: { percent?: number }) => {
-  const rounded = percent === undefined ? 0 : Math.round(percent * 10) / 10
-  return (
-    <span
-      className={cn(
-        'text-xs font-medium transition-colors duration-200',
-        rounded === 0 ? 'text-subText' : rounded < 0 ? 'text-red' : 'text-primary',
-      )}
-      data-testid="stop-market-trigger-distance"
-    >
-      {rounded === 0 ? (
-        <Trans>current oracle price</Trans>
-      ) : rounded < 0 ? (
-        <>
-          ↓ {formatDistanceMagnitude(rounded)}% <Trans>below current oracle price</Trans>
-        </>
-      ) : (
-        <>
-          ↑ {formatDistanceMagnitude(rounded)}% <Trans>above current oracle price</Trans>
-        </>
-      )}
-    </span>
   )
 }
 
@@ -200,7 +170,11 @@ const TriggerPriceSection = ({
       </div>
 
       {marketPrice ? (
-        <TriggerDistance percent={triggerPercent} />
+        <TriggerDistance
+          percent={triggerPercent}
+          className="text-xs font-medium"
+          dataTestId="stop-market-trigger-distance"
+        />
       ) : isLoadingPrice ? (
         // Boxed at the text-xs line the distance takes, so it lands without moving the card.
         <span className="flex h-4 items-center" data-testid="stop-market-oracle-price-loading">

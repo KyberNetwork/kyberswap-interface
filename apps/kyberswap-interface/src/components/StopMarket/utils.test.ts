@@ -26,6 +26,7 @@ import {
   getStopMarketSellAmountUsd,
   getStopMarketServiceErrorMessage,
   getStopMarketWarnings,
+  getTriggerDirection,
   getTriggerProximity,
   groupStopMarketTokensByChain,
   hasReservedBalanceShortfall,
@@ -196,6 +197,24 @@ describe('getTriggerProximity', () => {
     expect(getTriggerProximity(0)).toBe('imminent')
     expect(getTriggerProximity(3)).toBe('near')
     expect(getTriggerProximity(25)).toBe('far')
+  })
+})
+
+describe('getTriggerDirection', () => {
+  it('follows the sign of the distance', () => {
+    expect(getTriggerDirection(-20)).toBe('below')
+    expect(getTriggerDirection(0.4)).toBe('above')
+  })
+
+  it('keeps a tiny distance on its side rather than reading it as at the price', () => {
+    expect(getTriggerDirection(-0.00001)).toBe('below')
+    expect(getTriggerDirection(0.0003)).toBe('above')
+  })
+
+  it('has no side without a distance', () => {
+    expect(getTriggerDirection(undefined)).toBe('none')
+    expect(getTriggerDirection(0)).toBe('none')
+    expect(getTriggerDirection(NaN)).toBe('none')
   })
 })
 

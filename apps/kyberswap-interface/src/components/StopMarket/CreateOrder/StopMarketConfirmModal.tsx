@@ -11,14 +11,9 @@ import Modal from 'components/Modal'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { StopMarketWarning } from 'components/StopMarket/Form/useStopMarketWarnings'
-import { triggerProximityText } from 'components/StopMarket/MyOrders/components'
+import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { StopMarketFee } from 'components/StopMarket/types'
-import {
-  clampStopMarketDeadline,
-  formatDistanceMagnitude,
-  getStopMarketMinReceive,
-  getTriggerProximity,
-} from 'components/StopMarket/utils'
+import { clampStopMarketDeadline, getStopMarketMinReceive, getTriggerDirection } from 'components/StopMarket/utils'
 import { CloseIcon } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -184,18 +179,9 @@ export const StopMarketReviewSummary = ({
           <div className="text-base font-medium">
             1 {currencyIn?.symbol} = {triggerPrice} {receiveSymbol}
           </div>
-          {triggerPercent !== undefined && triggerPercent !== 0 && (
+          {getTriggerDirection(triggerPercent) !== 'none' && (
             <div data-testid="stop-market-confirm-trigger-distance">
-              <span className={triggerProximityText({ proximity: getTriggerProximity(triggerPercent) })}>
-                {triggerPercent < 0 ? '↓' : '↑'} {formatDistanceMagnitude(triggerPercent)}%
-              </span>{' '}
-              <span className="text-subText">
-                {triggerPercent < 0 ? (
-                  <Trans>below current oracle price</Trans>
-                ) : (
-                  <Trans>above current oracle price</Trans>
-                )}
-              </span>
+              <TriggerDistance percent={triggerPercent} muteWords className="text-sm" />
             </div>
           )}
         </SummaryRow>

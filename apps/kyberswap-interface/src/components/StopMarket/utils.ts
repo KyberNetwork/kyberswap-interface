@@ -155,6 +155,17 @@ export const getTriggerProximity = (percent: number): TriggerProximity => {
   return magnitude > 5 ? 'far' : magnitude >= 1 ? 'near' : 'imminent'
 }
 
+export type TriggerDirection = 'below' | 'above' | 'none'
+
+/**
+ * Which side of the oracle price the trigger sits on. Judged on the sign, not the rounded figure, so a
+ * price merely close to the oracle still reads as below or above it rather than at it.
+ */
+export const getTriggerDirection = (percent?: number): TriggerDirection => {
+  if (percent === undefined || !Number.isFinite(percent) || percent === 0) return 'none'
+  return percent < 0 ? 'below' : 'above'
+}
+
 /**
  * A percent distance between two prices as shown, without its sign — the one notation the stop market order
  * UI uses for a trigger's distance to the market (list, form, confirm modal) and a fill's gap to its
