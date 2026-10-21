@@ -1,4 +1,5 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { motion } from 'framer-motion'
 import React, { CSSProperties, memo } from 'react'
 import { ListChildComponentProps } from 'react-window'
 
@@ -51,6 +52,7 @@ export type VirtualRowData = {
   heldAddresses?: Set<string>
   /** Whether a balance still missing is worth showing as loading; see `useBalanceWait`. */
   waitingForBalances?: boolean
+  animateReorder?: boolean
 }
 
 const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balance: CurrencyAmount<Currency> }) => {
@@ -107,7 +109,14 @@ export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<
   const rowStyle: CSSProperties = { height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT, ...data.itemStyle }
 
   return (
-    <div style={style}>
+    <motion.div
+      // Keep layout fixed and move on the compositor. A spring retains its current velocity when
+      // another balance/price update changes the destination before the previous move finishes.
+      style={{ ...style, top: 0 }}
+      initial={false}
+      animate={{ y: style.top ?? 0 }}
+      transition={data.animateReorder ? { type: 'spring', stiffness: 400, damping: 40 } : { duration: 0 }}
+    >
       <TokenRow
         isFavorite={isFavorite}
         showLoading={!!data.account && !!data.waitingForBalances}
@@ -145,7 +154,7 @@ export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<
         impersonator={data.impersonators?.has(token.address)}
         held={held}
       />
-    </div>
+    </motion.div>
   )
 })
 

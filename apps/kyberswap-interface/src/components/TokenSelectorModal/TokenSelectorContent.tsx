@@ -1,6 +1,5 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { motion } from 'framer-motion'
 import { KeyboardEvent, ReactNode, useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -93,7 +92,6 @@ export const TokenSelectorContent = ({
     sort,
     inputRef,
     listTokenRef,
-    listAnimation,
     metricColumn,
     rankedChains,
     visibleTabs,
@@ -103,7 +101,7 @@ export const TokenSelectorContent = ({
     handleTabChange,
     cycleSort,
     changeMetricColumn,
-    animateSortedRows,
+    resetScrollAfterSort,
   } = view
 
   // Networks available to this caller and the temporary browsing chain.
@@ -160,8 +158,8 @@ export const TokenSelectorContent = ({
   }, [inputRef])
 
   useEffect(() => {
-    animateSortedRows()
-  }, [visibleCurrencies, animateSortedRows])
+    resetScrollAfterSort()
+  }, [visibleCurrencies, resetScrollAfterSort])
 
   // Every selection entry point carries the same browsing context.
   const requestSelect = useCallback(
@@ -326,7 +324,7 @@ export const TokenSelectorContent = ({
                 />
               )}
 
-              <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
+              <div className="flex min-h-0 flex-1 flex-col">
                 {isListLoading ? (
                   <TokenListSkeleton activeTab={activeTab} />
                 ) : visibleCurrencies.length > 0 ? (
@@ -334,6 +332,7 @@ export const TokenSelectorContent = ({
                     listTokenRef={listTokenRef}
                     customChainId={selectedChainId}
                     currencies={visibleCurrencies}
+                    animateReorder={!searchQuery && !debouncedQuery}
                     balances={balances}
                     nativeBalance={nativeBalance}
                     extras={listExtras}
@@ -373,7 +372,7 @@ export const TokenSelectorContent = ({
                     )}
                   </Stack>
                 )}
-              </motion.div>
+              </div>
             </div>
 
             <div className="shrink-0 text-left text-xs font-medium italic leading-4 text-subText">
