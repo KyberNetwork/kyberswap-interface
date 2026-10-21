@@ -1,5 +1,6 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import React, { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useReducedMotion } from 'framer-motion'
+import React, { CSSProperties, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
@@ -11,7 +12,7 @@ import {
   ROWS_RENDERED_DEBOUNCE_MS,
   ROWS_RENDERED_MARGIN,
 } from 'components/TokenSelectorModal/constants'
-import { TokenMetricColumn, TokenRowExtraMap } from 'components/TokenSelectorModal/types'
+import { TokenMetricColumn, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { useActiveWeb3React } from 'hooks'
 import { restrictedTokenKey, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -25,6 +26,12 @@ const EMPTY_ITEM_STYLE: CSSProperties = {}
 // disable itself.
 const EMPTY_BALANCES: (CurrencyAmount<Currency> | undefined)[] = []
 const EMPTY_ADDRESSES: string[] = []
+
+// Follow the token through a sort instead of reusing each index's DOM for a different token.
+const itemKey = (index: number, data: VirtualRowData) => {
+  const currency = data.currencies[index]
+  return currency ? tokenRowKey(currency.chainId, getTokenAddress(currency)) : 'load-more'
+}
 
 type Props = {
   showFavoriteIcon?: boolean
@@ -70,6 +77,8 @@ type Props = {
   heldAddresses?: Set<string>
   /** Whether a balance still missing is worth showing as loading; see `useBalanceWait`. */
   waitingForBalances?: boolean
+  /** Animate position changes when the current tab is re-sorted. */
+  animateReorder?: boolean
 }
 
 const TokenList = ({
@@ -100,8 +109,11 @@ const TokenList = ({
   impersonators,
   heldAddresses,
   waitingForBalances,
+  animateReorder = false,
 }: Props) => {
   const { account } = useActiveWeb3React()
+  const prefersReducedMotion = useReducedMotion()
+  const shouldAnimateReorder = animateReorder && !prefersReducedMotion
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
@@ -163,13 +175,15 @@ const TokenList = ({
     })
   }, [])
 
-  // Re-measure only when the row order/set changes or a restricted row expands/collapses — not on
-  // every background poll that hands us a new-but-equal `currencies` array, which would otherwise
-  // drop all cached offsets and re-layout the whole list (a visible flicker).
-  const rowsSignature = useMemo(() => currencies.map(currency => currency.wrapped.address).join(','), [currencies])
-  useEffect(() => {
+  // Offsets only change when heights at an index change. Reordering normal rows needs no reset;
+  // moving/expanding a restricted row does, before paint so animation gets the final destination.
+  const rowSizesSignature = useMemo(
+    () => currencies.map((_, index) => getItemSize(index)).join(','),
+    [currencies, getItemSize],
+  )
+  useLayoutEffect(() => {
     listRef.current?.resetAfterIndex(0)
-  }, [rowsSignature, warnedKeys])
+  }, [rowSizesSignature])
 
   const itemData = useMemo<VirtualRowData>(
     () => ({
@@ -201,6 +215,7 @@ const TokenList = ({
       impersonators,
       heldAddresses,
       waitingForBalances,
+      animateReorder: shouldAnimateReorder,
     }),
     [
       currencies,
@@ -231,6 +246,7 @@ const TokenList = ({
       impersonators,
       heldAddresses,
       waitingForBalances,
+      shouldAnimateReorder,
     ],
   )
 
@@ -265,6 +281,9 @@ const TokenList = ({
                 itemSize={getItemSize}
                 estimatedItemSize={NORMAL_ITEM_SIZE}
                 itemData={itemData}
+                itemKey={itemKey}
+                // Keep a viewport of nearby rows mounted while they move across its boundary.
+                overscanCount={shouldAnimateReorder ? Math.ceil(height / NORMAL_ITEM_SIZE) : 2}
                 onItemsRendered={range => {
                   onItemsRendered(range)
                   handleItemsRendered(range)
