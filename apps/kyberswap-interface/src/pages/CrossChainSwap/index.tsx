@@ -15,6 +15,7 @@ import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelecti
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
+import { KYBERCROSS } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -179,23 +180,25 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
     <Stack className="gap-4">
       {termAndPolicyModal}
 
-      <SegmentedControl
-        options={[
-          {
-            label: (
-              <span className="inline-flex items-center gap-1.5">
-                KyberCross
-                <span className="rounded bg-primary-20 px-1 text-xs text-primary">Beta</span>
-              </span>
-            ),
-            value: 'direct',
-          },
-          { label: 'Aggregator', value: 'stream' },
-        ]}
-        size="md"
-        value={quoteMode}
-        onChange={showPreview ? undefined : setQuoteMode}
-      />
+      {KYBERCROSS && (
+        <SegmentedControl
+          options={[
+            {
+              label: (
+                <span className="inline-flex items-center gap-1.5">
+                  KyberCross
+                  <span className="rounded bg-primary-20 px-1 text-xs text-primary">Beta</span>
+                </span>
+              ),
+              value: 'direct',
+            },
+            { label: 'Aggregator', value: 'stream' },
+          ]}
+          size="md"
+          value={quoteMode}
+          onChange={showPreview ? undefined : setQuoteMode}
+        />
+      )}
 
       <AutoColumn className="gap-3">
         <TokenPanel

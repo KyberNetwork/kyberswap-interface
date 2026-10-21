@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { useCallback } from 'react'
 
+import { KYBERCROSS } from 'constants/env'
 import type { NormalizedTxResponse, SwapStatus } from 'pages/CrossChainSwap/adapters/types'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
@@ -68,7 +69,8 @@ export const {
 export const useGasDropFeatureEnabled = () =>
   useAppSelector(state => state.crossChainSwap.gasDropFeatureEnabled ?? false)
 
-export const useCrossChainQuoteMode = () => useAppSelector(state => state.crossChainSwap.quoteMode || 'direct')
+export const useCrossChainQuoteMode = () =>
+  useAppSelector(state => (KYBERCROSS ? state.crossChainSwap.quoteMode || 'direct' : 'stream'))
 export default slice.reducer
 
 export const useCrossChainTransactions = (): [

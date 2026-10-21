@@ -14,6 +14,7 @@ import {
   SettingsToggle,
 } from 'components/TransactionSettings/components'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { KYBERCROSS } from 'constants/env'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { DegenModeSetting } from 'pages/Swap/components/SwapSettingsPanel/DegenModeSetting'
 import { GasDropFeatureSetting } from 'pages/Swap/components/SwapSettingsPanel/GasDropFeatureSetting'
@@ -121,7 +122,7 @@ const SwapSettingsPanel = ({
               highlight={highlightDegenMode}
             />
             {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-            {isCrossChainPage && <GasDropFeatureSetting />}
+            {isCrossChainPage && KYBERCROSS && <GasDropFeatureSetting />}
             {isCrossChainPage && (
               <Suspense fallback={null}>
                 <CrossChainSourceSetting onClick={onClickCrossChainSources} />
