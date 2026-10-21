@@ -14,7 +14,16 @@ import {
   type UTCTimestamp,
   createChart,
 } from 'lightweight-charts'
-import { type MutableRefObject, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  type MutableRefObject,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
 import { type TokenChartTimeFrame } from 'services/tokenChart'
@@ -22,14 +31,15 @@ import { type TokenChartTimeFrame } from 'services/tokenChart'
 import { ScrollIndicator } from 'components/DropdownMenu/styles'
 import { Stack } from 'components/Stack'
 import {
-  type MarkerCluster,
   type MarkerTone,
+  type PlacedMarkerCluster,
   type PriceMarkerGroup,
   type PriceMarkerOverlay,
-  clusterMarkers,
+  clusterMarkersByGroup,
   countMarkersByGroup,
   flattenMarkerGroups,
   getCrossingArrow,
+  placeMarkerLabels,
   positionMarkers,
   splitMarkerIdsByGroup,
 } from 'components/TokenPriceChart/priceMarkers'
@@ -73,7 +83,7 @@ type TokenPriceChartCanvasProps = {
 }
 
 type MarkerLayout = {
-  clusters: MarkerCluster[]
+  clusters: PlacedMarkerCluster[]
   aboveIds: string[]
   belowIds: string[]
   scaleWidth: number
@@ -82,8 +92,14 @@ type MarkerLayout = {
 
 const DEFAULT_VISIBLE_CANDLES = 40
 const LOAD_MORE_THRESHOLD = 20
-/** Closest two marker lines may sit before they are drawn as one: about the height of their label. */
+/** Closest two lines of one kind may sit before they are drawn as one: about the height of their label. */
 const MARKER_MIN_GAP_PX = 24
+/** A label's box; labels of different kinds closer than this go side by side rather than on top of each other. */
+const MARKER_LABEL_HEIGHT_PX = 22
+/** Between two labels sitting side by side. */
+const MARKER_LABEL_GAP_PX = 4
+/** Stands in for a label's width until it has been measured. */
+const MARKER_LABEL_FALLBACK_WIDTH_PX = 72
 const MAX_MARKER_LINES = 6
 const MAX_MARKER_LINES_MOBILE = 3
 /** How long a marker's details stay open after the pointer leaves, so it can travel into them. */
@@ -96,26 +112,20 @@ const EMPTY_MARKER_LAYOUT: MarkerLayout = {
   paneHeight: 0,
 }
 
-/** A line standing for markers of more than one group takes neither group's colour. */
-type LineTone = MarkerTone | 'mixed'
-
-/** The tone markers share, or `mixed` when they come from different groups. */
-const getLineTone = (ids: string[], groups: PriceMarkerGroup[]): LineTone => {
-  const tones = new Set(splitMarkerIdsByGroup(ids, groups).map(entry => entry.group.tone))
-  return tones.size === 1 ? [...tones][0] : 'mixed'
-}
-
-const TONE_CLASSES: Record<LineTone, { tag: string; value: string }> = {
+const TONE_CLASSES: Record<MarkerTone, { tag: string; value: string }> = {
   warning: { tag: 'border-warning', value: 'text-warning' },
   blue: { tag: 'border-blue', value: 'text-blue' },
-  mixed: { tag: 'border-border', value: 'text-text' },
 }
 
-const clusterKey = (cluster: MarkerCluster) => cluster.ids.join(',')
+/** The group a line belongs to; every line comes from one of the overlay's groups. */
+const getClusterGroup = (cluster: PlacedMarkerCluster, groups: PriceMarkerGroup[]) =>
+  groups.find(group => group.key === cluster.groupKey) ?? groups[0]
+
+const clusterKey = (cluster: PlacedMarkerCluster) => cluster.ids.join(',')
 
 const getMarkerLayoutKey = (layout: MarkerLayout) =>
   [
-    layout.clusters.map(cluster => `${clusterKey(cluster)}@${Math.round(cluster.y)}`).join('|'),
+    layout.clusters.map(cluster => `${clusterKey(cluster)}@${Math.round(cluster.y)}#${cluster.column}`).join('|'),
     layout.aboveIds.join(','),
     layout.belowIds.join(','),
     layout.scaleWidth,
@@ -498,8 +508,23 @@ const PriceMarkerLayer = ({
 }) => {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  // Labels are measured once drawn: a label pushed into the next column sits past the one it would cover.
+  const labelRefs = useRef(new Map<string, HTMLButtonElement | null>())
+  const [labelWidths, setLabelWidths] = useState<Record<string, number>>({})
 
   useEffect(() => () => clearTimeout(closeTimerRef.current), [])
+
+  useLayoutEffect(() => {
+    const next: Record<string, number> = {}
+    layout.clusters.forEach(cluster => {
+      const el = labelRefs.current.get(clusterKey(cluster))
+      if (el) next[clusterKey(cluster)] = el.offsetWidth
+    })
+    const keys = Object.keys(next)
+    if (keys.length !== Object.keys(labelWidths).length || keys.some(key => labelWidths[key] !== next[key])) {
+      setLabelWidths(next)
+    }
+  }, [layout, labelWidths])
 
   // A tap has no "leave" to close on, so a press anywhere outside the labels and details closes them.
   useEffect(() => {
@@ -522,6 +547,16 @@ const PriceMarkerLayer = ({
 
   const right = layout.scaleWidth + 8
   const markers = useMemo(() => flattenMarkerGroups(overlay.groups), [overlay.groups])
+  /** How far left of the axis a label sits: past every label it would otherwise cover. */
+  const getLabelOffset = (cluster: PlacedMarkerCluster): number => {
+    if (cluster.column === 0) return 0
+    const covered = layout.clusters.find(
+      other => other.column === cluster.column - 1 && Math.abs(other.y - cluster.y) < MARKER_LABEL_HEIGHT_PX,
+    )
+    if (!covered) return 0
+    const width = labelWidths[clusterKey(covered)] ?? MARKER_LABEL_FALLBACK_WIDTH_PX
+    return getLabelOffset(covered) + width + MARKER_LABEL_GAP_PX
+  }
   // A group can dissolve under an open panel when zooming splits it; the panel goes with it.
   const openCluster = layout.clusters.find(cluster => clusterKey(cluster) === openKey)
   const spaceBelow = openCluster ? layout.paneHeight - openCluster.y - DETAILS_OFFSET_PX - DETAILS_EDGE_PX : 0
@@ -534,17 +569,19 @@ const PriceMarkerLayer = ({
       {layout.clusters.map(cluster => {
         const key = clusterKey(cluster)
         const count = cluster.ids.length
-        const tone = TONE_CLASSES[getLineTone(cluster.ids, overlay.groups)]
-        // A line grouping several kinds names each of them.
-        const label = splitMarkerIdsByGroup(cluster.ids, overlay.groups)
-          .map(entry => entry.group.label)
-          .join(' · ')
+        const group = getClusterGroup(cluster, overlay.groups)
+        const tone = TONE_CLASSES[group.tone]
         return (
           <button
             key={key}
+            ref={el => {
+              labelRefs.current.set(key, el)
+            }}
             type="button"
             data-testid="price-marker-label"
+            data-marker-group={group.key}
             data-marker-count={count}
+            data-marker-column={cluster.column}
             onMouseEnter={() => open(key)}
             onMouseLeave={scheduleClose}
             onFocus={() => open(key)}
@@ -554,10 +591,10 @@ const PriceMarkerLayer = ({
               'absolute z-[2] flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded border bg-buttonBlack px-1.5 py-0.5 text-[10px] font-medium leading-[14px]',
               tone.tag,
             )}
-            style={{ top: cluster.y, right }}
+            style={{ top: cluster.y, right: right + getLabelOffset(cluster) }}
           >
             <span className="text-subText">
-              {label} {getCrossingArrow(cluster.ids, markers)}
+              {group.label} {getCrossingArrow(cluster.ids, markers)}
             </span>
             <span className={tone.value}>
               {count > 1 ? `×${count}` : formatDisplayNumber(cluster.price, { significantDigits: 6 })}
@@ -578,7 +615,7 @@ const PriceMarkerLayer = ({
             opensBelow ? 'origin-top-right animate-dropdownIn' : 'origin-bottom-right animate-dropupIn',
           )}
           style={{
-            right,
+            right: right + getLabelOffset(openCluster),
             maxHeight: Math.max(opensBelow ? spaceBelow : spaceAbove, 0),
             ...(opensBelow
               ? { top: openCluster.y + DETAILS_OFFSET_PX }
@@ -665,10 +702,9 @@ const TokenPriceChartCanvas = ({
 
   const markerOverlayRef = useRef(markerOverlay)
   const onOffscreenChangeRef = useRef(onOffscreenChange)
-  const markerColorsRef = useRef<Record<LineTone, string>>({
+  const markerColorsRef = useRef<Record<MarkerTone, string>>({
     warning: theme.warning,
     blue: theme.blue,
-    mixed: theme.subText,
   })
   const maxMarkerLinesRef = useRef(MAX_MARKER_LINES)
   const markerPriceLinesRef = useRef<IPriceLine[]>([])
@@ -698,8 +734,11 @@ const TokenPriceChartCanvas = ({
         price => series.priceToCoordinate(price),
         paneHeight,
       )
-      const clusters = clusterMarkers(visible, { minGap: MARKER_MIN_GAP_PX, maxClusters: maxMarkerLinesRef.current })
-      const lineColors = clusters.map(cluster => markerColorsRef.current[getLineTone(cluster.ids, groups)])
+      const clusters = placeMarkerLabels(
+        clusterMarkersByGroup(visible, groups, { minGap: MARKER_MIN_GAP_PX, maxClusters: maxMarkerLinesRef.current }),
+        MARKER_LABEL_HEIGHT_PX,
+      )
+      const lineColors = clusters.map(cluster => markerColorsRef.current[getClusterGroup(cluster, groups).tone])
 
       // Lines are only rebuilt when the set of drawn prices or their colours changes, not on every scroll frame.
       const linePricesKey = clusters.map((cluster, index) => `${cluster.price}:${lineColors[index]}`).join(',')
@@ -748,10 +787,10 @@ const TokenPriceChartCanvas = ({
 
   useEffect(() => {
     markerOverlayRef.current = markerOverlay
-    markerColorsRef.current = { warning: theme.warning, blue: theme.blue, mixed: theme.subText }
+    markerColorsRef.current = { warning: theme.warning, blue: theme.blue }
     maxMarkerLinesRef.current = upToSmall ? MAX_MARKER_LINES_MOBILE : MAX_MARKER_LINES
     scheduleMarkerUpdate()
-  }, [markerOverlay, theme.warning, theme.blue, theme.subText, upToSmall, scheduleMarkerUpdate])
+  }, [markerOverlay, theme.warning, theme.blue, upToSmall, scheduleMarkerUpdate])
 
   useEffect(() => {
     chartHeightRef.current = chartHeight

@@ -83,6 +83,9 @@ export type MarkerCluster = {
   y: number
 }
 
+/** A line of one kind of marker, ready to draw: its group, and the column its label takes beside the axis. */
+export type PlacedMarkerCluster = MarkerCluster & { groupKey: string; column: number }
+
 const MAX_GAP_GROWTH_STEPS = 12
 
 /**
@@ -114,6 +117,44 @@ export const clusterMarkers = (
     if (clusters.length <= Math.max(maxClusters, 1) || step >= MAX_GAP_GROWTH_STEPS) return clusters
     gap *= 1.5
   }
+}
+
+/**
+ * Clusters each group's markers on their own, so lines of different kinds never merge: a limit order and
+ * a stop market order at one price stay two lines, each in its own colour. The cap applies per group.
+ */
+export const clusterMarkersByGroup = (
+  visible: PositionedMarker[],
+  groups: PriceMarkerGroup[],
+  options: { minGap: number; maxClusters: number },
+): Array<MarkerCluster & { groupKey: string }> =>
+  groups.flatMap(group => {
+    const prefix = getGroupedMarkerId(group.key, '')
+    const own = visible.filter(marker => marker.id.startsWith(prefix))
+    return clusterMarkers(own, options).map(cluster => ({ ...cluster, groupKey: group.key }))
+  })
+
+/**
+ * Lays the lines' labels out beside the price axis, top to bottom. Lines of different kinds can sit
+ * closer than a label is tall; such a label takes the next column to the left of the one it would cover,
+ * so every label stays level with its own line.
+ */
+export const placeMarkerLabels = (
+  clusters: Array<MarkerCluster & { groupKey: string }>,
+  labelHeight: number,
+): PlacedMarkerCluster[] => {
+  const placed: PlacedMarkerCluster[] = []
+  ;[...clusters]
+    .sort((a, b) => a.y - b.y)
+    .forEach(cluster => {
+      const taken = new Set(
+        placed.filter(other => Math.abs(other.y - cluster.y) < labelHeight).map(other => other.column),
+      )
+      let column = 0
+      while (taken.has(column)) column += 1
+      placed.push({ ...cluster, column })
+    })
+  return placed
 }
 
 /**

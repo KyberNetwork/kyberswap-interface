@@ -3,10 +3,12 @@ import { describe, expect, it } from 'vitest'
 import {
   type PriceMarkerGroup,
   clusterMarkers,
+  clusterMarkersByGroup,
   countMarkersByGroup,
   flattenMarkerGroups,
   getCrossingArrow,
   invertMarkerOverlay,
+  placeMarkerLabels,
   positionMarkers,
   splitMarkerIdsByGroup,
 } from 'components/TokenPriceChart/priceMarkers'
@@ -129,6 +131,61 @@ describe('getCrossingArrow', () => {
 
   it('carries no arrow when the markers do not say', () => {
     expect(getCrossingArrow(['d'], markers)).toBe('')
+  })
+})
+
+describe('clusterMarkersByGroup', () => {
+  const group = (key: string): PriceMarkerGroup => ({
+    key,
+    markers: [],
+    label: key.toUpperCase(),
+    tone: key === 'limit' ? 'blue' : 'warning',
+    renderDetails: () => null,
+    renderOffscreen: () => null,
+  })
+  const groups = [group('limit'), group('stop')]
+
+  it('never merges lines of different kinds, however close they sit', () => {
+    const clusters = clusterMarkersByGroup([marker('limit:1', 4.4, 100), marker('stop:9', 4.4, 101)], groups, {
+      minGap: 24,
+      maxClusters: 6,
+    })
+    expect(clusters.map(c => [c.groupKey, c.ids])).toEqual([
+      ['limit', ['limit:1']],
+      ['stop', ['stop:9']],
+    ])
+  })
+
+  it('still merges lines of one kind that sit too close', () => {
+    const clusters = clusterMarkersByGroup(
+      [marker('stop:1', 4.4, 100), marker('stop:2', 4.3, 110), marker('limit:1', 5, 40)],
+      groups,
+      { minGap: 24, maxClusters: 6 },
+    )
+    expect(clusters.map(c => [c.groupKey, c.ids])).toEqual([
+      ['limit', ['limit:1']],
+      ['stop', ['stop:1', 'stop:2']],
+    ])
+  })
+})
+
+describe('placeMarkerLabels', () => {
+  const cluster = (groupKey: string, y: number) => ({ ids: [`${groupKey}:${y}`], price: y, minPrice: y, y, groupKey })
+
+  it('moves a label that would cover another one column to the left', () => {
+    const placed = placeMarkerLabels([cluster('stop', 100), cluster('limit', 105)], 22)
+    expect(placed.map(c => [c.groupKey, c.column])).toEqual([
+      ['stop', 0],
+      ['limit', 1],
+    ])
+  })
+
+  it('keeps labels in the first column once they are a label apart', () => {
+    const placed = placeMarkerLabels([cluster('limit', 140), cluster('stop', 100)], 22)
+    expect(placed.map(c => [c.y, c.column])).toEqual([
+      [100, 0],
+      [140, 0],
+    ])
   })
 })
 
