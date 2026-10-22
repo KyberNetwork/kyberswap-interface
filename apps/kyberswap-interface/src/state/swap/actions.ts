@@ -8,6 +8,7 @@ export enum Field {
 }
 
 export const resetSelectCurrency = createAction<{ field: Field }>('swap/resetSelectCurrency')
+export const setRouterV3Test = createAction<boolean>('swap/setRouterV3Test')
 
 export const switchCurrencies = createAction<void>('swap/switchCurrencies')
 export const switchCurrenciesV2 = createAction<void>('swap/switchCurrenciesV2')

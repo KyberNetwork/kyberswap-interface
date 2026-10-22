@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
@@ -14,7 +13,7 @@ import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSes
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
+import useSwapClientId from 'hooks/useSwapClientId'
 
 type SingleChainSwapConfig = {
   evmRecipient?: EvmRecipient
@@ -41,7 +40,7 @@ const useSingleChainSwap = ({
   permit,
   customChainId,
 }: SingleChainSwapConfig) => {
-  const [searchParams] = useSearchParams()
+  const clientId = useSwapClientId()
   const { chainId: walletChainId, account, walletKey } = useActiveWeb3React()
 
   const chainId = customChainId || walletChainId
@@ -77,6 +76,7 @@ const useSingleChainSwap = ({
     typedValue,
     recipient,
     isDegenMode,
+    clientId,
   ])
   const { review, openReview, rebuildReview, confirmReview, dismissReview } = useSwapReviewSession(reviewIdentity)
   const isProcessingSwap = review.phase !== 'closed'
@@ -94,7 +94,7 @@ const useSingleChainSwap = ({
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
-    clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
+    clientId,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result

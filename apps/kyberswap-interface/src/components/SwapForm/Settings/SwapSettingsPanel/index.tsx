@@ -7,6 +7,7 @@ import IconButton from 'components/Button/IconButton'
 import { HStack, Stack } from 'components/Stack'
 import { DegenModeSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/DegenModeSetting'
 import { LiquiditySourcesSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/LiquiditySourcesSetting'
+import { RouterV3Setting } from 'components/SwapForm/Settings/SwapSettingsPanel/RouterV3Setting'
 import { SendToAnotherWalletSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/SendToAnotherWalletSetting'
 import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import { SlippageSetting } from 'components/TransactionSettings/SlippageSetting'
@@ -130,6 +131,7 @@ const SwapSettingsPanel = ({
           <SettingsSection title={<Trans>Advanced Settings</Trans>}>
             <SlippageSetting isCrossChain={mode === 'cross-chain'} />
             {mode === 'single-chain' && <TransactionTimeLimitSetting />}
+            {mode === 'single-chain' && <RouterV3Setting />}
             <DegenModeSetting
               showConfirmation={showConfirmation}
               onConfirmationChange={setShowConfirmation}
