@@ -229,6 +229,7 @@ export function queryParametersToSwapState(
   const typedValue = (parsedQs.amountIn ?? '') as string
   return {
     routerV3Test: false,
+    permitGeneration: 0,
     [Field.INPUT]: {
       currencyId: inputCurrency,
     },
@@ -405,10 +406,19 @@ export const useSwitchPairToLimitOrder = () => {
 }
 
 export const usePermitData: (
-  address?: string,
-) => { rawSignature?: string; deadline?: number; value?: string; errorCount?: number } | null = address => {
+  address: string | undefined,
+  routerAddress: string | undefined,
+) => { rawSignature?: string; deadline?: number; value?: string; errorCount?: number } | null = (
+  address,
+  routerAddress,
+) => {
   const { chainId, account } = useActiveWeb3React()
   const permitData = useAppSelector(state => state.swap.permitData)
 
-  return address && account && permitData ? permitData[account]?.[chainId]?.[address] : null
+  const permit = address && account && permitData ? permitData[account]?.[chainId]?.[address] : null
+  if (!permit) return null
+  if (!routerAddress || permit.routerAddress?.toLowerCase() !== routerAddress.toLowerCase()) {
+    return { ...permit, rawSignature: undefined }
+  }
+  return permit
 }

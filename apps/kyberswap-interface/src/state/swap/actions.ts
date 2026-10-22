@@ -26,6 +26,8 @@ export const permitUpdate = createAction<{
   chainId: number
   address: string
   rawSignature: string
+  routerAddress: string
+  permitGeneration: number
   deadline: number
   value: string
   account: string
