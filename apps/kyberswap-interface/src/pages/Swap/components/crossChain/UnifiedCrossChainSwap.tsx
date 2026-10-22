@@ -20,15 +20,13 @@ import { CrossChainRecipient } from 'pages/Swap/components/crossChain/CrossChain
 import { PiWarning } from 'pages/Swap/components/crossChain/PiWarning'
 import { SwapAction } from 'pages/Swap/components/crossChain/SwapAction'
 import { UnifiedNonEvmPanel } from 'pages/Swap/components/crossChain/UnifiedNonEvmPanel'
-import {
-  CrossChainSwapOptions,
-  CrossChainSwapProvider,
-  useCrossChainSwap,
-} from 'pages/Swap/hooks/crossChain/useCrossChainSwap'
+import { useCrossChainSwap } from 'pages/Swap/hooks/crossChain/useCrossChainSwap'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
 const evmCurrency = (currency?: Currency) => (currency && 'isNative' in currency ? currency : undefined)
 
+/** Form UI under the CrossChainSwapProvider owned by SwapPage.
+ * Do not add a second provider here: the right-panel route must observe the same selected quote. */
 type FormProps = {
   hidden: boolean
   onChangeCurrencyIn: (currency: EvmCurrency) => void
@@ -190,21 +188,4 @@ const UnifiedCrossChainContent = ({
   )
 }
 
-type Props = CrossChainSwapOptions & FormProps
-
-const UnifiedCrossChainSwap = (props: Props) => {
-  return (
-    <CrossChainSwapProvider
-      amount={props.amount}
-      onAmountChange={props.onAmountChange}
-      fromChain={props.fromChain}
-      toChain={props.toChain}
-      tokenIn={props.tokenIn}
-      tokenOut={props.tokenOut}
-    >
-      <UnifiedCrossChainContent {...props} />
-    </CrossChainSwapProvider>
-  )
-}
-
-export default memo(UnifiedCrossChainSwap)
+export default memo(UnifiedCrossChainContent)

@@ -18,16 +18,24 @@ import { Field } from 'state/swap/actions'
 vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
 i18n.loadAndActivate({ locale: 'en', messages: {} })
 
-const tokens = vi.hoisted(() => ({ values: [] as any[] }))
+const tokens = vi.hoisted(() => ({ values: [] as any[], loading: false }))
 vi.mock('hooks', () => ({
   useActiveWeb3React: () => ({ chainId: 1, networkInfo: { route: 'ethereum' } }),
 }))
 vi.mock('hooks/useChainsConfig', () => ({ NETWORKS_INFO: {} }))
 vi.mock('hooks/useTokens', () => ({
-  useAllTokens: (_lowercase: boolean, chainId: number) =>
-    Object.fromEntries(tokens.values.filter(token => token.chainId === chainId).map(token => [token.address, token])),
-  useCurrencyV2: (id: string, chainId: number) =>
-    tokens.values.find(token => token.chainId === chainId && token.address?.toLowerCase() === id.toLowerCase()),
+  useAllTokensWithLoading: (_lowercase: boolean, chainId: number) => ({
+    tokens: Object.fromEntries(
+      tokens.values.filter(token => token.chainId === chainId).map(token => [token.address, token]),
+    ),
+    isLoading: tokens.loading,
+  }),
+  useCurrencyLookup: (id: string | undefined, chainId: number, knownToken?: Token) => ({
+    currency:
+      knownToken ||
+      tokens.values.find(token => token.chainId === chainId && token.address?.toLowerCase() === id?.toLowerCase()),
+    isLoading: false,
+  }),
 }))
 vi.mock('state/user/hooks', () => ({}))
 vi.mock('services/tokenCatalog', () => ({}))
@@ -75,6 +83,8 @@ function Page() {
     <>
       <Tabs activeTab={activeTab} setActiveTab={() => undefined} />
       <output>{location.pathname + location.search}</output>
+      <span data-output-symbol>{pair.currencyOut?.symbol}</span>
+      <span data-loading>{String(pair.isOutputCurrencyLoading)}</span>
       <span data-pair>{`${pair.inputChain}:${pair.inputId} → ${pair.outputChain}:${pair.outputId}`}</span>
       <button onClick={() => pair.selectCurrency(Field.OUTPUT, usdc)}>Select USDC</button>
       <button onClick={() => pair.selectCurrency(Field.INPUT, NativeCurrencies[ChainId.MAINNET])}>
@@ -93,6 +103,9 @@ const mount = async (url: string) => {
   container = document.createElement('div')
   document.body.append(container)
   root = createRoot(container)
+  await render(url)
+}
+const render = async (url: string) => {
   await act(async () => {
     root.render(
       <I18nProvider i18n={i18n}>
@@ -120,6 +133,8 @@ const pairText = () => container.querySelector('[data-pair]')?.textContent || ''
 afterEach(async () => {
   await act(async () => root?.unmount())
   container?.remove()
+  tokens.loading = false
+  tokens.values = [usdc, weth]
 })
 
 // Exercise the real pair reader, selection hook and tab navigation with a wallet on another chain.
@@ -181,5 +196,26 @@ describe('unified swap pair navigation', () => {
     expect(url()).toBe(crossUrl.replace('/cross-chain?', '/swap?'))
     await click('Cross-Chain')
     expect(url()).toBe(crossUrl)
+  })
+})
+
+describe('URL token resolution status', () => {
+  it('keeps DAI pending until token metadata arrives, then resolves without an empty state', async () => {
+    tokens.loading = true
+    await mount('/swap/base/eth-to-dai')
+    expect(container.querySelector('[data-loading]')?.textContent).toBe('true')
+    expect(container.querySelector('[data-output-symbol]')?.textContent).toBe('')
+
+    tokens.values.push(new Token(ChainId.BASE, '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', 18, 'DAI'))
+    tokens.loading = false
+    await render('/swap/base/eth-to-dai')
+    expect(container.querySelector('[data-loading]')?.textContent).toBe('false')
+    expect(container.querySelector('[data-output-symbol]')?.textContent).toBe('DAI')
+  })
+
+  it('keeps an intentionally empty output empty while token lists load', async () => {
+    tokens.loading = true
+    await mount('/swap?from=8453&to=8453&tokenIn=ETH&tokenOut=')
+    expect(container.querySelector('[data-loading]')?.textContent).toBe('false')
   })
 })

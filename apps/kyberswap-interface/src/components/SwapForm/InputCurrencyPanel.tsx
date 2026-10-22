@@ -18,6 +18,7 @@ type Props = {
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceText?: string
   highlightToken?: boolean
+  currencyLoading?: boolean
   onChangeCurrencyIn: (c: Currency) => void
   setTypedValue: (v: string) => void
   onUserInput: (v: string) => void
@@ -25,6 +26,7 @@ type Props = {
   onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   customChainId?: ChainId
 }
+/** Adapts form input/balance actions to the shared field. Token loading is supplied by the pair resolver. */
 const InputCurrencyPanel: React.FC<Props> = ({
   amountInUsd,
   wrapType,
@@ -36,6 +38,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
   balanceIn,
   balanceText,
   highlightToken,
+  currencyLoading,
   onChangeCurrencyIn,
   customChainId,
   chainSelectionMode,
@@ -78,6 +81,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       dataTestId="swap-currency-input"
       showPinnedTokens={true}
       customBalanceText={balanceText}
+      currencyLoading={currencyLoading}
       highlightCurrencySelect={highlightToken}
       estimatedUsd={inputUsd ? formatDisplayNumber(inputUsd, { style: 'currency', significantDigits: 4 }) : undefined}
       customChainId={customChainId}

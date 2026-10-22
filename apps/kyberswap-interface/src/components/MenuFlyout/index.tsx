@@ -1,3 +1,4 @@
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import React, { CSSProperties, ReactNode, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -11,8 +12,10 @@ import { cn } from 'utils/cn'
  * Render a MenuFlyout if it's browser view and render a Modal popout from bottom if it's mobile view.
  * Consumers customize via `className` (browser) or `mobileClassName` (mobile), plus optional `style`
  * and `mobileStyle` for inline overrides.
+ * Only sidePanel opts into enter/exit motion and its shadow; default flyouts and mobile modals retain their lifecycle.
  */
 const MenuFlyoutLocal = (props: {
+  variant?: 'default' | 'sidePanel'
   className?: string
   mobileClassName?: string
   style?: CSSProperties
@@ -26,6 +29,7 @@ const MenuFlyoutLocal = (props: {
   modalWhenMobile?: boolean
 }) => {
   const {
+    variant = 'default',
     modalWhenMobile = true,
     children,
     isOpen,
@@ -39,36 +43,57 @@ const MenuFlyoutLocal = (props: {
     node,
   } = props
 
+  const reduceMotion = useReducedMotion()
   const isModal = isMobile && modalWhenMobile
   useOnClickOutside(node, isOpen && !isModal ? toggle : undefined)
-  if (!isOpen) return null
   const content = (
     <MenuTitleWrapper toggle={toggle} title={title}>
       {children}
     </MenuTitleWrapper>
   )
   if (isModal)
-    return (
+    return isOpen ? (
       <Modal isOpen={true} onDismiss={toggle} maxWidth={900}>
         <span className={cn('flex w-full flex-col bg-background p-5', mobileClassName)} style={mobileStyle}>
           {content}
         </span>
       </Modal>
-    )
+    ) : null
+
+  const surfaceProps = {
+    style,
+    className: cn(
+      'ks-menu-flyout absolute right-0 top-14 z-[100] flex min-w-36 flex-col rounded-xl bg-tableHeader p-5 text-base',
+      variant === 'sidePanel'
+        ? 'shadow-[0_8px_24px_rgba(0,0,0,0.14),0_2px_6px_rgba(0,0,0,0.08)]'
+        : 'shadow-[0px_0px_1px_rgba(0,0,0,0.01),0px_4px_8px_rgba(0,0,0,0.04),0px_16px_24px_rgba(0,0,0,0.04),0px_24px_32px_rgba(0,0,0,0.01)] [filter:drop-shadow(0_4px_12px_rgba(0,0,0,0.36))]',
+      hasArrow && 'ks-menu-flyout-arrow',
+      className,
+    ),
+  }
+
+  if (variant !== 'sidePanel') return isOpen ? <span {...surfaceProps}>{content}</span> : null
+
   return (
-    <span
-      style={style}
-      className={cn(
-        'ks-menu-flyout absolute right-0 top-14 z-[100] flex min-w-36 flex-col rounded-xl bg-tableHeader p-5 text-base',
-        // drop-shadow + box-shadow stacked, recreated verbatim from the original styled-component.
-        '[filter:drop-shadow(0_4px_12px_rgba(0,0,0,0.36))]',
-        'shadow-[0px_0px_1px_rgba(0,0,0,0.01),0px_4px_8px_rgba(0,0,0,0.04),0px_16px_24px_rgba(0,0,0,0.04),0px_24px_32px_rgba(0,0,0,0.01)]',
-        hasArrow && 'ks-menu-flyout-arrow',
-        className,
+    <AnimatePresence>
+      {isOpen && (
+        <motion.span
+          key="side-panel"
+          {...surfaceProps}
+          initial={{ opacity: 0, x: reduceMotion ? 0 : -8 }}
+          animate={{ opacity: 1, x: 0, pointerEvents: 'auto' }}
+          exit={{
+            opacity: 0,
+            x: reduceMotion ? 0 : -8,
+            pointerEvents: 'none',
+            transition: { duration: reduceMotion ? 0 : 0.14 },
+          }}
+          transition={{ duration: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {content}
+        </motion.span>
       )}
-    >
-      {content}
-    </span>
+    </AnimatePresence>
   )
 }
 
@@ -84,7 +109,9 @@ export default function MenuFlyout({
   toggle,
   isOpen,
   title,
+  variant,
 }: {
+  variant?: 'default' | 'sidePanel'
   className?: string
   mobileClassName?: string
   style?: CSSProperties
@@ -105,6 +132,7 @@ export default function MenuFlyout({
     <div ref={node}>
       <div onClick={onToggle}>{trigger}</div>
       <MenuFlyoutLocal
+        variant={variant}
         title={title}
         hasArrow={hasArrow}
         className={className}

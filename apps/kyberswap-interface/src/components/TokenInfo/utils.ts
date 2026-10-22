@@ -1,10 +1,22 @@
 import { t } from '@lingui/macro'
-import { SecurityInfo } from 'services/coingecko'
+import type { SecurityInfo } from 'services/coingecko'
 
-import { ItemData, WarningType } from 'components/TokenInfo/SecurityInfo/Content'
-import { TokenInfo } from 'hooks/useTokenInfo'
+import type { TokenInfo } from 'hooks/useTokenInfo'
 import { formatLongNumber } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
+
+export enum WarningType {
+  RISKY,
+  WARNING,
+}
+
+export type ItemData = {
+  label: string
+  value: string | undefined
+  type: WarningType
+  isNumber?: boolean
+  riskyReverse?: boolean
+}
 
 export const RISKY_THRESHOLD = {
   RISKY: 0.05,

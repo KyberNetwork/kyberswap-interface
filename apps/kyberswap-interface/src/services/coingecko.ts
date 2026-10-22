@@ -33,7 +33,7 @@ const coingeckoApi = createApi({
     getMarketTokenInfo: builder.query<any, { chainId: ChainId; address: string; coingeckoAPI: string }>({
       query: ({ chainId, address, coingeckoAPI }) => ({
         url:
-          address.toLowerCase() === WETH[chainId].address.toLowerCase()
+          address.toLowerCase() === WETH[chainId]?.address.toLowerCase()
             ? `${coingeckoAPI}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
             : `${coingeckoAPI}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${address}`,
         authentication: true,

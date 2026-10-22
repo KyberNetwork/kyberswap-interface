@@ -32,6 +32,7 @@ const QuoteRow = ({ selected, children, ...rest }: React.HTMLAttributes<HTMLDivE
   </div>
 )
 
+/** Owns Route Options visibility; quote selection is committed through onChange before closing the panel. */
 export const QuoteSelector = ({
   quotes,
   selectedQuote,
@@ -190,6 +191,7 @@ export const QuoteSelector = ({
 
   return (
     <MenuFlyout
+      variant="sidePanel"
       isOpen={show}
       trigger={trigger}
       hasArrow={false}
