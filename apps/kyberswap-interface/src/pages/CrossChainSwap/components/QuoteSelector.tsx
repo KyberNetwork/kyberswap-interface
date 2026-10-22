@@ -61,8 +61,13 @@ export const QuoteSelector = ({
         <span className="font-medium">{t`Choose your Route`}</span>
         {upToLarge && <CloseIcon onClick={() => setShow(false)} />}
       </HStack>
-      <Stack className="flex-1 overflow-y-scroll">
-        <ScrollableWithSignal data-open="true" showArrow className="flex max-h-full flex-col gap-3 overflow-y-auto">
+      <Stack className="min-h-0 flex-1">
+        <ScrollableWithSignal
+          data-open="true"
+          showArrow
+          wrapperClassName="h-full"
+          className="flex h-full flex-col gap-3 overflow-y-auto"
+        >
           {quotes.map((quote, index) => {
             const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
             return (

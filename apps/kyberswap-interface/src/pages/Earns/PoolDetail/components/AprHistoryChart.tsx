@@ -101,8 +101,8 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
   const activeAprLineColor = theme.primary
   const volumeUpColor = `${theme.darkGreen}cc`
   const volumeDownColor = `${theme.red}80`
-  const cursorColor = `${theme.text}1f`
-  const gridColor = `${theme.text}0f`
+  const cursorColor = 'var(--ks-text-12)'
+  const gridColor = 'var(--ks-text-06)'
 
   const poolAprHistoryQuery = usePoolAprHistoryQuery(
     { chainId, address: poolAddress || '', window },
