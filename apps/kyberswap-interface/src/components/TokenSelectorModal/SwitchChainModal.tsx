@@ -34,7 +34,7 @@ export const SwitchChainModal = ({ token, onDismiss, onConfirm }: SwitchChainMod
             />
           </HStack>
 
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-base text-text">
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm font-medium text-text">
             <Trans>Switch to</Trans>
             <HStack className="items-center gap-1 rounded-full bg-white-08 px-2 py-1">
               <img src={network.icon} alt={network.name} className="size-5 rounded-full" />
