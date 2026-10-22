@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react'
-import { UnsupportedChainError, fetchWalletInventory } from 'services/walletInventory'
+import { UnsupportedChainError, fetchWalletInventoryJudged } from 'services/walletInventory'
 
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { INVENTORY_CATCHUP_INTERVAL_MS, INVENTORY_TTL_MS } from 'state/walletInventory/constants'
@@ -113,7 +113,7 @@ export default function Updater(): null {
           // Tokens a just-confirmed transaction moved are asked for as live reads, so the answer
           // carries their balance at the head block instead of the indexer's lagging one.
           const liveAddrs = readTouchedTokens(key, Date.now())
-          commitResult(key, await fetchWalletInventory({ chainId, account, signal, liveAddrs }))
+          commitResult(key, await fetchWalletInventoryJudged({ chainId, account, signal, liveAddrs }))
         } catch (error) {
           // An unindexed chain is a permanent answer, not a transient failure: disable it for the
           // session so consumers settle on the multicall path instead of retrying forever.
