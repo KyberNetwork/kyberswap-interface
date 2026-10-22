@@ -228,6 +228,7 @@ export function queryParametersToSwapState(
   const recipient = validatedRecipient(parsedQs.recipient, chainId)
   const typedValue = (parsedQs.amountIn ?? '') as string
   return {
+    routerV3Test: false,
     [Field.INPUT]: {
       currencyId: inputCurrency,
     },

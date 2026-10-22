@@ -10,6 +10,7 @@ import {
   resetSelectCurrency,
   revokePermit,
   setRecipient,
+  setRouterV3Test,
   setTrade,
   switchCurrencies,
   switchCurrenciesV2,
@@ -17,6 +18,7 @@ import {
 } from './actions'
 
 export interface SwapState {
+  readonly routerV3Test: boolean
   readonly independentField: Field // TODO: remove since unused anymore
   readonly typedValue: string
   readonly recipient: string | null
@@ -45,6 +47,7 @@ export interface SwapState {
 }
 
 const initialState: SwapState = {
+  routerV3Test: false,
   independentField: Field.INPUT,
   permitData: {},
   typedValue: '1',
@@ -62,6 +65,11 @@ const initialState: SwapState = {
 
 export default createReducer<SwapState>(initialState, builder =>
   builder
+    .addCase(setRouterV3Test, (state, { payload }) => {
+      state.routerV3Test = payload
+      state.permitData = {}
+      state.trade = undefined
+    })
     .addCase(replaceSwapState, (state, { payload: { typedValue, recipient, field } }) => {
       return {
         ...state,
