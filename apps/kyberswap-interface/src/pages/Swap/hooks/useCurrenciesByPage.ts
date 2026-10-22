@@ -8,6 +8,7 @@ import { useCurrencyFromUrl, useInputCurrency, useOutputCurrency } from 'state/s
 import { isSwapLikePath } from 'utils/routes'
 import { getDefaultSwapTokenId, getTradeLocation } from 'utils/swapFlow'
 
+/** Read-only adapter for shared headers: currencies follow the active page; chain IDs also cover unresolved/non-EVM pairs. */
 export const useCurrenciesByPage = () => {
   const { inputChain, outputChain, fromCurrency, toCurrency } = useCurrencyFromUrl()
   const { pathname } = useLocation()
@@ -42,6 +43,8 @@ export const useCurrenciesByPage = () => {
 
   return {
     currencies,
+    inputChain,
+    outputChain,
     currencyIn,
     currencyOut,
     shareUrl,

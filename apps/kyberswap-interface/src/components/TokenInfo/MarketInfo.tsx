@@ -8,7 +8,6 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { getMarketTokenInfo } from 'components/TokenInfo/utils'
-import { useActiveWeb3React } from 'hooks'
 import useTokenInfo from 'hooks/useTokenInfo'
 import { shortenAddress } from 'utils/address'
 
@@ -19,10 +18,11 @@ export const InfoRow = ({ label, value }: { label: ReactNode; value: ReactNode }
   </div>
 )
 
+/** Loads market data for the selected token and owns only the local detail expansion.
+ * Wallet import eligibility belongs to AddTokenToMetaMask. */
 const MarketInfo = ({ token }: { token: Token | undefined }) => {
   const { data: tokenInfo, loading } = useTokenInfo(token)
   const [expand, setExpand] = useState(false)
-  const { chainId } = useActiveWeb3React()
   const listData = useMemo(() => getMarketTokenInfo(tokenInfo), [tokenInfo])
   const primaryInfo = listData.slice(0, 3)
   const extraInfo = listData.slice(3)
@@ -30,7 +30,7 @@ const MarketInfo = ({ token }: { token: Token | undefined }) => {
     <div className="flex min-w-0 items-center justify-end gap-1">
       <CurrencyLogo currency={token} size="16px" />
       <span className="whitespace-nowrap text-xs font-medium text-text">
-        {shortenAddress(chainId, token.address, 3)}
+        {shortenAddress(token.chainId, token.address, 3)}
       </span>
       <CopyHelper toCopy={token.address} />
       <AddTokenToMetaMask token={token} />
@@ -41,22 +41,24 @@ const MarketInfo = ({ token }: { token: Token | undefined }) => {
 
   return (
     <div className="flex w-full flex-col gap-2 rounded-sm p-4">
-      {primaryInfo.map(item => (
-        <InfoRow key={item.label} label={item.label} value={loading ? <Loader size="10px" /> : item.value} />
-      ))}
-
-      <div
-        className="flex flex-col gap-2 overflow-hidden transition-[max-height,opacity,transform] duration-300 ease-in-out"
-        style={{
-          maxHeight: expand ? 240 : 0,
-          opacity: expand ? 1 : 0,
-          transform: expand ? 'translateY(0)' : 'translateY(-4px)',
-          marginBottom: expand ? 0 : -8,
-        }}
-      >
-        {extraInfo.map(item => (
-          <InfoRow key={item.label} label={item.label} value={loading ? <Loader size="10px" /> : item.value} />
-        ))}
+      <div className="flex flex-col" style={{ gap: expand ? 8 : 0 }}>
+        <div className="flex flex-col gap-2">
+          {primaryInfo.map(item => (
+            <InfoRow key={item.label} label={item.label} value={loading ? <Loader size="10px" /> : item.value} />
+          ))}
+        </div>
+        <div
+          className="flex flex-col gap-2 overflow-hidden transition-[max-height,opacity,transform] duration-300 ease-in-out"
+          style={{
+            maxHeight: expand ? 240 : 0,
+            opacity: expand ? 1 : 0,
+            transform: expand ? 'translateY(0)' : 'translateY(-4px)',
+          }}
+        >
+          {extraInfo.map(item => (
+            <InfoRow key={item.label} label={item.label} value={loading ? <Loader size="10px" /> : item.value} />
+          ))}
+        </div>
       </div>
 
       <InfoRow label={<Trans>Contract Address</Trans>} value={contractAddress} />

@@ -1,5 +1,5 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { CSSProperties, ReactNode, forwardRef, useCallback, useState } from 'react'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -11,6 +11,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
 import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
+import Skeleton from 'components/Skeleton'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import TokenSymbol from 'components/TokenSymbol'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -281,12 +282,14 @@ type CurrencySelectContentProps = {
   fontSize?: string
   hideLogo: boolean
   isSwitchMode: boolean
+  currencyLoading?: boolean
   loadingText?: string
   maxCurrencySymbolLength?: number
   nativeCurrency?: Currency
   tight: boolean
 }
 
+/** Renders caller-owned token resolution state; loading is distinct from an empty selection. */
 const CurrencySelectContent = ({
   showChain,
   currency,
@@ -294,11 +297,20 @@ const CurrencySelectContent = ({
   fontSize,
   hideLogo,
   isSwitchMode,
+  currencyLoading,
   loadingText,
   maxCurrencySymbolLength,
   nativeCurrency,
   tight,
 }: CurrencySelectContentProps) => {
+  if (currencyLoading && !currency) {
+    return (
+      <Aligner className="gap-2" role="status" aria-label={t`Loading token`} aria-busy="true">
+        {!hideLogo && <Skeleton width={20} height={20} borderRadius="50%" />}
+        <Skeleton width={64} height={20} />
+      </Aligner>
+    )
+  }
   const currencySymbol = getCurrencyDisplaySymbol(nativeCurrency)
   const displaySymbol =
     currencySymbol && maxCurrencySymbolLength ? shortString(currencySymbol, maxCurrencySymbolLength) : currencySymbol
@@ -402,6 +414,7 @@ interface CurrencyInputPanelProps {
   error?: boolean
   maxLength?: number
   outline?: boolean
+  currencyLoading?: boolean
   loadingText?: string
   lockIcon?: boolean
   tight?: boolean
@@ -456,6 +469,7 @@ const CurrencyInputPanel = ({
   outline,
   lockIcon = false, // lock when need approve
   tight: tightProp,
+  currencyLoading,
   loadingText,
   styleSelect = {},
   selectClassName,
@@ -524,7 +538,7 @@ const CurrencyInputPanel = ({
               <CurrencySelect
                 isDisable={disableCurrencySelect}
                 hideInput={hideInput}
-                selected={!!currency}
+                selected={!!currency || !!currencyLoading}
                 className={cn(
                   'open-currency-select-button',
                   highlightCurrencySelect && '!border-blue !bg-blue/20',
@@ -549,6 +563,7 @@ const CurrencyInputPanel = ({
                   fontSize={fontSize}
                   hideLogo={hideLogo}
                   isSwitchMode={isSwitchMode}
+                  currencyLoading={currencyLoading}
                   loadingText={loadingText}
                   maxCurrencySymbolLength={maxCurrencySymbolLength}
                   nativeCurrency={nativeCurrency}

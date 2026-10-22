@@ -58,6 +58,8 @@ type SwapSettingsPanelProps = {
   onBack: () => void
   onClickLiquiditySources: () => void
   onClickCrossChainSources: () => void
+  /** Independent of quote mode: unified cross-chain also supports chart/route display preferences. */
+  showDisplaySettings?: boolean
   isSwapPage?: boolean
   isCrossChainPage?: boolean
   isLimitPage?: boolean
@@ -78,6 +80,7 @@ type SwapSettingsPanelProps = {
 
 const SwapSettingsPanel = ({
   isSwapPage,
+  showDisplaySettings = isSwapPage,
   isCrossChainPage,
   isLimitPage,
   isStopMarketPage,
@@ -142,7 +145,7 @@ const SwapSettingsPanel = ({
           </SettingsSection>
         )}
 
-        {isSwapPage && (
+        {showDisplaySettings && (
           <>
             <SettingsDivider />
             <SettingsSection title={<Trans>Display Settings</Trans>}>
