@@ -108,14 +108,14 @@ const useGetRoute = (args: ArgsGetRoute) => {
   // After receive new route summary, we reset this flag to false.s
   const dismissSwapModalFlag = useRef(false)
   const result: typeof _result = useMemo(() => {
-    if (dismissSwapModalFlag.current) {
+    if (dismissSwapModalFlag.current || _result.originalArgs?.clientId !== clientId) {
       return {
         ..._result,
         data: undefined,
       } as typeof _result
     }
     return _result
-  }, [_result])
+  }, [_result, clientId])
 
   const dispatch = useAppDispatch()
   useEffect(() => {
@@ -146,6 +146,8 @@ const useGetRoute = (args: ArgsGetRoute) => {
       ),
     [trigger, clientId],
   )
+
+  useEffect(() => () => triggerDebounced.cancel(), [triggerDebounced])
 
   const safeAppFeeConfig = useMemo(() => {
     let chargeFeeBy = ChargeFeeBy.CURRENCY_IN

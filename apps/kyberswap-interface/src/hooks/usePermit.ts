@@ -11,12 +11,14 @@ import { useReadingContract } from 'hooks/useContract'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify } from 'state/application/hooks'
+import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
+import { encodeRouterPermit } from 'utils/aggregationRouter'
 import { friendlyError } from 'utils/errorMessage'
-import { Address, encodeAbiParameters, parseAbiParameters, parseSignature, parseUnits, toHex } from 'utils/viem'
+import { Address, parseSignature, parseUnits, toHex } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
 enum PermitType {
@@ -57,7 +59,8 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
   const tokenName = useSingleCallResult(eipContract, 'name')
 
-  const permitData = usePermitData(currency?.address)
+  const permitData = usePermitData(currency?.address, routerAddress)
+  const permitGeneration = useAppSelector(state => state.swap.permitGeneration)
 
   const { trackingHandler } = useTracking()
   const overwritedPermitData = useMemo(
@@ -187,24 +190,23 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       } catch {
         throw new Error('Invalid permit signature')
       }
-      const encodedPermitData = encodeAbiParameters(
-        parseAbiParameters('address, address, uint256, uint256, uint8, bytes32, bytes32'),
-        [
-          message.owner as `0x${string}`,
-          message.spender as `0x${string}`,
-          BigInt(message.value),
-          BigInt(message.deadline),
-          Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
-          signature.r,
-          signature.s,
-        ],
-      )
+      const encodedPermitData = encodeRouterPermit({
+        owner: message.owner as Address,
+        spender: message.spender as Address,
+        value: BigInt(message.value),
+        deadline: BigInt(message.deadline),
+        v: Number(signature.v ?? (signature.yParity === 0 ? 27 : 28)),
+        r: signature.r,
+        s: signature.s,
+      })
 
       dispatch(
         permitUpdate({
           chainId: chainId,
           address: currency.address,
           rawSignature: encodedPermitData,
+          routerAddress,
+          permitGeneration,
           deadline: message.deadline,
           value: message.value,
           account: account,
@@ -231,6 +233,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     notify,
     overwritedPermitData,
     permitState,
+    permitGeneration,
     routerAddress,
     tokenName.result,
     tokenNonceState.result,
