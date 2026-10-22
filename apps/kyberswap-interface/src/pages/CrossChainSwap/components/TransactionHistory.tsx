@@ -322,10 +322,21 @@ const TransactionRecord = ({ checkedTransactionIds, isLast, isMobile, tx }: Tran
   return isMobile ? <TransactionCard tx={tx} /> : <TransactionRow tx={tx} isLast={isLast} />
 }
 
-const TransactionHistory = () => {
-  const transactions = useTransactionHistory()
+/** Renders supplied transactions and owns pagination. Filtering resets the page via filterKey.
+ * Does not start polling: the legacy wrapper or unified page owns that lifecycle. */
+export const TransactionHistoryList = ({
+  transactions,
+  filterKey,
+  emptyMessage = t`No historical data available.`,
+}: {
+  transactions: NormalizedTxResponse[]
+  filterKey?: string
+  emptyMessage?: string
+}) => {
   const [currentPage, setCurrentPage] = useState(1)
   const checkedTransactionIdsRef = useRef<Set<string>>(new Set())
+
+  useEffect(() => setCurrentPage(1), [filterKey])
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -362,7 +373,7 @@ const TransactionHistory = () => {
         {transactions.length === 0 ? (
           <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 px-4 py-6">
             <NoTransactionIcon className="size-20" />
-            <span className="text-center text-sm font-medium text-subText">{t`No historical data available.`}</span>
+            <span className="text-center text-sm font-medium text-subText">{emptyMessage}</span>
           </div>
         ) : (
           visibleTransactions.map((tx, index) => (
@@ -392,5 +403,7 @@ const TransactionHistory = () => {
     </div>
   )
 }
+
+const TransactionHistory = () => <TransactionHistoryList transactions={useTransactionHistory()} />
 
 export default TransactionHistory

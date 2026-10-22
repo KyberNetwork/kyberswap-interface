@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { type Chain, type Currency, NonEvmChain, type NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
-import { useCurrencyFromUrl, useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
+import { useSwapCurrencyResolution } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
 import { SwapPair, getDefaultSwapTokenId, getTradeLocation, isCrossChainPair } from 'utils/swapFlow'
 
@@ -16,13 +16,24 @@ const getSelectedTokenId = (currency: Currency) => {
   return currency.symbol
 }
 
-/** Owns pair selection and reversal for both unified swap flows. */
+/**
+ * Owns pair selection/reversal and commits both sides in one navigation.
+ * Selected metadata bridges the interval before URL lookup catches up, but is used only while ID/chain still match.
+ * URL resolution owns loading; available selected metadata suppresses its loading placeholder.
+ */
 export const useSwapFormPair = () => {
   const navigate = useNavigate()
-  const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
+  const {
+    fromCurrency,
+    toCurrency,
+    inputChain,
+    outputChain,
+    currencyIn: resolvedInput,
+    currencyOut: resolvedOutput,
+    isInputCurrencyLoading,
+    isOutputCurrencyLoading,
+  } = useSwapCurrencyResolution()
   const isCrossChain = isCrossChainPair(inputChain, outputChain)
-  const resolvedInput = useInputCurrency()
-  const resolvedOutput = useOutputCurrency()
   const [params] = useSearchParams()
   const [selected, setSelected] = useState<{ currencyIn?: EvmCurrency; currencyOut?: EvmCurrency }>({})
   const matches = (currency: EvmCurrency | undefined, id: string, chain: Chain) =>
@@ -109,6 +120,8 @@ export const useSwapFormPair = () => {
   }
 
   return {
+    isInputCurrencyLoading: !currencyIn && isInputCurrencyLoading,
+    isOutputCurrencyLoading: !selectedOutput && isOutputCurrencyLoading,
     currencyIn,
     currencyOut,
     inputId,

@@ -22,6 +22,7 @@
 ## Contents
 
 - [Current implementation decisions — 2026-10-20](#current-implementation-decisions--2026-10-20)
+- [Implementation TODO — 2026-10-22](#implementation-todo--2026-10-22)
 - [Terminology](#terminology-from-kybercross-proposal)
 - [1. Problem](#1-problem)
 - [2. Principles](#2-principles)
@@ -83,9 +84,87 @@ Keep the reviewed quote snapshot while Review is open, with periodic refresh pau
 ### Deferred work and validation
 
 - Keep the legacy `/cross-chain` screen for now; disabling/removing it is deferred. Preserve its shared adapters, quote engine and wallet dependencies when removing the screen later.
-- The right panel currently shows chart/routes for single-chain and history for cross-chain. Price Chart/History tabs remain deferred scope, not a prerequisite for continuing development on the current implementation.
-- Known inconsistency: presets in the Settings screen still use single-chain logic; they do not yet consume the cross-chain presets used by the form.
+- The original chart/routes-versus-history split was superseded by the 2026-10-22 panel decision below.
+- Settings presets still use single-chain logic. This difference was accepted on 2026-10-22; see the implementation TODO below.
 - The current implementation is a basis for further development, not a declaration that every source requirement is complete. During this review, TypeScript, targeted ESLint, 38 routing/quote tests and 17 SSR smoke tests passed. The subsequent Route Options edit passed TypeScript and targeted ESLint; its final text-only adjustment passed ESLint. Browser/wallet E2E was not performed, so production readiness is not established by these checks.
+
+## Implementation TODO — 2026-10-22
+
+This is the active follow-up list from the local implementation review. The accepted exceptions below take precedence over conflicting items in Appendix C.
+
+### Accepted behavior — no fix required in current scope
+
+- **Best Return ranking:** keep sorting streamed routes by `outputAmount` without subtracting additional fees. The user accepted this behavior; net-output ranking is not an active TODO.
+- **Settings slippage presets:** keep the existing single-chain presets in Settings while the cross-chain form/Review use their own rules. The user accepted this difference; preset alignment is not an active TODO.
+
+### Right panel and History — implemented 2026-10-22
+
+- Both flows show Price Chart above Trade Route, respecting the existing display settings. Chart tabs use each EVM token's own chain and quote token; chain badges distinguish tokens across networks. The chart data hook owns queries, pagination and candle derivation; chart eligibility is shared with the right panel. The settlement-price API currently supports the configured EVM chains, not non-EVM chart data.
+- Cross-chain Trade Route reuses the single-chain panel, collapse behavior, cards and connectors. Figma is a reference for step semantics only, not a separate visual style.
+- Route display reads the selected quote's provider metadata. LI.FI and Across expose explicit legs; Symbiosis exposes token/chain paths without intermediate amounts; Socket/Bungee uses the same selected route as execution. KyberCross expands only when an explicit flow type exists. Other/missing metadata displays an aggregate provider route without inventing legs, intermediate amounts or pool splits.
+- History toggles from the icon immediately left of Settings and replaces chart/routes in the right column (below the form on small screens), with a subtle fade/slide animation and shadow. Back and the same icon restore chart/routes. This supersedes the earlier History flyout/modal. Hidden chart/routes stay mounted to preserve tab/timeframe state and are inert while History is shown.
+- The History toolbar uses the referenced Figma flow as guidance: Back + History and a token filter. Per the follow-up decision, it uses existing icons and has no separate close button. The filter searches source or destination token symbol, name and EVM/non-EVM address or asset ID, resets pagination and can be cleared to show all saved transactions. Existing transaction rows/status/actions remain shared with the legacy History list.
+- `SwapPage` owns History visibility and mounts transaction status polling outside the swap-mode branch; polling stays active while History is closed or the pair switches between same-chain and cross-chain.
+
+### Remaining TODO
+
+- [x] Add the cross-chain Price Chart and Trade Route to the right panel and move History behind its icon trigger.
+- [ ] Reuse the cross-chain route chart in Review; add pool-level drilldown only when the provider supplies sufficient route data.
+- [ ] Complete route ranking UX: Fastest, reliability handling, estimated-time tie-breaks and notification when the selected route disappears. Confirm unresolved thresholds before implementation; retain the accepted output-amount ordering.
+- [ ] Complete fee breakdown and terminology using provider data: network fees, bridge/protocol fees and applicable KyberCross fees.
+- [ ] Extend history beyond the reused legacy list: Processing pinning, history retrieval/merge, detail drawer, executed amounts/fees and actual tokens received after refunds.
+- [ ] Complete the unified analytics contract for mode, route selection, chart/history interaction and final outcomes.
+- [ ] Add the unified feature flag and staged rollout controls required by the agreed release plan.
+- [ ] Run browser/wallet E2E for single-chain and cross-chain flows, including pair changes, refresh, approval, Review, submission and history/status updates.
+
+### Deferred
+
+- Price Chart/History tabs are superseded by the chart + route panel and History icon decision above.
+- Redirecting/removing the legacy `/cross-chain` screen; preserve the shared engine, adapters and wallet dependencies.
+
+### Token Info and URL token loading — implemented 2026-10-22
+
+- Token Info accepts a list of EVM tokens, deduplicated by chain/wrapped address.
+  It retains selection on reorder and falls back to the first token when selection
+  disappears. The header stays “Token Info”, including a single-token list.
+- Its compact selector stays inline with the title and wraps when needed. Both
+  Token Info and Price Chart always show chain badges, including same-chain pairs.
+- Unified mixed EVM/non-EVM pairs expose Token Info for the EVM side. All-non-EVM
+  pairs and the legacy cross-chain screen do not expose this panel. Market/security
+  queries use the selected token chain and current-argument data. Wallet import is
+  available only when the connected wallet chain matches the token chain.
+- A pending URL token, such as DAI in `/swap/base/eth-to-dai`, shows a skeleton
+  instead of “Select a token”. This applies to both single-chain form fields.
+  Available tokens render immediately; empty selections and completed unsuccessful
+  lookups remain empty. Token metadata loading is separate from quote loading.
+- Token-list recovery is an accepted shared infrastructure improvement, not a
+  behavior-preserving refactor: transient failures retry at most twice, and failed
+  loads can recover on remount/reconnect. Empty results may refresh after one minute
+  on remount/reconnect; populated lists are reused and window focus does not refetch.
+  Each load requests fresh pages and only publishes after all requested pages succeed.
+  The former Goerli DAI/USDT injection has been removed; whitelist data comes from APIs.
+- See the [README recovery policy](../apps/kyberswap-interface/src/pages/Swap/README.md#token-list-loading-and-recovery)
+  for ownership and lifecycle details. These loading/recovery changes qualify the
+  original “byte-for-byte / zero new calls” wording in §2; swap execution and quote
+  selection are not changed by this token-list work.
+
+### Verification and retained coverage — 2026-10-22
+
+- Retained regression coverage: provider route metadata parsing (10 cases), token
+  loading/recovery (10 cases), and pair navigation/resolution (8 cases, including
+  two new URL-loading cases). These 28 tests passed after test cleanup.
+- Dedicated Token Info/History UI tests and new SSR UI assertions were removed
+  intentionally. Earlier test counts from intermediate revisions are not the
+  current coverage inventory. Existing SSR tests remain in place.
+- After removing the Goerli token injection, scoped ESLint, the 10 token-loading
+  tests and diff checks passed. TypeScript and 22 SSR tests passed before the test
+  cleanup; that count includes assertions/cases no longer retained.
+- The subsequent component/hook documentation pass passed scoped formatting,
+  ESLint and diff checks, with unchanged emitted JavaScript.
+- Earlier inspection included a live Ethereum ETH → Base USDC aggregator payload
+  for route metadata. Browser visual QA, live token-list failure/reconnect checks,
+  wallet execution and real transaction E2E remain unverified. Historical commit/PR
+  CI results do not certify the current worktree.
 
 ## Terminology (from KyberCross proposal)
 
@@ -365,12 +444,12 @@ This checklist breaks down the source into individual items for future code or Q
 
 ### C.4 Ranking, tags, and refresh — §4, §10
 
-- [ ] Best Return identifies the highest net output after fees.
+- Accepted exception (2026-10-22): Best Return follows output-amount ranking without subtracting additional fees; no fix required in current scope.
 - [ ] Best Return is default-selected, with the top-row/reliability interaction clarified.
 - [ ] Fastest is selected only from routes within the agreed X% output threshold.
 - [ ] A route can display both Best Return and Fastest.
 - [ ] There is no separate Recommended tag or recommendation category.
-- [ ] Routes sort by net output descending, with estimated time breaking ties.
+- [ ] Retain accepted output-amount descending order and add estimated-time tie-breaking; net-output ordering is superseded by the 2026-10-22 decision.
 - [ ] Providers below the agreed reliability threshold are demoted and carry a warning icon.
 - [ ] Low-reliability routes remain visible.
 - [ ] The quote refresh timer follows Swap.

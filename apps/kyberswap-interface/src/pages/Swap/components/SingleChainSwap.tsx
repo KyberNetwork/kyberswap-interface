@@ -37,11 +37,15 @@ import { useSlippageSettingByPage } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
+/** Single-chain quote/execution flow. Receives resolved currencies and metadata-loading flags from its caller;
+ * route loading and transaction processing remain independent of token resolution. */
 export type SingleChainSwapProps = {
   hidden: boolean
 
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
+  isInputCurrencyLoading?: boolean
+  isOutputCurrencyLoading?: boolean
 
   balanceIn: CurrencyAmount<Currency> | undefined
   balanceOut: CurrencyAmount<Currency> | undefined
@@ -69,6 +73,8 @@ const SingleChainSwap: React.FC<SingleChainSwapProps> = props => {
     hidden,
     currencyIn,
     currencyOut,
+    isInputCurrencyLoading,
+    isOutputCurrencyLoading,
     balanceIn,
     balanceOut,
     onRouteChange,
@@ -247,6 +253,7 @@ const SingleChainSwap: React.FC<SingleChainSwapProps> = props => {
         networkSelector={omniView ? <NetworkSelector chainId={chainId} /> : undefined}
         inputPanel={
           <InputCurrencyPanel
+            currencyLoading={isInputCurrencyLoading}
             amountInUsd={routeSummary?.amountInUsd}
             wrapType={wrapType}
             typedValue={displayTypedValue}
@@ -265,6 +272,7 @@ const SingleChainSwap: React.FC<SingleChainSwapProps> = props => {
         }
         outputPanel={
           <OutputCurrencyPanel
+            currencyLoading={isOutputCurrencyLoading}
             wrapType={wrapType}
             parsedAmountIn={parsedAmount}
             parsedAmountOut={displayAmountOut}

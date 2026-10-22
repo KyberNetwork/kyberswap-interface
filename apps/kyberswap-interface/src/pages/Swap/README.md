@@ -18,6 +18,12 @@ use `SingleChainSwap`; different-chain and non-EVM pairs use `UnifiedCrossChainS
   amount. The page owns URL prefill; the single-chain child does not repeat it.
 - `components/SingleChainSwap.tsx` owns single-chain form orchestration.
   `PopulatedSwapForm` supplies balances, permit and user settings.
+  `state/swap/hooks.ts::useSwapCurrencyResolution` reads the URL pair once and
+  returns resolved currencies plus loading to `useSwapFormPair`. Its selected
+  metadata takes precedence only while token ID and chain match the current URL.
+  Loading reaches `CurrencyInputPanel` through the form fields; the shared field
+  renders a skeleton without owning a fetch or inferring loading from absence.
+  Quote loading remains separate from token metadata loading.
   The selected chain comes from the page, independently of wallet chain and token
   metadata. Validation uses the frontend `MAINNET_NETWORKS` list and excludes Blast;
   Abstract is already outside that list. The same validation disables the CTA
@@ -25,6 +31,8 @@ use `SingleChainSwap`; different-chain and non-EVM pairs use `UnifiedCrossChainS
   configuration or abort requests already sent; responses are hidden while disabled.
 - `hooks/crossChain/useCrossChainSwap.tsx` composes the cross-chain context from
   controlled pair/amount inputs. It does not write the URL or keep a second amount.
+  `SwapPage` mounts this provider around the form and right panel so both consume
+  the same selected quote without copying quote state or issuing another request.
 - `hooks/crossChain/useCrossChainPair.ts` resolves token metadata.
 - `hooks/crossChain/useCrossChainRecipient.ts` owns recipient state and wallet defaults.
   Recipients persist per wallet family while the cross-chain flow stays mounted;
@@ -40,6 +48,39 @@ use `SingleChainSwap`; different-chain and non-EVM pairs use `UnifiedCrossChainS
   its captured pair category, independently of the current form inputs.
 - `components/crossChain/` contains the cross-chain form, summary, route sidebar,
   confirmation, history and source settings.
+- `components/TradeRoutePanel.tsx` owns the shared route header/collapse behavior.
+  Cross-chain reuses `components/TradeRouting/styled` cards and connectors;
+  `components/crossChain/route/getRouteSteps.ts` reads provider display metadata.
+  Unknown or incomplete schemas stay an aggregate provider route, without guessed
+  swap legs, amounts or pool splits. Review integration remains separate work.
+- `components/TokenPriceChart` resolves each selected token's chain, quote token
+  and request/cache identity independently. Its data hook owns queries, pagination
+  and candle derivation; token eligibility is shared with the right panel. It supports the configured EVM chart
+  chains; non-EVM chart data is not supported by the current service contract.
+- `SwapPage` owns whether the right panel shows chart/routes or History, with a
+  reduced-motion-aware fade/slide transition. Chart/routes stay mounted while
+  hidden so their local display state survives opening and closing History.
+  `components/crossChain/HistoryButton.tsx` is a controlled trigger immediately
+  left of Settings; the Header accepts it as a composition slot.
+  `components/crossChain/HistoryPanel.tsx` owns the token search and reads saved
+  transactions. Back and the header icon return to chart/routes; token
+  filtering matches either side by symbol, name or address/asset ID.
+  `SwapPage` mounts the lazy `TransactionHistoryUpdater` for saved transactions
+  outside the mode branch, so closing History or switching swap modes does not
+  restart polling. The existing `useTransactionHistory` hook owns status updates.
+
+- Token Info accepts a `tokens` list across Swap, Limit, Partner Swap and token
+  selection details. It removes duplicate chain/address entries, retains selection
+  by token identity on reorder, and falls back to the first available token when
+  selection disappears. The compact shared segmented control supports more than
+  two tokens, keeps chain badges within the logo area, and wraps below the title
+  only when the header runs out of room.
+- Token Info is available for unified cross-chain pairs when at least one chain is EVM.
+  Each tab uses its token's chain and shows a chain badge; Market/Security queries
+  expose only current-argument data. Add-to-wallet is shown only on the token's
+  connected wallet chain. Mixed pairs show the EVM token only; the toggle is hidden
+  when neither chain is EVM because the existing market/security service contract
+  accepts EVM tokens only.
 
 Shared dependencies outside this page:
 
@@ -93,13 +134,47 @@ take precedence over conflicting requirements in the original specification snap
 
 ## Remaining scope and verification
 
-- Settings-screen slippage presets still use single-chain category logic; unlike
-  the form, they do not yet use cross-chain presets.
-- The right panel shows chart/routes for single-chain and history for cross-chain.
-  Price Chart/History tabs remain deferred work if required.
+- The active [implementation TODO](../../../../../docs/unified-swap-ui.md#implementation-todo--2026-10-22)
+  tracks remaining route chart, ranking UX, fees, history, analytics, rollout and
+  browser/wallet E2E work.
+- Accepted on 2026-10-22: Best Return keeps output-amount ranking without
+  subtracting additional fees. Settings keeps single-chain slippage presets while
+  the cross-chain form/Review use their own rules. Neither is an active fix TODO.
+- Both flows show chart/routes on the right; History replaces that content when toggled from its icon by Settings.
+  This supersedes the previous right-panel Price Chart/History tabs proposal.
 - The implementation is suitable for continued development, not certified as a
   complete implementation of the original specification or as production-ready.
-- Checks run during the 2026-10-20 review: TypeScript, targeted ESLint, 38
-  routing/quote tests and 17 SSR smoke tests passed. The subsequent Route Options
-  change passed TypeScript and targeted ESLint; the final text-only adjustment
-  passed ESLint. Browser/wallet E2E was not performed.
+- Retained tests cover provider route parsing (10 cases), token loading/recovery
+  (10 cases), and pair navigation/resolution (8 cases). All 28 passed after the
+  test cleanup. Dedicated Token Info/History UI tests and added SSR UI assertions
+  were deliberately removed; existing SSR coverage remains.
+- The Goerli injection removal passed scoped ESLint, 10 loading tests and diff
+  checks. TypeScript and SSR passed before that cleanup; earlier counts describe
+  those revisions, not the retained suite. See the
+  [verification record](../../../../../docs/unified-swap-ui.md#verification-and-retained-coverage--2026-10-22).
+- Browser visual QA, live token-list recovery and wallet execution remain unverified.
+
+## Token list loading and recovery
+
+- `useEnsureTokenList` shares one initial-load operation per chain through TanStack
+  Query; Redux remains the owner of the usable token map. Pages are published only
+  after the whole load succeeds, and missing `tokens` payloads count as errors.
+- Transport errors, HTTP 408/429 and 5xx receive at most two automatic retries,
+  after 1s and 2s. Other HTTP 4xx do not retry automatically. Failed loads can run
+  again on consumer remount or network reconnect; window focus does not refetch.
+- A populated Redux list prevents unnecessary reloads. A successful empty list is
+  fresh for one minute, then eligible for remount/reconnect refresh (no polling).
+  Inactive query entries expire after five minutes. Each load requests fresh pages
+  rather than reusing a previously empty page from the RTK Query cache.
+- `useAllTokensWithLoading` includes the existing map debounce in loading so URL
+  token selectors keep their skeleton until the resolved list reaches consumers.
+- The old hardcoded Goerli DAI/USDT injection is removed. Whitelist data is
+  supplied by the catalog API (or the existing Abstract token source).
+- `useCurrencyLookup` owns native/address metadata lookup and accepts an already
+  known token to skip remote fetching. It does not subscribe to the token list.
+  `useCurrencyById` owns URL symbol lookup and configured fallback tokens;
+  `useCurrencyV2` preserves the existing native/address-only API for other callers.
+- Recovery applies to all consumers of `useAllTokens`, not only Unified Swap.
+  This is initial-load recovery, not periodic refresh of populated lists. Retrying
+  a failed load requests the pages again; retries are shared per chain rather than
+  repeated independently by each mounted consumer.
