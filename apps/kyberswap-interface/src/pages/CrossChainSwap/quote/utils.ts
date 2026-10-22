@@ -75,24 +75,19 @@ export const isStableCurrency = (currency: Currency | undefined, chain: Chain | 
   return false
 }
 
-export const createTimeoutPromise = (ms: number) =>
-  new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error('Timeout')), ms)
-  })
-
 const getNetOutputAmount = (quote: NormalizedQuote): bigint => {
-  const { outputAmount, protocolFee, quoteParams } = quote
+  const { outputAmount, additionalFeeUsd, quoteParams } = quote
   const { tokenOutUsd, toToken } = quoteParams
 
-  if (protocolFee && tokenOutUsd && tokenOutUsd > 0) {
+  if (additionalFeeUsd && tokenOutUsd && tokenOutUsd > 0) {
     const decimals = toToken?.decimals || 18
-    const protocolFeeInTokens = protocolFee / tokenOutUsd
+    const additionalFeeInTokens = additionalFeeUsd / tokenOutUsd
 
     try {
-      const protocolFeeInSmallestUnit = parseUnits(protocolFeeInTokens.toFixed(decimals), decimals)
-      return outputAmount - protocolFeeInSmallestUnit
+      const additionalFeeInSmallestUnit = parseUnits(additionalFeeInTokens.toFixed(decimals), decimals)
+      return outputAmount - additionalFeeInSmallestUnit
     } catch (error) {
-      console.error('Error converting protocol fee:', error)
+      console.error('Error converting additional fee:', error)
     }
   }
   return outputAmount
@@ -100,3 +95,13 @@ const getNetOutputAmount = (quote: NormalizedQuote): bigint => {
 
 export const sortQuotesByNetOutput = (quotes: Quote[]) =>
   [...quotes].sort((a, b) => (getNetOutputAmount(a.quote) < getNetOutputAmount(b.quote) ? 1 : -1))
+
+export const sortQuotesByOutput = (quotes: Quote[]) =>
+  [...quotes].sort((a, b) =>
+    a.quote.outputAmount === b.quote.outputAmount ? 0 : a.quote.outputAmount < b.quote.outputAmount ? 1 : -1,
+  )
+
+export const getMinimumOutputAmount = (quote: NormalizedQuote) =>
+  quote.minimumOutputAmount !== undefined
+    ? quote.minimumOutputAmount
+    : (quote.outputAmount * (10000n - BigInt(quote.quoteParams.slippage))) / 10000n

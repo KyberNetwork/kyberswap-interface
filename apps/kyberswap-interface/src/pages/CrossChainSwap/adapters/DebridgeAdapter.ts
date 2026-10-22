@@ -20,6 +20,8 @@ import {
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { debridgeQuoteSchema, evmTransactionSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/utils'
 
@@ -148,32 +150,26 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const nativePrice = getMidPrice(priceRes?.data?.[params.fromChain]?.[wrappedAddress]) ?? 0
 
     const nativeDecimals = params.fromChain === 'solana' ? 9 : NativeCurrencies[params.fromChain as ChainId].decimals
-    const protocolFee = Number(nativePrice) * (Number(fixFee) / 10 ** nativeDecimals)
-    const protocolFeeString = `${Number(fixFee) / 10 ** nativeDecimals} ${
+    const additionalFeeUsd = Number(nativePrice) * (Number(fixFee) / 10 ** nativeDecimals)
+    const additionalFeeAmount = `${Number(fixFee) / 10 ** nativeDecimals} ${
       params.fromChain === 'solana' ? 'SOL' : NativeCurrencies[params.fromChain as ChainId].symbol
     }`
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(r.estimation.dstChainTokenOut.recommendedAmount),
-
-      formattedOutputAmount,
 
       inputUsd,
       outputUsd,
 
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-
-      gasFeeUsd: 0,
       timeEstimate: r.order.approximateFulfillmentDelay,
       contractAddress: r.tx.allowanceTarget || r.tx.to,
       rawQuote: r,
 
-      protocolFee,
-      protocolFeeString,
+      additionalFeeUsd,
+      additionalFeeAmount,
       platformFeePercent: (params.feeBps * 100) / 10_000,
-    }
+    })
   }
 
   async executeSwap(
@@ -184,9 +180,11 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
   ): Promise<NormalizedTxResponse> {
+    const rawQuote = debridgeQuoteSchema.parse(quote.rawQuote)
+
     if (quote.quoteParams.fromChain === 'solana') {
       if (!solanaConnection || !sendSolanaFn) throw new Error('Connection is not defined for Solana swap')
-      const txBuffer = Buffer.from(quote.rawQuote.tx.data.slice(2), 'hex')
+      const txBuffer = Buffer.from(rawQuote.tx.data.slice(2), 'hex')
 
       // Try to deserialize as VersionedTransaction first
       let transaction
@@ -245,7 +243,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
       return {
         sender: quote.quoteParams.sender,
-        id: quote.rawQuote.orderId, // specific id for debridge
+        id: rawQuote.orderId, // specific id for debridge
         sourceTxHash: signature,
         adapter: this.getName(),
         sourceChain: quote.quoteParams.fromChain,
@@ -265,16 +263,17 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
+    const transaction = evmTransactionSchema.parse(rawQuote.tx)
     const tx = await walletClient.sendTransaction({
       chain: undefined,
       account,
-      to: quote.rawQuote.tx.to,
-      value: BigInt(quote.rawQuote.tx.value),
-      data: quote.rawQuote.tx.data,
+      to: transaction.to,
+      value: BigInt(transaction.value),
+      data: transaction.data,
     })
     return {
       sender: quote.quoteParams.sender,
-      id: quote.rawQuote.orderId, // specific id for each provider
+      id: rawQuote.orderId, // specific id for each provider
       sourceTxHash: tx,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,

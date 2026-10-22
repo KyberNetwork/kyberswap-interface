@@ -1,7 +1,10 @@
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
 import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters'
-import { PairCategory, getCurrencyAddress, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { normalizeStreamQuote, parseQuoteResponse } from 'pages/CrossChainSwap/quote/parseStreamQuote'
+import { PairCategory, getCurrencyAddress, sortQuotesByOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 
 const SSE_EVENT = {
   INIT: 'init',
@@ -26,25 +29,30 @@ type StreamQuotesParams = {
   onSoftTimeout: () => void
 }
 
-const getSourceFilters = (
-  registry: CrossChainSwapAdapterRegistry,
+export const getSourceFilters = (
+  quoteMode: CrossChainQuoteMode,
   excludedSources: string[],
   category: PairCategory,
   currencyIn: Currency,
   currencyOut: Currency,
 ) => {
-  const allAdapters = registry.getAllAdapters()
-  const supportedAdapters = allAdapters.filter(adapter => adapter.canSupport(category, currencyIn, currencyOut))
-  const includedSourceNames = supportedAdapters
+  const selectableSources = CrossChainSwapFactory.getSelectableSources(quoteMode)
+  const filterSourcesBySupport = quoteMode === 'stream'
+  const supportedSources = filterSourcesBySupport
+    ? selectableSources.filter(source => source.canSupport?.(category, currencyIn, currencyOut) ?? true)
+    : selectableSources
+  const includedSourceNames = supportedSources
     .filter(adapter => !excludedSources.includes(adapter.getName()))
     .map(adapter => adapter.getName())
-  const excludedSourceNames = allAdapters
+  const excludedSourceNames = selectableSources
     .filter(
-      adapter => excludedSources.includes(adapter.getName()) || !adapter.canSupport(category, currencyIn, currencyOut),
+      adapter =>
+        excludedSources.includes(adapter.getName()) ||
+        (filterSourcesBySupport && !(adapter.canSupport?.(category, currencyIn, currencyOut) ?? true)),
     )
     .map(adapter => adapter.getName())
 
-  return { allAdapters, includedSourceNames, excludedSourceNames }
+  return { selectableSources, includedSourceNames, excludedSourceNames }
 }
 
 const getStreamingUrl = ({
@@ -53,8 +61,7 @@ const getStreamingUrl = ({
   currencyIn,
   currencyOut,
   excludedSources,
-  registry,
-}: Pick<StreamQuotesParams, 'params' | 'category' | 'currencyIn' | 'currencyOut' | 'excludedSources' | 'registry'>) => {
+}: Pick<StreamQuotesParams, 'params' | 'category' | 'currencyIn' | 'currencyOut' | 'excludedSources'>) => {
   const queryParams = new URLSearchParams({
     fromChain: params.fromChain.toString(),
     fromToken: getCurrencyAddress(params.fromToken),
@@ -73,14 +80,14 @@ const getStreamingUrl = ({
     ...(params.tokenOutUsd > 0 ? { toTokenUsd: params.tokenOutUsd.toString() } : {}),
   })
 
-  const { allAdapters, includedSourceNames, excludedSourceNames } = getSourceFilters(
-    registry,
+  const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
+    'stream',
     excludedSources,
     category,
     currencyIn,
     currencyOut,
   )
-  if (includedSourceNames.length > 0 && includedSourceNames.length < allAdapters.length) {
+  if (includedSourceNames.length > 0 && includedSourceNames.length < selectableSources.length) {
     queryParams.append('includedSources', includedSourceNames.join(','))
   }
   if (excludedSourceNames.length > 0) {
@@ -119,10 +126,9 @@ export const streamQuotes = async ({
   }, SOFT_TIMEOUT_MS)
 
   try {
-    const response = await fetch(
-      getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources, registry }),
-      { signal },
-    )
+    const response = await fetch(getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources }), {
+      signal,
+    })
     if (!response.ok) {
       console.error('Streaming API error response status:', response.status)
       throw new Error(`HTTP error! status: ${response.status}`)
@@ -160,7 +166,7 @@ export const streamQuotes = async ({
 
         try {
           const jsonStr = line.startsWith('data: ') ? line.slice(6) : line.slice(5)
-          const data = JSON.parse(jsonStr)
+          const data = currentEvent === SSE_EVENT.QUOTE ? parseQuoteResponse(jsonStr) : JSON.parse(jsonStr)
 
           if (currentEvent === SSE_EVENT.INIT) {
             console.log('SSE connection initialized. Request ID:', data.requestID)
@@ -209,34 +215,9 @@ export const streamQuotes = async ({
           quotes.push({
             adapter,
             isReadOnly,
-            quote: {
-              quoteParams: {
-                ...data.quoteParams,
-                fromChain: params.fromChain,
-                toChain: params.toChain,
-                fromToken: params.fromToken,
-                toToken: params.toToken,
-                publicKey: params.publicKey,
-                walletClient: params.walletClient,
-                sender: params.sender,
-                recipient: params.recipient,
-              },
-              outputAmount: BigInt(data.outputAmount),
-              formattedOutputAmount: data.formattedOutputAmount,
-              inputUsd: data.inputUsd,
-              outputUsd: data.outputUsd,
-              rate: data.rate,
-              timeEstimate: data.timeEstimate,
-              priceImpact: data.priceImpact,
-              gasFeeUsd: data.gasFeeUsd,
-              contractAddress: data.contractAddress,
-              rawQuote: data.rawQuote,
-              protocolFee: data.protocolFee,
-              protocolFeeString: data.protocolFeeString,
-              platformFeePercent: data.platformFeePercent,
-            },
+            quote: normalizeStreamQuote(data, params),
           })
-          onQuotes(sortQuotesByNetOutput(quotes))
+          onQuotes(sortQuotesByOutput(quotes))
         } catch (error) {
           console.error('Failed to parse SSE data:', error)
           console.error('Problematic line:', line)
