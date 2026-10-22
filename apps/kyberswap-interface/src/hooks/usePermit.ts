@@ -11,6 +11,7 @@ import { useReadingContract } from 'hooks/useContract'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify } from 'state/application/hooks'
+import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { permitUpdate } from 'state/swap/actions'
@@ -58,7 +59,8 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
   const tokenName = useSingleCallResult(eipContract, 'name')
 
-  const permitData = usePermitData(currency?.address)
+  const permitData = usePermitData(currency?.address, routerAddress)
+  const permitGeneration = useAppSelector(state => state.swap.permitGeneration)
 
   const { trackingHandler } = useTracking()
   const overwritedPermitData = useMemo(
@@ -203,6 +205,8 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
           chainId: chainId,
           address: currency.address,
           rawSignature: encodedPermitData,
+          routerAddress,
+          permitGeneration,
           deadline: message.deadline,
           value: message.value,
           account: account,
@@ -229,6 +233,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
     notify,
     overwritedPermitData,
     permitState,
+    permitGeneration,
     routerAddress,
     tokenName.result,
     tokenNonceState.result,

@@ -40,20 +40,20 @@ const ApprovalTooltip = ({
   walletKey: string
   hasV2Allowance: boolean
 }) => {
-    if (hasV2Allowance) {
-      return (
-        <Trans>
-          New audited router contract - a one-time approval for your {currency?.symbol} is needed.{' '}
-          <a
-            href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#step-4-approve-contract-to-swap-tokens"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Read more ↗
-          </a>
-        </Trans>
-      )
-    }
+  if (hasV2Allowance) {
+    return (
+      <Trans>
+        New audited router contract - a one-time approval for your {currency?.symbol} is needed.{' '}
+        <a
+          href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#step-4-approve-contract-to-swap-tokens"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Read more ↗
+        </a>
+      </Trans>
+    )
+  }
 
   const walletHelpUrl =
     walletKey === 'METAMASK'
@@ -364,7 +364,14 @@ const SwapActionButton = ({
                     margin={false}
                     color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
                     placement="top"
-                    text={<ApprovalTooltip hasV2Allowance={hasV2Allowance} currency={currencyIn} allowance={currentAllowance} walletKey={walletKey} />}
+                    text={
+                      <ApprovalTooltip
+                        hasV2Allowance={hasV2Allowance}
+                        currency={currencyIn}
+                        allowance={currentAllowance}
+                        walletKey={walletKey}
+                      />
+                    }
                   />
                   <Trans>Approve {currencyIn?.symbol}</Trans>
                 </HStack>

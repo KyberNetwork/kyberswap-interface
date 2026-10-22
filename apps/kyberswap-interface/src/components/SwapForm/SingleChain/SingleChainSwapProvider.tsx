@@ -12,8 +12,9 @@ import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount
 import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import useSwapClientId from 'hooks/useSwapClientId'
+import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { usePermitData } from 'state/swap/hooks'
 
 type SingleChainSwapConfig = {
   evmRecipient?: EvmRecipient
@@ -25,7 +26,6 @@ type SingleChainSwapConfig = {
   isDegenMode: boolean
   slippage: number
   transactionTimeout: number
-  permit?: string
   customChainId?: ChainId
 }
 
@@ -37,7 +37,6 @@ const useSingleChainSwap = ({
   isDegenMode,
   slippage,
   transactionTimeout,
-  permit,
   customChainId,
 }: SingleChainSwapConfig) => {
   const clientId = useSwapClientId()
@@ -107,6 +106,10 @@ const useSingleChainSwap = ({
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
   const routeSummary = getRouteResponse?.routeSummary
+  const permitData = usePermitData(
+    currencyIn?.chainId === walletChainId ? currencyIn.wrapped.address : undefined,
+    routeSummary?.routerAddress,
+  )
 
   // Compare the response with the exact fee intent captured by the request, not current settings.
   const isFeeTampered = useMemo(() => {
@@ -128,7 +131,7 @@ const useSingleChainSwap = ({
     routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
-    permit,
+    permit: permitData?.rawSignature,
     currencyIn,
     currencyOut,
   })

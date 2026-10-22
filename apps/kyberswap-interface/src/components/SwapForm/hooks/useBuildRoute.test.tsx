@@ -6,7 +6,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
 
 const mocks = vi.hoisted(() => ({ build: vi.fn() }))
-vi.mock('react-router-dom', () => ({ useSearchParams: () => [new URLSearchParams()] }))
+vi.mock('hooks/useSwapClientId', () => ({ default: () => 'kyberswap' }))
 vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ chainId: 1, account: 'sender' }) }))
 vi.mock('hooks/useENS', () => ({
   default: (value: string) => ({ address: value === 'recipient.eth' ? 'resolved-recipient' : null }),

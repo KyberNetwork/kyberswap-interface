@@ -70,7 +70,11 @@ const currencyIn = new Token(1, '0x0000000000000000000000000000000000000001', 18
 const currencyOut = new Token(1, '0x0000000000000000000000000000000000000002', 18)
 const amounts = [1, 2].map(value => CurrencyAmount.fromRawAmount(currencyIn, String(value)))
 
-vi.mock('state/hooks', () => ({ useAppDispatch: () => mocks.dispatch }))
+vi.mock('state/hooks', () => ({
+  useAppDispatch: () => mocks.dispatch,
+  useAppSelector: (selector: (state: unknown) => unknown) => selector({ swap: { routerV3Test: false } }),
+}))
+vi.mock('state/swap/hooks', () => ({ usePermitData: () => null }))
 const response = { code: 0, message: 'latest' }
 const deferred = () => {
   let resolve!: (value?: typeof response) => void
