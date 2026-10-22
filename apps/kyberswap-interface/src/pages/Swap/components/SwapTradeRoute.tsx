@@ -1,18 +1,17 @@
 import { ChainId, type Currency, type CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown, Info } from 'react-feather'
+import { Suspense, lazy, useMemo } from 'react'
+import { Info } from 'react-feather'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing_icon.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { ShieldChecked } from 'components/Icons'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { ClickTooltip } from 'components/Tooltip'
 import { getERC8056DisplayAmount, useERC8056TokenInfo } from 'hooks/useERC8056Token'
+import TradeRoutePanel from 'pages/Swap/components/TradeRoutePanel'
 import { ExternalLink } from 'theme'
 import { type SwapRouteV2, type SwapRouteV3 } from 'utils/aggregationRouting'
-import { cn } from 'utils/cn'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
@@ -36,6 +35,7 @@ const TradeRouteSkeleton = () => {
   )
 }
 
+/** Presents single-chain pool/split composition inside the shared route shell; does not fetch or select routes. */
 type SwapTradeRouteProps = {
   tradeComposition: SwapRouteV2[] | SwapRouteV3[] | undefined
   currencyIn: Currency | undefined
@@ -59,8 +59,6 @@ const SwapTradeRoute = ({
   scrollOnExpand = true,
   onExpand,
 }: SwapTradeRouteProps) => {
-  const panelRef = useRef<HTMLDivElement>(null)
-
   // Amounts are labels only, so an ERC-8056 token shows them in display units like the swap form.
   const inputInfo = useERC8056TokenInfo(currencyIn, currencyIn?.chainId ?? ChainId.MAINNET)
   const outputInfo = useERC8056TokenInfo(currencyOut, currencyOut?.chainId ?? ChainId.MAINNET)
@@ -69,12 +67,6 @@ const SwapTradeRoute = ({
     () => getERC8056DisplayAmount(outputInfo, rawOutputAmount),
     [outputInfo, rawOutputAmount],
   )
-
-  const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
-
-  useEffect(() => {
-    setIsExpanded(!defaultCollapsed)
-  }, [defaultCollapsed])
 
   const titleData = useMemo(
     () => ({
@@ -103,96 +95,63 @@ const SwapTradeRoute = ({
     </div>
   )
 
-  const handleToggle = () => {
-    const nextExpanded = !isExpanded
-    setIsExpanded(nextExpanded)
-
-    if (!nextExpanded) return
-
-    onExpand?.()
-
-    if (!scrollOnExpand) return
-
-    globalThis.requestAnimationFrame(() => {
-      globalThis.requestAnimationFrame(() => {
-        panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      })
-    })
-  }
-
   return (
-    <div ref={panelRef} className="overflow-hidden rounded-xl border border-darkBorder">
-      <button
-        type="button"
-        onClick={handleToggle}
-        className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-background px-4 py-1.5 text-left text-subText"
-      >
-        <div className="flex min-w-0 items-center gap-2.5">
-          <RoutingIcon className="size-6" />
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-lg font-medium text-blue max-sm:hidden">Route:</span>
+    <TradeRoutePanel
+      defaultCollapsed={defaultCollapsed}
+      scrollOnExpand={scrollOnExpand}
+      onExpand={onExpand}
+      heading={
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-lg font-medium text-blue max-sm:hidden">Route:</span>
 
-            {currencyIn ? (
-              <div className="flex items-center gap-1.5">
-                <CurrencyLogo currency={currencyIn} size="18px" />
-                <span className="text-base font-medium text-subText max-sm:text-sm">
-                  {titleData.amountIn ? `${titleData.amountIn} ` : ''}
-                  {titleData.inputSymbol}
-                </span>
+          {currencyIn ? (
+            <div className="flex items-center gap-1.5">
+              <CurrencyLogo currency={currencyIn} size="18px" />
+              <span className="text-base font-medium text-subText max-sm:text-sm">
+                {titleData.amountIn ? `${titleData.amountIn} ` : ''}
+                {titleData.inputSymbol}
+              </span>
+            </div>
+          ) : null}
+
+          {(currencyIn || currencyOut) && <span className="text-base font-medium text-subText max-sm:text-sm">→</span>}
+
+          {currencyOut ? (
+            <div className="flex items-center gap-1.5">
+              <CurrencyLogo currency={currencyOut} size="18px" />
+              <span className="text-base font-medium text-subText max-sm:text-sm">
+                {titleData.amountOut ? `${titleData.amountOut} ` : ''}
+                {titleData.outputSymbol}
+              </span>
+            </div>
+          ) : null}
+
+          {isSmartSettlement && (
+            <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
+              <div
+                role="button"
+                className="flex shrink-0 items-center gap-1 rounded-xl border border-primary-40 bg-primary-12 px-2 py-1 text-sm font-medium text-primary"
+              >
+                <ShieldChecked size={14} className="text-primary" />
+                <Trans>Smart Settlement</Trans>
+                <Info size={14} />
               </div>
-            ) : null}
-
-            {(currencyIn || currencyOut) && (
-              <span className="text-base font-medium text-subText max-sm:text-sm">→</span>
-            )}
-
-            {currencyOut ? (
-              <div className="flex items-center gap-1.5">
-                <CurrencyLogo currency={currencyOut} size="18px" />
-                <span className="text-base font-medium text-subText max-sm:text-sm">
-                  {titleData.amountOut ? `${titleData.amountOut} ` : ''}
-                  {titleData.outputSymbol}
-                </span>
-              </div>
-            ) : null}
-
-            {isSmartSettlement && (
-              <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
-                <div
-                  role="button"
-                  className="flex shrink-0 items-center gap-1 rounded-xl border border-primary-40 bg-primary-12 px-2 py-1 text-sm font-medium text-primary"
-                >
-                  <ShieldChecked size={14} className="text-primary" />
-                  <Trans>Smart Settlement</Trans>
-                  <Info size={14} />
-                </div>
-              </ClickTooltip>
-            )}
-          </div>
+            </ClickTooltip>
+          )}
         </div>
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-transparent transition-colors duration-150 ease-in-out group-hover:bg-tableHeader">
-          <ChevronDown
-            size={18}
-            className={cn('text-subText transition-transform duration-150 ease-in-out', isExpanded && 'rotate-180')}
-          />
-        </div>
-      </button>
-
-      {isExpanded && (
-        <div className="border-t border-darkBorder p-4">
-          <Suspense fallback={<TradeRouteSkeleton />}>
-            <TradeRouting
-              customChainId={currencyIn?.chainId}
-              tradeComposition={tradeComposition}
-              currencyIn={currencyIn}
-              currencyOut={currencyOut}
-              inputAmount={inputAmount}
-              outputAmount={outputAmount}
-            />
-          </Suspense>
-        </div>
-      )}
-    </div>
+      }
+    >
+      <Suspense fallback={<TradeRouteSkeleton />}>
+        <TradeRouting
+          customChainId={currencyIn?.chainId}
+          tradeComposition={tradeComposition}
+          currencyIn={currencyIn}
+          currencyOut={currencyOut}
+          inputAmount={inputAmount}
+          outputAmount={outputAmount}
+        />
+      </Suspense>
+    </TradeRoutePanel>
   )
 }
 

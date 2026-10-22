@@ -16,7 +16,6 @@ import SingleChainSwap, { SingleChainSwapProps } from 'pages/Swap/components/Sin
 import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
 import { TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
 import Updater from 'state/customizeDexes/updater'
-import { Field } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
@@ -166,14 +165,6 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
   const currencyOut =
     useCurrencyV2(outputCurrencyId || undefined, swapChainId) || DEFAULT_OUTPUT_TOKENS[swapChainId as ChainId]
 
-  const currencies = useMemo(
-    () => ({
-      [Field.INPUT]: currencyIn || undefined,
-      [Field.OUTPUT]: currencyOut || undefined,
-    }),
-    [currencyIn, currencyOut],
-  )
-
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
 
   const [isShowPricingChart, setIsShowPricingChart] = useState(false)
@@ -291,7 +282,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
         setActiveTab={setActiveTab}
       >
         {isSwapPage && <SingleChainSwap {...props} />}
-        {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToSwapTab} />}
+        {activeTab === TAB.INFO && <TokenInfo tokens={[currencyIn, currencyOut]} onBack={onBackToSwapTab} />}
         {activeTab === TAB.SETTINGS && (
           <SwapSettingsPanel
             displaySettings={{

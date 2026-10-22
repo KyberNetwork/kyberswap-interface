@@ -22,6 +22,7 @@ type Props = {
   amountOutUsd: string | undefined
   balanceText?: string
   highlightToken?: boolean
+  currencyLoading?: boolean
   onChangeCurrencyOut: (c: Currency) => void
   chainSelectionMode?: 'wallet' | 'form'
   onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
@@ -29,6 +30,7 @@ type Props = {
   routeLoading: boolean
 }
 
+/** Keeps token metadata loading separate from routeLoading, which affects the estimated amount only. */
 const OutputCurrencyPanel: React.FC<Props> = ({
   wrapType,
   parsedAmountIn,
@@ -38,6 +40,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   amountOutUsd,
   balanceText,
   highlightToken,
+  currencyLoading,
   onChangeCurrencyOut,
   customChainId,
   chainSelectionMode,
@@ -85,6 +88,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         dataTestId="swap-currency-output"
         showPinnedTokens={true}
         customBalanceText={balanceText}
+        currencyLoading={currencyLoading}
         highlightCurrencySelect={highlightToken}
         estimatedUsd={routeLoading ? '' : getEstimatedUsd()}
         label={

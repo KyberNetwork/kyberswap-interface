@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { type ReactNode } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -22,24 +23,34 @@ import { formatSlippage } from 'utils/slippage'
 type TokenInfoButtonProps = {
   onClick?: () => void
   size?: number
+  active?: boolean
 }
 
-export const TokenInfoButton = ({ onClick, size }: TokenInfoButtonProps) => (
-  <IconButton variant="action" onClick={onClick}>
+export const TokenInfoButton = ({ onClick, size, active }: TokenInfoButtonProps) => (
+  <IconButton variant="action" active={active} aria-label={t`Token Info`} aria-pressed={active} onClick={onClick}>
     <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
       <Info className="text-subText" size={size || 20} />
     </MouseoverTooltip>
   </IconButton>
 )
 
+/** Owns header tab actions; History is supplied by the page.
+ * Unified mixed-chain pairs expose Token Info when either side is EVM; legacy cross-chain stays excluded. */
 type HeaderRightMenuProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
+  historyButton?: ReactNode
   isCrossChainMode?: boolean
   activeMainTab?: TAB
 }
 
-export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab, isCrossChainMode }: HeaderRightMenuProps) => {
+export const HeaderRightMenu = ({
+  activeTab,
+  setActiveTab,
+  activeMainTab,
+  isCrossChainMode,
+  historyButton,
+}: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
   const isSwapPage = isSwapLikePath(pathname) || activeMainTab === TAB.SWAP
@@ -48,7 +59,9 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab, isCros
   const defaultTab =
     activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)
 
-  const { currencies } = useCurrenciesByPage()
+  const { currencies, inputChain, outputChain } = useCurrenciesByPage()
+  const supportsTokenInfo =
+    !isCrossChainPage || (isSwapPage && (typeof inputChain === 'number' || typeof outputChain === 'number'))
   const { trackingHandler } = useTracking(currencies)
 
   const onToggleActionTab = (tab: TAB) => {
@@ -66,8 +79,9 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab, isCros
 
   return (
     <div className="flex items-center gap-1">
-      {!isCrossChainPage && (
+      {supportsTokenInfo && (
         <TokenInfoButton
+          active={activeTab === TAB.INFO}
           size={upToXXSmall ? 16 : 20}
           onClick={() => {
             trackingHandler(TRACKING_EVENT_TYPE.SWAP_TOKEN_INFO_CLICK)
@@ -75,6 +89,7 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab, isCros
           }}
         />
       )}
+      {historyButton}
       {!isLimitPage && (
         <IconButton
           variant="action"

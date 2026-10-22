@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ErrorWarning } from 'components/ErrorWarning'
@@ -13,15 +13,24 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 import { isSwapLikePath } from 'utils/routes'
 
+/** Shared header composition. historyButton is a slot so the consuming page retains History state and lifecycle. */
 type HeaderProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   customChainId?: ChainId
+  historyButton?: ReactNode
   isCrossChainMode?: boolean
   activeMainTab?: TAB
 }
 
-export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab, isCrossChainMode }: HeaderProps) => {
+export const Header = ({
+  activeTab,
+  setActiveTab,
+  customChainId,
+  activeMainTab,
+  isCrossChainMode,
+  historyButton,
+}: HeaderProps) => {
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
@@ -41,6 +50,7 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab, 
             setActiveTab={setActiveTab}
             activeMainTab={activeMainTab}
             isCrossChainMode={isCrossChainMode}
+            historyButton={historyButton}
           />
         </HStack>
         <HStack className="w-full items-center justify-between gap-3">

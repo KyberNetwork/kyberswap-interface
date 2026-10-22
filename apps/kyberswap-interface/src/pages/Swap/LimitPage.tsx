@@ -13,12 +13,12 @@ const TokenInfo = lazy(() => import('components/TokenInfo'))
 const LimitPage = () => {
   const controller = useTradeController(TAB.LIMIT)
   const { activeTab, highlightDegenMode, onBackToMainTab, setActiveTab } = controller
-  const { currencies } = useCurrenciesByPage()
+  const { currencyIn, currencyOut } = useCurrenciesByPage()
 
   return (
     <SwapLayout controller={controller} rightPanel={<OrderList />}>
       {activeTab === TAB.LIMIT && <LimitOrderForm />}
-      {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
+      {activeTab === TAB.INFO && <TokenInfo tokens={[currencyIn, currencyOut]} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (
         <SwapSettingsPanel
           isCrossChainPage={false}

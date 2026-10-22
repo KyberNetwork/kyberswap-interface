@@ -13,7 +13,6 @@ import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
-import { Field } from 'state/swap/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
@@ -184,10 +183,7 @@ const TokenSelectorModal = ({
               }
             }}
           >
-            <TokenInfo
-              currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
-              onBack={closeTokenInfo}
-            />
+            <TokenInfo tokens={[tokenToShowInfo]} onBack={closeTokenInfo} />
           </div>
         ) : null}
       </Modal>

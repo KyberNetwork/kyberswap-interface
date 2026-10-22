@@ -8,10 +8,14 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
+/** Connects pair data to balances, preferences and permit state for the single-chain form.
+ * Token resolution/loading stays with the pair owner, rather than being inferred from missing balances. */
 export type PopulatedSwapFormProps = {
   chainId: ChainId
   currencyIn?: Currency
   currencyOut?: Currency
+  isInputCurrencyLoading?: boolean
+  isOutputCurrencyLoading?: boolean
   onChangeCurrencyIn: (currency: Currency) => void
   onChangeCurrencyOut: (currency: Currency) => void
   onSelectNonEvmCurrencyIn?: (chain: NonEvmChain, currency: NonEvmCurrency) => void

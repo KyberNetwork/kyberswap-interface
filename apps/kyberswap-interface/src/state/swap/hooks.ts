@@ -9,7 +9,7 @@ import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, STABLE_TOKENS } from 'constant
 import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { useAllTokens, useCurrencyV2, useStableCoins } from 'hooks/useTokens'
+import { useAllTokens, useAllTokensWithLoading, useCurrencyLookup, useStableCoins } from 'hooks/useTokens'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { Field, resetSelectCurrency, setRecipient, setTrade, typeInput } from 'state/swap/actions'
@@ -324,10 +324,12 @@ export const useCurrencyFromUrl = () => {
   }
 }
 
+/** Resolves one URL token on its selected chain, including symbol lookup and configured defaults.
+ * Missing EVM metadata can be loading; non-EVM IDs are left to the cross-chain resolver. */
 const useCurrencyById = (currencyId: string, selectedChain: ReturnType<typeof getSwapChains>['fromChain']) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = typeof selectedChain === 'number' ? selectedChain : walletChainId
-  const allTokens = useAllTokens(false, chainId)
+  const { tokens: allTokens, isLoading: isListLoading } = useAllTokensWithLoading(false, chainId)
   const defaultOutputToken = DEFAULT_OUTPUT_TOKENS[chainId]
   const stableCounterToken = STABLE_TOKENS[chainId]
   const normalizedCurrencyId = currencyId.toLowerCase()
@@ -339,7 +341,7 @@ const useCurrencyById = (currencyId: string, selectedChain: ReturnType<typeof ge
     )
   }, [allTokens, normalizedCurrencyId])
 
-  const currency = useCurrencyV2(token ? token.address : currencyId, chainId)
+  const { currency, isLoading: isCurrencyLoading } = useCurrencyLookup(token?.address ?? currencyId, chainId, token)
   const mappedToken = [defaultOutputToken, stableCounterToken].find(item => {
     return (
       item &&
@@ -347,20 +349,25 @@ const useCurrencyById = (currencyId: string, selectedChain: ReturnType<typeof ge
     )
   })
 
-  if (typeof selectedChain !== 'number') return undefined
+  if (typeof selectedChain !== 'number') return { currency: undefined, isLoading: false }
   const requestedId = token?.address.toLowerCase() || normalizedCurrencyId
   const matchesNative =
     currency?.equals(NativeCurrencies[chainId]) &&
     [NativeCurrencies[chainId].symbol?.toLowerCase(), 'eth', ETHER_ADDRESS.toLowerCase()].includes(requestedId)
-  return currency?.chainId === selectedChain &&
-    (currency.wrapped.address.toLowerCase() === requestedId || matchesNative)
-    ? currency
-    : mappedToken
+  const resolvedCurrency =
+    currency?.chainId === selectedChain && (currency.wrapped.address.toLowerCase() === requestedId || matchesNative)
+      ? currency
+      : mappedToken
+  return {
+    currency: resolvedCurrency,
+    isLoading:
+      !!currencyId && !resolvedCurrency && (isCurrencyLoading || (!isAddress(chainId, currencyId) && isListLoading)),
+  }
 }
 
 export const useInputCurrency = () => {
   const { fromCurrency, inputChain } = useCurrencyFromUrl()
-  return useCurrencyById(fromCurrency, inputChain)
+  return useCurrencyById(fromCurrency, inputChain).currency
 }
 
 /**
@@ -372,14 +379,24 @@ export const useInputCurrency = () => {
 const isSamePair = (input: Currency | null | undefined, output: Currency | null | undefined) =>
   !!input && !!output && input.equals(output)
 
-export const useOutputCurrency = () => {
-  const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
-  const inputCurrency = useCurrencyById(fromCurrency, inputChain)
-  const outputCurrency = useCurrencyById(toCurrency, outputChain)
-  // Dropped rather than replaced with the chain's default output, which on such a chain is that
-  // same token and would land right back here.
-  return isSamePair(inputCurrency, outputCurrency) ? undefined : outputCurrency
+/** Reads the URL pair once and resolves both sides with loading status.
+ * A resolved same-token pair intentionally clears output rather than selecting a default again. */
+export const useSwapCurrencyResolution = () => {
+  const pair = useCurrencyFromUrl()
+  const { fromCurrency, toCurrency, inputChain, outputChain } = pair
+  const input = useCurrencyById(fromCurrency, inputChain)
+  const output = useCurrencyById(toCurrency, outputChain)
+  const samePair = isSamePair(input.currency, output.currency)
+  return {
+    ...pair,
+    currencyIn: input.currency,
+    currencyOut: samePair ? undefined : output.currency,
+    isInputCurrencyLoading: input.isLoading,
+    isOutputCurrencyLoading: !samePair && output.isLoading,
+  }
 }
+
+export const useOutputCurrency = () => useSwapCurrencyResolution().currencyOut
 
 export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
   const { chainId } = useActiveWeb3React()
