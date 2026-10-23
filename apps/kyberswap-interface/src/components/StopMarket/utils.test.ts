@@ -13,6 +13,7 @@ import {
   buildStopMarketPayload,
   clampStopMarketDeadline,
   formatDistanceMagnitude,
+  formatTriggerPercentValue,
   formatTriggerPriceValue,
   getStopMarketCurrentPrice,
   getStopMarketDisplayStatus,
@@ -127,6 +128,22 @@ describe('isActiveStopMarketStatus', () => {
   })
 })
 
+describe('formatTriggerPercentValue', () => {
+  it('keeps the sign and one decimal, as the distance shows it', () => {
+    expect(formatTriggerPercentValue(-19.999999999999996)).toBe('-20.0')
+    expect(formatTriggerPercentValue(6.62)).toBe('6.6')
+    expect(formatTriggerPercentValue(1234.5)).toBe('1234.5')
+    expect(formatTriggerPercentValue(0)).toBe('0.0')
+  })
+
+  it('keeps the rounded first significant digit of a distance one decimal would zero, in plain notation', () => {
+    expect(formatTriggerPercentValue(-0.00899)).toBe('-0.009')
+    expect(formatTriggerPercentValue(0.023)).toBe('0.02')
+    expect(formatTriggerPercentValue(-0.0099)).toBe('-0.01')
+    expect(formatTriggerPercentValue(-0.000092)).toBe('-0.00009')
+  })
+})
+
 describe('formatDistanceMagnitude', () => {
   it('shows one decimal, keeping the trailing zero', () => {
     expect(formatDistanceMagnitude(-6.62)).toBe('6.6')
@@ -144,6 +161,11 @@ describe('formatDistanceMagnitude', () => {
     expect(formatDistanceMagnitude(-0.023)).toBe('0.02')
     expect(formatDistanceMagnitude(-0.00344)).toBe('0.003')
     expect(formatDistanceMagnitude(-0.000092)).toBe('0.0₄9')
+  })
+
+  it('rounds that first significant digit rather than truncating it', () => {
+    expect(formatDistanceMagnitude(-0.00899)).toBe('0.009')
+    expect(formatDistanceMagnitude(0.0268)).toBe('0.03')
   })
 
   it('rounds to the requested decimals, as a fill gap uses two', () => {
@@ -462,7 +484,18 @@ describe('getStopMarketServiceErrorMessage', () => {
 })
 
 describe('getStopMarketRetry', () => {
-  const open = { ...ORDER, status: StopMarketStatus.OPEN, executions: [], logs: [] }
+  const oracleAt = (tokenInPriceUsd: string) => ({
+    source: 'CHAINLINK',
+    updatedAt: 1783258149,
+    tokenInPriceUsd,
+    tokenOutPriceUsd: '1',
+    amountInUsd: '230',
+    expectedAmountOut: '230000000',
+    expectedAmountOutHuman: '230',
+    expectedAmountOutUsd: '230',
+  })
+  // The oracle at 2300 sits below the 2400 trigger.
+  const open = { ...ORDER, status: StopMarketStatus.OPEN, executions: [], logs: [], oracleEstimate: oracleAt('2300') }
   const log = (type: string, createdAt: number, detail: Record<string, string> | null = null) => ({
     id: createdAt,
     type,
@@ -528,6 +561,19 @@ describe('getStopMarketRetry', () => {
     }
     expect(getStopMarketRetry(inFlight)).toBeUndefined()
     expect(getStopMarketRetry({ ...open, status: StopMarketStatus.CANCELLED, logs: failedLog })).toBeUndefined()
+  })
+
+  it('is retrying with the oracle right at the trigger, which is where it fires', () => {
+    const failedLog = [log('LogTypePreSubmitRevert', 10, { error: 'x' })]
+    expect(getStopMarketRetry({ ...open, logs: failedLog, oracleEstimate: oracleAt('2400') })).toEqual({
+      cause: 'unknown',
+    })
+  })
+
+  it('is not retrying unless the oracle sits at or below the trigger', () => {
+    const failedLog = [log('LogTypePreSubmitRevert', 10, { error: 'x' })]
+    expect(getStopMarketRetry({ ...open, logs: failedLog, oracleEstimate: oracleAt('2500') })).toBeUndefined()
+    expect(getStopMarketRetry({ ...open, logs: failedLog, oracleEstimate: null })).toBeUndefined()
   })
 })
 
@@ -646,14 +692,28 @@ describe('getStopMarketFills', () => {
       ],
     }
     expect(getStopMarketFills(order)).toEqual([
-      { hash: '0xfill0', amountIn: 0.04, amountOut: 95.2, price: 2380 },
-      { hash: '0xfill2', amountIn: 0.06, amountOut: 144, price: 2400 },
+      { hash: '0xfill0', amountIn: 0.04, amountOut: 95.2, received: 95.2, price: 2380 },
+      { hash: '0xfill2', amountIn: 0.06, amountOut: 144, received: 144, price: 2400 },
     ])
   })
 
   it('has no fills before an execution succeeds', () => {
     expect(getStopMarketFills(ORDER)).toEqual([])
     expect(getStopMarketFills({ ...ORDER, executions: [execution(StopMarketExecutionStatus.PENDING)] })).toEqual([])
+  })
+
+  it('reads what the fill received after the fee', () => {
+    const settled = fill(0, StopMarketExecutionStatus.SUCCESS, '0.01', '7.4448', '744.46')
+    const order = {
+      ...ORDER,
+      executions: [{ ...settled, extraData: { ...settled.extraData, received: { amount: '7.2214' } } }],
+    }
+    expect(getStopMarketFills(order)[0]).toMatchObject({ amountOut: 7.4448, received: 7.2214 })
+  })
+
+  it('falls back to the amount out for a fill that does not report what it received', () => {
+    const order = { ...ORDER, executions: [fill(0, StopMarketExecutionStatus.SUCCESS, '0.1', '240', '2400')] }
+    expect(getStopMarketFills(order)[0].received).toBe(240)
   })
 
   it('leaves a price the execution does not report unset', () => {
@@ -679,6 +739,16 @@ describe('summarizeStopMarketFills', () => {
     expect(summary.amountIn).toBeCloseTo(0.1, 10)
     expect(summary.amountOut).toBeCloseTo(239.2, 10)
     expect(summary.price).toBeCloseTo(2392, 10)
+    // Neither fill reports what it received, so there is no total for it.
+    expect(summary.received).toBeUndefined()
+  })
+
+  it('totals what the fills received after the fee', () => {
+    const summary = summarizeStopMarketFills([
+      { hash: 'a', amountIn: 0.04, amountOut: 95.2, received: 92.3, price: 2380 },
+      { hash: 'b', amountIn: 0.06, amountOut: 144, received: 139.7, price: 2400 },
+    ])
+    expect(summary.received).toBeCloseTo(232, 10)
   })
 
   it("prefers the order's own amount for the total sold", () => {

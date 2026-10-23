@@ -117,6 +117,10 @@ export type StopMarketExecution = {
     error?: string
     amountIn?: StopMarketExecutionAmount
     amountOut?: StopMarketExecutionAmount
+    /** The service's fee, taken out of `amountOut`. */
+    fee?: StopMarketExecutionAmount
+    /** `amountOut` less `fee`: what the receiver actually got. */
+    received?: StopMarketExecutionAmount
     /** tokenIn priced in tokenOut at the moment of execution. */
     oraclePrice?: string
     tokensInfo?: Array<{ address: string; priceUsd: string; decimal: number }>

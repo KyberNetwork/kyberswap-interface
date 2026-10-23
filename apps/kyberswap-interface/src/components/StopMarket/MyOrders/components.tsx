@@ -517,7 +517,7 @@ export const StopMarketExecutionDetail = ({
                 </span>
                 <span>
                   <span className="text-text">{formatFillAmount(fill.amountIn)}</span> {sellSymbol} →{' '}
-                  <span className="text-text">{formatFillAmount(fill.amountOut)}</span> {receiveSymbol}
+                  <span className="text-text">{formatFillAmount(fill.received)}</span> {receiveSymbol}
                 </span>
                 <span>~{formatFillAmount(fill.price)}</span>
                 {/* Rendered even when empty, so a fill without a price keeps its link in the last column. */}

@@ -7,6 +7,7 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopMarket/constants'
+import { formatTriggerPercentValue } from 'components/StopMarket/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -31,12 +32,12 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
   const [draft, setDraft] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   // A plain numeric string: the field has to round-trip, and formatDisplayNumber blanks negatives.
-  const displayValue = isEditing ? draft : percent === undefined ? '' : percent.toFixed(1)
+  const displayValue = isEditing ? draft : percent === undefined ? '' : formatTriggerPercentValue(percent)
 
   // Seeded with what is on screen, not the raw float: a preset lands on values like -19.999999999999996,
   // and focusing the chip would otherwise swap the clean label for that.
   useEffect(() => {
-    if (!isEditing && percent !== undefined) setDraft(percent.toFixed(1))
+    if (!isEditing && percent !== undefined) setDraft(formatTriggerPercentValue(percent))
   }, [isEditing, percent])
 
   return (

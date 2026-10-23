@@ -97,10 +97,14 @@ const getRetryCause = (error: string | undefined): StopMarketRetryCause => {
  * scan, so it stays in Active Orders, but the user needs to see why it has not sold. Derived from the
  * failed attempts the order carries — most leave a log rather than an execution, since a simulation
  * that would revert sends nothing — with the cause read from the latest one. An attempt in flight is
- * Triggered, not Retrying.
+ * Triggered, not Retrying. The oracle has to sit at or below the trigger as well: once it climbs back
+ * above, a past failure says nothing about the order's state and the row goes back to its distance.
  */
 export const getStopMarketRetry = (order: StopMarket): { cause: StopMarketRetryCause } | undefined => {
   if (getStopMarketDisplayStatus(order) !== StopMarketDisplayStatus.ACTIVE) return undefined
+  const currentPrice = getStopMarketCurrentPrice(order)
+  const triggerPrice = Number(getStopMarketTriggerPrice(order))
+  if (currentPrice === undefined || !(currentPrice <= triggerPrice)) return undefined
   const attempts = [
     ...(Array.isArray(order.logs) ? order.logs : [])
       .filter(log => FAILED_ATTEMPT_LOG_TYPES.includes(log?.type))
@@ -171,18 +175,34 @@ export const getTriggerDirection = (percent?: number): TriggerDirection => {
  * UI uses for a trigger's distance to the market (list, form, confirm modal) and a fill's gap to its
  * trigger. Rounded to `fractionDigits` and always printed with them, so the list's column lines up;
  * formatDisplayNumber would drop trailing zeros and truncate rather than round. A distance too small to
- * survive that rounding keeps its first significant digit instead (0.003, 0.0₄9), so a price merely
- * close to another never reads as exactly at it.
+ * survive that rounding keeps its first significant digit instead (0.003, 0.0₄9), rounded to it before
+ * formatDisplayNumber truncates, so a price merely close to another never reads as exactly at it and a
+ * typed -0.009% that lands at -0.00899% still reads 0.009.
  */
 export const formatDistanceMagnitude = (percent: number, fractionDigits = 1) => {
   const magnitude = Math.abs(percent)
   const scale = 10 ** fractionDigits
   const rounded = Math.round(magnitude * scale) / scale
-  if (rounded === 0 && magnitude > 0) return formatDisplayNumber(magnitude, { fractionDigits: 1 })
+  if (rounded === 0 && magnitude > 0)
+    return formatDisplayNumber(Number(magnitude.toPrecision(1)), { fractionDigits: 1 })
   return rounded.toLocaleString('en-US', {
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   })
+}
+
+/**
+ * A signed percent distance as the trigger's percent field holds it: the precision formatDistanceMagnitude
+ * shows it at, so the field and the distance under it agree, but in plain decimal notation the field can
+ * parse back — no grouping, no subscript zeros.
+ */
+export const formatTriggerPercentValue = (percent: number): string => {
+  const magnitude = Math.abs(percent)
+  const sign = percent < 0 ? '-' : ''
+  const rounded = Math.round(magnitude * 10) / 10
+  if (rounded !== 0 || magnitude === 0) return `${sign}${rounded.toFixed(1)}`
+  const firstDigit = Number(magnitude.toPrecision(1))
+  return `${sign}${firstDigit.toFixed(Math.max(1, -Math.floor(Math.log10(firstDigit))))}`
 }
 
 /** Trigger price as a human decimal string, tokenOut per tokenIn. */
@@ -309,7 +329,7 @@ export const buildStopMarketPayload = ({
  */
 const resolveExecutionAmount = (
   execution: StopMarketExecution | undefined,
-  side: 'amountIn' | 'amountOut',
+  side: 'amountIn' | 'amountOut' | 'received',
 ): number | undefined => {
   const value = execution?.extraData?.[side]?.amount
   if (!value || !/^\d+(\.\d+)?$/.test(value)) return undefined
@@ -321,6 +341,10 @@ const resolveExecutionAmount = (
 export const resolveExecutionAmountOut = (execution: StopMarketExecution | undefined) =>
   resolveExecutionAmount(execution, 'amountOut')
 
+/** What one execution paid out after the service's fee, in tokenOut's human units. */
+export const resolveExecutionReceived = (execution: StopMarketExecution | undefined) =>
+  resolveExecutionAmount(execution, 'received')
+
 /** What one execution sold, in tokenIn's human units. */
 export const resolveExecutionAmountIn = (execution: StopMarketExecution | undefined) =>
   resolveExecutionAmount(execution, 'amountIn')
@@ -330,6 +354,11 @@ export type StopMarketFill = {
   hash: string
   amountIn?: number
   amountOut?: number
+  /**
+   * `amountOut` net of the service's fee: what reached the receiver. An execution that does not report
+   * it falls back to `amountOut`.
+   */
+  received?: number
   /** tokenIn priced in tokenOut by the oracle when this fill settled. */
   price?: number
   /** Unix seconds: when the fill's transaction was submitted. */
@@ -350,12 +379,13 @@ export const getStopMarketFills = (order: StopMarket): StopMarketFill[] =>
         hash: execution.hash,
         amountIn: resolveExecutionAmountIn(execution),
         amountOut: resolveExecutionAmountOut(execution),
+        received: resolveExecutionReceived(execution) ?? resolveExecutionAmountOut(execution),
         price: Number.isFinite(price) && price > 0 ? price : undefined,
         createdAt: execution.createdAt,
       }
     })
 
-export type StopMarketFillSummary = { amountIn?: number; amountOut?: number; price?: number }
+export type StopMarketFillSummary = { amountIn?: number; amountOut?: number; received?: number; price?: number }
 
 /**
  * The least an order pays out when it fills: what it sells is worth `estimatedOutput` at the trigger,
@@ -395,6 +425,7 @@ export const summarizeStopMarketFills = (fills: StopMarketFill[], orderAmountIn?
 
   const amountIn = orderAmountIn ?? sumIfComplete(fills.map(fill => fill.amountIn))
   const amountOut = sumIfComplete(fills.map(fill => fill.amountOut))
+  const received = sumIfComplete(fills.map(fill => fill.received))
 
   let price: number | undefined
   if (fills.every(fill => fill.price !== undefined)) {
@@ -406,7 +437,7 @@ export const summarizeStopMarketFills = (fills: StopMarketFill[], orderAmountIn?
         : fills.reduce((total, fill) => total + (fill.price ?? 0), 0) / fills.length
   }
 
-  return { amountIn, amountOut, price }
+  return { amountIn, amountOut, received, price }
 }
 
 const MAX_UINT256 = 2n ** 256n - 1n

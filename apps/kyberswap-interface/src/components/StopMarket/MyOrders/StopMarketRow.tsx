@@ -113,7 +113,7 @@ const StopMarketRow = ({
     isExecuted ? Number(sellCurrencyAmount.toExact()) : undefined,
   )
   const executionPrice = fillSummary.price
-  const receivedAmount = fillSummary.amountOut
+  const receivedAmount = fillSummary.received
 
   const txHash = getStopMarketExecutionTxHash(order)
   const showTxLink = isExecuted && !!txHash
