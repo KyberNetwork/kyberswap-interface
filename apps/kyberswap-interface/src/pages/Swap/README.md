@@ -36,6 +36,14 @@ composition and navigation; it consumes those form components.
 
 See `SwapPage.tsx` and `SwapPageContent.tsx` for the current integration.
 
+## Remaining scope
+
+- [ ] View transaction details from History using available transaction/provider data.
+- [ ] Include single-chain swap transactions in History alongside cross-chain transactions.
+
+These are the remaining feature TODOs as agreed on 2026-10-23. Single-chain
+history is deferred; the panel currently reads only cross-chain transactions.
+
 ## Working on this module
 
 - Put form behavior in `components/SwapForm`; keep page layout, navigation,

@@ -55,7 +55,7 @@ const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <Stack className="min-w-0 rounded-xl bg-background shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
-      <HStack as="header" className="flex-wrap items-center gap-4 px-4 pb-2 pt-3 max-sm:gap-2 max-sm:px-3">
+      <HStack as="header" className="flex-wrap items-center gap-4 px-4 py-2 max-sm:gap-2 max-sm:px-3">
         <HStack className="shrink-0 items-center gap-1">
           <IconButton aria-label={t`Back to chart and route`} onClick={onBack}>
             <ChevronLeft size={26} className="text-subText" aria-hidden />
@@ -78,7 +78,7 @@ const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
           )}
         </HStack>
       </HStack>
-      <div className="min-w-0 px-4 pb-4 pt-1 max-sm:px-3 max-sm:pb-3">
+      <div className="min-w-0 px-4 pb-4 pt-0 max-sm:px-3 max-sm:pb-3">
         <div className="min-w-0 overflow-x-auto">
           <div className="min-w-[800px] max-sm:min-w-0">
             <TransactionHistoryList
