@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { useGetTipLinkQuery } from 'services/tipLink'
 
+import SingleChainSwap, { SingleChainSwapProps } from 'components/SwapForm/SingleChain/SingleChainSwap'
 import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, PRICE_CHART_QUOTES } from 'constants/tokens'
@@ -12,9 +13,8 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PartnerSwapLayout } from 'pages/PartnerSwap/PartnerSwapLayout'
-import SingleChainSwap, { SingleChainSwapProps } from 'pages/Swap/components/SingleChainSwap'
+import { TAB, isSettingTab } from 'pages/Swap/Layout/Tabs'
 import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
-import { TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
 import Updater from 'state/customizeDexes/updater'
 import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
@@ -25,13 +25,13 @@ import { useTradeComposition } from 'utils/aggregationRouting'
 
 const LimitOrderForm = lazy(() => import('components/LimitOrder/Form/LimitOrderForm'))
 const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
-const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/LiquiditySourcesPanel'))
-const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
+const LiquiditySourcesPanel = lazy(() => import('components/SwapForm/Settings/LiquiditySourcesPanel'))
+const SwapSettingsPanel = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel'))
 const TokenInfo = lazy(() => import('components/TokenInfo'))
 const CrossChainSwap = lazy(() => import('pages/CrossChainSwap'))
-const CrossChainSwapSources = lazy(() => import('pages/Swap/components/crossChain/CrossChainSwapSources'))
-const TransactionHistory = lazy(() => import('pages/Swap/components/crossChain/TransactionHistory'))
-const SwapTradeRoute = lazy(() => import('pages/Swap/components/SwapTradeRoute'))
+const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
+const TransactionHistory = lazy(() => import('pages/CrossChainSwap/components/TransactionHistory'))
+const SingleChainTradeRoute = lazy(() => import('pages/Swap/components/SingleChainTradeRoute'))
 const TokenPriceChart = lazy(() => import('components/TokenPriceChart'))
 
 const getSupportedChainId = (chainId?: string | null) => {
@@ -255,7 +255,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
       <>
         {isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
         {isShowTradeRoutes && (
-          <SwapTradeRoute
+          <SingleChainTradeRoute
             tradeComposition={tradeRouteComposition}
             currencyIn={currencyIn}
             currencyOut={currencyOut}
@@ -304,7 +304,9 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
         )}
         {activeTab === TAB.LIMIT && <LimitOrderForm currencyIn={currencyIn} currencyOut={currencyOut} />}
         {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
-        {activeTab === TAB.CROSS_CHAIN_SOURCES && <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />}
+        {activeTab === TAB.CROSS_CHAIN_SOURCES && (
+          <CrossChainSwapSources quoteMode="stream" onBack={() => setActiveTab(TAB.SETTINGS)} />
+        )}
       </PartnerSwapLayout>
 
       <Updater customChainId={swapChainId} />

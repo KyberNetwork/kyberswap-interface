@@ -3,9 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import CheckBox from 'components/CheckBox'
 import { HStack, Stack } from 'components/Stack'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
-import { SearchBar } from 'pages/Swap/components/LiquiditySourcesPanel/SearchBar'
+import { SearchBar } from 'components/SwapForm/Settings/LiquiditySourcesPanel/SearchBar'
 import {
   BackIconWrapper,
   ImageWrapper,
@@ -13,7 +11,9 @@ import {
   Source,
   SourceList,
   SourceName,
-} from 'pages/Swap/components/LiquiditySourcesPanel/components'
+} from 'components/SwapForm/Settings/LiquiditySourcesPanel/components'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type CrossChainQuoteMode, updateExcludedSources, useCrossChainQuoteMode } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 

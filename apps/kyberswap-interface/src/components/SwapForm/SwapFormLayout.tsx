@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 
 import { Center, Stack } from 'components/Stack'
-import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
+import ReverseTokenSelectionButton from 'components/SwapForm/CurrencyInput/ReverseTokenSelectionButton'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { cn } from 'utils/cn'
 

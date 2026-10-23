@@ -11,7 +11,6 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Clock } from 'components/Icons'
 import { NetworkLogo } from 'components/Logo'
 import Row, { RowBetween } from 'components/Row'
-import RefreshButton from 'components/SwapForm/RefreshButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TradePrice from 'components/TradePrice'
 import { PRICE_ALERT_TOPIC_ID } from 'constants/env'
@@ -22,6 +21,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import InputNote from 'pages/NotificationCenter/CreateAlert/InputNote'
+import RefreshButton from 'pages/NotificationCenter/CreateAlert/RefreshButton'
 import {
   ActionGroup,
   ButtonSubmit,
