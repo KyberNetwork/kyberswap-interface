@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import NumericalInput from 'components/NumericalInput'
-import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
+import { DropdownIcon } from 'components/SwapForm/Settings/SlippageSetting'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { GAS_MULTIPLIER_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
