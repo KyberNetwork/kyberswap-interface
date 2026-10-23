@@ -2,7 +2,38 @@ import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing_icon.svg'
+import Skeleton from 'components/Skeleton'
+import { HStack, Stack } from 'components/Stack'
+import { HopCard, PoolList } from 'components/TradeRouting/styled'
 import { cn } from 'utils/cn'
+
+export const TradeRouteSkeleton = ({ crossChain = false }: { crossChain?: boolean }) => {
+  return (
+    <Stack className="gap-10 py-3">
+      <HStack className="items-center justify-between gap-4">
+        <Skeleton height={24} variant="darkSubtle" width={108} />
+        <Skeleton height={24} variant="darkSubtle" width={108} />
+      </HStack>
+
+      <HStack className="justify-evenly gap-3 overflow-x-auto">
+        {[0, 1].map(index => (
+          <HopCard key={index} className={cn('flex flex-col gap-1', crossChain && 'min-w-[220px] basis-[220px]')}>
+            <HStack className={cn('h-6 items-start gap-1.5 pb-2', crossChain && 'h-4 items-center pb-0')}>
+              <Skeleton height={16} variant="darkSubtle" width={16} />
+              <Skeleton height={12} variant="darkSubtle" width={crossChain ? 140 : 88} />
+            </HStack>
+            <PoolList className="mt-0">
+              <HStack className="h-5 items-center gap-1">
+                <Skeleton height={14} variant="darkSubtle" width={14} />
+                <Skeleton height={10} variant="darkSubtle" width={72} />
+              </HStack>
+            </PoolList>
+          </HopCard>
+        ))}
+      </HStack>
+    </Stack>
+  )
+}
 
 /** Shared route shell; owns expansion and optional scrolling, not route data.
  * Changes to defaultCollapsed reset expansion when the surrounding layout changes. */

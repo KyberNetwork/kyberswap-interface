@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
 
 import { cn } from 'utils/cn'
@@ -179,3 +180,21 @@ export const ArrowHead = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElemen
   />
 ))
 ArrowHead.displayName = 'ArrowHead'
+
+export const EmptyRoute = ({ message = t`No route found` }: { message?: string }) => (
+  <RouteList>
+    <RouteDot />
+    <RouteDot out />
+    <RouteRow className="gap-6 py-2.5 pl-6">
+      <RouteConnector />
+      <HopList className="relative flex-1 justify-evenly gap-3">
+        <div className="relative flex items-center gap-2 rounded-lg border border-darkBorder bg-buttonBlack px-3 py-2 text-sm font-medium italic text-text3">
+          {message}
+        </div>
+      </HopList>
+      <RouteArrow>
+        <ArrowHead />
+      </RouteArrow>
+    </RouteRow>
+  </RouteList>
+)

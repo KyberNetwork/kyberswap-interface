@@ -3,7 +3,7 @@ import { ButtonHTMLAttributes } from 'react'
 import { Calendar, ChevronDown } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
-import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
+import { DropdownIcon } from 'components/SwapForm/Settings/SlippageSetting'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TIMES_IN_SECS } from 'constants/index'

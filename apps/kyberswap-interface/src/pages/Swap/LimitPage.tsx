@@ -1,13 +1,13 @@
 import { lazy } from 'react'
 
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
+import { SwapLayout } from 'pages/Swap/Layout/SwapLayout'
+import { TAB } from 'pages/Swap/Layout/Tabs'
 import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
-import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
-import { TAB } from 'pages/Swap/layout/Tabs'
 
 const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
-const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
+const SwapSettingsPanel = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel'))
 const TokenInfo = lazy(() => import('components/TokenInfo'))
 
 const LimitPage = () => {

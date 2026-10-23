@@ -1,4 +1,5 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import React, { memo, useCallback, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
@@ -13,6 +14,7 @@ import {
 } from 'components/TradeRouting/helpers'
 import {
   ArrowHead,
+  EmptyRoute,
   HopCard,
   HopList,
   PairRow,
@@ -37,6 +39,7 @@ import { useAllDexes } from 'state/customizeDexes/hooks'
 import { isAddress } from 'utils/address'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
 import { getEtherscanLink } from 'utils/explorer'
+import { hasNativeErc20Interface } from 'utils/nativeErc20'
 
 interface HopRowProps {
   route: SwapRouteV2
@@ -166,6 +169,10 @@ const Routing = ({
     return null
   }
 
+  const wrappedNative = hasNativeErc20Interface(chainId) ? undefined : WETH[chainId]
+  const isWrap = Boolean(currencyIn?.isNative && currencyOut && wrappedNative?.equals(currencyOut))
+  const isUnwrap = Boolean(currencyOut?.isNative && currencyIn && wrappedNative?.equals(currencyIn))
+
   const availabeRoute = chainId && tradeComposition && tradeComposition.length > 0
 
   const handleScroll = useCallback(() => {
@@ -195,7 +202,9 @@ const Routing = ({
             <PairTokenSlot>{renderTokenInfo(currencyOut, outputAmount, true)}</PairTokenSlot>
           </PairRow>
 
-          {!!availabeRoute && (
+          {!availabeRoute ? (
+            <EmptyRoute message={isWrap ? t`Wrapping` : isUnwrap ? t`Unwrapping` : undefined} />
+          ) : (
             <>
               <RouteList>
                 {!isSwapRouteV3 && (
@@ -243,7 +252,7 @@ const HopTokenLink = ({ token }: { token: Token }) => {
       target="_blank"
     >
       <CurrencyLogo currency={currency} size="16px" />
-      <span>{currency?.symbol}</span>
+      <span className="font-medium">{currency?.symbol}</span>
     </TokenLink>
   )
 }
