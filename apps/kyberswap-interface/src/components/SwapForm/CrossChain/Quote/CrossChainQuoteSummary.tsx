@@ -40,6 +40,7 @@ export const CrossChainQuoteSummaryRows = ({
   loading = false,
 }: CrossChainQuoteSummaryProps) => {
   const currencyIn = quote?.quote.quoteParams.fromToken
+  const initialLoading = loading && !quote
 
   const theme = useTheme()
   const minimumReceived = quote && tokenOut ? formatUnits(getMinimumOutputAmount(quote.quote), tokenOut.decimals) : '--'
@@ -53,7 +54,7 @@ export const CrossChainQuoteSummaryRows = ({
       )}
 
       <QuoteDetailRow
-        loading={loading}
+        loading={initialLoading}
         label={t`Minimum Received`}
         tooltip={t`You will receive at least this amount or your transaction will revert.`}
       >
@@ -62,7 +63,7 @@ export const CrossChainQuoteSummaryRows = ({
           : '--'}
       </QuoteDetailRow>
       <QuoteDetailRow
-        loading={loading}
+        loading={initialLoading}
         label={t`Estimated Processing Time`}
         tooltip={t`Estimated processing time for your transaction.`}
       >
@@ -70,7 +71,7 @@ export const CrossChainQuoteSummaryRows = ({
       </QuoteDetailRow>
 
       <QuoteDetailRow
-        loading={loading}
+        loading={initialLoading}
         label={t`Price Impact`}
         tooltip={t`Estimated change in price due to the size of your transaction.`}
       >
@@ -93,7 +94,7 @@ export const CrossChainQuoteSummaryRows = ({
 
       {quote && (quote.quote.additionalFeeUsd ?? 0) > 0 && (
         <QuoteDetailRow
-          loading={loading}
+          loading={initialLoading}
           label={t`Additional Fee`}
           tooltip={<Trans>Additional fee charged by {quote.adapter.getName()}</Trans>}
         >
@@ -102,7 +103,7 @@ export const CrossChainQuoteSummaryRows = ({
       )}
 
       <QuoteDetailRow
-        loading={loading}
+        loading={initialLoading}
         label={t`Platform Fee`}
         tooltip={
           <span>

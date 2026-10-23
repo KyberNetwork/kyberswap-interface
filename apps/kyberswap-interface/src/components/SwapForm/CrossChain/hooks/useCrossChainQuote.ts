@@ -265,6 +265,7 @@ export const useCrossChainQuote = ({ pair, amount, sender, receiver, isReadOnly 
       countdown,
       refreshTime: REFRESH_SECONDS,
       disableRefresh: disable || showPreview || isAmountPending,
+      isRefreshing: loading || allLoading,
       onRefresh,
     },
   }

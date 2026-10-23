@@ -47,7 +47,7 @@ export const SwapRate = ({
           <Trans>Rate</Trans>
         </span>
         <HStack className="min-w-0 items-center gap-1 font-medium text-text">
-          {loading ? (
+          {loading && !hasValue ? (
             <Skeleton width={100} height={14} />
           ) : hasValue && baseChain && quoteChain ? (
             <>
