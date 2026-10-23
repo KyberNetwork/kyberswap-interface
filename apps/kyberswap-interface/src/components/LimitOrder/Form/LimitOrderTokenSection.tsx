@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import CurrencyInputPanel, { AmountShortcut, CurrencyInputPanelFooter } from 'components/CurrencyInputPanel'
 
 const Label = ({ children }: { children: ReactNode }) => (
   <div className="text-xs font-medium text-subText">{children}</div>
@@ -13,6 +13,14 @@ export type LimitOrderTokenPanelProps = {
   tokens?: TokenSectionTokens
   estimateUsd?: TokenSectionEstimateUsd
   events?: TokenSectionEvents
+  /** Rendered inside the panel, under the amount row — for a note about the token chosen here. */
+  footer?: CurrencyInputPanelFooter
+  /** Extra classes for the token button, e.g. to flag a token that cannot be used here. */
+  selectClassName?: string
+  /** The token selector lists only tokens the chain's stop market order oracle can price. */
+  requireOracle?: boolean
+  /** Quick amounts in place of Max and Half. */
+  amountShortcuts?: AmountShortcut[]
 }
 
 type TokenSectionTokens = {
@@ -45,16 +53,24 @@ export const LimitOrderInputTokenPanel = ({
   tokens = {},
   estimateUsd = DEFAULT_ESTIMATE_USD,
   events = {},
+  footer,
+  selectClassName,
+  requireOracle,
+  amountShortcuts,
 }: LimitOrderTokenPanelProps) => {
   const { currencyIn, currencyOut, inputAmount = '' } = tokens
 
   return (
     <CurrencyInputPanel
+      footer={footer}
+      selectClassName={selectClassName}
+      requireOracle={requireOracle}
       value={inputAmount}
       positionMax="top"
       onUserInput={events.onInputAmountChange}
       onMax={events.onMaxInput}
       onHalf={events.onHalfInput}
+      amountShortcuts={amountShortcuts}
       otherCurrency={currencyOut}
       estimatedUsd={estimateUsd.input}
       onFocus={events.onInputFocus}
@@ -64,7 +80,6 @@ export const LimitOrderInputTokenPanel = ({
       id="create-limit-order-input-tokena"
       dataTestId="limit-order-input-tokena"
       maxCurrencySymbolLength={6}
-      filterWrap
       onClickSelect={events.onTokenSelectorOpen}
       label={
         <Label>
@@ -101,7 +116,6 @@ export const LimitOrderOutputTokenPanel = ({
       positionMax="top"
       showPinnedTokens
       maxCurrencySymbolLength={6}
-      filterWrap
       onClickSelect={events.onTokenSelectorOpen}
       label={
         <Label>

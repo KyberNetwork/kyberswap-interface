@@ -131,8 +131,29 @@ const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HT
   />
 )
 
+/** A quick amount offered above the input, e.g. a share of the balance. */
+export type AmountShortcut = { label: ReactNode; onClick: () => void; active?: boolean; dataTestId?: string }
+
+/** Quick amounts in the Max chip's style, the one matching the amount entered ringed. */
+export const AmountShortcutChips = ({ shortcuts }: { shortcuts: AmountShortcut[] }) => (
+  <>
+    {shortcuts.map((shortcut, index) => (
+      <StyledBalanceMax
+        key={index}
+        onClick={shortcut.onClick}
+        data-testid={shortcut.dataTestId}
+        aria-pressed={shortcut.active}
+        className={cn(shortcut.active && 'text-text ring-1 ring-subText/60')}
+      >
+        {shortcut.label}
+      </StyledBalanceMax>
+    ))}
+  </>
+)
+
 type BalanceRowProps = {
   account?: string | null
+  amountShortcuts?: AmountShortcut[]
   currency?: Currency | null
   customBalanceText?: string
   label?: ReactNode
@@ -145,6 +166,7 @@ type BalanceRowProps = {
 
 const BalanceRow = ({
   account,
+  amountShortcuts,
   currency,
   customBalanceText,
   label,
@@ -154,7 +176,7 @@ const BalanceRow = ({
   positionMax,
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
-  const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
+  const showTopActions = (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && currency && account
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   return (
@@ -162,12 +184,14 @@ const BalanceRow = ({
       {(label && positionLabel === 'in') || showTopActions ? (
         <div className="flex items-center gap-1">
           {label && positionLabel === 'in' && label}
-          {showTopActions && onMax && (
+          {/* Shortcuts, when given, stand in for Max and Half. */}
+          {showTopActions && !!amountShortcuts?.length && <AmountShortcutChips shortcuts={amountShortcuts} />}
+          {showTopActions && !amountShortcuts?.length && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
             </StyledBalanceMax>
           )}
-          {showTopActions && onHalf && (
+          {showTopActions && !amountShortcuts?.length && onHalf && (
             <StyledBalanceMax onClick={onHalf}>
               <Trans>Half</Trans>
             </StyledBalanceMax>
@@ -191,6 +215,7 @@ type AmountInputControlsProps = {
   account?: string | null
   currency?: Currency | null
   disabledInput?: boolean
+  readOnlyInput?: boolean
   error?: boolean
   estimatedUsd?: string
   lockIcon?: boolean
@@ -206,6 +231,7 @@ const AmountInputControls = ({
   account,
   currency,
   disabledInput,
+  readOnlyInput,
   error,
   estimatedUsd,
   lockIcon,
@@ -226,6 +252,7 @@ const AmountInputControls = ({
         data-testid="token-amount-input"
         value={value}
         disabled={disabledInput}
+        readOnly={readOnlyInput}
         maxLength={maxLength}
         onUserInput={onUserInput}
         onFocus={onFocus}
@@ -312,15 +339,24 @@ const PoolLockContent = (
   </div>
 )
 
+export type CurrencyInputPanelFooter = ReactNode | ((openTokenSelector: () => void) => ReactNode)
+
 interface CurrencyInputPanelProps {
   value: string
   onMax?: () => void
   onHalf?: () => void
+  /** Quick amounts shown above the input in place of Max and Half; needs `positionMax="top"`. */
+  amountShortcuts?: AmountShortcut[]
   onUserInput?: (value: string) => void
   onFocus?: () => void
   onClickSelect?: () => void
   positionMax?: 'inline' | 'top'
   label?: ReactNode
+  /**
+   * Rendered inside the panel, under the amount row — for a note that belongs to this field. As a
+   * function it is handed a callback that opens this panel's token selector, for a note that offers one.
+   */
+  footer?: CurrencyInputPanelFooter
   positionLabel?: 'in' | 'out'
   onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
@@ -329,6 +365,8 @@ interface CurrencyInputPanelProps {
   hideBalance?: boolean
   hideInput?: boolean
   disabledInput?: boolean
+  /** Shows a computed figure at full contrast: not editable, without the dimmed disabled look. */
+  readOnlyInput?: boolean
   otherCurrency?: Currency | null
   id: string
   dataTestId?: string
@@ -345,7 +383,6 @@ interface CurrencyInputPanelProps {
   error?: boolean
   maxLength?: number
   outline?: boolean
-  filterWrap?: boolean
   loadingText?: string
   lockIcon?: boolean
   tight?: boolean
@@ -355,6 +392,8 @@ interface CurrencyInputPanelProps {
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
+  /** The token selector lists only tokens the chain's stop market order oracle can price. */
+  requireOracle?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -363,8 +402,10 @@ export default function CurrencyInputPanel({
   onUserInput,
   onMax,
   onHalf,
+  amountShortcuts,
   positionMax = 'inline',
   label = '',
+  footer,
   positionLabel = 'out',
   onCurrencySelect,
   onSwitchCurrency,
@@ -375,6 +416,7 @@ export default function CurrencyInputPanel({
   hideBalance = false,
   hideInput = false,
   disabledInput = false,
+  readOnlyInput = false,
   otherCurrency,
   id,
   dataTestId,
@@ -390,7 +432,6 @@ export default function CurrencyInputPanel({
   maxCurrencySymbolLength,
   maxLength,
   outline,
-  filterWrap,
   lockIcon = false, // lock when need approve
   tight: tightProp,
   loadingText,
@@ -399,6 +440,7 @@ export default function CurrencyInputPanel({
   customChainId,
   trackingSource,
   scaleERC8056Balances,
+  requireOracle,
 }: CurrencyInputPanelProps) {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
@@ -426,6 +468,7 @@ export default function CurrencyInputPanel({
           {!hideBalance && (
             <BalanceRow
               account={account}
+              amountShortcuts={amountShortcuts}
               currency={currency}
               customBalanceText={customBalanceText}
               label={label}
@@ -443,6 +486,7 @@ export default function CurrencyInputPanel({
                 account={account}
                 currency={currency}
                 disabledInput={disabledInput}
+                readOnlyInput={readOnlyInput}
                 error={error}
                 estimatedUsd={estimatedUsd}
                 lockIcon={lockIcon}
@@ -491,6 +535,8 @@ export default function CurrencyInputPanel({
               </CurrencySelect>
             )}
           </InputRow>
+
+          {typeof footer === 'function' ? footer(() => setModalOpen(true)) : footer}
         </Container>
         {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
           <TokenSelectorModal
@@ -501,9 +547,9 @@ export default function CurrencyInputPanel({
             otherSelectedCurrency={otherCurrency}
             scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
-            filterWrap={filterWrap}
             customChainId={customChainId}
             trackingSource={trackingSource}
+            requireOracle={requireOracle}
           />
         )}
       </InputPanel>

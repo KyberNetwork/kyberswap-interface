@@ -26,7 +26,6 @@ interface TokenSelectorModalProps {
   /** Show the selected tokens' ERC-8056 balances in display units; only for forms whose own balance labels do the same. */
   scaleERC8056Balances?: boolean
   showPinnedTokens?: boolean
-  filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
   onCurrencyImport?: (token: Token) => void
@@ -36,6 +35,8 @@ interface TokenSelectorModalProps {
   showDiscoveryTabs?: boolean
   /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
   onSelectChain?: (chainId: ChainId) => void
+  /** List only tokens the chain's stop market order oracle can price. */
+  requireOracle?: boolean
 }
 
 enum TokenSelectorModalView {
@@ -51,7 +52,6 @@ const TokenSelectorModal = ({
   otherSelectedCurrency,
   scaleERC8056Balances,
   showPinnedTokens,
-  filterWrap,
   title,
   tooltip,
   onCurrencyImport,
@@ -59,6 +59,7 @@ const TokenSelectorModal = ({
   trackingSource,
   showDiscoveryTabs,
   onSelectChain,
+  requireOracle,
 }: TokenSelectorModalProps) => {
   const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
   // A cross-chain token confirmed from the import flow, pending its Switch-Chain confirm.
@@ -172,7 +173,6 @@ const TokenSelectorModal = ({
             scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
             onImportToken={onImportToken}
-            filterWrap={filterWrap}
             title={title}
             tooltip={tooltip}
             customChainId={customChainId}
@@ -180,6 +180,7 @@ const TokenSelectorModal = ({
             onShowTokenInfo={setTokenToShowInfo}
             showDiscoveryTabs={showDiscoveryTabs}
             onSelectChain={onSelectChain}
+            requireOracle={requireOracle}
           />
         </div>
         {modalView === TokenSelectorModalView.importToken && importToken && !tokenToShowInfo ? (

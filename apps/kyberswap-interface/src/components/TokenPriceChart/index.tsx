@@ -2,30 +2,33 @@ import { ChainId, type Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import { ReactNode, Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
-import {
+import tokenChartApi, {
   TOKEN_CHART_CANDLE_INTERVAL_MS,
   type TokenChartCandle,
   type TokenChartQueryParams,
   type TokenChartTimeFrame,
   getTokenChartFromBucketMs,
-  useLazyTokenPriceChartQuery,
   useTokenPriceChartQuery,
 } from 'services/tokenChart'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import type { PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { useStableCoins } from 'hooks/useTokens'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import { useAppDispatch } from 'state/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import type { DisplayCandle } from './TokenPriceChartCanvas'
 
@@ -58,9 +61,17 @@ const countRecentTransactions = (candles: TokenChartCandle[], count: number) => 
 type TokenPriceChartProps = {
   tokens?: Array<Currency | undefined>
   flatten?: boolean
+  /** Prices the tokens in this currency instead of the chain's USD stablecoin. */
+  quoteCurrency?: Currency
+  markerOverlay?: PriceMarkerOverlay
+  /**
+   * Takes the place of the token tabs at the head of the card, for a caller that picks the chart itself.
+   * Handed `expand`, which the tabs call on a tap: the chart starts collapsed on a phone.
+   */
+  header?: (controls: { expand: () => void }) => ReactNode
 }
 
-const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
+const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header }: TokenPriceChartProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -68,18 +79,16 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const chainId = tokens?.find(Boolean)?.chainId || ChainId.MAINNET
   const { isStableCoin } = useStableCoins(chainId)
 
+  const stableToken = PRICE_CHART_QUOTES[chainId]
+  const quoteToken = quoteCurrency ?? stableToken
+  const quoteKey = quoteToken ? getCurrencyKey(quoteToken) : ''
+
   const filteredTokens = useMemo(() => {
     return (tokens ?? []).reduce<Currency[]>((result, token) => {
-      if (!token) return result
-
-      const currencyKey = getCurrencyKey(token)
-      const quoteStableToken = PRICE_CHART_QUOTES[token.chainId]
-      const quoteStableTokenKey = quoteStableToken ? getCurrencyKey(quoteStableToken) : ''
-      if (currencyKey === quoteStableTokenKey) return result
-
+      if (!token || getCurrencyKey(token) === quoteKey) return result
       return result.concat(token)
     }, [])
-  }, [tokens])
+  }, [tokens, quoteKey])
 
   const defaultActiveTabIndex = Math.max(
     filteredTokens.findIndex(token => !token.isNative && !isStableCoin(token.wrapped.address)),
@@ -90,15 +99,32 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1d')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [isExpanded, setIsExpanded] = useState(!upToSmall)
+  // By marker group, as the canvas last counted them outside the visible price range.
+  const [offscreenCounts, setOffscreenCounts] = useState<Record<string, number>>({})
 
   const resolvedActiveTabIndex = activeTabIndex < filteredTokens.length ? activeTabIndex : 0
   const activeToken = filteredTokens[resolvedActiveTabIndex] ?? filteredTokens[0]
   const activeTokenAddress = activeToken?.wrapped.address.toLowerCase()
 
-  const stableToken = PRICE_CHART_QUOTES[chainId]
   const stableAddress = stableToken?.wrapped.address.toLowerCase()
+  const quoteAddress = quoteToken?.wrapped.address.toLowerCase()
   const fromBucketMs = useMemo(() => getTokenChartFromBucketMs({ timeFrame }), [timeFrame])
-  const chartRequestKey = `${chainId}:${activeTokenAddress}:${stableAddress}:${timeFrame}`
+  const chartRequestKey = `${chainId}:${activeTokenAddress}:${quoteAddress}:${timeFrame}`
+
+  // Only the chain's USD chart quote reads as dollars. The stablecoin list is not USD-only (EURC), so
+  // every other quote carries its own symbol.
+  const isUsdQuote = !quoteToken || (!!stableToken && quoteKey === getCurrencyKey(stableToken))
+  const quoteSymbol = quoteToken?.symbol
+  const formatValue = useMemo(
+    () =>
+      isUsdQuote
+        ? formatPrice
+        : (value?: number) =>
+            value === undefined || !Number.isFinite(value)
+              ? '--'
+              : `${formatDisplayNumber(value, { significantDigits: 6 })} ${quoteSymbol ?? ''}`.trim(),
+    [isUsdQuote, quoteSymbol],
+  )
 
   useEffect(() => {
     setActiveTabIndex(defaultActiveTabIndex)
@@ -108,13 +134,13 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
     setIsExpanded(!upToSmall)
   }, [upToSmall])
 
-  const [fetchTokenChart] = useLazyTokenPriceChartQuery()
+  const dispatch = useAppDispatch()
 
   const initialQueryParams: TokenChartQueryParams = {
     chainId,
     tokenAddress: activeTokenAddress as string,
     stableAddress,
-    quoteAddress: stableAddress,
+    quoteAddress,
     timeFrame,
     fromBucketMs,
   }
@@ -128,9 +154,14 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
     isLoading,
   } = useInfiniteQuery({
     queryKey: ['token-price-chart', chartRequestKey, fromBucketMs],
-    enabled: Boolean(activeTokenAddress && stableAddress),
+    enabled: Boolean(activeTokenAddress && stableAddress && quoteAddress),
     initialPageParam: initialQueryParams,
-    queryFn: async ({ pageParam }) => fetchTokenChart(pageParam).unwrap(),
+    // React Query owns these pages, so the request carries no RTK subscription. One tied to this
+    // component is dropped when it remounts mid-fetch, and RTK then aborts the request it is waiting on.
+    queryFn: async ({ pageParam }) =>
+      dispatch(
+        tokenChartApi.endpoints.tokenPriceChart.initiate(pageParam, { subscribe: false, forceRefetch: true }),
+      ).unwrap(),
     getNextPageParam: lastPage => {
       if (!lastPage?.candles.length) return undefined
 
@@ -153,7 +184,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
       timeFrame: '1h',
       fromBucketMs: getTokenChartFromBucketMs({ timeFrame: '1h' }),
     },
-    { skip: !activeTokenAddress || !stableAddress },
+    { skip: !activeTokenAddress || !stableAddress || !quoteAddress },
   )
 
   const handleLoadMore = async () => {
@@ -186,7 +217,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const shouldHideChartForNoActivity = shouldUseActivityState && countRecentTransactions(activityCandles, 24 * 7) < 1
   const shouldShowLowActivityWarning = shouldUseActivityState && countRecentTransactions(activityCandles, 24) < 5
 
-  if (!activeToken || !stableToken) return null
+  if (!activeToken || !stableToken || !quoteToken) return null
 
   const settlementPriceTooltip = (
     <Stack className="items-start gap-1">
@@ -206,41 +237,45 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   return (
     <Stack className={cn('gap-0 overflow-hidden rounded-xl', flatten ? 'border-0' : 'border border-darkBorder')}>
       <HStack className="items-center gap-3 pr-4">
-        <div role="tablist" className="flex min-w-0 flex-1 items-center overflow-x-auto">
-          {filteredTokens.map((token, index) => {
-            const isActive = index === resolvedActiveTabIndex
-            const isLast = index === filteredTokens.length - 1
-            return (
-              <button
-                type="button"
-                key={getCurrencyKey(token)}
-                onClick={() => {
-                  setActiveTabIndex(index)
-                  setIsExpanded(true)
-                }}
-                className={cn(
-                  'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
-                  !isLast && 'border-r border-darkBorder',
-                  isActive
-                    ? cn(
-                        'text-primary hover:text-primary',
-                        !flatten && 'shadow-[inset_0_-2px_0_var(--ks-primary)]',
-                        flatten ? 'bg-transparent hover:bg-transparent' : 'bg-primary/15 hover:bg-primary/15',
-                      )
-                    : cn(
-                        'bg-transparent text-subText hover:text-text',
-                        flatten ? 'hover:bg-transparent' : 'hover:bg-tableHeader',
-                      ),
-                )}
-              >
-                <CurrencyLogo currency={token} size="20px" />
-                <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
-                  {token.symbol}/{stableToken?.symbol}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+        {header ? (
+          header({ expand: () => setIsExpanded(true) })
+        ) : (
+          <div role="tablist" className="flex min-w-0 flex-1 items-center overflow-x-auto">
+            {filteredTokens.map((token, index) => {
+              const isActive = index === resolvedActiveTabIndex
+              const isLast = index === filteredTokens.length - 1
+              return (
+                <button
+                  type="button"
+                  key={getCurrencyKey(token)}
+                  onClick={() => {
+                    setActiveTabIndex(index)
+                    setIsExpanded(true)
+                  }}
+                  className={cn(
+                    'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
+                    !isLast && 'border-r border-darkBorder',
+                    isActive
+                      ? cn(
+                          'text-primary hover:text-primary',
+                          !flatten && 'shadow-[inset_0_-2px_0_var(--ks-primary)]',
+                          flatten ? 'bg-transparent hover:bg-transparent' : 'bg-primary/15 hover:bg-primary/15',
+                        )
+                      : cn(
+                          'bg-transparent text-subText hover:text-text',
+                          flatten ? 'hover:bg-transparent' : 'hover:bg-tableHeader',
+                        ),
+                  )}
+                >
+                  <CurrencyLogo currency={token} size="20px" />
+                  <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
+                    {token.symbol}/{quoteToken.symbol}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {!upToSmall && (
           <MouseoverTooltip placement="top-end" text={settlementPriceTooltip} width="360px">
@@ -269,9 +304,15 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
           <Stack className="relative gap-3">
             <HStack className="flex-wrap items-start justify-between gap-4">
               <Stack>
+                {/* Held at the price line's height, so the time-frame control beside it does not jump. */}
+                {isLoading && currentPrice === undefined && (
+                  <span className="flex h-7 items-center" data-testid="token-price-chart-price-loading">
+                    <Skeleton height={20} width={160} borderRadius={8} />
+                  </span>
+                )}
                 {currentPrice !== undefined && (
                   <HStack className="flex-nowrap items-baseline gap-2">
-                    <span className="text-xl font-medium text-text">{formatPrice(currentPrice)}</span>
+                    <span className="text-xl font-medium text-text">{formatValue(currentPrice)}</span>
 
                     {hasPriceChange && (
                       <>
@@ -290,14 +331,31 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
                 )}
               </Stack>
 
-              <Stack className="ml-auto">
+              <HStack className="ml-auto flex-wrap items-center justify-end gap-2">
+                {/* Each kind of marker counts its own outside the visible price range, in its own colour. */}
+                {markerOverlay?.groups.map(group => {
+                  const count = offscreenCounts[group.key] ?? 0
+                  if (!count) return null
+                  return (
+                    <span
+                      key={group.key}
+                      data-testid={`price-marker-offscreen-${group.key}`}
+                      className={cn(
+                        'rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase leading-[14px]',
+                        group.tone === 'blue' ? 'border-blue text-blue' : 'border-warning text-warning',
+                      )}
+                    >
+                      +{count} {group.renderOffscreen(count)}
+                    </span>
+                  )
+                })}
                 <SegmentedControl
                   onChange={setTimeFrame}
                   options={CHART_TIME_FRAME_OPTIONS}
                   size="sm"
                   value={timeFrame}
                 />
-              </Stack>
+              </HStack>
             </HStack>
 
             <div className="relative rounded-lg">
@@ -322,11 +380,14 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
               >
                 <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
                   <TokenPriceChartCanvas
-                    key={`${activeTokenAddress}:${stableAddress}:${timeFrame}`}
+                    key={`${activeTokenAddress}:${quoteAddress}:${timeFrame}`}
                     chartData={chartData}
                     canLoadMore={hasNextPage}
                     onLoadMore={handleLoadMore}
                     timeFrame={timeFrame}
+                    formatValue={formatValue}
+                    markerOverlay={markerOverlay}
+                    onOffscreenChange={setOffscreenCounts}
                   />
                 </Suspense>
               </PoolChartState>

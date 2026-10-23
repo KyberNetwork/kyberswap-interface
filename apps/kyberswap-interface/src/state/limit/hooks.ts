@@ -18,7 +18,7 @@ export function useLimitState(): {
 }
 
 export function useLimitActionHandlers() {
-  const { onSwitchTokensV2, onCurrencySelection, onUserInput } = useSwapActionHandlers()
+  const { onSwitchTokensV2, onCurrencySelection, onPairSelection, onUserInput } = useSwapActionHandlers()
 
   const setInputValue = useCallback(
     (inputAmount: string) => {
@@ -45,6 +45,7 @@ export function useLimitActionHandlers() {
     switchCurrency: onSwitchTokensV2,
     setCurrencyIn,
     setCurrencyOut,
+    setPair: onPairSelection,
     setInputValue,
   }
 }

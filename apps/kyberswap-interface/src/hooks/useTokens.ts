@@ -395,6 +395,17 @@ export function useCurrency(currencyId: string | undefined): Currency | null | u
 
 // not use data from contract, in the future we will remove useCurrency
 export function useCurrencyV2(currencyId: string | undefined, customChainId?: ChainId): Currency | null | undefined {
+  return useCurrencyV2WithLoading(currencyId, customChainId).currency
+}
+
+/**
+ * `useCurrencyV2` plus whether the token is still being looked up, which an unresolved currency cannot
+ * tell apart from one the token list does not know.
+ */
+export function useCurrencyV2WithLoading(
+  currencyId: string | undefined,
+  customChainId?: ChainId,
+): { currency: Currency | null | undefined; isLoading: boolean } {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChainId || currentChain
   const lowercaseId = currencyId?.toLowerCase()
@@ -410,12 +421,12 @@ export function useCurrencyV2(currencyId: string | undefined, customChainId?: Ch
     ? whitelistTokens[currencyId] || whitelistTokens[currencyId?.toLowerCase()]
     : undefined
 
-  const { data: token } = ksSettingApi.useGetTokenByAddressQuery(
+  const { data: token, isLoading } = ksSettingApi.useGetTokenByAddressQuery(
     { address: isAddress(chainId, currencyId) || '', chainId },
     { skip: chainId === ChainId.ABSTRACT || isETH || !!tokenInWhitelist || !isAddress(chainId, currencyId) },
   )
 
-  const { data: rpcToken } = useQuery({
+  const { data: rpcToken, isLoading: isLoadingRpcToken } = useQuery({
     queryKey: ['cross-chain-token', chainId, lowercaseId],
     enabled: chainId === ChainId.ABSTRACT && !isETH && !tokenInWhitelist && !!isAddress(chainId, currencyId),
     queryFn: async () => (await fetchTokenInfoFromRpc(currencyId || '', chainId)) ?? null,
@@ -423,10 +434,13 @@ export function useCurrencyV2(currencyId: string | undefined, customChainId?: Ch
   })
 
   return useMemo(() => {
-    if (!currencyId) return
-    if (isETH) return NativeCurrencies[chainId]
-    return tokenInWhitelist || rpcToken || token
-  }, [chainId, isETH, token, rpcToken, currencyId, tokenInWhitelist])
+    if (!currencyId) return { currency: undefined, isLoading: false }
+    if (isETH) return { currency: NativeCurrencies[chainId], isLoading: false }
+    return {
+      currency: tokenInWhitelist || rpcToken || token,
+      isLoading: !tokenInWhitelist && (isLoading || isLoadingRpcToken),
+    }
+  }, [chainId, isETH, token, rpcToken, currencyId, tokenInWhitelist, isLoading, isLoadingRpcToken])
 }
 
 export const useStableCoins = (chainId: ChainId | undefined) => {

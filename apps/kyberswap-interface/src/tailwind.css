@@ -1252,6 +1252,7 @@
     --ks-tabBackground: #0f0f0f;
     --ks-tableHeader: #313131;
     --ks-buttonBlack: #0f0f0f;
+    --ks-raisedBlack: #181818;
     --ks-buttonBlack-40: #0f0f0f66;
     --ks-buttonBlack-60: #0f0f0f99;
     --ks-buttonGray: #292929;
@@ -1311,6 +1312,8 @@
     --ks-green: #31cb9e;
     --ks-green1: #27ae60;
     --ks-green1-50: #27ae6080;
+    --ks-green2: #05966b;
+    --ks-darkOrange: #d67300;
     --ks-primary-50: #31cb9e80;
     --ks-yellow1: #ffe270;
     --ks-yellow2: #f3841e;

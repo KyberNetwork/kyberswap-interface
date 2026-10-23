@@ -65,7 +65,8 @@ export const TOKEN_API_URL = required('TOKEN_API_URL')
 export const KD_API_URL = optional('KD_API_URL') || optional('KYBER_AI_API_URL')
 export const AFFILIATE_SERVICE_URL = required('AFFILIATE_SERVICE')
 export const SOLANA_RPC = required('SOLANA_RPC')
-export const SMART_EXIT_API_URL = required('SMART_EXIT_API_URL')
+/** Smart Exit and Stop Market are two products of one conditional-order service, on a single host. */
+export const CONDITIONAL_SERVICE_URL = required('CONDITIONAL_SERVICE_URL')
 export const CROSSCHAIN_AGGREGATOR_API = required('CROSSCHAIN_AGGREGATOR_API')
 export const KYBERCROSS = false
 export const CROSSCHAIN_KYBERCROSS_API = required('CROSSCHAIN_KYBERCROSS_API')

@@ -59,6 +59,11 @@ type SwapSettingsPanelProps = {
   onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
+  /**
+   * Stop market order shows Swap's degen mode — it lifts the stop market order slippage cap as well — and the pricing
+   * chart it shares with Swap; the rest of Swap's trade settings do not apply to it.
+   */
+  isStopMarketPage?: boolean
   highlightDegenMode?: boolean
   displaySettings?: {
     isShowPricingChart?: boolean
@@ -71,6 +76,7 @@ type SwapSettingsPanelProps = {
 const SwapSettingsPanel = ({
   isSwapPage,
   isCrossChainPage,
+  isStopMarketPage,
   highlightDegenMode,
   onBack,
   onClickLiquiditySources,
@@ -152,6 +158,27 @@ const SwapSettingsPanel = ({
                 tooltip={<Trans>Turn on to play success sound.</Trans>}
                 isActive={isSuccessSoundEnabled}
                 toggle={toggleSuccessSound}
+              />
+            </SettingsSection>
+          </>
+        )}
+
+        {isStopMarketPage && (
+          <>
+            <SettingsSection title={<Trans>Advanced Settings</Trans>}>
+              <DegenModeSetting
+                showConfirmation={showConfirmation}
+                setShowConfirmation={setShowConfirmation}
+                highlight={highlightDegenMode}
+              />
+            </SettingsSection>
+            <SettingsDivider />
+            <SettingsSection title={<Trans>Display Settings</Trans>}>
+              <DisplaySettingRow
+                label={<Trans>Pricing Chart</Trans>}
+                tooltip={<Trans>Turn on to display pricing chart.</Trans>}
+                isActive={isShowPricingChart}
+                toggle={togglePricingChart}
               />
             </SettingsSection>
           </>

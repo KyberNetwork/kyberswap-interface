@@ -5,6 +5,7 @@ import { Check, Info, Repeat } from 'react-feather'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
+import { useGetStopMarketActiveMakingAmountQuery } from 'services/stopMarket'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import IconButton from 'components/Button/IconButton'
@@ -16,6 +17,7 @@ import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import Loader from 'components/Loader'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { HStack, Stack } from 'components/Stack'
+import { hasReservedBalanceShortfall, parseRawAmount } from 'components/StopMarket/utils'
 import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import SwapBrief from 'components/SwapForm/SwapModal/SwapBrief'
@@ -27,6 +29,7 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { APP_PATHS } from 'constants/index'
+import { isSupportStopMarket } from 'constants/networks'
 import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { getERC8056DisplayAmount, getERC8056DisplayPrice } from 'hooks/useERC8056Token'
@@ -46,17 +49,33 @@ const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
 const SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD = -10
 
-const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
-  <ErrorWarning
-    type="warn"
-    title={
+type ReservedOrderNoticeProps = {
+  symbol: string | undefined
+  limitOrdersTo?: string
+  stopMarketsTo?: string
+}
+
+/** Points at whichever open orders hold a claim on the token being sold. */
+const ReservedOrderNotice = ({ symbol, limitOrdersTo, stopMarketsTo }: ReservedOrderNoticeProps) => {
+  const title =
+    limitOrdersTo && stopMarketsTo ? (
+      <Trans>
+        <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by open orders - review
+        your <Link to={limitOrdersTo}>limit orders</Link> and <Link to={stopMarketsTo}>stop market orders</Link>.
+      </Trans>
+    ) : stopMarketsTo ? (
+      <Trans>
+        <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Stop Market
+        Order - review it <Link to={stopMarketsTo}>here</Link>.
+      </Trans>
+    ) : limitOrdersTo ? (
       <Trans>
         <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
-        review it <Link to={to}>here</Link>.
+        review it <Link to={limitOrdersTo}>here</Link>.
       </Trans>
-    }
-  />
-)
+    ) : null
+  return title && <ErrorWarning type="warn" title={title} />
+}
 
 function ExecutionPrice({
   executionPrice,
@@ -339,18 +358,26 @@ export default function ConfirmSwapModalContent({
     },
     { skip: !currencyIn || !currencyOut || !account || currencyIn.isNative },
   )
-  const activeMakingAmount = BigInt(loActiveMakingAmount || 0)
+  // Open stop market orders sell from the same balance; a native sell is out of their reach, like the limit one.
+  const { data: stopActiveMakingAmount } = useGetStopMarketActiveMakingAmountQuery(
+    { chainId, userWallet: account || '', tokenIn: currencyIn?.wrapped.address ?? '' },
+    { skip: !currencyIn || !account || currencyIn.isNative || !isSupportStopMarket(chainId) },
+  )
+  const limitReservedAmount = parseRawAmount(loActiveMakingAmount)
+  const stopReservedAmount = parseRawAmount(stopActiveMakingAmount)
 
   const balance = useTokenBalance(currencyIn?.wrapped)
 
   const remainAmount = BigInt(balance?.quotient.toString() || 0) - BigInt(buildResult?.data?.amountIn || 0)
 
-  const showLOWwarning = currencyIn?.isNative ? false : !!loActiveMakingAmount && remainAmount < activeMakingAmount
+  const showReservedOrderNotice =
+    !currencyIn?.isNative && hasReservedBalanceShortfall(remainAmount, limitReservedAmount + stopReservedAmount)
   const limitOrderSearch = new URLSearchParams({
     tab: LimitOrderTab.MY_ORDER,
     orderTab: LimitOrderStatus.ACTIVE,
     search: `${currencyIn?.wrapped.symbol}/${currencyOut?.wrapped.symbol}`,
   })
+  const stopMarketSearch = new URLSearchParams({ search: currencyIn?.wrapped.symbol ?? '' })
 
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [retry, setRetry] = useState(0)
@@ -502,10 +529,19 @@ export default function ConfirmSwapModalContent({
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
           {errorWhileBuildRoute && <ErrorWarning type="warn" title={errorText} />}
-          {showLOWwarning && (
+          {showReservedOrderNotice && (
             <ReservedOrderNotice
               symbol={currencyIn?.symbol}
-              to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?${limitOrderSearch}`}
+              limitOrdersTo={
+                limitReservedAmount > 0n
+                  ? `${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?${limitOrderSearch}`
+                  : undefined
+              }
+              stopMarketsTo={
+                stopReservedAmount > 0n
+                  ? `${APP_PATHS.STOP_MARKET}/${networkInfo.route}/${currencyParam}?${stopMarketSearch}`
+                  : undefined
+              }
             />
           )}
 

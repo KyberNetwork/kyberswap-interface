@@ -22,6 +22,8 @@ export function colors() {
 
     tableHeader: '#313131',
     buttonBlack: '#0F0F0F',
+    // One step above buttonBlack: table headers, filters and toolbars sitting on a black card.
+    raisedBlack: '#181818',
     buttonGray: '#292929',
 
     text2: '#C3C5CB',
@@ -67,6 +69,8 @@ export function colors() {
     darkGreen: '#1D7A5F',
     green: '#31CB9E',
     green1: '#27AE60',
+    green2: '#05966B',
+    darkOrange: '#D67300',
     yellow1: '#FFE270',
     yellow2: '#F3841E',
 
