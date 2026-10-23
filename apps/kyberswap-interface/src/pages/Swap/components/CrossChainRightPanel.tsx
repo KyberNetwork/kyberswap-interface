@@ -8,12 +8,9 @@ import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 
 const CrossChainTradeRoute = lazy(() => import('pages/Swap/components/CrossChainTradeRoute'))
 
-const PendingTradeRoute = ({ defaultCollapsed }: { defaultCollapsed: boolean }) => (
-  <TradeRoutePanel
-    defaultCollapsed={defaultCollapsed}
-    heading={<span className="text-lg font-medium text-blue">Route:</span>}
-  >
-    <TradeRouteSkeleton crossChain />
+const PendingTradeRoute = () => (
+  <TradeRoutePanel heading={<span className="text-lg font-medium text-blue">Route:</span>}>
+    <TradeRouteSkeleton poolLines={1} />
   </TradeRoutePanel>
 )
 
@@ -36,10 +33,10 @@ const CrossChainRightPanel = ({ currencyIn, currencyOut, isProviderLoading }: Pr
       {showChart && hasChart && <TokenPriceChart tokens={tokens} />}
       {showRoutes &&
         (isProviderLoading ? (
-          <PendingTradeRoute defaultCollapsed={showChart && hasChart} />
+          <PendingTradeRoute />
         ) : (
-          <Suspense fallback={<PendingTradeRoute defaultCollapsed={showChart && hasChart} />}>
-            <CrossChainTradeRoute defaultCollapsed={showChart && hasChart} />
+          <Suspense fallback={<PendingTradeRoute />}>
+            <CrossChainTradeRoute />
           </Suspense>
         ))}
     </>
