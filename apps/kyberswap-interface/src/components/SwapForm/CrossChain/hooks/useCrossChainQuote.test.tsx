@@ -66,6 +66,17 @@ afterEach(async () => {
 })
 
 describe('unified quote session after aggregator integration', () => {
+  it('requests new quotes on manual and periodic refresh with unchanged inputs', async () => {
+    mocks.getQuotes.mockResolvedValue(undefined)
+    await act(async () => render('100'))
+    await act(async () => vi.advanceTimersByTimeAsync(800))
+    expect(mocks.getQuotes).toHaveBeenCalledOnce()
+    await act(async () => state.refresh.onRefresh())
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    await act(async () => vi.advanceTimersByTimeAsync(10000))
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(3)
+  })
+
   it('requests stream quotes with pair fees even when the legacy setting is direct', async () => {
     await act(async () => render('100'))
     await act(async () => vi.advanceTimersByTimeAsync(800))

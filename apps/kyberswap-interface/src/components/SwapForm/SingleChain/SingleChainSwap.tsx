@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
 
@@ -21,9 +21,10 @@ import MultichainKNCNote from 'components/SwapForm/Warnings/MultichainKNCNote'
 import PriceImpactNote from 'components/SwapForm/Warnings/PriceImpactNote'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
+import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
-import useSwapQuote from 'components/SwapForm/hooks/useSwapQuote'
+import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -89,15 +90,31 @@ const SingleChainSwap = (props: SingleChainSwapProps) => {
   } = props
 
   const [searchParams] = useSearchParams()
-  const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
+  const { chainId: walletChainId, account, walletKey, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const chainId = customChainId || walletChainId
   const chainError =
     !MAINNET_NETWORKS.includes(chainId) || chainId === ChainId.BLAST ? t`Swap not supported on this chain` : undefined
 
-  const [isProcessingSwap, setProcessingSwap] = useState(false)
   const { typedValue, onUserInput } = useSwapInputAmount(chainSelectionMode !== 'form')
   const [recipient, setRecipient] = useState<string | null>(null)
+  const reviewIdentity = JSON.stringify([
+    chainId,
+    walletChainId,
+    account,
+    walletKey,
+    currencyIn?.chainId,
+    currencyIn?.wrapped.address,
+    currencyIn?.isNative,
+    currencyOut?.chainId,
+    currencyOut?.wrapped.address,
+    currencyOut?.isNative,
+    typedValue,
+    recipient,
+    isDegenMode,
+  ])
+  const { review, openReview, rebuildReview, confirmReview, dismissReview } = useSwapReviewSession(reviewIdentity)
+  const isProcessingSwap = review.phase !== 'closed'
   const debouncedTypedValue = useDebounce(typedValue, 1000)
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
@@ -120,9 +137,9 @@ const SingleChainSwap = (props: SingleChainSwapProps) => {
     result,
     isLoading: routeLoading,
     intendedFeeConfig,
-  } = useSwapQuote({
-    enabled: !chainError,
-    isWrapOrUnwrap,
+  } = useGetRoute({
+    enabled: !chainError && !isWrapOrUnwrap,
+    autoRefresh: true,
     currencyIn,
     currencyOut: currencyOut,
     parsedAmount,
@@ -151,7 +168,7 @@ const SingleChainSwap = (props: SingleChainSwapProps) => {
     const responseExtraFee = getRouteRawResponse?.data?.routeSummary?.extraFee
     if (!responseExtraFee) return false
 
-    const intended = intendedFeeConfig.current
+    const intended = intendedFeeConfig
     const responseFeeReceiver = responseExtraFee.feeReceiver?.toLowerCase() || ''
     const intendedFeeReceiver = intended.feeReceiver?.toLowerCase() || ''
 
@@ -172,6 +189,14 @@ const SingleChainSwap = (props: SingleChainSwapProps) => {
     currencyIn,
     currencyOut,
   })
+
+  const previousSlippage = useRef(slippage)
+  useLayoutEffect(() => {
+    const changed = previousSlippage.current !== slippage
+    previousSlippage.current = slippage
+
+    if (changed) void rebuildReview(buildRoute)
+  }, [slippage, rebuildReview, buildRoute])
 
   const swapInputError = useGetInputError({
     currencyIn,
@@ -338,15 +363,15 @@ const SingleChainSwap = (props: SingleChainSwapProps) => {
             parsedAmountFromTypedValue={parsedAmount}
             balanceIn={balanceIn}
             balanceOut={balanceOut}
-            isDegenMode={isDegenMode}
-            typedValue={typedValue}
             currencyIn={currencyIn}
             currencyOut={currencyOut}
             wrapInputError={wrapInputError}
             wrapType={wrapType}
             routeSummary={routeSummary}
-            isProcessingSwap={isProcessingSwap}
-            setProcessingSwap={setProcessingSwap}
+            review={review}
+            onOpenReview={openReview}
+            onConfirmReview={confirmReview}
+            onDismissReview={dismissReview}
             onWrap={onWrap}
             buildRoute={buildRoute}
             swapInputError={swapInputError}

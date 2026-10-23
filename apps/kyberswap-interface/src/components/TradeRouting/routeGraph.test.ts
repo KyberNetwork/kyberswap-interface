@@ -58,6 +58,20 @@ describe('route graph and geometry', () => {
     expect(graph.maximumPathLengths).toMatchObject({ [a.address]: 0, [b.address]: 1, [c.address]: 1 })
   })
 
+  it.each([false, true])('retains all-zero pool groups with a positive sibling branch: %s', positiveSibling => {
+    const graph = buildV3RouteGraph(
+      [swap(a, b, '0', 'zero-1'), swap(a, b, '0', 'zero-2'), ...(positiveSibling ? [swap(a, c)] : [])],
+      a,
+    )
+
+    expect(graph.edges.find(edge => edge.target === b.address)?.percent).toBe(0)
+    expect(graph.nodes.find(node => node.id === b.address)?.groups[0].pools).toMatchObject([
+      { id: 'zero-1', percent: 0 },
+      { id: 'zero-2', percent: 0 },
+    ])
+    if (positiveSibling) expect(graph.edges.find(edge => edge.target === c.address)?.percent).toBe(100)
+  })
+
   it('places a target reached directly and through multiple hops at its longest route level', () => {
     const graph = buildV3RouteGraph([swap(a, d), swap(a, b), swap(b, c), swap(c, d)], a)
     expect(graph.nodes.map(node => node.id)).toEqual([a.address, b.address, c.address, d.address])
@@ -97,6 +111,42 @@ describe('route graph and geometry', () => {
       label: { x: 220, y: 59.5 },
       percent: 100,
     })
+  })
+
+  it.each([false, true])('ends an obstructed split route on its target with mirrored layout: %s', mirrored => {
+    const [e, f] = [5, 6].map(token)
+    const graph = buildV3RouteGraph(
+      [swap(a, b), swap(b, c), swap(b, d), swap(c, d), swap(c, e), swap(d, f), swap(e, f)],
+      a,
+    )
+    const viewport = { x: 100, y: 200, width: 912, height: 314 }
+    const rects = {
+      [a.address]: { x: 10, y: 0, width: 1, height: 314 },
+      [b.address]: { x: 48, y: 102.5, width: 168, height: 109 },
+      [c.address]: { x: 264, y: 82.5, width: 168, height: 149 },
+      [d.address]: { x: 480, y: 36, width: 168, height: 109 },
+      [e.address]: { x: 480, y: 169, width: 168, height: 109 },
+      [f.address]: { x: 696, y: 102.5, width: 168, height: 109 },
+    }
+    const measuredRects = Object.fromEntries(
+      Object.entries(rects).map(([id, rect]) => [
+        id,
+        {
+          ...rect,
+          x: rect.x + viewport.x,
+          y: (mirrored ? viewport.height - rect.y - rect.height : rect.y) + viewport.y,
+        },
+      ]),
+    )
+    const paths = buildRoutePaths(graph, measuredRects, viewport)
+    const edge = paths.find(node => node.id === b.address)?.paths.find(path => path.id === `${b.address}-${d.address}`)
+    if (!edge) throw new Error('Missing split-route connector')
+
+    const endpoint = [...edge.path.matchAll(/[ML]\s*([-\d.]+)\s+([-\d.]+)/g)].at(-1)
+    const target = measuredRects[d.address]
+    expect(Number(endpoint?.[1])).toBe(target.x - viewport.x)
+    expect(Number(endpoint?.[2])).toBeGreaterThanOrEqual(target.y - viewport.y)
+    expect(Number(endpoint?.[2])).toBeLessThanOrEqual(target.y + target.height - viewport.y)
   })
 
   it('can prepare an empty quote before any node measurements exist', () => {

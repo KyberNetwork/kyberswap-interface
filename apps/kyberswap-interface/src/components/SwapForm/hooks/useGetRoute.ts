@@ -1,286 +1,81 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import debounce from 'lodash.debounce'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
-import { GetRouteParams } from 'services/route/types/getRoute'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
-import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
-import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
-import { AGGREGATOR_API } from 'constants/env'
+import useRouteRequest, { ArgsRouteRequest, IntendedFeeConfig } from 'components/SwapForm/hooks/useRouteRequest'
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
-import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
-import { useSessionInfo } from 'state/authen/hooks'
-import { useAppDispatch } from 'state/hooks'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import useDebounce from 'hooks/useDebounce'
 import { ChargeFeeBy } from 'types/route'
-import { RouteSide, routeAmountIn, routeTokenAddress, routeTokenDecimals } from 'utils/nativeErc20'
-import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
-const SWAP_FEE_RECEIVER_ADDRESS = '0x1111115af63bfbcc151e5753e2ea1a29c79d2f01'
-const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x1111115e73933b2168F41112F828EbD2FC7c5d05'
+const REFRESH_SECONDS = 10
+const EMPTY_FEE_CONFIG: IntendedFeeConfig = {
+  feeAmount: '',
+  feeReceiver: '',
+  isInBps: '',
+  chargeFeeBy: ChargeFeeBy.NONE,
+}
 
-export type ArgsGetRoute = {
-  parsedAmount: CurrencyAmount<Currency> | undefined
-  currencyIn: Currency | undefined
-  currencyOut: Currency | undefined
-
-  customChain?: ChainId
+export type ArgsGetRoute = ArgsRouteRequest & {
   enabled?: boolean
   isProcessingSwap?: boolean
-  clientId?: string
+  autoRefresh?: boolean
 }
 
-export const getRouteTokenAddressParam = (currency: Currency, side: RouteSide) => routeTokenAddress(currency, side)
+/** TanStack owns quote data/loading/polling; local state is only the visible countdown. */
+const useGetRoute = (args: ArgsGetRoute) => {
+  const request = useRouteRequest(args)
+  const { enabled = true, isProcessingSwap = false, autoRefresh = false } = args
+  const requestKey = JSON.stringify(request?.queryKey ?? null)
+  const debouncedKey = useDebounce(requestKey, INPUT_DEBOUNCE_TIME)
+  const inputPending = requestKey !== debouncedKey
+  const canFetch = Boolean(request && enabled && !isProcessingSwap && !inputPending)
+  const query = useQuery({
+    queryKey: request?.queryKey ?? ['swap-route', null],
+    queryFn: request?.queryFn,
+    enabled: canFetch,
+    // Never treat a previous quote as fresh or retain it after its observers leave.
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: query =>
+      canFetch && autoRefresh && query.state.fetchStatus !== 'fetching' ? REFRESH_SECONDS * 1000 : false,
+    refetchIntervalInBackground: true,
+  })
+  const { refetch } = query
+  const fetcher = useCallback(() => {
+    if (canFetch) void refetch({ cancelRefetch: false })
+  }, [canFetch, refetch])
+  const nextManualRefreshAt = useRef(0)
+  const onRefresh = useCallback(() => {
+    if (!canFetch || query.isFetching || Date.now() < nextManualRefreshAt.current) return
+    nextManualRefreshAt.current = Date.now() + 2000
+    fetcher()
+  }, [canFetch, query.isFetching, fetcher])
 
-const getFeeConfigParams = (
-  swapFeeConfig: SwapFeeConfig | undefined,
-  tokenIn: string,
-  tokenOut: string,
-): Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'> => {
-  if (!swapFeeConfig) {
-    return {
-      feeAmount: '',
-      chargeFeeBy: ChargeFeeBy.NONE,
-      isInBps: '',
-      feeReceiver: '',
-    }
-  }
-
-  const chargeFeeBy =
-    swapFeeConfig.token === tokenIn
-      ? ChargeFeeBy.CURRENCY_IN
-      : swapFeeConfig.token === tokenOut
-      ? ChargeFeeBy.CURRENCY_OUT
-      : ChargeFeeBy.NONE
-
-  if (!chargeFeeBy || !swapFeeConfig.feeBips) {
-    return {
-      feeAmount: '',
-      chargeFeeBy: ChargeFeeBy.NONE,
-      isInBps: '',
-      feeReceiver: '',
-    }
-  }
+  const settledAt = Math.max(query.dataUpdatedAt, query.errorUpdatedAt)
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => {
+    if (!canFetch || !autoRefresh || query.isFetching || !settledAt) return
+    setNow(Date.now())
+    const ticker = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(ticker)
+  }, [canFetch, autoRefresh, query.isFetching, settledAt])
+  const countdown =
+    canFetch && autoRefresh && !query.isFetching && settledAt
+      ? Math.max(0, REFRESH_SECONDS * 1000 - Math.max(0, now - settledAt))
+      : 0
+  const isLoading = Boolean(enabled && !isProcessingSwap && request && (inputPending || query.isFetching))
+  const data = enabled && !inputPending ? query.data : undefined
 
   return {
-    feeAmount: String(swapFeeConfig.feeBips),
-    chargeFeeBy,
-    isInBps: '1',
-    feeReceiver: SWAP_FEE_RECEIVER_ADDRESS,
+    fetcher,
+    result: { data: data?.response, error: enabled && !inputPending ? query.error : null, isFetching: isLoading },
+    isLoading,
+    intendedFeeConfig: data?.intendedFeeConfig ?? EMPTY_FEE_CONFIG,
+    refresh: { countdown, refreshTime: REFRESH_SECONDS, disableRefresh: !canFetch, isRefreshing: isLoading, onRefresh },
   }
 }
 
-// default use aggregator, utils the first time sign-in successfully (guest/sign in eth) => use meta
-export const useRouteApiDomain = () => {
-  const { aggregatorDomain } = useKyberswapGlobalConfig()
-  const { authenticationSuccess } = useSessionInfo()
-  return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
-}
-
-export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'>
-
-const useGetRoute = (args: ArgsGetRoute) => {
-  const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId, enabled = true } = args
-  const { chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChain || currentChain
-  const [isLoading, setIsLoading] = useState(false)
-
-  const intendedFeeConfig = useRef<IntendedFeeConfig>({
-    feeAmount: '',
-    feeReceiver: '',
-    isInBps: '',
-    chargeFeeBy: ChargeFeeBy.NONE,
-  })
-
-  const feeConfigFromUrl = useGetFeeConfig()
-
-  const [trigger, _result] = routeApi.useLazyGetRouteQuery()
-  const aggregatorDomain = useRouteApiDomain()
-
-  const getSwapFeeConfig = useGetSwapFeeConfig()
-
-  const dexes = useSelectedDexes()
-
-  // If user has just dismissed swap modal, we want to set current route summary = undefined by setting this flag = true.
-  // After receive new route summary, we reset this flag to false.s
-  const dismissSwapModalFlag = useRef(false)
-  const result: typeof _result = useMemo(() => {
-    const request = _result.originalArgs?.params
-    const matchesPair =
-      !!currencyIn &&
-      !!currencyOut &&
-      currencyIn.chainId === currencyOut.chainId &&
-      request?.chainId === chainId &&
-      request.tokenIn.toLowerCase() === getRouteTokenAddressParam(currencyIn, 'in').toLowerCase() &&
-      request.tokenOut.toLowerCase() === getRouteTokenAddressParam(currencyOut, 'out').toLowerCase()
-    // A retained response must never be parsed or built for another pair or network.
-    if (!enabled || dismissSwapModalFlag.current || !matchesPair || !_result.currentData) {
-      return {
-        ..._result,
-        data: undefined,
-      } as typeof _result
-    }
-    return _result
-  }, [_result, chainId, currencyIn, currencyOut, enabled])
-
-  const dispatch = useAppDispatch()
-  useEffect(() => {
-    if (!parsedAmount) {
-      dispatch(routeApi.util.resetApiState())
-    }
-  }, [dispatch, parsedAmount])
-
-  useEffect(() => {
-    if (!isProcessingSwap) {
-      dismissSwapModalFlag.current = true
-    }
-  }, [isProcessingSwap])
-
-  const triggerDebounced = useMemo(
-    () =>
-      debounce(
-        async (args: { url: string; params: GetRouteParams; authentication: boolean }) => {
-          setIsLoading(true)
-          await trigger({ ...args, clientId })
-          setIsLoading(false)
-          dismissSwapModalFlag.current = false
-        },
-        INPUT_DEBOUNCE_TIME,
-        {
-          leading: true,
-        },
-      ),
-    [trigger, clientId],
-  )
-
-  useEffect(() => () => triggerDebounced.cancel(), [triggerDebounced])
-
-  const safeAppFeeConfig = useMemo(() => {
-    let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
-    const isCurrencyInStable = currencyIn instanceof WrappedTokenInfo && currencyIn.isStable
-    const isCurrencyOutStable = currencyOut instanceof WrappedTokenInfo && currencyOut.isStable
-
-    // case 0: stable is highest priority
-    if (isCurrencyOutStable) {
-      if (isCurrencyInStable) {
-        if (currencyIn.cmcRank && currencyOut.cmcRank) {
-          if (currencyIn.cmcRank < currencyOut.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_IN
-          else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-        }
-      } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-    } else if (currencyIn?.isNative) {
-      chargeFeeBy = ChargeFeeBy.CURRENCY_IN
-    }
-    // Case 1: Output currency is native
-    else if (currencyOut?.isNative) {
-      if (isCurrencyInStable) {
-        chargeFeeBy = ChargeFeeBy.CURRENCY_IN
-      } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-    } else if (currencyOut instanceof WrappedTokenInfo) {
-      // Case 2: Both are wrapped tokens
-      if (currencyIn instanceof WrappedTokenInfo) {
-        // Case 2.1: Whitelist check
-        if (!currencyIn.isWhitelisted && currencyOut.isWhitelisted) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-        // Case 2.2: CMC rank comparison (highest priority)
-        else if (currencyIn.cmcRank && currencyOut.cmcRank) {
-          if (currencyOut.cmcRank < currencyIn.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-        }
-        // Case 2.3: CGK rank comparison (only if CMC rank isn't available for both)
-        else if (currencyIn.cgkRank && currencyOut.cgkRank) {
-          if (currencyOut.cgkRank < currencyIn.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-        }
-        // Case 2.4: Output has rank but input doesn't
-        else if (currencyOut.cmcRank || currencyOut.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-      } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-    }
-    return {
-      feeAmount: '10',
-      chargeFeeBy,
-      isInBps: '1',
-      feeReceiver: SAFE_APP_FEE_RECEIVER_ADDRESS,
-      enableTip: false,
-      clientId: SAFE_APP_CLIENT_ID,
-    }
-  }, [currencyIn, currencyOut])
-
-  const fetcher = useCallback(async () => {
-    const amountIn = parsedAmount ? routeAmountIn(parsedAmount) : ''
-
-    if (
-      !enabled ||
-      isProcessingSwap ||
-      !currencyIn ||
-      !currencyOut ||
-      !amountIn ||
-      !parsedAmount?.currency?.equals(currencyIn)
-    ) {
-      return undefined
-    }
-
-    const tokenInAddress = getRouteTokenAddressParam(currencyIn, 'in')
-    const tokenOutAddress = getRouteTokenAddressParam(currencyOut, 'out')
-
-    const swapFeeConfig = await getSwapFeeConfig(chainId, tokenInAddress, tokenOutAddress)
-    const feeConfigParams = isInSafeApp
-      ? safeAppFeeConfig
-      : feeConfigFromUrl || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
-
-    intendedFeeConfig.current = {
-      feeAmount: feeConfigParams.feeAmount || '',
-      feeReceiver: feeConfigParams.feeReceiver || '',
-      isInBps: feeConfigParams.isInBps || '',
-      chargeFeeBy: feeConfigParams.chargeFeeBy || ChargeFeeBy.NONE,
-    }
-
-    const params: GetRouteParams = {
-      tokenIn: tokenInAddress,
-      tokenOut: tokenOutAddress,
-      tokenInDecimals: routeTokenDecimals(currencyIn, 'in'),
-      tokenOutDecimals: routeTokenDecimals(currencyOut, 'out'),
-      amountIn,
-      includedSources: dexes,
-      gasInclude: 'true', // default
-      gasPrice: '', // default
-      chainId,
-      ...feeConfigParams,
-    }
-
-    ;(Object.keys(params) as (keyof typeof params)[]).forEach(key => {
-      // keep 0 value for decimals
-      if (params[key] === null || params[key] === undefined) {
-        delete params[key]
-      }
-    })
-    const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
-
-    triggerDebounced({
-      url,
-      params,
-      authentication: isEnableAuthenAggregator,
-    })
-
-    return undefined
-  }, [
-    enabled,
-    safeAppFeeConfig,
-    aggregatorDomain,
-    chainId,
-    currencyIn,
-    currencyOut,
-    dexes,
-    getSwapFeeConfig,
-    isEnableAuthenAggregator,
-    parsedAmount,
-    triggerDebounced,
-    feeConfigFromUrl,
-    isProcessingSwap,
-  ])
-
-  return { fetcher, result, isLoading, intendedFeeConfig }
-}
-
+export type SwapQuoteRefresh = ReturnType<typeof useGetRoute>['refresh']
 export default useGetRoute

@@ -80,6 +80,7 @@ export default function RefreshLoading({
       countdown={countdown}
       refreshTime={refreshTime}
       disableRefresh={disableRefresh}
+      isRefreshing={refetchLoading || showLoadingAtLeastTime}
       onRefresh={handleManualRefresh}
       clickable={clickable}
     />

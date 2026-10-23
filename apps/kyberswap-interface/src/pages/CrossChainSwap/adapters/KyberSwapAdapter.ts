@@ -47,20 +47,23 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
       AGGREGATOR_API_PATHS.GET_ROUTE
     }`
     const response = await store.dispatch(
-      routeApi.endpoints.getRoute.initiate({
-        url,
-        params: {
-          tokenIn: params.fromToken.isNative ? ETHER_ADDRESS : params.fromToken.wrapped.address,
-          tokenOut: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.wrapped.address,
-          tokenInDecimals: params.fromToken.decimals,
-          tokenOutDecimals: params.toToken.decimals,
-          amountIn: params.amount,
-          gasInclude: 'true',
-          chainId: params.fromChain as ChainId,
+      routeApi.endpoints.getRoute.initiate(
+        {
+          url,
+          params: {
+            tokenIn: params.fromToken.isNative ? ETHER_ADDRESS : params.fromToken.wrapped.address,
+            tokenOut: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.wrapped.address,
+            tokenInDecimals: params.fromToken.decimals,
+            tokenOutDecimals: params.toToken.decimals,
+            amountIn: params.amount,
+            gasInclude: 'true',
+            chainId: params.fromChain as ChainId,
+          },
+          authentication: false,
+          clientId: 'kyberswap',
         },
-        authentication: false,
-        clientId: 'kyberswap',
-      }),
+        { subscribe: false, forceRefetch: true },
+      ),
     )
 
     const routeSummary = response.data?.data?.routeSummary
@@ -80,7 +83,11 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
       outputUsd,
       timeEstimate: 1,
       contractAddress: response.data?.data?.routerAddress || '',
-      rawQuote: routeSummary,
+      rawQuote: {
+        ...routeSummary,
+        rawAmountInUsd: routeSummary.amountInUsd,
+        rawAmountOutUsd: routeSummary.amountOutUsd,
+      },
 
       additionalFeeUsd: 0,
       platformFeePercent: 0,

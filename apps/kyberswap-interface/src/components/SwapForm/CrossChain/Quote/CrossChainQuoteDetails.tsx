@@ -26,6 +26,7 @@ export const CrossChainQuoteDetails = () => {
   } = useCrossChainSwap()
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const quote = selectedQuote?.quote
+  const initialLoading = !disable && !quote && (loading || allLoading)
 
   return (
     <QuoteDetails className="gap-3">
@@ -37,7 +38,7 @@ export const CrossChainQuoteDetails = () => {
         outputChain={toChainId}
         rate={quote ? formatDisplayNumber(quote.rate, { significantDigits: 6 }) : undefined}
         invertedRate={quote ? formatDisplayNumber(1 / quote.rate, { significantDigits: 6 }) : undefined}
-        loading={!disable && (loading || (allLoading && !quote))}
+        loading={initialLoading}
         refresh={refresh}
         routes={
           <CrossChainQuoteSelector
@@ -50,7 +51,7 @@ export const CrossChainQuoteDetails = () => {
       />
       <Stack className="gap-2">
         <CrossChainQuoteSummaryRows
-          loading={!disable && (loading || (allLoading && !quote))}
+          loading={initialLoading}
           quote={selectedQuote || undefined}
           tokenOut={currencyOut}
           slippage={slippage}

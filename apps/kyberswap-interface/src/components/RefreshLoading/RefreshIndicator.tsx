@@ -7,6 +7,7 @@ export type RefreshIndicatorProps = {
   countdown: number
   refreshTime: number
   disableRefresh: boolean
+  isRefreshing: boolean
   onRefresh: () => void
   clickable?: boolean
   size?: number
@@ -17,6 +18,7 @@ export default function RefreshIndicator({
   countdown,
   refreshTime,
   disableRefresh,
+  isRefreshing,
   onRefresh,
   clickable = false,
   size = 24,
@@ -25,7 +27,12 @@ export default function RefreshIndicator({
     <SpinWrapper role="button" onClick={onRefresh} clickable={clickable}>
       <MouseoverTooltipDesktopOnly text={clickable ? t`Click to refresh` : null} placement="top" width="auto">
         <>
-          <Spin countdown={countdown} refreshTime={refreshTime} disableRefresh={disableRefresh} size={size} />
+          <Spin
+            countdown={countdown}
+            refreshTime={refreshTime}
+            spinning={isRefreshing && !disableRefresh}
+            size={size}
+          />
 
           {countdown > 0 && !disableRefresh && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
         </>
@@ -37,17 +44,17 @@ export default function RefreshIndicator({
 const Spin = ({
   countdown,
   refreshTime,
-  disableRefresh,
+  spinning,
   size,
 }: {
   countdown: number
   refreshTime: number
-  disableRefresh: boolean
+  spinning: boolean
   size: number
 }) => {
   return (
     <WrappedSvg
-      spinning={!countdown && !disableRefresh}
+      spinning={spinning}
       id="arrow_loading"
       xmlns="http://www.w3.org/2000/svg"
       className="text-primary"

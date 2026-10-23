@@ -29,7 +29,7 @@ const params: QuoteParams = {
   recipient: 'recipient',
 }
 
-const renderSummary = (inputUsd = 100) => {
+const renderSummary = (inputUsd = 100, loading = false) => {
   const quote = {
     adapter: { getName: () => 'Relay' },
     isReadOnly: false,
@@ -51,13 +51,28 @@ const renderSummary = (inputUsd = 100) => {
   const warning = getQuoteWarning({ selectedQuote: quote, category: 'stablePair', isEvmPair: true, slippage: 50 })
   const html = renderToStaticMarkup(
     <I18nProvider i18n={i18n}>
-      <CrossChainQuoteSummaryRows quote={quote} tokenOut={params.toToken} warning={warning} slippage={50} />
+      <CrossChainQuoteSummaryRows
+        quote={quote}
+        tokenOut={params.toToken}
+        warning={warning}
+        slippage={50}
+        loading={loading}
+      />
     </I18nProvider>,
   )
   return { html, warning }
 }
 
 describe('unified summary with an aggregator quote', () => {
+  it('keeps quoted metrics visible while refreshing', () => {
+    const { html } = renderSummary(100, true)
+    expect(html).toContain('97.345678')
+    expect(html).toContain('~30s')
+    expect(html).toContain('$1.23')
+    expect(html).toContain('&lt;0.01%')
+    expect(html).not.toContain('react-loading-skeleton')
+  })
+
   it('shows the provider minimum and additional fee from the stream contract', () => {
     const { html } = renderSummary()
     expect(html).toContain('97.345678')

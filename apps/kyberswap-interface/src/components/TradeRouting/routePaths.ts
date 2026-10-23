@@ -204,7 +204,7 @@ const buildNodePaths = (graph: RouteGraph, nodeId: string, nodeRects: Record<str
     }
 
     const targetX = maxWidthOverlap ? item.targetRect.x : item.targetRect.x + item.targetRect.width / 2
-    let targetY = maxWidthOverlap
+    const targetY = maxWidthOverlap
       ? (maxWidthOverlap[0] + maxWidthOverlap[1]) / 2
       : item.targetRect.y + item.targetRect.height
 
@@ -214,10 +214,7 @@ const buildNodePaths = (graph: RouteGraph, nodeId: string, nodeRects: Record<str
     const translateY = targetY < middleMax ? middleMax + 30 : targetY > middleMin ? middleMin - 30 : 0
     const translate = translateY ? `L ${targetX} ${translateY}` : ''
 
-    if (translateY && targetX === item.targetRect.x) {
-      targetY = translateY
-    }
-
+    // The detour waypoint must not replace the final attachment on the target card.
     return {
       startX,
       startY,
