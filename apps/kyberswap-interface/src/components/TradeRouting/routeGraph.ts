@@ -39,7 +39,8 @@ const poolDetails = (pool: string, exchange: string, chainId: ChainId, allDexes:
   }
 }
 
-const getPercent = (amount: bigint, total: bigint) => Number((amount * 100000n) / total) / 1000
+// Keep zero-amount groups visible without dividing by their empty total.
+const getPercent = (amount: bigint, total: bigint) => (total === 0n ? 0 : Number((amount * 100000n) / total) / 1000)
 const sumSwapAmounts = (swaps: SwapRouteV3[]) => swaps.reduce((sum, swap) => sum + BigInt(swap.swapAmount), 0n)
 
 export const buildV3RouteGraph = (

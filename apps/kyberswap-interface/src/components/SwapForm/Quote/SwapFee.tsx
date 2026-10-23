@@ -115,7 +115,7 @@ export const SwapFee = ({ isFeeTampered, loading }: { isFeeTampered?: boolean; l
   if (isInSafeApp) {
     return (
       <QuoteDetailRow
-        loading={loading}
+        loading={loading && !routeSummary}
         label={
           <span className={isFeeTampered ? 'text-warning' : undefined}>
             <Trans>Platform Fee</Trans>
@@ -139,7 +139,7 @@ export const SwapFee = ({ isFeeTampered, loading }: { isFeeTampered?: boolean; l
 
   return (
     <QuoteDetailRow
-      loading={loading}
+      loading={loading && !routeSummary}
       label={
         <span className={isFeeTampered ? 'text-warning' : undefined}>
           <SwapFeeLabel />

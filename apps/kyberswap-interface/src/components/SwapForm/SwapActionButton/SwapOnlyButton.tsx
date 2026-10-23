@@ -1,36 +1,21 @@
-import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
+import { getFeeInfoForMixPanel, getSwapConfirmedTracking } from 'components/SwapForm/SwapActionButton/swapTracking'
 import SwapModal from 'components/SwapForm/SwapModal'
-import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
+import type { BuildReview, SubmitReview, SwapReviewState } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { useActiveWeb3React } from 'hooks'
 import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
-import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
-import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
+import { DetailedRouteSummary } from 'types/route'
+import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 
-const getFeeInfoForMixPanel = (routeSummary: DetailedRouteSummary | undefined) => {
-  if (!routeSummary?.fee) {
-    return undefined
-  }
-
-  return {
-    chargeTokenIn: routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN,
-    tokenSymbol: routeSummary.fee.currency.symbol || '',
-    feeUsd: routeSummary.extraFee.feeAmountUsd,
-    feeAmount: routeSummary.fee.currencyAmount.toExact(),
-  }
-}
-
-export type Props = {
-  minimal?: boolean
-  isDegenMode: boolean
+type SwapOnlyButtonProps = {
+  showButton: boolean
   routeSummary: DetailedRouteSummary | undefined
   isGettingRoute: boolean
-  isProcessingSwap: boolean
   isApproved?: boolean
 
   currencyIn: Currency | undefined
@@ -40,15 +25,17 @@ export type Props = {
   parsedAmount: CurrencyAmount<Currency> | undefined
   isPermitSwap?: boolean
 
-  setProcessingSwap: React.Dispatch<React.SetStateAction<boolean>>
-  buildRoute: () => Promise<BuildRouteResult>
+  review: SwapReviewState
+  onOpenReview: (build: BuildReview) => Promise<void>
+  onConfirmReview: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
+  onDismissReview: () => void
+  buildRoute: BuildReview
 }
 
-const SwapOnlyButton: React.FC<Props> = ({
-  minimal,
+const SwapOnlyButton = ({
+  showButton,
   routeSummary,
   isGettingRoute,
-  isProcessingSwap,
   isApproved,
 
   currencyIn,
@@ -58,38 +45,27 @@ const SwapOnlyButton: React.FC<Props> = ({
   parsedAmount,
   isPermitSwap,
 
-  setProcessingSwap,
+  review,
+  onOpenReview,
+  onConfirmReview,
+  onDismissReview,
   buildRoute,
-}) => {
+}: SwapOnlyButtonProps) => {
+  const isProcessingSwap = review.phase !== 'closed'
   const { trackingHandler } = useTracking({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
   })
   const { networkInfo } = useActiveWeb3React()
+  const [slippage] = useUserSlippageTolerance()
   const [transactionTimeout] = useUserTransactionTTL()
-  const [buildResult, setBuildResult] = useState<BuildRouteResult>()
-  const [isBuildingRoute, setBuildingRoute] = useState(false)
+  const { buildResult } = review
+  const isBuildingRoute = review.phase === 'building'
   const { priceImpact } = routeSummary || {}
 
-  // the callback to execute the swap
   const swapCallback = useSwapCallbackV3(isPermitSwap)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
   const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
-
-  const handleClickSwapForNormalMode = async () => {
-    if (!swapCallback || isBuildingRoute) {
-      return
-    }
-
-    setProcessingSwap(true)
-    // dismiss the modal will setProcessingSwap to false
-
-    setBuildingRoute(true)
-    setBuildResult(undefined)
-    const result = await buildRoute()
-    setBuildingRoute(false)
-    setBuildResult(result)
-  }
 
   const getTokenAddress = (currency: Currency | undefined) =>
     currency?.isNative ? 'NATIVE' : currency?.wrapped?.address
@@ -124,120 +100,66 @@ const SwapOnlyButton: React.FC<Props> = ({
     })
   }
 
-  const [slippage] = useUserSlippageTolerance()
-
-  useEffect(() => {
-    if (Boolean(buildResult) && isProcessingSwap) handleClickSwapForNormalMode()
-    // eslint-disable-next-line
-  }, [slippage])
-
   const handleClickSwapButton = () => {
-    trackingHandler(TRACKING_EVENT_TYPE.SWAP_REVIEW_OPENED, {
-      from_token: currencyIn?.symbol,
-      from_token_address: getTokenAddress(currencyIn),
-      to_token: currencyOut?.symbol,
-      to_token_address: getTokenAddress(currencyOut),
-      amount_in: routeSummary?.parsedAmountIn?.toSignificant(6),
-      amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
-      amount_out: routeSummary?.parsedAmountOut?.toSignificant(6),
-      amount_out_usd: routeSummary?.amountOutUsd ? Number(routeSummary.amountOutUsd) : undefined,
-      rate: routeSummary?.executionPrice
-        ? `1 ${currencyIn?.symbol} = ${routeSummary.executionPrice.toSignificant(6)} ${currencyOut?.symbol}`
-        : undefined,
-      minimum_received: routeSummary?.parsedAmountOut
-        ? minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage)?.toSignificant(6)
-        : undefined,
-      price_impact: routeSummary?.priceImpact
-        ? routeSummary.priceImpact > 0.01
-          ? `${routeSummary.priceImpact.toFixed(2)}%`
-          : '<0.01%'
-        : undefined,
-      max_slippage: slippage ? slippage / 100 : 0,
-      trade_route_dexes: getRouteDexes(),
-      chain: networkInfo.name,
+    void onOpenReview(signal => {
+      trackingHandler(TRACKING_EVENT_TYPE.SWAP_REVIEW_OPENED, {
+        from_token: currencyIn?.symbol,
+        from_token_address: getTokenAddress(currencyIn),
+        to_token: currencyOut?.symbol,
+        to_token_address: getTokenAddress(currencyOut),
+        amount_in: routeSummary?.parsedAmountIn?.toSignificant(6),
+        amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
+        amount_out: routeSummary?.parsedAmountOut?.toSignificant(6),
+        amount_out_usd: routeSummary?.amountOutUsd ? Number(routeSummary.amountOutUsd) : undefined,
+        rate: routeSummary?.executionPrice
+          ? `1 ${currencyIn?.symbol} = ${routeSummary.executionPrice.toSignificant(6)} ${currencyOut?.symbol}`
+          : undefined,
+        minimum_received: routeSummary?.parsedAmountOut
+          ? minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage)?.toSignificant(6)
+          : undefined,
+        price_impact: routeSummary?.priceImpact
+          ? routeSummary.priceImpact > 0.01
+            ? `${routeSummary.priceImpact.toFixed(2)}%`
+            : '<0.01%'
+          : undefined,
+        max_slippage: slippage ? slippage / 100 : 0,
+        trade_route_dexes: getRouteDexes(),
+        chain: networkInfo.name,
+      })
+
+      trackingSwapInit()
+
+      return buildRoute(signal)
     })
-
-    trackingSwapInit()
-
-    handleClickSwapForNormalMode()
   }
 
-  const swapCallbackForModal = useMemo(() => {
-    if (buildResult?.data?.data && buildResult?.data?.routerAddress && swapCallback) {
-      return (onRequestSignature?: () => void) => {
-        let outputAmountDescription = ''
-        if (buildResult.data?.amountOut !== undefined && buildResult.data?.outputChange?.percent !== undefined) {
-          const amountOut = buildResult.data?.amountOut
-          const percent = buildResult.data?.outputChange?.percent
-          if (percent === 0) {
-            outputAmountDescription = 'Unchanged'
-          } else if (percent > 0) {
-            outputAmountDescription = 'New output amt is better than initial output amt'
-          } else if (percent > -1) {
-            outputAmountDescription = `New output amt is ${amountOut} to < 1% worse than initial output amt`
-          } else if (percent >= -5) {
-            outputAmountDescription = `New output amt is ${amountOut} to >= 1% to <= 5% worse than initial output amt`
-          } else {
-            outputAmountDescription = `New output amt is ${amountOut} to > 5% worse than initial output amt`
-          }
-        }
+  const handleSubmit: SubmitReview = onRequestSignature => {
+    if (!buildResult?.data?.data || !buildResult.data.routerAddress) throw new Error('Missing built route')
 
-        let currentPrice = ''
-        if (routeSummary !== undefined) {
-          const { amountIn, amountOut } = buildResult.data
-          const parsedAmountIn = toCurrencyAmount(routeSummary.parsedAmountIn.currency, amountIn)
-          const parsedAmountOut = toCurrencyAmount(routeSummary.parsedAmountOut.currency, amountOut)
-          const executionPrice = new Price(
-            parsedAmountIn.currency,
-            parsedAmountOut.currency,
-            parsedAmountIn.quotient,
-            parsedAmountOut.quotient,
-          )
-          const inputSymbol = executionPrice.baseCurrency?.symbol
-          const outputSymbol = executionPrice.quoteCurrency?.symbol
-          const formattedPrice = executionPrice?.toSignificant(6)
-          currentPrice = `1 ${inputSymbol} = ${formattedPrice} ${outputSymbol}`
-        }
-
-        trackingHandler(TRACKING_EVENT_TYPE.SWAP_CONFIRMED, {
-          gasUsd: routeSummary?.gasUsd,
-          inputAmount: routeSummary?.parsedAmountIn,
-          priceImpact: routeSummary?.priceImpact,
-          outputAmountDescription,
-          currentPrice,
-          feeInfo: getFeeInfoForMixPanel(routeSummary),
-        })
-
-        return swapCallback(buildResult.data.routerAddress, buildResult.data.data, onRequestSignature)
-      }
-    }
-
-    return undefined
-  }, [buildResult?.data, trackingHandler, routeSummary, swapCallback])
-
-  const onDismissModal = useCallback(() => {
-    setProcessingSwap(false)
-  }, [setProcessingSwap])
+    trackingHandler(TRACKING_EVENT_TYPE.SWAP_CONFIRMED, getSwapConfirmedTracking(buildResult.data, routeSummary))
+    return swapCallback(buildResult.data.routerAddress, buildResult.data.data, onRequestSignature)
+  }
 
   return (
     <>
-      <SwapButtonWithPriceImpact
-        isProcessingSwap={isProcessingSwap}
-        route={routeSummary}
-        onClick={handleClickSwapButton}
-        isApproved={!!isApproved}
-        minimal={!!minimal}
-        showLoading={showLoading}
-        priceImpact={priceImpact}
-        showNoteGetRoute={!routeSummary}
-      />
+      {showButton && (
+        <SwapButtonWithPriceImpact
+          isProcessingSwap={isProcessingSwap}
+          route={routeSummary}
+          onClick={handleClickSwapButton}
+          isApproved={!!isApproved}
+          showLoading={showLoading}
+          priceImpact={priceImpact}
+          showNoteGetRoute={!routeSummary}
+        />
+      )}
       <SwapModal
         isOpen={isProcessingSwap}
         tokenAddToMetaMask={currencyOut}
-        buildResult={buildResult}
-        isBuildingRoute={isBuildingRoute}
-        onDismiss={onDismissModal}
-        swapCallback={swapCallbackForModal}
+        review={review}
+        onDismiss={onDismissReview}
+        onConfirm={onConfirmReview}
+        swapCallback={buildResult?.data?.data && buildResult.data.routerAddress ? handleSubmit : undefined}
       />
     </>
   )

@@ -1,6 +1,5 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useEffect } from 'react'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import { removeTrailingZero } from 'components/LimitOrder/utils'
@@ -41,11 +40,7 @@ const RateComparison = ({
   outputAmount,
   fallbackOrderPrice,
 }: Props) => {
-  const {
-    fetcher: getSwapRoute,
-    result: swapRouteResult,
-    isLoading: swapRouteLoading,
-  } = useGetRoute({
+  const { result: swapRouteResult, isLoading: swapRouteLoading } = useGetRoute({
     currencyIn: inputCurrency,
     currencyOut: outputCurrency,
     parsedAmount: inputAmount,
@@ -81,11 +76,6 @@ const RateComparison = ({
   const shouldWarningOrderRate = marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
   const shouldSuccessOrderRate = marketDiffPercent < 0
   const showSwapOfferNotice = swapRouteLoading ? marketDiffPercent > 0 : isSwapRouteBetter
-
-  useEffect(() => {
-    if (!inputAmount || inputAmount.equalTo(0)) return
-    getSwapRoute()
-  }, [getSwapRoute, inputAmount])
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonGray">
