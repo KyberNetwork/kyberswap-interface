@@ -6,9 +6,9 @@ import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { Header } from 'pages/Swap/layout/Header'
-import { TAB } from 'pages/Swap/layout/Tabs'
-import { Container, PageWrapper, RightPanel, SwapFormWrapper, TradeBody } from 'pages/Swap/layout/components'
+import { Header } from 'pages/Swap/Layout/Header'
+import { TAB } from 'pages/Swap/Layout/Tabs'
+import { Container, PageWrapper, RightPanel, SwapFormWrapper, TradeBody } from 'pages/Swap/Layout/components'
 
 type PartnerSwapLayoutProps = PropsWithChildren<{
   activeMainTab: TAB

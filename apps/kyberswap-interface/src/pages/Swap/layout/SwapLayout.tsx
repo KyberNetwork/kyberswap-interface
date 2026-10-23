@@ -7,10 +7,8 @@ import LocalLoader from 'components/LocalLoader'
 import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
-import type { TradeController } from 'pages/Swap/hooks/useTradeController'
-import { Header } from 'pages/Swap/layout/Header'
-import { TAB } from 'pages/Swap/layout/Tabs'
+import { Header } from 'pages/Swap/Layout/Header'
+import { TAB } from 'pages/Swap/Layout/Tabs'
 import {
   BannerWrapper,
   Container,
@@ -18,7 +16,9 @@ import {
   RightPanel,
   SwapFormWrapper,
   TradeBody,
-} from 'pages/Swap/layout/components'
+} from 'pages/Swap/Layout/components'
+import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
+import type { TradeController } from 'pages/Swap/hooks/useTradeController'
 
 const FarmingPoolBanner = lazy(() => import('components/EarnBanner/FarmingPoolBanner'))
 const TrendingPoolBanner = lazy(() => import('components/EarnBanner/TrendingPoolBanner'))

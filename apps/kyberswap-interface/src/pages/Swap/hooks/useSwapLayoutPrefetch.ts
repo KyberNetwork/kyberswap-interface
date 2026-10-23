@@ -11,8 +11,8 @@ type LazyComponentLoader = () => Promise<unknown>
 // (usePrefetchOnIntent + prefetchCrossChainSwap), and the CrossChain page's own lazy boundaries fetch it on
 // render, so both real paths to it stay covered.
 const LEFT_CONTENT_LOADERS: LazyComponentLoader[] = [
-  () => import('pages/Swap/components/SwapSettingsPanel'),
-  () => import('pages/Swap/components/LiquiditySourcesPanel'),
+  () => import('components/SwapForm/Settings/SwapSettingsPanel'),
+  () => import('components/SwapForm/Settings/LiquiditySourcesPanel'),
   () => import('components/TokenInfo'),
 ]
 
