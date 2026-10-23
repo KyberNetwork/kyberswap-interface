@@ -7,7 +7,7 @@ import { SwapFee } from 'components/SwapForm/Quote/SwapFee'
 import { SwapRate } from 'components/SwapForm/Quote/SwapRate'
 import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
-import type { SwapQuoteRefresh } from 'components/SwapForm/hooks/useSwapQuote'
+import type { SwapQuoteRefresh } from 'components/SwapForm/hooks/useGetRoute'
 import { getERC8056DisplayAmount, getERC8056DisplayPrice } from 'hooks/useERC8056Token'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
@@ -33,6 +33,7 @@ const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampere
   const rateCurrencyIn = useCurrencyConvertedToNative(price?.baseCurrency)
   const rateCurrencyOut = useCurrencyConvertedToNative(price?.quoteCurrency)
 
+  const initialLoading = loading && !routeSummary
   const priceImpactResult = checkPriceImpact(priceImpact)
 
   const minimumAmountOut = getERC8056DisplayAmount(
@@ -59,12 +60,12 @@ const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampere
             ? formatDisplayNumber(price.invert(), { significantDigits: 6 })
             : undefined
         }
-        loading={loading}
+        loading={initialLoading}
         refresh={refresh}
       />
       <Stack className="gap-2">
         <QuoteDetailRow
-          loading={loading}
+          loading={initialLoading}
           label={<Trans>Minimum Received</Trans>}
           tooltip={
             <>
@@ -91,7 +92,7 @@ const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampere
         </QuoteDetailRow>
 
         <QuoteDetailRow
-          loading={loading}
+          loading={initialLoading}
           label={<Trans>Price Impact</Trans>}
           tooltip={
             <div>
@@ -127,7 +128,7 @@ const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampere
           </span>
         </QuoteDetailRow>
 
-        <SwapFee isFeeTampered={isFeeTampered} loading={loading} />
+        <SwapFee isFeeTampered={isFeeTampered} loading={initialLoading} />
 
         {isFeeTampered && (
           <ErrorWarning

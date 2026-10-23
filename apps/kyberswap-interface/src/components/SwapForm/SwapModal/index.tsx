@@ -1,12 +1,12 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
 import Modal from 'components/Modal'
 import SetExitPriceButton from 'components/StopMarket/SetExitPriceButton'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
-import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
+import ConfirmSwapModalContent from 'components/SwapForm/SwapModal/ConfirmSwapModalContent'
+import type { SubmitReview, SwapReviewState } from 'components/SwapForm/hooks/useSwapReviewSession'
 import {
   ConfirmationPendingContent,
   TransactionErrorContent,
@@ -18,39 +18,22 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { permitError } from 'state/swap/actions'
 import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
-import ConfirmSwapModalContent from './ConfirmSwapModalContent'
-
 type Props = {
   isOpen: boolean
   tokenAddToMetaMask: Currency | undefined
-  buildResult: BuildRouteResult | undefined
-  isBuildingRoute: boolean
+  review: SwapReviewState
+  onConfirm: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
 
   onDismiss: () => void
-  swapCallback: ((onRequestSignature?: () => void) => Promise<string>) | undefined
+  swapCallback: SubmitReview | undefined
 }
 
-const SwapModal: React.FC<Props> = props => {
-  const { isOpen, tokenAddToMetaMask, onDismiss, swapCallback, buildResult, isBuildingRoute } = props
+const SwapModal = ({ isOpen, tokenAddToMetaMask, onDismiss, onConfirm, swapCallback, review }: Props) => {
+  const { buildResult, error, txHash, phase } = review
   const { chainId, account, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
 
   const dispatch = useDispatch()
-  // modal and loading
-  const [{ error, isAttemptingTx, awaitingSignature, txHash }, setSwapState] = useState<{
-    error: string
-    isAttemptingTx: boolean
-    // True once the tx is prepared and the wallet prompt has been requested.
-    // Until then the pending modal shows a "Preparing Transaction" state.
-    awaitingSignature: boolean
-    txHash: string
-  }>({
-    error: '',
-    isAttemptingTx: false,
-    awaitingSignature: false,
-    txHash: '',
-  })
-
   const { routeSummary, displayTypedValue, outputERC8056Info } = useSwapFormContext()
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
@@ -63,34 +46,6 @@ const SwapModal: React.FC<Props> = props => {
 
   // text to show while loading
   const pendingText = t`Swapping ${amountInDisplay} ${symbolIn} for ${amountOutDisplay} ${symbolOut}`
-
-  const handleDismiss = useCallback(() => {
-    onDismiss()
-    setSwapState({
-      error: '',
-      isAttemptingTx: false,
-      awaitingSignature: false,
-      txHash: '',
-    })
-  }, [onDismiss])
-
-  const handleAttemptSendTx = () => {
-    setSwapState({
-      error: '',
-      isAttemptingTx: true,
-      awaitingSignature: false,
-      txHash: '',
-    })
-  }
-
-  const handleTxSubmitted = (txHash: string) => {
-    setSwapState({
-      error: '',
-      txHash,
-      isAttemptingTx: false,
-      awaitingSignature: false,
-    })
-  }
 
   const handleError = (error: string) => {
     const isUserRejected = error.toLowerCase().includes('user rejected') || error.toLowerCase().includes('user denied')
@@ -105,13 +60,6 @@ const SwapModal: React.FC<Props> = props => {
       max_slippage: routeSummary?.priceImpact,
       chain: networkInfo.name,
     })
-
-    setSwapState({
-      error,
-      txHash: '',
-      isAttemptingTx: false,
-      awaitingSignature: false,
-    })
   }
 
   const handleErrorDismiss = () => {
@@ -123,41 +71,27 @@ const SwapModal: React.FC<Props> = props => {
     ) {
       dispatch(permitError({ chainId, address: routeSummary.parsedAmountIn.currency.wrapped.address, account }))
     }
-    handleDismiss()
+    onDismiss()
   }
 
-  const handleConfirmSwap = async () => {
-    if (!swapCallback) {
-      return
-    }
-
-    handleAttemptSendTx()
-    try {
-      const hash = await swapCallback(() => setSwapState(prev => ({ ...prev, awaitingSignature: true })))
-      handleTxSubmitted(hash)
-    } catch (e) {
-      handleError(e.message)
-    }
+  const handleConfirmSwap = () => {
+    if (swapCallback) void onConfirm(swapCallback, handleError)
   }
 
-  const renderModalContent = () => {
-    if (isAttemptingTx) {
-      return (
+  return (
+    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={90}>
+      {phase === 'preparing' || phase === 'signing' ? (
         <ConfirmationPendingContent
-          onDismiss={handleDismiss}
+          onDismiss={onDismiss}
           pendingText={pendingText}
-          title={awaitingSignature ? undefined : t`Preparing Transaction`}
-          subtitle={awaitingSignature ? undefined : t`Estimating gas & network fees…`}
+          title={phase === 'signing' ? undefined : t`Preparing Transaction`}
+          subtitle={phase === 'signing' ? undefined : t`Estimating gas & network fees…`}
         />
-      )
-    }
-
-    if (txHash) {
-      return (
+      ) : txHash ? (
         <TransactionSubmittedContent
           chainId={chainId}
           hash={txHash}
-          onDismiss={handleDismiss}
+          onDismiss={onDismiss}
           tokenAddToMetaMask={tokenAddToMetaMask as Token}
           extraAction={
             <SetExitPriceButton
@@ -168,32 +102,17 @@ const SwapModal: React.FC<Props> = props => {
             />
           }
         />
-      )
-    }
-
-    if (error) {
-      return <TransactionErrorContent onDismiss={handleErrorDismiss} message={error} />
-    }
-
-    return (
-      <ConfirmSwapModalContent
-        isBuildingRoute={isBuildingRoute}
-        errorWhileBuildRoute={buildResult?.error}
-        onDismiss={handleErrorDismiss}
-        onSwap={handleConfirmSwap}
-        buildResult={buildResult}
-      />
-    )
-  }
-
-  useEffect(() => {
-    // dismiss the modal when user switches network
-    handleDismiss()
-  }, [chainId, handleDismiss])
-
-  return (
-    <Modal isOpen={isOpen} onDismiss={handleDismiss} maxHeight={90}>
-      {renderModalContent()}
+      ) : error ? (
+        <TransactionErrorContent onDismiss={handleErrorDismiss} message={error} />
+      ) : (
+        <ConfirmSwapModalContent
+          isBuildingRoute={phase === 'building'}
+          errorWhileBuildRoute={buildResult?.error}
+          onDismiss={handleErrorDismiss}
+          onSwap={handleConfirmSwap}
+          buildResult={buildResult}
+        />
+      )}
     </Modal>
   )
 }

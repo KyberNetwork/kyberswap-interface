@@ -6,16 +6,16 @@ different-chain or non-EVM pairs.
 
 ## Structure
 
-| Location | Responsibility |
-| --- | --- |
-| `SwapRoute.tsx`, `redirects.tsx` | Route normalization and redirects |
-| `SwapPage.tsx` | URL pair state, shared provider scope and history visibility |
-| `SwapPageContent.tsx` | Compose forms, settings and the right panel |
-| `LimitPage.tsx` | Limit Order page composition |
-| `Layout/` | Page shell, header and navigation tabs |
-| `components/` | Chart/route panels and history UI |
-| `hooks/` | URL pair selection, navigation and page prefetch |
-| `utils/` | Pure data transformations, including cross-chain route display mapping |
+| Location                         | Responsibility                                                         |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `SwapRoute.tsx`, `redirects.tsx` | Route normalization and redirects                                      |
+| `SwapPage.tsx`                   | URL pair state, shared provider scope and history visibility           |
+| `SwapPageContent.tsx`            | Compose forms, settings and the right panel                            |
+| `LimitPage.tsx`                  | Limit Order page composition                                           |
+| `Layout/`                        | Page shell, header and navigation tabs                                 |
+| `components/`                    | Chart/route panels and history UI                                      |
+| `hooks/`                         | URL pair selection, navigation and page prefetch                       |
+| `utils/`                         | Pure data transformations, including cross-chain route display mapping |
 
 Form UI and its quote, recipient, approval and execution logic live in
 [`components/SwapForm`](../../components/SwapForm). This directory owns page
@@ -36,15 +36,40 @@ composition and navigation; it consumes those form components.
 
 See `SwapPage.tsx` and `SwapPageContent.tsx` for the current integration.
 
+## Quote and review ownership
+
+- Single-chain `useGetRoute` uses TanStack Query for quote data, loading,
+  deduplication and polling. `useRouteRequest` defines the request key and query
+  function, including fee lookup and response price enrichment. RTK supplies the
+  route API transport.
+- Quote responses belong to the current input key. Quotes have no freshness window
+  or inactive retention (`staleTime: 0`, `gcTime: 0`); RTK route calls force refetch
+  without subscriptions and use `keepUnusedDataFor: 0`. An in-flight request for
+  the same key can still be shared. Physical cancellation is not required for quote correctness.
+- Cross-chain `useCrossChainQuote` owns its stream, selection, refresh and reviewed
+  quote. Each refresh opens a new stream.
+  Native fetch calls for routes/streams use `cache: 'no-store'`.
+- Both Unified Swap forms refresh after a 10-second interval following completion,
+  pause automatic refresh during Review and retain available metrics during refetch.
+  The indicator renders fetching state; its animation does not trigger requests.
+- Single-chain `useSwapReviewSession` owns build/review/submit/error and dismissal.
+  Preview starts a build and Review consumes its result; build cancellation and
+  session guards reject stale completions. Cross-chain Preview snapshots the selected
+  quote. Submitted transaction persistence continues independently of modal lifetime.
+- Limit Order's rate comparison uses `useGetRoute` without polling. Price Alert uses
+  it through `useBaseTradeInfoWithAggregator`; `RefreshButton` schedules refresh
+  every 10 seconds. PartnerSwap reuses `SingleChainSwap`.
+
 ## Remaining scope
 
 - [ ] View transaction details from History using available transaction/provider data.
 - [ ] Include single-chain swap transactions in History alongside cross-chain transactions.
 
-These are the remaining feature TODOs as agreed on 2026-10-23. Single-chain
-history is deferred; the panel currently reads only cross-chain transactions.
+The History panel currently reads only cross-chain transactions.
 
 ## Working on this module
+
+See [REFACTOR_TODO.md](./REFACTOR_TODO.md) for the scoped code-cleanup checklist.
 
 - Put form behavior in `components/SwapForm`; keep page layout, navigation,
   chart/routes and history here. Form modules must not import `pages/Swap`.

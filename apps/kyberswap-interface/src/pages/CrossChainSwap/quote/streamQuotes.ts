@@ -128,6 +128,7 @@ export const streamQuotes = async ({
   try {
     const response = await fetch(getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources }), {
       signal,
+      cache: 'no-store',
     })
     if (!response.ok) {
       console.error('Streaming API error response status:', response.status)

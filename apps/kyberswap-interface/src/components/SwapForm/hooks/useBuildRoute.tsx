@@ -1,12 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
 import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
 
-import { useRouteApiDomain } from 'components/SwapForm/hooks/useGetRoute'
+import { useRouteApiDomain } from 'components/SwapForm/hooks/useRouteRequest'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
@@ -41,119 +41,124 @@ const useBuildRoute = (args: Args) => {
   const [searchParams] = useSearchParams()
   const clientId = isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId')
   const { chainId, account } = useActiveWeb3React()
-  const abortControllerRef = useRef(new AbortController())
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const [buildRoute] = routeApi.useBuildRouteMutation()
   const aggregatorDomain = useRouteApiDomain()
   const recipientLookup = useENS(recipient)
   const to: string | null = (recipient === '' ? account : recipientLookup.address) ?? null
 
-  const fetcher = useCallback(async (): Promise<BuildRouteResult> => {
-    if (!account) {
-      return {
-        error: t`Wallet is not connected`,
-      }
-    }
-
-    if (!routeSummary) {
-      return {
-        error: t`Route summary is missing`,
-      }
-    }
-
-    const refCode = getCookieValue('refCode')
-
-    const rawRouteSummary = {
-      ...routeSummary,
-      amountInUsd: routeSummary.rawAmountInUsd as string,
-      amountOutUsd: routeSummary.rawAmountOutUsd as string,
-    }
-
-    delete rawRouteSummary.rawAmountInUsd
-    delete rawRouteSummary.rawAmountOutUsd
-
-    if (!rawRouteSummary.amountInUsd || !rawRouteSummary.amountOutUsd) {
-      console.error('[buildRoute] amountInUsd/amountOutUsd missing or empty before send', {
-        finalAmountInUsd: rawRouteSummary.amountInUsd,
-        finalAmountOutUsd: rawRouteSummary.amountOutUsd,
-        rawAmountInUsd: routeSummary.rawAmountInUsd,
-        rawAmountOutUsd: routeSummary.rawAmountOutUsd,
-        transformedAmountInUsd: routeSummary.amountInUsd,
-        transformedAmountOutUsd: routeSummary.amountOutUsd,
-        tokenIn: routeSummary.tokenIn,
-        tokenOut: routeSummary.tokenOut,
-        chainId,
-        tokenInDecimals: currencyIn?.decimals,
-        tokenOutDecimals: currencyOut?.decimals,
-      })
-    }
-
-    const payload: BuildRoutePayload = {
-      routeSummary: rawRouteSummary,
-      deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
-      slippageTolerance: slippage,
-      sender: account,
-      recipient: to || account,
-      source: clientId || 'kyberswap',
-      skipSimulateTx: false,
-      enableGasEstimation: true,
-      permit,
-      referral: refCode,
-      // for calculating price impact only
-      chainId,
-      // Must describe the units `routeSummary` actually carries, which is what the quote was asked
-      // for: the input side may be denominated in the native interface.
-      tokenInDecimals: currencyIn && routeTokenDecimals(currencyIn, 'in'),
-      tokenOutDecimals: currencyOut?.decimals,
-    }
-
-    try {
-      abortControllerRef.current.abort()
-      abortControllerRef.current = new AbortController()
-
-      const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.BUILD_ROUTE}`
-
-      const response = await buildRoute({
-        url,
-        payload,
-        signal: abortControllerRef.current.signal,
-        authentication: isEnableAuthenAggregator,
-      }).unwrap()
-      if (!response?.data?.data) throw new Error('Building route failed')
-      // The response echoes `amountIn` in the units it was given. Read it back into the input
-      // currency's own units here so every consumer of the build result works in one scale.
-      return {
-        data: currencyIn
-          ? { ...response.data, amountIn: amountFromRoute(response.data.amountIn, currencyIn, 'in') }
-          : response.data,
-      }
-    } catch (e) {
-      if (Array.isArray(e?.data?.errorEntities)) {
+  const fetcher = useCallback(
+    async (signal: AbortSignal): Promise<BuildRouteResult> => {
+      if (!account) {
         return {
-          error: e.data.errorEntities.join(' | '),
+          error: t`Wallet is not connected`,
         }
       }
 
-      return {
-        error: e?.data?.errorEntities?.[0] || e.message || e?.data?.message || t`Something went wrong`,
-        suggestedSlippage: e?.data?.suggestedSlippage,
+      if (!routeSummary) {
+        return {
+          error: t`Route summary is missing`,
+        }
       }
-    }
-  }, [
-    clientId,
-    account,
-    aggregatorDomain,
-    chainId,
-    to,
-    routeSummary,
-    slippage,
-    transactionTimeout,
-    buildRoute,
-    isEnableAuthenAggregator,
-    permit,
-    currencyIn,
-    currencyOut?.decimals,
-  ])
+
+      const refCode = getCookieValue('refCode')
+
+      const rawRouteSummary = {
+        ...routeSummary,
+        amountInUsd: routeSummary.rawAmountInUsd as string,
+        amountOutUsd: routeSummary.rawAmountOutUsd as string,
+      }
+
+      delete rawRouteSummary.rawAmountInUsd
+      delete rawRouteSummary.rawAmountOutUsd
+
+      if (!rawRouteSummary.amountInUsd || !rawRouteSummary.amountOutUsd) {
+        console.error('[buildRoute] amountInUsd/amountOutUsd missing or empty before send', {
+          finalAmountInUsd: rawRouteSummary.amountInUsd,
+          finalAmountOutUsd: rawRouteSummary.amountOutUsd,
+          rawAmountInUsd: routeSummary.rawAmountInUsd,
+          rawAmountOutUsd: routeSummary.rawAmountOutUsd,
+          transformedAmountInUsd: routeSummary.amountInUsd,
+          transformedAmountOutUsd: routeSummary.amountOutUsd,
+          tokenIn: routeSummary.tokenIn,
+          tokenOut: routeSummary.tokenOut,
+          chainId,
+          tokenInDecimals: currencyIn?.decimals,
+          tokenOutDecimals: currencyOut?.decimals,
+        })
+      }
+
+      const payload: BuildRoutePayload = {
+        routeSummary: rawRouteSummary,
+        deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
+        slippageTolerance: slippage,
+        sender: account,
+        recipient: to || account,
+        source: clientId || 'kyberswap',
+        skipSimulateTx: false,
+        enableGasEstimation: true,
+        permit,
+        referral: refCode,
+        // for calculating price impact only
+        chainId,
+        // Must describe the units `routeSummary` actually carries, which is what the quote was asked
+        // for: the input side may be denominated in the native interface.
+        tokenInDecimals: currencyIn && routeTokenDecimals(currencyIn, 'in'),
+        tokenOutDecimals: currencyOut?.decimals,
+      }
+
+      try {
+        if (signal.aborted) throw new Error('Build cancelled')
+
+        const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.BUILD_ROUTE}`
+
+        const request = buildRoute({
+          url,
+          payload,
+          signal,
+          authentication: isEnableAuthenAggregator,
+        })
+        const abortRequest = () => request.abort()
+        signal.addEventListener('abort', abortRequest, { once: true })
+
+        const response = await request.unwrap().finally(() => signal.removeEventListener('abort', abortRequest))
+        if (!response?.data?.data) throw new Error('Building route failed')
+        // The response echoes `amountIn` in the units it was given. Read it back into the input
+        // currency's own units here so every consumer of the build result works in one scale.
+        return {
+          data: currencyIn
+            ? { ...response.data, amountIn: amountFromRoute(response.data.amountIn, currencyIn, 'in') }
+            : response.data,
+        }
+      } catch (e) {
+        if (Array.isArray(e?.data?.errorEntities)) {
+          return {
+            error: e.data.errorEntities.join(' | '),
+          }
+        }
+
+        return {
+          error: e?.data?.errorEntities?.[0] || e.message || e?.data?.message || t`Something went wrong`,
+          suggestedSlippage: e?.data?.suggestedSlippage,
+        }
+      }
+    },
+    [
+      clientId,
+      account,
+      aggregatorDomain,
+      chainId,
+      to,
+      routeSummary,
+      slippage,
+      transactionTimeout,
+      buildRoute,
+      isEnableAuthenAggregator,
+      permit,
+      currencyIn,
+      currencyOut?.decimals,
+    ],
+  )
 
   return fetcher
 }
