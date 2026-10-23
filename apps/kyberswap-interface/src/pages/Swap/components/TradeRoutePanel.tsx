@@ -3,23 +3,13 @@ import { ChevronDown } from 'react-feather'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing_icon.svg'
 import Skeleton from 'components/Skeleton'
-import { HStack } from 'components/Stack'
-import {
-  HopCard,
-  HopList,
-  PairRow,
-  PairTokenSlot,
-  PoolLabel,
-  PoolList,
-  RouteList,
-  RouteRow,
-  TokenLink,
-} from 'components/TradeRouting/styled'
+import { HopCard, PairRow, PairTokenSlot, RouteContent, RouteList, TokenLink } from 'components/TradeRouting/styled'
 import { cn } from 'utils/cn'
 
-/** Match the loaded route's pair row, route padding and one-pool card geometry. */
-export const TradeRouteSkeleton = ({ crossChain = false }: { crossChain?: boolean }) => (
-  <div className={cn('overflow-x-auto', crossChain && 'pb-2')}>
+/** One-pool baseline: 20px heading + 8px gap + 31px/55px pool group + 26px card padding/border.
+ * Additional graph nodes, pools and wrapped content can grow beyond this placeholder. */
+export const TradeRouteSkeleton = ({ poolLines = 2 }: { poolLines?: 1 | 2 }) => (
+  <RouteContent>
     <PairRow>
       {[0, 1].map(index => (
         <PairTokenSlot key={index}>
@@ -29,28 +19,19 @@ export const TradeRouteSkeleton = ({ crossChain = false }: { crossChain?: boolea
         </PairTokenSlot>
       ))}
     </PairRow>
-    <RouteList>
-      <RouteRow className="gap-6 py-2.5 pl-6">
-        <HopList className="relative flex-1 justify-evenly gap-3">
+    <div className="overflow-x-auto">
+      <RouteList>
+        <div className="flex min-w-[480px] justify-evenly gap-12 px-12 py-9">
           {[0, 1].map(index => (
-            <HopCard key={index} className={cn(crossChain && 'min-w-[220px] basis-[220px]')}>
-              <HStack className={cn('h-6 items-start gap-1.5 pb-2', crossChain && 'h-4 items-center pb-0')}>
-                <Skeleton height={16} variant="darkSubtle" width={16} />
-                <Skeleton height={12} variant="darkSubtle" width={crossChain ? 140 : 88} />
-              </HStack>
-              <PoolList>
-                <PoolLabel className="h-5 gap-1">
-                  <Skeleton height={14} variant="darkSubtle" width={14} />
-                  <Skeleton height={10} variant="darkSubtle" width={72} />
-                </PoolLabel>
-              </PoolList>
+            <HopCard key={index}>
+              <Skeleton height={20} variant="darkSubtle" />
+              <Skeleton height={poolLines === 1 ? 31 : 55} variant="darkSubtle" />
             </HopCard>
           ))}
-        </HopList>
-        <div className="h-6 min-w-6" />
-      </RouteRow>
-    </RouteList>
-  </div>
+        </div>
+      </RouteList>
+    </div>
+  </RouteContent>
 )
 
 /** Shared route shell; owns expansion and optional scrolling, not route data.

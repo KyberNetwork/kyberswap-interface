@@ -58,23 +58,6 @@ const SingleChainTradeRoute = ({
     [currencyIn?.symbol, currencyOut?.symbol, inputAmount, outputAmount],
   )
 
-  const smartSettlementTooltip = (
-    <div className="text-xs text-subText [&_b]:font-medium [&_b]:text-text">
-      <Trans>
-        At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that delivers the
-        highest output - giving your swap the best possible rate with an extra layer of protection from slippage,
-        PropAMM manipulation, Just-in-Time attacks and MEVs. <b>Your minimum amount out is always guaranteed.</b> No
-        extra steps needed.
-      </Trans>{' '}
-      <ExternalLink
-        href="https://docs.kyberswap.com/developer-guide/start-here/foundational-solutions/smart-settlement-better-swap-output-with-lower-slippage"
-        onClick={event => event.stopPropagation()}
-      >
-        <Trans>Learn more ↗</Trans>
-      </ExternalLink>
-    </div>
-  )
-
   return (
     <TradeRoutePanel
       defaultCollapsed={defaultCollapsed}
@@ -107,7 +90,26 @@ const SingleChainTradeRoute = ({
           ) : null}
 
           {isSmartSettlement && (
-            <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
+            <ClickTooltip
+              text={
+                <div className="text-xs text-subText [&_b]:font-medium [&_b]:text-text">
+                  <Trans>
+                    At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that
+                    delivers the highest output - giving your swap the best possible rate with an extra layer of
+                    protection from slippage, PropAMM manipulation, Just-in-Time attacks and MEVs.{' '}
+                    <b>Your minimum amount out is always guaranteed.</b> No extra steps needed.
+                  </Trans>{' '}
+                  <ExternalLink
+                    href="https://docs.kyberswap.com/developer-guide/start-here/foundational-solutions/smart-settlement-better-swap-output-with-lower-slippage"
+                    onClick={event => event.stopPropagation()}
+                  >
+                    <Trans>Learn more ↗</Trans>
+                  </ExternalLink>
+                </div>
+              }
+              width="360px"
+              placement="top"
+            >
               <div
                 role="button"
                 className="flex shrink-0 items-center gap-1 rounded-xl border border-primary-40 bg-primary-12 px-2 py-1 text-sm font-medium text-primary"
@@ -121,7 +123,7 @@ const SingleChainTradeRoute = ({
         </div>
       }
     >
-      {loading ? (
+      {loading && !tradeComposition?.length ? (
         <TradeRouteSkeleton />
       ) : (
         <Suspense fallback={<TradeRouteSkeleton />}>

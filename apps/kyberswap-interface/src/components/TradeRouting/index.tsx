@@ -1,132 +1,33 @@
-import { ChainId, Currency, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import React, { memo, useCallback, useEffect, useRef } from 'react'
-import ScrollContainer from 'react-indiana-drag-scroll'
+import { memo, useMemo } from 'react'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import TradeRouteV3 from 'components/TradeRouting/TradeRouteV3'
-import {
-  formatRoutePercent,
-  getDexInfoByPool,
-  getSwapPercent,
-  onScroll,
-  useShadow,
-} from 'components/TradeRouting/helpers'
-import {
-  ArrowHead,
-  EmptyRoute,
-  HopCard,
-  HopList,
-  PairRow,
-  PairTokenSlot,
-  PoolLabel,
-  PoolLink,
-  PoolList,
-  RouteArrow,
-  RouteBadge,
-  RouteConnector,
-  RouteDot,
-  RouteList,
-  RouteRow,
-  RoutingFadeX,
-  RoutingFadeY,
-  RoutingViewport,
-  TokenLink,
-} from 'components/TradeRouting/styled'
+import RouteGraphView from 'components/TradeRouting/RouteGraphView'
+import { buildV2RouteGraph, buildV3RouteGraph } from 'components/TradeRouting/routeGraph'
+import { EmptyRoute, PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/useTokens'
 import { useAllDexes } from 'state/customizeDexes/hooks'
-import { isAddress } from 'utils/address'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
-import { getEtherscanLink } from 'utils/explorer'
 import { hasNativeErc20Interface } from 'utils/nativeErc20'
 
-interface HopRowProps {
-  route: SwapRouteV2
-  chainId: ChainId
-  backgroundColor?: string
-}
+const PairToken = ({
+  currency,
+  amount,
+  reverse,
+}: {
+  currency: Currency | undefined
+  amount: CurrencyAmount<Currency> | undefined
+  reverse?: boolean
+}) =>
+  currency ? (
+    <TokenLink as="div" reverse={reverse} className="border-none">
+      <CurrencyLogo currency={currency} size="20px" />
+      <span>{`${amount ? amount.toSignificant(8) : ''} ${currency.symbol}`}</span>
+    </TokenLink>
+  ) : null
 
-const HopRow = ({ route, chainId, backgroundColor }: HopRowProps) => {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const shadowRef = useRef<HTMLDivElement>(null)
-
-  const allDexes = useAllDexes(chainId)
-  const handleShadow = useShadow(scrollRef, shadowRef, contentRef)
-
-  useEffect(() => {
-    window.addEventListener('resize', handleShadow)
-    return () => window.removeEventListener('resize', handleShadow)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-  useEffect(() => {
-    handleShadow()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route])
-
-  return (
-    <RoutingFadeX ref={shadowRef} backgroundColor={backgroundColor}>
-      <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
-        <HopList ref={contentRef}>
-          {route.subRoutes.map((subRoute, index, arr) => {
-            const token = route.path[index + 1]
-            const id = subRoute
-              .flat()
-              .map(item => item.id)
-              .join('-')
-
-            return (
-              <React.Fragment key={id}>
-                <HopCard>
-                  <HopTokenLink token={token} />
-                  <PoolList>
-                    {Array.isArray(subRoute)
-                      ? subRoute.map(pool => {
-                          const dex = getDexInfoByPool(pool.exchange, allDexes)
-                          const poolId = pool.id.split('-')?.[0]
-                          const link = (i => {
-                            // TODO: Dungz remove condition
-                            return isAddress(chainId, poolId) &&
-                              !['1inch', 'paraswap', '0x'].includes(pool.exchange) ? (
-                              <PoolLink
-                                key={`${i}-${pool.id}`}
-                                href={getEtherscanLink(chainId, poolId, 'address')}
-                                target="_blank"
-                              >
-                                {i}
-                              </PoolLink>
-                            ) : (
-                              <PoolLabel key={`${i}-${pool.id}`}>{i}</PoolLabel>
-                            )
-                          })(
-                            <>
-                              {dex?.logoURL ? <img src={dex.logoURL} alt="" className="img--sm" /> : null}
-                              {`${dex?.name || pool.exchange}: ${
-                                pool.swapPercentage != null ? formatRoutePercent(pool.swapPercentage) : ''
-                              }`}
-                            </>,
-                          )
-                          return link
-                        })
-                      : null}
-                  </PoolList>
-                </HopCard>
-                {index !== arr.length - 1 && (
-                  <RouteArrow>
-                    <ArrowHead />
-                  </RouteArrow>
-                )}
-              </React.Fragment>
-            )
-          })}
-        </HopList>
-      </ScrollContainer>
-    </RoutingFadeX>
-  )
-}
-
-interface RoutingProps {
+type RoutingProps = {
   maxHeight?: string
 
   tradeComposition: SwapRouteV2[] | SwapRouteV3[] | undefined
@@ -147,113 +48,46 @@ const Routing = ({
   currencyOut,
 }: RoutingProps) => {
   const { chainId: walletChainId } = useActiveWeb3React()
-  const chainId = customChainId || walletChainId
-  const shadowRef = useRef<HTMLDivElement>(null)
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-
-  const renderTokenInfo = (
-    currency: Currency | undefined,
-    amount: CurrencyAmount<Currency> | undefined,
-    reverseOrder?: boolean,
-  ) => {
-    if (chainId && currency) {
-      return (
-        <TokenLink as="div" reverse={reverseOrder} className="border-none">
-          <CurrencyLogo currency={currency} size="20px" />
-          <span>{`${amount ? amount.toSignificant(8) : ''} ${currency.symbol}`}</span>
-        </TokenLink>
-      )
-    }
-
-    return null
-  }
+  const chainId = customChainId ?? currencyIn?.chainId ?? currencyOut?.chainId ?? walletChainId
+  const allDexes = useAllDexes(chainId)
 
   const wrappedNative = hasNativeErc20Interface(chainId) ? undefined : WETH[chainId]
   const isWrap = Boolean(currencyIn?.isNative && currencyOut && wrappedNative?.equals(currencyOut))
   const isUnwrap = Boolean(currencyOut?.isNative && currencyIn && wrappedNative?.equals(currencyIn))
 
-  const availabeRoute = chainId && tradeComposition && tradeComposition.length > 0
+  const availableRoute = chainId && tradeComposition && tradeComposition.length > 0
 
-  const handleScroll = useCallback(() => {
-    return onScroll(shadowRef.current)
-  }, [])
+  const graph = useMemo(() => {
+    if (!tradeComposition?.length) return null
 
-  useEffect(() => {
-    window.addEventListener('resize', handleScroll)
-    return () => window.removeEventListener('resize', handleScroll)
-  }, [handleScroll])
+    if (tradeComposition.every((route): route is SwapRouteV3 => 'pool' in route)) {
+      return inputAmount && outputAmount
+        ? buildV3RouteGraph(tradeComposition, inputAmount.currency.wrapped, allDexes)
+        : null
+    }
 
-  useEffect(() => {
-    handleScroll()
-  }, [tradeComposition, maxHeight, handleScroll])
-
-  const isSwapRouteV3 =
-    (tradeComposition as Array<SwapRouteV2 | SwapRouteV3> | undefined)?.every(
-      (item): item is SwapRouteV3 => 'pool' in item,
-    ) ?? false
+    return buildV2RouteGraph(tradeComposition as SwapRouteV2[], chainId, allDexes)
+  }, [tradeComposition, inputAmount, outputAmount, chainId, allDexes])
 
   return (
-    <RoutingFadeY ref={shadowRef}>
-      <RoutingViewport ref={wrapperRef} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
-        <div ref={contentRef}>
-          <PairRow>
-            <PairTokenSlot>{renderTokenInfo(currencyIn, inputAmount)}</PairTokenSlot>
-            <PairTokenSlot>{renderTokenInfo(currencyOut, outputAmount, true)}</PairTokenSlot>
-          </PairRow>
+    <div className="ks-scrollbar min-h-0 overflow-y-auto overflow-x-hidden" style={{ maxHeight: maxHeight || '100%' }}>
+      <RouteContent>
+        <PairRow>
+          <PairTokenSlot>
+            <PairToken currency={currencyIn} amount={inputAmount} />
+          </PairTokenSlot>
+          <PairTokenSlot>
+            <PairToken currency={currencyOut} amount={outputAmount} reverse />
+          </PairTokenSlot>
+        </PairRow>
 
-          {!availabeRoute ? (
-            <EmptyRoute message={isWrap ? t`Wrapping` : isUnwrap ? t`Unwrapping` : undefined} />
-          ) : (
-            <>
-              <RouteList>
-                {!isSwapRouteV3 && (
-                  <>
-                    <RouteDot />
-                    <RouteDot out />
-                  </>
-                )}
-                {isSwapRouteV3 ? (
-                  inputAmount && outputAmount ? (
-                    <TradeRouteV3
-                      tradeComposition={tradeComposition as SwapRouteV3[]}
-                      tokenIn={inputAmount?.currency.wrapped}
-                    />
-                  ) : null
-                ) : (
-                  (tradeComposition as SwapRouteV2[]).map(route => {
-                    return (
-                      <RouteRow key={route.id}>
-                        <RouteBadge>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</RouteBadge>
-                        <RouteConnector />
-                        <HopRow route={route} chainId={chainId} />
-                        <RouteArrow className="mr-0.5">
-                          <ArrowHead />
-                        </RouteArrow>
-                      </RouteRow>
-                    )
-                  })
-                )}
-              </RouteList>
-            </>
-          )}
-        </div>
-      </RoutingViewport>
-    </RoutingFadeY>
-  )
-}
-
-const HopTokenLink = ({ token }: { token: Token }) => {
-  const currency = useCurrencyV2(token.wrapped.address, token.chainId)
-  return (
-    <TokenLink
-      className="mr-0 w-fit text-xs"
-      href={getEtherscanLink(token.chainId, token?.wrapped.address, 'token')}
-      target="_blank"
-    >
-      <CurrencyLogo currency={currency} size="16px" />
-      <span className="font-medium">{currency?.symbol}</span>
-    </TokenLink>
+        {!availableRoute ? (
+          <EmptyRoute message={isWrap ? t`Wrapping` : isUnwrap ? t`Unwrapping` : undefined} />
+        ) : graph ? (
+          <RouteGraphView graph={graph} />
+        ) : null}
+      </RouteContent>
+    </div>
   )
 }
 
