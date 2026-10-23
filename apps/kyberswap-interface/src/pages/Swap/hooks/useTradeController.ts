@@ -5,8 +5,8 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { type MainTab, TAB, isSettingTab } from 'pages/Swap/Layout/Tabs'
 import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
-import { type MainTab, TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
 
 export type TradeController = {
   activeMainTab: TAB

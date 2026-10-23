@@ -1,16 +1,12 @@
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { useQuery } from '@tanstack/react-query'
 import * as nearAPI from 'near-api-js'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 
-const TTL = 30 // 30s
-let lastUpdated = Date.now() / 1000
-let cached: Record<string, string> = {}
-
-// A flag to ensure we only have one in-flight request
-let isBalanceFetchInProgress = false
+const EMPTY_BALANCES: Record<string, string> = {}
 
 // Add this for sleep/delay
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -45,8 +41,8 @@ const customViewFunction = async (
   return result
 }
 
-export const useNearBalances = () => {
-  const { nearTokens } = useNearTokens()
+export const useNearBalances = (enabled = true) => {
+  const { nearTokens } = useNearTokens(!enabled)
   const [transactions] = useCrossChainTransactions()
 
   const tokenOnNears = useMemo(
@@ -59,25 +55,15 @@ export const useNearBalances = () => {
 
   const { signedAccountId, getBalance } = useWalletSelector()
 
-  const [balances, setBalances] = useState<Record<string, string>>({})
-
-  // Track completed transactions to avoid multiple refreshes
-  const completedTxsRef = useRef<Set<string>>(new Set())
-
-  const getBalances = useCallback(
-    async (options: { nocache: boolean }) => {
-      if (isBalanceFetchInProgress) return
-      if (!signedAccountId || !tokenOnNears.length) {
-        setBalances({})
-        return
-      }
-
-      if (!options.nocache && Date.now() / 1000 < lastUpdated + TTL && Object.values(cached).length) {
-        setBalances(cached)
-        return
-      }
-      isBalanceFetchInProgress = true
-
+  const active = enabled && !!signedAccountId && tokenOnNears.length > 0
+  const { data, refetch } = useQuery({
+    queryKey: ['near-balances', signedAccountId, tokenOnNears.map(token => [token.assetId, token.contractAddress])],
+    enabled: active,
+    staleTime: 30_000,
+    refetchInterval: 30_000,
+    retry: false,
+    queryFn: async () => {
+      if (!signedAccountId) return EMPTY_BALANCES
       let nativeBalance: string
       try {
         nativeBalance = (await getBalance(signedAccountId)).toString()
@@ -129,23 +115,14 @@ export const useNearBalances = () => {
         }
       }
 
-      const b = tokenOnNears.reduce((acc, token, index) => {
-        return {
-          ...acc,
-          [token.assetId]: res[index] || '0',
-        }
-      }, {} as Record<string, string>)
-      lastUpdated = Date.now() / 1000
-      cached = b
-      setBalances(b)
-      isBalanceFetchInProgress = false
+      return Object.fromEntries(tokenOnNears.map((token, index) => [token.assetId, res[index] || '0']))
     },
-    [signedAccountId, tokenOnNears, getBalance],
-  )
+  })
+  const completedTxsRef = useRef<Set<string>>(new Set())
 
   // Watch for completed cross-chain swap transactions and refresh balances
   useEffect(() => {
-    if (!signedAccountId || !transactions.length) return
+    if (!active || !transactions.length) return
 
     const completedTxs = transactions.filter(tx => tx.status === 'Success')
     const newlyCompletedTxs = completedTxs.filter(tx => !completedTxsRef.current.has(tx.id))
@@ -155,28 +132,13 @@ export const useNearBalances = () => {
       const nearRelatedTxs = newlyCompletedTxs.filter(tx => tx.targetChain === 'near' || tx.sourceChain === 'near')
 
       if (nearRelatedTxs.length > 0) {
-        getBalances({ nocache: true })
+        void refetch({ cancelRefetch: false })
       }
 
       // Mark these transactions as processed
       newlyCompletedTxs.forEach(tx => completedTxsRef.current.add(tx.id))
     }
-  }, [transactions, signedAccountId, getBalances])
+  }, [transactions, active, refetch])
 
-  useEffect(() => {
-    getBalances({ nocache: false })
-
-    const i = setInterval(() => {
-      getBalances({ nocache: false })
-    }, 30_000) // refresh every 30s
-
-    return () => {
-      clearInterval(i)
-    }
-  }, [getBalances])
-
-  return {
-    balances,
-    getBalances,
-  }
+  return { balances: active ? data ?? EMPTY_BALANCES : EMPTY_BALANCES }
 }

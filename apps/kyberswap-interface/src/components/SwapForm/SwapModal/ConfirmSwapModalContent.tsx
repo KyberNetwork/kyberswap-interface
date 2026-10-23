@@ -16,13 +16,13 @@ import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import Loader from 'components/Loader'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { HStack, Stack } from 'components/Stack'
-import PriceImpactNote from 'components/SwapForm/PriceImpactNote'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import SwapBrief from 'components/SwapForm/SwapModal/SwapBrief'
 import SwapDetails, { Props as SwapDetailsProps } from 'components/SwapForm/SwapModal/SwapDetails'
 import { Level } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSure'
+import PriceImpactNote from 'components/SwapForm/Warnings/PriceImpactNote'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
@@ -32,7 +32,6 @@ import { useActiveWeb3React } from 'hooks'
 import { getERC8056DisplayAmount, getERC8056DisplayPrice } from 'hooks/useERC8056Token'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
@@ -129,7 +128,8 @@ export default function ConfirmSwapModalContent({
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
   const { currency: currencyParam } = useParams()
-  const { currencyIn, currencyOut } = useCurrenciesByPage()
+  const currencyIn = routeSummary?.parsedAmountIn.currency
+  const currencyOut = routeSummary?.parsedAmountOut.currency
   const { chainId, account, networkInfo } = useActiveWeb3React()
   const { honeypot } = useHoneypotWarning({
     chainId,

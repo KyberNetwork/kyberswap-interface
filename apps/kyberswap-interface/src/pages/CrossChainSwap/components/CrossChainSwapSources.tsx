@@ -3,9 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import CheckBox from 'components/CheckBox'
 import { HStack, Stack } from 'components/Stack'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
-import { SearchBar } from 'pages/Swap/components/LiquiditySourcesPanel/SearchBar'
+import { SearchBar } from 'components/SwapForm/Settings/LiquiditySourcesPanel/SearchBar'
 import {
   BackIconWrapper,
   ImageWrapper,
@@ -13,21 +11,25 @@ import {
   Source,
   SourceList,
   SourceName,
-} from 'pages/Swap/components/LiquiditySourcesPanel/components'
-import { updateExcludedSources, useCrossChainQuoteMode } from 'state/crossChainSwap'
+} from 'components/SwapForm/Settings/LiquiditySourcesPanel/components'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { type CrossChainQuoteMode, updateExcludedSources, useCrossChainQuoteMode } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 type Props = {
   onBack?: () => void
+  quoteMode?: CrossChainQuoteMode
 }
 
-const CrossChainSwapSources = ({ onBack }: Props) => {
+const CrossChainSwapSources = ({ onBack, quoteMode: mode }: Props) => {
   const { trackingHandler } = useTracking()
   const [searchText, setSearchText] = useState('')
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
 
-  const quoteMode = useCrossChainQuoteMode()
+  const storedQuoteMode = useCrossChainQuoteMode()
+  const quoteMode = mode ?? storedQuoteMode
   const sources = useMemo(() => CrossChainSwapFactory.getSelectableSources(quoteMode), [quoteMode])
   const sourceNames = useMemo(() => sources.map(item => item.getName()), [sources])
   const storedExcludedSources = useAppSelector(state => state.crossChainSwap.excludedSources || [])

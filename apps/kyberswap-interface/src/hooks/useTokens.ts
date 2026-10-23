@@ -2,7 +2,7 @@ import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core
 import { useQuery } from '@tanstack/react-query'
 import { multicall } from '@wagmi/core'
 import axios from 'axios'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchAbstractTokens } from 'services/crossChainTokens'
 import ksSettingApi from 'services/ksSetting'
@@ -69,9 +69,6 @@ function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean,
 
 export type TokenMap = { [address: string]: WrappedTokenInfo }
 
-const fetchedChainIds = new Set<ChainId>()
-const fetchingChainIds = new Set<ChainId>()
-
 function listToTokenMap(list: TokenInfo[], chainId: ChainId): TokenMap {
   const map = list.reduce<TokenMap>((tokenMap, tokenInfo) => {
     const formattedAddress = getFormattedAddress(chainId, tokenInfo.address)
@@ -85,106 +82,104 @@ function listToTokenMap(list: TokenInfo[], chainId: ChainId): TokenMap {
   return map
 }
 
-export function useEnsureTokenList(chainId?: ChainId) {
+// Retry transient transport/server failures, but do not repeat permanent client errors.
+const shouldRetryTokenList = (failureCount: number, error: unknown) => {
+  const status = error && typeof error === 'object' && 'status' in error ? error.status : undefined
+  const isTransient = typeof status !== 'number' || status === 408 || status === 429 || status >= 500
+  return failureCount < 2 && isTransient
+}
+
+/** Coordinates one initial whitelist load per chain and publishes only complete results to Redux.
+ * Populated lists are reused; failures and empty results follow the explicit recovery policy below.
+ * Successful in-flight loads may finish after unmount and populate their original chain. */
+export const useEnsureTokenList = (chainId?: ChainId) => {
   const dispatch = useDispatch<AppDispatch>()
   const [fetchTokenList] = ksSettingApi.useLazyGetTokenListQuery()
   const tokenListSize = useSelector((state: AppState) =>
     chainId ? Object.keys(state.lists.mapWhitelistTokens[chainId] ?? {}).length : 0,
   )
 
-  useEffect(() => {
-    if (!chainId || tokenListSize) return
-    if (fetchedChainIds.has(chainId) || fetchingChainIds.has(chainId)) return
-
-    const getTokens = async () => {
-      fetchingChainIds.add(chainId)
-      try {
-        if (chainId === ChainId.ABSTRACT) {
-          const tokens = await fetchAbstractTokens()
-          dispatch(setTokenList({ chainId, tokenList: listToTokenMap(tokens, chainId) }))
-          fetchedChainIds.add(chainId)
-          return
-        }
-        const pageSize = 100
-        const maximumPage = 15
-
-        // Fetch page 1 first — its pagination.totalItems tells us how many pages exist, so the rest can be
-        // fetched concurrently instead of walking them one blocking round-trip at a time.
-        const firstPage = await fetchTokenList({ chainId, page: 1, pageSize, isWhitelisted: true }, true)
-        if (firstPage.error) throw firstPage.error
-        let tokens: TokenInfo[] = firstPage.data?.data.tokens ?? []
-
-        const totalItems = firstPage.data?.data.pagination?.totalItems
-        // With a token count, request exactly the remaining pages; without one, fall back to fetching up to
-        // the cap (empty pages concat harmlessly) so a missing pagination field can never drop tokens.
-        const totalPages =
-          totalItems != null
-            ? Math.min(Math.ceil(totalItems / pageSize), maximumPage)
-            : tokens.length < pageSize
-            ? 1
-            : maximumPage
-
-        if (totalPages > 1) {
-          const restResults = await Promise.all(
-            Array.from({ length: totalPages - 1 }, (_, index) =>
-              fetchTokenList({ chainId, page: index + 2, pageSize, isWhitelisted: true }, true),
-            ),
-          )
-          for (const result of restResults) {
-            if (result.error) throw result.error
-            tokens = tokens.concat(result.data?.data.tokens ?? [])
-          }
-        }
-
-        const tokenList = listToTokenMap(tokens, chainId)
-
-        if (chainId === ChainId.GÖRLI) {
-          dispatch(
-            setTokenList({
-              chainId,
-              tokenList: {
-                ...tokenList,
-                '0x1BBeeEdCF32dc2c1Ebc2F138e3FC7f3DeCD44D6A': new WrappedTokenInfo({
-                  address: '0x1BBeeEdCF32dc2c1Ebc2F138e3FC7f3DeCD44D6A',
-                  chainId: ChainId.GÖRLI,
-                  decimals: 18,
-                  name: 'DAI',
-                  symbol: 'DAI',
-                  logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
-                }),
-                '0x2Bf64aCf7eAd856209749D0D125e9Ade2D908E7f': new WrappedTokenInfo({
-                  address: '0x2Bf64aCf7eAd856209749D0D125e9Ade2D908E7f',
-                  chainId: ChainId.GÖRLI,
-                  decimals: 18,
-                  name: 'USDT',
-                  symbol: 'USDT',
-                  logoURI: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
-                }),
-              },
-            }),
-          )
-        } else dispatch(setTokenList({ chainId, tokenList }))
-
-        fetchedChainIds.add(chainId)
-      } finally {
-        fetchingChainIds.delete(chainId)
+  return useQuery({
+    queryKey: ['whitelist-token-list', chainId],
+    enabled: !!chainId && !tokenListSize,
+    // Redux owns usable token data. This query coordinates the initial load and its retries.
+    // A valid empty result may be checked again on remount/reconnect after one minute.
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    retry: shouldRetryTokenList,
+    retryDelay: attempt => Math.min(1_000 * 2 ** attempt, 4_000),
+    retryOnMount: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    refetchOnWindowFocus: false,
+    queryFn: async () => {
+      if (!chainId) return null
+      if (chainId === ChainId.ABSTRACT) {
+        const tokens = await fetchAbstractTokens()
+        dispatch(setTokenList({ chainId, tokenList: listToTokenMap(tokens, chainId) }))
+        return true
       }
-    }
+      const pageSize = 100
+      const maximumPage = 15
 
-    getTokens().catch(error => {
-      console.error('Failed to fetch token list', { chainId, error })
-    })
-  }, [chainId, dispatch, fetchTokenList, tokenListSize])
+      // Fetch page 1 first — its pagination.totalItems tells us how many pages exist, so the rest can be
+      // fetched concurrently instead of walking them one blocking round-trip at a time.
+      const firstPage = await fetchTokenList({ chainId, page: 1, pageSize, isWhitelisted: true }, false)
+      if (firstPage.error) throw firstPage.error
+      const firstTokens = firstPage.data?.data?.tokens
+      if (!Array.isArray(firstTokens)) throw new Error('Token list response is missing tokens')
+      let tokens: TokenInfo[] = firstTokens
+
+      const totalItems = firstPage.data?.data.pagination?.totalItems
+      // With a token count, request exactly the remaining pages; without one, fall back to fetching up to
+      // the cap (empty pages concat harmlessly) so a missing pagination field can never drop tokens.
+      const totalPages =
+        totalItems != null
+          ? Math.min(Math.ceil(totalItems / pageSize), maximumPage)
+          : tokens.length < pageSize
+          ? 1
+          : maximumPage
+
+      if (totalPages > 1) {
+        const restResults = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, index) =>
+            fetchTokenList({ chainId, page: index + 2, pageSize, isWhitelisted: true }, false),
+          ),
+        )
+        for (const result of restResults) {
+          if (result.error) throw result.error
+          const pageTokens = result.data?.data?.tokens
+          if (!Array.isArray(pageTokens)) throw new Error('Token list response is missing tokens')
+          tokens = tokens.concat(pageTokens)
+        }
+      }
+
+      const tokenList = listToTokenMap(tokens, chainId)
+
+      dispatch(setTokenList({ chainId, tokenList }))
+
+      return true
+    },
+  })
+}
+
+/** Combines list-fetch status with the existing map debounce. Loading ends only when consumers can read the map.
+ * An unresolved symbol is empty only after this loading state ends; imported tokens are merged as before. */
+export const useAllTokensWithLoading = (lowercaseAddress = false, chainId?: ChainId) => {
+  const { chainId: currentChainId } = useActiveWeb3React()
+  const selectedChainId = chainId || currentChainId
+  const { isPending, isFetching } = useEnsureTokenList(selectedChainId)
+  const mapWhitelistTokens = useSelector((state: AppState) => state.lists.mapWhitelistTokens)
+  const allTokens = useDebounce(mapWhitelistTokens, 300)
+  const tokens = useTokensFromMap(allTokens, lowercaseAddress, selectedChainId)
+  const currentMap = mapWhitelistTokens[selectedChainId]
+  const isLoading =
+    ((isPending || isFetching) && !Object.keys(currentMap ?? {}).length) || currentMap !== allTokens[selectedChainId]
+  return { tokens, isLoading }
 }
 
 export function useAllTokens(lowercaseAddress = false, chainId?: ChainId): TokenMap {
-  const { chainId: currentChainId } = useActiveWeb3React()
-  const selectedChainId = chainId || currentChainId
-  useEnsureTokenList(selectedChainId)
-
-  const mapWhitelistTokens = useSelector((state: AppState) => state.lists.mapWhitelistTokens)
-  const allTokens = useDebounce(mapWhitelistTokens, 300)
-  return useTokensFromMap(allTokens, lowercaseAddress, selectedChainId)
+  return useAllTokensWithLoading(lowercaseAddress, chainId).tokens
 }
 
 export function useIsLoadedTokenDefault() {
@@ -393,40 +388,39 @@ export function useCurrency(currencyId: string | undefined): Currency | null | u
   return useMemo(() => (isETH ? NativeCurrencies[chainId] : token), [chainId, isETH, token])
 }
 
-// not use data from contract, in the future we will remove useCurrency
-export function useCurrencyV2(currencyId: string | undefined, customChainId?: ChainId): Currency | null | undefined {
-  const { chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChainId || currentChain
+/** Resolves native/address metadata, using a known token before requesting remote metadata. */
+export const useCurrencyLookup = (currencyId: string | undefined, chainId: ChainId, knownToken?: Currency) => {
   const lowercaseId = currencyId?.toLowerCase()
-  const isETH = useMemo(
-    () =>
-      lowercaseId === NativeCurrencies[chainId].symbol?.toLowerCase() ||
-      lowercaseId === 'eth' ||
-      lowercaseId === ETHER_ADDRESS.toLowerCase(),
-    [chainId, lowercaseId],
-  )
-  const whitelistTokens = useAllTokens(false, chainId)
-  const tokenInWhitelist = currencyId
-    ? whitelistTokens[currencyId] || whitelistTokens[currencyId?.toLowerCase()]
-    : undefined
+  const nativeCurrency = NativeCurrencies[chainId]
+  const isNative =
+    !!currencyId && [nativeCurrency.symbol?.toLowerCase(), 'eth', ETHER_ADDRESS.toLowerCase()].includes(lowercaseId)
+  const address = isAddress(chainId, currencyId) || ''
+  const shouldFetch = !!address && !isNative && !knownToken
 
-  const { data: token } = ksSettingApi.useGetTokenByAddressQuery(
-    { address: isAddress(chainId, currencyId) || '', chainId },
-    { skip: chainId === ChainId.ABSTRACT || isETH || !!tokenInWhitelist || !isAddress(chainId, currencyId) },
+  const { currentData: token, isFetching: isTokenLoading } = ksSettingApi.useGetTokenByAddressQuery(
+    { address, chainId },
+    { skip: chainId === ChainId.ABSTRACT || !shouldFetch },
   )
-
-  const { data: rpcToken } = useQuery({
+  const { data: rpcToken, isLoading: isRpcLoading } = useQuery({
     queryKey: ['cross-chain-token', chainId, lowercaseId],
-    enabled: chainId === ChainId.ABSTRACT && !isETH && !tokenInWhitelist && !!isAddress(chainId, currencyId),
-    queryFn: async () => (await fetchTokenInfoFromRpc(currencyId || '', chainId)) ?? null,
+    enabled: chainId === ChainId.ABSTRACT && shouldFetch,
+    queryFn: async () => (await fetchTokenInfoFromRpc(address, chainId)) ?? null,
     staleTime: Infinity,
   })
 
-  return useMemo(() => {
-    if (!currencyId) return
-    if (isETH) return NativeCurrencies[chainId]
-    return tokenInWhitelist || rpcToken || token
-  }, [chainId, isETH, token, rpcToken, currencyId, tokenInWhitelist])
+  const currency = !currencyId ? undefined : isNative ? nativeCurrency : knownToken || rpcToken || token
+  const isLoading = !currency && shouldFetch && (chainId === ChainId.ABSTRACT ? isRpcLoading : isTokenLoading)
+  return { currency, isLoading }
+}
+
+// Preserve the native/address-only API for existing consumers.
+export const useCurrencyV2 = (currencyId: string | undefined, customChainId?: ChainId): Currency | null | undefined => {
+  const { chainId: currentChain } = useActiveWeb3React()
+  const chainId = customChainId || currentChain
+  const whitelistTokens = useAllTokens(false, chainId)
+  const knownToken = currencyId ? whitelistTokens[currencyId] || whitelistTokens[currencyId.toLowerCase()] : undefined
+  const { currency } = useCurrencyLookup(currencyId, chainId, knownToken)
+  return currency
 }
 
 export const useStableCoins = (chainId: ChainId | undefined) => {

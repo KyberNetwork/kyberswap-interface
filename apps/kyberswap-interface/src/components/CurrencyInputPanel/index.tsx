@@ -1,5 +1,5 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { CSSProperties, ReactNode, forwardRef, useCallback, useState } from 'react'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -11,8 +11,11 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
 import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
+import Skeleton from 'components/Skeleton'
 import TokenSelectorModal from 'components/TokenSelectorModal'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -132,8 +135,7 @@ const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HT
 )
 
 type BalanceRowProps = {
-  account?: string | null
-  currency?: Currency | null
+  balanceActionsEnabled: boolean
   customBalanceText?: string
   label?: ReactNode
   onHalf?: () => void
@@ -144,8 +146,7 @@ type BalanceRowProps = {
 }
 
 const BalanceRow = ({
-  account,
-  currency,
+  balanceActionsEnabled,
   customBalanceText,
   label,
   onHalf,
@@ -154,7 +155,7 @@ const BalanceRow = ({
   positionMax,
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
-  const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
+  const showTopActions = (onMax || onHalf) && positionMax === 'top' && balanceActionsEnabled
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   return (
@@ -188,8 +189,7 @@ const BalanceRow = ({
 }
 
 type AmountInputControlsProps = {
-  account?: string | null
-  currency?: Currency | null
+  balanceActionsEnabled: boolean
   disabledInput?: boolean
   error?: boolean
   estimatedUsd?: string
@@ -203,8 +203,7 @@ type AmountInputControlsProps = {
 }
 
 const AmountInputControls = ({
-  account,
-  currency,
+  balanceActionsEnabled,
   disabledInput,
   error,
   estimatedUsd,
@@ -216,7 +215,7 @@ const AmountInputControls = ({
   positionMax,
   value,
 }: AmountInputControlsProps) => {
-  const showInlineMax = account && currency && onMax && positionMax === 'inline'
+  const showInlineMax = balanceActionsEnabled && onMax && positionMax === 'inline'
 
   return (
     <>
@@ -245,28 +244,41 @@ const AmountInputControls = ({
 }
 
 type CurrencySelectContentProps = {
+  showChain?: boolean
   currency?: Currency | null
   disableCurrencySelect: boolean
   fontSize?: string
   hideLogo: boolean
   isSwitchMode: boolean
+  currencyLoading?: boolean
   loadingText?: string
   maxCurrencySymbolLength?: number
   nativeCurrency?: Currency
   tight: boolean
 }
 
+/** Renders caller-owned token resolution state; loading is distinct from an empty selection. */
 const CurrencySelectContent = ({
+  showChain,
   currency,
   disableCurrencySelect,
   fontSize,
   hideLogo,
   isSwitchMode,
+  currencyLoading,
   loadingText,
   maxCurrencySymbolLength,
   nativeCurrency,
   tight,
 }: CurrencySelectContentProps) => {
+  if (currencyLoading && !currency) {
+    return (
+      <Aligner className="gap-2" role="status" aria-label={t`Loading token`} aria-busy="true">
+        {!hideLogo && <Skeleton width={20} height={20} borderRadius="50%" />}
+        <Skeleton width={64} height={20} />
+      </Aligner>
+    )
+  }
   const currencySymbol = getCurrencyDisplaySymbol(nativeCurrency)
   const displaySymbol =
     currencySymbol && maxCurrencySymbolLength ? shortString(currencySymbol, maxCurrencySymbolLength) : currencySymbol
@@ -275,7 +287,19 @@ const CurrencySelectContent = ({
   return (
     <Aligner className="gap-1">
       <RowFixed className="gap-2">
-        {currency && !hideLogo ? <CurrencyLogo currency={currency} size={'20px'} /> : null}
+        {currency && !hideLogo ? (
+          <div className="relative shrink-0">
+            <CurrencyLogo currency={currency} size="20px" />
+            {showChain && (
+              <img
+                src={NETWORKS_INFO[currency.chainId].icon}
+                alt={NETWORKS_INFO[currency.chainId].name}
+                title={NETWORKS_INFO[currency.chainId].name}
+                className="absolute -bottom-1 -right-1 size-3 rounded border border-background"
+              />
+            )}
+          </div>
+        ) : null}
         <StyledTokenName
           tight={tight}
           className="token-symbol-container"
@@ -322,6 +346,8 @@ interface CurrencyInputPanelProps {
   positionMax?: 'inline' | 'top'
   label?: ReactNode
   positionLabel?: 'in' | 'out'
+  chainSelectionMode?: 'wallet' | 'form'
+  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
   currency?: Currency | null
@@ -346,6 +372,7 @@ interface CurrencyInputPanelProps {
   maxLength?: number
   outline?: boolean
   filterWrap?: boolean
+  currencyLoading?: boolean
   loadingText?: string
   lockIcon?: boolean
   tight?: boolean
@@ -355,9 +382,10 @@ interface CurrencyInputPanelProps {
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
+  balanceActionsEnabled?: boolean
 }
 
-export default function CurrencyInputPanel({
+const CurrencyInputPanel = ({
   value,
   error,
   onUserInput,
@@ -367,6 +395,8 @@ export default function CurrencyInputPanel({
   label = '',
   positionLabel = 'out',
   onCurrencySelect,
+  chainSelectionMode,
+  onSelectNonEvmCurrency,
   onSwitchCurrency,
   onFocus,
   onClickSelect,
@@ -393,13 +423,15 @@ export default function CurrencyInputPanel({
   filterWrap,
   lockIcon = false, // lock when need approve
   tight: tightProp,
+  currencyLoading,
   loadingText,
   styleSelect = {},
   selectClassName,
   customChainId,
   trackingSource,
   scaleERC8056Balances,
-}: CurrencyInputPanelProps) {
+  balanceActionsEnabled,
+}: CurrencyInputPanelProps) => {
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
   const { account } = useActiveWeb3React()
@@ -425,8 +457,7 @@ export default function CurrencyInputPanel({
         <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
           {!hideBalance && (
             <BalanceRow
-              account={account}
-              currency={currency}
+              balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
               customBalanceText={customBalanceText}
               label={label}
               onHalf={onHalf}
@@ -440,8 +471,7 @@ export default function CurrencyInputPanel({
           <InputRow>
             {!hideInput && (
               <AmountInputControls
-                account={account}
-                currency={currency}
+                balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
                 disabledInput={disabledInput}
                 error={error}
                 estimatedUsd={estimatedUsd}
@@ -459,7 +489,7 @@ export default function CurrencyInputPanel({
               <CurrencySelect
                 isDisable={disableCurrencySelect}
                 hideInput={hideInput}
-                selected={!!currency}
+                selected={!!currency || !!currencyLoading}
                 className={cn(
                   'open-currency-select-button',
                   highlightCurrencySelect && '!border-blue !bg-blue/20',
@@ -478,11 +508,13 @@ export default function CurrencyInputPanel({
                 style={styleSelect}
               >
                 <CurrencySelectContent
+                  showChain={chainSelectionMode === 'form'}
                   currency={currency}
                   disableCurrencySelect={disableCurrencySelect}
                   fontSize={fontSize}
                   hideLogo={hideLogo}
                   isSwitchMode={isSwitchMode}
+                  currencyLoading={currencyLoading}
                   loadingText={loadingText}
                   maxCurrencySymbolLength={maxCurrencySymbolLength}
                   nativeCurrency={nativeCurrency}
@@ -497,6 +529,8 @@ export default function CurrencyInputPanel({
             isOpen={modalOpen}
             onDismiss={handleDismissSearch}
             onCurrencySelect={onCurrencySelect}
+            chainSelectionMode={chainSelectionMode}
+            onSelectNonEvmCurrency={onSelectNonEvmCurrency}
             selectedCurrency={currency}
             otherSelectedCurrency={otherCurrency}
             scaleERC8056Balances={scaleERC8056Balances}
@@ -510,3 +544,5 @@ export default function CurrencyInputPanel({
     </div>
   )
 }
+
+export default CurrencyInputPanel

@@ -1,12 +1,12 @@
+import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
 import {
   Currency,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NearQuoteParams,
   QuoteParams,
   SwapProvider,
-} from 'pages/CrossChainSwap/adapters'
-import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
-import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+  isEvmChain,
+} from 'pages/CrossChainSwap/adapters/types'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { getSourceFilters, streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
 import { PairCategory, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'

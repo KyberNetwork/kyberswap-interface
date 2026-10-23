@@ -7,7 +7,6 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as ContractSecurity } from 'assets/svg/security_contract.svg'
 import { ReactComponent as TreadingSecurity } from 'assets/svg/security_trading.svg'
 import { CollapseItem, CollapseItemProps } from 'components/Collapse'
-import { Container } from 'components/TokenInfo'
 import Content, { ContentProps } from 'components/TokenInfo/SecurityInfo/Content'
 import { Header } from 'components/TokenInfo/SecurityInfo/Header'
 import { getSecurityTokenInfo } from 'components/TokenInfo/utils'
@@ -27,8 +26,13 @@ const collapseItemProps: Partial<CollapseItemProps> = {
   },
 }
 
+/** Queries security metadata by token chain/address. Use currentData so a new token never shows the previous result. */
 const SecurityInfo = ({ token }: { token: Token | undefined }) => {
-  const { data, isLoading, error } = useGetSecurityTokenInfoQuery(
+  const {
+    currentData: data,
+    isFetching,
+    error,
+  } = useGetSecurityTokenInfoQuery(
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
     { skip: !token?.address },
   )
@@ -60,7 +64,7 @@ const SecurityInfo = ({ token }: { token: Token | undefined }) => {
   ]
 
   return (
-    <Container className="gap-3 py-4">
+    <div className="flex flex-col gap-3 p-4">
       {sections.map(section => (
         <CollapseItem
           key={section.title}
@@ -69,10 +73,10 @@ const SecurityInfo = ({ token }: { token: Token | undefined }) => {
             <Header icon={section.icon} title={section.title} warning={section.warning} danger={section.danger} />
           }
         >
-          <Content loading={isLoading} data={section.data} totalRisk={section.danger} totalWarning={section.warning} />
+          <Content loading={isFetching} data={section.data} totalRisk={section.danger} totalWarning={section.warning} />
         </CollapseItem>
       ))}
-    </Container>
+    </div>
   )
 }
 

@@ -1,5 +1,5 @@
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
-import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters'
+import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters/types'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { normalizeStreamQuote, parseQuoteResponse } from 'pages/CrossChainSwap/quote/parseStreamQuote'
 import { PairCategory, getCurrencyAddress, sortQuotesByOutput } from 'pages/CrossChainSwap/quote/utils'
@@ -128,6 +128,7 @@ export const streamQuotes = async ({
   try {
     const response = await fetch(getStreamingUrl({ params, category, currencyIn, currencyOut, excludedSources }), {
       signal,
+      cache: 'no-store',
     })
     if (!response.ok) {
       console.error('Streaming API error response status:', response.status)

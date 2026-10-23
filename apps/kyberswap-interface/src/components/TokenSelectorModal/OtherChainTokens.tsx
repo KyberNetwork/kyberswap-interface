@@ -4,9 +4,8 @@ import { ReactNode, useMemo } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
-import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import { Balance } from 'components/TokenSelectorModal/components'
+import { Balance, BalanceSkeleton } from 'components/TokenSelectorModal/components'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -15,6 +14,7 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 
 type OtherChainTokensProps = {
+  chainSelectionMode?: 'wallet' | 'form'
   tokens: WrappedTokenInfo[]
   loading: boolean
   loadingFallback: ReactNode
@@ -28,6 +28,7 @@ type OtherChainTokensProps = {
 }
 
 export const OtherChainTokens = ({
+  chainSelectionMode,
   tokens,
   loading,
   loadingFallback,
@@ -57,7 +58,7 @@ export const OtherChainTokens = ({
   const renderBalance = (token: WrappedTokenInfo) => {
     const balance = balanceByAddress[token.address]
     if (balance) return <Balance balance={balance} />
-    if (account) return <Skeleton width={56} height={18} className="my-[3px]" variant="darkSubtle" />
+    if (account) return <BalanceSkeleton currency={token} />
     return (
       <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
         0
@@ -72,11 +73,11 @@ export const OtherChainTokens = ({
   if (!tokens.length) return null
 
   return (
-    <Stack className="h-full pb-2" data-testid="other-chain-tokens">
-      <div className="px-5 py-3 text-sm font-medium text-subText">
+    <Stack className="min-h-0 flex-1 gap-2" data-testid="other-chain-tokens">
+      <div className="shrink-0 text-sm font-medium leading-5 text-subText">
         <Trans>Available on other chains</Trans>
       </div>
-      <Stack className="min-h-0 flex-1 gap-2 overflow-y-auto px-2">
+      <Stack className="min-h-0 flex-1 gap-2 overflow-y-auto">
         {tokens.map(token => {
           const networkInfo = NETWORKS_INFO[token.chainId] as NetworkInfo
           const isDimmed = !token.isWhitelisted
@@ -111,7 +112,7 @@ export const OtherChainTokens = ({
                     onSelect(token)
                   }}
                 >
-                  <Trans>Switch Chain</Trans>
+                  {chainSelectionMode === 'form' ? <Trans>Select</Trans> : <Trans>Switch Chain</Trans>}
                 </ButtonPrimary>
               ) : (
                 renderBalance(token)

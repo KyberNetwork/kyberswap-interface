@@ -1,5 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
+import type { Chain } from 'pages/CrossChainSwap/adapters/types'
+
 /** Extra per-row metadata shown next to a token depending on the active tab. */
 export type TokenRowExtra = {
   /** Current USD price, from the token-catalog `metrics.price` field. */
@@ -33,3 +36,13 @@ export type TokenSort = { field: TokenSortField; dir: 'asc' | 'desc' }
 export type TokenMetricColumn = Extract<TokenSortField, 'volume24h' | 'fdv'>
 
 export const TOKEN_METRIC_COLUMNS: TokenMetricColumn[] = ['volume24h', 'fdv']
+
+/** Snapshot of the list when a selection starts; carried through import/network confirmation. */
+export type TokenSelectionContext = {
+  tab: TokenSelectorTab
+  query: string
+  method: 'browse' | 'search' | 'quick_select_pill'
+  rowIndex?: number
+}
+
+export type TokenSelectorNetwork = { chainId: Chain; name: string; icon: string }

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import SolanaIcon from 'assets/images/SOL.png'
+import type { SolanaToken } from 'pages/CrossChainSwap/adapters/types'
 import { SOLANA_NATIVE } from 'pages/CrossChainSwap/utils'
 
 const cached: Record<string, SolanaToken> = {}
@@ -15,16 +16,6 @@ const nativeSolana: SolanaToken = {
   logo: SolanaIcon,
   decimals: 9,
   tokenProgram: '',
-}
-
-export interface SolanaToken {
-  id: string
-  name: string
-  symbol: string
-  icon: string
-  logo: string
-  decimals: number
-  tokenProgram: string
 }
 
 const fetchSolanaTokens = async (query: string) => {

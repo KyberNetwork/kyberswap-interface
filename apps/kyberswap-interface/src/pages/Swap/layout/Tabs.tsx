@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Fragment, type ReactNode } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
@@ -9,12 +9,11 @@ import { APP_PATHS } from 'constants/index'
 import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
-import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { prefetchCrossChainSwap } from 'pages/CrossChainSwap/loader'
-import { LimitTab } from 'pages/Swap/layout/LimitTab'
+import { LimitTab } from 'pages/Swap/Layout/LimitTab'
+import { useCurrencyFromUrl } from 'state/swap/hooks'
 import { cn } from 'utils/cn'
 import { isSwapLikePath } from 'utils/routes'
+import { getDefaultSwapTokenId, getTradeLocation } from 'utils/swapFlow'
 
 export enum TAB {
   SWAP = 'swap',
@@ -61,31 +60,21 @@ type Props = {
 export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
   const navigateFn = useNavigate()
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
-  const { trackingHandler } = useTracking()
-  const crossChainIntent = usePrefetchOnIntent(prefetchCrossChainSwap)
-  const chainId = customChainId || walletChainId
-
-  const { currency: currencyParam } = useParams()
+  const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
+  const sameChain = typeof inputChain === 'number' && inputChain === outputChain
+  const chainId = customChainId || (sameChain ? inputChain : walletChainId)
 
   const { pathname, isEmbeddedSwap } = usePageLocation()
 
   const [searchParams] = useSearchParams()
-  let features = (searchParams.get('features') || '')
-    .split(',')
-    .filter(item => [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN].includes(item))
-  if (!features.length) features = [TAB.SWAP, TAB.LIMIT, TAB.CROSS_CHAIN]
+  let features = (searchParams.get('features') || '').split(',').filter(item => [TAB.SWAP, TAB.LIMIT].includes(item))
+  if (!features.length) features = [TAB.SWAP, TAB.LIMIT]
 
   const show = (tab: TAB) => (isEmbeddedSwap ? features.includes(tab) : true)
 
   const onClickTab = (tab: TAB) => {
     if (activeTab === tab) {
       return
-    }
-    if (tab === TAB.CROSS_CHAIN) {
-      trackingHandler(TRACKING_EVENT_TYPE.CC_TAB_SELECTED, {
-        tab_name: tab,
-        previous_tab: activeTab,
-      })
     }
     if (isEmbeddedSwap) {
       setActiveTab(tab)
@@ -101,12 +90,19 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
     ) {
       return
     }
-    navigateFn({
-      pathname:
-        tab === TAB.CROSS_CHAIN
-          ? APP_PATHS.CROSS_CHAIN
-          : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}/${currencyParam || ''}`,
-    })
+    const pair = {
+      fromChain: inputChain,
+      toChain: outputChain,
+      tokenIn: fromCurrency || getDefaultSwapTokenId(inputChain),
+      tokenOut: toCurrency || getDefaultSwapTokenId(outputChain),
+    }
+    if (tab === TAB.SWAP) {
+      navigateFn(getTradeLocation('swap', pair, searchParams))
+    } else if (sameChain) {
+      navigateFn(getTradeLocation('limit', pair, searchParams))
+    } else {
+      navigateFn(`${APP_PATHS.LIMIT}/${networkInfo.route}`)
+    }
   }
 
   const tabs: { key: TAB; node: ReactNode }[] = []
@@ -131,21 +127,6 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
           active={activeTab === TAB.LIMIT}
           customChainId={customChainId}
         />
-      ),
-    })
-  }
-  if (show(TAB.CROSS_CHAIN)) {
-    tabs.push({
-      key: TAB.CROSS_CHAIN,
-      node: (
-        <Tab
-          {...crossChainIntent}
-          onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-          $isActive={activeTab === TAB.CROSS_CHAIN}
-          data-testid="cross-chain-tab"
-        >
-          <Trans>Cross-Chain</Trans>
-        </Tab>
       ),
     })
   }
