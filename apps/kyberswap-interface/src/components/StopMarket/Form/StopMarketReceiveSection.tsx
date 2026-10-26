@@ -7,8 +7,9 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 type Props = {
   sellCurrency?: Currency
   receiveCurrency?: Currency
-  estimatedOutput: string
+  outputAmount: string
   estimatedUsd?: string
+  onChangeOutput: (output: string) => void
   onSelectCurrency?: (currency: Currency) => void
   /**
    * Shown inside the field when the receive token cannot be used. As a function it is handed a callback
@@ -20,14 +21,16 @@ type Props = {
 }
 
 /**
- * Output is decided at execution, so the amount is read-only: it shows what the trigger price would
- * yield, not a floor the order guarantees.
+ * The amount the trigger price yields for the sell amount, and the other side of it: typing an amount
+ * sets the trigger to that amount per unit sold. It is not a floor the order guarantees — the fill
+ * tracks the oracle price at execution.
  */
 const StopMarketReceiveSection = ({
   sellCurrency,
   receiveCurrency,
-  estimatedOutput,
+  outputAmount,
   estimatedUsd,
+  onChangeOutput,
   onSelectCurrency,
   warning,
   selectClassName,
@@ -36,8 +39,9 @@ const StopMarketReceiveSection = ({
     <CurrencyInputPanel
       id="stop-market-receive-token"
       dataTestId="stop-market-receive-token"
-      value={estimatedOutput ? `~${estimatedOutput}` : ''}
-      readOnlyInput
+      maxLength={16}
+      value={outputAmount}
+      onUserInput={onChangeOutput}
       selectClassName={selectClassName}
       currency={receiveCurrency}
       otherCurrency={sellCurrency}

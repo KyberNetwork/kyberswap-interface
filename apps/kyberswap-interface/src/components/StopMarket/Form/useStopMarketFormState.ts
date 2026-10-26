@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { calcOutput } from 'components/LimitOrder/utils'
+import { calcOutput, calcRate } from 'components/LimitOrder/utils'
 import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
 import { useStopMarketSlippageOptions } from 'components/StopMarket/hooks/useStopMarketSlippageOptions'
 import { formatTriggerPriceValue, getStopMarketPairKey } from 'components/StopMarket/utils'
@@ -175,15 +175,51 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
   )
 
   /**
+   * What the user typed into Amount Out, with the pair, sell amount and trigger it left behind. Deriving
+   * the field from the trigger would rewrite the text mid-keystroke ("1." or "0.0" do not round-trip),
+   * so the typed text stays on screen while all three are still those; a change to any of them from
+   * elsewhere shows the derived estimate again.
+   */
+  const [typedOutput, setTypedOutput] = useState<{
+    value: string
+    pairKey: string | undefined
+    inputAmount: string
+    triggerPrice: string
+  }>()
+  const outputAmount =
+    typedOutput &&
+    typedOutput.pairKey === pairKey &&
+    typedOutput.inputAmount === inputAmount &&
+    typedOutput.triggerPrice === triggerPrice
+      ? typedOutput.value
+      : estimatedOutput
+
+  /**
+   * Typing the amount out sets the trigger to that amount per unit sold, as the limit-order form sets
+   * its rate. Without a sell amount there is no price to derive, so the trigger is left as it is.
+   */
+  const onChangeOutput = useCallback(
+    (output: string) => {
+      const nextTrigger =
+        currencyOut && output && Number(inputAmount) > 0
+          ? calcRate(inputAmount, output, currencyOut.decimals)
+          : triggerPrice
+      if (nextTrigger !== triggerPrice) setTriggerPrice(nextTrigger)
+      setTypedOutput({ value: output, pairKey, inputAmount, triggerPrice: nextTrigger })
+    },
+    [currencyOut, inputAmount, triggerPrice, pairKey, setTriggerPrice],
+  )
+
+  /**
    * Turns the pair around, as the limit-order form does: the receive token becomes the one sold, and
-   * the estimate becomes the amount. The trigger does not carry over — it is a price in the other
+   * the amount out becomes the amount. The trigger does not carry over — it is a price in the other
    * direction's units — and needs no clearing here: it was set for the other direction, so the
    * reversed pair reads it as empty and reseeds from its own feed.
    */
   const onSwitchPair = useCallback(() => {
     switchCurrency()
-    setInputValue(estimatedOutput)
-  }, [switchCurrency, setInputValue, estimatedOutput])
+    setInputValue(outputAmount)
+  }, [switchCurrency, setInputValue, outputAmount])
 
   /**
    * Picking the asset the other side already holds — the very token, or its native or wrapped form —
@@ -195,24 +231,24 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
     (currency: Currency) => {
       if (currencyIn && currencyOut && currency.wrapped.equals(currencyOut.wrapped)) {
         setPair(currency, currencyIn)
-        setInputValue(estimatedOutput)
+        setInputValue(outputAmount)
         return
       }
       setCurrencyIn(currency)
     },
-    [currencyIn, currencyOut, setPair, setCurrencyIn, setInputValue, estimatedOutput],
+    [currencyIn, currencyOut, setPair, setCurrencyIn, setInputValue, outputAmount],
   )
 
   const onSelectCurrencyOut = useCallback(
     (currency: Currency) => {
       if (currencyIn && currencyOut && currency.wrapped.equals(currencyIn.wrapped)) {
         setPair(currencyOut, currency)
-        setInputValue(estimatedOutput)
+        setInputValue(outputAmount)
         return
       }
       setCurrencyOut(currency)
     },
-    [currencyIn, currencyOut, setPair, setCurrencyOut, setInputValue, estimatedOutput],
+    [currencyIn, currencyOut, setPair, setCurrencyOut, setInputValue, outputAmount],
   )
 
   /**
@@ -244,6 +280,7 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
     marketPriceUnavailable,
     tradeInfo,
     estimatedOutput,
+    outputAmount,
     slippage,
     defaultSlippage,
     slippagePresets,
@@ -260,6 +297,7 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
     toggleDatePicker: useCallback(() => setShowDatePicker(value => !value), []),
     onChangeTriggerPrice,
     onChangeTriggerPercent,
+    onChangeOutput,
     onSetMarketPrice,
     onChangeExpire,
     startExpiry,

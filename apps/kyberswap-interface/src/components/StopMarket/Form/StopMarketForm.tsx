@@ -132,7 +132,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const estimateUsd = calcUsdPrices({
     inputAmount: form.inputAmount,
-    outputAmount: form.estimatedOutput,
+    outputAmount: form.outputAmount,
     priceUsdIn: form.tradeInfo?.priceUsdIn,
     priceUsdOut: form.tradeInfo?.priceUsdOut,
     currencyIn,
@@ -174,11 +174,14 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const isMissingAmount = !form.inputAmount || Number(form.inputAmount) === 0
   const isMissingTrigger = !form.triggerPrice || Number(form.triggerPrice) === 0
+  // A cleared Amount Out leaves the trigger as it was, but the order is not placed with that field blank.
+  const isMissingOutput = !form.outputAmount || Number(form.outputAmount) === 0
   // Held while the oracle price loads: the trigger is set against the market, which is not known yet.
   const disableAction =
     !!restrictedCurrency ||
     isMissingAmount ||
     isMissingTrigger ||
+    isMissingOutput ||
     insufficientBalance ||
     form.loadingMarketPrice ||
     validation.shouldDisableAction
@@ -190,7 +193,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     restrictedTokenMessage(restrictedCurrency.symbol)
   ) : unavailableToken ? (
     <Trans>Stop market order not available for {unavailableToken.symbol}</Trans>
-  ) : isMissingAmount ? (
+  ) : isMissingAmount || (isMissingOutput && !isMissingTrigger) ? (
     <Trans>Enter an amount</Trans>
   ) : isMissingTrigger ? (
     <Trans>Set a trigger price</Trans>
@@ -274,8 +277,9 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         <StopMarketReceiveSection
           sellCurrency={currencyIn}
           receiveCurrency={currencyOut}
-          estimatedOutput={form.estimatedOutput}
+          outputAmount={form.outputAmount}
           estimatedUsd={estimateUsd.output}
+          onChangeOutput={form.onChangeOutput}
           onSelectCurrency={onSelectReceiveToken}
           warning={
             validation.receiveTokenWarning
