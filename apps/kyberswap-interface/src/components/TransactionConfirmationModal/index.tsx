@@ -107,6 +107,7 @@ function AddTokenToInjectedWallet({ token, chainId }: AddTokenToInjectedWalletPr
 }
 
 type TransactionSubmittedContentProps = {
+  submittedDetails?: React.ReactNode
   onDismiss: () => void
   hash: string | undefined
   scanLink?: string
@@ -121,6 +122,7 @@ export function TransactionSubmittedContent({
   chainId,
   hash,
   tokenAddToMetaMask,
+  submittedDetails,
   scanLink,
   extraAction,
 }: TransactionSubmittedContentProps) {
@@ -146,6 +148,7 @@ export function TransactionSubmittedContent({
               </ExternalLinkNoLineHeight>
             )}
           </Stack>
+          {submittedDetails}
           {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
           <Stack className="w-full items-center gap-2">
             {extraAction}
@@ -267,6 +270,7 @@ export function TransactionErrorContent({
 }
 
 type TransactionConfirmationModalProps = {
+  submittedDetails?: React.ReactNode
   isOpen: boolean
   onDismiss: () => void
   hash: string | undefined
@@ -286,6 +290,7 @@ export default function TransactionConfirmationModal({
   scanLink,
   attemptingTxn,
   attemptingTxnContent,
+  submittedDetails,
   hash,
   pendingText,
   content,
@@ -316,6 +321,7 @@ export default function TransactionConfirmationModal({
           hash={hash}
           onDismiss={onDismiss}
           tokenAddToMetaMask={tokenAddToMetaMask as Token}
+          submittedDetails={submittedDetails}
         />
       ) : (
         content()

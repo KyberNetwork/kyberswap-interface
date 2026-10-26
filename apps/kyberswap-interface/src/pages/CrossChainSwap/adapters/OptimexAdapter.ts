@@ -2,6 +2,8 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { optimexQuoteSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
 import { Quote } from '../registry'
@@ -233,22 +235,18 @@ export class OptimexAdapter extends BaseSwapAdapter {
     const inputUsd = token0Usd * +formattedInputAmount
     const outputUsd = token1Usd * +formattedOutputAmount
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(quoteRes.data.best_quote_after_fees),
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: 0,
       timeEstimate: estimateRes.data.estimated_time,
       contractAddress: txData?.deposit_address || ZERO_ADDRESS,
       rawQuote: { ...quoteRes.data, txData },
 
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10000,
-    }
+    })
   }
 
   async executeSwap(
@@ -257,6 +255,8 @@ export class OptimexAdapter extends BaseSwapAdapter {
     _nearWallet: any,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse> {
+    const rawQuote = optimexQuoteSchema.parse(quote.rawQuote)
+
     if (!this.tokens?.length) {
       await this.getTokens()
     }
@@ -265,9 +265,9 @@ export class OptimexAdapter extends BaseSwapAdapter {
     // For BTC -> EVM flow, we need to initiate the trade here
     let txData: { deposit_address: string; payload?: string; trade_id: string }
 
-    if (quote.rawQuote.txData) {
+    if (rawQuote.txData) {
       // EVM -> BTC flow: use existing txData from getQuote
-      txData = quote.rawQuote.txData
+      txData = rawQuote.txData
     } else {
       // BTC -> EVM flow: initiate trade now
       const isFromBtc = quote.quoteParams.fromChain === NonEvmChain.Bitcoin
@@ -317,7 +317,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
       // Initiate trade using the reusable function
       txData = await this.initiateTrade({
-        sessionId: quote.rawQuote.session_id,
+        sessionId: rawQuote.session_id,
         fromUserAddress: quote.quoteParams.sender,
         amountIn: quote.quoteParams.amount,
         minAmountOut: (

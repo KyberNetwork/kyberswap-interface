@@ -1,6 +1,11 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { formatUnits } from 'viem'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ETHER_ADDRESS } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import {
   type Chain,
@@ -11,7 +16,9 @@ import {
 } from 'pages/CrossChainSwap/adapters/types'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { getChainName } from 'pages/CrossChainSwap/utils'
+import { useNotify } from 'state/application/hooks'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const STATUS_CHECK_INTERVAL = 10_000
 const PROCESSING_STATUS_CHECK_TTL = 24 * 60 * 60 * 1000
@@ -101,10 +108,15 @@ const getTransactionUpdate = (
   const hasActualAmountOut = !!amountOut && amountOut !== '0' && amountOut !== tx.outputAmount
   const hasTargetTxUpdate = !!txHash && txHash !== tx.targetTxHash
   const hasStatusUpdate = status !== tx.status
+  const hasGasDropUpdate =
+    !!result?.gasDropStatus &&
+    (result.gasDropStatus.status !== tx.gasDropStatus?.status ||
+      result.gasDropStatus.amount !== tx.gasDropStatus?.amount)
 
-  if (!hasTargetTxUpdate && !hasStatusUpdate && !hasActualAmountOut) return null
+  if (!hasTargetTxUpdate && !hasStatusUpdate && !hasActualAmountOut && !hasGasDropUpdate) return null
 
   return {
+    ...(result?.gasDropStatus ? { gasDropStatus: result.gasDropStatus } : {}),
     targetTxHash: txHash || tx.targetTxHash,
     status,
     ...(hasActualAmountOut && {
@@ -115,6 +127,7 @@ const getTransactionUpdate = (
 }
 
 export const useTransactionHistory = () => {
+  const notify = useNotify()
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
   const [transactions, setTransactions] = useCrossChainTransactions()
@@ -198,6 +211,29 @@ export const useTransactionHistory = () => {
 
           if (txUpdate.status && txUpdate.status !== tx.status) {
             trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
+            if (tx.gasDrop && txUpdate.status === 'Success') {
+              const native = NativeCurrencies[tx.targetChain as ChainId]
+              const gas = txUpdate.gasDropStatus || tx.gasDropStatus
+              const input = `${formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
+                significantDigits: 6,
+              })} ${tx.sourceToken.symbol}`
+              const output = `${formatDisplayNumber(
+                formatUnits(BigInt(txUpdate.outputAmount || tx.outputAmount), tx.targetToken.decimals),
+                { significantDigits: 6 },
+              )} ${tx.targetToken.symbol}`
+              const gasText =
+                gas?.status === 'Delivered' && gas.amount && native
+                  ? ` + ${formatDisplayNumber(formatUnits(BigInt(gas.amount), native.decimals), {
+                      significantDigits: 6,
+                    })} ${native.symbol} gas`
+                  : ''
+              const chain = getChainName(tx.targetChain)
+              notify({
+                title: t`Swap completed`,
+                summary: t`Swapped ${input} for ${output}${gasText} on ${chain}`,
+                type: NotificationType.SUCCESS,
+              })
+            }
           }
 
           hasUpdates = true
@@ -212,7 +248,7 @@ export const useTransactionHistory = () => {
         setTransactions(updatedTransactions)
       }
     },
-    [setTransactions, trackStatusChange],
+    [setTransactions, trackStatusChange, notify],
   )
 
   // Expired processing txs are checked once per page load/F5, but are kept out of the polling loop.

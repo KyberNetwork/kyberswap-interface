@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import React, { useState } from 'react'
-import { Clock } from 'react-feather'
+import { Clock, DollarSign, Star, Zap } from 'react-feather'
 import { useMedia } from 'react-use'
 
 import { ReactComponent as RouteIcon } from 'assets/svg/route_icon.svg'
@@ -9,17 +9,24 @@ import Modal from 'components/Modal'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import { MouseoverTooltip } from 'components/Tooltip'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { Currency } from 'pages/CrossChainSwap/adapters'
+import { getKyberCrossRoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { formatTime } from 'pages/CrossChainSwap/components/Summary'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
-import { Quote } from 'pages/CrossChainSwap/registry'
+import { Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+
+const ROUTE_TAG_ICONS: Record<string, typeof Star> = {
+  RECOMMENDED: Star,
+  FASTEST: Zap,
+  BEST_OUTPUT: DollarSign,
+}
 
 const QuoteRow = ({ selected, children, ...rest }: React.HTMLAttributes<HTMLDivElement> & { selected?: boolean }) => (
   <div
@@ -44,16 +51,17 @@ export const QuoteSelector = ({
   onChange: (quote: Quote) => void
   tokenOut?: Currency
 }) => {
-  const { allLoading, fromChainId, toChainId } = useCrossChainSwap()
+  const { allLoading, fromChainId, toChainId, quoteMode } = useCrossChainSwap()
   const { trackingHandler } = useTracking()
   const [show, setShow] = useState(false)
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { weeks, year } = campaignConfig[CampaignType.NearIntents]
-  const now = Date.now() / 1000
-  const currentYear = new Date().getFullYear()
-  const nearIntentCampaignOnGoing = year === currentYear && weeks.some(week => week.start <= now && week.end > now)
+  const routeTagLabels: Record<string, string> = {
+    RECOMMENDED: t`Recommended`,
+    FASTEST: t`Fastest`,
+    BEST_OUTPUT: t`Best Output`,
+  }
 
   const content = (
     <Stack className="size-full gap-3 text-text">
@@ -64,16 +72,19 @@ export const QuoteSelector = ({
       <Stack className="flex-1 overflow-y-scroll">
         <ScrollableWithSignal data-open="true" showArrow className="flex max-h-full flex-col gap-3 overflow-y-auto">
           {quotes.map((quote, index) => {
-            const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
+            const routeTags =
+              quoteMode === 'direct' && quote.adapter.getName() === 'KyberCross'
+                ? getKyberCrossRoutePlan(quote.quote.rawQuote)?.tags || []
+                : []
             return (
               <QuoteRow
-                key={quote.adapter.getName()}
-                selected={selectedQuote.adapter.getName() === quote.adapter.getName()}
+                key={getQuoteId(quote)}
+                selected={getQuoteId(selectedQuote) === getQuoteId(quote)}
                 role="button"
                 onClick={() => {
                   onChange(quote)
                   setShow(false)
-                  if (quote.adapter.getName() !== selectedQuote.adapter.getName()) {
+                  if (getQuoteId(quote) !== getQuoteId(selectedQuote)) {
                     trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTE_VIEWED, {
                       routing_source: quote.adapter.getName(),
                       amount_out: quote.quote.formattedOutputAmount,
@@ -87,21 +98,23 @@ export const QuoteSelector = ({
               >
                 <Stack className="gap-2">
                   <HStack className="items-center justify-between gap-2">
-                    <HStack className="min-w-0 items-center gap-1">
-                      <TokenLogoWithChain
-                        currency={tokenOut}
-                        chainId={quote.quote.quoteParams.toChain}
-                        size={20}
-                        chainLogoStyle={{
-                          bottom: 0,
-                          top: 'auto',
-                        }}
-                      />
-                      <span className="text-xl font-medium">
-                        {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
-                      </span>
-                      <span className="text-lg font-medium text-subText">{tokenOut?.symbol}</span>
-                      <span className="text-sm text-subText">
+                    <HStack className="min-w-0 items-center gap-2">
+                      <HStack className="items-center gap-1">
+                        <TokenLogoWithChain
+                          currency={tokenOut}
+                          chainId={quote.quote.quoteParams.toChain}
+                          size={20}
+                          chainLogoStyle={{
+                            bottom: 0,
+                            top: 'auto',
+                          }}
+                        />
+                        <span className="text-xl font-medium">
+                          {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
+                        </span>
+                        <span className="text-lg font-medium text-subText">{tokenOut?.symbol}</span>
+                      </HStack>
+                      <span className="text-sm font-medium text-subText">
                         ~
                         {formatDisplayNumber(quote.quote.outputUsd, {
                           style: 'currency',
@@ -111,38 +124,57 @@ export const QuoteSelector = ({
                       </span>
                     </HStack>
 
-                    {ongoingTag && (
-                      <div className="shrink-0 rounded-full bg-darkBlue px-2 py-1 text-xs font-medium text-white">
-                        {t`On-Going Campaign`}
-                      </div>
+                    {routeTags.length > 0 && (
+                      <HStack className="shrink-0 items-center gap-1">
+                        {routeTags.map(tag => {
+                          if (!Object.prototype.hasOwnProperty.call(ROUTE_TAG_ICONS, tag)) return null
+                          const Icon = ROUTE_TAG_ICONS[tag]
+                          return (
+                            <MouseoverTooltip
+                              key={tag}
+                              text={<span className="whitespace-nowrap">{routeTagLabels[tag]}</span>}
+                              width="max-content"
+                              placement="top"
+                              noArrow
+                            >
+                              <span
+                                aria-label={routeTagLabels[tag]}
+                                className="flex size-6 shrink-0 items-center justify-center rounded bg-primary-20 text-primary"
+                              >
+                                <Icon size={16} aria-hidden="true" />
+                              </span>
+                            </MouseoverTooltip>
+                          )
+                        })}
+                      </HStack>
                     )}
-
-                    {index === 0 && !ongoingTag && (
+                    {quoteMode === 'stream' && index === 0 && (
                       <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
                         {t`Best Return`}
                       </div>
                     )}
                   </HStack>
-                  <HStack className="items-center gap-2 text-sm text-subText">
-                    <QuoteProviderName quote={quote} />
-                    <span>|</span>
-                    <HStack className="items-center gap-1">
+                  <HStack className="items-center justify-between gap-2 text-sm text-subText">
+                    <HStack className="min-w-0 flex-wrap items-center gap-2">
+                      <QuoteProviderName quote={quote} />
+                      {(quote.quote.additionalFeeUsd ?? 0) > 0 ? (
+                        <span>
+                          {t`Additional fee:`}{' '}
+                          {formatDisplayNumber(quote.quote.additionalFeeUsd, {
+                            style: 'currency',
+                            significantDigits: 3,
+                          })}
+                        </span>
+                      ) : quote.quote.additionalFeeAmount ? (
+                        <span>
+                          {t`Additional fee:`} {quote.quote.additionalFeeAmount}
+                        </span>
+                      ) : null}
+                    </HStack>
+                    <HStack className="shrink-0 items-center gap-1">
                       <Clock size={14} />
                       <span>{formatTime(quote.quote.timeEstimate)}</span>
                     </HStack>
-                    {quote.quote.protocolFee > 0 ? (
-                      <span>
-                        {t`Protocol fee:`}{' '}
-                        {formatDisplayNumber(quote.quote.protocolFee, {
-                          style: 'currency',
-                          significantDigits: 3,
-                        })}
-                      </span>
-                    ) : quote.quote.protocolFeeString ? (
-                      <span>
-                        {t`Protocol fee:`} {quote.quote.protocolFeeString}
-                      </span>
-                    ) : null}
                   </HStack>
                 </Stack>
               </QuoteRow>
