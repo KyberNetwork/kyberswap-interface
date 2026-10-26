@@ -14,7 +14,7 @@ const TABS = [
   {
     path: APP_PATHS.LIMIT,
     key: 'limit',
-    label: <Trans>Limit Order</Trans>,
+    label: <Trans>Limit</Trans>,
     subtitle: <Trans>Trade at exactly your price</Trans>,
     tooltip: <Trans>Limit Order: Fills at your exact price, when a taker takes it.</Trans>,
   },
