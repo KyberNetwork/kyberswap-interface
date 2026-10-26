@@ -9,9 +9,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import { TAB, Tabs } from 'pages/Swap/Layout/Tabs'
 import SwapRoute from 'pages/Swap/SwapRoute'
 import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
+import { TAB, Tabs } from 'pages/Swap/layout/Tabs'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
 
@@ -55,7 +55,7 @@ vi.mock('hooks/usePrefetchOnIntent', () => ({ default: () => ({}) }))
 vi.mock('hooks/web3/useSyncNetworkParamWithStore', () => ({ useSyncNetworkParamWithStore: vi.fn() }))
 vi.mock('pages/Swap/SwapPage', () => ({ default: () => <Page /> }))
 vi.mock('pages/CrossChainSwap/loader', () => ({ prefetchCrossChainSwap: vi.fn() }))
-vi.mock('pages/Swap/Layout/LimitTab', () => ({
+vi.mock('pages/Swap/layout/LimitTab', () => ({
   LimitTab: ({ onClick }: { onClick: () => void }) => <button onClick={onClick}>Limit Order</button>,
 }))
 

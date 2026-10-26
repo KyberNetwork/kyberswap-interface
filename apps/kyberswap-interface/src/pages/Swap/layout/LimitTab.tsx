@@ -7,7 +7,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { Tab } from 'pages/Swap/Layout/Tabs'
+import { Tab } from 'pages/Swap/layout/Tabs'
 
 type Props = {
   onClick: () => void

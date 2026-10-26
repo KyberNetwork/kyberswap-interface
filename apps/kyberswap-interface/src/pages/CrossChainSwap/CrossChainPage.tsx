@@ -3,9 +3,9 @@ import { lazy, useState } from 'react'
 import { Stack } from 'components/Stack'
 import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import type { Quote } from 'pages/CrossChainSwap/registry'
-import { SwapLayout } from 'pages/Swap/Layout/SwapLayout'
-import { TAB } from 'pages/Swap/Layout/Tabs'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
+import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
+import { TAB } from 'pages/Swap/layout/Tabs'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 
 const CrossChainSwap = lazy(loadCrossChainSwap)

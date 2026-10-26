@@ -9,7 +9,7 @@ different-chain or non-EVM pairs.
 - `SwapPage.tsx`: URL pair state, shared providers and History visibility.
 - `SwapPageContent.tsx`: forms, settings and right-panel composition.
 - `LimitPage.tsx`: Limit Order composition.
-- `Layout/`: page shell, tabs and responsive layout.
+- `layout/`: page shell, tabs and responsive layout.
 - `components/`: chart, routes and History presentation.
 - `hooks/`: pair selection, navigation and prefetching.
 - `utils/`: pure route and swap-link helpers.

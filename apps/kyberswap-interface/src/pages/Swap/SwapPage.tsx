@@ -4,11 +4,11 @@ import { Suspense, lazy, useState } from 'react'
 import { SingleChainSwapFormProvider } from 'components/SwapForm/SingleChain/SingleChainSwapFormProvider'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
-import { TAB } from 'pages/Swap/Layout/Tabs'
 import SwapPageContent from 'pages/Swap/SwapPageContent'
 import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
 import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
+import { TAB } from 'pages/Swap/layout/Tabs'
 import { useAppSelector } from 'state/hooks'
 
 const TransactionHistoryUpdater = lazy(() => import('pages/Swap/components/TransactionHistoryUpdater'))
