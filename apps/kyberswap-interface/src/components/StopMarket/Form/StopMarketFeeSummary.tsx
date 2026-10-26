@@ -103,11 +103,15 @@ export const StopMarketFeeValue = ({ fee, isLoading, chainId }: Props & { chainI
 
   return (
     <HStack className="min-w-0 items-center gap-1.5 text-sm" data-testid="stop-market-fee">
-      <TextDashed fontSize={14} className="flex h-fit items-center text-subText">
-        <MouseoverTooltip placement="top" text={<StopMarketFeeTooltip fee={fee} chainId={chainId} />}>
-          <Trans>Fee</Trans>
-        </MouseoverTooltip>
-      </TextDashed>
+      {/* The icon sits outside the dashed text, so the underline runs under the label alone. */}
+      <MouseoverTooltip placement="top" text={<StopMarketFeeTooltip fee={fee} chainId={chainId} />}>
+        <HStack className="items-center gap-1 text-subText">
+          <TextDashed fontSize={14} className="flex h-fit items-center text-subText">
+            <Trans>Fee (incl. gas)</Trans>
+          </TextDashed>
+          <Info size={12} className="shrink-0" />
+        </HStack>
+      </MouseoverTooltip>
       {isLoading ? (
         <span className="flex h-5 items-center" data-testid="stop-market-fee-loading">
           <Skeleton height={12} width={80} borderRadius={6} />
