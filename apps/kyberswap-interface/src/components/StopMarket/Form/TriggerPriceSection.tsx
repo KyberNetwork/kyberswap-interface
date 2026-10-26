@@ -71,6 +71,39 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
   )
 }
 
+/** Puts the trigger right at the oracle price, with a tooltip saying where that price comes from. */
+export const OracleMarketPriceButton = ({
+  disabled,
+  onClick,
+  dataTestId = 'stop-market-market-price-button',
+}: {
+  disabled: boolean
+  onClick: () => void
+  dataTestId?: string
+}) => (
+  <MouseoverTooltip
+    placement="top"
+    width="280px"
+    text={
+      <Trans>
+        Derived from each token&apos;s independent price feed. Your order triggers when this price reaches your level.
+      </Trans>
+    }
+  >
+    {/* Disabled, it lets the pointer through, so the tooltip's wrapper still sees the hover — a disabled
+        button swallows mouse events in some browsers. */}
+    <button
+      type="button"
+      data-testid={dataTestId}
+      className="shrink-0 rounded-lg bg-primary/10 px-2 py-1 text-sm font-medium text-primary transition enabled:hover:brightness-90 disabled:pointer-events-none disabled:opacity-50"
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <Trans>Oracle</Trans>
+    </button>
+  </MouseoverTooltip>
+)
+
 /**
  * The price the order triggers at, typed as the receive token per sell token — the direction the oracle
  * quotes the pair in. The rate beside Oracle is that feed's price, not the app's USD-ratio price, and the
@@ -97,29 +130,7 @@ const TriggerPriceSection = ({
           <Trans>Trigger at</Trans>
         </span>
         <HStack className="min-w-0 items-center justify-end gap-2">
-          <MouseoverTooltip
-            placement="top"
-            width="280px"
-            text={
-              <Trans>
-                Derived from each token&apos;s independent price feed. Your order triggers when this price reaches your
-                level.
-              </Trans>
-            }
-          >
-            {/* Clicking it puts the trigger right at the oracle price. Disabled, it lets the pointer through,
-                so the tooltip's wrapper still sees the hover — a disabled button swallows mouse events in
-                some browsers. */}
-            <button
-              type="button"
-              data-testid="stop-market-market-price-button"
-              className="shrink-0 rounded-lg bg-primary/10 px-2 py-1 text-sm font-medium text-primary transition enabled:hover:brightness-90 disabled:pointer-events-none disabled:opacity-50"
-              disabled={!marketPrice}
-              onClick={onSetMarketPrice}
-            >
-              <Trans>Oracle</Trans>
-            </button>
-          </MouseoverTooltip>
+          <OracleMarketPriceButton disabled={!marketPrice} onClick={onSetMarketPrice} />
           {marketPrice && sellSymbol && receiveSymbol ? (
             <span className="min-w-0 truncate text-sm font-medium text-text" data-testid="stop-market-market-rate">
               1 {sellSymbol} = {formatDisplayNumber(marketPrice, { significantDigits: 6 })} {receiveSymbol}

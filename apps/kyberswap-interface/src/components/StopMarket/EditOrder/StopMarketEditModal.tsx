@@ -24,6 +24,7 @@ import {
 import { useStopMarketProcessing } from 'components/StopMarket/CreateOrder/StopMarketFlow'
 import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
 import { StopMarketFeeNotes, StopMarketFeeValue } from 'components/StopMarket/Form/StopMarketFeeSummary'
+import { OracleMarketPriceButton } from 'components/StopMarket/Form/TriggerPriceSection'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { triggerDistanceText } from 'components/StopMarket/TriggerDistance'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
@@ -403,9 +404,20 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
       </Stack>
 
       <Stack className={cn(FIELD_CLASS, 'gap-2')}>
-        <span className="text-sm text-subText">
-          <Trans>Trigger a swap when price reaches</Trans>
-        </span>
+        <HStack className="min-h-7 items-center justify-between gap-2">
+          <span className="text-sm text-subText">
+            <Trans>Trigger a swap when price reaches</Trans>
+          </span>
+          <OracleMarketPriceButton
+            dataTestId="stop-market-edit-market-price-button"
+            disabled={!marketPrice}
+            onClick={() => {
+              if (!marketPrice) return
+              setInvertedDraft(undefined)
+              setTriggerPrice(formatTriggerPriceValue(marketPrice))
+            }}
+          />
+        </HStack>
         <HStack className="min-w-0 items-center gap-2">
           <div className="flex min-w-0 flex-1 items-center">
             {/* The creation form's rate colour, so the trigger reads the same in both. */}
