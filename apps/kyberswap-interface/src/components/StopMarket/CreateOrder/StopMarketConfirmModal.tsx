@@ -12,11 +12,7 @@ import { getSwapCurrencyId } from 'components/LimitOrder/TakeOrder/utils'
 import Modal from 'components/Modal'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import {
-  StopMarketFeeNotes,
-  StopMarketFeeTooltip,
-  getStopMarketFeeLabel,
-} from 'components/StopMarket/Form/StopMarketFeeSummary'
+import { StopMarketFeeTooltip, getStopMarketFeeLabel } from 'components/StopMarket/Form/StopMarketFeeSummary'
 import { StopMarketWarning } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
@@ -43,8 +39,9 @@ const getSwapPath = (currencyIn?: Currency, currencyOut?: Currency, inputAmount?
   const search = new URLSearchParams()
   if (inputAmount && Number(inputAmount) > 0) search.set('input', inputAmount)
   const query = search.toString()
-  return `${APP_PATHS.SWAP}/${route}/${encodeURIComponent(inputId)}-to-${encodeURIComponent(outputId)}${query ? `?${query}` : ''
-    }`
+  return `${APP_PATHS.SWAP}/${route}/${encodeURIComponent(inputId)}-to-${encodeURIComponent(outputId)}${
+    query ? `?${query}` : ''
+  }`
 }
 
 /** The terms of an order as they are reviewed before signing, new or as a replacement of an open one. */
@@ -236,9 +233,6 @@ export const StopMarketReviewSummary = ({
             </span>
           )}
         </SummaryRow>
-
-        {/* The fee error has its own note below, so it is left out here. */}
-        <StopMarketFeeNotes fee={fee} isLoading={isFeePending} />
 
         <SummaryRow label={<Trans>Max Slippage</Trans>} dataTestId="stop-market-confirm-slippage">
           {formatSlippage(slippage)}

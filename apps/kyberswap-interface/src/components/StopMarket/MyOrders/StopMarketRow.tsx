@@ -352,7 +352,7 @@ const StopMarketRow = ({
           {warnings.map((warning, index) => (
             <HStack
               key={`${warning.code}-${index}`}
-              className="items-start gap-1.5 text-xs italic text-warning"
+              className="items-start gap-1.5 text-xs italic text-subText"
               data-testid="stop-market-order-warning"
               data-code={warning.code}
             >
