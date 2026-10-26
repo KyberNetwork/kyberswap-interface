@@ -502,7 +502,8 @@ describe('getStopMarketRetry', () => {
     expectedAmountOutUsd: '230',
   })
   // The oracle at 2300 sits below the 2400 trigger.
-  const open = { ...ORDER, status: StopMarketStatus.OPEN, executions: [], logs: [], oracleEstimate: oracleAt('2300') }
+  // The 2400 trigger with 0.5% slippage fills between 2388 and 2400; the oracle at 2395 sits inside that.
+  const open = { ...ORDER, status: StopMarketStatus.OPEN, executions: [], logs: [], oracleEstimate: oracleAt('2395') }
   const log = (type: string, createdAt: number, detail: Record<string, string> | null = null) => ({
     id: createdAt,
     type,
@@ -577,9 +578,14 @@ describe('getStopMarketRetry', () => {
     })
   })
 
-  it('is not retrying unless the oracle sits at or below the trigger', () => {
+  it('is not retrying unless the oracle sits between the slippage floor and the trigger', () => {
     const failedLog = [log('LogTypePreSubmitRevert', 10, { error: 'x' })]
     expect(getStopMarketRetry({ ...open, logs: failedLog, oracleEstimate: oracleAt('2500') })).toBeUndefined()
+    // Under the 2388 floor no fill can meet the order's minimum, so it is not being retried.
+    expect(getStopMarketRetry({ ...open, logs: failedLog, oracleEstimate: oracleAt('2300') })).toBeUndefined()
+    expect(getStopMarketRetry({ ...open, logs: failedLog, oracleEstimate: oracleAt('2388') })).toEqual({
+      cause: 'unknown',
+    })
     expect(getStopMarketRetry({ ...open, logs: failedLog, oracleEstimate: null })).toBeUndefined()
   })
 })

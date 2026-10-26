@@ -97,14 +97,17 @@ const getRetryCause = (error: string | undefined): StopMarketRetryCause => {
  * scan, so it stays in Active Orders, but the user needs to see why it has not sold. Derived from the
  * failed attempts the order carries — most leave a log rather than an execution, since a simulation
  * that would revert sends nothing — with the cause read from the latest one. An attempt in flight is
- * Triggered, not Retrying. The oracle has to sit at or below the trigger as well: once it climbs back
- * above, a past failure says nothing about the order's state and the row goes back to its distance.
+ * Triggered, not Retrying. The oracle also has to sit in the band the order can fill in — at or below the
+ * trigger, and at or above the floor its slippage allows under it. Outside that band a past failure says
+ * nothing about the order's state: above the trigger it is not triggered, and below the floor no fill can
+ * meet its minimum, so the row goes back to its distance.
  */
 export const getStopMarketRetry = (order: StopMarket): { cause: StopMarketRetryCause } | undefined => {
   if (getStopMarketDisplayStatus(order) !== StopMarketDisplayStatus.ACTIVE) return undefined
   const currentPrice = getStopMarketCurrentPrice(order)
   const triggerPrice = Number(getStopMarketTriggerPrice(order))
-  if (currentPrice === undefined || !(currentPrice <= triggerPrice)) return undefined
+  const floorPrice = triggerPrice * (1 - order.slippage / 10_000)
+  if (currentPrice === undefined || !(currentPrice <= triggerPrice && currentPrice >= floorPrice)) return undefined
   const attempts = [
     ...(Array.isArray(order.logs) ? order.logs : [])
       .filter(log => FAILED_ATTEMPT_LOG_TYPES.includes(log?.type))
