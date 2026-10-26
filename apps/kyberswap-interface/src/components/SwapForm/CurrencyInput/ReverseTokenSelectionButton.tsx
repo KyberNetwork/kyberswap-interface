@@ -7,7 +7,7 @@ type Props = {
   className?: string
   onClick: () => void
 }
-const ReverseTokenSelectionButton: React.FC<Props> = ({ className, onClick }) => {
+const ReverseTokenSelectionButton = ({ className, onClick }: Props) => {
   const [rotated, setRotated] = useState(false)
 
   const handleClick = () => {

@@ -19,22 +19,14 @@ type CrossChainSwapContext = ReturnType<typeof useCrossChainPair> &
   ReturnType<typeof useCrossChainRecipient> &
   ReturnType<typeof useCrossChainQuote> & {
     amount: string
-    setAmount: (amount: string) => void
+    onAmountChange: (amount: string) => void
   }
 
 const CrossChainSwapContext = createContext<CrossChainSwapContext | undefined>(undefined)
 
 type Props = CrossChainSwapOptions & { children: ReactNode }
 
-const CrossChainSwapProvider = ({
-  children,
-  amount,
-  onAmountChange: setAmount,
-  fromChain,
-  toChain,
-  tokenIn,
-  tokenOut,
-}: Props) => {
+const CrossChainSwapProvider = ({ children, amount, onAmountChange, fromChain, toChain, tokenIn, tokenOut }: Props) => {
   useRestoreMyNearWalletPendingTransaction()
   const pair = useCrossChainPair({ fromChainId: fromChain, toChainId: toChain, tokenIn, tokenOut })
   const recipient = useCrossChainRecipient(pair.fromChainId, pair.toChainId)
@@ -47,7 +39,7 @@ const CrossChainSwapProvider = ({
   })
 
   return (
-    <CrossChainSwapContext.Provider value={{ ...pair, ...recipient, ...quote, amount, setAmount }}>
+    <CrossChainSwapContext.Provider value={{ ...pair, ...recipient, ...quote, amount, onAmountChange }}>
       {children}
     </CrossChainSwapContext.Provider>
   )

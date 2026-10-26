@@ -14,7 +14,7 @@ export type TradeController = {
   highlightDegenMode: boolean
   mainTab: MainTab
   onBackToMainTab: () => void
-  setActiveTab: React.Dispatch<React.SetStateAction<TAB>>
+  onTabChange: (tab: TAB) => void
   shouldHighlightSwapBox: boolean
 }
 
@@ -71,7 +71,7 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
     highlightDegenMode,
     mainTab,
     onBackToMainTab,
-    setActiveTab,
+    onTabChange: setActiveTab,
     shouldHighlightSwapBox: qs.highlightBox === 'true',
   }
 }

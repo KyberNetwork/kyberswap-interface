@@ -15,7 +15,7 @@ const TransactionHistory = lazy(() => import('pages/CrossChainSwap/components/Tr
 
 const CrossChainPage = () => {
   const controller = useTradeController(TAB.CROSS_CHAIN)
-  const { activeTab, highlightDegenMode, onBackToMainTab, setActiveTab } = controller
+  const { activeTab, highlightDegenMode, onBackToMainTab, onTabChange } = controller
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
 
   const rightPanel = (
@@ -34,11 +34,11 @@ const CrossChainPage = () => {
           isSwapPage={false}
           highlightDegenMode={highlightDegenMode}
           onBack={onBackToMainTab}
-          onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-          onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
+          onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}
+          onClickCrossChainSources={() => onTabChange(TAB.CROSS_CHAIN_SOURCES)}
         />
       )}
-      {activeTab === TAB.CROSS_CHAIN_SOURCES && <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />}
+      {activeTab === TAB.CROSS_CHAIN_SOURCES && <CrossChainSwapSources onBack={() => onTabChange(TAB.SETTINGS)} />}
     </SwapLayout>
   )
 }

@@ -112,7 +112,7 @@ Files: `components/SwapForm/SingleChain/SingleChainSwap.tsx`,
 inspect `hooks/useSwapCallbackV3.ts` callers.
 
 Status: implementation and source audit complete; static verification recorded below.
-Sections 4–5 are separate scopes.
+Sections 4–5 were completed in the 2026-10-26 batch below.
 
 - [x] Define one owner for review session state: build result/loading, submitting, signature, hash, error and dismissal.
 - [x] Keep approval/permit orchestration coherent and expose intent callbacks rather than passing `setProcessingSwap` through layers.
@@ -139,30 +139,30 @@ persistence when selecting lifecycle regression coverage under the test policy a
 Files: `components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx`,
 `SwapDetails/index.tsx`, `SwapBrief.tsx`, `SwapModalAreYouSure.tsx`.
 
-- [ ] Separate quote/build comparison, acceptance thresholds and review validation from rendering.
-- [ ] Group balance, reserved Limit Order amount and honeypot acquisition into a coherent review-data boundary.
-- [ ] Extract substantial amount/warning and fee/gas/recipient sections without making a file for every row.
-- [ ] Replace `renderSwapBrief()`, `renderModalContent()` and amount render helpers with direct JSX/local components.
-- [ ] Replace child raw setters for acceptance/confirmation with explicit intent callbacks.
-- [ ] Keep slippage/retry/query-parameter mutations with their action owner and preserve current retry behavior.
-- [ ] Remove margin/negative-margin layout in the touched modal sections; preserve accepted visual placement.
+- [x] Separate quote/build comparison, acceptance thresholds and review validation from rendering.
+- [x] Group balance, reserved Limit Order amount and honeypot acquisition into a coherent review-data boundary.
+- [x] Extract substantial amount/warning and fee/gas/recipient sections without making a file for every row.
+- [x] Replace `renderSwapBrief()`, `renderModalContent()` and amount render helpers with direct JSX/local components.
+- [x] Replace child raw setters for acceptance/confirmation with explicit intent callbacks.
+- [x] Keep slippage/retry/query-parameter mutations with their action owner and preserve current retry behavior.
+- [x] Remove margin/negative-margin layout in the touched modal sections; preserve accepted visual placement.
 
-- [ ] After modal UI polish, update amount/summary/detail skeletons to match row and section heights; use one placeholder per line even when the line has several controls.
+- [x] After modal UI polish, update amount/summary/detail skeletons to match row and section heights; use one placeholder per line even when the line has several controls.
 
 Done when: confirmation components display review data and emit actions; build/send lifecycle stays
 with section 3's owner. Do not add a route chart to Review.
 
 ## 5. Single-chain quote ownership and page composition
 
-Files: `components/SwapForm/SingleChain/SingleChainSwap.tsx`, `SingleChainSwapForm.tsx`,
+Files: `components/SwapForm/SingleChain/SingleChainSwap.tsx`, `SingleChainSwapFormProvider.tsx`, `SingleChainSwapProvider.tsx`,
 `hooks/useGetRoute.ts`, `hooks/useRouteRequest.ts`, `pages/Swap/SwapPage.tsx`, `SwapPageContent.tsx`.
 
-Status: quote lifecycle and refresh work below is implemented and source-reviewed.
-Shared page/form quote ownership and the unchecked composition work remain pending.
+Status: implementation and source review complete, including shared Unified Swap quote ownership.
+See the 2026-10-26 batch notes for validation and retained PartnerSwap compatibility.
 
-- [ ] Put quote data/loading at the lowest owner shared by form and right panel.
-- [ ] Remove effect-based copies of `routeSummary` and route loading into page state once both consumers share that owner.
-- [ ] Keep token metadata loading distinct from quote loading and transaction processing.
+- [x] Put quote data/loading at the lowest owner shared by form and right panel.
+- [x] Remove effect-based copies of `routeSummary` and route loading into page state once both consumers share that owner.
+- [x] Keep token metadata loading distinct from quote loading and transaction processing.
 - [x] Keep existing rate/quote metrics visible during refetch; use skeletons only while
       loading without a quote or at lazy/Suspense boundaries. Refresh feedback stays in the indicator.
 - [x] Separate request/fee preparation into `useRouteRequest`, retaining Safe App/partner behavior.
@@ -177,11 +177,11 @@ Shared page/form quote ownership and the unchecked composition work remain pendi
       Cross-chain opens a new stream each refresh. Native fetch route/stream calls use `cache: 'no-store'`.
       Both Unified forms refresh every 10 seconds after completion and retain available metrics during refetch.
       Physical abort is not required for single-chain quote correctness; same-key in-flight deduplication remains.
-- [ ] Replace `SwapPageContent` props inferred from entire hook return types with an explicit flat view API.
-- [ ] Preserve lazy provider boundaries, pending form interaction and mounted chart state behind History.
-- [ ] Keep form modules independent of `pages/Swap`; do not move page-specific UI into a domain hook.
+- [x] Replace `SwapPageContent` props inferred from entire hook return types with an explicit flat view API.
+- [x] Preserve lazy provider boundaries, pending form interaction and mounted chart state behind History.
+- [x] Keep form modules independent of `pages/Swap`; do not move page-specific UI into a domain hook.
 
-- [ ] After form/page layout polish, update pending-form and route-panel skeleton heights, padding and gaps; keep placeholders simple at line level.
+- [x] After form/page layout polish, update pending-form and route-panel skeleton heights, padding and gaps; keep placeholders simple at line level.
 
 Done when: form and route panel consume the same authoritative quote state without duplicated synchronization.
 Verify pair changes, refresh, review pause/resume and shared Partner/embedded Swap callers.
@@ -191,16 +191,16 @@ Verify pair changes, refresh, review pause/resume and shared Partner/embedded Sw
 Files: `components/CurrencyInputPanel/index.tsx`, `components/SwapForm/CurrencyInput/`,
 `components/TokenSelectorModal/TokenRow.tsx`, `TokenSelectorContent.tsx`, `OtherChainTokens.tsx`.
 
-- [ ] Separate substantial input controls, token selection and balance presentation from the large CurrencyInputPanel module.
-- [ ] Audit actual callers before changing its broad prop API; preserve liquidity, Limit Order, partner and wallet usages.
-- [ ] Replace `renderBalance()`, `rowInner`, empty-state JSX variables and similar render helpers with direct JSX/local components.
-- [ ] Split substantial TokenRow balance/metric/security/action sections by responsibility.
-- [ ] Keep browsing/keyboard state in the modal content and committed selection in the existing selection owner.
-- [ ] Preserve wallet/form modes, non-EVM callbacks, import restrictions and one commit/dismiss sequence.
-- [ ] Preserve virtualized row identity, sorting animation, scroll and focus across token-info/import overlays.
-- [ ] Remove spacing margins in touched input/selector layout; avoid unrelated shared primitive changes.
+- [x] Separate substantial input controls, token selection and balance presentation from the large CurrencyInputPanel module.
+- [x] Audit actual callers before changing its broad prop API; preserve liquidity, Limit Order, partner and wallet usages.
+- [x] Replace `renderBalance()`, `rowInner`, empty-state JSX variables and similar render helpers with direct JSX/local components.
+- [x] Split substantial TokenRow balance/metric/security/action sections by responsibility.
+- [x] Keep browsing/keyboard state in the modal content and committed selection in the existing selection owner.
+- [x] Preserve wallet/form modes, non-EVM callbacks, import restrictions and one commit/dismiss sequence.
+- [x] Preserve virtualized row identity, sorting animation, scroll and focus across token-info/import overlays.
+- [x] Remove spacing margins in touched input/selector layout; avoid unrelated shared primitive changes.
 
-- [ ] After input/selector UI polish, update token, balance and list-row skeleton heights, including virtualized row sizing; one skeleton can cover a multi-component line.
+- [x] After input/selector UI polish, update token, balance and list-row skeleton heights, including virtualized row sizing; one skeleton can cover a multi-component line.
 
 Done when: input and selector views have readable boundaries without replacing the established selection state machine.
 
@@ -208,13 +208,13 @@ Done when: input and selector views have readable boundaries without replacing t
 
 Files: `components/TokenPriceChart/TokenPriceChartCanvas.tsx`, `index.tsx`, `useTokenPriceChartData.ts`.
 
-- [ ] Extract pure autoscale, formatting, option and tooltip-position calculations into cohesive helpers.
-- [ ] Keep chart creation/destruction, resize and library subscriptions with one lifecycle owner.
-- [ ] Separate tooltip presentation from chart-library orchestration if needed to keep files cohesive.
-- [ ] Preserve cleanup, initial viewport setup, pagination triggers, token/timeframe identity and mounted state behind History.
-- [ ] Keep fetching/pagination in the existing data hook; avoid a new competing cache or unnecessary hook layers.
+- [x] Extract pure autoscale, formatting, option and tooltip-position calculations into cohesive helpers.
+- [x] Keep chart creation/destruction, resize and library subscriptions with one lifecycle owner.
+- [x] Separate tooltip presentation from chart-library orchestration if needed to keep files cohesive.
+- [x] Preserve cleanup, initial viewport setup, pagination triggers, token/timeframe identity and mounted state behind History.
+- [x] Keep fetching/pagination in the existing data hook; avoid a new competing cache or unnecessary hook layers.
 
-- [ ] After chart UI polish, align the loading chart container and header-row heights with loaded content; the chart area can remain a single placeholder block.
+- [x] After chart UI polish, align the loading chart container and header-row heights with loaded content; the chart area can remain a single placeholder block.
 
 Done when: the canvas component composes chart lifecycle and tooltip UI; library synchronization effects remain explicit.
 
@@ -358,14 +358,15 @@ Code-only audit — 2026-10-23, against `5be1ef7d1`:
   reproduction was an in-memory calculation.
 
 The follow-up below addresses the two pre-existing route-display defects found during
-the audit. Section 3 status is recorded below; sections 4–9 remain pending except
-explicitly checked items. Preserve the current index; staging is not evidence that
+the audit. Section 3 status is recorded below; sections 4–5 were completed in the
+2026-10-26 follow-up. Sections 6–7 were completed in the next 2026-10-26 batch; sections 8–9 remain pending
+except explicitly checked items. Preserve the current index; staging is not evidence that
 a batch is accepted.
 
 ### Batch 2: review/execution ownership — implementation complete
 
-Scope: section 3. Confirmation content and page-level quote sharing remain pending
-in sections 4–5.
+Scope: section 3. Confirmation content and page-level quote sharing are recorded
+separately in the 2026-10-26 batch for sections 4–5.
 
 - [x] Centralize build/review/preparation/signature/submitted/error phases and dismissal
       in `useSwapReviewSession`, with guards against duplicate actions and stale completions.
@@ -380,8 +381,8 @@ in sections 4–5.
 
 ### Quote/refresh — implementation complete
 
-Scope: completed quote lifecycle items in section 5. Shared page/form quote ownership
-and the unchecked page composition items remain pending.
+Scope: quote lifecycle items in section 5. Shared page/form quote ownership and page
+composition were completed in the 2026-10-26 batch below.
 
 - [x] Let TanStack Query own single-chain data/loading/polling; prepare request identity,
       fee lookup and price enrichment in `useRouteRequest`, with RTK as API transport.
@@ -415,7 +416,165 @@ Validation status for batch 2 and quote/refresh:
       and 24 native ERC-20 tests.
 - [x] TypeScript, ESLint and Prettier on 29 changed TypeScript files, and whitespace checks.
 
+## Follow-up review and batch 3 — 2026-10-26
+
+### Sections 1–3: current source review
+
+- Rechecked graph preparation/geometry, measurement cleanup and stable node identity,
+  route-chain metadata, route/skeleton layout, and PartnerSwap collapse behavior.
+- Traced the review owner through approval/permit, build cancellation, slippage rebuild,
+  session invalidation, duplicate confirm protection and submitted-transaction persistence.
+- No new regression was confirmed. The four existing route/provider/review suites passed
+  all 33 tests. This is source and automated verification, not wallet execution evidence.
+
+### Sections 4–5: implementation and source audit complete
+
+- `reviewData.ts` owns quote/build comparison, acceptance thresholds, minimum receiving,
+  price-impact gating and suggested-slippage caps. `useSwapReviewData` acquires the input
+  balance, reserved Limit Order amount and honeypot status at one review boundary.
+- Confirmation composes amount/warning and fee/gas/recipient sections. Acceptance and
+  confirmation use intent callbacks. Suggested/custom slippage, retry count and URL
+  changes remain with the confirmation action owner; build/send stays with the review
+  session. Rate inversion retains its lifetime across the suggested-slippage error UI.
+- Preserve stable-pair/negative-output thresholds, ERC-8056 display conversion, quote-based
+  minimum receiving, build-based risk values, native Limit Order exemption, permit/FOT
+  error precedence, existing tracking and build-returned router authority.
+- Modal rows use parent gaps and predictable minimum heights. Amount headers reserve
+  room for the Updated badge; output loading uses one 32px placeholder for the amount
+  line. The arrow anchors to the card boundary, so unequal card heights do not move it
+  away from the gap. Rate and detail rows retain 24px/20px loading baselines and allow
+  real content to grow. No route chart was added to Review.
+- `SingleChainSwapFormProvider` connects pair/balances/preferences to
+  `SingleChainSwapProvider`, which coordinates quote fetching and review pause above both
+  Unified panels. Form and right panel consume the same current quote/loading values;
+  `SwapPage` has no route-summary/loading state or synchronization effects.
+- The standalone `SingleChainSwap` boundary preserves PartnerSwap's supplied preferences,
+  balances, client attribution, wallet selection behavior and route notification API.
+  PartnerSwap still uses that existing callback for its independently composed route
+  panel; it does not create a second quote request. Limit Order and Price Alert transport
+  and polling policies are unchanged.
+- `SwapPageContent` has an explicit flat view API. Cross-chain providers remain lazy,
+  pending token selection stays interactive, the chart remains mounted behind History,
+  and transaction-history polling stays outside mode/visibility branches. The existing
+  pending-form/route skeleton geometry is unchanged; no form/page layout edits require
+  a replacement skeleton. Form modules have no dependency on `pages/Swap`.
+- Updated the two pair-navigation cases that referenced the removed Cross-Chain tab:
+  test mode changes through token selection and non-EVM IDs through reversal instead.
+
+Verification:
+
+- 66 tests across 9 route, pair, quote, review and summary suites passed. Added one
+  shared-provider regression covering quote identity, review pause/resume, input changes
+  and polling without the form subtree; six concise comparison cases cover acceptance
+  thresholds, quote/build amount authority with ERC-8056 scaling and retry slippage caps.
+- Package ESLint, TypeScript (`tsc --noEmit`), scoped Prettier and whitespace checks passed.
+- Browser visual QA, live provider calls and wallet/transaction E2E were not performed.
+- No Git staging, commit or push is part of this batch.
+
+## Batch 4 — sections 6–7 — 2026-10-26
+
+Implementation and source audit complete.
+
+- `CurrencyInputPanel` owns the field/modal interaction and existing public props.
+  `AmountInputControls` owns numeric input and Max/Half/balance presentation;
+  `CurrencySelect` owns selection geometry, metadata loading and token information.
+  Shared primitive callers import their concrete modules. Plain components retain the
+  React 19 DOM-ref contract; there is no new forwarding/barrel layer.
+- Reviewed single/cross-chain Swap, PartnerSwap, Limit Order, liquidity removal,
+  Price Alert and wallet-send callers. Kept disabled/switch/custom selection,
+  balance-action gating, ERC-8056 raw/display units, Max gas reservation and tracking.
+  The form adapter reports `onRawAmountChange` for Max/Half rather than exposing a
+  setter-shaped callback; both single/cross-chain callers use the existing raw handler.
+- `TokenRow` owns select/import/restricted routing and keyboard activation.
+  `TokenRowIdentity` groups token metadata, security badges, favorite/info/copy controls;
+  `TokenRowValues` owns price/metric/balance/import/remove presentation. `TokenBalance`
+  is shared with other-chain results and preserves zero, unknown, hidden, loading and
+  caller-supplied balance semantics. Row content and empty states render directly.
+- Kept `useTokenSelection`, wallet/form modes, non-EVM commit-before-dismiss, import
+  and restriction gates unchanged. Browsing state, keyboard search and selection context
+  remain in the content/view owners. Token-info/import overlays still hide the mounted
+  list; virtual item keys, 48/76px row heights, 56/84px item sizes, sorting, transform
+  springs and scroll handling are unchanged. `TokenSelectorContent` remains around
+  390 lines because it cohesively wires this browsing UI; splitting it further would
+  primarily forward its refs, selection context and list callbacks.
+- Removed input spacing margins and the balance-row spacer. The dropdown crops its
+  existing SVG viewport to retain icon placement without negative margins. Loading
+  tokens use one placeholder; list skeletons reserve the 48px row/8px gap and existing
+  column widths with a single block for the identity group. Balance loading reserves
+  the loaded 16px/20px line height. Input amount and selection control sizes are stable.
+- Chart calculations/options live in `chartOptions.ts`; `PriceChartTooltip` owns DOM
+  presentation. The canvas keeps creation/destruction, resize, subscriptions, font
+  repaint, series updates and initial two-frame viewport setup together. Preserve the
+  current 40-candle viewport, symmetric sparse padding and 20-bar pagination threshold.
+- `useTokenPriceChartData` is unchanged: token/chain/quote/timeframe query identity,
+  pagination, activity thresholds and cache behavior remain with it. Pair/timeframe
+  keys still remount the canvas; ordinary data/pagination updates retain its viewport.
+  History still hides the mounted chart instead of unmounting it.
+- Chart loading/loaded content keeps the same 280px mobile / 360px desktop area;
+  the price header reserves a 28px line and uses one placeholder while initial data
+  loads. Tooltip and price-change colors use existing theme classes. No extra chart
+  lifecycle hook or data cache was introduced.
+
+Verification:
+
+- 169 tests across 15 suites passed, including all previous Unified Swap suites,
+  token catalog/loading and wallet inventory/sorting. Six new regression cases cover
+  token row actions/balance semantics/focus, chart viewport/autoscale/tooltip bounds,
+  and library subscription/resize cleanup with a mocked chart adapter.
+- Package ESLint, TypeScript, scoped Prettier and whitespace checks passed.
+- Browser visual QA, real canvas rendering, provider calls and wallet E2E were not run.
+- Earlier section 4–5 edits remain intact. No staging, commit or push.
+
+## UI and props follow-up — 2026-10-26
+
+- Restored detailed token-list skeletons at the user's request: separate favorite,
+  circular logo, symbol and name placeholders. Keep the 48px rows, 8px gaps,
+  tab-specific value columns and synchronized pulse animation.
+- Removed legacy `components/Row` and `components/Column` imports from `pages/Swap`,
+  `SwapForm`, `CurrencyInputPanel`, `TokenSelectorModal`, `TokenPriceChart` and
+  `TradeRouting`. Layout now uses `Stack`/`HStack` with explicit width, alignment,
+  wrapping and gaps. Feature components such as `TokenRow` and `DetailRow` retain
+  their domain names; they are not legacy layout primitives.
+- Removed the single-use padded selector wrapper and the redundant pinned-token
+  outer wrapper. Retained the shared selector content surface for EVM and non-EVM
+  consumers. Search input uses the React 19 ref contract; focus ownership is unchanged.
+- Header/controller consumers use `onTabChange`; cross-chain provider, pending form
+  and active form share `onAmountChange`. The Bitcoin action requests connection
+  through `onConnectBitcoin`, and Degen confirmation exposes a boolean change callback
+  without a React state-setter type. Modal state remains with its existing owner.
+- Render tabs directly while preserving navigation, embedded feature filters and
+  divider conditions. Review views import named data types, with warnings narrowed
+  to the fields they consume. Removed trivial MEV memoization and the remaining
+  `React.FC` context declaration in scope. Shared PartnerSwap, Limit and legacy
+  CrossChain page callers were updated with the same callback contracts.
+- Fixed the two follow-up review findings: balance Max has a content-sized hit area,
+  and review warning buttons use the existing `ButtonError` variants. Disabled
+  review actions retain the normal primary disabled style, without local color overrides.
+- Verification: 169 tests across 15 suites, TypeScript, scoped ESLint/Prettier and
+  whitespace checks passed. No browser visual checks, live provider or wallet E2E.
+  History ownership (section 8) and the remaining section 9 audit are still separate.
+
 ## Behavior issues for evaluation after each batch
+
+### Batch 4: output amount during quote refresh — preserved
+
+- `OutputCurrencyPanel.tsx` renders its amount skeleton and clears the displayed amount
+  whenever `routeLoading` is true, even if `parsedAmountOut` is still available. Source
+  reproduction: provide an existing quote amount, then start auto/manual refetch.
+- Impact: the output field temporarily hides its available amount/USD value, unlike
+  quote summary metrics. This predates this batch; no browser reproduction was run.
+- Proposed separate change: show the amount skeleton only when loading without an
+  available output amount, keeping refresh feedback in the indicator. Preserved here
+  to keep this batch limited to ownership/presentation refactoring.
+
+### Batch 3: existing confirmation dismissal inconsistency — preserved
+
+- `SwapModalAreYouSure.tsx`: type `confirm`, close with the X, then reopen the extra
+  confirmation. The text remains; backdrop/Cancel clear it. This distinction existed
+  before extraction and is confirmed in the handlers, without browser verification.
+- Impact: reopening can retain a previously entered acknowledgement. Proposed follow-up:
+  use one dismissal/reset handler for all close paths. Behavior was preserved because
+  this batch refactors ownership without changing acceptance policy.
 
 ### Quote behavior — deferred by decision
 

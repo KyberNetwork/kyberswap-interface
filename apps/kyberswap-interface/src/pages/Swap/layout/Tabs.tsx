@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { Fragment, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
@@ -53,11 +52,11 @@ const TabDivider = () => <span aria-hidden className="h-5 w-0.5 shrink-0 rounded
 
 type Props = {
   activeTab: TAB
-  setActiveTab: (tab: TAB) => void
+  onTabChange: (tab: TAB) => void
   customChainId?: ChainId
 }
 
-export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
+export const Tabs = ({ activeTab, onTabChange, customChainId }: Props) => {
   const navigateFn = useNavigate()
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
   const { fromCurrency, toCurrency, inputChain, outputChain } = useCurrencyFromUrl()
@@ -77,11 +76,11 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
       return
     }
     if (isEmbeddedSwap) {
-      setActiveTab(tab)
+      onTabChange(tab)
       return
     }
 
-    setActiveTab(tab)
+    onTabChange(tab)
     if (
       tab === TAB.SWAP &&
       (isSwapLikePath(pathname) ||
@@ -105,41 +104,27 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
     }
   }
 
-  const tabs: { key: TAB; node: ReactNode }[] = []
-  if (show(TAB.SWAP)) {
-    tabs.push({
-      key: TAB.SWAP,
-      node: (
-        <Tab onClick={() => onClickTab(TAB.SWAP)} $isActive={TAB.SWAP === activeTab}>
-          <span className="font-medium">
-            <Trans>Swap</Trans>
-          </span>
-        </Tab>
-      ),
-    })
-  }
-  if (show(TAB.LIMIT) && isSupportLimitOrder(chainId)) {
-    tabs.push({
-      key: TAB.LIMIT,
-      node: (
-        <LimitTab
-          onClick={() => onClickTab(TAB.LIMIT)}
-          active={activeTab === TAB.LIMIT}
-          customChainId={customChainId}
-        />
-      ),
-    })
-  }
+  const showSwap = show(TAB.SWAP)
+  const showLimit = show(TAB.LIMIT) && isSupportLimitOrder(chainId)
 
   return (
     <Stack className="items-start sm:flex-row sm:items-center sm:justify-between">
       <HStack className="items-center gap-1 sm:gap-2">
-        {tabs.map((tab, index) => (
-          <Fragment key={tab.key}>
-            {index > 0 && <TabDivider />}
-            {tab.node}
-          </Fragment>
-        ))}
+        {showSwap && (
+          <Tab onClick={() => onClickTab(TAB.SWAP)} $isActive={TAB.SWAP === activeTab}>
+            <span className="font-medium">
+              <Trans>Swap</Trans>
+            </span>
+          </Tab>
+        )}
+        {showSwap && showLimit && <TabDivider />}
+        {showLimit && (
+          <LimitTab
+            onClick={() => onClickTab(TAB.LIMIT)}
+            active={activeTab === TAB.LIMIT}
+            customChainId={customChainId}
+          />
+        )}
       </HStack>
     </Stack>
   )

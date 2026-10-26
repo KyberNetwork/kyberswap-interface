@@ -73,7 +73,7 @@ const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
           />
           {search && (
             <IconButton variant="action" aria-label={t`Clear token filter`} onClick={() => setSearch('')}>
-              <X size={20} aria-hidden />
+              <X size={20} className="text-subText transition-colors hover:text-text" aria-hidden />
             </IconButton>
           )}
         </HStack>

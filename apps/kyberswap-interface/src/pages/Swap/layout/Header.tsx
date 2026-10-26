@@ -17,7 +17,7 @@ import { isSwapLikePath } from 'utils/routes'
 /** Shared header composition. historyButton is a slot so the consuming page retains History state and lifecycle. */
 type HeaderProps = {
   activeTab: TAB
-  setActiveTab: (tab: TAB) => void
+  onTabChange: (tab: TAB) => void
   customChainId?: ChainId
   historyButton?: ReactNode
   isCrossChainMode?: boolean
@@ -26,7 +26,7 @@ type HeaderProps = {
 
 export const Header = ({
   activeTab,
-  setActiveTab,
+  onTabChange,
   customChainId,
   activeMainTab,
   isCrossChainMode,
@@ -47,10 +47,10 @@ export const Header = ({
     <>
       <Stack className="w-full items-center gap-2">
         <HStack className="min-h-9 w-full items-center justify-between gap-0">
-          <Tabs activeTab={selectedTab} setActiveTab={setActiveTab} customChainId={customChainId} />
+          <Tabs activeTab={selectedTab} onTabChange={onTabChange} customChainId={customChainId} />
           <HeaderRightMenu
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            onTabChange={onTabChange}
             activeMainTab={activeMainTab}
             isCrossChainMode={isCrossChainMode}
             historyButton={historyButton}

@@ -33,7 +33,7 @@ export const PartnerSwapLayout = ({
           <SwapFormWrapper>
             <Header
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              onTabChange={setActiveTab}
               customChainId={customChainId}
               activeMainTab={activeMainTab}
             />

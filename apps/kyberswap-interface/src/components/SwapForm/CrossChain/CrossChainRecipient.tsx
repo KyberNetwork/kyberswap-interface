@@ -4,7 +4,7 @@ import { ChevronDown } from 'react-feather'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonLight } from 'components/Button'
-import { AutoColumn } from 'components/Column'
+import { Stack } from 'components/Stack'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { cn } from 'utils/cn'
@@ -34,7 +34,7 @@ export const CrossChainRecipient = () => {
     recipientWalletAddress !== recipient
 
   return (
-    <AutoColumn>
+    <Stack>
       <div className="flex min-h-5 items-end justify-between text-xs text-subText">
         <button
           type="button"
@@ -95,6 +95,6 @@ export const CrossChainRecipient = () => {
           </div>
         </div>
       </div>
-    </AutoColumn>
+    </Stack>
   )
 }

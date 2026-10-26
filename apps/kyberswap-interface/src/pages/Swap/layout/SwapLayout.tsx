@@ -31,7 +31,7 @@ type SwapLayoutProps = PropsWithChildren<{
 }>
 
 export const SwapLayout = ({ children, controller, rightPanel, rightPanelFallback }: SwapLayoutProps) => {
-  const { activeMainTab, activeTab, shouldHighlightSwapBox, setActiveTab } = controller
+  const { activeMainTab, activeTab, shouldHighlightSwapBox, onTabChange } = controller
   useSwapLayoutPrefetch()
 
   return (
@@ -39,7 +39,7 @@ export const SwapLayout = ({ children, controller, rightPanel, rightPanelFallbac
       <Container>
         <LimitOrderProvider>
           <SwapFormWrapper>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
+            <Header activeTab={activeTab} onTabChange={onTabChange} activeMainTab={activeMainTab} />
 
             <TradeBody
               data-highlight={shouldHighlightSwapBox}

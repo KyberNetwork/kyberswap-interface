@@ -1,5 +1,7 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Suspense, lazy, useState } from 'react'
 
+import { SingleChainSwapFormProvider } from 'components/SwapForm/SingleChain/SingleChainSwapFormProvider'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { TAB } from 'pages/Swap/Layout/Tabs'
@@ -8,17 +10,14 @@ import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
 import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { useAppSelector } from 'state/hooks'
-import type { DetailedRouteSummary } from 'types/route'
 
 const TransactionHistoryUpdater = lazy(() => import('pages/Swap/components/TransactionHistoryUpdater'))
 const CrossChainSwapProvider = lazy(() => import('components/SwapForm/CrossChain/hooks/useCrossChainSwap'))
 
-/** Owns shared page state and the cross-chain provider for both panels.
+/** Owns shared page state and the active quote provider for both panels.
  * Saved-transaction polling stays outside the swap-mode and History visibility branches. */
 const SwapPage = () => {
   const [showHistory, setShowHistory] = useState(false)
-  const [routeLoading, setRouteLoading] = useState(false)
-  const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
   const hasTransactions = useAppSelector(state => Boolean(state.crossChainSwap.transactions?.length))
   const pair = useSwapFormPair()
   const controller = useTradeController(TAB.SWAP)
@@ -27,15 +26,15 @@ const SwapPage = () => {
 
   const contentProps = {
     ...pair,
-    ...controller,
+    activeTab: controller.activeTab,
+    onTabChange: controller.onTabChange,
+    onBackToMainTab: controller.onBackToMainTab,
+    highlightDegenMode: controller.highlightDegenMode,
+    shouldHighlightSwapBox: controller.shouldHighlightSwapBox,
     amount: typedValue,
     onAmountChange: onUserInput,
     showHistory,
-    routeSummary,
-    routeLoading,
-    onRouteLoadingChange: setRouteLoading,
     onHistoryChange: setShowHistory,
-    onRouteChange: setRouteSummary,
   }
 
   return (
@@ -59,7 +58,13 @@ const SwapPage = () => {
           </CrossChainSwapProvider>
         </Suspense>
       ) : (
-        <SwapPageContent {...contentProps} />
+        <SingleChainSwapFormProvider
+          chainId={pair.inputChain as ChainId}
+          currencyIn={pair.currencyIn}
+          currencyOut={pair.currencyOut}
+        >
+          <SwapPageContent {...contentProps} />
+        </SingleChainSwapFormProvider>
       )}
     </NonEvmProviders>
   )
