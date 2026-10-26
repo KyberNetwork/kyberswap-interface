@@ -1,6 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { FC } from 'react'
 
 import { ErrorWarning } from 'components/ErrorWarning'
 import { mKNC } from 'constants/tokens'
@@ -11,35 +10,38 @@ type Props = {
   currencyOut: Currency | undefined
 }
 
-const MultichainKNCNote: FC<Props> = ({ currencyIn, currencyOut }) => {
+const MultichainKNCNote = ({ currencyIn, currencyOut }: Props) => {
   const { chainId } = useActiveWeb3React()
   const mknc = mKNC[chainId]
   if (
-    mknc &&
-    [currencyIn?.wrapped.address?.toLowerCase(), currencyOut?.wrapped.address?.toLowerCase()].includes(
+    !mknc ||
+    ![currencyIn?.wrapped.address?.toLowerCase(), currencyOut?.wrapped.address?.toLowerCase()].includes(
       mknc.toLowerCase(),
     )
-  ) {
-    const shortText = (
-      <div>
-        <Trans>
-          Multichain team ceased operations, and we discourage user interaction with the deployed Wrapped KNC token
-          contracts on various chains. See more{' '}
-          <a
-            href="https://twitter.com/MultichainOrg/status/1679768407628185600"
-            target="_blank"
-            rel="noreferrer"
-            className="mr-[0.5ch] inline w-fit min-w-max cursor-pointer border-b border-text font-medium text-text"
-          >
-            here
-          </a>
-        </Trans>
-      </div>
-    )
-    return <ErrorWarning type="warn" title={shortText} />
-  }
+  )
+    return null
 
-  return null
+  return (
+    <ErrorWarning
+      type="warn"
+      title={
+        <div>
+          <Trans>
+            Multichain team ceased operations, and we discourage user interaction with the deployed Wrapped KNC token
+            contracts on various chains. See more{' '}
+            <a
+              href="https://twitter.com/MultichainOrg/status/1679768407628185600"
+              target="_blank"
+              rel="noreferrer"
+              className="inline w-fit min-w-max cursor-pointer border-b border-text font-medium text-text"
+            >
+              here
+            </a>
+          </Trans>
+        </div>
+      }
+    />
+  )
 }
 
 export default MultichainKNCNote

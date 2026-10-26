@@ -1,10 +1,10 @@
 import { type ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { format } from 'date-fns'
-import { type HTMLAttributes, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { type HTMLAttributes, type ReactNode, useEffect, useMemo, useState } from 'react'
 import { ChevronRight } from 'react-feather'
 import { useMedia } from 'react-use'
-import { type Hash, formatUnits } from 'viem'
+import { formatUnits } from 'viem'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
@@ -12,9 +12,6 @@ import CopyHelper from 'components/Copy'
 import Pagination from 'components/Pagination'
 import Skeleton from 'components/Skeleton'
 import { NETWORKS_INFO } from 'constants/networks'
-import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
-import { kyberCrossApi } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
-import { mapRouteStateToSwapStatus } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import {
   type Chain,
   type Currency,
@@ -27,8 +24,6 @@ import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWit
 import { CrossChainSwapFactory, registry } from 'pages/CrossChainSwap/factory'
 import { type TransactionStatus, isProcessingTransactionStatus } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
 import { getChainName, normalizeAdapterName } from 'pages/CrossChainSwap/utils'
-import { updateTransactionStatus } from 'state/crossChainSwap'
-import { useAppDispatch } from 'state/hooks'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
@@ -36,6 +31,9 @@ import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PAGE_SIZE = 6
+
+// History is a presentation owner. Status acquisition belongs to the page-level
+// TransactionHistoryUpdater so pagination and visibility do not start API calls.
 
 const isEvmChainId = (chain: Chain): chain is ChainId => typeof chain === 'number'
 
@@ -82,19 +80,17 @@ const StatusBadge = ({ status }: { status?: TransactionStatus }) => {
     Refunded: t`Refunded`,
     Processing: t`Processing`,
   }
-  const statusClassMap: Record<TransactionStatus, string> = {
-    Success: 'bg-primary-20 text-primary',
-    Failed: 'bg-red-20 text-red',
-    Refunded: 'bg-warning-20 text-warning',
-    Processing: 'bg-warning-20 text-warning',
-  }
   const normalizedStatus = status || 'Processing'
 
   return (
     <div
       className={cn(
         'flex w-fit shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium',
-        statusClassMap[normalizedStatus],
+        normalizedStatus === 'Success'
+          ? 'bg-primary-20 text-primary'
+          : normalizedStatus === 'Failed'
+          ? 'bg-red-20 text-red'
+          : 'bg-warning-20 text-warning',
       )}
     >
       {statusLabelMap[normalizedStatus]}
@@ -231,7 +227,7 @@ const FillTransaction = ({ tx }: { tx: NormalizedTxResponse }) => {
     return <Skeleton height="16px" width="104px" />
   }
 
-  return <span className="mr-1 text-sm font-medium text-subText">··· ···</span>
+  return <span className="text-sm font-medium text-subText">··· ···</span>
 }
 
 const MobileDetailRow = ({ label, children }: { label: string; children: ReactNode }) => (
@@ -284,42 +280,8 @@ const TransactionRow = ({ isLast, tx }: { isLast: boolean; tx: NormalizedTxRespo
   </TransactionTableGrid>
 )
 
-type TransactionRecordProps = {
-  checkedTransactionIds: Set<string>
-  isLast: boolean
-  isMobile: boolean
-  tx: NormalizedTxResponse
-}
-
-const TransactionRecord = ({ checkedTransactionIds, isLast, isMobile, tx }: TransactionRecordProps) => {
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    const shouldCheckStatus =
-      registry.getAdapter(tx.adapter) instanceof KyberCrossAdapter && !isProcessingTransactionStatus(tx.status)
-
-    if (!shouldCheckStatus || checkedTransactionIds.has(tx.id)) return
-
-    checkedTransactionIds.add(tx.id)
-
-    kyberCrossApi
-      .scanTxStatus(tx.sourceTxHash as Hash)
-      .then(response => {
-        dispatch(
-          updateTransactionStatus({
-            id: tx.id,
-            result: mapRouteStateToSwapStatus(response.data.route_execution, !!tx.gasDrop),
-          }),
-        )
-      })
-      .catch(() => undefined)
-  }, [checkedTransactionIds, dispatch, tx.adapter, tx.id, tx.sourceTxHash, tx.status, tx.gasDrop])
-
-  return isMobile ? <TransactionCard tx={tx} /> : <TransactionRow tx={tx} isLast={isLast} />
-}
-
 /** Renders supplied transactions and owns pagination. Filtering resets the page via filterKey.
- * Does not start polling: the legacy wrapper or unified page owns that lifecycle. */
+ * Status acquisition belongs to the page-mounted updater. */
 const TransactionHistoryList = ({
   transactions,
   filterKey,
@@ -330,7 +292,6 @@ const TransactionHistoryList = ({
   emptyMessage?: string
 }) => {
   const [currentPage, setCurrentPage] = useState(1)
-  const checkedTransactionIdsRef = useRef<Set<string>>(new Set())
 
   useEffect(() => setCurrentPage(1), [filterKey])
 
@@ -365,22 +326,24 @@ const TransactionHistoryList = ({
         </TransactionTableGrid>
       )}
 
-      <div className={cn(upToSmall && transactions.length > 0 ? 'flex flex-col gap-3 p-3' : '')}>
+      <div className={cn(upToSmall && transactions.length > 0 && 'flex flex-col gap-3 p-3')}>
         {transactions.length === 0 ? (
           <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 px-4 py-6">
             <NoTransactionIcon className="size-20" />
             <span className="text-center text-sm font-medium text-subText">{emptyMessage}</span>
           </div>
         ) : (
-          visibleTransactions.map((tx, index) => (
-            <TransactionRecord
-              key={tx.id}
-              tx={tx}
-              isMobile={upToSmall}
-              checkedTransactionIds={checkedTransactionIdsRef.current}
-              isLast={!showPagination && index === visibleTransactions.length - 1}
-            />
-          ))
+          visibleTransactions.map((tx, index) =>
+            upToSmall ? (
+              <TransactionCard key={tx.id} tx={tx} />
+            ) : (
+              <TransactionRow
+                key={tx.id}
+                tx={tx}
+                isLast={!showPagination && index === visibleTransactions.length - 1}
+              />
+            ),
+          )
         )}
       </div>
 

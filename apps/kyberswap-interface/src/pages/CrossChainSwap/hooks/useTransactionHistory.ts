@@ -4,20 +4,18 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { formatUnits } from 'viem'
 
 import { NotificationType } from 'components/Announcement/type'
-import { ETHER_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
-import {
-  type Chain,
-  type Currency,
-  NonEvmChain,
-  type NormalizedTxResponse,
-  type SwapStatus,
-} from 'pages/CrossChainSwap/adapters/types'
+import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
+import { kyberCrossApi } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
+import { mapRouteStateToSwapStatus } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
+import { type NormalizedTxResponse, type SwapStatus } from 'pages/CrossChainSwap/adapters/types'
 import { registry } from 'pages/CrossChainSwap/factory'
+import { getSwapTrackingData } from 'pages/CrossChainSwap/tracking'
 import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useNotify } from 'state/application/hooks'
-import { useCrossChainTransactions } from 'state/crossChainSwap'
+import { updateTransactionStatus, useCrossChainTransactions } from 'state/crossChainSwap'
+import { useAppDispatch } from 'state/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const STATUS_CHECK_INTERVAL = 10_000
@@ -52,47 +50,9 @@ const getStatusCheckGroups = (transactions: NormalizedTxResponse[]) => {
 
 const getTransactionIdsKey = (transactions: NormalizedTxResponse[]) => transactions.map(tx => tx.id).join('|')
 
-const hasTokenId = (token: Currency): token is Currency & { id: string } => 'id' in token
-
-const hasAssetId = (token: Currency): token is Currency & { assetId: string } => 'assetId' in token
-
-const hasWrappedAddress = (token: Currency): token is Currency & { wrapped: { address?: string } } =>
-  'wrapped' in token && typeof token.wrapped === 'object' && token.wrapped !== null
-
-const getTokenTrackingId = (chain: Chain, token: Currency) => {
-  if (chain === NonEvmChain.Bitcoin) return token.symbol
-  if (chain === NonEvmChain.Solana && hasTokenId(token)) return token.id
-  if (chain === NonEvmChain.Near && hasAssetId(token)) return token.assetId
-  if ('isNative' in token && token.isNative) return ETHER_ADDRESS
-  if ('address' in token && typeof token.address === 'string') return token.address
-  if (hasWrappedAddress(token) && typeof token.wrapped.address === 'string') return token.wrapped.address
-
-  return token.symbol
-}
-
 const buildSwapDetails = (tx: NormalizedTxResponse, status: TransactionStatus, targetTxHash?: string) => ({
-  amount_in: tx.inputAmount,
-  amount_in_usd: tx.amountInUsd,
-  amount_out: tx.outputAmount,
-  amount_out_usd: tx.amountOutUsd,
-  currency: 'USD',
-  fee_percent: tx.platformFeePercent,
-  from_chain: tx.sourceChain,
-  from_chain_name: getChainName(tx.sourceChain),
-  from_token: getTokenTrackingId(tx.sourceChain, tx.sourceToken),
-  from_token_symbol: tx.sourceToken?.symbol,
-  from_token_decimals: tx.sourceToken?.decimals,
-  to_chain: tx.targetChain,
-  to_chain_name: getChainName(tx.targetChain),
-  to_token: getTokenTrackingId(tx.targetChain, tx.targetToken),
-  to_token_symbol: tx.targetToken?.symbol,
-  to_token_decimals: tx.targetToken?.decimals,
-  partner: tx.adapter,
-  platform: 'KyberSwap Cross-Chain',
-  source_tx_hash: tx.sourceTxHash,
+  ...getSwapTrackingData(tx),
   target_tx_hash: targetTxHash || tx.targetTxHash,
-  recipient: tx.recipient,
-  sender: tx.sender,
   status,
   time: Date.now(),
   timestamp: tx.timestamp,
@@ -131,8 +91,12 @@ export const useTransactionHistory = () => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
   const [transactions, setTransactions] = useCrossChainTransactions()
+  const dispatch = useAppDispatch()
 
   const ongoingCallsRef = useRef<Set<string>>(new Set())
+  // Terminal enrichment is attempted once per updater mount, including failed requests.
+  // Remounting the updater retries it; opening or paginating History does not.
+  const terminalCheckedRef = useRef<Set<string>>(new Set())
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const transactionsRef = useRef(transactions)
   transactionsRef.current = transactions
@@ -140,6 +104,17 @@ export const useTransactionHistory = () => {
   const { pollingTxs, expiredProcessingTxs } = useMemo(() => getStatusCheckGroups(transactions), [transactions])
   const pollingTxIdsKey = getTransactionIdsKey(pollingTxs)
   const expiredProcessingTxIdsKey = getTransactionIdsKey(expiredProcessingTxs)
+
+  // Processing status comes from the adapter recorded on the transaction. KyberCross
+  // gets one extra terminal scan because its route API can reveal the final fill/gas
+  // details after the processing poll has stopped.
+  const terminalTxs = useMemo(
+    () =>
+      transactions.filter(
+        tx => registry.getAdapter(tx.adapter) instanceof KyberCrossAdapter && !isProcessingTransactionStatus(tx.status),
+      ),
+    [transactions],
+  )
 
   const trackStatusChange = useCallback(
     (tx: NormalizedTxResponse, status: TransactionStatus, targetTxHash?: string) => {
@@ -168,6 +143,8 @@ export const useTransactionHistory = () => {
     [crossChainMixpanelHandler, trackingHandler],
   )
 
+  // This is the generic status path for every adapter. Keep analytics and Gas Drop
+  // notifications here so they fire only when polling observes a real status change.
   const checkTransactions = useCallback(
     async (txs: NormalizedTxResponse[]) => {
       const txsToCheck = txs.filter(tx => !ongoingCallsRef.current.has(tx.id))
@@ -292,6 +269,25 @@ export const useTransactionHistory = () => {
       }
     }
   }, [checkTransactions, pollingTxIdsKey])
+
+  // Terminal enrichment deliberately dispatches only. It must not emit completion
+  // analytics or notifications a second time after the processing path did so.
+  useEffect(() => {
+    const txsToEnrich = terminalTxs.filter(tx => !terminalCheckedRef.current.has(tx.id))
+
+    txsToEnrich.forEach(tx => {
+      terminalCheckedRef.current.add(tx.id)
+
+      void kyberCrossApi
+        .scanTxStatus(tx.sourceTxHash as `0x${string}`)
+        .then(response => {
+          const result = mapRouteStateToSwapStatus(response.data.route_execution, !!tx.gasDrop)
+
+          dispatch(updateTransactionStatus({ id: tx.id, result }))
+        })
+        .catch(() => undefined)
+    })
+  }, [dispatch, terminalTxs])
 
   return transactions
 }

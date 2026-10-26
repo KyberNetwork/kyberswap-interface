@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { FC } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { ErrorWarning } from 'components/ErrorWarning'
@@ -33,33 +32,38 @@ const TextUnderlineTransparent = ({ children }: { children: React.ReactNode }) =
 export const PRICE_IMPACT_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/price-impact'
 
+const LimitOrderLink = () => {
+  const switchToLimitOrder = useSwitchPairToLimitOrder()
+  const { trackingHandler } = useTracking()
+
+  const handleClick = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP)
+    switchToLimitOrder()
+  }
+
+  return (
+    <span
+      className="cursor-pointer border-b border-border-primary text-primary hover:brightness-125"
+      onClick={handleClick}
+    >
+      <Trans>Limit Order</Trans>
+    </span>
+  )
+}
+
 type Props = {
   isDegenMode?: boolean
   priceImpact: number | undefined | null
   showLimitOrderLink?: boolean
 }
 
-const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
+const PriceImpactNote = ({ isDegenMode, priceImpact, showLimitOrderLink = false }: Props) => {
   const { chainId } = useActiveWeb3React()
   const priceImpactResult = checkPriceImpact(priceImpact)
-  const switchToLimitOrder = useSwitchPairToLimitOrder()
-  const { trackingHandler } = useTracking()
 
   if (typeof priceImpact !== 'number') {
     return null
   }
-  const limitOrderLink = (
-    <span
-      className="cursor-pointer border-b border-border-primary text-primary hover:brightness-125"
-      onClick={() => {
-        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP)
-        switchToLimitOrder()
-      }}
-    >
-      <Trans>Limit Order</Trans>
-    </span>
-  )
-
   if (priceImpactResult.isInvalid) {
     return (
       <ErrorWarning
@@ -76,7 +80,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
             {!isDegenMode ? (
               <span>
                 <Trans>
-                  Consider requesting a {limitOrderLink} instead, or click &apos;Swap Anyway&apos; if you wish to
+                  Consider requesting a <LimitOrderLink /> instead, or click &apos;Swap Anyway&apos; if you wish to
                   continue by enabling Degen Mode.
                 </Trans>
               </span>
@@ -88,17 +92,10 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         desc={
           isDegenMode ? (
             <div>
-              {isDegenMode ? (
-                <Trans>
-                  You have turned on <b>Degen Mode</b> from settings. Trades can still be executed when price impact
-                  cannot be calculated.
-                </Trans>
-              ) : (
-                <Trans>
-                  Consider requesting a {limitOrderLink} instead, or click &apos;Swap Anyway&apos; if you wish to
-                  continue by enabling Degen Mode.
-                </Trans>
-              )}
+              <Trans>
+                You have turned on <b>Degen Mode</b> from settings. Trades can still be executed when price impact
+                cannot be calculated.
+              </Trans>
             </div>
           ) : undefined
         }
@@ -136,7 +133,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
             ) : showLimitOrderLink ? (
               <Trans>
                 You can turn on Degen Mode from Settings to execute trades with very high price impact or Place a{' '}
-                {limitOrderLink}. This can result in bad rates and loss of funds
+                <LimitOrderLink />. This can result in bad rates and loss of funds
               </Trans>
             ) : (
               <Trans>
@@ -158,7 +155,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
           <div>
             <Trans>
               Price Impact is high. Please consider placing a {!isMobile ? <br /> : null}
-              {limitOrderLink} to soften the price impact.
+              <LimitOrderLink /> to soften the price impact.
             </Trans>
           </div>
         }

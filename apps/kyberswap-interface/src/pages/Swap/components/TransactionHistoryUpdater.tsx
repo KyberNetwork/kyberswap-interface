@@ -1,6 +1,6 @@
 import { useTransactionHistory } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
 
-// Lazy lifecycle boundary mounted by SwapPage, independently of mode and History visibility.
+// Lazy status owner shared by swap pages; each page controls its mount lifetime.
 const TransactionHistoryUpdater = () => {
   useTransactionHistory()
   return null

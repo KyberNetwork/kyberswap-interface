@@ -15,7 +15,7 @@ const TransactionHistoryUpdater = lazy(() => import('pages/Swap/components/Trans
 const CrossChainSwapProvider = lazy(() => import('components/SwapForm/CrossChain/hooks/useCrossChainSwap'))
 
 /** Owns shared page state and the active quote provider for both panels.
- * Saved-transaction polling stays outside the swap-mode and History visibility branches. */
+ * Once saved transactions exist, their updater stays outside swap-mode and History visibility branches. */
 const SwapPage = () => {
   const [showHistory, setShowHistory] = useState(false)
   const hasTransactions = useAppSelector(state => Boolean(state.crossChainSwap.transactions?.length))

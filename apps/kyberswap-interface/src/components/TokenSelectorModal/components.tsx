@@ -48,10 +48,6 @@ export const SearchWrapper = ({ className, ...props }: ComponentPropsWithoutRef<
   <div className={cn('relative h-10', className)} {...props} />
 )
 
-export const SearchIcon = ({ className, ...props }: ComponentProps<typeof Search>) => (
-  <Search className={cn('absolute right-3 top-1/2 -translate-y-1/2', className)} {...props} />
-)
-
 export const SearchControl = ({ query, onClear }: { query: string; onClear: () => void }) =>
   query ? (
     <button
@@ -64,7 +60,7 @@ export const SearchControl = ({ query, onClear }: { query: string; onClear: () =
       <CloseIcon className="size-4 min-w-4 hover:brightness-100" aria-hidden />
     </button>
   ) : (
-    <SearchIcon size={18} className="text-subText" />
+    <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-subText" />
   )
 
 export const SearchInput = ({ className, ...props }: ComponentPropsWithRef<'input'>) => (

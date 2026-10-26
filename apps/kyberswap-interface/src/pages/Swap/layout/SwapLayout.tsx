@@ -19,6 +19,7 @@ import {
 } from 'pages/Swap/Layout/components'
 import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
 import type { TradeController } from 'pages/Swap/hooks/useTradeController'
+import { cn } from 'utils/cn'
 
 const FarmingPoolBanner = lazy(() => import('components/EarnBanner/FarmingPoolBanner'))
 const TrendingPoolBanner = lazy(() => import('components/EarnBanner/TrendingPoolBanner'))
@@ -44,7 +45,7 @@ export const SwapLayout = ({ children, controller, rightPanel, rightPanelFallbac
             <TradeBody
               data-highlight={shouldHighlightSwapBox}
               id={TutorialIds.SWAP_FORM}
-              style={activeTab === TAB.INFO ? { padding: 0 } : undefined}
+              className={cn(activeTab === TAB.INFO && 'p-0')}
             >
               <Suspense
                 fallback={

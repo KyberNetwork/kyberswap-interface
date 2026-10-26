@@ -53,19 +53,9 @@ export const DisplaySettingRow = ({ label, tooltip, isActive, toggle }: DisplayS
 )
 
 type SwapSettingsPanelProps = {
-  onBack: () => void
-  onClickLiquiditySources: () => void
-  onClickCrossChainSources: () => void
+  mode: 'single-chain' | 'cross-chain' | 'limit' | 'stop-market'
   /** Independent of quote mode: unified cross-chain also supports chart/route display preferences. */
   showDisplaySettings?: boolean
-  isSwapPage?: boolean
-  isCrossChainPage?: boolean
-  isLimitPage?: boolean
-  /**
-   * Stop market order shows Swap's degen mode — it lifts the stop market order slippage cap as well — and the pricing
-   * chart it shares with Swap; the rest of Swap's trade settings do not apply to it.
-   */
-  isStopMarketPage?: boolean
   crossChainQuoteMode?: CrossChainQuoteMode
   highlightDegenMode?: boolean
   displaySettings?: {
@@ -74,14 +64,14 @@ type SwapSettingsPanelProps = {
     togglePricingChart?: () => void
     toggleTradeRoutes?: () => void
   }
+  onBack: () => void
+  onClickLiquiditySources: () => void
+  onClickCrossChainSources: () => void
 }
 
 const SwapSettingsPanel = ({
-  isSwapPage,
-  showDisplaySettings = isSwapPage,
-  isCrossChainPage,
-  isLimitPage,
-  isStopMarketPage,
+  mode,
+  showDisplaySettings = mode === 'single-chain',
   crossChainQuoteMode,
   highlightDegenMode,
   onBack,
@@ -104,38 +94,37 @@ const SwapSettingsPanel = ({
   const togglePricingChart = displaySettings?.togglePricingChart ?? globalTogglePricingChart
   const toggleTradeRoutes = displaySettings?.toggleTradeRoutes ?? globalToggleTradeRoutes
 
+  const handleBack = () => {
+    if (mode === 'cross-chain') {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {
+        current_max_slippage: slippage / 100,
+      })
+    }
+    onBack()
+  }
+
   return (
     <Stack className="w-full gap-4" id={TutorialIds.TRADING_SETTING_CONTENT}>
       <HStack className="items-center gap-1">
-        <IconButton
-          aria-label="Back"
-          onClick={() => {
-            if (isCrossChainPage) {
-              trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {
-                current_max_slippage: slippage / 100,
-              })
-            }
-            onBack()
-          }}
-        >
+        <IconButton aria-label="Back" onClick={handleBack}>
           <ChevronLeft size={26} className="text-subText" />
         </IconButton>
         <span className="text-xl font-medium text-text">{t`Settings`}</span>
       </HStack>
 
       <Stack className="w-full gap-4">
-        {(isSwapPage || isCrossChainPage) && (
+        {(mode === 'single-chain' || mode === 'cross-chain') && (
           <SettingsSection title={<Trans>Advanced Settings</Trans>}>
             <SlippageSetting />
-            {isSwapPage && <TransactionTimeLimitSetting />}
+            {mode === 'single-chain' && <TransactionTimeLimitSetting />}
             <DegenModeSetting
               showConfirmation={showConfirmation}
               onConfirmationChange={setShowConfirmation}
               highlight={highlightDegenMode}
             />
-            {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-            {isCrossChainPage && crossChainQuoteMode !== 'stream' && KYBERCROSS && <GasDropFeatureSetting />}
-            {isCrossChainPage && (
+            {mode === 'single-chain' && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
+            {mode === 'cross-chain' && crossChainQuoteMode !== 'stream' && KYBERCROSS && <GasDropFeatureSetting />}
+            {mode === 'cross-chain' && (
               <Suspense fallback={null}>
                 <CrossChainSourceSetting onClick={onClickCrossChainSources} quoteMode={crossChainQuoteMode} />
               </Suspense>
@@ -169,14 +158,14 @@ const SwapSettingsPanel = ({
           </>
         )}
 
-        {(isLimitPage || isStopMarketPage) && (
+        {(mode === 'limit' || mode === 'stop-market') && (
           <>
-            {isStopMarketPage && (
+            {mode === 'stop-market' && (
               <>
                 <SettingsSection title={<Trans>Advanced Settings</Trans>}>
                   <DegenModeSetting
                     showConfirmation={showConfirmation}
-                    setShowConfirmation={setShowConfirmation}
+                    onConfirmationChange={setShowConfirmation}
                     highlight={highlightDegenMode}
                   />
                 </SettingsSection>
