@@ -100,7 +100,7 @@ const AddLiquiditySettings = ({
         )}
       </Stack>
 
-      <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
+      <AdvanceModeModal show={showConfirmation} onDismiss={() => setShowConfirmation(false)} />
     </>
   )
 }

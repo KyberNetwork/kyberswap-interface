@@ -296,6 +296,7 @@ const SwapActionButton = ({
               >
                 <HStack className="w-fit items-center gap-1">
                   <InfoHelper
+                    margin={false}
                     className="text-textReverse"
                     placement="top"
                     text={
@@ -329,6 +330,7 @@ const SwapActionButton = ({
               ) : (
                 <HStack className="w-fit items-center gap-1">
                   <InfoHelper
+                    margin={false}
                     color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
                     placement="top"
                     text={<ApprovalTooltip currency={currencyIn} allowance={currentAllowance} walletKey={walletKey} />}
@@ -357,9 +359,10 @@ const SwapActionButton = ({
               ]}
               activeRender={selected =>
                 selected ? (
-                  <div className="flex">
+                  <div className="flex items-center gap-1">
                     {selected.label}{' '}
                     <InfoHelper
+                      margin={false}
                       text={
                         selected.value === AllowanceType.EXACT
                           ? t`You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.`

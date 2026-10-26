@@ -9,12 +9,12 @@ import { formatUnits } from 'viem'
 
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
-import { ETHER_ADDRESS } from 'constants/index'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { type Quote } from 'pages/CrossChainSwap/registry'
+import { getSwapTrackingData } from 'pages/CrossChainSwap/tracking'
 import { getChainName, isQuoteExecutable } from 'pages/CrossChainSwap/utils'
 import { addTransaction } from 'state/crossChainSwap'
 import { useAppDispatch } from 'state/hooks'
@@ -169,46 +169,18 @@ export const useCrossChainExecution = (selectedQuote: Quote | null) => {
         dispatch(addTransaction(enriched))
 
         const swapDetails = {
-          amount_in: amount,
-          amount_in_usd: selectedQuote.quote.inputUsd,
-          amount_out: selectedQuote.quote.outputAmount.toString(),
-          amount_out_usd: selectedQuote.quote.outputUsd,
-          currency: 'USD',
-          fee_percent: selectedQuote.quote.platformFeePercent,
-          from_chain: fromChainId,
-          from_chain_name: getChainName(fromChainId),
-          from_token:
-            fromChainId === NonEvmChain.Bitcoin
-              ? currencyIn.symbol
-              : fromChainId === NonEvmChain.Solana
-              ? (currencyIn as any).id
-              : fromChainId === NonEvmChain.Near
-              ? (currencyIn as any).assetId
-              : (currencyIn as any)?.isNative
-              ? ETHER_ADDRESS
-              : (currencyIn as any)?.address || (currencyIn as any)?.wrapped?.address || currencyIn?.symbol,
-          from_token_symbol: currencyIn?.symbol,
-          from_token_decimals: currencyIn?.decimals,
-          to_chain: toChainId,
-          to_chain_name: getChainName(toChainId),
-          to_token:
-            toChainId === NonEvmChain.Bitcoin
-              ? currencyOut.symbol
-              : toChainId === NonEvmChain.Solana
-              ? (currencyOut as any).id
-              : toChainId === NonEvmChain.Near
-              ? (currencyOut as any).assetId
-              : (currencyOut as any)?.isNative
-              ? ETHER_ADDRESS
-              : (currencyOut as any)?.address || (currencyOut as any)?.wrapped?.address || currencyOut?.symbol,
-          to_token_symbol: currencyOut?.symbol,
-          to_token_decimals: currencyOut?.decimals,
-          partner: selectedQuote.adapter.getName(),
-          platform: 'KyberSwap Cross-Chain',
-          source_tx_hash: res.sourceTxHash,
+          ...getSwapTrackingData({
+            ...enriched,
+            inputAmount: amount,
+            outputAmount: selectedQuote.quote.outputAmount.toString(),
+            sourceChain: fromChainId,
+            targetChain: toChainId,
+            sourceToken: currencyIn,
+            targetToken: currencyOut,
+            adapter: selectedQuote.adapter.getName(),
+            sender,
+          }),
           target_tx_hash: undefined,
-          recipient: receiver,
-          sender,
           status: 'init',
           time: Date.now(),
           timestamp: Date.now(),

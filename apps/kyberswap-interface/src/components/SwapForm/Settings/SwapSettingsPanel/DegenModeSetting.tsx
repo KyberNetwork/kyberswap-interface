@@ -32,7 +32,10 @@ export const DegenModeSetting = ({ showConfirmation, onConfirmationChange, highl
 
   return (
     <>
-      <SettingsRow data-highlight={highlight} className="-m-1 rounded-lg p-1 data-[highlight=true]:animate-highlight">
+      <SettingsRow
+        data-highlight={highlight}
+        className="relative before:pointer-events-none before:absolute before:-inset-1 before:rounded-lg before:content-[''] data-[highlight=true]:before:animate-highlight"
+      >
         <SettingsLabel
           tooltip={
             <Trans>
@@ -46,7 +49,7 @@ export const DegenModeSetting = ({ showConfirmation, onConfirmationChange, highl
         <SettingsToggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleDegenMode} />
       </SettingsRow>
 
-      <AdvanceModeModal show={showConfirmation} setShow={onConfirmationChange} />
+      <AdvanceModeModal show={showConfirmation} onDismiss={() => onConfirmationChange(false)} />
     </>
   )
 }

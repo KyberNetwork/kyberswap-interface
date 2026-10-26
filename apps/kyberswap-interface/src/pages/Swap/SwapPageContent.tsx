@@ -151,8 +151,7 @@ const SwapPageContent = ({
                 <SwapSettingsPanel
                   crossChainQuoteMode="stream"
                   showDisplaySettings
-                  isSwapPage={!isCrossChain}
-                  isCrossChainPage={isCrossChain}
+                  mode={isCrossChain ? 'cross-chain' : 'single-chain'}
                   highlightDegenMode={highlightDegenMode}
                   onBack={onBackToMainTab}
                   onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}

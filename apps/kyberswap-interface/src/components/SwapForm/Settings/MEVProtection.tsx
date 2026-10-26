@@ -12,27 +12,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
-export const PriceAlertButton = ({
-  children,
-  className,
-  onClick,
-}: {
-  children: React.ReactNode
-  className?: string
-  onClick?: () => void
-}) => (
-  <div
-    onClick={onClick}
-    className={cn(
-      'flex cursor-pointer select-none items-center gap-1 rounded-3xl bg-subText-20 px-1.5 py-1 text-xs font-medium hover:bg-subText/25',
-      className,
-    )}
-  >
-    {children}
-  </div>
-)
-
-export default function MEVProtection({ className }: { className?: string }) {
+const MEVProtection = ({ className, showTrigger = true }: { className?: string; showTrigger?: boolean }) => {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const { chainId } = useActiveWeb3React()
   const { active } = useWeb3React()
@@ -49,23 +29,33 @@ export default function MEVProtection({ className }: { className?: string }) {
     setShowMevModal(false)
   }, [])
 
-  const rightButton =
-    KYBER_SWAP_RPC[chainId] && active && !isEmbeddedSwap && !isMobile && !isTablet ? (
-      <PriceAlertButton className={className} onClick={addMevProtectionHandler}>
-        <Shield size={14} className="text-subText" />
-        <span className="inline-flex items-center whitespace-nowrap leading-[normal] text-subText">
-          {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
-          <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
-        </span>
-      </PriceAlertButton>
-    ) : null
-
-  if (!rightButton) return null
+  const canAddProtection = KYBER_SWAP_RPC[chainId] && active && !isEmbeddedSwap && !isMobile && !isTablet
 
   return (
     <>
-      {rightButton}
+      {showTrigger && canAddProtection && (
+        <button
+          type="button"
+          onClick={addMevProtectionHandler}
+          className={cn(
+            'flex cursor-pointer select-none items-center gap-1 rounded-3xl bg-subText-20 px-1.5 py-1 text-xs font-medium hover:bg-subText/25',
+            className,
+          )}
+        >
+          <Shield size={14} className="text-subText" />
+          <span className="inline-flex items-center gap-1 whitespace-nowrap leading-[normal] text-subText">
+            {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
+            <InfoHelper
+              size={14}
+              margin={false}
+              text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>}
+            />
+          </span>
+        </button>
+      )}
       <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
     </>
   )
 }
+
+export default MEVProtection

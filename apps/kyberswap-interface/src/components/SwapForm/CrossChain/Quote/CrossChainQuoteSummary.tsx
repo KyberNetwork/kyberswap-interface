@@ -153,14 +153,6 @@ export const CrossChainQuoteSummaryRows = ({
   )
 }
 
-type SummaryProps = CrossChainQuoteSummaryProps
-
-export const CrossChainQuoteSummary = (props: SummaryProps) => (
-  <div className="flex flex-col gap-3 rounded-2xl border border-solid border-border p-4 text-xs">
-    <CrossChainQuoteSummaryRows {...props} />
-  </div>
-)
-
 export const CrossChainPriceImpactWarning = ({ warning }: { warning: ReturnType<typeof getQuoteWarning> }) => {
   if (!warning?.priceImpactInfo?.message) return null
 

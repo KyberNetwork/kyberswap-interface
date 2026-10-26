@@ -38,10 +38,7 @@ const LimitPage = ({ isStopMarketPage = false }: { isStopMarketPage?: boolean })
       {activeTab === TAB.INFO && <TokenInfo tokens={[currencyIn, currencyOut]} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (
         <SwapSettingsPanel
-          isCrossChainPage={false}
-          isSwapPage={false}
-          isLimitPage={!isStopMarketPage}
-          isStopMarketPage={isStopMarketPage}
+          mode={isStopMarketPage ? 'stop-market' : 'limit'}
           highlightDegenMode={highlightDegenMode}
           onBack={onBackToMainTab}
           onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}

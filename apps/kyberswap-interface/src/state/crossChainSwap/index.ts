@@ -41,6 +41,8 @@ const slice = createSlice({
       state.transactions = payload
     },
     updateTransactionStatus: (state, { payload }: { payload: { id: string; result: SwapStatus } }) => {
+      // Adapter status responses merge into the persisted record; the history list
+      // only observes this state and never owns the update request.
       const transaction = state.transactions.find(tx => tx.id === payload.id)
       if (!transaction) return
 

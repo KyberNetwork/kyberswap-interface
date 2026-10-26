@@ -1,4 +1,3 @@
-import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { ArrowDown } from 'react-feather'
 import { formatUnits } from 'viem'
@@ -8,15 +7,16 @@ import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import {
   CrossChainPriceImpactWarning,
-  CrossChainQuoteSummary,
+  CrossChainQuoteSummaryRows,
 } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
 import { useCrossChainExecution } from 'components/SwapForm/CrossChain/hooks/useCrossChainExecution'
 import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { NETWORKS_INFO } from 'constants/networks'
-import { Chain, Currency, NonEvmChain, NonEvmChainInfo, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { Chain, Currency, NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
+import { isEvmCurrency } from 'pages/CrossChainSwap/quote/utils'
+import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
 import { CloseIcon, ExternalLink } from 'theme'
 import { shortenHash } from 'utils/address'
 import { getEtherscanLink } from 'utils/explorer'
@@ -31,15 +31,13 @@ type TokenBoxInfoProps = {
 }
 
 const TokenBoxInfo = ({ chainId, currency, usdValue, amount, title }: TokenBoxInfoProps) => {
-  const { name, icon } = isEvmChain(chainId)
-    ? NETWORKS_INFO[chainId as ChainId]
-    : NonEvmChainInfo[chainId as NonEvmChain]
+  const { name, icon } = getNetworkInfo(chainId)
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-border p-3">
       <div className="flex justify-between text-xs font-medium text-subText">
         <span>{title}</span>
         <div className="flex items-center gap-1">
-          <img src={icon} alt={chainId.toString()} width={16} height={16} style={{ borderRadius: '50%' }} />
+          <img src={icon} alt={chainId.toString()} width={16} height={16} className="rounded-full" />
           <span>{name}</span>
         </div>
       </div>
@@ -47,10 +45,10 @@ const TokenBoxInfo = ({ chainId, currency, usdValue, amount, title }: TokenBoxIn
         <span className="text-2xl">{formatDisplayNumber(amount, { significantDigits: 8 })}</span>
         <div className="flex items-center gap-1 text-subText">
           <span className="text-sm">~{formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 })}</span>
-          {isEvmChain(chainId) ? (
-            <CurrencyLogo currency={currency as EvmCurrency} size="24px" />
+          {isEvmChain(chainId) && isEvmCurrency(currency) ? (
+            <CurrencyLogo currency={currency} size="24px" />
           ) : (
-            <img src={(currency as any).logo} width={24} height={24} alt="" />
+            <img src={'logo' in currency ? currency.logo : undefined} width={24} height={24} alt="" />
           )}
           <span>{currency?.symbol}</span>
         </div>
@@ -155,8 +153,7 @@ export const CrossChainSwapConfirmation = ({
               <span className="text-xs font-medium text-subText">{t`Recipient`}</span>
               <div className="flex items-center text-sm text-subText">
                 <ExternalLink
-                  className="text-text"
-                  style={{ textDecoration: 'none' }}
+                  className="text-text no-underline"
                   href={
                     toChainId === NonEvmChain.Solana
                       ? `https://solscan.io/account/${recipient}`
@@ -172,13 +169,15 @@ export const CrossChainSwapConfirmation = ({
                 <CopyHelper toCopy={recipient} />
               </div>
             </div>
-            <CrossChainQuoteSummary
-              quote={selectedQuote}
-              tokenOut={currencyOut}
-              slippage={slippage}
-              warning={warning}
-              full
-            />
+            <div className="flex flex-col gap-3 rounded-2xl border border-solid border-border p-4 text-xs">
+              <CrossChainQuoteSummaryRows
+                quote={selectedQuote}
+                tokenOut={currencyOut}
+                slippage={slippage}
+                warning={warning}
+                full
+              />
+            </div>
 
             <CrossChainPriceImpactWarning warning={warning} />
 

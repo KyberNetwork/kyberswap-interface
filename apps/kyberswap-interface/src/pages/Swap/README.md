@@ -1,97 +1,57 @@
 # Swap pages
 
-This module composes the unified Swap page and the Limit Order page. Unified Swap
-uses the single-chain form for same-chain EVM pairs and the cross-chain form for
+This module composes Unified Swap and Limit Order. Unified Swap uses the
+single-chain form for same-chain EVM pairs and the cross-chain form for
 different-chain or non-EVM pairs.
 
 ## Structure
 
-| Location                         | Responsibility                                                         |
-| -------------------------------- | ---------------------------------------------------------------------- |
-| `SwapRoute.tsx`, `redirects.tsx` | Route normalization and redirects                                      |
-| `SwapPage.tsx`                   | URL pair state, shared provider scope and history visibility           |
-| `SwapPageContent.tsx`            | Compose forms, settings and the right panel                            |
-| `LimitPage.tsx`                  | Limit Order page composition                                           |
-| `Layout/`                        | Page shell, header and navigation tabs                                 |
-| `components/`                    | Chart/route panels and history UI                                      |
-| `hooks/`                         | URL pair selection, navigation and page prefetch                       |
-| `utils/`                         | Pure data transformations, including cross-chain route display mapping |
+- `SwapPage.tsx`: URL pair state, shared providers and History visibility.
+- `SwapPageContent.tsx`: forms, settings and right-panel composition.
+- `LimitPage.tsx`: Limit Order composition.
+- `Layout/`: page shell, tabs and responsive layout.
+- `components/`: chart, routes and History presentation.
+- `hooks/`: pair selection, navigation and prefetching.
+- `utils/`: pure route and swap-link helpers.
 
-Form UI and its quote, recipient, approval and execution logic live in
-[`components/SwapForm`](../../components/SwapForm). This directory owns page
-composition and navigation; it consumes those form components.
+Form behavior lives in [`components/SwapForm`](../../components/SwapForm). Keep
+page composition and navigation here; keep quote, review, approval and execution
+ownership in the form providers.
 
-## Using the forms
+## Ownership
 
-- Mount `SingleChainSwapFormProvider` from `components/SwapForm/SingleChain/`
-  around the single-chain form and right panel. It resolves balances/preferences
-  and supplies one quote/review owner through `SingleChainSwapProvider`.
-  `SingleChainSwapContent` receives token-loading flags and selection callbacks;
-  it and `SingleChainRightPanel` read the current quote directly from that owner.
-  Standalone `SingleChainSwap` retains its own provider and PartnerSwap's route
-  notification API.
-- Use `CrossChainSwap` from `components/SwapForm/CrossChain/` inside
-  `CrossChainSwapProvider`. Supply the controlled pair and amount to the provider,
-  and selection callbacks to the form. Mount one provider around the form and
-  route panel so they share the selected quote.
-- Keep URL selection/reversal in `useSwapFormPair`. Use `utils/swapFlow.ts` when
-  building swap links. Single-chain URLs use `/swap/{network}/{pair}`;
-  cross-chain URLs use `/swap?from=…&to=…&tokenIn=…&tokenOut=…`.
+- `useSwapFormPair` owns URL pair selection and reversal.
+- `SingleChainSwapFormProvider` shares single-chain quote/review state between
+  the form and right panel.
+- `CrossChainSwapProvider` owns cross-chain stream quotes, selection, refresh and
+  reviewed-quote state.
+- `useSwapReviewSession` owns single-chain build, review, submit, error and
+  dismissal lifecycle.
+- `TransactionHistoryUpdater` owns cross-chain status polling and KyberCross
+  terminal enrichment. `TransactionHistoryList` only renders persisted records,
+  filtering and pagination.
 
-See `SwapPage.tsx` and `SwapPageContent.tsx` for the current integration.
+Single-chain URLs use `/swap/{network}/{pair}`. Cross-chain URLs use
+`/swap?from=…&to=…&tokenIn=…&tokenOut=…`.
 
-## Quote and review ownership
+History currently contains cross-chain transactions only. Transaction details and
+single-chain History remain separate product work.
 
-- Single-chain `useGetRoute` uses TanStack Query for quote data, loading,
-  deduplication and polling. `useRouteRequest` defines the request key and query
-  function, including fee lookup and response price enrichment. RTK supplies the
-  route API transport.
-- Quote responses belong to the current input key. Quotes have no freshness window
-  or inactive retention (`staleTime: 0`, `gcTime: 0`); RTK route calls force refetch
-  without subscriptions and use `keepUnusedDataFor: 0`. An in-flight request for
-  the same key can still be shared. Physical cancellation is not required for quote correctness.
-- Cross-chain `useCrossChainQuote` owns its stream, selection, refresh and reviewed
-  quote. Each refresh opens a new stream.
-  Native fetch calls for routes/streams use `cache: 'no-store'`.
-- Both Unified Swap forms refresh after a 10-second interval following completion,
-  pause automatic refresh during Review and retain available metrics during refetch.
-  The indicator renders fetching state; its animation does not trigger requests.
-- Single-chain `useSwapReviewSession` owns build/review/submit/error and dismissal.
-  Preview starts a build and Review consumes its result; build cancellation and
-  session guards reject stale completions. Cross-chain Preview snapshots the selected
-  quote. Submitted transaction persistence continues independently of modal lifetime.
-- Limit Order's rate comparison uses `useGetRoute` without polling. Price Alert uses
-  it through `useBaseTradeInfoWithAggregator`; `RefreshButton` schedules refresh
-  every 10 seconds. PartnerSwap reuses `SingleChainSwap`.
+## Working in this module
 
-## Remaining scope
+- Keep form modules independent of `pages/Swap`.
+- Preserve lazy provider boundaries and the pending-form skeleton.
+- Check shared callers when changing forms or layout: PartnerSwap, Limit Order
+  and the legacy Cross-Chain page reuse this code.
+- Keep status acquisition in `TransactionHistoryUpdater`, outside History list
+  rendering and visibility changes.
 
-- [ ] View transaction details from History using available transaction/provider data.
-- [ ] Include single-chain swap transactions in History alongside cross-chain transactions.
-
-The History panel currently reads only cross-chain transactions.
-
-## Working on this module
-
-See [REFACTOR_TODO.md](./REFACTOR_TODO.md) for the scoped code-cleanup checklist.
-
-- Put form behavior in `components/SwapForm`; keep page layout, navigation,
-  chart/routes and history here. Form modules must not import `pages/Swap`.
-- Preserve lazy-loading boundaries and the pending form skeleton. Loading
-  cross-chain providers should not replace the whole page with a loader.
-- Keep history polling independent of the active form mode and history visibility.
-- Check shared consumers when changing forms or layout: Limit Order, Partner Swap
-  and the legacy Cross-Chain page reuse parts of this UI. The cross-chain engine
-  still lives in `pages/CrossChainSwap`.
-- Keep page components flat unless a new group has a clear responsibility. Import
-  concrete modules directly and keep tests beside the code they cover.
-
-From the repository root, run the relevant checks:
+From the repository root:
 
 ```sh
 pnpm --filter @kyberswap/interface exec vitest run src/pages/Swap src/components/SwapForm
 pnpm --filter @kyberswap/interface exec tsc --noEmit
 ```
 
-For UI or transaction changes, also verify the affected flow in the browser;
-static checks do not cover wallet execution.
+For UI or transaction changes, also verify the affected flow in a browser and
+with the relevant provider or wallet.

@@ -63,7 +63,7 @@ export const TransactionSettings = ({ isElastic, hoverBg }: Props) => {
   }
   return (
     <>
-      <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
+      <AdvanceModeModal show={showConfirmation} onDismiss={() => setShowConfirmation(false)} />
       {/* https://github.com/DefinitelyTyped/DefinitelyTyped/issues/30451 */}
       <div className="relative flex items-center justify-center border-none text-left">
         <MenuFlyout
