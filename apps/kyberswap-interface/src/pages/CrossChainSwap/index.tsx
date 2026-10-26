@@ -36,7 +36,7 @@ import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossCh
 import { useGasDrop } from 'pages/CrossChainSwap/hooks/useGasDrop'
 import type { NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
-import { Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
+import { Quote, getQuoteSelectionKey } from 'pages/CrossChainSwap/registry'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -53,7 +53,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
     amount,
     setAmount,
     selectedQuote,
-    setSelectedQuoteId,
+    setSelectedQuoteKey,
     fromChainId,
     toChainId,
     currencyIn,
@@ -349,7 +349,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
                   quotes={quotes}
                   selectedQuote={selectedQuote}
                   onChange={newSelectedQuote => {
-                    setSelectedQuoteId(getQuoteId(newSelectedQuote))
+                    setSelectedQuoteKey(getQuoteSelectionKey(newSelectedQuote))
                     onQuoteChange?.(newSelectedQuote)
                   }}
                   tokenOut={currencyOut}

@@ -134,6 +134,8 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
 
     return data.route_plans.map(routePlan => ({
       id: `${this.getName()}:${routePlan.id}`,
+      // Preserve the route choice across refreshes; execution still uses the fresh route plan ID.
+      selectionKey: JSON.stringify([routePlan.bridge.provider, routePlan.bridge.lane_id, routePlan.flow_type]),
       adapter: this,
       isReadOnly,
       // Each selectable quote owns only its route, including the route used for build and execution.
