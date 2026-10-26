@@ -183,12 +183,18 @@ export type StopMarketCorePayload = {
 }
 
 export type StopMarketFee = {
-  /** The share of the order the protocol fee takes at this size, the minimum fee included. */
-  protocol: { percentage: number; category: string }
+  /**
+   * `percentage` is the share of the order the protocol fee takes at this size, the minimum fee included;
+   * `tierPercentage` is the pair's published rate, which it exceeds once the minimum applies.
+   */
+  protocol: { percentage: number; category: string; tierPercentage?: number }
   gas: { percentage: number; usd: number; wei: string | number }
   protocolFeeUsd?: number
   /** The fee is the flat minimum rather than the percentage, so its share grows as the order shrinks. */
   minProtocolFeeApplied?: boolean
+  /** The flat minimum as a raw integer in the chain's native coin. */
+  minProtocolFeeNative?: string
+  minProtocolFeeUsd?: number
 }
 
 export type StopMarketOraclePrice = {

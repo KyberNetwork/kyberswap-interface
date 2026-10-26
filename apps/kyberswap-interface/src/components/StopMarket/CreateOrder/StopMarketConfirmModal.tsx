@@ -10,6 +10,7 @@ import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import { StopMarketFeeTooltip, getStopMarketFeeLabel } from 'components/StopMarket/Form/StopMarketFeeSummary'
 import { StopMarketWarning } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { StopMarketFee } from 'components/StopMarket/types'
@@ -53,7 +54,7 @@ const SummaryRow = ({
   children,
 }: {
   label: ReactNode
-  tooltip?: string
+  tooltip?: ReactNode
   dataTestId: string
   children: ReactNode
 }) => (
@@ -194,21 +195,14 @@ export const StopMarketReviewSummary = ({
 
         <SummaryRow
           label={<Trans>Fee (incl. gas)</Trans>}
-          tooltip={t`Covers the protocol fee plus the gas KyberSwap pays to execute on-chain.`}
+          tooltip={<StopMarketFeeTooltip fee={fee} chainId={currencyIn?.chainId} />}
           dataTestId="stop-market-confirm-fee"
         >
           {isFeePending ? (
             <RowSkeleton dataTestId="stop-market-confirm-fee-loading" />
           ) : (
-            // An amount, not a rate: once the minimum applies the rate no longer matches the published tier.
             <span className={cn(showFeeError && 'text-red')}>
-              {showFeeError ? (
-                <Trans>Unavailable</Trans>
-              ) : feeAmount === undefined ? (
-                '--'
-              ) : (
-                `${formatDisplayNumber(feeAmount, { significantDigits: 6 })} ${receiveSymbol}`
-              )}
+              {showFeeError ? <Trans>Unavailable</Trans> : (fee && getStopMarketFeeLabel(fee)) ?? '--'}
             </span>
           )}
         </SummaryRow>

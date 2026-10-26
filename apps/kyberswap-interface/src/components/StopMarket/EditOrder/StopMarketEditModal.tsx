@@ -516,7 +516,9 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
           }}
           presetOptions={expiryPresets}
           tooltip={t`You can cancel anytime before expiry at no cost.`}
-          rightComponent={<StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} />}
+          rightComponent={
+            <StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} chainId={order.chainId} />
+          }
         />
         <StopMarketFeeNotes
           fee={feeEstimate.fee}

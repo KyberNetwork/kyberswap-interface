@@ -305,7 +305,9 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             }}
             presetOptions={expiryPresets}
             tooltip={t`You can cancel anytime before expiry at no cost.`}
-            rightComponent={<StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} />}
+            rightComponent={
+              <StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} chainId={form.chainId} />
+            }
           />
           <StopMarketFeeNotes
             fee={feeEstimate.fee}
