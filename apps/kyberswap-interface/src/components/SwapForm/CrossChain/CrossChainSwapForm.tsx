@@ -29,7 +29,7 @@ export type CrossChainFormSelectionProps = {
 
 type Props = CrossChainFormSelectionProps & {
   amount: string
-  setAmount: (value: string) => void
+  onAmountChange: (value: string) => void
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   fromChainId: Chain
@@ -45,7 +45,7 @@ type Props = CrossChainFormSelectionProps & {
 
 export const CrossChainSwapForm = ({
   amount,
-  setAmount,
+  onAmountChange,
   currencyIn,
   currencyOut,
   fromChainId,
@@ -73,7 +73,7 @@ export const CrossChainSwapForm = ({
   const { displayTypedValue, onDisplayInput, onRawValue } = useERC8056TypedInput(
     erc8056Info.inputInfo,
     amount,
-    setAmount,
+    onAmountChange,
   )
   const { trackingHandler } = useTracking()
   const quote = selectedQuote?.quote
@@ -105,7 +105,7 @@ export const CrossChainSwapForm = ({
           chain: typeof fromChainId === 'number' ? NETWORKS_INFO[fromChainId].name : fromChainId,
         })
         onReverse()
-        if (quote) setAmount(quote.formattedOutputAmount)
+        if (quote) onAmountChange(quote.formattedOutputAmount)
       }}
       inputPanel={
         typeof fromChainId !== 'number' ? (
@@ -115,7 +115,7 @@ export const CrossChainSwapForm = ({
             currencyLoading={isInputCurrencyLoading}
             value={amount}
             amountUsd={quote?.inputUsd}
-            onUserInput={setAmount}
+            onUserInput={onAmountChange}
             onCurrencySelect={onChangeCurrencyIn}
             onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
           />
@@ -124,7 +124,7 @@ export const CrossChainSwapForm = ({
             amountInUsd={quote?.inputUsd?.toString()}
             wrapType={WrapType.NOT_APPLICABLE}
             typedValue={displayTypedValue}
-            setTypedValue={onRawValue}
+            onRawAmountChange={onRawValue}
             onUserInput={onDisplayInput}
             currencyIn={input}
             currencyLoading={isInputCurrencyLoading}

@@ -1,6 +1,5 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React from 'react'
 import { useMedia } from 'react-use'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -31,7 +30,7 @@ type Props = {
 }
 
 /** Keeps token metadata loading separate from routeLoading, which affects the estimated amount only. */
-const OutputCurrencyPanel: React.FC<Props> = ({
+const OutputCurrencyPanel = ({
   wrapType,
   parsedAmountIn,
   parsedAmountOut,
@@ -46,7 +45,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   chainSelectionMode,
   onSelectNonEvmCurrency,
   routeLoading,
-}) => {
+}: Props) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
 

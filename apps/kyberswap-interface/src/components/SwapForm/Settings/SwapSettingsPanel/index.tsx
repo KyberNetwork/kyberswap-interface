@@ -130,7 +130,7 @@ const SwapSettingsPanel = ({
             {isSwapPage && <TransactionTimeLimitSetting />}
             <DegenModeSetting
               showConfirmation={showConfirmation}
-              setShowConfirmation={setShowConfirmation}
+              onConfirmationChange={setShowConfirmation}
               highlight={highlightDegenMode}
             />
             {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}

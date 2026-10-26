@@ -5,7 +5,7 @@ import { ReactNode, useMemo } from 'react'
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
-import { Balance, BalanceSkeleton } from 'components/TokenSelectorModal/components'
+import { TokenBalance } from 'components/TokenSelectorModal/TokenBalance'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -52,19 +52,6 @@ export const OtherChainTokens = ({
       }, {}),
     [anchorChainTokens, anchorChainBalances],
   )
-
-  // Mirrors the in-list balance column: the amount once known, a skeleton while a connected wallet's
-  // balances land, and "0" with no wallet (where the balance stays undefined).
-  const renderBalance = (token: WrappedTokenInfo) => {
-    const balance = balanceByAddress[token.address]
-    if (balance) return <Balance balance={balance} />
-    if (account) return <BalanceSkeleton currency={token} />
-    return (
-      <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
-        0
-      </span>
-    )
-  }
 
   if (loading && !tokens.length) {
     return loadingFallback
@@ -115,7 +102,7 @@ export const OtherChainTokens = ({
                   {chainSelectionMode === 'form' ? <Trans>Select</Trans> : <Trans>Switch Chain</Trans>}
                 </ButtonPrimary>
               ) : (
-                renderBalance(token)
+                <TokenBalance currency={token} balance={balanceByAddress[token.address]} loading={!!account} />
               )}
             </HStack>
           )

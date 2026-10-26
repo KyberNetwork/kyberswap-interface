@@ -5,8 +5,8 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { ButtonConfirmed, ButtonLight, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
-import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
+import { HStack, Stack } from 'components/Stack'
 import SwapOnlyButton from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import type { BuildReview, SubmitReview, SwapReviewState } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { useActiveWeb3React } from 'hooks'
@@ -286,15 +286,15 @@ const SwapActionButton = ({
           {swapInputError}
         </ButtonPrimary>
       ) : showApproveFlow ? (
-        <div className="flex flex-col gap-4">
-          <RowBetween className="gap-4">
+        <Stack className="gap-4">
+          <HStack className="w-full items-center justify-between gap-4">
             {permitState === PermitState.NOT_SIGNED && (
               <ButtonConfirmed
                 disabled={loading || approval === ApprovalState.PENDING}
                 onClick={handlePermitClick}
                 className="flex-1"
               >
-                <RowFit className="gap-1">
+                <HStack className="w-fit items-center gap-1">
                   <InfoHelper
                     className="text-textReverse"
                     placement="top"
@@ -313,7 +313,7 @@ const SwapActionButton = ({
                     }
                   />
                   <Trans>Permit {currencyIn?.symbol}</Trans>
-                </RowFit>
+                </HStack>
               </ButtonConfirmed>
             )}
 
@@ -323,22 +323,22 @@ const SwapActionButton = ({
               className="flex-1 border-none"
             >
               {approval === ApprovalState.PENDING ? (
-                <AutoRow className="justify-center gap-1.5">
+                <HStack className="flex-wrap items-center justify-center gap-1.5">
                   <Trans>Approving</Trans> <Loader className="text-border" />
-                </AutoRow>
+                </HStack>
               ) : (
-                <RowFit className="gap-1">
+                <HStack className="w-fit items-center gap-1">
                   <InfoHelper
                     color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
                     placement="top"
                     text={<ApprovalTooltip currency={currencyIn} allowance={currentAllowance} walletKey={walletKey} />}
                   />
                   <Trans>Approve {currencyIn?.symbol}</Trans>
-                </RowFit>
+                </HStack>
               )}
             </ApproveButton>
-          </RowBetween>
-          <RowBetween className="justify-end">
+          </HStack>
+          <HStack className="w-full items-center justify-end">
             <Select
               value={approvalType}
               className="bg-transparent p-0 text-sm"
@@ -370,8 +370,8 @@ const SwapActionButton = ({
                 ) : null
               }
             />
-          </RowBetween>
-        </div>
+          </HStack>
+        </Stack>
       ) : null}
       {(showSwapButton || isProcessingSwap) && (
         <SwapOnlyButton

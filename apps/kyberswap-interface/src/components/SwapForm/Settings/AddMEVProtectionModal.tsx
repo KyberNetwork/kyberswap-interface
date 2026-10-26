@@ -1,12 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Modal from 'components/Modal'
-import Row, { RowBetween } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { CONNECTION } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
@@ -23,17 +23,17 @@ export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
   // [ChainId.BASE]: 'https://base-rpc-mev-protection.kyberswap.com/',
 }
 
-export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+const AddMEVProtectionModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
   const { addNewNetwork } = useChangeNetwork()
   const { trackingHandler } = useTracking()
   const { walletKey, chainId } = useActiveWeb3React()
   const notify = useNotify()
-  const isUsingMetamask = useMemo(() => walletKey === CONNECTION.METAMASK_RDNS, [walletKey])
-  const chainName = useMemo(() => NETWORKS_INFO[chainId].name, [chainId])
+  const isUsingMetamask = walletKey === CONNECTION.METAMASK_RDNS
+  const chainName = NETWORKS_INFO[chainId].name
 
   const onAdd = useCallback(() => {
     if (!isUsingMetamask) {
-      onClose?.()
+      onClose()
       return
     }
 
@@ -55,13 +55,13 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           type: NotificationType.SUCCESS,
           summary: t`You have successfully turned on MEV Protection Mode. All transactions on ${chainName} will go through the custom RPC endpoint unless you change it`,
         })
-        onClose?.()
+        onClose()
         trackingHandler(TRACKING_EVENT_TYPE.MEV_ADD_RESULT, { type: name, result: 'success' })
       },
       (error: Error) => {
         const message = friendlyError(error)
         trackingHandler(TRACKING_EVENT_TYPE.MEV_ADD_RESULT, { type: name, result: 'fail', reason: message })
-        onClose?.()
+        onClose()
       },
     )
   }, [isUsingMetamask, onClose, trackingHandler, addNewNetwork, notify, chainId, chainName])
@@ -75,15 +75,15 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
       onDismiss={onClose}
       zindex={Z_INDEXS.POPOVER_CONTAINER + 1}
     >
-      <div className="flex w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-text [&_.time-frame-legend]:hidden">
-        <RowBetween className="items-start">
+      <Stack className="w-full items-center justify-center gap-6 rounded-[20px] bg-tableHeader p-5 text-text [&_.time-frame-legend]:hidden">
+        <HStack className="w-full items-start justify-between">
           <span className="text-2xl font-medium text-text">
             <Trans>Add Custom RPC Endpoint</Trans>
           </span>
           <CloseIcon className="cursor-pointer text-text" onClick={onClose} />
-        </RowBetween>
+        </HStack>
         <div className="text-xs leading-4">
-          <div className="flex flex-col gap-2">
+          <Stack className="gap-2">
             <span>
               <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
                 MEV
@@ -97,10 +97,13 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
                 experience.
               </Trans>
             </span>
-            <div className="flex items-center">
-              <Trans>RPC Url</Trans>:<span className="ml-1 font-medium text-primary">{KYBER_SWAP_RPC[chainId]}</span>
-              <CopyHelper size={14} toCopy={KYBER_SWAP_RPC[chainId] || ''} />
-            </div>
+            <HStack className="items-center gap-1">
+              <span>
+                <Trans>RPC Url</Trans>:
+              </span>
+              <span className="font-medium text-primary">{KYBER_SWAP_RPC[chainId]}</span>
+              <CopyHelper size={14} margin="0" toCopy={KYBER_SWAP_RPC[chainId] || ''} />
+            </HStack>
             <span>
               <Trans>
                 Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re
@@ -108,17 +111,19 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
                 Please make sure you understand how it works and use it at your own caution.
               </Trans>
             </span>
-          </div>
+          </Stack>
         </div>
-        <Row className="flex-row gap-4 max-xs:flex-col">
+        <HStack className="w-full items-center gap-4 max-xs:flex-col">
           <ButtonOutlined onClick={onClose}>{isUsingMetamask ? t`No, go back` : t`Dismiss`}</ButtonOutlined>
           {isUsingMetamask && (
             <ButtonPrimary onClick={onAdd}>
               <Trans>Yes</Trans>
             </ButtonPrimary>
           )}
-        </Row>
-      </div>
+        </HStack>
+      </Stack>
     </Modal>
   )
 }
+
+export default AddMEVProtectionModal

@@ -20,7 +20,7 @@ type Props = CrossChainFormSelectionProps
 
 /** Connects the shared form to the single quote provider mounted by the consuming page. */
 const CrossChainSwap = (props: Props) => {
-  const { amount, setAmount, currencyIn, currencyOut, fromChainId, toChainId, selectedQuote, loading, warning } =
+  const { amount, onAmountChange, currencyIn, currencyOut, fromChainId, toChainId, selectedQuote, loading, warning } =
     useCrossChainSwap()
   const { trackingHandler } = useTracking()
   const [showBitcoin, setShowBitcoin] = useState(false)
@@ -54,7 +54,7 @@ const CrossChainSwap = (props: Props) => {
       <CrossChainSwapForm
         {...props}
         amount={amount}
-        setAmount={setAmount}
+        onAmountChange={onAmountChange}
         currencyIn={currencyIn}
         currencyOut={currencyOut}
         fromChainId={fromChainId}
@@ -69,7 +69,7 @@ const CrossChainSwap = (props: Props) => {
             <CrossChainPriceImpactWarning warning={warning} />
           </Stack>
         }
-        action={<CrossChainSwapAction setShowBtcModal={setShowBitcoin} />}
+        action={<CrossChainSwapAction onConnectBitcoin={() => setShowBitcoin(true)} />}
       />
       <BitcoinConnectModal isOpen={showBitcoin} onDismiss={() => setShowBitcoin(false)} />
     </>

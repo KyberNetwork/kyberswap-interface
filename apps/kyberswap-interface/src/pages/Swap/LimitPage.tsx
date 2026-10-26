@@ -16,7 +16,7 @@ const StopMarketForm = lazy(() => import('components/StopMarket/Form/StopMarketF
 // Both order routes render the same page so the layout, provider and chart stay mounted.
 const LimitPage = ({ isStopMarketPage = false }: { isStopMarketPage?: boolean }) => {
   const controller = useTradeController(TAB.LIMIT)
-  const { activeTab, highlightDegenMode, onBackToMainTab, setActiveTab } = controller
+  const { activeTab, highlightDegenMode, onBackToMainTab, onTabChange } = controller
   const { currencyIn, currencyOut } = useCurrenciesByPage()
 
   return (
@@ -44,8 +44,8 @@ const LimitPage = ({ isStopMarketPage = false }: { isStopMarketPage?: boolean })
           isStopMarketPage={isStopMarketPage}
           highlightDegenMode={highlightDegenMode}
           onBack={onBackToMainTab}
-          onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-          onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
+          onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}
+          onClickCrossChainSources={() => onTabChange(TAB.CROSS_CHAIN_SOURCES)}
         />
       )}
     </SwapLayout>

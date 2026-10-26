@@ -81,7 +81,7 @@ function Page() {
     : TAB.SWAP
   return (
     <>
-      <Tabs activeTab={activeTab} setActiveTab={() => undefined} />
+      <Tabs activeTab={activeTab} onTabChange={() => undefined} />
       <output>{location.pathname + location.search}</output>
       <span data-output-symbol>{pair.currencyOut?.symbol}</span>
       <span data-loading>{String(pair.isOutputCurrencyLoading)}</span>
@@ -158,15 +158,11 @@ describe('unified swap pair navigation', () => {
     expect(url()).toBe(`/swap/base/usdc-to-${weth.address.toLowerCase()}`)
   })
 
-  it('drops the old path on entering cross-chain and preserves the pair across both cross-chain tabs', async () => {
+  it('drops the old path on entering cross-chain and restores it when returning to one chain', async () => {
     await mount(`/swap/base/${weth.address}-to-usdc?input=12`)
     await click('Select Ethereum')
     const swapUrl = url()
     expect(swapUrl).toBe(`/swap?input=12&from=1&to=8453&tokenIn=ETH&tokenOut=${usdc.address}`)
-    await click('Cross-Chain')
-    expect(url()).toBe(swapUrl.replace('/swap?', '/cross-chain?'))
-    await click('Swap')
-    expect(url()).toBe(swapUrl)
     await click('Select Base WETH')
     expect(url()).toBe(`/swap/base/${weth.address.toLowerCase()}-to-usdc?input=12`)
     await click('Back')
@@ -194,8 +190,10 @@ describe('unified swap pair navigation', () => {
     const crossUrl = url()
     await click('Swap')
     expect(url()).toBe(crossUrl.replace('/cross-chain?', '/swap?'))
-    await click('Cross-Chain')
-    expect(url()).toBe(crossUrl)
+    await click('Reverse')
+    expect(pairText()).toBe(`8453:${usdc.address} → ${NonEvmChain.Solana}:${token}`)
+    await click('Reverse')
+    expect(url()).toBe(crossUrl.replace('/cross-chain?', '/swap?'))
   })
 })
 

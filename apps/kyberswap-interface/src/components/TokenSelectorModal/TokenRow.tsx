@@ -1,22 +1,11 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import React, { CSSProperties, ReactNode } from 'react'
-import { AlertTriangle, Info, Star, X } from 'react-feather'
+import { type CSSProperties, type ReactNode } from 'react'
 
-import { ButtonPrimary } from 'components/Button'
-import CopyHelper from 'components/Copy'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
-import { AddressCopy, Balance, BalanceSkeleton, formatAgeBadge } from 'components/TokenSelectorModal/components'
-import { BALANCE_COLUMN_CLASS, TOKEN_ROW_CLASS, TOKEN_ROW_HOVER_CLASS } from 'components/TokenSelectorModal/constants'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { TokenRowIdentity } from 'components/TokenSelectorModal/TokenRowIdentity'
+import { TokenRowValues } from 'components/TokenSelectorModal/TokenRowValues'
 import { restrictedTokenMessage } from 'hooks/useRestrictedTokens'
 import { cn } from 'utils/cn'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { formatBigLiquidity } from 'utils/formatBalance'
-import { formatDisplayNumber } from 'utils/numbers'
-import { isTokenNative } from 'utils/tokenInfo'
 
 type TokenRowProps = {
   showFavoriteIcon?: boolean
@@ -113,7 +102,7 @@ export const TokenRow = ({
   usdValueClassName = 'text-subText',
   showPriceColumn,
   rightColumn = 'balance',
-  rightColumnClassName = BALANCE_COLUMN_CLASS,
+  rightColumnClassName,
   importOnClick,
   onImportToken,
   restricted,
@@ -123,213 +112,7 @@ export const TokenRow = ({
   held,
 }: TokenRowProps) => {
   const isImport = rightColumn === 'import'
-  const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
-
-  const onClickRemove = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    onRemoveImportedToken?.(currency as Token)
-  }
-
-  const renderBalance = () => {
-    if (hideBalance) return <span className="max-w-full truncate text-xs text-text sm:text-sm">******</span>
-    // A zero balance is an amount like any other and renders as "0".
-    if (currencyBalance) return <Balance balance={currencyBalance} />
-    if (showLoading) return <BalanceSkeleton currency={currency} />
-    return (
-      <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
-        {/* No wallet, nothing to hold; a wallet whose balance never arrived, nothing to claim. */}
-        {balanceUnknown ? '--' : '0'}
-      </span>
-    )
-  }
   const { symbol } = getDisplayTokenInfo(currency)
-
-  const ageBadge = formatAgeBadge(addedAt)
-
-  const rowInner = (
-    <>
-      <HStack className={cn('min-w-0 flex-1 items-center gap-2', isImport && 'opacity-50')}>
-        {showFavoriteIcon &&
-          (canFavorite ? (
-            <Star
-              onClick={e => onToggleFavorite?.(e, currency)}
-              data-active={isFavorite}
-              data-testid="button-favorite-token"
-              role="button"
-              className="size-4 shrink-0 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
-            />
-          ) : (
-            <div className="size-4 shrink-0" />
-          ))}
-
-        <div className="shrink-0">
-          <CurrencyLogo currency={currency} size="24px" />
-        </div>
-        <Stack className="min-w-0 gap-0.5">
-          <HStack className="min-w-0 items-center gap-1">
-            <span
-              title={currency.name}
-              className="truncate text-xs font-medium text-text sm:text-sm"
-              data-testid="token-symbol"
-            >
-              {customName || symbol}
-            </span>
-            {onShowTokenInfo && (
-              <Info
-                role="button"
-                data-testid="button-token-info"
-                onClick={e => {
-                  e.stopPropagation()
-                  onShowTokenInfo(currency.wrapped)
-                }}
-                size={14}
-                className="shrink-0 text-subText hover:text-text"
-              />
-            )}
-            {ageBadge && (
-              <span
-                className="shrink-0 rounded bg-blue/20 px-1 text-[10px] font-medium leading-4 text-blue"
-                data-testid="token-age-badge"
-              >
-                {ageBadge}
-              </span>
-            )}
-            {held && (
-              <span
-                className="shrink-0 rounded bg-primary-20 px-1 text-[10px] font-medium leading-4 text-primary"
-                data-testid="token-held-badge"
-              >
-                <Trans>In wallet</Trans>
-              </span>
-            )}
-            {impersonator && (
-              <MouseoverTooltip
-                placement="top"
-                text={t`This token uses the symbol of a verified token but a different contract address. Check the address before selecting it.`}
-              >
-                <AlertTriangle size={14} className="shrink-0 text-warning" data-testid="token-impersonator-warning" />
-              </MouseoverTooltip>
-            )}
-          </HStack>
-          <HStack className="min-w-0 items-center gap-1 text-xs text-gray">
-            <span title={nativeCurrency?.name} className="truncate" data-testid="token-name">
-              {nativeCurrency?.name}
-            </span>
-            {showCopyAddress && !isTokenNative(currency) && (
-              <span className="group relative flex shrink-0 items-center">
-                <CopyHelper
-                  toCopy={currency.wrapped.address}
-                  size={14}
-                  margin="0"
-                  className="text-gray hover:text-text"
-                  data-testid="copy-token-address"
-                />
-                <span
-                  role="tooltip"
-                  className="pointer-events-none absolute bottom-[calc(100%+4px)] left-0 z-10 hidden whitespace-nowrap rounded bg-tableHeader px-1.5 py-0.5 font-mono text-[10px] font-medium text-text shadow-[0px_2px_8px_rgba(0,0,0,0.4)] group-hover:block"
-                >
-                  {currency.wrapped.address}
-                </span>
-              </span>
-            )}
-            {showAddress && (
-              <>
-                <span className="shrink-0">•</span>
-                {isTokenNative(currency) ? (
-                  <span className="shrink-0">
-                    <Trans>Native</Trans>
-                  </span>
-                ) : (
-                  <AddressCopy chainId={currency.chainId} address={currency.wrapped.address} />
-                )}
-              </>
-            )}
-          </HStack>
-        </Stack>
-      </HStack>
-
-      <HStack className="shrink-0 items-center gap-3 justify-self-end">
-        {showPriceColumn && (
-          <Stack className={cn('w-[72px] items-end gap-0.5 overflow-hidden sm:w-[132px]', isImport && 'opacity-50')}>
-            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-price">
-              {priceUsd ? formatDisplayNumber(priceUsd, { style: 'currency', significantDigits: 6 }) : '--'}
-            </span>
-            {priceChange24h !== undefined && (
-              <span
-                className={cn('text-xs', priceChange24h >= 0 ? 'text-primary' : 'text-red')}
-                data-testid="token-price-change"
-              >
-                {priceChange24h >= 0 ? '+' : '-'}
-                {formatDisplayNumber(Math.abs(priceChange24h) / 100, { style: 'percent', fractionDigits: 2 })}
-              </span>
-            )}
-          </Stack>
-        )}
-
-        {isImport ? (
-          <Stack className={cn('items-end overflow-hidden', rightColumnClassName)}>
-            <ButtonPrimary
-              data-testid="button-import-token"
-              width="fit-content"
-              padding="6px 16px"
-              fontWeight={500}
-              fontSize="14px"
-              className="transition"
-              onClick={e => {
-                e.stopPropagation()
-                onImportToken?.(currency.wrapped)
-              }}
-            >
-              <Trans>Import</Trans>
-            </ButtonPrimary>
-          </Stack>
-        ) : rightColumn === 'metric' ? (
-          <Stack className={cn('items-end overflow-hidden', rightColumnClassName)}>
-            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-metric">
-              {/* Only a missing metric reads "--"; a real zero is data and renders as an amount. */}
-              {metricValue === undefined ? '--' : formatBigLiquidity(String(metricValue), 2, true)}
-            </span>
-          </Stack>
-        ) : (
-          <Stack className={cn('items-end gap-0.5 overflow-hidden', rightColumnClassName)}>
-            {customBalance !== undefined ? customBalance : renderBalance()}
-            {!!usdBalance && !hideBalance && (
-              <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
-                {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
-              </span>
-            )}
-          </Stack>
-        )}
-        {onRemoveImportedToken && (
-          <div className="flex w-6 shrink-0 items-center justify-center">
-            <X
-              onClick={onClickRemove}
-              data-testid="button-remove-import-token"
-              className="size-4 shrink-0 cursor-pointer text-subText hover:text-text"
-            />
-          </div>
-        )}
-      </HStack>
-    </>
-  )
-
-  if (warned) {
-    return (
-      <Stack
-        data-testid="token-item"
-        data-restricted="true"
-        style={style}
-        className="justify-center gap-0.5 rounded-lg bg-warning/[0.08] px-0.5"
-      >
-        <HStack className="pointer-events-none h-12 w-full items-center justify-between gap-3 px-3 opacity-50">
-          {rowInner}
-        </HStack>
-        <span className="px-3 pb-1 text-xs font-medium text-warning" data-testid="restricted-token-notice">
-          {restrictedTokenMessage()}
-        </span>
-      </Stack>
-    )
-  }
 
   const activate = () => {
     if (restricted) {
@@ -342,40 +125,88 @@ export const TokenRow = ({
     }
     onSelect?.(currency)
   }
-
   return (
-    <HStack
+    <div
       data-testid="token-item"
-      data-selected={isSelected || otherSelected}
-      role="button"
-      tabIndex={0}
+      data-selected={warned ? undefined : isSelected || otherSelected}
+      data-restricted={warned ? 'true' : undefined}
+      role={warned ? undefined : 'button'}
+      tabIndex={warned ? undefined : 0}
       aria-label={symbol}
       style={style}
-      onClick={activate}
+      onClick={warned ? undefined : activate}
       onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        if (!warned && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault()
           activate()
         }
       }}
       onMouseEnter={e => {
-        if (hoverColor && window.matchMedia('(hover: hover)').matches) {
+        if (!warned && hoverColor && window.matchMedia('(hover: hover)').matches) {
           e.currentTarget.style.background = hoverColor
         }
       }}
       onMouseLeave={e => {
-        if (hoverColor) {
+        if (!warned && hoverColor) {
           e.currentTarget.style.background = ''
         }
       }}
       className={cn(
-        TOKEN_ROW_CLASS,
-        // Not-yet-imported token: keep the row normal but dimmed to 50% to hint it needs importing.
-        importOnClick && 'opacity-50',
-        !hoverColor && TOKEN_ROW_HOVER_CLASS,
+        warned
+          ? 'flex flex-col justify-center gap-0.5 rounded-lg bg-warning/[0.08] px-0.5'
+          : 'flex h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[selected=true]:bg-primary-20 sm:gap-3',
+        !warned && importOnClick && 'opacity-50',
+        !warned &&
+          !hoverColor &&
+          '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
     >
-      {rowInner}
-    </HStack>
+      <div
+        className={cn(
+          warned
+            ? 'pointer-events-none flex h-12 w-full items-center justify-between gap-3 px-3 opacity-50'
+            : 'contents',
+        )}
+      >
+        <TokenRowIdentity
+          currency={currency}
+          isImport={isImport}
+          showFavoriteIcon={showFavoriteIcon}
+          canFavorite={canFavorite}
+          isFavorite={isFavorite}
+          customName={customName}
+          addedAt={addedAt}
+          held={held}
+          impersonator={impersonator}
+          showCopyAddress={showCopyAddress}
+          showAddress={showAddress}
+          onToggleFavorite={onToggleFavorite}
+          onShowTokenInfo={onShowTokenInfo}
+        />
+        <TokenRowValues
+          currency={currency}
+          currencyBalance={currencyBalance}
+          rightColumn={rightColumn}
+          rightColumnClassName={rightColumnClassName}
+          showPriceColumn={showPriceColumn}
+          priceUsd={priceUsd}
+          priceChange24h={priceChange24h}
+          metricValue={metricValue}
+          customBalance={customBalance}
+          hideBalance={hideBalance}
+          showLoading={showLoading}
+          balanceUnknown={balanceUnknown}
+          usdBalance={usdBalance}
+          usdValueClassName={usdValueClassName}
+          onImportToken={onImportToken}
+          onRemoveImportedToken={onRemoveImportedToken}
+        />
+      </div>
+      {warned && (
+        <span className="px-3 pb-1 text-xs font-medium text-warning" data-testid="restricted-token-notice">
+          {restrictedTokenMessage()}
+        </span>
+      )}
+    </div>
   )
 }

@@ -24,7 +24,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { getTokenAddress } from 'utils/tokenInfo'
 
-export const CrossChainSwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {
+export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: () => void }) => {
   const {
     showPreview,
     reviewQuote,
@@ -146,7 +146,7 @@ export const CrossChainSwapAction = ({ setShowBtcModal }: { setShowBtcModal: (va
       return {
         label: t`Connect Bitcoin Wallet`,
         onClick: () => {
-          setShowBtcModal(true)
+          onConnectBitcoin()
         },
       }
     }
