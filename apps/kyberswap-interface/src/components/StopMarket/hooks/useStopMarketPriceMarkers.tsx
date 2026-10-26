@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
@@ -11,10 +11,12 @@ import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMar
 import { StopMarket, StopMarketStatus } from 'components/StopMarket/types'
 import {
   getStopMarketDisplayStatus,
+  getStopMarketPairKey,
   getStopMarketTriggerPrice,
   isActiveStopMarketStatus,
 } from 'components/StopMarket/utils'
 import type { PriceMarkerGroup } from 'components/TokenPriceChart/priceMarkers'
+import { ETHER_ADDRESS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -50,6 +52,14 @@ export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled, wi
   // Nothing to draw on a chain that takes no stop market orders.
   const hasPair =
     enabled && !!chainId && isSupportStopMarket(chainId) && !!tokenIn && !!tokenOut && tokenIn !== tokenOut
+  // An order paying out native currency names it by the placeholder address rather than the wrapped token,
+  // so a pair holding the wrapped token asks for that address too. Only as a token out: a native sell is
+  // always wrapped.
+  const tokenOuts = useMemo(() => {
+    if (!chainId || !tokenIn || !tokenOut) return undefined
+    const holdsWrappedNative = [tokenIn, tokenOut].includes(WETH[chainId].address.toLowerCase())
+    return holdsWrappedNative ? [tokenOut, tokenIn, ETHER_ADDRESS.toLowerCase()] : [tokenOut, tokenIn]
+  }, [chainId, tokenIn, tokenOut])
 
   const { currentData } = useGetStopMarketsQuery(
     {
@@ -58,29 +68,32 @@ export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled, wi
       statuses: [StopMarketStatus.OPEN],
       // Both directions: an order's tokens are always different, so these match the pair either way round.
       tokenIns: tokenIn && tokenOut ? [tokenIn, tokenOut] : undefined,
-      tokenOuts: tokenIn && tokenOut ? [tokenOut, tokenIn] : undefined,
+      tokenOuts,
       page: 1,
       pageSize: 100,
     },
     { skip: !account || !hasPair, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
+  // Compared by pair key, which reads a native coin as its wrapped token, as the oracle prices it.
+  const forwardKey = chainId && tokenIn && tokenOut ? getStopMarketPairKey(chainId, tokenIn, tokenOut) : undefined
+  const reversedKey = chainId && tokenIn && tokenOut ? getStopMarketPairKey(chainId, tokenOut, tokenIn) : undefined
+
   /** Whether the order sells the receive token for the sell token, against the chart's direction. */
   const isReversed = useCallback(
-    (order: StopMarket) => order.tokenIn.toLowerCase() === tokenOut && order.tokenOut.toLowerCase() === tokenIn,
-    [tokenIn, tokenOut],
+    (order: StopMarket) => getStopMarketPairKey(order.chainId, order.tokenIn, order.tokenOut) === reversedKey,
+    [reversedKey],
   )
 
   const orders = useMemo(
     () =>
       (currentData?.orders ?? EMPTY_ORDERS).filter(
         order =>
-          ((order.tokenIn.toLowerCase() === tokenIn && order.tokenOut.toLowerCase() === tokenOut) ||
-            isReversed(order)) &&
+          (getStopMarketPairKey(order.chainId, order.tokenIn, order.tokenOut) === forwardKey || isReversed(order)) &&
           !cancelledIds.includes(order.id) &&
           isActiveStopMarketStatus(getStopMarketDisplayStatus(order)),
       ),
-    [currentData?.orders, tokenIn, tokenOut, isReversed, cancelledIds],
+    [currentData?.orders, forwardKey, isReversed, cancelledIds],
   )
 
   // Without a sell token the feed is not asked for, which is how a chart that does not need it skips it.

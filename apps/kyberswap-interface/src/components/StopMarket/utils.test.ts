@@ -41,6 +41,7 @@ import {
   stripEmptyEip712Salt,
   summarizeStopMarketFills,
 } from 'components/StopMarket/utils'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 
 const ORDER: StopMarket = {
@@ -308,6 +309,12 @@ describe('buildStopMarketPayload', () => {
   it('sells the wrapped token when the form holds native currency', () => {
     const payload = buildStopMarketPayload({ ...params, currencyIn: NATIVE })
     expect(payload.tokenIn).toBe(WETH_BASE.address)
+  })
+
+  it('pays out native currency by the native placeholder address, and the wrapped token by its own', () => {
+    const toNative = { ...params, currencyIn: USDC as Currency, currencyOut: NATIVE }
+    expect(buildStopMarketPayload(toNative).tokenOut).toBe(ETHER_ADDRESS)
+    expect(buildStopMarketPayload({ ...toNative, currencyOut: WETH_BASE }).tokenOut).toBe(WETH_BASE.address)
   })
 
   it('converts the expiry from milliseconds to seconds', () => {
@@ -702,13 +709,18 @@ describe('getStopMarketFills', () => {
     expect(getStopMarketFills({ ...ORDER, executions: [execution(StopMarketExecutionStatus.PENDING)] })).toEqual([])
   })
 
-  it('reads what the fill received after the fee', () => {
+  it('reads what the fill received and the fee it paid', () => {
     const settled = fill(0, StopMarketExecutionStatus.SUCCESS, '0.01', '7.4448', '744.46')
     const order = {
       ...ORDER,
-      executions: [{ ...settled, extraData: { ...settled.extraData, received: { amount: '7.2214' } } }],
+      executions: [
+        {
+          ...settled,
+          extraData: { ...settled.extraData, fee: { amount: '0.2234' }, received: { amount: '7.2214' } },
+        },
+      ],
     }
-    expect(getStopMarketFills(order)[0]).toMatchObject({ amountOut: 7.4448, received: 7.2214 })
+    expect(getStopMarketFills(order)[0]).toMatchObject({ amountOut: 7.4448, received: 7.2214, fee: 0.2234 })
   })
 
   it('falls back to the amount out for a fill that does not report what it received', () => {
@@ -743,12 +755,13 @@ describe('summarizeStopMarketFills', () => {
     expect(summary.received).toBeUndefined()
   })
 
-  it('totals what the fills received after the fee', () => {
+  it('totals what the fills received and paid in fees', () => {
     const summary = summarizeStopMarketFills([
-      { hash: 'a', amountIn: 0.04, amountOut: 95.2, received: 92.3, price: 2380 },
-      { hash: 'b', amountIn: 0.06, amountOut: 144, received: 139.7, price: 2400 },
+      { hash: 'a', amountIn: 0.04, amountOut: 95.2, received: 92.3, fee: 2.9, price: 2380 },
+      { hash: 'b', amountIn: 0.06, amountOut: 144, received: 139.7, fee: 4.3, price: 2400 },
     ])
     expect(summary.received).toBeCloseTo(232, 10)
+    expect(summary.fee).toBeCloseTo(7.2, 10)
   })
 
   it("prefers the order's own amount for the total sold", () => {
@@ -778,6 +791,11 @@ describe('summarizeStopMarketFills', () => {
 describe('parseStopMarket', () => {
   it('accepts a well-formed order and coerces a string chainId', () => {
     expect(parseStopMarket({ ...ORDER, chainId: '8453' })?.chainId).toBe(ChainId.BASE)
+  })
+
+  it('accepts an order paying out native currency', () => {
+    const tokenOutInfo = { address: ETHER_ADDRESS, symbol: 'ETH', decimals: 18 }
+    expect(parseStopMarket({ ...ORDER, tokenOut: ETHER_ADDRESS, tokenOutInfo })?.tokenOut).toBe(ETHER_ADDRESS)
   })
 
   it('accepts the largest amount a token can hold', () => {
@@ -913,9 +931,16 @@ describe('getStopMarketRecreateDraft', () => {
 })
 
 describe('getStopMarketMinReceive', () => {
-  it('takes the slippage allowed off the output at the trigger, and nothing more', () => {
-    // 1,000 at the trigger with 0.5% slippage (50 bps); the fee is already inside that floor.
+  it('takes the slippage allowed off the output at the trigger', () => {
+    // 1,000 at the trigger with 0.5% slippage (50 bps).
     expect(getStopMarketMinReceive({ estimatedOutput: 1000, slippage: 50 })).toBeCloseTo(995)
+  })
+
+  it('takes the fee off the floor, so an executed order never received less than its minimum', () => {
+    // Order 183: 0.01 WBNB at a 745 trigger, 1% slippage; it paid 0.22334406 USDT and received 7.22145798.
+    const min = getStopMarketMinReceive({ estimatedOutput: 0.01 * 745, slippage: 100, fee: 0.223344061141 })
+    expect(min).toBeCloseTo(7.15215594, 8)
+    expect(min).toBeLessThanOrEqual(7.221457976892)
   })
 
   it('never goes below nothing', () => {

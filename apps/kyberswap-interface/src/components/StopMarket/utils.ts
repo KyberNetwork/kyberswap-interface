@@ -303,9 +303,10 @@ export const buildStopMarketPayload = ({
 }: BuildStopMarketPayloadParams): StopMarketCorePayload => ({
   chainId,
   userWallet: account,
-  // Native currency is wrapped before settlement, so the order always sells the wrapped token.
+  // Native currency is wrapped before settlement, so the order always sells the wrapped token. It can
+  // pay out native currency, which the service names by the native placeholder address.
   tokenIn: currencyIn.wrapped.address,
-  tokenOut: currencyOut.wrapped.address,
+  tokenOut: currencyOut.isNative ? ETHER_ADDRESS : currencyOut.wrapped.address,
   amountIn: tryParseAmount(inputAmount, currencyIn.wrapped)?.quotient?.toString() ?? '0',
   slippage,
   deadline: clampStopMarketDeadline(expiredAt / 1000),
@@ -329,7 +330,7 @@ export const buildStopMarketPayload = ({
  */
 const resolveExecutionAmount = (
   execution: StopMarketExecution | undefined,
-  side: 'amountIn' | 'amountOut' | 'received',
+  side: 'amountIn' | 'amountOut' | 'received' | 'fee',
 ): number | undefined => {
   const value = execution?.extraData?.[side]?.amount
   if (!value || !/^\d+(\.\d+)?$/.test(value)) return undefined
@@ -345,6 +346,10 @@ export const resolveExecutionAmountOut = (execution: StopMarketExecution | undef
 export const resolveExecutionReceived = (execution: StopMarketExecution | undefined) =>
   resolveExecutionAmount(execution, 'received')
 
+/** The service's fee one execution paid, taken out of its amount out, in tokenOut's human units. */
+export const resolveExecutionFee = (execution: StopMarketExecution | undefined) =>
+  resolveExecutionAmount(execution, 'fee')
+
 /** What one execution sold, in tokenIn's human units. */
 export const resolveExecutionAmountIn = (execution: StopMarketExecution | undefined) =>
   resolveExecutionAmount(execution, 'amountIn')
@@ -359,6 +364,8 @@ export type StopMarketFill = {
    * it falls back to `amountOut`.
    */
   received?: number
+  /** The service's fee, in tokenOut's human units, when the execution reports it. */
+  fee?: number
   /** tokenIn priced in tokenOut by the oracle when this fill settled. */
   price?: number
   /** Unix seconds: when the fill's transaction was submitted. */
@@ -380,28 +387,37 @@ export const getStopMarketFills = (order: StopMarket): StopMarketFill[] =>
         amountIn: resolveExecutionAmountIn(execution),
         amountOut: resolveExecutionAmountOut(execution),
         received: resolveExecutionReceived(execution) ?? resolveExecutionAmountOut(execution),
+        fee: resolveExecutionFee(execution),
         price: Number.isFinite(price) && price > 0 ? price : undefined,
         createdAt: execution.createdAt,
       }
     })
 
-export type StopMarketFillSummary = { amountIn?: number; amountOut?: number; received?: number; price?: number }
+export type StopMarketFillSummary = {
+  amountIn?: number
+  amountOut?: number
+  received?: number
+  fee?: number
+  price?: number
+}
 
 /**
  * The least an order pays out when it fills: what it sells is worth `estimatedOutput` at the trigger,
- * and the fill may fall short of that by up to `slippage` (basis points). The service measures that
- * floor net of its fee, so the fee is not taken off again. Worked out here because the service reports
- * no floor of its own.
+ * and the fill may fall short of that by up to `slippage` (basis points). The service checks that floor
+ * against the amount out before its fee, so what reaches the receiver is the floor less `fee`, in
+ * tokenOut's human units. Worked out here because the service reports no floor of its own.
  */
 export const getStopMarketMinReceive = ({
   estimatedOutput,
   slippage,
+  fee = 0,
 }: {
   estimatedOutput: number
   slippage: number
+  fee?: number
 }): number | undefined => {
   if (!Number.isFinite(estimatedOutput) || estimatedOutput <= 0 || !Number.isFinite(slippage)) return undefined
-  return Math.max(estimatedOutput * (1 - slippage / 10_000), 0)
+  return Math.max(estimatedOutput * (1 - slippage / 10_000) - (Number.isFinite(fee) ? fee : 0), 0)
 }
 
 /** The total, or nothing when any part is unknown — a partial sum would understate the order. */
@@ -426,6 +442,7 @@ export const summarizeStopMarketFills = (fills: StopMarketFill[], orderAmountIn?
   const amountIn = orderAmountIn ?? sumIfComplete(fills.map(fill => fill.amountIn))
   const amountOut = sumIfComplete(fills.map(fill => fill.amountOut))
   const received = sumIfComplete(fills.map(fill => fill.received))
+  const fee = sumIfComplete(fills.map(fill => fill.fee))
 
   let price: number | undefined
   if (fills.every(fill => fill.price !== undefined)) {
@@ -437,7 +454,7 @@ export const summarizeStopMarketFills = (fills: StopMarketFill[], orderAmountIn?
         : fills.reduce((total, fill) => total + (fill.price ?? 0), 0) / fills.length
   }
 
-  return { amountIn, amountOut, received, price }
+  return { amountIn, amountOut, received, fee, price }
 }
 
 const MAX_UINT256 = 2n ** 256n - 1n

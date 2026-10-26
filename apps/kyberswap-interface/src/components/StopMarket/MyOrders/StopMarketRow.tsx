@@ -384,6 +384,8 @@ const StopMarketRow = ({
               minAmountOut={getStopMarketMinReceive({
                 estimatedOutput: Number(sellCurrencyAmount.toExact()) * Number(triggerPrice),
                 slippage: order.slippage,
+                // What the fills paid; an order whose executions do not report it shows the floor before the fee.
+                fee: fillSummary.fee,
               })}
               createdAt={order.createdAt}
             />

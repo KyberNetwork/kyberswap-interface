@@ -125,7 +125,7 @@ export const isStopMarketReviewBlocked = ({
 /**
  * The order as it will be signed, row by row: what it sells, where it triggers, what it costs and the
  * least it pays out. That floor is worked out here — the sell amount at the trigger, less the slippage
- * allowed, which the service measures net of its fee — since the service reports none.
+ * allowed, less the fee taken out of the amount out — since the service reports none.
  */
 export const StopMarketReviewSummary = ({
   currencyIn,
@@ -150,7 +150,11 @@ export const StopMarketReviewSummary = ({
     feePercentage !== undefined && Number(estimatedOutput) > 0
       ? (Number(estimatedOutput) * feePercentage) / 100
       : undefined
-  const minReceive = getStopMarketMinReceive({ estimatedOutput: Number(estimatedOutput), slippage })
+  // Unknown until the fee is: the floor before the fee would overstate what the order pays out.
+  const minReceive =
+    feeAmount === undefined
+      ? undefined
+      : getStopMarketMinReceive({ estimatedOutput: Number(estimatedOutput), slippage, fee: feeAmount })
   const showFeeError = !!feeError && !isFeeLoading
   // Neither a fee nor a reason yet means the estimate is still on its way, from the moment the review opens.
   const isFeePending = isFeeLoading || (!fee && !feeError)
@@ -216,7 +220,9 @@ export const StopMarketReviewSummary = ({
         <Divider />
 
         <SummaryRow label={<Trans>Min. Receive</Trans>} dataTestId="stop-market-confirm-min-receive">
-          {minReceive === undefined ? (
+          {isFeePending ? (
+            <RowSkeleton dataTestId="stop-market-confirm-min-receive-loading" />
+          ) : minReceive === undefined ? (
             '--'
           ) : (
             <HStack className="items-center justify-end gap-1 font-medium">
