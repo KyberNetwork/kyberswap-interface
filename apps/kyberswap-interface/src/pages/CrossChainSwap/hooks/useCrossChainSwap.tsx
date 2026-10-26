@@ -299,11 +299,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     return getSelectedQuote(quotes, selectedQuoteKey)
   }, [quotes, selectedQuoteKey])
 
-  // reset selected quote when from or to chain changes
-  useEffect(() => {
-    setSelectedQuoteKey(null)
-  }, [currencyIn, currencyOut, fromChainId, toChainId])
-
   const [category, setCategory] = useState<PairCategory>('commonPair')
   const getQuotePriceImpactInfo = useCallback(
     (quote?: Quote | null) =>
@@ -348,6 +343,18 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const requestIdRef = useRef(0)
 
   useEffect(() => () => abortControllerRef.current.abort(), [])
+
+  const tokenInKey = isFromEvm ? tokenIn.toLowerCase() : tokenIn
+  const tokenOutKey = isToEvm ? tokenOut.toLowerCase() : tokenOut
+
+  // Invalidate the old pair immediately, before the debounced quote request starts.
+  // Token IDs stay stable when currency objects or token metadata are refreshed.
+  useEffect(() => {
+    requestIdRef.current += 1
+    abortControllerRef.current.abort()
+    setQuotes([])
+    setSelectedQuoteKey(null)
+  }, [fromChainId, toChainId, tokenInKey, tokenOutKey])
 
   const setQuoteMode = useCallback(
     (mode: CrossChainQuoteMode) => {
