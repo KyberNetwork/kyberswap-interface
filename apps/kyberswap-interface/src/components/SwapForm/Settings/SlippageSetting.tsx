@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
@@ -61,6 +61,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwa
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
+  const highlightTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [triedSimulatedSlippage, setTriedSimulatedSlippage] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
@@ -105,14 +106,19 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwa
     if (actionFromUrl === 'open-slippage-panel') {
       setExpanded(true)
       setTriedSimulatedSlippage(true)
-      searchParams.delete('action')
-      setSearchParams(searchParams)
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.delete('action')
+      setSearchParams(nextSearchParams)
       setIsHighlight(true)
-      setTimeout(() => {
+      clearTimeout(highlightTimeout.current)
+      highlightTimeout.current = setTimeout(() => {
+        highlightTimeout.current = undefined
         setIsHighlight(false)
       }, 4000)
     }
   }, [actionFromUrl, searchParams, setSearchParams])
+
+  useEffect(() => () => clearTimeout(highlightTimeout.current), [])
 
   if (!isSlippageControlPinned && !alwaysVisible) {
     return null

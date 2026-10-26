@@ -15,6 +15,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PartnerSwapLayout } from 'pages/PartnerSwap/PartnerSwapLayout'
 import { TAB, isSettingTab } from 'pages/Swap/Layout/Tabs'
 import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
+import { useCrossChainTransactions } from 'state/crossChainSwap'
 import Updater from 'state/customizeDexes/updater'
 import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
@@ -30,7 +31,8 @@ const SwapSettingsPanel = lazy(() => import('components/SwapForm/Settings/SwapSe
 const TokenInfo = lazy(() => import('components/TokenInfo'))
 const CrossChainSwap = lazy(() => import('pages/CrossChainSwap'))
 const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
-const TransactionHistory = lazy(() => import('pages/CrossChainSwap/components/TransactionHistory'))
+const TransactionHistoryList = lazy(() => import('pages/CrossChainSwap/components/TransactionHistoryList'))
+const TransactionHistoryUpdater = lazy(() => import('pages/Swap/components/TransactionHistoryUpdater'))
 const SingleChainTradeRoute = lazy(() => import('pages/Swap/components/SingleChainTradeRoute'))
 const TokenPriceChart = lazy(() => import('components/TokenPriceChart'))
 
@@ -63,6 +65,7 @@ type Props = {
 }
 
 const PartnerSwap = ({ mode = 'partner' }: Props) => {
+  const [transactions] = useCrossChainTransactions()
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -269,7 +272,10 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
     ) : isLimitPage ? (
       <OrderList />
     ) : isCrossChainPage ? (
-      <TransactionHistory />
+      <>
+        <TransactionHistoryUpdater />
+        <TransactionHistoryList transactions={transactions} />
+      </>
     ) : null
 
   return (
@@ -291,8 +297,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
               togglePricingChart,
               toggleTradeRoutes,
             }}
-            isCrossChainPage={isCrossChainPage}
-            isSwapPage={isSwapPage}
+            mode={isSwapPage ? 'single-chain' : isCrossChainPage ? 'cross-chain' : 'limit'}
             highlightDegenMode={highlightDegenMode}
             onBack={onBackToSwapTab}
             onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}

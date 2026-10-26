@@ -47,12 +47,12 @@ export const isEvmCurrency = (currency: Currency | undefined): currency is EvmCr
   return typeof wrapped.address === 'string' && typeof wrapped.decimals === 'number'
 }
 
-const isSolanaToken = (currency: Currency | undefined): currency is SolanaToken => {
+export const isSolanaToken = (currency: Currency | undefined): currency is SolanaToken => {
   const value: unknown = currency
   return isObject(value) && typeof value.id === 'string'
 }
 
-const isNearToken = (currency: Currency | undefined): currency is NearToken => {
+export const isNearToken = (currency: Currency | undefined): currency is NearToken => {
   const value: unknown = currency
   return isObject(value) && typeof value.assetId === 'string'
 }

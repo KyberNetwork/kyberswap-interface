@@ -260,10 +260,10 @@ export const useAddressRpcTokenSearch = ({
   }
 }
 
-function balanceComparator(
+const balanceComparator = (
   balanceA?: TokenAmount | CurrencyAmount<Currency>,
   balanceB?: TokenAmount | CurrencyAmount<Currency>,
-) {
+) => {
   if (balanceA && balanceB) {
     if (balanceA.equalTo(balanceB)) return 0
     const isBalanceAGreater = JSBI.greaterThan(
@@ -284,14 +284,14 @@ function balanceComparator(
   return 0
 }
 
-function usdValueOf(balance: TokenAmount | CurrencyAmount<Currency> | undefined, price: number | undefined): number {
+const usdValueOf = (balance: TokenAmount | CurrencyAmount<Currency> | undefined, price: number | undefined): number => {
   if (!balance || !price || price <= 0) return 0
   const amount = parseFloat(balance.toExact())
   if (!Number.isFinite(amount) || amount <= 0) return 0
   return amount * price
 }
 
-export function getTokenComparator(
+export const getTokenComparator = (
   balances: TokenBalanceMap,
   ethBalance: CurrencyAmount<Currency> | undefined,
   tokenPrices: TokenPriceMap,
@@ -302,7 +302,7 @@ export function getTokenComparator(
   // impersonation is minted with an enormous supply and may even carry a quote, and neither may hand
   // it the top. An unpriced one is almost always spam and sorts last, below every listed token.
   unlistedAddresses?: Set<string>,
-): (tokenA: Token, tokenB: Token) => number {
+): ((tokenA: Token, tokenB: Token) => number) => {
   const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
   const symbolOrder = (tokenA: Token, tokenB: Token) => {
     if (tokenA.symbol && tokenB.symbol) {
@@ -310,7 +310,7 @@ export function getTokenComparator(
     }
     return tokenA.symbol ? -1 : tokenB.symbol ? 1 : 0
   }
-  return function sortTokens(tokenA: Token, tokenB: Token): number {
+  return (tokenA: Token, tokenB: Token): number => {
     const balanceA = isTokenNative(tokenA) ? ethBalance : balances[tokenA.address]
     const balanceB = isTokenNative(tokenB) ? ethBalance : balances[tokenB.address]
 
@@ -355,7 +355,7 @@ export function getTokenComparator(
   }
 }
 
-export function useTokenComparator(
+export const useTokenComparator = (
   // Balances for the tokens being sorted, plus the native balance, owned by the caller: the list's
   // balance column reads the same tokens, and one shared multicall serves both.
   balances: TokenBalanceMap,
@@ -368,7 +368,7 @@ export function useTokenComparator(
   favoriteAddresses?: Set<string>,
   // Checksummed addresses of held tokens on no list; see `getTokenComparator`.
   unlistedAddresses?: Set<string>,
-): (tokenA: Token, tokenB: Token) => number {
+): ((tokenA: Token, tokenB: Token) => number) => {
   // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
   // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
   // sentinel is always included: its balance lives in `ethBalance`, not in this map.

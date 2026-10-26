@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
@@ -6,7 +6,6 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { CrossChainSwapConfirmation } from 'components/SwapForm/CrossChain/CrossChainSwapConfirmation'
-import { useCrossChainApproval } from 'components/SwapForm/CrossChain/hooks/useCrossChainApproval'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
@@ -17,8 +16,10 @@ import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRe
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
+import { useCrossChainApproval } from 'pages/CrossChainSwap/hooks/useCrossChainApproval'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
 import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
+import { isEvmCurrency, isNearToken, isSolanaToken } from 'pages/CrossChainSwap/quote/utils'
 import { isQuoteExecutable } from 'pages/CrossChainSwap/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -47,13 +48,10 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
   const isFromNear = fromChainId === NonEvmChain.Near
   const isFromSol = fromChainId === NonEvmChain.Solana
   const isFromBitcoin = fromChainId === NonEvmChain.Bitcoin
-  const inputAmount =
-    isFromEvm && currencyIn ? CurrencyAmount.fromRawAmount(currencyIn as Currency, amountInWei || '0') : undefined
+  const evmCurrencyIn = isFromEvm && isEvmCurrency(currencyIn) ? currencyIn : undefined
+  const inputAmount = evmCurrencyIn ? CurrencyAmount.fromRawAmount(evmCurrencyIn, amountInWei || '0') : undefined
 
-  const balance = useCurrencyBalance(
-    isFromEvm ? (currencyIn as Currency) : undefined,
-    isFromEvm ? (fromChainId as ChainId) : undefined,
-  )
+  const balance = useCurrencyBalance(evmCurrencyIn, isFromEvm ? (fromChainId as ChainId) : undefined)
   const { balances: nearBalances } = useNearBalances()
   const solanaBalances = useSolanaTokenBalances()
   const { walletInfo, balance: btcBalance } = useBitcoinWallet()
@@ -79,12 +77,12 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
 
   // Restricted-token check applies only to EVM sides (the restricted list is keyed by EVM chainId).
   const restrictedCurrency =
-    isFromEvm && currencyIn && isAddressRestricted(fromChainId as ChainId, getTokenAddress(currencyIn as Currency))
+    evmCurrencyIn && isAddressRestricted(fromChainId as ChainId, getTokenAddress(evmCurrencyIn))
       ? currencyIn
       : toChainId &&
         isEvmChain(toChainId) &&
-        currencyOut &&
-        isAddressRestricted(toChainId as ChainId, getTokenAddress(currencyOut as Currency))
+        isEvmCurrency(currencyOut) &&
+        isAddressRestricted(toChainId as ChainId, getTokenAddress(currencyOut))
       ? currencyOut
       : undefined
 
@@ -100,23 +98,27 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
   const {
     label,
     disabled = false,
+    busy = false,
     onClick,
   } = (() => {
     if (isApproving) {
       return {
-        label: <Dots>{t`Approving`}</Dots>,
+        label: t`Approving`,
+        busy: true,
         disabled: true,
       }
     }
     if (isFindingRoute) {
       return {
-        label: <Dots>{t`Finding the best route`}</Dots>,
+        label: t`Finding the best route`,
+        busy: true,
         disabled: true,
       }
     }
     if (isChecking) {
       return {
-        label: <Dots>{t`Checking approval`}</Dots>,
+        label: t`Checking approval`,
+        busy: true,
         disabled: true,
       }
     }
@@ -184,15 +186,22 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
         disabled: true,
       }
 
-    let notEnougBalance = false
-    if (isFromEvm && (!balance || inputAmount?.greaterThan(balance))) notEnougBalance = true
-    if (isFromNear && BigInt(nearBalances[(currencyIn as any).assetId] || 0) < BigInt(amountInWei))
-      notEnougBalance = true
-    if (isFromBitcoin && BigInt(btcBalance || 0) < BigInt(amountInWei)) notEnougBalance = true
-    if (isFromSol && BigInt(solanaBalances[(currencyIn as any).id]?.rawAmount || '0') < BigInt(amountInWei))
-      notEnougBalance = true
+    let insufficientBalance = false
+    if (isFromEvm && (!balance || inputAmount?.greaterThan(balance))) insufficientBalance = true
+    if (
+      isFromNear &&
+      BigInt((isNearToken(currencyIn) ? nearBalances[currencyIn.assetId] : undefined) || 0) < BigInt(amountInWei)
+    )
+      insufficientBalance = true
+    if (isFromBitcoin && BigInt(btcBalance || 0) < BigInt(amountInWei)) insufficientBalance = true
+    if (
+      isFromSol &&
+      BigInt((isSolanaToken(currencyIn) ? solanaBalances[currencyIn.id]?.rawAmount : undefined) || '0') <
+        BigInt(amountInWei)
+    )
+      insufficientBalance = true
 
-    if (notEnougBalance) {
+    if (insufficientBalance) {
       return {
         label: t`Insufficient Balance`,
         disabled: true,
@@ -217,7 +226,8 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
 
     if (!isSelectedQuoteExecutable) {
       return {
-        label: <Dots>{t`Refreshing route`}</Dots>,
+        label: t`Refreshing route`,
+        busy: true,
         disabled: true,
       }
     }
@@ -248,7 +258,7 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
           onClick?.()
         }}
       >
-        {label}
+        {busy ? <Dots>{label}</Dots> : label}
       </ButtonPrimary>
     </>
   )
