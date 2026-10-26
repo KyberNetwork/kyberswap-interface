@@ -10,11 +10,11 @@ import { SingleChainSwapContent } from 'components/SwapForm/SingleChain/SingleCh
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import type { Chain, NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
-import { Header } from 'pages/Swap/Layout/Header'
-import { TAB } from 'pages/Swap/Layout/Tabs'
 import CrossChainRightPanel from 'pages/Swap/components/CrossChainRightPanel'
 import HistoryPanel, { HistoryButton } from 'pages/Swap/components/HistoryPanel'
 import { SingleChainRightPanel } from 'pages/Swap/components/SingleChainRightPanel'
+import { Header } from 'pages/Swap/layout/Header'
+import { TAB } from 'pages/Swap/layout/Tabs'
 import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
 

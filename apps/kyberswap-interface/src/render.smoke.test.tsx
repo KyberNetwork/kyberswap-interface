@@ -49,9 +49,16 @@ describe('SSR render smoke', () => {
     const { renderRouteBodyHtml } = await import('entry-server')
     const html = await renderRouteBodyHtml('/swap?from=1&to=8453&tokenIn=ETH&tokenOut=ETH')
 
-    expect(html).toContain('Route Options')
+    expect(html).toContain('id="swap-currency-input"')
+    expect(html).toContain('id="swap-currency-output"')
+    const inputPanel = html.split('data-testid="swap-currency-input"')[1].split('data-testid="swap-currency-output"')[0]
+    const outputPanel = html.split('data-testid="swap-currency-output"')[1].split('aria-label="Swap quote"')[0]
+    expect(inputPanel).toContain('title="Ethereum"')
+    expect(outputPanel).toContain('title="Base"')
+    expect(html).toMatch(/<button\b[^>]*>(?:(?!<\/button>)[\s\S])*Routes<\/button>/)
+    expect(html).toContain('Estimated Processing Time')
     expect(html).toContain('<aside')
-    expect(html).toContain('data-testid="cross-chain-tab"')
+    expect(html).not.toContain('data-testid="cross-chain-tab"')
     expect(html).not.toContain('<!--$?-->')
   })
 
