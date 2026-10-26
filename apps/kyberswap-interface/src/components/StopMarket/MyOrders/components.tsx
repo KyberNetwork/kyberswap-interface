@@ -313,7 +313,7 @@ export const triggerProximityText = cva('transition-colors duration-200', {
  * order is still waiting for the price, when it is the swap that has not gone through.
  */
 export const RetryingCell = () => (
-  <HStack className="items-center gap-1 text-sm font-medium text-warning" data-testid="stop-market-order-retrying">
+  <HStack className="items-center gap-1 text-xs font-medium text-[#FBB324]" data-testid="stop-market-order-retrying">
     {/* Turning, since the order is still being worked on. */}
     <RefreshCw size={12} className="shrink-0 motion-safe:animate-spin-slow" />
     <Trans>Retrying</Trans>

@@ -35,6 +35,10 @@ type Props = {
   triggerPrice: string
   slippage: number
   expiredAt: number
+  /** How far below the oracle price the trigger sits, in percent. Reported with the placed order. */
+  triggerPercent?: number
+  /** Sell amount in USD, reported with the placed order. */
+  amountUsd?: number
   onResetForm?: () => void
   /** The open order these terms replace. Set, the order is placed as its replacement, under one signature. */
   replacing?: StopMarket
@@ -47,6 +51,8 @@ export const useCreateStopMarket = ({
   triggerPrice,
   slippage,
   expiredAt,
+  triggerPercent,
+  amountUsd,
   onResetForm,
   replacing,
 }: Props) => {
@@ -214,7 +220,9 @@ export const useCreateStopMarket = ({
       currencyOut,
       chainId,
       inputAmount,
+      amountUsd,
       triggerPrice,
+      triggerPercent,
       slippage,
       expiredAt,
       replacesOrderId: replacing?.id,
@@ -238,7 +246,9 @@ export const useCreateStopMarket = ({
     currencyIn,
     currencyOut,
     inputAmount,
+    amountUsd,
     triggerPrice,
+    triggerPercent,
     slippage,
     expiredAt,
     buildPayload,

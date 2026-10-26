@@ -97,6 +97,15 @@ const isHighFeeShare = (fee: StopMarketFee) => {
   return share !== undefined && share > HIGH_FEE_SHARE_PERCENT
 }
 
+/**
+ * Which warning the fee earns. Under the flat minimum a large share also means gas spikes can leave the
+ * order unexecuted, since the fee is fixed while the order is small.
+ */
+export const getStopMarketFeeWarningKind = (fee: StopMarketFee): 'none' | 'highShare' | 'highShareMinimum' => {
+  if (!isHighFeeShare(fee)) return 'none'
+  return fee.minProtocolFeeApplied ? 'highShareMinimum' : 'highShare'
+}
+
 /** The fee beside the expiry at the foot of a card, with the tooltip on its label saying what it is. */
 export const StopMarketFeeValue = ({ fee, isLoading, chainId }: Props & { chainId: ChainId }) => {
   const label = fee ? getStopMarketFeeLabel(fee) : undefined
@@ -128,11 +137,16 @@ export const StopMarketFeeValue = ({ fee, isLoading, chainId }: Props & { chainI
 }
 
 /**
- * What the fee row cannot say on its own: why there is no fee to show, or, for a small order, that the
- * flat minimum applies and, when it takes a large share, how large. The share is only a warning — the
- * size is the user's call.
+ * What the fee row cannot say on its own: why there is no fee to show, or — where `showShareWarning` asks
+ * for it, which the review does — that the fee takes a large share of a small order. The share is only a
+ * warning — the size is the user's call. What the fee covers is the tooltip's to say.
  */
-export const StopMarketFeeNotes = ({ fee, isLoading, errorMessage }: Props) => {
+export const StopMarketFeeNotes = ({
+  fee,
+  isLoading,
+  errorMessage,
+  showShareWarning = false,
+}: Props & { showShareWarning?: boolean }) => {
   if (isLoading) return null
   if (errorMessage)
     return (
@@ -144,37 +158,29 @@ export const StopMarketFeeNotes = ({ fee, isLoading, errorMessage }: Props) => {
         <span>{errorMessage}</span>
       </HStack>
     )
-  if (!fee) return null
-  const isHighShare = isHighFeeShare(fee)
-  if (!fee.minProtocolFeeApplied && !isHighShare) return null
+  if (!fee || !showShareWarning) return null
+  const warningKind = getStopMarketFeeWarningKind(fee)
+  if (warningKind === 'none') return null
   const share = formatFeeShare(getFeeShare(fee) ?? 0)
 
   return (
-    <Stack
-      className="animate-[fadeIn_0.2s_ease-out_both] gap-2 text-xs font-medium motion-reduce:animate-none"
-      data-testid="stop-market-fee-notes"
+    <HStack
+      className="animate-[fadeIn_0.2s_ease-out_both] items-start gap-1.5 text-xs font-medium text-warning motion-reduce:animate-none"
+      data-testid="stop-market-min-fee-warning"
     >
-      {fee.minProtocolFeeApplied && (
-        <HStack className="items-start gap-1.5 text-blue" data-testid="stop-market-min-fee-note">
-          <Info size={14} className="mt-px shrink-0" />
-          <span>
-            <Trans>
-              Covers the protocol fee plus the gas KyberSwap pays to execute on-chain. Execution costs the same
-              regardless of order size, so small orders pay the minimum.
-            </Trans>
-          </span>
-        </HStack>
-      )}
-      {isHighShare && (
-        <HStack className="items-start gap-1.5 text-warning" data-testid="stop-market-min-fee-warning">
-          <AlertTriangle size={14} className="mt-px shrink-0" />
-          <span>
-            <Trans>
-              At this size the fee is {share}% of your order. Execution costs the same regardless of order size.
-            </Trans>
-          </span>
-        </HStack>
-      )}
-    </Stack>
+      <AlertTriangle size={14} className="mt-px shrink-0" />
+      <span>
+        {warningKind === 'highShareMinimum' ? (
+          <Trans>
+            At this size the fee is {share}% of your order. Execution costs the same regardless of order size, and the
+            order may not execute during unusual gas spikes.
+          </Trans>
+        ) : (
+          <Trans>
+            At this size the fee is {share}% of your order. Execution costs the same regardless of order size.
+          </Trans>
+        )}
+      </span>
+    </HStack>
   )
 }

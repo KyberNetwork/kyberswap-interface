@@ -1,7 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { describe, expect, it } from 'vitest'
 
-import { getStopMarketFeeLabel, getStopMarketFeeSummary } from 'components/StopMarket/Form/StopMarketFeeSummary'
+import {
+  getStopMarketFeeLabel,
+  getStopMarketFeeSummary,
+  getStopMarketFeeWarningKind,
+} from 'components/StopMarket/Form/StopMarketFeeSummary'
 import { StopMarketFee } from 'components/StopMarket/types'
 
 // A 0.15%-tier pair on BSC, as estimate-fee returns it.
@@ -48,5 +52,25 @@ describe('getStopMarketFeeSummary', () => {
 
   it('leaves out the coin amount without a chain to read it in', () => {
     expect(getStopMarketFeeSummary(MINIMUM)).toBe('0.15%, min ~$0.2211')
+  })
+})
+
+describe('getStopMarketFeeWarningKind', () => {
+  it('has no warning while the fee share is low', () => {
+    expect(getStopMarketFeeWarningKind(TIER)).toBe('none')
+  })
+
+  it('warns about the share alone when the tier rate applies', () => {
+    const highTier = { ...TIER, protocol: { ...TIER.protocol, percentage: 1.5 } }
+    expect(getStopMarketFeeWarningKind(highTier)).toBe('highShare')
+  })
+
+  it('adds the gas-spike clause when the minimum applies and the share is high', () => {
+    expect(getStopMarketFeeWarningKind(MINIMUM)).toBe('highShareMinimum')
+  })
+
+  it('has no warning when the minimum applies at a share of 1% or less', () => {
+    const lowMinimum = { ...MINIMUM, protocol: { ...MINIMUM.protocol, percentage: 1 } }
+    expect(getStopMarketFeeWarningKind(lowMinimum)).toBe('none')
   })
 })

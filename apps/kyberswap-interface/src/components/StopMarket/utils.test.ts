@@ -32,6 +32,7 @@ import {
   groupStopMarketTokensByChain,
   hasReservedBalanceShortfall,
   isActiveStopMarketStatus,
+  isStopMarketTriggerClose,
   matchExpiryPreset,
   parseRawAmount,
   parseStopMarket,
@@ -956,5 +957,35 @@ describe('getStopMarketMinReceive', () => {
   it('has no floor without an output to take it from', () => {
     expect(getStopMarketMinReceive({ estimatedOutput: 0, slippage: 50 })).toBeUndefined()
     expect(getStopMarketMinReceive({ estimatedOutput: Number.NaN, slippage: 50 })).toBeUndefined()
+  })
+})
+
+describe('isStopMarketTriggerClose', () => {
+  it('is close when the trigger is within 1% of the oracle price', () => {
+    expect(isStopMarketTriggerClose({ triggerPrice: '99.5', marketPrice: 100, slippage: 0 })).toBe(true)
+  })
+
+  it('is not close when the trigger is 5% below the oracle price', () => {
+    expect(isStopMarketTriggerClose({ triggerPrice: '95', marketPrice: 100, slippage: 50 })).toBe(false)
+  })
+
+  it('is close when the oracle price is inside the fill band, however far the trigger is', () => {
+    // 50% slippage (5000 bps) makes the band 45 to 90.
+    expect(isStopMarketTriggerClose({ triggerPrice: '90', marketPrice: 50, slippage: 5000 })).toBe(true)
+    expect(isStopMarketTriggerClose({ triggerPrice: '90', marketPrice: 90, slippage: 5000 })).toBe(true)
+  })
+
+  it('is not close just under the floor', () => {
+    expect(isStopMarketTriggerClose({ triggerPrice: '90', marketPrice: 44.99, slippage: 5000 })).toBe(false)
+  })
+
+  it('is not close above the trigger unless within 1%', () => {
+    expect(isStopMarketTriggerClose({ triggerPrice: '90', marketPrice: 100, slippage: 5000 })).toBe(false)
+  })
+
+  it('is not close without a trigger or an oracle price', () => {
+    expect(isStopMarketTriggerClose({ triggerPrice: '90', marketPrice: undefined, slippage: 50 })).toBe(false)
+    expect(isStopMarketTriggerClose({ triggerPrice: '', marketPrice: 100, slippage: 50 })).toBe(false)
+    expect(isStopMarketTriggerClose({ triggerPrice: '0', marketPrice: 100, slippage: 50 })).toBe(false)
   })
 })

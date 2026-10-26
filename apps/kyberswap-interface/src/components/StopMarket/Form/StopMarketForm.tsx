@@ -2,6 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
+import { useLocation } from 'react-router-dom'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
@@ -83,6 +84,16 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const [showReview, setShowReview] = useState(false)
   const tracking = useStopMarketTracking()
   const trackedPageView = useRef(false)
+  const location = useLocation()
+  // Entry buttons hand their origin over through router state; a link carrying a pair in the query is a deep link.
+  const pageSource = useMemo(() => {
+    const stateSource = (location.state as { source?: string } | null)?.source
+    if (stateSource) return stateSource
+    const params = new URLSearchParams(location.search)
+    return params.has('inputCurrency') || params.has('outputCurrency') ? 'deep_link' : 'nav'
+    // Read once at landing; later navigation inside the page does not change where the user came from.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const form = useStopMarketFormState({ currencyIn, currencyOut })
   const validation = useStopMarketWarnings({
@@ -93,6 +104,17 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     marketPriceUnavailable: form.marketPriceUnavailable,
   })
 
+  const estimateUsd = calcUsdPrices({
+    inputAmount: form.inputAmount,
+    outputAmount: form.outputAmount,
+    priceUsdIn: form.tradeInfo?.priceUsdIn,
+    priceUsdOut: form.tradeInfo?.priceUsdOut,
+    currencyIn,
+    currencyOut,
+  })
+
+  const amountUsd = estimateUsd.rawInput || undefined
+
   const createOrder = useCreateStopMarket({
     currencyIn,
     currencyOut,
@@ -100,6 +122,8 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     triggerPrice: form.triggerPrice,
     slippage: form.slippage,
     expiredAt: form.expiredAt,
+    triggerPercent: form.triggerPercent,
+    amountUsd,
     onResetForm: form.onResetForm,
   })
 
@@ -130,20 +154,11 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     expiredAt: form.expiredAt,
   })
 
-  const estimateUsd = calcUsdPrices({
-    inputAmount: form.inputAmount,
-    outputAmount: form.outputAmount,
-    priceUsdIn: form.tradeInfo?.priceUsdIn,
-    priceUsdOut: form.tradeInfo?.priceUsdOut,
-    currencyIn,
-    currencyOut,
-  })
-
   useEffect(() => {
     if (trackedPageView.current) return
     trackedPageView.current = true
-    tracking.trackPageViewed(form.chainId, 'nav')
-  }, [tracking, form.chainId])
+    tracking.trackPageViewed(form.chainId, pageSource)
+  }, [tracking, form.chainId, pageSource])
 
   // Fires once per token the user lands on without a feed, not on every re-render of that state.
   const trackedIneligibleToken = useRef<string | undefined>(undefined)
@@ -317,6 +332,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             fee={feeEstimate.fee}
             isLoading={feeEstimate.isLoading}
             errorMessage={feeEstimate.errorMessage}
+            showShareWarning
           />
         </Stack>
 
@@ -352,6 +368,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
                 currencyOut,
                 chainId: form.chainId,
                 inputAmount: form.inputAmount,
+                amountUsd,
                 triggerPrice: form.triggerPrice,
                 triggerPercent: form.triggerPercent,
                 slippage: form.slippage,

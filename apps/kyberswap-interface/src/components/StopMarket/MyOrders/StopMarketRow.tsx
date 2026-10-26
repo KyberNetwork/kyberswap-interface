@@ -189,7 +189,7 @@ const StopMarketRow = ({
         // transition takes its 200ms from a plain property instead.
         'animate-[fadeInUp_0.3s_ease-out_both] transition-colors [transition-duration:200ms] motion-reduce:animate-none',
         // A warned or retrying row is tinted whole, so the note under it reads as part of the order.
-        (warnings.length > 0 || !!retryMessage) && 'bg-warning-10',
+        (warnings.length > 0 || !!retryMessage) && 'bg-warning/5',
         expanded && canExpand && 'bg-raisedBlack',
       )}
       style={{ animationDelay: `${Math.min(rowIndex * 50, 300)}ms` }}
@@ -324,19 +324,19 @@ const StopMarketRow = ({
       </StopMarketRowWrapper>
 
       {retryMessage && (
-        // Default text colour: the amber cell already carries the signal, and an amber explanation would
-        // make an order that is still being worked on read as alarming.
+        // Muted text: the amber cell already carries the signal, and an amber explanation would make an
+        // order that is still being worked on read as alarming.
         <HStack
           className="items-center justify-between gap-4 px-4 pb-2.5 max-sm:flex-col max-sm:items-start max-sm:gap-2 max-sm:px-3"
           data-testid="stop-market-order-retry-message"
           data-cause={retryCause}
         >
-          <p className="m-0 min-w-0 flex-1 text-xs text-text">{retryMessage}</p>
-          {/* Slippage is the one cause the order itself can fix. */}
-          {retryCause === 'slippage' && !isCancelling && (
+          <p className="m-0 min-w-0 flex-1 text-xs text-subText">{retryMessage}</p>
+          {/* Every cause offers the edit, so the user can adjust the order whatever is holding the swap back. */}
+          {!isCancelling && (
             <button
               type="button"
-              className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-0 bg-primary-10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary-20"
+              className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-0 bg-transparent px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary-10"
               onClick={() => onEdit(order)}
               data-testid="stop-market-order-retry-edit"
             >

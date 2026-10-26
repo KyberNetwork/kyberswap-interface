@@ -423,6 +423,32 @@ export const getStopMarketMinReceive = ({
   return Math.max(estimatedOutput * (1 - slippage / 10_000) - (Number.isFinite(fee) ? fee : 0), 0)
 }
 
+/** A trigger within this distance of the oracle price (percent) is close enough to be a swap in all but name. */
+const CLOSE_TRIGGER_PERCENT = 1
+
+/**
+ * Whether the trigger is so near the oracle price that the order is effectively an instant trade: it sits
+ * within `CLOSE_TRIGGER_PERCENT` of the market, or the market is already inside the fill band
+ * `[trigger × (1 − slippage), trigger]`, where the order would fill right away. `slippage` is in basis
+ * points. Unknown without a usable trigger and oracle price.
+ */
+export const isStopMarketTriggerClose = ({
+  triggerPrice,
+  marketPrice,
+  slippage,
+}: {
+  triggerPrice?: number | string
+  marketPrice?: number
+  slippage: number
+}): boolean => {
+  const trigger = Number(triggerPrice)
+  if (!triggerPrice || !Number.isFinite(trigger) || trigger <= 0) return false
+  if (marketPrice === undefined || !Number.isFinite(marketPrice) || marketPrice <= 0) return false
+  const isNear = (Math.abs(trigger - marketPrice) / marketPrice) * 100 < CLOSE_TRIGGER_PERCENT
+  const floor = Number.isFinite(slippage) ? trigger * (1 - slippage / 10_000) : trigger
+  return isNear || (marketPrice >= floor && marketPrice <= trigger)
+}
+
 /** The total, or nothing when any part is unknown — a partial sum would understate the order. */
 const sumIfComplete = (values: Array<number | undefined>) => {
   let total = 0

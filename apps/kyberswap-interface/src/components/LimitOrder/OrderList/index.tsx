@@ -270,6 +270,11 @@ const OrderList = () => {
     setOrderTab(LimitOrderStatus.ACTIVE)
     ordersCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
+  const showOpenOrders = (nextKind: OrderKind) => {
+    setChosenKind(nextKind)
+    setOrderTab(LimitOrderStatus.ACTIVE)
+    ordersCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
   // Links to the user's limit orders — a placed order's "View order", a notification — name them in `tab`.
   useEffect(() => {
     if (tabQuery !== LimitOrderTab.MY_ORDER) return
@@ -317,7 +322,12 @@ const OrderList = () => {
         {!isMarketCollapsed && (
           <Stack className="border-t border-darkBorder">
             {marketTab === LimitOrderTab.PRICE ? (
-              <OrdersPriceChart currencyIn={currencyIn} currencyOut={currencyOut} isStopMarketPage={isStopMarketPage} />
+              <OrdersPriceChart
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                isStopMarketPage={isStopMarketPage}
+                onShowOrders={orderKind => showOpenOrders(orderKind === 'stop' ? OrderKind.STOP : OrderKind.LIMIT)}
+              />
             ) : (
               <>
                 <OrderBook />

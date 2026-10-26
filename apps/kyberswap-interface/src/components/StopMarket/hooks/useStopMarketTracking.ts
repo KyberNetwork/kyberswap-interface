@@ -11,6 +11,8 @@ type OrderContext = {
   currencyOut?: Currency
   chainId: number
   inputAmount: string
+  /** Sell amount valued at the sell token's USD price, when that price is known. */
+  amountUsd?: number
   triggerPrice: string
   triggerPercent?: number
   slippage: number
@@ -41,6 +43,7 @@ export const useStopMarketTracking = () => {
         trackingHandler(TRACKING_EVENT_TYPE.SM_REVIEW_OPENED, {
           pair: pairOf(context.currencyIn, context.currencyOut),
           amount: context.inputAmount,
+          amount_usd: context.amountUsd,
           trigger_pct_below: context.triggerPercent,
           is_edit: context.replacesOrderId !== undefined,
           replaces_order_id: context.replacesOrderId,
@@ -51,6 +54,7 @@ export const useStopMarketTracking = () => {
           pair: pairOf(context.currencyIn, context.currencyOut),
           chain: NETWORKS_INFO[context.chainId as ChainId]?.name,
           amount: context.inputAmount,
+          amount_usd: context.amountUsd,
           trigger_price: context.triggerPrice,
           trigger_pct_below: context.triggerPercent,
           slippage: context.slippage,

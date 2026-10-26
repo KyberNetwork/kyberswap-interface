@@ -23,6 +23,7 @@ type Props = {
   onChangeTriggerPrice: (value: string) => void
   onChangeTriggerPercent: (percent: string) => void
   onSetMarketPrice: () => void
+  className?: string
 }
 
 const PERCENT_CHIP_CLASSES = 'h-6 rounded-lg border px-2 text-xs font-medium transition-colors'
@@ -119,12 +120,13 @@ const TriggerPriceSection = ({
   onChangeTriggerPrice,
   onChangeTriggerPercent,
   onSetMarketPrice,
+  className,
 }: Props) => {
   const sellSymbol = sellCurrency?.symbol
   const receiveSymbol = receiveCurrency?.symbol
 
   return (
-    <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4" data-testid="stop-market-trigger-section">
+    <Stack className={cn('gap-2 rounded-2xl bg-buttonBlack p-4', className)} data-testid="stop-market-trigger-section">
       <HStack className="min-h-7 items-center justify-between gap-3">
         <span className="whitespace-nowrap text-sm font-medium text-subText">
           <Trans>Trigger at</Trans>

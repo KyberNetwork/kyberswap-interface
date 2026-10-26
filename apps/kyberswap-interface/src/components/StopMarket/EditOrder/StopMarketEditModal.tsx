@@ -2,7 +2,6 @@ import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
-import { RefreshCw, Repeat } from 'react-feather'
 
 import AnimatedHeight from 'components/AnimatedHeight'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -15,7 +14,6 @@ import LimitOrderExpirySection from 'components/LimitOrder/Form/LimitOrderExpiry
 import { calcOutput } from 'components/LimitOrder/utils'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
-import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import {
   StopMarketReviewSummary,
@@ -24,9 +22,8 @@ import {
 import { useStopMarketProcessing } from 'components/StopMarket/CreateOrder/StopMarketFlow'
 import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
 import { StopMarketFeeNotes, StopMarketFeeValue } from 'components/StopMarket/Form/StopMarketFeeSummary'
-import { OracleMarketPriceButton } from 'components/StopMarket/Form/TriggerPriceSection'
+import TriggerPriceSection from 'components/StopMarket/Form/TriggerPriceSection'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
-import { triggerDistanceText } from 'components/StopMarket/TriggerDistance'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
 import { useStopMarketAmountShortcuts } from 'components/StopMarket/hooks/useStopMarketAmountShortcuts'
 import { useStopMarketCurrency } from 'components/StopMarket/hooks/useStopMarketCurrency'
@@ -37,7 +34,6 @@ import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarket
 import { StopMarket } from 'components/StopMarket/types'
 import {
   MAX_STOP_MARKET_DEADLINE,
-  formatDistanceMagnitude,
   formatTriggerPriceValue,
   getStopMarketTriggerPrice,
 } from 'components/StopMarket/utils'
@@ -170,29 +166,19 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
   const trigger = Number(triggerPrice)
   const hasTrigger = trigger > 0 && Number.isFinite(trigger)
   const triggerPercent = marketPrice && hasTrigger ? ((trigger - marketPrice) / marketPrice) * 100 : undefined
-  // The order fires once the oracle is at or under the trigger.
-  const isTriggerReached = !!marketPrice && hasTrigger && marketPrice <= trigger
 
-  /**
-   * Flips how the trigger reads; the order still triggers on the sell token priced in the receive token.
-   * What is typed into the flipped field is kept as typed, since re-deriving it from the trigger on every
-   * keystroke would reformat partial input.
-   */
-  const [showInverted, setShowInverted] = useState(false)
-  const [invertedDraft, setInvertedDraft] = useState<string>()
-  const invertedTrigger = hasTrigger ? formatTriggerPriceValue(1 / trigger) : ''
-  const rateValue = showInverted ? invertedDraft ?? invertedTrigger : triggerPrice
-  const onRateInput = (value: string) => {
-    if (!showInverted) {
-      setTriggerPrice(value)
+  /** The percent chip is the same value from the other side, so typing in it drives the price. */
+  const onChangeTriggerPercent = (percent: string) => {
+    const parsed = Number(percent)
+    if (!marketPrice || !Number.isFinite(parsed)) {
+      setTriggerPrice('')
       return
     }
-    setInvertedDraft(value)
-    const parsed = Number(value)
-    if (!value) setTriggerPrice('')
-    else if (Number.isFinite(parsed) && parsed > 0) setTriggerPrice(formatTriggerPriceValue(1 / parsed))
+    setTriggerPrice(formatTriggerPriceValue(marketPrice * (1 + parsed / 100)))
   }
-  const [baseSymbol, quoteSymbol] = showInverted ? [receiveSymbol, sellSymbol] : [sellSymbol, receiveSymbol]
+  const onSetMarketPrice = () => {
+    if (marketPrice) setTriggerPrice(formatTriggerPriceValue(marketPrice))
+  }
 
   const parsedAmount = useMemo(() => tryParseAmount(inputAmount, sellCurrency), [inputAmount, sellCurrency])
   const estimatedOutput = useMemo(
@@ -205,7 +191,10 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
 
   const tokenAddresses = useMemo(() => [order.tokenIn], [order.tokenIn])
   const { data: prices } = useTokenPricesWithLoading(tokenAddresses, order.chainId)
-  const sellUsd = formatUsd(Number(inputAmount) * (prices[order.tokenIn.toLowerCase()] ?? 0))
+  const sellPriceUsd = prices[order.tokenIn.toLowerCase()]
+  const sellUsd = formatUsd(Number(inputAmount) * (sellPriceUsd ?? 0))
+  // Analytics only; left out while the price is unknown rather than reported as zero.
+  const amountUsd = sellPriceUsd ? Number(inputAmount) * sellPriceUsd : undefined
 
   const isAmountChanged = parsedAmount?.quotient.toString() !== order.amountIn
   const isTriggerChanged = trigger !== Number(originalTrigger)
@@ -243,6 +232,8 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     slippage,
     expiredAt,
     replacing: order,
+    triggerPercent,
+    amountUsd,
   })
   const feeEstimate = useStopMarketFeeEstimate({
     currencyIn: sellCurrency,
@@ -280,6 +271,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
       currencyOut: receiveCurrency,
       chainId: order.chainId,
       inputAmount,
+      amountUsd,
       triggerPrice,
       triggerPercent,
       slippage,
@@ -403,79 +395,18 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
         </HStack>
       </Stack>
 
-      <Stack className={cn(FIELD_CLASS, 'gap-2')}>
-        <HStack className="min-h-7 items-center justify-between gap-2">
-          <span className="text-sm text-subText">
-            <Trans>Trigger a swap when price reaches</Trans>
-          </span>
-          <OracleMarketPriceButton
-            dataTestId="stop-market-edit-market-price-button"
-            disabled={!marketPrice}
-            onClick={() => {
-              if (!marketPrice) return
-              setInvertedDraft(undefined)
-              setTriggerPrice(formatTriggerPriceValue(marketPrice))
-            }}
-          />
-        </HStack>
-        <HStack className="min-w-0 items-center gap-2">
-          <div className="flex min-w-0 flex-1 items-center">
-            {/* The creation form's rate colour, so the trigger reads the same in both. */}
-            <NumericalInput
-              maxLength={50}
-              className="bg-transparent text-2xl font-medium text-primary"
-              data-testid="stop-market-edit-trigger"
-              value={rateValue}
-              onUserInput={onRateInput}
-              onBlur={() => setInvertedDraft(undefined)}
-            />
-          </div>
-          <HStack className="min-w-0 shrink-0 items-center gap-1.5">
-            <span className="max-w-[160px] truncate text-lg font-medium text-subText">
-              {quoteSymbol}/{baseSymbol}
-            </span>
-            <button
-              type="button"
-              aria-label={t`Invert rate`}
-              data-testid="stop-market-edit-invert-rate"
-              className="flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText transition hover:brightness-75"
-              onClick={() => {
-                setInvertedDraft(undefined)
-                setShowInverted(value => !value)
-              }}
-            >
-              <Repeat size={14} />
-            </button>
-          </HStack>
-        </HStack>
-        {marketPrice ? (
-          <HStack className="flex-wrap items-center gap-x-1.5 text-xs font-medium text-subText">
-            <span data-testid="stop-market-edit-oracle-price">
-              <Trans>Current oracle price</Trans>: {formatDisplayNumber(marketPrice, { significantDigits: 6 })}{' '}
-              {receiveSymbol}
-            </span>
-            {isTriggerReached ? (
-              <span className="flex items-center gap-1" data-testid="stop-market-edit-trigger-reached">
-                • <RefreshCw size={12} />
-                <Trans>Trigger reached</Trans>
-              </span>
-            ) : triggerPercent !== undefined ? (
-              // Not reached means the trigger still sits below the oracle.
-              <span
-                className={triggerDistanceText({ direction: 'below' })}
-                data-testid="stop-market-edit-trigger-distance"
-              >
-                • ↓ {formatDistanceMagnitude(triggerPercent)}% <Trans>below</Trans>
-              </span>
-            ) : null}
-          </HStack>
-        ) : loadingMarketPrice ? (
-          // Boxed at the text-xs line the oracle price takes, so it lands without moving the field.
-          <span className="flex h-4 items-center" data-testid="stop-market-edit-oracle-price-loading">
-            <Skeleton height={10} width={220} borderRadius={6} />
-          </span>
-        ) : null}
-      </Stack>
+      <TriggerPriceSection
+        className={FIELD_CLASS}
+        sellCurrency={sellCurrency}
+        receiveCurrency={receiveCurrency}
+        triggerPrice={triggerPrice}
+        triggerPercent={triggerPercent}
+        marketPrice={marketPrice}
+        isLoadingPrice={loadingMarketPrice}
+        onChangeTriggerPrice={setTriggerPrice}
+        onChangeTriggerPercent={onChangeTriggerPercent}
+        onSetMarketPrice={onSetMarketPrice}
+      />
 
       <div className="-my-1 px-1">
         <SlippageSetting
@@ -536,6 +467,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
           fee={feeEstimate.fee}
           isLoading={feeEstimate.isLoading}
           errorMessage={feeEstimate.errorMessage}
+          showShareWarning
         />
       </Stack>
 

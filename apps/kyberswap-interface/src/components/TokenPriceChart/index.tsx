@@ -69,9 +69,18 @@ type TokenPriceChartProps = {
    * Handed `expand`, which the tabs call on a tap: the chart starts collapsed on a phone.
    */
   header?: (controls: { expand: () => void }) => ReactNode
+  /** Makes each marker group's off-screen count a button, handed the group's key. */
+  onGroupBadgeClick?: (groupKey: string) => void
 }
 
-const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header }: TokenPriceChartProps) => {
+const TokenPriceChart = ({
+  tokens,
+  flatten,
+  quoteCurrency,
+  markerOverlay,
+  header,
+  onGroupBadgeClick,
+}: TokenPriceChartProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -336,16 +345,28 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
                 {markerOverlay?.groups.map(group => {
                   const count = offscreenCounts[group.key] ?? 0
                   if (!count) return null
-                  return (
-                    <span
+                  const badgeClass = cn(
+                    'rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase leading-[14px]',
+                    group.tone === 'blue' ? 'border-blue text-blue' : 'border-warning text-warning',
+                  )
+                  const badgeText = (
+                    <>
+                      +{count} {group.renderOffscreen(count)}
+                    </>
+                  )
+                  return onGroupBadgeClick ? (
+                    <button
+                      type="button"
                       key={group.key}
                       data-testid={`price-marker-offscreen-${group.key}`}
-                      className={cn(
-                        'rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase leading-[14px]',
-                        group.tone === 'blue' ? 'border-blue text-blue' : 'border-warning text-warning',
-                      )}
+                      onClick={() => onGroupBadgeClick(group.key)}
+                      className={cn(badgeClass, 'cursor-pointer bg-transparent transition-colors hover:bg-white/10')}
                     >
-                      +{count} {group.renderOffscreen(count)}
+                      {badgeText}
+                    </button>
+                  ) : (
+                    <span key={group.key} data-testid={`price-marker-offscreen-${group.key}`} className={badgeClass}>
+                      {badgeText}
                     </span>
                   )
                 })}

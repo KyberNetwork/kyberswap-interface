@@ -3,22 +3,49 @@ import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
 import { AlertTriangle, Info } from 'react-feather'
+import { Link } from 'react-router-dom'
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
+import { getSwapCurrencyId } from 'components/LimitOrder/TakeOrder/utils'
 import Modal from 'components/Modal'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import { StopMarketFeeTooltip, getStopMarketFeeLabel } from 'components/StopMarket/Form/StopMarketFeeSummary'
+import {
+  StopMarketFeeNotes,
+  StopMarketFeeTooltip,
+  getStopMarketFeeLabel,
+} from 'components/StopMarket/Form/StopMarketFeeSummary'
 import { StopMarketWarning } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
+import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
 import { StopMarketFee } from 'components/StopMarket/types'
-import { clampStopMarketDeadline, getStopMarketMinReceive, getTriggerDirection } from 'components/StopMarket/utils'
+import {
+  clampStopMarketDeadline,
+  getStopMarketMinReceive,
+  getTriggerDirection,
+  isStopMarketTriggerClose,
+} from 'components/StopMarket/utils'
+import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { CloseIcon } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
+
+/** The Swap page for the pair, with the sell amount carried in the URL. */
+const getSwapPath = (currencyIn?: Currency, currencyOut?: Currency, inputAmount?: string) => {
+  const route = currencyIn ? NETWORKS_INFO[currencyIn.chainId]?.route : undefined
+  const inputId = getSwapCurrencyId(currencyIn)
+  const outputId = getSwapCurrencyId(currencyOut)
+  if (!route || !inputId || !outputId) return undefined
+  const search = new URLSearchParams()
+  if (inputAmount && Number(inputAmount) > 0) search.set('input', inputAmount)
+  const query = search.toString()
+  return `${APP_PATHS.SWAP}/${route}/${encodeURIComponent(inputId)}-to-${encodeURIComponent(outputId)}${query ? `?${query}` : ''
+    }`
+}
 
 /** The terms of an order as they are reviewed before signing, new or as a replacement of an open one. */
 export type StopMarketReviewProps = {
@@ -160,6 +187,9 @@ export const StopMarketReviewSummary = ({
   // Neither a fee nor a reason yet means the estimate is still on its way, from the moment the review opens.
   const isFeePending = isFeeLoading || (!fee && !feeError)
   const receiveSymbol = currencyOut?.symbol ?? ''
+  const { priceNumber: oraclePrice } = useStopMarketOraclePrice(currencyIn, currencyOut)
+  const isTriggerClose = isStopMarketTriggerClose({ triggerPrice, marketPrice: oraclePrice, slippage })
+  const swapPath = getSwapPath(currencyIn, currencyOut, inputAmount)
 
   return (
     <>
@@ -207,6 +237,9 @@ export const StopMarketReviewSummary = ({
           )}
         </SummaryRow>
 
+        {/* The fee error has its own note below, so it is left out here. */}
+        <StopMarketFeeNotes fee={fee} isLoading={isFeePending} />
+
         <SummaryRow label={<Trans>Max Slippage</Trans>} dataTestId="stop-market-confirm-slippage">
           {formatSlippage(slippage)}
         </SummaryRow>
@@ -237,8 +270,7 @@ export const StopMarketReviewSummary = ({
         <Info size={14} className="mt-px shrink-0" />
         <span>
           <Trans>
-            When the trigger price is reached, your order is submitted for execution at the current market price.
-            Execution depends on market conditions.
+            When triggered, KyberSwap executes your order at the live market price, subject to your slippage setting.
           </Trans>
         </span>
       </HStack>
@@ -248,6 +280,22 @@ export const StopMarketReviewSummary = ({
           {warning.message}
         </ReviewNote>
       ))}
+
+      {isTriggerClose && (
+        <ReviewNote type="warn" dataTestId="stop-market-confirm-close-trigger-warning">
+          {swapPath ? (
+            <Trans>
+              Your trigger is very close to the current price. If you want to trade instantly, use{' '}
+              <Link to={swapPath} className="font-medium text-warning underline">
+                Swap
+              </Link>
+              .
+            </Trans>
+          ) : (
+            <Trans>Your trigger is very close to the current price. If you want to trade instantly, use Swap.</Trans>
+          )}
+        </ReviewNote>
+      )}
 
       {showFeeError && (
         <ReviewNote type="error" dataTestId="stop-market-confirm-fee-error">

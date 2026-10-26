@@ -48,6 +48,7 @@ const SetExitPriceButton = ({ currency, amount, source, className, onNavigate }:
         counter,
         chainId,
       )}`,
+      { state: { source } },
     )
     onNavigate?.()
   }
