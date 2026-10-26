@@ -20,18 +20,18 @@ type Props = {
   highlightToken?: boolean
   currencyLoading?: boolean
   onChangeCurrencyIn: (c: Currency) => void
-  setTypedValue: (v: string) => void
+  onRawAmountChange: (v: string) => void
   onUserInput: (v: string) => void
   chainSelectionMode?: 'wallet' | 'form'
   onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   customChainId?: ChainId
 }
 /** Adapts form input/balance actions to the shared field. Token loading is supplied by the pair resolver. */
-const InputCurrencyPanel: React.FC<Props> = ({
+const InputCurrencyPanel = ({
   amountInUsd,
   wrapType,
   typedValue,
-  setTypedValue,
+  onRawAmountChange,
   onUserInput,
   currencyIn,
   currencyOut,
@@ -43,7 +43,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
   customChainId,
   chainSelectionMode,
   onSelectNonEvmCurrency,
-}) => {
+}: Props) => {
   const { networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
@@ -59,12 +59,12 @@ const InputCurrencyPanel: React.FC<Props> = ({
       max_balance_usd: inputUsd,
       chain: networkInfo.name,
     })
-    setTypedValue(max || '')
+    onRawAmountChange(max || '')
   }
 
   const handleHalfInput = () => {
     const half = halfAmountSpend(balanceIn)?.toExact()
-    setTypedValue(half || '')
+    onRawAmountChange(half || '')
   }
 
   return (

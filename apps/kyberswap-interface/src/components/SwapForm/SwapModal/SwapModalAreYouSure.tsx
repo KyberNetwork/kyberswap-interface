@@ -1,34 +1,35 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import { useState } from 'react'
 
 import { ButtonErrorStyle, ButtonOutlined } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { CloseIcon } from 'theme/components'
 
-export default function SwapModalAreYouSure({
-  show,
-  setShow,
-  setHasAcceptedNewAmount,
-  parsedAmountOut,
-  parsedAmountOutFromBuild,
-  formattedOutputChangePercent,
-}: {
+type Props = {
   show: boolean
-  setShow: Dispatch<SetStateAction<boolean>>
-  setHasAcceptedNewAmount: Dispatch<SetStateAction<boolean>>
   parsedAmountOut: CurrencyAmount<Currency> | undefined
   parsedAmountOutFromBuild: CurrencyAmount<Currency> | undefined
   formattedOutputChangePercent: string
-}) {
+  onDismiss: () => void
+  onAccept: () => void
+}
+
+const SwapModalAreYouSure = ({
+  show,
+  parsedAmountOut,
+  parsedAmountOutFromBuild,
+  formattedOutputChangePercent,
+  onDismiss,
+  onAccept,
+}: Props) => {
   const [confirmText, setConfirmText] = useState('')
 
   const handleConfirm = () => {
     if (confirmText.trim().toLowerCase() === 'confirm') {
-      setHasAcceptedNewAmount(true)
       setConfirmText('')
-      setShow(false)
+      onAccept()
     }
   }
 
@@ -37,7 +38,7 @@ export default function SwapModalAreYouSure({
       isOpen={show}
       onDismiss={() => {
         setConfirmText('')
-        setShow(false)
+        onDismiss()
       }}
       maxHeight={100}
       width="480px"
@@ -49,7 +50,7 @@ export default function SwapModalAreYouSure({
             <Trans>Are you sure?</Trans>
           </span>
 
-          <CloseIcon onClick={() => setShow(false)} />
+          <CloseIcon onClick={() => onDismiss()} />
         </HStack>
 
         <Stack className="gap-4">
@@ -86,7 +87,7 @@ export default function SwapModalAreYouSure({
             className="flex-1 p-2.5 text-sm"
             onClick={() => {
               setConfirmText('')
-              setShow(false)
+              onDismiss()
             }}
           >
             <Trans>No, go back</Trans>
@@ -103,3 +104,5 @@ export default function SwapModalAreYouSure({
     </Modal>
   )
 }
+
+export default SwapModalAreYouSure

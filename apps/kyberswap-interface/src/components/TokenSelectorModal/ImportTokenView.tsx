@@ -8,7 +8,6 @@ import Card from 'components/Card'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
-import { PaddedColumn } from 'components/TokenSelectorModal/components'
 import { useAddUserToken } from 'state/user/hooks'
 import { resolveImportToken } from 'state/walletInventory/discoveries'
 import { useTokenMetadata } from 'state/walletInventory/hooks'
@@ -60,7 +59,7 @@ export const ImportTokenView = ({
 
   return (
     <div className="relative w-full overflow-auto">
-      <PaddedColumn className="w-full flex-1">
+      <Stack className="w-full flex-1 gap-3 p-5 pb-3">
         <HStack className="items-center justify-between">
           {onBack ? (
             <ArrowLeft
@@ -75,7 +74,7 @@ export const ImportTokenView = ({
           <span className="text-xl font-medium">{tokens.length > 1 ? t`Import Tokens` : t`Import Token`}</span>
           {onDismiss ? <CloseIcon onClick={onDismiss} /> : <span className="size-6" />}
         </HStack>
-      </PaddedColumn>
+      </Stack>
       <div className="h-px w-full bg-bg3" />
       <Stack className="gap-4 p-4">
         <Card className="w-fit rounded-[20px] bg-warning-20 p-4">

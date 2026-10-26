@@ -1,14 +1,14 @@
 import { formatBalance } from '@kyber/utils/balance'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ComponentProps, ComponentPropsWithoutRef, ReactNode, forwardRef } from 'react'
-import { Search, X } from 'react-feather'
+import { ComponentProps, ComponentPropsWithRef, ComponentPropsWithoutRef, ReactNode } from 'react'
+import { Search } from 'react-feather'
 
-import Column, { AutoColumn } from 'components/Column'
 import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
 import { Stack } from 'components/Stack'
 import { BALANCE_MAX_LENGTH } from 'components/TokenSelectorModal/constants'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import { CloseIcon } from 'theme/components'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
@@ -33,17 +33,16 @@ export const BalanceSkeleton = ({ currency }: { currency: Currency }) => {
   const hash = Array.from(key).reduce((value, character) => (value * 31 + character.charCodeAt(0)) >>> 0, 0)
   const width = 40 + (hash % 4) * 8
 
-  return <TableCellSkeleton width={width} height={14} className="animate-pulse motion-reduce:animate-none" />
+  return (
+    <span className="flex h-4 items-center sm:h-5">
+      <TableCellSkeleton width={width} height={14} className="animate-pulse motion-reduce:animate-none" />
+    </span>
+  )
 }
 
-export const ContentWrapper = ({ className, ...rest }: ComponentProps<typeof Column>) => (
-  <Column className={cn('relative w-full flex-1', className)} {...rest} />
+export const ContentWrapper = ({ className, ...props }: ComponentProps<typeof Stack>) => (
+  <Stack className={cn('relative w-full flex-1', className)} {...props} />
 )
-
-export const PaddedColumn = forwardRef<HTMLDivElement, ComponentProps<typeof AutoColumn>>(
-  ({ className, ...props }, ref) => <AutoColumn ref={ref} className={cn('gap-3 p-5 pb-3', className)} {...props} />,
-)
-PaddedColumn.displayName = 'PaddedColumn'
 
 export const SearchWrapper = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
   <div className={cn('relative h-10', className)} {...props} />
@@ -60,29 +59,25 @@ export const SearchControl = ({ query, onClear }: { query: string; onClear: () =
       aria-label="Clear search"
       data-testid="clear-search"
       onClick={onClear}
-      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-subText transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
     >
-      <X size={16} />
+      <CloseIcon className="size-4 min-w-4 hover:brightness-100" aria-hidden />
     </button>
   ) : (
-    <SearchIcon size={18} className="text-gray" />
+    <SearchIcon size={18} className="text-subText" />
   )
 
-export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
-  ({ className, ...props }, ref) => (
-    <input
-      ref={ref}
-      className={cn(
-        'absolute size-full whitespace-nowrap rounded-xl bg-black/20 px-3 pr-9 text-sm leading-normal text-text outline-none [-webkit-appearance:none]',
-        'placeholder:text-sm placeholder:text-gray',
-        'focus:outline-none',
-        className,
-      )}
-      {...props}
-    />
-  ),
+export const SearchInput = ({ className, ...props }: ComponentPropsWithRef<'input'>) => (
+  <input
+    className={cn(
+      'absolute size-full whitespace-nowrap rounded-xl bg-black/20 px-3 pr-9 text-sm leading-normal text-text outline-none [-webkit-appearance:none]',
+      'placeholder:text-sm placeholder:text-gray',
+      'focus:outline-none',
+      className,
+    )}
+    {...props}
+  />
 )
-SearchInput.displayName = 'SearchInput'
 
 export const Separator = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
   <div className={cn('h-px w-full shrink-0 bg-border', className)} {...props} />

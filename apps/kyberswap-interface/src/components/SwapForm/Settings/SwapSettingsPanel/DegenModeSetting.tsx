@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { type Dispatch, type SetStateAction } from 'react'
 
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
 import { SettingsLabel, SettingsRow, SettingsToggle } from 'components/TransactionSettings/components'
@@ -8,11 +7,11 @@ import { useDegenModeManager } from 'state/user/hooks'
 
 type Props = {
   showConfirmation: boolean
-  setShowConfirmation: Dispatch<SetStateAction<boolean>>
+  onConfirmationChange: (visible: boolean) => void
   highlight?: boolean
 }
 
-export const DegenModeSetting = ({ showConfirmation, setShowConfirmation, highlight = false }: Props) => {
+export const DegenModeSetting = ({ showConfirmation, onConfirmationChange, highlight = false }: Props) => {
   const { trackingHandler } = useTracking()
 
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
@@ -23,12 +22,12 @@ export const DegenModeSetting = ({ showConfirmation, setShowConfirmation, highli
       trackingHandler(TRACKING_EVENT_TYPE.DEGEN_MODE_TOGGLE, {
         type: 'off',
       })
-      setShowConfirmation(false)
+      onConfirmationChange(false)
       return
     }
 
     // need confirmation before turning it on
-    setShowConfirmation(true)
+    onConfirmationChange(true)
   }
 
   return (
@@ -47,7 +46,7 @@ export const DegenModeSetting = ({ showConfirmation, setShowConfirmation, highli
         <SettingsToggle id="toggle-expert-mode-button" isActive={isDegenMode} toggle={handleToggleDegenMode} />
       </SettingsRow>
 
-      <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
+      <AdvanceModeModal show={showConfirmation} setShow={onConfirmationChange} />
     </>
   )
 }

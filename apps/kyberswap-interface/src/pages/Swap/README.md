@@ -23,9 +23,13 @@ composition and navigation; it consumes those form components.
 
 ## Using the forms
 
-- Use `SingleChainSwapForm` from `components/SwapForm/SingleChain/` for the
-  connected single-chain form. Pass the selected currencies, loading state and
-  selection callbacks; use `onRouteChange` to supply the page's route panel.
+- Mount `SingleChainSwapFormProvider` from `components/SwapForm/SingleChain/`
+  around the single-chain form and right panel. It resolves balances/preferences
+  and supplies one quote/review owner through `SingleChainSwapProvider`.
+  `SingleChainSwapContent` receives token-loading flags and selection callbacks;
+  it and `SingleChainRightPanel` read the current quote directly from that owner.
+  Standalone `SingleChainSwap` retains its own provider and PartnerSwap's route
+  notification API.
 - Use `CrossChainSwap` from `components/SwapForm/CrossChain/` inside
   `CrossChainSwapProvider`. Supply the controlled pair and amount to the provider,
   and selection callbacks to the form. Mount one provider around the form and

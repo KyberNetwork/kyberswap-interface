@@ -41,6 +41,20 @@ const SearchLoading = () => (
   </Stack>
 )
 
+const EmptyTokenMessage = ({ activeTab }: { activeTab: TokenSelectorTab }) => {
+  return activeTab === TokenSelectorTab.Trending ? (
+    <Trans>No trending tokens right recently. Check back later.</Trans>
+  ) : activeTab === TokenSelectorTab.New ? (
+    <Trans>No newly whitelisted token recently.</Trans>
+  ) : activeTab === TokenSelectorTab.Imported ? (
+    <Trans>You haven&apos;t imported any tokens yet.\nSearch a token address in the All tab to import one.</Trans>
+  ) : activeTab === TokenSelectorTab.Favorites ? (
+    <Trans>You have no saved tokens yet.</Trans>
+  ) : (
+    <Trans>No results found.</Trans>
+  )
+}
+
 type Props = {
   chainSelectionMode?: 'wallet' | 'form'
   initialNonEvmChain?: NonEvmChain
@@ -206,16 +220,6 @@ export const TokenSelectorContent = ({
   const isNewTab = activeTab === TokenSelectorTab.New
 
   const subtitle = getTabSubtitle(activeTab)
-  const emptyMessage =
-    activeTab === TokenSelectorTab.Trending ? (
-      <Trans>No trending tokens right recently. Check back later.</Trans>
-    ) : activeTab === TokenSelectorTab.New ? (
-      <Trans>No newly whitelisted token recently.</Trans>
-    ) : activeTab === TokenSelectorTab.Imported ? (
-      <Trans>You haven&apos;t imported any tokens yet.\nSearch a token address in the All tab to import one.</Trans>
-    ) : activeTab === TokenSelectorTab.Favorites ? (
-      <Trans>You have no saved tokens yet.</Trans>
-    ) : undefined
 
   return (
     <ContentWrapper className="min-h-0 gap-3 overflow-hidden p-4" data-testid="token-selector-modal">
@@ -368,7 +372,7 @@ export const TokenSelectorContent = ({
                         onSelect={currency => requestSelect(currency)}
                       />
                     ) : (
-                      <NoResult message={debouncedQuery ? undefined : emptyMessage} />
+                      <NoResult message={debouncedQuery ? undefined : <EmptyTokenMessage activeTab={activeTab} />} />
                     )}
                   </Stack>
                 )}

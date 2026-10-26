@@ -3,7 +3,7 @@ import { FC } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { ErrorWarning } from 'components/ErrorWarning'
-import Row from 'components/Row'
+import { HStack } from 'components/Stack'
 import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -171,14 +171,14 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
       <ErrorWarning
         type="warn"
         title={
-          <Row className="items-center gap-[0.5ch]">
+          <HStack className="w-full items-center gap-[0.5ch]">
             <Trans>
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">
                 Price Impact
               </TextUnderlineColor>
               <TextUnderlineTransparent>is high</TextUnderlineTransparent>
             </Trans>
-          </Row>
+          </HStack>
         }
       />
     )

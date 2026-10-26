@@ -38,7 +38,7 @@ export const TokenInfoButton = ({ onClick, size, active }: TokenInfoButtonProps)
  * Unified mixed-chain pairs expose Token Info when either side is EVM; legacy cross-chain stays excluded. */
 type HeaderRightMenuProps = {
   activeTab: TAB
-  setActiveTab: (tab: TAB) => void
+  onTabChange: (tab: TAB) => void
   historyButton?: ReactNode
   isCrossChainMode?: boolean
   activeMainTab?: TAB
@@ -46,7 +46,7 @@ type HeaderRightMenuProps = {
 
 export const HeaderRightMenu = ({
   activeTab,
-  setActiveTab,
+  onTabChange,
   activeMainTab,
   isCrossChainMode,
   historyButton,
@@ -74,7 +74,7 @@ export const HeaderRightMenu = ({
     !isCrossChainPage || (isSwapPage && (typeof inputChain === 'number' || typeof outputChain === 'number'))
 
   const onToggleActionTab = (tab: TAB) => {
-    setActiveTab(activeTab === tab ? defaultTab : tab)
+    onTabChange(activeTab === tab ? defaultTab : tab)
   }
 
   const handleTokenInfoClick = () => {

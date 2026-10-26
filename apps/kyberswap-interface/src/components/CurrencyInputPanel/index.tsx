@@ -1,97 +1,36 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import { CSSProperties, ReactNode, forwardRef, useCallback, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { type CSSProperties, type ComponentPropsWithRef, type ReactNode, useCallback, useState } from 'react'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as Lock } from 'assets/svg/ic_lock.svg'
-import { ReactComponent as SwitchIcon } from 'assets/svg/switch.svg'
 import Card from 'components/Card'
-import TokenInfo from 'components/CurrencyInputPanel/TokenInfo'
-import CurrencyLogo from 'components/CurrencyLogo'
-import Wallet from 'components/Icons/Wallet'
-import NumericalInput from 'components/NumericalInput'
-import { RowFixed } from 'components/Row'
-import Skeleton from 'components/Skeleton'
+import { AmountInputControls, BalanceRow, InputRow } from 'components/CurrencyInputPanel/AmountInputControls'
+import { CurrencySelect, CurrencySelectContent } from 'components/CurrencyInputPanel/CurrencySelect'
 import TokenSelectorModal from 'components/TokenSelectorModal'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { shortString } from 'utils/string'
-import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
-type CurrencySelectStyleProps = {
-  tight?: boolean
-  selected: boolean
-  hideInput?: boolean
-  isDisable?: boolean
-}
-
-export const InputRow = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('flex flex-row flex-nowrap items-center gap-2', className)} {...props} />
-  ),
-)
-InputRow.displayName = 'InputRow'
-
-export const CurrencySelect = forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement> & CurrencySelectStyleProps
->(({ tight, selected, hideInput, isDisable, className, children, ...rest }, ref) => {
-  return (
-    <button
-      ref={ref}
-      {...rest}
-      className={cn(
-        'flex min-h-[38px] select-none items-center rounded-full px-2 text-xl font-medium leading-[normal] outline-none',
-        hideInput ? 'w-full bg-buttonBlack' : 'w-auto bg-background',
-        selected ? 'border border-transparent text-subText' : 'border border-border-primary text-primary',
-        !selected && 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]',
-        isDisable ? 'cursor-default' : 'cursor-pointer',
-        !isDisable && 'hover:brightness-110 focus:brightness-110',
-        className,
-      )}
-    >
-      {children}
-    </button>
-  )
-})
-CurrencySelect.displayName = 'CurrencySelect'
-
-export const Aligner = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => (
-  <span className={cn('flex items-center justify-between', className)} {...props} />
+const InputPanel = ({ hideInput, className, ...props }: ComponentPropsWithRef<'div'> & { hideInput?: boolean }) => (
+  <div
+    className={cn(
+      'relative z-10 flex w-full flex-col flex-nowrap',
+      hideInput ? 'rounded-lg bg-transparent' : 'rounded-[20px] bg-bg2',
+      className,
+    )}
+    {...props}
+  />
 )
 
-export const InputPanel = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { hideInput?: boolean }>(
-  ({ hideInput, className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        'relative z-10 flex w-full flex-col flex-nowrap',
-        hideInput ? 'rounded-lg bg-transparent' : 'rounded-[20px] bg-bg2',
-        className,
-      )}
-      {...props}
-    />
-  ),
-)
-InputPanel.displayName = 'InputPanel'
-
-export const Container = ({
-  className,
-  selected,
-  hideInput,
-  error,
-  $outline,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement> & {
-  selected: boolean
+type ContainerProps = React.HTMLAttributes<HTMLDivElement> & {
   hideInput: boolean
   error?: boolean
   $outline?: boolean
-}) => (
+}
+
+const Container = ({ className, hideInput, error, $outline, ...props }: ContainerProps) => (
   <div
     {...props}
     className={cn(
@@ -104,260 +43,13 @@ export const Container = ({
   />
 )
 
-export const StyledTokenName = ({
-  tight,
-  active,
-  fontSize,
-  className,
-  style,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement> & { tight?: boolean; active?: boolean; fontSize?: string }) => (
-  <span
-    {...props}
-    style={fontSize ? { fontSize, ...style } : style}
-    className={cn(
-      'max-w-[120px] truncate !leading-none',
-      !fontSize && (active ? 'text-xl' : 'text-base'),
-      '[@media(max-width:420px)]:max-w-[76px] [@media(max-width:445px)]:max-w-[102px]',
-      className,
-    )}
-  />
-)
-
-const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-  <button
-    {...props}
-    className={cn(
-      'cursor-pointer rounded-full border-none bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text focus-visible:text-text-60 focus-visible:outline-none',
-      className,
-    )}
-  />
-)
-
-/** A quick amount offered above the input, e.g. a share of the balance. */
-export type AmountShortcut = { label: ReactNode; onClick: () => void; active?: boolean; dataTestId?: string }
-
-/** Quick amounts in the Max chip's style, the one matching the amount entered ringed. */
-export const AmountShortcutChips = ({ shortcuts }: { shortcuts: AmountShortcut[] }) => (
-  <>
-    {shortcuts.map((shortcut, index) => (
-      <StyledBalanceMax
-        key={index}
-        onClick={shortcut.onClick}
-        data-testid={shortcut.dataTestId}
-        aria-pressed={shortcut.active}
-        className={cn(shortcut.active && 'text-text ring-1 ring-subText/60')}
-      >
-        {shortcut.label}
-      </StyledBalanceMax>
-    ))}
-  </>
-)
-
-type BalanceRowProps = {
-  amountShortcuts?: AmountShortcut[]
-  balanceActionsEnabled: boolean
-  customBalanceText?: string
-  label?: ReactNode
-  onHalf?: () => void
-  onMax?: () => void
-  positionLabel: 'in' | 'out'
-  positionMax: 'inline' | 'top'
-  selectedCurrencyBalance?: { toSignificant: (digits: number) => string }
-}
-
-const BalanceRow = ({
-  amountShortcuts,
-  balanceActionsEnabled,
-  customBalanceText,
-  label,
-  onHalf,
-  onMax,
-  positionLabel,
-  positionMax,
-  selectedCurrencyBalance,
-}: BalanceRowProps) => {
-  const showTopActions = (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && balanceActionsEnabled
-  const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
-
-  // Shortcuts, when given, stand in for Max and Half and sit beside the balance they split.
-  const showShortcuts = showTopActions && !!amountShortcuts?.length
-
-  return (
-    <div className="flex min-h-5 items-center justify-between text-xs">
-      {(label && positionLabel === 'in') || showTopActions ? (
-        <div className="flex items-center gap-1">
-          {label && positionLabel === 'in' && label}
-          {showTopActions && !amountShortcuts?.length && onMax && (
-            <StyledBalanceMax onClick={onMax}>
-              <Trans>Max</Trans>
-            </StyledBalanceMax>
-          )}
-          {showTopActions && !amountShortcuts?.length && onHalf && (
-            <StyledBalanceMax onClick={onHalf}>
-              <Trans>Half</Trans>
-            </StyledBalanceMax>
-          )}
-        </div>
-      ) : (
-        <div />
-      )}
-
-      <div className="flex items-center gap-1">
-        {showShortcuts && <AmountShortcutChips shortcuts={amountShortcuts} />}
-        <div onClick={onMax} className={cn('group flex items-center gap-1', onMax && 'cursor-pointer')}>
-          <Wallet className="text-subText group-hover:text-text" />
-          <span className="font-medium text-subText group-hover:text-text" data-testid="balance">
-            {balance}
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-type AmountInputControlsProps = {
-  balanceActionsEnabled: boolean
-  disabledInput?: boolean
-  readOnlyInput?: boolean
-  error?: boolean
-  estimatedUsd?: string
-  lockIcon?: boolean
-  maxLength?: number
-  onFocus?: () => void
-  onMax?: () => void
-  onUserInput?: (value: string) => void
-  positionMax: 'inline' | 'top'
-  value: string
-}
-
-const AmountInputControls = ({
-  balanceActionsEnabled,
-  disabledInput,
-  readOnlyInput,
-  error,
-  estimatedUsd,
-  lockIcon,
-  maxLength,
-  onFocus,
-  onMax,
-  onUserInput,
-  positionMax,
-  value,
-}: AmountInputControlsProps) => {
-  const showInlineMax = balanceActionsEnabled && onMax && positionMax === 'inline'
-
-  return (
-    <>
-      <NumericalInput
-        error={error}
-        className="token-amount-input"
-        data-testid="token-amount-input"
-        value={value}
-        disabled={disabledInput}
-        readOnly={readOnlyInput}
-        maxLength={maxLength}
-        onUserInput={onUserInput}
-        onFocus={onFocus}
-      />
-      {estimatedUsd ? (
-        <span className="text-sm font-medium text-border">~{estimatedUsd}</span>
-      ) : (
-        showInlineMax && (
-          <StyledBalanceMax onClick={onMax}>
-            <Trans>MAX</Trans>
-          </StyledBalanceMax>
-        )
-      )}
-      {lockIcon && <Lock className="h-4 text-subText" />}
-    </>
-  )
-}
-
-type CurrencySelectContentProps = {
-  showChain?: boolean
-  currency?: Currency | null
-  disableCurrencySelect: boolean
-  fontSize?: string
-  hideLogo: boolean
-  isSwitchMode: boolean
-  currencyLoading?: boolean
-  loadingText?: string
-  maxCurrencySymbolLength?: number
-  nativeCurrency?: Currency
-  tight: boolean
-}
-
-/** Renders caller-owned token resolution state; loading is distinct from an empty selection. */
-const CurrencySelectContent = ({
-  showChain,
-  currency,
-  disableCurrencySelect,
-  fontSize,
-  hideLogo,
-  isSwitchMode,
-  currencyLoading,
-  loadingText,
-  maxCurrencySymbolLength,
-  nativeCurrency,
-  tight,
-}: CurrencySelectContentProps) => {
-  if (currencyLoading && !currency) {
-    return (
-      <Aligner className="gap-2" role="status" aria-label={t`Loading token`} aria-busy="true">
-        {!hideLogo && <Skeleton width={20} height={20} borderRadius="50%" />}
-        <Skeleton width={64} height={20} />
-      </Aligner>
-    )
-  }
-  const currencySymbol = getCurrencyDisplaySymbol(nativeCurrency)
-  const displaySymbol =
-    currencySymbol && maxCurrencySymbolLength ? shortString(currencySymbol, maxCurrencySymbolLength) : currencySymbol
-  const tokenSymbol = displaySymbol || loadingText || <Trans>Select a token</Trans>
-
-  return (
-    <Aligner className="gap-1">
-      <RowFixed className="gap-2">
-        {currency && !hideLogo ? (
-          <div className="relative shrink-0">
-            <CurrencyLogo currency={currency} size="20px" />
-            {showChain && (
-              <img
-                src={NETWORKS_INFO[currency.chainId].icon}
-                alt={NETWORKS_INFO[currency.chainId].name}
-                title={NETWORKS_INFO[currency.chainId].name}
-                className="absolute -bottom-1 -right-1 size-3 rounded border border-background"
-              />
-            )}
-          </div>
-        ) : null}
-        <StyledTokenName
-          tight={tight}
-          className="token-symbol-container"
-          data-testid="token-symbol-container"
-          active={Boolean(currency && getCurrencyDisplaySymbol(currency))}
-          fontSize={tight ? '14px' : fontSize}
-        >
-          {tokenSymbol}
-        </StyledTokenName>
-      </RowFixed>
-
-      {!!nativeCurrency && <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />}
-      {!disableCurrencySelect && !isSwitchMode && <DropdownSVG className="-mx-1" />}
-      {!disableCurrencySelect && isSwitchMode && (
-        <SwitchIcon className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')} />
-      )}
-    </Aligner>
-  )
-}
-
-const PoolLockContent = (
+const PoolLockContent = () => (
   <div className="absolute z-20 flex size-full items-center justify-center rounded-lg bg-buttonGray">
-    <div className="flex gap-4 px-5">
-      <div className="m-auto w-[26px]">
+    <div className="flex items-center gap-8 px-5 py-2">
+      <div className="w-[26px] shrink-0">
         <Lock />
       </div>
-      <span className="px-4 py-2 text-left text-xs leading-4">
+      <span className="text-left text-xs leading-4">
         <Trans>
           The price of the pool is outside your selected price range and hence you can only deposit a single token. To
           see more options, update the price range.
@@ -367,24 +59,15 @@ const PoolLockContent = (
   </div>
 )
 
-export type CurrencyInputPanelFooter = ReactNode | ((openTokenSelector: () => void) => ReactNode)
-
 interface CurrencyInputPanelProps {
   value: string
   onMax?: () => void
   onHalf?: () => void
-  /** Quick amounts shown above the input in place of Max and Half; needs `positionMax="top"`. */
-  amountShortcuts?: AmountShortcut[]
   onUserInput?: (value: string) => void
   onFocus?: () => void
   onClickSelect?: () => void
   positionMax?: 'inline' | 'top'
   label?: ReactNode
-  /**
-   * Rendered inside the panel, under the amount row — for a note that belongs to this field. As a
-   * function it is handed a callback that opens this panel's token selector, for a note that offers one.
-   */
-  footer?: CurrencyInputPanelFooter
   positionLabel?: 'in' | 'out'
   chainSelectionMode?: 'wallet' | 'form'
   onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
@@ -395,8 +78,6 @@ interface CurrencyInputPanelProps {
   hideBalance?: boolean
   hideInput?: boolean
   disabledInput?: boolean
-  /** Shows a computed figure at full contrast: not editable, without the dimmed disabled look. */
-  readOnlyInput?: boolean
   otherCurrency?: Currency | null
   id: string
   dataTestId?: string
@@ -413,6 +94,7 @@ interface CurrencyInputPanelProps {
   error?: boolean
   maxLength?: number
   outline?: boolean
+  filterWrap?: boolean
   currencyLoading?: boolean
   loadingText?: string
   lockIcon?: boolean
@@ -423,8 +105,6 @@ interface CurrencyInputPanelProps {
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
-  /** The token selector lists only tokens the chain's stop market order oracle can price. */
-  requireOracle?: boolean
   balanceActionsEnabled?: boolean
 }
 
@@ -434,10 +114,8 @@ const CurrencyInputPanel = ({
   onUserInput,
   onMax,
   onHalf,
-  amountShortcuts,
   positionMax = 'inline',
   label = '',
-  footer,
   positionLabel = 'out',
   onCurrencySelect,
   chainSelectionMode,
@@ -450,7 +128,6 @@ const CurrencyInputPanel = ({
   hideBalance = false,
   hideInput = false,
   disabledInput = false,
-  readOnlyInput = false,
   otherCurrency,
   id,
   dataTestId,
@@ -466,6 +143,7 @@ const CurrencyInputPanel = ({
   maxCurrencySymbolLength,
   maxLength,
   outline,
+  filterWrap,
   lockIcon = false, // lock when need approve
   tight: tightProp,
   currencyLoading,
@@ -475,7 +153,6 @@ const CurrencyInputPanel = ({
   customChainId,
   trackingSource,
   scaleERC8056Balances,
-  requireOracle,
   balanceActionsEnabled,
 }: CurrencyInputPanelProps) => {
   const tight = Boolean(tightProp && !currency)
@@ -489,21 +166,27 @@ const CurrencyInputPanel = ({
 
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
 
+  const handleSelectCurrency = () => {
+    if (disableCurrencySelect) return
+    if (isSwitchMode) onSwitchCurrency?.()
+    else setModalOpen(true)
+    onClickSelect?.()
+  }
+
   return (
-    <div className="w-full">
+    <div className="flex w-full flex-col gap-2">
       {label && positionLabel === 'out' && (
-        <Card className="rounded-[20px] px-1 pb-2 text-right">
+        <Card className="rounded-[20px] px-1 text-right">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-subText">{label}:</span>
           </div>
         </Card>
       )}
       <InputPanel id={id} hideInput={hideInput} data-testid={dataTestId}>
-        {locked && PoolLockContent}
-        <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
+        {locked && <PoolLockContent />}
+        <Container hideInput={hideInput} error={error} $outline={outline}>
           {!hideBalance && (
             <BalanceRow
-              amountShortcuts={amountShortcuts}
               balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
               customBalanceText={customBalanceText}
               label={label}
@@ -520,7 +203,6 @@ const CurrencyInputPanel = ({
               <AmountInputControls
                 balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
                 disabledInput={disabledInput}
-                readOnlyInput={readOnlyInput}
                 error={error}
                 estimatedUsd={estimatedUsd}
                 lockIcon={lockIcon}
@@ -543,16 +225,7 @@ const CurrencyInputPanel = ({
                   highlightCurrencySelect && '!border-blue !bg-blue/20',
                   selectClassName,
                 )}
-                onClick={() => {
-                  if (disableCurrencySelect) return
-                  if (!isSwitchMode) {
-                    setModalOpen(true)
-                  } else if (isSwitchMode && onSwitchCurrency) {
-                    onSwitchCurrency()
-                  }
-                  onClickSelect?.()
-                }}
-                tight={tight}
+                onClick={handleSelectCurrency}
                 style={styleSelect}
               >
                 <CurrencySelectContent
@@ -571,8 +244,6 @@ const CurrencyInputPanel = ({
               </CurrencySelect>
             )}
           </InputRow>
-
-          {typeof footer === 'function' ? footer(() => setModalOpen(true)) : footer}
         </Container>
         {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
           <TokenSelectorModal
@@ -585,9 +256,9 @@ const CurrencyInputPanel = ({
             otherSelectedCurrency={otherCurrency}
             scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
+            filterWrap={filterWrap}
             customChainId={customChainId}
             trackingSource={trackingSource}
-            requireOracle={requireOracle}
           />
         )}
       </InputPanel>

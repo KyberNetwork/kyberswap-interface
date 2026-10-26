@@ -3,11 +3,17 @@ import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+
+import {
+  SingleChainSwapProvider,
+  useSingleChainSwapContext,
+} from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 
 import useGetRoute from './useGetRoute'
 
-const mocks = vi.hoisted(() => ({ trigger: vi.fn(), fee: vi.fn(), dispatch: vi.fn(), sources: '' }))
+const mocks = vi.hoisted(() => ({ trigger: vi.fn(), fee: vi.fn(), dispatch: vi.fn(), sources: '', amount: '1' }))
 vi.mock('services/route', () => ({
   fetchRoute: (_dispatch: unknown, args: unknown) => mocks.trigger(args),
   AGGREGATOR_API_PATHS: { GET_ROUTE: '/routes' },
@@ -18,7 +24,7 @@ vi.mock('components/SwapForm/hooks/useGetSwapFeeConfig', () => ({ default: () =>
 vi.mock('components/SwapForm/hooks/useSelectedDexes', () => ({ default: () => mocks.sources }))
 vi.mock('constants/env', () => ({ AGGREGATOR_API: 'https://example.test' }))
 vi.mock('constants/index', () => ({ INPUT_DEBOUNCE_TIME: 100 }))
-vi.mock('constants/networks', () => ({ NETWORKS_INFO: { 1: { aggregatorRoute: 'ethereum' } } }))
+vi.mock('constants/networks', () => ({ MAINNET_NETWORKS: [1], NETWORKS_INFO: { 1: { aggregatorRoute: 'ethereum' } } }))
 vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ chainId: 1 }) }))
 vi.mock('hooks/useKyberSwapConfig', () => ({ useKyberswapGlobalConfig: () => ({}) }))
 vi.mock('state/authen/hooks', () => ({ useSessionInfo: () => ({}) }))
@@ -29,6 +35,19 @@ vi.mock('utils/nativeErc20', () => ({
   routeTokenDecimals: (token: Token) => token.decimals,
 }))
 vi.mock('utils/safeApp', () => ({ isInSafeApp: false, SAFE_APP_CLIENT_ID: 'safe' }))
+
+vi.mock('components/SwapForm/hooks/useBuildRoute', () => ({ default: () => async () => ({}) }))
+vi.mock('components/SwapForm/hooks/useSwapInputAmount', () => ({
+  useSwapInputAmount: () => ({ typedValue: mocks.amount, onUserInput: vi.fn() }),
+}))
+vi.mock('components/SwapForm/hooks/useParsedAmount', () => ({
+  default: (currency: Token, amount: string) => CurrencyAmount.fromRawAmount(currency, amount),
+}))
+vi.mock('hooks/useWrapCallback', () => ({
+  default: () => ({ wrapType: 0 }),
+  WrapType: { NOT_APPLICABLE: 0 },
+}))
+vi.mock('services/route/utils', () => ({ parseGetRouteResponse: (data: unknown) => data }))
 
 const currencyIn = new Token(1, '0x0000000000000000000000000000000000000001', 18)
 const currencyOut = new Token(1, '0x0000000000000000000000000000000000000002', 18)
@@ -88,6 +107,7 @@ beforeEach(() => {
   mocks.trigger.mockReset().mockResolvedValue(response)
   mocks.fee.mockReset().mockResolvedValue(undefined)
   mocks.sources = ''
+  mocks.amount = '1'
   queryClient = new QueryClient()
   root = createRoot(document.createElement('div'))
 })
@@ -238,4 +258,74 @@ it('includes sources and partner identity in the query key', async () => {
   })
   await resolve(old, { code: 0, message: 'old' })
   expect(state.result.data).toEqual(response)
+})
+
+// Exercise the real provider/query/review owners together; form and panel are independent subscribers.
+it('shares a single quote across panels, pauses for review and isolates input changes', async () => {
+  let form!: ReturnType<typeof useSingleChainSwapContext>
+  let panel!: ReturnType<typeof useSingleChainSwapContext>
+  const Form = () => {
+    form = useSingleChainSwapContext()
+    return null
+  }
+  const Panel = () => {
+    panel = useSingleChainSwapContext()
+    return null
+  }
+  const renderPanels = async (showForm = true) => {
+    await act(async () =>
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <SingleChainSwapProvider
+              currencyIn={currencyIn}
+              currencyOut={currencyOut}
+              balanceIn={undefined}
+              balanceOut={undefined}
+              isDegenMode={false}
+              slippage={50}
+              transactionTimeout={1200}
+            >
+              {showForm && <Form />}
+              <Panel />
+            </SingleChainSwapProvider>
+          </MemoryRouter>
+        </QueryClientProvider>,
+      ),
+    )
+    await flush()
+  }
+  const firstQuote = { parsedAmountIn: amounts[0] }
+  mocks.trigger.mockResolvedValue({ code: 0, data: { routeSummary: firstQuote } })
+  await renderPanels()
+  expect(mocks.trigger).toHaveBeenCalledOnce()
+  expect(form.routeSummary).toBe(panel.routeSummary)
+  expect(panel.routeSummary).toEqual(firstQuote)
+
+  await act(async () => form.openReview(form.buildRoute))
+  await advance(20000)
+  expect(mocks.trigger).toHaveBeenCalledOnce()
+  expect(panel.review.phase).toBe('review')
+  await act(async () => form.dismissReview())
+  await flush()
+  expect(mocks.trigger).toHaveBeenCalledTimes(2)
+
+  mocks.amount = '2'
+  const pending = deferred()
+  mocks.trigger.mockReturnValueOnce(pending.promise)
+  await renderPanels()
+  expect(form.routeSummary).toBeUndefined()
+  expect(panel.routeSummary).toBeUndefined()
+  expect(form.routeLoading).toBe(true)
+  expect(panel.routeLoading).toBe(true)
+  await advance(101)
+  const nextQuote = { code: 0, message: 'next', data: { routeSummary: { parsedAmountIn: amounts[1] } } }
+  await resolve(pending, nextQuote)
+  expect(form.routeSummary).toBe(panel.routeSummary)
+  expect(panel.routeSummary?.parsedAmountIn).toEqual(amounts[1])
+
+  // A settings/lazy form subtree cannot stop polling for the still-mounted route panel.
+  await renderPanels(false)
+  await advance(10000)
+  expect(mocks.trigger).toHaveBeenCalledTimes(4)
 })

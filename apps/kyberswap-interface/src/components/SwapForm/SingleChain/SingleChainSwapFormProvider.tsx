@@ -1,31 +1,27 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ReactNode } from 'react'
 
-import SingleChainSwap from 'components/SwapForm/SingleChain/SingleChainSwap'
+import { SingleChainSwapProvider } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import { useActiveWeb3React } from 'hooks'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { DetailedRouteSummary } from 'types/route'
 
 /** Connects pair data to balances, preferences and permit state for the single-chain form.
  * Token resolution/loading stays with the pair owner, rather than being inferred from missing balances. */
-export type SingleChainSwapFormProps = {
+export type SingleChainSwapFormProviderProps = {
   chainId: ChainId
   currencyIn?: Currency
   currencyOut?: Currency
-  isInputCurrencyLoading?: boolean
-  isOutputCurrencyLoading?: boolean
-  onChangeCurrencyIn: (currency: Currency) => void
-  onChangeCurrencyOut: (currency: Currency) => void
-  onSelectNonEvmCurrencyIn?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
-  onSelectNonEvmCurrencyOut?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
-  onRouteChange: (route: DetailedRouteSummary | undefined) => void
-  onRouteLoadingChange?: (loading: boolean) => void
-  hidden: boolean
+  children: ReactNode
 }
 
-export const SingleChainSwapForm = ({ chainId, currencyIn, currencyOut, ...props }: SingleChainSwapFormProps) => {
+export const SingleChainSwapFormProvider = ({
+  chainId,
+  currencyIn,
+  currencyOut,
+  children,
+}: SingleChainSwapFormProviderProps) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const balanceIn = useCurrencyBalance(currencyIn, currencyIn?.chainId)
   const balanceOut = useCurrencyBalance(currencyOut, currencyOut?.chainId)
@@ -35,8 +31,7 @@ export const SingleChainSwapForm = ({ chainId, currencyIn, currencyOut, ...props
   const permitData = usePermitData(currencyIn?.chainId === walletChainId ? currencyIn.wrapped.address : undefined)
 
   return (
-    <SingleChainSwap
-      {...props}
+    <SingleChainSwapProvider
       currencyIn={currencyIn}
       currencyOut={currencyOut}
       balanceIn={balanceIn}
@@ -47,6 +42,8 @@ export const SingleChainSwapForm = ({ chainId, currencyIn, currencyOut, ...props
       permit={permitData?.rawSignature}
       customChainId={chainId}
       chainSelectionMode="form"
-    />
+    >
+      {children}
+    </SingleChainSwapProvider>
   )
 }

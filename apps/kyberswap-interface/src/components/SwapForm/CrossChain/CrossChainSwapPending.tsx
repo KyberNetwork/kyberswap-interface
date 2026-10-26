@@ -33,7 +33,7 @@ const PendingQuoteDetails = () => {
 
 type Props = CrossChainFormSelectionProps & {
   amount: string
-  setAmount: (value: string) => void
+  onAmountChange: (value: string) => void
   currencyIn: EvmCurrency | undefined
   currencyOut: EvmCurrency | undefined
   fromChainId: Chain

@@ -1,6 +1,7 @@
 import type { Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 
+import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import TokenPriceChart from 'components/TokenPriceChart'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -8,18 +9,17 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SingleChainTradeRoute from 'pages/Swap/components/SingleChainTradeRoute'
 import { Field } from 'state/swap/actions'
 import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
-import type { DetailedRouteSummary } from 'types/route'
 import { useTradeComposition } from 'utils/aggregationRouting'
 import { getTokenAddress } from 'utils/tokenInfo'
 
 type Props = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
-  routeSummary: DetailedRouteSummary | undefined
-  loading: boolean
+  isTokenLoading: boolean
 }
 
-export const SingleChainRightPanel = ({ currencyIn, currencyOut, routeSummary, loading }: Props) => {
+export const SingleChainRightPanel = ({ currencyIn, currencyOut, isTokenLoading }: Props) => {
+  const { routeSummary, routeLoading } = useSingleChainSwapContext()
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = currencyIn?.chainId ?? walletChainId
   const networkInfo = NETWORKS_INFO[chainId]
@@ -61,7 +61,7 @@ export const SingleChainRightPanel = ({ currencyIn, currencyOut, routeSummary, l
       {isSameChain && isShowTradeRoutes && (
         <SingleChainTradeRoute
           tradeComposition={tradeRouteComposition}
-          loading={loading}
+          loading={routeLoading || isTokenLoading}
           currencyIn={currencyIn}
           currencyOut={currencyOut}
           inputAmount={routeSummary?.parsedAmountIn}
