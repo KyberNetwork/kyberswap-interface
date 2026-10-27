@@ -203,7 +203,15 @@ export const makeStore = (preloadedState?: Partial<AppState>) =>
         )
         .concat(persistCrossChainTransactions)
         .concat(apiMiddlewares),
-    preloadedState,
+    // Nested persisted keys can restore preferences without a transaction list.
+    // Redux only applies slice defaults when the whole slice is undefined.
+    preloadedState: preloadedState && {
+      ...preloadedState,
+      crossChainSwap: {
+        ...crossChainSwap(undefined, { type: '@@INIT' }),
+        ...preloadedState.crossChainSwap,
+      },
+    },
   })
 
 export type AppStore = ReturnType<typeof makeStore>
