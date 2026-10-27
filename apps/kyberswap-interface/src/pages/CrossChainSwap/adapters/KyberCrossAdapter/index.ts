@@ -197,6 +197,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       sourceTxHash: txHash,
       adapter: this.getName(),
       id: nearIntentsDepositAddress || txHash,
+      depositAddress: nearIntentsDepositAddress,
       sourceChain: quoteParams.fromChain,
       targetChain: quoteParams.toChain,
       inputAmount: quoteParams.amount,

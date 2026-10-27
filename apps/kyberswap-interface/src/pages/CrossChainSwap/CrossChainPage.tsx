@@ -1,4 +1,4 @@
-import { lazy, useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 
 import { Stack } from 'components/Stack'
 import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
@@ -18,31 +18,36 @@ const TransactionHistoryUpdater = lazy(() => import('pages/Swap/components/Trans
 const CrossChainPage = () => {
   const controller = useTradeController(TAB.CROSS_CHAIN)
   const { activeTab, highlightDegenMode, onBackToMainTab, onTabChange } = controller
-  const [transactions] = useCrossChainTransactions()
+  const transactions = useCrossChainTransactions()
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
 
-  const rightPanel = (
-    <Stack className="gap-4">
-      <QuoteSteps visible={false} quote={selectedQuote} />
-      <TransactionHistoryUpdater />
-      <TransactionHistoryList transactions={transactions} />
-    </Stack>
-  )
-
   return (
-    <SwapLayout controller={controller} rightPanel={rightPanel}>
-      {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
-      {activeTab === TAB.SETTINGS && (
-        <SwapSettingsPanel
-          mode="cross-chain"
-          highlightDegenMode={highlightDegenMode}
-          onBack={onBackToMainTab}
-          onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}
-          onClickCrossChainSources={() => onTabChange(TAB.CROSS_CHAIN_SOURCES)}
-        />
-      )}
-      {activeTab === TAB.CROSS_CHAIN_SOURCES && <CrossChainSwapSources onBack={() => onTabChange(TAB.SETTINGS)} />}
-    </SwapLayout>
+    <>
+      <Suspense fallback={null}>
+        <TransactionHistoryUpdater />
+      </Suspense>
+      <SwapLayout
+        controller={controller}
+        rightPanel={
+          <Stack className="gap-4">
+            <QuoteSteps visible={false} quote={selectedQuote} />
+            <TransactionHistoryList transactions={transactions} />
+          </Stack>
+        }
+      >
+        {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
+        {activeTab === TAB.SETTINGS && (
+          <SwapSettingsPanel
+            mode="cross-chain"
+            highlightDegenMode={highlightDegenMode}
+            onBack={onBackToMainTab}
+            onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}
+            onClickCrossChainSources={() => onTabChange(TAB.CROSS_CHAIN_SOURCES)}
+          />
+        )}
+        {activeTab === TAB.CROSS_CHAIN_SOURCES && <CrossChainSwapSources onBack={() => onTabChange(TAB.SETTINGS)} />}
+      </SwapLayout>
+    </>
   )
 }
 

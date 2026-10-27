@@ -1,13 +1,16 @@
 import { t } from '@lingui/macro'
-import { lazy, useMemo, useState } from 'react'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { lazy, useState } from 'react'
 import { ChevronLeft, Clock, Search, X } from 'react-feather'
 
 import IconButton from 'components/Button/IconButton'
 import Input from 'components/Input'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
-import type { Currency } from 'pages/CrossChainSwap/adapters/types'
-import { useCrossChainTransactions } from 'state/crossChainSwap'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { useActiveWeb3React } from 'hooks'
+import { useUnifiedTransactionHistory } from 'pages/CrossChainSwap/transactions/useUnifiedTransactionHistory'
 
 const TransactionHistoryList = lazy(() => import('pages/CrossChainSwap/components/TransactionHistoryList'))
 
@@ -27,31 +30,38 @@ export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: (
   </IconButton>
 )
 
-const matchesToken = (token: Currency, query: string) => {
-  const fields = [
-    token.symbol,
-    'name' in token ? token.name : undefined,
-    'address' in token ? token.address : undefined,
-    'id' in token ? token.id : undefined,
-    'assetId' in token ? token.assetId : undefined,
-    'contractAddress' in token ? token.contractAddress : undefined,
-  ]
-  return fields.some(value => value?.toLowerCase().includes(query))
+// Remount only wallet-owned history state; keep the search input and focus stable.
+const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) => {
+  const history = useUnifiedTransactionHistory(sender)
+  const { transactions } = history
+
+  return (
+    <TransactionHistoryList
+      transactions={transactions}
+      filter={filter}
+      cursorPagination={{
+        currentPage: history.currentPage,
+        canGoPrevious: history.canGoPrevious,
+        canGoNext: history.canGoNext,
+        loading: history.loadingMore,
+        onPrevious: history.goPrevious,
+        onNext: history.goNext,
+      }}
+      emptyMessage={filter && transactions.length ? t`No transactions match this token.` : undefined}
+    />
+  )
 }
 
-/** Owns only the local token filter and renders saved transactions.
+/** Owns the search input; rows resolve token metadata and apply the filter.
  * Polling is mounted by SwapPage independently, so closing History must not stop status updates. */
 const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
-  const [transactions] = useCrossChainTransactions()
+  const { account } = useActiveWeb3React()
+  const { publicKey } = useWallet()
+  const { walletInfo } = useBitcoinWallet()
+  const { signedAccountId } = useWalletSelector()
+  const sender = account?.toLowerCase() || publicKey?.toString() || walletInfo?.address || signedAccountId || ''
   const [search, setSearch] = useState('')
   const query = search.trim().toLowerCase()
-  const filteredTransactions = useMemo(
-    () =>
-      query
-        ? transactions.filter(tx => matchesToken(tx.sourceToken, query) || matchesToken(tx.targetToken, query))
-        : transactions,
-    [query, transactions],
-  )
 
   return (
     <Stack className="min-w-0 rounded-xl bg-background shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
@@ -81,11 +91,7 @@ const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
       <div className="min-w-0 px-4 pb-4 pt-0 max-sm:px-3 max-sm:pb-3">
         <div className="min-w-0 overflow-x-auto">
           <div className="min-w-[800px] max-sm:min-w-0">
-            <TransactionHistoryList
-              transactions={filteredTransactions}
-              filterKey={query}
-              emptyMessage={query && transactions.length ? t`No transactions match this token.` : undefined}
-            />
+            <WalletHistory key={sender} sender={sender} filter={query} />
           </div>
         </div>
       </div>

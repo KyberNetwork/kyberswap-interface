@@ -179,6 +179,10 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
+    onSourceTransaction?: (
+      sourceTxHash: string,
+      tracking?: Pick<NormalizedTxResponse, 'id' | 'depositAddress'>,
+    ) => void,
   ): Promise<NormalizedTxResponse> {
     const rawQuote = debridgeQuoteSchema.parse(quote.rawQuote)
 
@@ -205,6 +209,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
       // Send through wallet adapter
       const signature = await sendSolanaFn(transaction, solanaConnection)
+      onSourceTransaction?.(signature, { id: rawQuote.orderId })
       const waitForConfirmation = async (txId: string) => {
         try {
           const latestBlockhash = await solanaConnection.getLatestBlockhash()

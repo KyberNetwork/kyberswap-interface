@@ -11,6 +11,7 @@ import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
+import crossChainTransactionsApi from 'services/crossChainTransactions'
 import earnServiceApi from 'services/earn'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
@@ -39,7 +40,7 @@ import application from 'state/application/reducer'
 import authen from 'state/authen/reducer'
 import burnProAmm from 'state/burn/proamm/reducer'
 import burn from 'state/burn/reducer'
-import crossChainSwap from 'state/crossChainSwap'
+import crossChainSwap, { persistCrossChainTransactions } from 'state/crossChainSwap'
 import customizeDexes from 'state/customizeDexes'
 import { updateVersion } from 'state/global/actions'
 import lists from 'state/lists/reducer'
@@ -121,6 +122,7 @@ const rootReducer = combineReducers({
   [identifyApi.reducerPath]: identifyApi.reducer,
   [ksSettingApi.reducerPath]: ksSettingApi.reducer,
   [crosschainApi.reducerPath]: crosschainApi.reducer,
+  [crossChainTransactionsApi.reducerPath]: crossChainTransactionsApi.reducer,
   [priceAlertApi.reducerPath]: priceAlertApi.reducer,
   [socialApi.reducerPath]: socialApi.reducer,
   tutorial,
@@ -164,6 +166,7 @@ const apiMiddlewares: Middleware[] = [
   identifyApi,
   ksSettingApi,
   crosschainApi,
+  crossChainTransactionsApi,
   priceAlertApi,
   routeApi,
   socialApi,
@@ -192,7 +195,13 @@ export const makeStore = (preloadedState?: Partial<AppState>) =>
     reducer: rootReducer,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
-        .concat(save({ states: PERSISTED_KEYS, debounce: 100 }) as Middleware)
+        .concat(
+          save({
+            states: PERSISTED_KEYS.filter(key => key !== 'crossChainSwap.transactions'),
+            debounce: 100,
+          }) as Middleware,
+        )
+        .concat(persistCrossChainTransactions)
         .concat(apiMiddlewares),
     preloadedState,
   })
@@ -233,6 +242,7 @@ let clientStore: AppStore | undefined
 export const getClientStore = (): AppStore => {
   if (!clientStore) {
     clientStore = makeStore(getClientPreloadedState())
+    setupListeners(clientStore.dispatch)
     cleanupReduxPersist()
     clientStore.dispatch(updateVersion())
     // Focus and online events, which `refetchOnFocus`, `refetchOnReconnect` and `skipPollingIfUnfocused`

@@ -5,10 +5,10 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import type { NormalizedTxResponse, SwapStatus } from 'pages/CrossChainSwap/adapters/types'
 import { useTransactionHistory } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
+import { localTransactionKey } from 'pages/CrossChainSwap/transactions/model'
 
 const mocks = vi.hoisted(() => ({
   transactions: [] as NormalizedTxResponse[],
-  setTransactions: vi.fn(),
   dispatch: vi.fn(),
   poll: vi.fn(),
   scan: vi.fn(),
@@ -16,9 +16,11 @@ const mocks = vi.hoisted(() => ({
   mixpanel: vi.fn(),
   notify: vi.fn(),
 }))
+vi.mock('react-redux', () => ({ useStore: () => reduxStore }))
+const reduxStore = { getState: () => ({ crossChainSwap: { transactions: mocks.transactions } }) }
 vi.mock('state/crossChainSwap', () => ({
-  useCrossChainTransactions: () => [mocks.transactions, mocks.setTransactions],
-  updateTransactionStatus: (payload: unknown) => ({ type: 'enrich', payload }),
+  useCrossChainTransactions: () => mocks.transactions,
+  patchProviderTransactions: (payload: unknown) => ({ type: 'provider-patch', payload }),
 }))
 vi.mock('state/hooks', () => ({ useAppDispatch: () => mocks.dispatch }))
 vi.mock('state/application/hooks', () => ({ useNotify: () => mocks.notify }))
@@ -76,8 +78,13 @@ beforeEach(() => {
   mocks.transactions = []
   mocks.poll.mockResolvedValue({ status: 'Processing' })
   mocks.scan.mockResolvedValue({ data: { route_execution: { status: 'Success', txHash: '0xfill' } } })
-  mocks.setTransactions.mockImplementation(transactions => {
-    mocks.transactions = transactions
+  mocks.dispatch.mockImplementation(action => {
+    if (action.type === 'provider-patch') {
+      mocks.transactions = mocks.transactions.map(tx => ({
+        ...tx,
+        ...action.payload.find((item: { key: string }) => item.key === localTransactionKey(tx))?.update,
+      }))
+    }
   })
   root = createRoot(document.createElement('div'))
 })
@@ -98,8 +105,10 @@ it('enriches terminal KyberCross transactions without rows, once per updater mou
   expect(mocks.scan).toHaveBeenCalledTimes(2)
   expect(mocks.poll).not.toHaveBeenCalled()
   expect(mocks.dispatch).toHaveBeenCalledWith({
-    type: 'enrich',
-    payload: { id: 'retry', result: { status: 'Success', txHash: '0xfill' } },
+    type: 'provider-patch',
+    payload: [
+      { key: localTransactionKey(mocks.transactions[1]), update: { status: 'Success', targetTxHash: '0xfill' } },
+    ],
   })
   mocks.transactions = mocks.transactions.map(tx => ({ ...tx }))
   await render()
@@ -137,4 +146,37 @@ it('enriches newly completed transactions while retaining processing completion 
   await act(async () => vi.advanceTimersByTimeAsync(10_000))
   expect(mocks.poll).toHaveBeenCalledOnce()
   expect(mocks.track).toHaveBeenCalledTimes(1)
+})
+
+it('ignores a provider reply after BE removes the local transaction', async () => {
+  let finish: (result: SwapStatus) => void = () => undefined
+  mocks.transactions = [transaction('pending', 'Processing', 'Relay')]
+  mocks.poll.mockImplementation(
+    () =>
+      new Promise<SwapStatus>(resolve => {
+        finish = resolve
+      }),
+  )
+  await render()
+  mocks.transactions = [] // BE finalized before React had to render again.
+  await act(async () => finish({ status: 'Success', txHash: 'late-fill', amountOut: '90' }))
+  expect(mocks.transactions).toEqual([])
+  expect(mocks.track).not.toHaveBeenCalled()
+  expect(mocks.dispatch).not.toHaveBeenCalled()
+})
+
+it('enriches separate broadcasts with the same provider id without updating the other transaction', async () => {
+  mocks.transactions = [transaction('shared-id', 'Success')]
+  mocks.scan.mockImplementation(async (hash: string) => ({
+    data: { route_execution: { status: 'Success', txHash: `fill-${hash}` } },
+  }))
+  await render()
+  mocks.transactions = [
+    ...mocks.transactions,
+    { ...transaction('shared-id', 'Success'), sourceTxHash: 'second-broadcast' },
+  ]
+  await render()
+  expect(mocks.scan).toHaveBeenCalledTimes(2)
+  expect(mocks.transactions.map(tx => tx.targetTxHash)).toEqual(['fill-0xshared-id', 'fill-second-broadcast'])
+  expect(mocks.track).not.toHaveBeenCalled()
 })

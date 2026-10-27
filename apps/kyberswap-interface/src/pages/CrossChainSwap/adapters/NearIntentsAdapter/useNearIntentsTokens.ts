@@ -5,7 +5,7 @@ import type { NearToken } from 'pages/CrossChainSwap/adapters/types'
 // Keep quote and balance effect dependencies stable while the query has no data.
 const EMPTY_NEAR_TOKENS: NearToken[] = []
 
-const getTokenLogoUrl = (token: NearToken) => {
+const getTokenLogoUrl = (token: Pick<NearToken, 'symbol' | 'contractAddress'>) => {
   const { symbol, contractAddress } = token
 
   switch (symbol) {
@@ -56,51 +56,29 @@ const getTokenLogoUrl = (token: NearToken) => {
   }
 }
 
-const fetchNearTokens = async () => {
+const fetchNearIntentsTokens = async () => {
   const res: NearToken[] = await fetch('https://1click.chaindefuser.com/v0/tokens').then(res => res.json())
   const wNear = res.find(token => token.contractAddress === 'wrap.near')
 
-  const native: NearToken = wNear
-    ? {
-        ...wNear,
-        symbol: 'NEAR',
-        contractAddress: '',
-        assetId: 'near',
-        logo: getTokenLogoUrl({ ...wNear, symbol: 'NEAR' }),
-      }
-    : {
-        assetId: 'near',
-        decimals: 24,
-        blockchain: 'near',
-        symbol: 'NEAR',
-        price: 0,
-        priceUpdatedAt: 0,
-        contractAddress: '',
-        logo: getTokenLogoUrl({
-          assetId: 'near',
-          decimals: 24,
-          blockchain: 'near',
-          symbol: 'NEAR',
-          price: 0,
-          priceUpdatedAt: 0,
-          contractAddress: '',
-          logo: '',
-        }),
-      }
+  const native: NearToken = {
+    decimals: 24,
+    blockchain: 'near',
+    price: 0,
+    priceUpdatedAt: 0,
+    ...wNear,
+    symbol: 'NEAR',
+    contractAddress: '',
+    assetId: 'near',
+    logo: getTokenLogoUrl({ symbol: 'NEAR', contractAddress: '' }),
+  }
 
-  return [
-    native,
-    ...(res?.map(token => ({
-      ...token,
-      logo: getTokenLogoUrl(token),
-    })) || []),
-  ]
+  return [native, ...res.map(token => ({ ...token, logo: getTokenLogoUrl(token) }))]
 }
 
-export const useNearTokens = (skip = false) => {
+export const useNearIntentsTokens = (skip = false) => {
   const { data, isLoading } = useQuery({
     queryKey: ['cross-chain-near-tokens'],
-    queryFn: fetchNearTokens,
+    queryFn: fetchNearIntentsTokens,
     enabled: !skip,
     staleTime: Infinity,
     retry: false,

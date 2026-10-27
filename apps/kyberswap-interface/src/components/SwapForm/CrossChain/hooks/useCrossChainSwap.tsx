@@ -4,7 +4,6 @@ import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCross
 import { useCrossChainQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
 import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
 import { Chain } from 'pages/CrossChainSwap/adapters/types'
-import { useRestoreMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
 
 export type CrossChainSwapOptions = {
   fromChain: Chain
@@ -27,7 +26,6 @@ const CrossChainSwapContext = createContext<CrossChainSwapContext | undefined>(u
 type Props = CrossChainSwapOptions & { children: ReactNode }
 
 const CrossChainSwapProvider = ({ children, amount, onAmountChange, fromChain, toChain, tokenIn, tokenOut }: Props) => {
-  useRestoreMyNearWalletPendingTransaction()
   const pair = useCrossChainPair({ fromChainId: fromChain, toChainId: toChain, tokenIn, tokenOut })
   const recipient = useCrossChainRecipient(pair.fromChainId, pair.toChainId)
   const quote = useCrossChainQuote({

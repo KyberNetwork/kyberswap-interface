@@ -71,6 +71,10 @@ export class MayanAdapter extends BaseSwapAdapter {
     _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
     _sendTransaction?: WalletAdapterProps['sendTransaction'],
     connection?: Connection,
+    onSourceTransaction?: (
+      sourceTxHash: string,
+      tracking?: Pick<NormalizedTxResponse, 'id' | 'depositAddress'>,
+    ) => void,
   ): Promise<NormalizedTxResponse> {
     if (quote.quoteParams.fromChain === NonEvmChain.Solana) {
       const rawQuote = parseMayanQuote(quote.rawQuote)
@@ -102,6 +106,7 @@ export class MayanAdapter extends BaseSwapAdapter {
 
       const signature = swapRes.signature
 
+      onSourceTransaction?.(signature)
       try {
         const latestBlockhash = await connection.getLatestBlockhash()
 

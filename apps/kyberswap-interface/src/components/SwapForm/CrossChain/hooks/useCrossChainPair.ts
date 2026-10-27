@@ -2,8 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
 import { useCurrencyV2 } from 'hooks/useTokens'
+import { useNearIntentsTokens } from 'pages/CrossChainSwap/adapters/NearIntentsAdapter/useNearIntentsTokens'
 import { BitcoinToken, Chain, NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import { useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 type Props = {
@@ -15,7 +15,7 @@ type Props = {
 
 /** Resolves metadata for the pair owned by the unified form; it never changes the URL or selection. */
 export const useCrossChainPair = ({ fromChainId, toChainId, tokenIn, tokenOut }: Props) => {
-  const { nearTokens } = useNearTokens()
+  const { nearTokens } = useNearIntentsTokens()
   const isFromEvm = isEvmChain(fromChainId)
   const isToEvm = isEvmChain(toChainId)
   const isFromNear = fromChainId === NonEvmChain.Near

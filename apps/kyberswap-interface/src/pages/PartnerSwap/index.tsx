@@ -1,5 +1,5 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { useGetTipLinkQuery } from 'services/tipLink'
@@ -65,7 +65,7 @@ type Props = {
 }
 
 const PartnerSwap = ({ mode = 'partner' }: Props) => {
-  const [transactions] = useCrossChainTransactions()
+  const transactions = useCrossChainTransactions()
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -272,14 +272,14 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
     ) : isLimitPage ? (
       <OrderList />
     ) : isCrossChainPage ? (
-      <>
-        <TransactionHistoryUpdater />
-        <TransactionHistoryList transactions={transactions} />
-      </>
+      <TransactionHistoryList transactions={transactions} />
     ) : null
 
   return (
     <>
+      <Suspense fallback={null}>
+        <TransactionHistoryUpdater />
+      </Suspense>
       <PartnerSwapLayout
         activeMainTab={activeMainTab}
         activeTab={activeTab}

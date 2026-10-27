@@ -1,6 +1,7 @@
 import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import type { Transaction as NearTransaction } from '@near-wallet-selector/core'
+import type { useWalletSelector } from '@near-wallet-selector/react-hook'
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -14,13 +15,12 @@ import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.
 import { WalletClient } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import type { SolanaToken } from 'pages/CrossChainSwap/adapters/types'
-import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/nearPendingTransaction'
+import type { NearToken, SolanaToken } from 'pages/CrossChainSwap/adapters/types'
 import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 import { parseNearQuote } from 'pages/CrossChainSwap/quote/rawQuote'
 import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'pages/CrossChainSwap/utils'
 
-import { Quote } from '../registry'
+import { Quote } from '../../registry'
 import {
   BaseSwapAdapter,
   Chain,
@@ -29,7 +29,12 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from '../BaseSwapAdapter'
+import {
+  getNearTransferHash,
+  removeMyNearWalletPendingTransaction,
+  saveMyNearWalletPendingTransaction,
+} from './pendingTransaction'
 
 export const MappingChainIdToBlockChain: Record<string, string> = {
   [NonEvmChain.Bitcoin]: 'btc',
@@ -189,7 +194,11 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
-  ): Promise<NormalizedTxResponse> {
+    onSourceTransaction?: (
+      sourceTxHash: string,
+      tracking?: Pick<NormalizedTxResponse, 'id' | 'depositAddress'>,
+    ) => void,
+  ): Promise<NormalizedTxResponse | undefined> {
     const rawQuote = parseNearQuote(quote.rawQuote)
 
     let depositAddress = rawQuote.quote.depositAddress
@@ -230,7 +239,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     const params = {
       sender: quote.quoteParams.sender,
-      id: depositAddress, // specific id for each provider
+      id: depositAddress, // Provider-specific ID retained for existing transaction consumers.
+      depositAddress,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,
       targetChain: quote.quoteParams.toChain,
@@ -304,12 +314,9 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           )
           try {
             const signature = await sendSolanaFn(transaction, solanaConnection)
+            onSourceTransaction?.(signature, { id: depositAddress, depositAddress })
             await waitForConfirmation(signature)
-
-            resolve({
-              ...params,
-              sourceTxHash: signature,
-            })
+            resolve({ ...params, sourceTxHash: signature })
           } catch (error) {
             reject(error)
           }
@@ -364,12 +371,9 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
           try {
             const signature = await sendSolanaFn(transaction, solanaConnection)
+            onSourceTransaction?.(signature, { id: depositAddress, depositAddress })
             await waitForConfirmation(signature)
-
-            resolve({
-              ...params,
-              sourceTxHash: signature,
-            })
+            resolve({ ...params, sourceTxHash: signature })
           } catch (error) {
             reject(error)
           }
@@ -390,6 +394,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
             recipient: depositAddress,
             amount: quote.quoteParams.amount,
           })
+          onSourceTransaction?.(tx, { id: depositAddress, depositAddress })
           await OneClickService.submitDepositTx({
             txHash: tx,
             depositAddress,
@@ -409,79 +414,81 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     }
 
     if (quote.quoteParams.fromChain === NonEvmChain.Near) {
-      return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
-        if (!nearWallet || !nearWallet.signedAccountId) {
-          reject('Not connected')
-          return
-        }
-        const isNative = (quote.quoteParams.fromToken as any).assetId === 'near'
-
-        const transactions: any = []
-        if (!isNative)
-          transactions.push({
-            signerId: nearWallet.signedAccountId,
-            receiverId: (quote.quoteParams.fromToken as any).contractAddress,
-            actions: [
-              {
-                type: 'FunctionCall',
-                params: {
-                  methodName: 'storage_deposit',
-                  args: { account_id: depositAddress, registration_only: true },
-                  gas: '30000000000000',
-                  deposit: '1250000000000000000000', // 0.00125 NEAR
-                },
-              },
-            ],
-          })
-
+      if (!nearWallet?.wallet || !nearWallet.signedAccountId) throw new Error('Not connected')
+      const { wallet, signedAccountId } = nearWallet
+      const fromToken = quote.quoteParams.fromToken as NearToken
+      const isNative = fromToken.assetId === 'near'
+      const transactions: NearTransaction[] = []
+      if (!isNative)
         transactions.push({
-          signerId: nearWallet.signedAccountId,
-          receiverId: isNative ? depositAddress : (quote.quoteParams.fromToken as any).contractAddress,
+          signerId: signedAccountId,
+          receiverId: fromToken.contractAddress,
           actions: [
-            isNative
-              ? {
-                  type: 'Transfer',
-                  params: {
-                    deposit: quote.quoteParams.amount,
-                  },
-                }
-              : {
-                  type: 'FunctionCall',
-                  params: {
-                    methodName: 'ft_transfer',
-                    args: {
-                      receiver_id: depositAddress,
-                      amount: quote.quoteParams.amount,
-                    },
-                    gas: '30000000000000',
-                    deposit: '1',
-                  },
-                },
+            {
+              type: 'FunctionCall',
+              params: {
+                methodName: 'storage_deposit',
+                args: { account_id: depositAddress, registration_only: true },
+                gas: '30000000000000',
+                deposit: '1250000000000000000000', // 0.00125 NEAR
+              },
+            },
           ],
         })
 
-        if (nearWallet?.wallet?.id === 'my-near-wallet') {
-          saveMyNearWalletPendingTransaction({
-            ...params,
-            sourceTxHash: depositAddress,
-          })
-        }
-
-        await nearWallet
-          .signAndSendTransactions({
-            transactions,
-          })
-          .catch(e => {
-            console.log('NearIntents signAndSendTransactions failed', e)
-            if (nearWallet?.wallet?.id === 'my-near-wallet') reject()
-            else reject(e)
-          })
-
-        resolve({
-          ...params,
-          sourceTxHash: depositAddress,
-        })
+      transactions.push({
+        signerId: signedAccountId,
+        receiverId: isNative ? depositAddress : fromToken.contractAddress,
+        actions: [
+          isNative
+            ? {
+                type: 'Transfer',
+                params: {
+                  deposit: quote.quoteParams.amount,
+                },
+              }
+            : {
+                type: 'FunctionCall',
+                params: {
+                  methodName: 'ft_transfer',
+                  args: {
+                    receiver_id: depositAddress,
+                    amount: quote.quoteParams.amount,
+                  },
+                  gas: '30000000000000',
+                  deposit: '1',
+                },
+              },
+        ],
       })
+
+      const redirects = wallet.id === 'my-near-wallet'
+      if (redirects) {
+        saveMyNearWalletPendingTransaction({
+          ...params,
+          expectedTransactions: transactions.length,
+          ...(onSourceTransaction ? { quoteId: quote.quoteId, quoteToken: quote.quoteToken } : {}),
+        })
+      }
+
+      // The React hook unwraps execution results and discards transaction hashes.
+      const outcomes = await wallet.signAndSendTransactions({ transactions }).catch(error => {
+        if (redirects) removeMyNearWalletPendingTransaction()
+        throw error
+      })
+      // MyNearWallet navigates away and returns no outcomes. Restore on callback.
+      if (redirects && !outcomes) return
+
+      const sourceTxHash = getNearTransferHash(
+        outcomes?.map(outcome => outcome.transaction.hash),
+        transactions.length,
+      )
+      if (!sourceTxHash) {
+        throw new Error('Source transaction hash is unavailable; check your wallet transaction history.')
+      }
+      onSourceTransaction?.(sourceTxHash, { id: depositAddress, depositAddress })
+      if (redirects) removeMyNearWalletPendingTransaction()
+      return { ...params, sourceTxHash }
     }
 
     return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
@@ -513,6 +520,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
               chain: undefined,
               account,
             }))
+        onSourceTransaction?.(hash, { id: depositAddress, depositAddress })
         await OneClickService.submitDepositTx({
           txHash: hash,
           depositAddress,
@@ -531,7 +539,11 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const res = await OneClickService.getExecutionStatus(p.id)
+    // Older local records stored the provider deposit address only in `id`.
+    // New records use the explicit field; sourceTxHash is never a status lookup key.
+    const depositAddress = p.depositAddress ?? p.id
+    if (!depositAddress) throw new Error('NEAR Intents deposit address is missing')
+    const res = await OneClickService.getExecutionStatus(depositAddress)
 
     // Extract actual output amount from swapDetails if available
     const actualAmountOut = res.swapDetails?.amountOut

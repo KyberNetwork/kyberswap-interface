@@ -22,6 +22,8 @@ const params: QuoteParams = {
 // Raw JSON numbers taken from PRE; JSON.stringify would round them before the test runs.
 const event = `{
   "provider": "debridge",
+  "quoteId": "aggregator-quote-123",
+  "quoteToken": "opaque-token",
   "outputAmount": 40767481736350172,
   "minOutputAmount": 40767481736350172,
   "inputUsd": 100,
@@ -56,6 +58,12 @@ describe('aggregator quote response', () => {
     expect(quote.rawQuote).toMatchObject({ slippage: 50 })
     expect(quote.formattedOutputAmount).toBe('0.040767481736350172')
     expect(quote.rate).toBeCloseTo(0.000407674817, 12)
+  })
+
+  it('preserves the exact aggregator identity through normalization', () => {
+    const quote = normalize()
+    expect(quote.quoteId).toBe('aggregator-quote-123')
+    expect(quote.quoteToken).toBe('opaque-token')
   })
 
   it('preserves both additional fee fields from the response', () => {

@@ -18,9 +18,9 @@ import {
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import useDebounce from 'hooks/useDebounce'
+import { useNearIntentsTokens } from 'pages/CrossChainSwap/adapters/NearIntentsAdapter/useNearIntentsTokens'
 import { BitcoinToken, Currency, NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
-import { useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
@@ -46,7 +46,7 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
   const { publicKey: solanaAddress } = useWallet()
   const { balance: bitcoinBalance, walletInfo: bitcoinWallet } = useBitcoinWallet()
 
-  const { nearTokens, isLoadingNearTokens } = useNearTokens(chain !== NonEvmChain.Near)
+  const { nearTokens, isLoadingNearTokens } = useNearIntentsTokens(chain !== NonEvmChain.Near)
   const { solanaTokens, isLoadingSolanaTokens } = useSolanaTokens(debouncedQuery, !isSolana)
   const loading = !isBitcoin && (isSolana ? isLoadingSolanaTokens : isLoadingNearTokens)
 

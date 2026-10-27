@@ -220,8 +220,9 @@ export const streamQuotes = async ({
           })
           onQuotes(sortQuotesByOutput(quotes))
         } catch (error) {
-          console.error('Failed to parse SSE data:', error)
-          console.error('Problematic line:', line)
+          // Quote events contain an opaque registration token. Never log the
+          // raw event or parser messages that may repeat its source text.
+          console.error('Failed to parse SSE data:', error instanceof Error ? error.name : 'Unknown error')
           console.error('Line length:', line.length)
         }
       }

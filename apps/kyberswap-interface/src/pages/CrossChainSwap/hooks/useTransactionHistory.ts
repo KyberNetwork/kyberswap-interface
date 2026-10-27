@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useStore } from 'react-redux'
 import { formatUnits } from 'viem'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -9,21 +10,24 @@ import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossCh
 import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
 import { kyberCrossApi } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 import { mapRouteStateToSwapStatus } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
-import { type NormalizedTxResponse, type SwapStatus } from 'pages/CrossChainSwap/adapters/types'
+import {
+  type NormalizedTxResponse,
+  type SwapStatus,
+  type TransactionStatus,
+  isProcessingTransactionStatus,
+} from 'pages/CrossChainSwap/adapters/types'
 import { registry } from 'pages/CrossChainSwap/factory'
 import { getSwapTrackingData } from 'pages/CrossChainSwap/tracking'
+import { isBackendResolved, localTransactionKey } from 'pages/CrossChainSwap/transactions/model'
 import { getChainName } from 'pages/CrossChainSwap/utils'
+import type { AppState } from 'state'
 import { useNotify } from 'state/application/hooks'
-import { updateTransactionStatus, useCrossChainTransactions } from 'state/crossChainSwap'
+import { patchProviderTransactions, useCrossChainTransactions } from 'state/crossChainSwap'
 import { useAppDispatch } from 'state/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const STATUS_CHECK_INTERVAL = 10_000
 const PROCESSING_STATUS_CHECK_TTL = 24 * 60 * 60 * 1000
-
-export type TransactionStatus = NonNullable<NormalizedTxResponse['status']>
-
-export const isProcessingTransactionStatus = (status?: TransactionStatus) => !status || status === 'Processing'
 
 const shouldCheckTransactionStatus = (tx: NormalizedTxResponse) => isProcessingTransactionStatus(tx.status)
 
@@ -48,7 +52,7 @@ const getStatusCheckGroups = (transactions: NormalizedTxResponse[]) => {
   return { pollingTxs, expiredProcessingTxs }
 }
 
-const getTransactionIdsKey = (transactions: NormalizedTxResponse[]) => transactions.map(tx => tx.id).join('|')
+const getTransactionIdsKey = (transactions: NormalizedTxResponse[]) => transactions.map(localTransactionKey).join('|')
 
 const buildSwapDetails = (tx: NormalizedTxResponse, status: TransactionStatus, targetTxHash?: string) => ({
   ...getSwapTrackingData(tx),
@@ -87,10 +91,11 @@ const getTransactionUpdate = (
 }
 
 export const useTransactionHistory = () => {
+  const store = useStore<AppState>()
   const notify = useNotify()
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
-  const [transactions, setTransactions] = useCrossChainTransactions()
+  const transactions = useCrossChainTransactions()
   const dispatch = useAppDispatch()
 
   const ongoingCallsRef = useRef<Set<string>>(new Set())
@@ -147,12 +152,12 @@ export const useTransactionHistory = () => {
   // notifications here so they fire only when polling observes a real status change.
   const checkTransactions = useCallback(
     async (txs: NormalizedTxResponse[]) => {
-      const txsToCheck = txs.filter(tx => !ongoingCallsRef.current.has(tx.id))
+      const txsToCheck = txs.filter(tx => !ongoingCallsRef.current.has(localTransactionKey(tx)))
 
       if (txsToCheck.length === 0) return
 
       txsToCheck.forEach(tx => {
-        ongoingCallsRef.current.add(tx.id)
+        ongoingCallsRef.current.add(localTransactionKey(tx))
       })
 
       const checkedTxs = await Promise.allSettled(
@@ -167,7 +172,7 @@ export const useTransactionHistory = () => {
 
             return { tx, update: txUpdate }
           } finally {
-            ongoingCallsRef.current.delete(tx.id)
+            ongoingCallsRef.current.delete(localTransactionKey(tx))
           }
         }),
       )
@@ -180,11 +185,13 @@ export const useTransactionHistory = () => {
       })
 
       if (txUpdates.length > 0) {
-        let hasUpdates = false
-        const txUpdateMap = new Map(txUpdates.map(({ tx, update }) => [tx.id, update]))
-        const updatedTransactions = transactionsRef.current.map(tx => {
-          const txUpdate = txUpdateMap.get(tx.id)
-          if (!txUpdate) return tx
+        const txUpdateMap = new Map(txUpdates.map(({ tx, update }) => [localTransactionKey(tx), update]))
+        const updates = store.getState().crossChainSwap.transactions.flatMap(tx => {
+          const txUpdate = txUpdateMap.get(localTransactionKey(tx))
+          if (!txUpdate) return []
+          // A BE updater may have already committed a canonical terminal result
+          // while this provider request was in flight. Never regress it.
+          if (isBackendResolved(tx.sync?.backend)) return []
 
           if (txUpdate.status && txUpdate.status !== tx.status) {
             trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
@@ -213,19 +220,13 @@ export const useTransactionHistory = () => {
             }
           }
 
-          hasUpdates = true
-          return {
-            ...tx,
-            ...txUpdate,
-          }
+          return [{ key: localTransactionKey(tx), update: txUpdate }]
         })
 
-        if (!hasUpdates) return
-
-        setTransactions(updatedTransactions)
+        if (updates.length) dispatch(patchProviderTransactions(updates))
       }
     },
-    [setTransactions, trackStatusChange, notify],
+    [dispatch, trackStatusChange, notify, store],
   )
 
   // Expired processing txs are checked once per page load/F5, but are kept out of the polling loop.
@@ -273,21 +274,25 @@ export const useTransactionHistory = () => {
   // Terminal enrichment deliberately dispatches only. It must not emit completion
   // analytics or notifications a second time after the processing path did so.
   useEffect(() => {
-    const txsToEnrich = terminalTxs.filter(tx => !terminalCheckedRef.current.has(tx.id))
+    const txsToEnrich = terminalTxs.filter(tx => !terminalCheckedRef.current.has(localTransactionKey(tx)))
 
     txsToEnrich.forEach(tx => {
-      terminalCheckedRef.current.add(tx.id)
+      terminalCheckedRef.current.add(localTransactionKey(tx))
 
       void kyberCrossApi
         .scanTxStatus(tx.sourceTxHash as `0x${string}`)
         .then(response => {
           const result = mapRouteStateToSwapStatus(response.data.route_execution, !!tx.gasDrop)
 
-          dispatch(updateTransactionStatus({ id: tx.id, result }))
+          const key = localTransactionKey(tx)
+          const current = store.getState().crossChainSwap.transactions.find(row => localTransactionKey(row) === key)
+          if (!current || isBackendResolved(current.sync?.backend)) return
+          const update = getTransactionUpdate(current, result)
+          if (update) dispatch(patchProviderTransactions([{ key, update }]))
         })
         .catch(() => undefined)
     })
-  }, [dispatch, terminalTxs])
+  }, [dispatch, store, terminalTxs])
 
   return transactions
 }

@@ -16,10 +16,10 @@ import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { BitcoinToken, Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { kyberCrossSupportedChains } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
+import { useNearIntentsTokens } from 'pages/CrossChainSwap/adapters/NearIntentsAdapter/useNearIntentsTokens'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { type NearToken, isEvmChain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { registry } from 'pages/CrossChainSwap/factory'
-import { useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
 import { getPairInfo } from 'pages/CrossChainSwap/quote/getPairInfo'
@@ -118,7 +118,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const rawTokenOut = searchParams.get('tokenOut')
   const [amount, setAmount] = useState('1')
   const amountDebounce = useDebounce(amount, 500)
-  const { nearTokens } = useNearTokens()
+  const { nearTokens } = useNearIntentsTokens()
 
   const { chainId, account } = useActiveWeb3React()
   const defaultFrom = !account ? NonEvmChain.Bitcoin : chainId?.toString() || ''

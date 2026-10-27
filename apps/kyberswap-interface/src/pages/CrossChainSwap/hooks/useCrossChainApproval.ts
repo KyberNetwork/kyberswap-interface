@@ -87,7 +87,7 @@ export const useCrossChainApproval = ({ amount, fromChainId, spender }: UseCross
       ? ApprovalState.NOT_APPROVED
       : ApprovalState.APPROVED
 
-  const [crossChainTransactions] = useCrossChainTransactions()
+  const crossChainTransactions = useCrossChainTransactions()
   const sourceTxHash = canReadAllowance
     ? crossChainTransactions.find(
         tx =>
