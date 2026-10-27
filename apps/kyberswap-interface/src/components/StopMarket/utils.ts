@@ -227,8 +227,19 @@ export const formatTriggerPercentValue = (percent: number): string => {
 /** Trigger price as a human decimal string, tokenOut per tokenIn. */
 export const getStopMarketTriggerPrice = (order: StopMarket) => order.condition?.field?.value?.lte ?? ''
 
-/** The settlement transaction, available once an attempt reached the chain. */
-export const getStopMarketExecutionTxHash = (order: StopMarket) => getLatestExecution(order)?.hash
+/**
+ * The settlement transaction: the latest attempt that went through, since a failed attempt can sit beside
+ * it, or failing that the latest attempt that reached the chain.
+ */
+export const getStopMarketExecutionTxHash = (order: StopMarket) => {
+  const succeeded = (order.executions ?? []).filter(
+    execution => execution.status === StopMarketExecutionStatus.SUCCESS && execution.hash,
+  )
+  if (succeeded.length) {
+    return succeeded.reduce((latest, e) => (e.executionNum > latest.executionNum ? e : latest)).hash
+  }
+  return getLatestExecution(order)?.hash
+}
 
 /**
  * Names a pair the way the oracle prices it: by wrapped token, so a native coin and its wrapped token

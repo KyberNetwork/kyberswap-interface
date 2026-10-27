@@ -1,11 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { AlertTriangle, Info } from 'react-feather'
 import { Link } from 'react-router-dom'
 
 import { ButtonPrimary } from 'components/Button'
+import CheckBox from 'components/CheckBox'
 import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
 import { getSwapCurrencyId } from 'components/LimitOrder/TakeOrder/utils'
@@ -62,11 +63,15 @@ export type StopMarketReviewProps = {
   isFeeLoading?: boolean
   onRetryFee?: () => void
   warnings?: StopMarketWarning[]
+  /** The terms the user accepts before signing say the same, so the note is left out. */
+  hideExecutionNote?: boolean
 }
 
-type Props = StopMarketReviewProps & {
+type Props = Omit<StopMarketReviewProps, 'hideExecutionNote'> & {
   isOpen: boolean
   needsWrap?: boolean
+  /** The user has not placed a stop market order on this device yet, so must accept the terms first. */
+  requiresTermsAcceptance?: boolean
   onDismiss?: () => void
   onSubmit?: () => void
 }
@@ -167,6 +172,7 @@ export const StopMarketReviewSummary = ({
   isFeeLoading,
   onRetryFee,
   warnings = [],
+  hideExecutionNote,
 }: StopMarketReviewProps) => {
   const feePercentage = fee?.protocol?.percentage
   // Taken from what the order receives, so it is in the receive token and, like that amount, an estimate
@@ -260,14 +266,16 @@ export const StopMarketReviewSummary = ({
         </SummaryRow>
       </Stack>
 
-      <HStack className="items-start gap-1.5 text-xs text-blue" data-testid="stop-market-confirm-execution-note">
-        <Info size={14} className="mt-px shrink-0" />
-        <span>
-          <Trans>
-            When triggered, KyberSwap executes your order at the live market price, subject to your slippage setting.
-          </Trans>
-        </span>
-      </HStack>
+      {!hideExecutionNote && (
+        <HStack className="items-start gap-1.5 text-xs text-blue" data-testid="stop-market-confirm-execution-note">
+          <Info size={14} className="mt-px shrink-0" />
+          <span>
+            <Trans>
+              When triggered, KyberSwap executes your order at the live market price, subject to your slippage setting.
+            </Trans>
+          </span>
+        </HStack>
+      )}
 
       {warnings.map((warning, index) => (
         <ReviewNote key={index} type={warning.type} dataTestId="stop-market-confirm-warning">
@@ -319,8 +327,21 @@ export const StopMarketReviewSummary = ({
 }
 
 /** The review of a new order, in its own dialog over the form. */
-const StopMarketConfirmModal = ({ isOpen, needsWrap, onDismiss, onSubmit, ...review }: Props) => {
-  const isBlocked = isStopMarketReviewBlocked(review)
+const StopMarketConfirmModal = ({
+  isOpen,
+  needsWrap,
+  requiresTermsAcceptance,
+  onDismiss,
+  onSubmit,
+  ...review
+}: Props) => {
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false)
+  // Each review asks afresh until an order is placed.
+  useEffect(() => {
+    if (isOpen) setHasAcceptedTerms(false)
+  }, [isOpen])
+
+  const isBlocked = isStopMarketReviewBlocked(review) || (!!requiresTermsAcceptance && !hasAcceptedTerms)
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
@@ -332,7 +353,29 @@ const StopMarketConfirmModal = ({ isOpen, needsWrap, onDismiss, onSubmit, ...rev
           <CloseIcon onClick={onDismiss} data-testid="stop-market-confirm-close" />
         </HStack>
 
-        <StopMarketReviewSummary {...review} />
+        <StopMarketReviewSummary {...review} hideExecutionNote={requiresTermsAcceptance} />
+
+        {requiresTermsAcceptance && (
+          <label
+            className="flex cursor-pointer items-start gap-2.5 text-xs text-subText"
+            data-testid="stop-market-confirm-terms"
+          >
+            <CheckBox
+              borderStyle
+              className="mt-px size-4 shrink-0 cursor-pointer border-subText"
+              checked={hasAcceptedTerms}
+              onChange={event => setHasAcceptedTerms(event.target.checked)}
+              data-testid="stop-market-confirm-terms-checkbox"
+            />
+            <span>
+              <Trans>
+                I understand this order executes automatically at the live market price when triggered, based on
+                third-party price data, without further confirmation. It may be delayed or may not execute, and the
+                final price can vary within my slippage setting.
+              </Trans>
+            </span>
+          </label>
+        )}
 
         <Stack className="gap-2">
           {/* Eases into enabled once the fee lands, rather than snapping. */}

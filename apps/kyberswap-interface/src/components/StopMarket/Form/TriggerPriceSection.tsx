@@ -124,6 +124,8 @@ const TriggerPriceSection = ({
 }: Props) => {
   const sellSymbol = sellCurrency?.symbol
   const receiveSymbol = receiveCurrency?.symbol
+  // A preset is selected when the percent field reads it, so -20% stays lit once the trigger is rounded.
+  const shownPercent = triggerPercent === undefined ? undefined : Number(formatTriggerPercentValue(triggerPercent))
 
   return (
     <Stack className={cn('gap-2 rounded-2xl bg-buttonBlack p-4', className)} data-testid="stop-market-trigger-section">
@@ -172,9 +174,12 @@ const TriggerPriceSection = ({
             key={percent}
             type="button"
             data-testid={`stop-market-trigger-percent-preset-${percent < 0 ? 'minus' : 'plus'}-${Math.abs(percent)}`}
+            aria-pressed={shownPercent === percent}
             className={cn(
               PERCENT_CHIP_CLASSES,
-              'border-border/60 text-subText hover:border-border-primary hover:text-primary',
+              shownPercent === percent
+                ? 'border-primary-50 bg-tabActive text-text'
+                : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
             )}
             onClick={() => onChangeTriggerPercent(String(percent))}
           >

@@ -17,6 +17,7 @@ import {
   formatTriggerPriceValue,
   getStopMarketCurrentPrice,
   getStopMarketDisplayStatus,
+  getStopMarketExecutionTxHash,
   getStopMarketFills,
   getStopMarketFundingKey,
   getStopMarketFundingShortfalls,
@@ -693,6 +694,34 @@ describe('getStopMarketSellAmountUsd', () => {
 
   it('has no figure for an order that neither runs nor executed', () => {
     expect(getStopMarketSellAmountUsd({ ...ORDER, status: StopMarketStatus.CANCELLED })).toBeUndefined()
+  })
+})
+
+describe('getStopMarketExecutionTxHash', () => {
+  const attempt = (executionNum: number, status: StopMarketExecutionStatus) => ({
+    ...execution(status, executionNum),
+    hash: `0xattempt${executionNum}`,
+  })
+
+  it('links the attempt that went through, not a failed one beside it', () => {
+    const order: StopMarket = {
+      ...ORDER,
+      executions: [
+        attempt(0, StopMarketExecutionStatus.FAILED),
+        attempt(1, StopMarketExecutionStatus.SUCCESS),
+        attempt(2, StopMarketExecutionStatus.FAILED),
+      ],
+    }
+    expect(getStopMarketExecutionTxHash(order)).toBe('0xattempt1')
+  })
+
+  it('falls back to the latest attempt while none has gone through', () => {
+    const order: StopMarket = {
+      ...ORDER,
+      executions: [attempt(0, StopMarketExecutionStatus.FAILED), attempt(1, StopMarketExecutionStatus.PENDING)],
+    }
+    expect(getStopMarketExecutionTxHash(order)).toBe('0xattempt1')
+    expect(getStopMarketExecutionTxHash(ORDER)).toBeUndefined()
   })
 })
 

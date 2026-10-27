@@ -2,6 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLocalStorage } from 'react-use'
 
 import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
 import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
@@ -20,6 +21,9 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
+
+/** Whether this device has placed a stop market order, and so has accepted the terms. */
+const STOP_MARKET_TERMS_ACCEPTED_KEY = 'stop-market-terms-accepted'
 
 type Props = {
   isOpen: boolean
@@ -63,6 +67,8 @@ type ProcessingParams = {
   createOrder: ReturnType<typeof useCreateStopMarket>
   /** The run has started, so the review gives way to it. */
   onStart: () => void
+  /** Every step went through. */
+  onComplete?: () => void
   /** The processing modal closed; `completed` once every step went through. */
   onClose?: (completed: boolean) => void
 }
@@ -77,6 +83,7 @@ export const useStopMarketProcessing = ({
   isEdit,
   createOrder,
   onStart,
+  onComplete,
   onClose,
 }: ProcessingParams) => {
   const navigate = useNavigate()
@@ -96,7 +103,10 @@ export const useStopMarketProcessing = ({
     ...createOrder.processing,
     onStart,
     onStepFailed: (_step, failure) => setStepError(getStepErrorMessage(failure)),
-    onComplete: () => setIsCompleted(true),
+    onComplete: () => {
+      setIsCompleted(true)
+      onComplete?.()
+    },
   })
 
   const limitOrderStepLabel = getLimitOrderStepLabel({ chainId, currencyIn })
@@ -158,11 +168,15 @@ const StopMarketFlow = ({
   onDismiss,
   createOrder,
 }: Props) => {
+  // Set once an order is placed, not when the box is ticked: a signature refused in the wallet places
+  // nothing, so the next review asks again.
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useLocalStorage(STOP_MARKET_TERMS_ACCEPTED_KEY, false)
   const { start, processingModal } = useStopMarketProcessing({
     currencyIn,
     currencyOut,
     createOrder,
     onStart: onDismiss,
+    onComplete: () => setHasAcceptedTerms(true),
   })
   const { needsWrap } = createOrder
 
@@ -184,6 +198,7 @@ const StopMarketFlow = ({
         isFeeLoading={isFeeLoading}
         onRetryFee={onRetryFee}
         needsWrap={needsWrap}
+        requiresTermsAcceptance={!hasAcceptedTerms}
         warnings={warnings}
         onDismiss={onDismiss}
         onSubmit={start}
