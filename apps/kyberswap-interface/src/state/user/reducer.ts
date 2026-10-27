@@ -17,6 +17,7 @@ import {
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleMyEarningChart,
+  toggleOpenLimitOrders,
   togglePricingChart,
   toggleSuccessSound,
   toggleTradeRoutes,
@@ -116,6 +117,8 @@ export interface UserState {
   crossChain: CrossChainSetting
   myEarningChart: boolean
   showPricingChart: boolean
+  /** Whether the stop market order page offers the book of open limit orders beside its form. */
+  showOpenLimitOrders: boolean
   /**
    * The stop market order slippage the user picked, in basis points, kept across orders and visits. Unset
    * while they have not picked one, or picked the suggestion itself, so it follows the pair.
@@ -160,6 +163,7 @@ const initialState: UserState = {
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
   myEarningChart: true,
   showPricingChart: true,
+  showOpenLimitOrders: true,
   showTradeRoutes: true,
   successSoundEnabled: true,
   favoriteChains: [],
@@ -186,6 +190,10 @@ export default createReducer(initialState, builder =>
 
       if (typeof state.showPricingChart !== 'boolean') {
         state.showPricingChart = initialState.showPricingChart
+      }
+
+      if (typeof state.showOpenLimitOrders !== 'boolean') {
+        state.showOpenLimitOrders = initialState.showOpenLimitOrders
       }
 
       if (state.stopMarketSlippage !== undefined && typeof state.stopMarketSlippage !== 'number') {
@@ -334,6 +342,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(togglePricingChart, state => {
       state.showPricingChart = !state.showPricingChart
+    })
+    .addCase(toggleOpenLimitOrders, state => {
+      state.showOpenLimitOrders = !state.showOpenLimitOrders
     })
     .addCase(updateStopMarketSlippage, (state, { payload: { stopMarketSlippage } }) => {
       state.stopMarketSlippage = stopMarketSlippage

@@ -1,13 +1,16 @@
+import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { StopMarketRowsSkeleton } from 'components/StopMarket/MyOrders/components'
+import { APP_PATHS } from 'constants/index'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
-import { useShowPricingChart } from 'state/user/hooks'
+import { useShowOpenLimitOrders, useShowPricingChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { getTradeProductPath } from 'utils/routes'
 
 /** The limit-order panel's card, which both cards of the order panel use; on phones each runs edge to edge. */
 export const ORDER_PANEL_CARD_CLASS =
@@ -78,25 +81,31 @@ const OrdersCardSkeleton = () => (
 /**
  * Stands in for the order panel while its code loads, card for card, so the page keeps its shape
  * instead of showing a spinner. The market card opens on the chart where the panel would, which
- * follows the Pricing Chart setting and the chain.
+ * follows the Pricing Chart setting and the chain. Stop market order leaves the card out when it hides the open
+ * limit orders and has no chart either.
  */
 const OrderListSkeleton = () => {
   const { chainId } = useLimitOrderContext()
+  const { pathname } = useLocation()
   const isShowPricingChart = useShowPricingChart()
+  const isShowOpenLimitOrders = useShowOpenLimitOrders()
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
+  const hasOrderBook = getTradeProductPath(pathname) !== APP_PATHS.STOP_MARKET || isShowOpenLimitOrders
 
   return (
     <>
-      <Stack className={ORDER_PANEL_CARD_CLASS}>
-        <TabsRowSkeleton widths={hasChart ? [60, 130] : [130]} />
-        {hasChart ? (
-          <ChartSkeleton />
-        ) : (
-          <div className="min-h-20">
-            <StopMarketRowsSkeleton isActiveTab />
-          </div>
-        )}
-      </Stack>
+      {(hasChart || hasOrderBook) && (
+        <Stack className={ORDER_PANEL_CARD_CLASS}>
+          <TabsRowSkeleton widths={[...(hasChart ? [60] : []), ...(hasOrderBook ? [130] : [])]} />
+          {hasChart ? (
+            <ChartSkeleton />
+          ) : (
+            <div className="min-h-20">
+              <StopMarketRowsSkeleton isActiveTab />
+            </div>
+          )}
+        </Stack>
+      )}
       <OrdersCardSkeleton />
     </>
   )

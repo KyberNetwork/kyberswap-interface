@@ -21,7 +21,7 @@ import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
-import { useShowPricingChart } from 'state/user/hooks'
+import { useShowOpenLimitOrders, useShowPricingChart } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 import { getTradeProductPath } from 'utils/routes'
 
@@ -195,6 +195,10 @@ const OrderList = () => {
   // The chart follows the Pricing Chart display setting it shares with Swap.
   const isShowPricingChart = useShowPricingChart()
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
+  // Stop market order can hide the open limit orders from its settings; the Limit page always offers them,
+  // as it has no settings to bring them back.
+  const isShowOpenLimitOrders = useShowOpenLimitOrders()
+  const hasOrderBook = !isStopMarketPage || isShowOpenLimitOrders
   const marketTabs: PanelTab<MarketTab>[] = [
     ...(hasChart
       ? [
@@ -209,19 +213,23 @@ const OrderList = () => {
           },
         ]
       : []),
-    {
-      id: LimitOrderTab.ORDER_BOOK,
-      label: (
-        <>
-          <span className="max-sm:hidden">
-            <Trans>Open Limit Orders</Trans>
-          </span>
-          <span className="sm:hidden">
-            <Trans>Open Orders</Trans>
-          </span>
-        </>
-      ),
-    },
+    ...(hasOrderBook
+      ? [
+          {
+            id: LimitOrderTab.ORDER_BOOK as const,
+            label: (
+              <>
+                <span className="max-sm:hidden">
+                  <Trans>Open Limit Orders</Trans>
+                </span>
+                <span className="sm:hidden">
+                  <Trans>Open Orders</Trans>
+                </span>
+              </>
+            ),
+          },
+        ]
+      : []),
   ]
   // Folds the market card to its tab bar, leaving the page to the orders.
   const [isMarketCollapsed, setIsMarketCollapsed] = useState(false)
@@ -234,8 +242,8 @@ const OrderList = () => {
   useEffect(() => {
     if (isMarketTab(tabQuery)) setChosenMarketTab(tabQuery)
   }, [tabQuery])
-  // Opens on the chart where there is one, else on the open limit orders, which are always offered.
-  const marketTab = marketTabs.find(tab => tab.id === chosenMarketTab)?.id ?? marketTabs[0].id
+  // Opens on the chart where there is one, else on the open limit orders; with neither, the market card is left out.
+  const marketTab = marketTabs.find(tab => tab.id === chosenMarketTab)?.id ?? marketTabs[0]?.id
   const selectMarketTab = (tab: MarketTab) => {
     setChosenMarketTab(tab)
     if (!syncOrderListTabWithQuery) return
@@ -294,49 +302,51 @@ const OrderList = () => {
 
   return (
     <>
-      <Stack className={ORDER_PANEL_CARD_CLASS} data-testid="order-panel-market">
-        <PanelTabs
-          tabs={marketTabs}
-          activeTab={marketTab}
-          onChange={tab => {
-            selectMarketTab(tab)
-            setIsMarketCollapsed(false)
-          }}
-          dataTestId="order-market-tab"
-          rightSlot={
-            <button
-              type="button"
-              aria-label={isMarketCollapsed ? t`Expand` : t`Collapse`}
-              aria-expanded={!isMarketCollapsed}
-              data-testid="order-market-collapse"
-              onClick={() => setIsMarketCollapsed(collapsed => !collapsed)}
-              className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-subText transition-colors hover:bg-tabActive-80 hover:text-text"
-            >
-              <ChevronUp
-                size={18}
-                className={cn('transition-transform duration-200', isMarketCollapsed && 'rotate-180')}
-              />
-            </button>
-          }
-        />
-        {!isMarketCollapsed && (
-          <Stack className="border-t border-darkBorder">
-            {marketTab === LimitOrderTab.PRICE ? (
-              <OrdersPriceChart
-                currencyIn={currencyIn}
-                currencyOut={currencyOut}
-                isStopMarketPage={isStopMarketPage}
-                onShowOrders={orderKind => showOpenOrders(orderKind === 'stop' ? OrderKind.STOP : OrderKind.LIMIT)}
-              />
-            ) : (
-              <>
-                <OrderBook />
-                <MyOpenOrdersLink count={counts.limit} onClick={showMyLimitOrders} />
-              </>
-            )}
-          </Stack>
-        )}
-      </Stack>
+      {marketTab && (
+        <Stack className={ORDER_PANEL_CARD_CLASS} data-testid="order-panel-market">
+          <PanelTabs
+            tabs={marketTabs}
+            activeTab={marketTab}
+            onChange={tab => {
+              selectMarketTab(tab)
+              setIsMarketCollapsed(false)
+            }}
+            dataTestId="order-market-tab"
+            rightSlot={
+              <button
+                type="button"
+                aria-label={isMarketCollapsed ? t`Expand` : t`Collapse`}
+                aria-expanded={!isMarketCollapsed}
+                data-testid="order-market-collapse"
+                onClick={() => setIsMarketCollapsed(collapsed => !collapsed)}
+                className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-subText transition-colors hover:bg-tabActive-80 hover:text-text"
+              >
+                <ChevronUp
+                  size={18}
+                  className={cn('transition-transform duration-200', isMarketCollapsed && 'rotate-180')}
+                />
+              </button>
+            }
+          />
+          {!isMarketCollapsed && (
+            <Stack className="border-t border-darkBorder">
+              {marketTab === LimitOrderTab.PRICE ? (
+                <OrdersPriceChart
+                  currencyIn={currencyIn}
+                  currencyOut={currencyOut}
+                  isStopMarketPage={isStopMarketPage}
+                  onShowOrders={orderKind => showOpenOrders(orderKind === 'stop' ? OrderKind.STOP : OrderKind.LIMIT)}
+                />
+              ) : (
+                <>
+                  <OrderBook />
+                  <MyOpenOrdersLink count={counts.limit} onClick={showMyLimitOrders} />
+                </>
+              )}
+            </Stack>
+          )}
+        </Stack>
+      )}
 
       <Stack ref={ordersCardRef} className={cn(ORDER_PANEL_CARD_CLASS, 'scroll-mt-4')} data-testid="order-panel-orders">
         <PanelTabs

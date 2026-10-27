@@ -28,6 +28,7 @@ import {
   removeSerializedToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
+  toggleOpenLimitOrders,
   togglePricingChart,
   toggleSuccessSound,
   toggleTradeRoutes,
@@ -456,6 +457,15 @@ export function useShowPricingChart(): boolean {
 export function useTogglePricingChart(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(togglePricingChart()), [dispatch])
+}
+
+export function useShowOpenLimitOrders(): boolean {
+  return useSelector((state: AppState) => state.user.showOpenLimitOrders ?? true)
+}
+
+export function useToggleOpenLimitOrders(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleOpenLimitOrders()), [dispatch])
 }
 
 export function useShowTradeRoutes(): boolean {
