@@ -326,9 +326,12 @@ const StopMarketConfirmModal = ({
   ...review
 }: Props) => {
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false)
+  const [isTermsExpanded, setIsTermsExpanded] = useState(false)
   // Each review asks afresh until an order is placed.
   useEffect(() => {
-    if (isOpen) setHasAcceptedTerms(false)
+    if (!isOpen) return
+    setHasAcceptedTerms(false)
+    setIsTermsExpanded(false)
   }, [isOpen])
 
   const isBlocked = isStopMarketReviewBlocked(review) || (!!requiresTermsAcceptance && !hasAcceptedTerms)
@@ -352,19 +355,43 @@ const StopMarketConfirmModal = ({
             className="flex cursor-pointer items-start gap-2.5 text-xs text-subText"
             data-testid="stop-market-confirm-terms"
           >
+            {/* Drawn rather than native, so it shows the modal through it until it is ticked. */}
             <CheckBox
               borderStyle
-              className="mt-px size-4 shrink-0 cursor-pointer border-subText"
+              className="mt-px size-3.5 min-w-3.5 cursor-pointer rounded-[3px] border-subText before:size-2.5"
               checked={hasAcceptedTerms}
               onChange={event => setHasAcceptedTerms(event.target.checked)}
               data-testid="stop-market-confirm-terms-checkbox"
             />
             <span>
               <Trans>
-                I understand this order executes automatically at the live market price when triggered, based on
-                third-party price data, without further confirmation. It may be delayed or may not execute, and the
-                final price can vary within my slippage setting.
+                I acknowledge that Stop Market order will be automatically triggered and executed based on my specified
+                parameters and third-party price data, without further confirmation, and accept the associated risks.
               </Trans>
+              {isTermsExpanded && (
+                <span className="block">
+                  <Trans>
+                    Execution may be delayed, fail, or occur at a price different from my specified trigger price due to
+                    market conditions, price data delays or discrepancies, or technical issues.
+                  </Trans>
+                </span>
+              )}
+              {!isTermsExpanded && ' '}
+              <button
+                type="button"
+                // Inside the label, a click would otherwise tick the box as well.
+                onClick={event => {
+                  event.preventDefault()
+                  setIsTermsExpanded(expanded => !expanded)
+                }}
+                className={cn(
+                  'cursor-pointer border-0 bg-transparent p-0 text-xs text-primary hover:brightness-125',
+                  isTermsExpanded && 'block',
+                )}
+                data-testid="stop-market-confirm-terms-toggle"
+              >
+                {isTermsExpanded ? <Trans>See less</Trans> : <Trans>See more</Trans>}
+              </button>
             </span>
           </label>
         )}

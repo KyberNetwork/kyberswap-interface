@@ -35,8 +35,5 @@ export const DEFAULT_MAX_FEES_PERCENTAGE = [1, 1]
 /** Ceiling on what the operator may spend on gas, as a percentage of the trade. */
 export const DEFAULT_MAX_GAS_PERCENTAGE = 50
 
-/**
- * The highest tier rate. A fee taking a larger share of the order is the flat minimum at work on a small
- * one, which is worth pointing out.
- */
+/** The share of the order above which the fee is called out as high, so the user can weigh the order's size. */
 export const HIGH_FEE_SHARE_PERCENT = 5
