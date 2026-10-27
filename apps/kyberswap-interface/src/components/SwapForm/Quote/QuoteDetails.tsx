@@ -34,7 +34,7 @@ export const QuoteDetailRow = ({ label, tooltip, children, loading = false }: Qu
       <QuoteDetailLabel hasTooltip={false}>{label}</QuoteDetailLabel>
     )}
     <div className="min-w-0 text-right font-medium text-text">
-      {loading ? <Skeleton width={80} height={14} /> : children}
+      {loading ? <Skeleton width={80} height={14} randomWidth /> : children}
     </div>
   </HStack>
 )
