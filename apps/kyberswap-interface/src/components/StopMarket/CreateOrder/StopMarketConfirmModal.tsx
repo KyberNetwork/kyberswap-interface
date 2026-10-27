@@ -285,10 +285,9 @@ export const StopMarketReviewSummary = ({
             {swapPath ? (
               <Trans>
                 Your trigger is very close to the current price. If you want to trade instantly, use{' '}
-                <Link to={swapPath} className="text-warning underline hover:brightness-125">
-                  Swap
+                <Link to={swapPath} className="text-primary hover:brightness-125">
+                  Swap.
                 </Link>
-                .
               </Trans>
             ) : (
               <Trans>Your trigger is very close to the current price. If you want to trade instantly, use Swap.</Trans>
