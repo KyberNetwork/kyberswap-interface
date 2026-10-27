@@ -13,7 +13,11 @@ import { getSwapCurrencyId } from 'components/LimitOrder/TakeOrder/utils'
 import Modal from 'components/Modal'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import { StopMarketFeeTooltip, getStopMarketFeeLabel } from 'components/StopMarket/Form/StopMarketFeeSummary'
+import {
+  StopMarketFeeNotes,
+  StopMarketFeeTooltip,
+  getStopMarketFeeLabel,
+} from 'components/StopMarket/Form/StopMarketFeeSummary'
 import { StopMarketWarning } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
@@ -354,6 +358,8 @@ const StopMarketConfirmModal = ({
         </HStack>
 
         <StopMarketReviewSummary {...review} hideExecutionNote={requiresTermsAcceptance} />
+        {/* The summary reports a fee it could not estimate; this adds only the share a small order pays. */}
+        <StopMarketFeeNotes fee={review.fee} isLoading={review.isFeeLoading} showShareWarning />
 
         {requiresTermsAcceptance && (
           <label
