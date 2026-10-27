@@ -158,6 +158,23 @@ export const placeMarkerLabels = (
 }
 
 /**
+ * Finds lines of different kinds that land on one pixel row, such as a limit order and a stop market order at
+ * one price. Each row returned holds two or more lines, top to bottom; they are drawn as one line in their
+ * colours by turns, as either colour alone would hide the other.
+ */
+export const findSharedLines = <T extends { y: number; groupKey: string }>(clusters: T[], tolerance = 1): T[][] => {
+  const rows: T[][] = []
+  ;[...clusters]
+    .sort((a, b) => a.y - b.y)
+    .forEach(cluster => {
+      const row = rows[rows.length - 1]
+      if (row && cluster.y - row[0].y < tolerance) row.push(cluster)
+      else rows.push([cluster])
+    })
+  return rows.filter(row => new Set(row.map(cluster => cluster.groupKey)).size > 1)
+}
+
+/**
  * Splits markers into those on the visible pane and counts of those beyond its top and bottom edges.
  * `toY` returns null only while the chart has no data to place a price against.
  */

@@ -5,6 +5,7 @@ import {
   clusterMarkers,
   clusterMarkersByGroup,
   countMarkersByGroup,
+  findSharedLines,
   flattenMarkerGroups,
   getCrossingArrow,
   invertMarkerOverlay,
@@ -186,6 +187,21 @@ describe('placeMarkerLabels', () => {
       [100, 0],
       [140, 0],
     ])
+  })
+})
+
+describe('findSharedLines', () => {
+  const line = (groupKey: string, y: number) => ({ groupKey, y })
+
+  it('pairs lines of different kinds on one pixel row', () => {
+    const stop = line('stop', 100)
+    const limit = line('limit', 100.4)
+    expect(findSharedLines([line('limit', 40), limit, stop])).toEqual([[stop, limit]])
+  })
+
+  it('leaves lines a pixel or more apart, or of one kind, on their own', () => {
+    expect(findSharedLines([line('stop', 100), line('limit', 101)])).toEqual([])
+    expect(findSharedLines([line('stop', 100), line('stop', 100)])).toEqual([])
   })
 })
 

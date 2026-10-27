@@ -37,6 +37,7 @@ import {
   type PriceMarkerOverlay,
   clusterMarkersByGroup,
   countMarkersByGroup,
+  findSharedLines,
   flattenMarkerGroups,
   getCrossingArrow,
   placeMarkerLabels,
@@ -82,8 +83,12 @@ type TokenPriceChartCanvasProps = {
   onOffscreenChange?: (counts: Record<string, number>) => void
 }
 
+/** Lines of different kinds on one pixel row, drawn as one line in their colours by turns. */
+type SharedMarkerLine = { y: number; colors: string[] }
+
 type MarkerLayout = {
   clusters: PlacedMarkerCluster[]
+  sharedLines: SharedMarkerLine[]
   aboveIds: string[]
   belowIds: string[]
   scaleWidth: number
@@ -104,8 +109,12 @@ const MAX_MARKER_LINES = 6
 const MAX_MARKER_LINES_MOBILE = 3
 /** How long a marker's details stay open after the pointer leaves, so it can travel into them. */
 const MARKER_DETAILS_CLOSE_DELAY_MS = 150
+/** Each colour's dash on a shared line, and the gap after it. */
+const SHARED_LINE_DASH_PX = 6
+const SHARED_LINE_GAP_PX = 3
 const EMPTY_MARKER_LAYOUT: MarkerLayout = {
   clusters: [],
+  sharedLines: [],
   aboveIds: [],
   belowIds: [],
   scaleWidth: 0,
@@ -126,11 +135,23 @@ const clusterKey = (cluster: PlacedMarkerCluster) => cluster.ids.join(',')
 const getMarkerLayoutKey = (layout: MarkerLayout) =>
   [
     layout.clusters.map(cluster => `${clusterKey(cluster)}@${Math.round(cluster.y)}#${cluster.column}`).join('|'),
+    layout.sharedLines.map(line => `${Math.round(line.y)}:${line.colors.join('/')}`).join('|'),
     layout.aboveIds.join(','),
     layout.belowIds.join(','),
     layout.scaleWidth,
     layout.paneHeight,
   ].join(';')
+
+/** A dashed line that gives each colour a dash in turn. */
+const getSharedLineBackground = (colors: string[]) => {
+  const step = SHARED_LINE_DASH_PX + SHARED_LINE_GAP_PX
+  const stops = colors.map((color, index) => {
+    const start = index * step
+    const dashEnd = start + SHARED_LINE_DASH_PX
+    return `${color} ${start}px ${dashEnd}px, transparent ${dashEnd}px ${start + step}px`
+  })
+  return `repeating-linear-gradient(90deg, ${stops.join(', ')})`
+}
 
 const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
   if (timeFrame === '1d' || timeFrame === '7d') {
@@ -566,6 +587,15 @@ const PriceMarkerLayer = ({
 
   return (
     <>
+      {layout.sharedLines.map(line => (
+        <div
+          key={`${Math.round(line.y)}:${line.colors.join('/')}`}
+          aria-hidden="true"
+          data-testid="price-marker-shared-line"
+          className="pointer-events-none absolute left-0 h-px -translate-y-1/2"
+          style={{ top: line.y, right: layout.scaleWidth, backgroundImage: getSharedLineBackground(line.colors) }}
+        />
+      ))}
       {layout.clusters.map(cluster => {
         const key = clusterKey(cluster)
         const count = cluster.ids.length
@@ -739,9 +769,19 @@ const TokenPriceChartCanvas = ({
         MARKER_LABEL_HEIGHT_PX,
       )
       const lineColors = clusters.map(cluster => markerColorsRef.current[getClusterGroup(cluster, groups).tone])
+      const colorByCluster = new Map(clusters.map((cluster, index) => [cluster, lineColors[index]]))
+      // A shared row keeps each line's axis label but draws the line itself once, in the overlay.
+      const sharedRows = findSharedLines(clusters)
+      const sharedClusters = new Set(sharedRows.flat())
+      const sharedLines = sharedRows.map(row => ({
+        y: row[0].y,
+        colors: [...new Set(row.map(cluster => colorByCluster.get(cluster) ?? ''))],
+      }))
 
       // Lines are only rebuilt when the set of drawn prices or their colours changes, not on every scroll frame.
-      const linePricesKey = clusters.map((cluster, index) => `${cluster.price}:${lineColors[index]}`).join(',')
+      const linePricesKey = clusters
+        .map((cluster, index) => `${cluster.price}:${lineColors[index]}:${sharedClusters.has(cluster)}`)
+        .join(',')
       if (linePricesKey !== markerLinePricesKeyRef.current) {
         markerLinePricesKeyRef.current = linePricesKey
         markerPriceLinesRef.current.forEach(line => series.removePriceLine(line))
@@ -751,7 +791,7 @@ const TokenPriceChartCanvas = ({
             color: lineColors[index],
             lineWidth: 1,
             lineStyle: LineStyle.Dotted,
-            lineVisible: true,
+            lineVisible: !sharedClusters.has(cluster),
             axisLabelVisible: true,
             title: '',
           }),
@@ -760,6 +800,7 @@ const TokenPriceChartCanvas = ({
 
       const layout = {
         clusters,
+        sharedLines,
         aboveIds,
         belowIds,
         scaleWidth: chart.priceScale('right').width(),
