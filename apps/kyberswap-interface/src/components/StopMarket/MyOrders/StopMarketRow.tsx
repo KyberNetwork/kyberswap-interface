@@ -47,6 +47,8 @@ type Props = {
   isCancelling: boolean
   /** The wallet's balance and allowance for this order's sell token, read by the list per chain. */
   funding?: StopMarketFunding
+  /** The list has confirmed the order is still open since `funding` fell short, so the shortfall is real. */
+  showFundingWarnings?: boolean
   /** Position on the page, which staggers the rows' entrance. */
   rowIndex?: number
   onCancel: (order: StopMarket) => void
@@ -72,6 +74,7 @@ const StopMarketRow = ({
   isActiveTab,
   isCancelling,
   funding,
+  showFundingWarnings,
   rowIndex = 0,
   onCancel,
   onEdit,
@@ -159,7 +162,8 @@ const StopMarketRow = ({
 
   const warnings = [
     ...getStopMarketWarnings(order).map(warning => ({ code: warning.code, message: warning.message })),
-    ...(retry
+    // Settling moves the balance on purpose, so an order mid-execution is not warned about it.
+    ...(retry || !showFundingWarnings || status === StopMarketDisplayStatus.TRIGGERED
       ? []
       : fundingShortfalls.map(shortfall =>
           shortfall === 'balance'

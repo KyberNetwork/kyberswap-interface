@@ -9,17 +9,17 @@ import { NotificationType } from 'components/Announcement/type'
 import { getStopMarketExecutedTemplateIds } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useNotify, useRefreshPrivateAnnouncements } from 'state/application/hooks'
+import { useNotify, usePrivateAnnouncementsVersion, useRefreshPrivateAnnouncements } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const POLL_INTERVAL = 30_000
+const POLL_INTERVAL = 10_000
 /** An execution sent longer ago than this is not news; the order history already shows it. */
 const RECENT_EXECUTION_SECS = 5 * 60
 
-const ExecutedSummary = ({ execution }: { execution: StopMarketExecution }) => {
-  const { chainId, txHash, amountIn, tokenInSymbol, amountOut, tokenOutSymbol } = execution
+const ExecutedSummary = ({ execution }: { execution?: StopMarketExecution }) => {
+  const { chainId, txHash, amountIn, tokenInSymbol, amountOut, tokenOutSymbol } = execution ?? {}
   const sold = `${formatDisplayNumber(amountIn, { significantDigits: 6 })} ${tokenInSymbol}`
   const received = `${formatDisplayNumber(amountOut, { significantDigits: 6 })} ${tokenOutSymbol}`
   return (
@@ -45,9 +45,9 @@ const ExecutedSummary = ({ execution }: { execution: StopMarketExecution }) => {
 
 /**
  * Tells the user, wherever they are in the app, when one of their stop market orders executes. The order
- * service has no push channel, so the notification service is asked every 30 seconds for the executed
- * template. What the first answer for a wallet already holds is only recorded, never shown, so opening the
- * app does not replay past executions.
+ * service has no push channel, so the notification service is asked for the executed template every 10
+ * seconds, as often as the orders list refreshes. What the first answer for a wallet already holds is only
+ * recorded, never shown, so opening the app does not replay past executions.
  */
 export const useStopMarketExecutedNotifications = () => {
   const { account } = useActiveWeb3React()
@@ -56,7 +56,7 @@ export const useStopMarketExecutedNotifications = () => {
   const dispatch = useDispatch()
   const templateIds = getStopMarketExecutedTemplateIds()
 
-  const { currentData } = useGetNotificationsQuery(
+  const { currentData, refetch } = useGetNotificationsQuery(
     { account: account ?? '', templateIds, page: 1, pageSize: 10 },
     {
       skip: !account || !templateIds,
@@ -65,6 +65,14 @@ export const useStopMarketExecutedNotifications = () => {
       refetchOnFocus: true,
     },
   )
+
+  // Asked again whenever the inbox is told to refresh, e.g. once an order leaves the Active list, so its
+  // execution is announced without waiting for the next poll.
+  const privateAnnouncementsVersion = usePrivateAnnouncementsVersion()
+  const isQuerying = !!account && !!templateIds
+  useEffect(() => {
+    if (privateAnnouncementsVersion && isQuerying) refetch()
+  }, [privateAnnouncementsVersion, isQuerying, refetch])
 
   const seenRef = useRef<{ account?: string; ids: Set<number> }>({ ids: new Set() })
   useEffect(() => {
@@ -85,14 +93,13 @@ export const useStopMarketExecutedNotifications = () => {
     // The orders table and the inbox would otherwise wait for their own next refresh to show the execution.
     dispatch(stopMarketApi.util.invalidateTags([RTK_QUERY_TAGS.GET_STOP_MARKET_LIST]))
     refreshPrivateAnnouncements()
+    // Announced even when the body cannot be read: the execution happened, only its details are missing.
     fresh.forEach(item => {
-      const execution = getStopMarketExecution(item)
-      if (!execution) return
       notify(
         {
           type: NotificationType.SUCCESS,
           title: t`Stop Market order executed`,
-          summary: <ExecutedSummary execution={execution} />,
+          summary: <ExecutedSummary execution={getStopMarketExecution(item)} />,
         },
         10_000,
       )

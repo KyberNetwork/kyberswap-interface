@@ -19,6 +19,7 @@ import {
   StopMarketTabSelector,
 } from 'components/StopMarket/MyOrders/components'
 import { STOP_MARKET_DEFAULT_EXPIRE, getStopMarketExpiryPresets } from 'components/StopMarket/constants'
+import { useConfirmedFundingShortfalls } from 'components/StopMarket/hooks/useConfirmedFundingShortfalls'
 import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { useStopMarketsFunding } from 'components/StopMarket/hooks/useStopMarketsFunding'
 import { StopMarket, StopMarketStatus } from 'components/StopMarket/types'
@@ -33,6 +34,7 @@ import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useRefreshPrivateAnnouncements } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { updateStopMarketForm } from 'state/stopMarket/reducer'
@@ -152,6 +154,8 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
     isFetching,
     isError,
     isSuccess: isLoaded,
+    startedTimeStamp,
+    refetch,
   } = useGetStopMarketsQuery(
     {
       userWallet: account || '',
@@ -175,6 +179,25 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
 
   // Only open orders can still fail for want of funds, so History reads nothing.
   const funding = useStopMarketsFunding(orders, isActiveTab)
+  // An order leaving the Active list has executed, been cancelled or expired, and the inbox may now hold news of
+  // it. Judged only between reads of the same page and filters, where nothing else takes an order off it.
+  const refreshPrivateAnnouncements = useRefreshPrivateAnnouncements()
+  const listedRef = useRef<{ key: string; ids: number[] } | undefined>(undefined)
+  const listKey = JSON.stringify([account, queriedChainIds, debouncedKeyword, curPage])
+  useEffect(() => {
+    if (!isActiveTab || !currentData) return
+    const ids = currentData.orders.map(order => order.id)
+    const previous = listedRef.current
+    listedRef.current = { key: listKey, ids }
+    if (previous?.key === listKey && previous.ids.some(id => !ids.includes(id))) refreshPrivateAnnouncements()
+  }, [isActiveTab, currentData, listKey, refreshPrivateAnnouncements])
+
+  const confirmedShortfallIds = useConfirmedFundingShortfalls(orders, funding, isActiveTab, {
+    isFetching,
+    isSuccess: isLoaded,
+    startedTimeStamp,
+    refetch,
+  })
 
   const hasOrders = orders.length > 0
   const isInitialLoading = !!account && !currentData && !isError
@@ -330,6 +353,7 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
             isActiveTab={isActiveTab}
             isCancelling={isActiveTab && cancellingIds.includes(order.id)}
             funding={funding[getStopMarketFundingKey(order.chainId, order.tokenIn)]}
+            showFundingWarnings={confirmedShortfallIds.has(order.id)}
             onCancel={target => {
               setIsCancelAll(false)
               setCancelTargets([target])
