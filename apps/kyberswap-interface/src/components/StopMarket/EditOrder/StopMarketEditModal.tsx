@@ -36,6 +36,7 @@ import {
   MAX_STOP_MARKET_DEADLINE,
   formatTriggerPriceValue,
   getStopMarketTriggerPrice,
+  getTriggerPercent,
 } from 'components/StopMarket/utils'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useActiveWeb3React } from 'hooks'
@@ -165,7 +166,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
   )
   const trigger = Number(triggerPrice)
   const hasTrigger = trigger > 0 && Number.isFinite(trigger)
-  const triggerPercent = marketPrice && hasTrigger ? ((trigger - marketPrice) / marketPrice) * 100 : undefined
+  const triggerPercent = marketPrice && hasTrigger ? getTriggerPercent(trigger, marketPrice) : undefined
 
   /** The percent chip is the same value from the other side, so typing in it drives the price. */
   const onChangeTriggerPercent = (percent: string) => {

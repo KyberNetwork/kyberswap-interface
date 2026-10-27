@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { calcOutput, calcRate } from 'components/LimitOrder/utils'
 import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
 import { useStopMarketSlippageOptions } from 'components/StopMarket/hooks/useStopMarketSlippageOptions'
-import { formatTriggerPriceValue, getStopMarketPairKey } from 'components/StopMarket/utils'
+import { formatTriggerPriceValue, getStopMarketPairKey, getTriggerPercent } from 'components/StopMarket/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -110,7 +110,7 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
   const triggerPercent = useMemo(() => {
     const price = Number(triggerPrice)
     if (!marketPrice || !price || !Number.isFinite(price)) return undefined
-    return ((price - marketPrice) / marketPrice) * 100
+    return getTriggerPercent(price, marketPrice)
   }, [triggerPrice, marketPrice])
 
   const onChangeTriggerPrice = setTriggerPrice

@@ -148,6 +148,22 @@ export const formatTriggerPriceValue = (value: number | undefined): string => {
   return removeTrailingZero(value.toFixed(fractionDigits))
 }
 
+/**
+ * Below this, a trigger's distance from the oracle price is what writing the trigger to
+ * `TRIGGER_PRICE_SIGNIFICANT_DIGITS` leaves (at most 0.0005%), not a distance anyone set; a deliberate small
+ * one, such as -0.009%, stays well above it.
+ */
+const TRIGGER_AT_MARKET_PERCENT = 0.001
+
+/**
+ * The trigger's signed distance from the market price in percent, negative below it. A trigger set at the
+ * market reads as exactly at it, rather than a hair off from the rounding of its own figure.
+ */
+export const getTriggerPercent = (triggerPrice: number, marketPrice: number): number => {
+  const percent = ((triggerPrice - marketPrice) / marketPrice) * 100
+  return Math.abs(percent) < TRIGGER_AT_MARKET_PERCENT ? 0 : percent
+}
+
 export type TriggerProximity = 'far' | 'near' | 'imminent'
 
 /**

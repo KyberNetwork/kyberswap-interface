@@ -28,6 +28,7 @@ import {
   getStopMarketServiceErrorMessage,
   getStopMarketWarnings,
   getTriggerDirection,
+  getTriggerPercent,
   getTriggerProximity,
   groupStopMarketTokensByChain,
   hasReservedBalanceShortfall,
@@ -178,6 +179,18 @@ describe('formatDistanceMagnitude', () => {
 
   it('reads zero only for a trigger exactly at the market', () => {
     expect(formatDistanceMagnitude(0)).toBe('0.0')
+  })
+})
+
+describe('getTriggerPercent', () => {
+  it('reads a trigger written from the market price as at it', () => {
+    const market = 0.6136193
+    expect(getTriggerPercent(Number(formatTriggerPriceValue(market)), market)).toBe(0)
+  })
+
+  it('keeps a deliberate small distance and its sign', () => {
+    expect(getTriggerPercent(99.991, 100)).toBeCloseTo(-0.009)
+    expect(getTriggerPercent(102, 100)).toBeCloseTo(2)
   })
 })
 
