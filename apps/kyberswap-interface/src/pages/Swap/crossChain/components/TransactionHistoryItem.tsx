@@ -19,7 +19,7 @@ import {
 } from 'pages/Swap/crossChain/adapters/types'
 import { GasDropTransactionLine } from 'pages/Swap/crossChain/components/GasDropTransactionLine'
 import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
-import { CrossChainSwapFactory, registry } from 'pages/Swap/crossChain/factory'
+import { registry } from 'pages/Swap/crossChain/factory'
 import type { HistoryTransaction } from 'pages/Swap/crossChain/transactions/history'
 import { useHistoryToken } from 'pages/Swap/crossChain/transactions/useHistoryToken'
 import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
@@ -113,8 +113,6 @@ const TransactionTime = ({ tx }: { tx: HistoryTransaction }) => {
   const adapterAlias = adapter?.getAliases?.().find(alias => normalizeAdapterName(alias.name) === normalizedAdapterName)
   const adapterName = adapterAlias?.name || adapter?.getName() || tx.adapter
   const adapterIcon = adapterAlias?.icon || adapter?.getIcon()
-  const bridgeProvider =
-    CrossChainSwapFactory.getKyberCrossBridgeSource(tx.bridgeProvider) || registry.getAdapter(tx.bridgeProvider)
   const txDate = new Date(tx.timestamp)
   const senderLabel = tx.sender?.includes('.near') ? tx.sender : shortenHash(tx.sender)
 
@@ -130,9 +128,6 @@ const TransactionTime = ({ tx }: { tx: HistoryTransaction }) => {
             alt={adapterName}
             title={adapterName}
           />
-          {bridgeProvider?.getIcon && (
-            <img src={bridgeProvider.getIcon()} className="size-4 rounded-full" alt={bridgeProvider.getName()} />
-          )}
         </div>
         <span className="text-sm font-medium text-text">{format(txDate, 'dd/MM/yyyy')}</span>
         <span className="text-sm font-medium text-subText">{format(txDate, 'HH:mm:ss')}</span>
