@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { ChevronLeft, ChevronRight } from 'react-feather'
 
 import { cn } from 'utils/cn'
@@ -24,7 +24,7 @@ const HistoryPagination = ({
   onPrevious,
   onNext,
   className,
-  ariaLabel = t`Order history pages`,
+  ariaLabel = 'Order history pages',
 }: HistoryPaginationProps) => (
   <nav className={cn('flex items-center justify-center gap-2', className)} aria-label={ariaLabel}>
     <button
@@ -32,7 +32,7 @@ const HistoryPagination = ({
       className={buttonClassName}
       onClick={onPrevious}
       disabled={!canGoPrevious}
-      aria-label={t`Previous page`}
+      aria-label="Previous page"
       data-testid="history-pagination-prev"
     >
       <ChevronLeft width={16} className="text-subText" />
@@ -47,7 +47,7 @@ const HistoryPagination = ({
       className={buttonClassName}
       onClick={onNext}
       disabled={!canGoNext}
-      aria-label={t`Next page`}
+      aria-label="Next page"
       data-testid="history-pagination-next"
     >
       <ChevronRight width={16} className="text-subText" />

@@ -19,6 +19,7 @@ import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
 
 const CrossChainSwap = lazy(() => import('components/SwapForm/CrossChain/CrossChainSwap'))
+const ProcessingTransactions = lazy(() => import('pages/Swap/components/ProcessingTransactions'))
 const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
 const TokenInfo = lazy(() => import('components/TokenInfo'))
 const SwapSettingsPanel = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel'))
@@ -166,6 +167,11 @@ const SwapPageContent = ({
               )}
             </Suspense>
           </div>
+          {activeTab === TAB.SWAP && (
+            <Suspense fallback={null}>
+              <ProcessingTransactions onOpenHistory={() => onHistoryChange(true)} />
+            </Suspense>
+          )}
         </Stack>
 
         {/* Keep the right panel below the form's Route Options flyout. */}

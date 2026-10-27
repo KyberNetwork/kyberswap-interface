@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { type ComponentPropsWithRef } from 'react'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -99,7 +99,7 @@ export const CurrencySelectContent = ({
 }: CurrencySelectContentProps) => {
   if (currencyLoading && !currency) {
     return (
-      <Aligner className="gap-2" role="status" aria-label={t`Loading token`} aria-busy="true">
+      <Aligner className="gap-2" role="status" aria-label="Loading token" aria-busy="true">
         <Skeleton width={hideLogo ? 64 : 92} height={20} />
       </Aligner>
     )

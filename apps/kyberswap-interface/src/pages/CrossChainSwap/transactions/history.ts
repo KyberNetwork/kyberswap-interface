@@ -99,11 +99,17 @@ export const getLoadedHistory = (
 ) => {
   const server = pages.flatMap(page => page.transactions)
   const cachedById = new Map(cached.map(row => [row.id, row]))
+  const listedIds = new Set(server.map(row => row.id))
   const hasMore = !!pages.at(-1)?.nextCursor
   const oldest = server.at(-1)
   const boundary = oldest ? Date.parse(oldest.createdAt) : Infinity
   const transactions = mergeTransactionHistory({
-    server: server.map(row => cachedById.get(row.id) ?? row),
+    server: [
+      ...server.map(row => cachedById.get(row.id) ?? row),
+      // Settlement removes the local row before the list necessarily refetches.
+      // Retain that handoff from detail cache within the same cursor boundary.
+      ...cached.filter(row => !listedIds.has(row.id) && isBackendResolved(row)),
+    ],
     local,
     sender,
   })

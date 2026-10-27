@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
 import { HStack } from 'components/Stack'
@@ -47,7 +47,7 @@ const SortHeader = ({ label, field, sort, onSort }: SortHeaderProps) => (
   </button>
 )
 
-// Copy for one of the switchable metrics. Built per render so the `t` macro picks up locale changes.
+// Visible metric labels stay translated; accessibility labels use English.
 // The labels carry their own casing — the period qualifier reads as "24h", not "24H". That qualifier
 // only fits from `sm` up; below it the wider column would leave the token name a few pixels.
 const metricCopy = (metric: TokenMetricColumn) =>
@@ -63,10 +63,10 @@ const metricCopy = (metric: TokenMetricColumn) =>
             </span>
           </>
         ),
-        show: t`Show 24h volume`,
-        sort: t`Sort by 24h volume`,
+        show: 'Show 24h volume',
+        sort: 'Sort by 24h volume',
       }
-    : { label: <Trans>FDV</Trans>, show: t`Show fully diluted valuation`, sort: t`Sort by fully diluted valuation` }
+    : { label: <Trans>FDV</Trans>, show: 'Show fully diluted valuation', sort: 'Sort by fully diluted valuation' }
 
 // The Trending / New tabs' third column header: a switch choosing which metric the rows show — 24h
 // volume or FDV — plus the sort control for whichever metric is active. The showing metric's
@@ -83,7 +83,7 @@ const MetricColumnHeader = ({ metric, onMetricChange, sort, onSort }: MetricColu
     {/* The column is a fixed width the rows match, and the labels are translatable — so the switch
         shrinks and its labels ellipsize rather than spilling left over the Price column. English
         needs less than the column holds, so it only bites in locales that translate longer. */}
-    <div className="flex min-w-0 items-center rounded-md bg-buttonBlack p-0.5" role="group" aria-label={t`Metric`}>
+    <div className="flex min-w-0 items-center rounded-md bg-buttonBlack p-0.5" role="group" aria-label="Metric">
       {TOKEN_METRIC_COLUMNS.map(option => {
         const active = option === metric
         const copy = metricCopy(option)
