@@ -1,8 +1,10 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { AnimatePresence, type HTMLMotionProps, motion, useReducedMotion } from 'framer-motion'
 import React, { type ReactNode, useState } from 'react'
 import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
 
+import { ReactComponent as FeeIcon } from 'assets/svg/earn/ic_earn_claim_fees.svg'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
@@ -11,6 +13,8 @@ import { HStack, Stack } from 'components/Stack'
 import { formatTime } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
 import { CrossChainRoutesButton } from 'components/SwapForm/CrossChain/Quote/CrossChainRoutesButton'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
+import { ClickTooltip, MouseoverTooltip } from 'components/Tooltip'
+import { Z_INDEXS } from 'constants/styles'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Currency } from 'pages/Swap/crossChain/adapters/types'
 import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
@@ -20,16 +24,28 @@ import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const QuoteRow = ({ selected, children, ...rest }: React.HTMLAttributes<HTMLDivElement> & { selected?: boolean }) => (
-  <div
+const MotionScrollableWithSignal = motion.create(ScrollableWithSignal)
+
+const QuoteRow = ({
+  selected,
+  children,
+  initial = false,
+  ...rest
+}: HTMLMotionProps<'div'> & { selected?: boolean }) => (
+  <motion.div
     {...rest}
+    initial={initial}
+    transition={{
+      layout: { type: 'spring', stiffness: 400, damping: 40 },
+      opacity: { duration: 0.16, delay: 0.1 },
+    }}
     className={cn(
       'cursor-pointer rounded-2xl border border-border p-3 hover:bg-primary-10',
       selected ? 'border-darkGreen bg-primary-10' : 'bg-transparent',
     )}
   >
     {children}
-  </div>
+  </motion.div>
 )
 
 type RouteOptionsContentProps = {
@@ -53,6 +69,9 @@ const RouteOptionsContent = ({
   onDismiss,
   routeBadge,
 }: RouteOptionsContentProps) => {
+  const prefersReducedMotion = useReducedMotion()
+  const FeeTooltip = upToLarge ? ClickTooltip : MouseoverTooltip
+
   return (
     <Stack className="size-full gap-3 text-text">
       <HStack className="justify-between">
@@ -60,77 +79,109 @@ const RouteOptionsContent = ({
         {upToLarge && <CloseIcon onClick={onDismiss} />}
       </HStack>
       <Stack className="flex-1 overflow-y-scroll">
-        <ScrollableWithSignal data-open="true" showArrow className="flex max-h-full flex-col gap-3 overflow-y-auto">
-          {quotes.map((quote, index) => {
-            return (
-              <QuoteRow
-                key={getQuoteId(quote)}
-                selected={(selectedQuote ? getQuoteId(selectedQuote) : null) === getQuoteId(quote)}
-                role="button"
-                onClick={() => onSelect(quote)}
-              >
-                <Stack className="gap-2">
-                  <HStack className="items-center justify-between gap-2">
-                    <HStack className="min-w-0 items-center gap-2">
-                      <HStack className="items-center gap-1">
-                        <TokenLogoWithChain
-                          currency={tokenOut}
-                          chainId={quote.quote.quoteParams.toChain}
-                          size={20}
-                          chainLogoStyle={{
-                            bottom: 0,
-                            top: 'auto',
-                          }}
-                        />
-                        <span className="text-xl font-medium">
-                          {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
-                        </span>
-                        <span className="text-lg font-medium text-subText">{tokenOut?.symbol}</span>
-                      </HStack>
-                      <span className="text-sm font-medium text-subText">
-                        ~
-                        {formatDisplayNumber(quote.quote.outputUsd, {
-                          style: 'currency',
-                          significantDigits: 3,
-                          fractionDigits: 2,
-                        })}
-                      </span>
-                    </HStack>
+        <MotionScrollableWithSignal
+          layoutScroll
+          data-open="true"
+          showArrow
+          className="flex max-h-full flex-col gap-3 overflow-y-auto"
+        >
+          <AnimatePresence initial={false}>
+            {quotes.map((quote, index) => {
+              const additionalFee =
+                (quote.quote.additionalFeeUsd ?? 0) > 0
+                  ? formatDisplayNumber(quote.quote.additionalFeeUsd, { style: 'currency', significantDigits: 3 })
+                  : quote.quote.additionalFeeAmount
 
-                    {routeBadge
-                      ? routeBadge(quote, index)
-                      : index === 0 && (
-                          <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
-                            {t`Best Return`}
-                          </div>
-                        )}
-                  </HStack>
-                  <HStack className="items-center justify-between gap-2 text-sm text-subText">
-                    <HStack className="min-w-0 flex-wrap items-center gap-2">
-                      <QuoteProviderName quote={quote} />
-                      {(quote.quote.additionalFeeUsd ?? 0) > 0 ? (
-                        <span>
-                          {t`Additional fee:`}{' '}
-                          {formatDisplayNumber(quote.quote.additionalFeeUsd, {
+              return (
+                <QuoteRow
+                  key={getQuoteId(quote)}
+                  layout={prefersReducedMotion ? false : 'position'}
+                  initial={prefersReducedMotion ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  selected={(selectedQuote ? getQuoteId(selectedQuote) : null) === getQuoteId(quote)}
+                  role="button"
+                  onClick={() => onSelect(quote)}
+                >
+                  <Stack className="gap-2">
+                    <HStack className="items-center justify-between gap-2">
+                      <HStack className="min-w-0 items-center gap-2">
+                        <HStack className="items-center gap-1">
+                          <TokenLogoWithChain
+                            currency={tokenOut}
+                            chainId={quote.quote.quoteParams.toChain}
+                            size={20}
+                            chainLogoStyle={{
+                              bottom: 0,
+                              top: 'auto',
+                            }}
+                          />
+                          <span className="text-xl font-medium">
+                            {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
+                          </span>
+                          <span className="text-lg font-medium text-subText">{tokenOut?.symbol}</span>
+                        </HStack>
+                        <span className="text-sm font-medium text-subText">
+                          ~
+                          {formatDisplayNumber(quote.quote.outputUsd, {
                             style: 'currency',
                             significantDigits: 3,
+                            fractionDigits: 2,
                           })}
                         </span>
-                      ) : quote.quote.additionalFeeAmount ? (
-                        <span>
-                          {t`Additional fee:`} {quote.quote.additionalFeeAmount}
-                        </span>
-                      ) : null}
+                      </HStack>
+
+                      {routeBadge
+                        ? routeBadge(quote, index)
+                        : index === 0 && (
+                            <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
+                              {t`Best Return`}
+                            </div>
+                          )}
                     </HStack>
-                    <HStack className="shrink-0 items-center gap-1">
-                      <Clock size={14} />
-                      <span>{formatTime(quote.quote.timeEstimate)}</span>
+                    <HStack className="items-center justify-between gap-2 text-sm text-subText">
+                      <HStack className="min-w-0 items-center gap-3">
+                        <QuoteProviderName quote={quote} />
+                        {!!additionalFee && (
+                          <HStack
+                            className="items-center gap-1 whitespace-nowrap"
+                            onClick={event => event.stopPropagation()}
+                          >
+                            <FeeTooltip
+                              text={
+                                <Trans>
+                                  Additional fee charged by <br />
+                                  {quote.adapter.getName()}
+                                </Trans>
+                              }
+                              placement="bottom-start"
+                              width="max-content"
+                              maxWidth="calc(100vw - 32px)"
+                              style={{ zIndex: Z_INDEXS.MODAL + 1 }}
+                            >
+                              <span aria-label={t`Additional Fee`} className="flex items-center">
+                                <FeeIcon
+                                  width={16}
+                                  height={16}
+                                  strokeWidth={1.5}
+                                  className="shrink-0"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            </FeeTooltip>
+                            <span>{additionalFee}</span>
+                          </HStack>
+                        )}
+                      </HStack>
+                      <HStack className="shrink-0 items-center gap-1">
+                        <Clock size={14} />
+                        <span>{formatTime(quote.quote.timeEstimate)}</span>
+                      </HStack>
                     </HStack>
-                  </HStack>
-                </Stack>
-              </QuoteRow>
-            )
-          })}
+                  </Stack>
+                </QuoteRow>
+              )
+            })}
+          </AnimatePresence>
           {isLoading &&
             Array.from({ length: Math.max(1, 6 - quotes.length) }).map((_, index) => {
               return (
@@ -145,7 +196,7 @@ const RouteOptionsContent = ({
           {!quotes.length && !isLoading && (
             <div className="py-6 text-center text-sm font-medium text-subText">{t`No route found`}</div>
           )}
-        </ScrollableWithSignal>
+        </MotionScrollableWithSignal>
       </Stack>
     </Stack>
   )

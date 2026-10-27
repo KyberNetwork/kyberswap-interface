@@ -27,6 +27,7 @@ const lifiSteps = z.object({
     .array(
       z.object({
         type: z.enum(['swap', 'cross', 'protocol']),
+        tool: z.string().optional(),
         toolDetails: z.object({ name: z.string(), logoURI: z.string().optional() }),
         action: z.object({ toToken: token }),
         estimate: z.object({ toAmount: amount }).optional(),
@@ -78,8 +79,10 @@ export const getCrossChainRouteSteps = ({ adapter, quote }: Quote): RouteStep[] 
 
   if (name === 'lifi') {
     const result = lifiSteps.safeParse(raw)
-    if (result.success)
-      return result.data.includedSteps.map(step => ({
+    // LI.FI includes integrator fee collection as a protocol step, not a routing leg.
+    const steps = result.success ? result.data.includedSteps.filter(step => step.tool !== 'feeCollection') : []
+    if (steps.length)
+      return steps.map(step => ({
         type: step.type === 'cross' ? 'bridge' : step.type === 'swap' ? 'swap' : 'route',
         provider: step.toolDetails.name,
         logo: step.toolDetails.logoURI,
