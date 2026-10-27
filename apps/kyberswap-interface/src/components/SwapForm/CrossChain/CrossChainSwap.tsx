@@ -11,10 +11,11 @@ import {
 import { CrossChainQuoteDetails } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteDetails'
 import { CrossChainPriceImpactWarning } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
+import { useCrossChainWalletIntent } from 'components/SwapForm/CrossChain/hooks/useCrossChainWalletIntent'
 import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
+import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
 
 type Props = CrossChainFormSelectionProps
 
@@ -24,6 +25,7 @@ const CrossChainSwap = (props: Props) => {
     useCrossChainSwap()
   const { trackingHandler } = useTracking()
   const [showBitcoin, setShowBitcoin] = useState(false)
+  const walletIntentModal = useCrossChainWalletIntent(fromChainId, () => setShowBitcoin(true))
   const debouncedAmount = useDebounce(amount, 1000)
 
   const input = currencyIn && 'isNative' in currencyIn ? currencyIn : undefined
@@ -51,6 +53,7 @@ const CrossChainSwap = (props: Props) => {
 
   return (
     <>
+      {walletIntentModal}
       <CrossChainSwapForm
         {...props}
         amount={amount}

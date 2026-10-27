@@ -7,10 +7,11 @@ import RouteGraphView from 'components/TradeRouting/RouteGraphView'
 import { buildSequentialRouteGraph } from 'components/TradeRouting/routeGraph'
 import { EmptyRoute, PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
 import { NETWORKS_INFO } from 'constants/networks'
-import { type Chain, type Currency } from 'pages/CrossChainSwap/adapters'
-import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
-import { registry } from 'pages/CrossChainSwap/factory'
 import TradeRoutePanel, { TradeRouteSkeleton } from 'pages/Swap/components/TradeRoutePanel'
+import { type Chain, type Currency } from 'pages/Swap/crossChain/adapters'
+import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
+import { registry } from 'pages/Swap/crossChain/factory'
+import type { Quote } from 'pages/Swap/crossChain/registry'
 import { type RouteStep, getCrossChainRouteSteps } from 'pages/Swap/utils/getCrossChainRouteSteps'
 import { formatDisplayNumber } from 'utils/numbers'
 import { getTokenLogoURL } from 'utils/tokenLogo'
@@ -78,8 +79,25 @@ const RouteTokenLabel = ({ currency, chain, amount }: { currency?: Currency; cha
 
 /** Displays the selected quote using single-chain routing primitives.
  * Provider payload interpretation belongs to getCrossChainRouteSteps; this view must not invent intermediate legs or amounts. */
-const CrossChainTradeRoute = () => {
-  const { currencyIn, currencyOut, fromChainId, toChainId, selectedQuote, loading } = useCrossChainSwap()
+const CrossChainTradeRoute = () => <CrossChainTradeRouteView {...useCrossChainSwap()} />
+
+type Props = {
+  currencyIn?: Currency
+  currencyOut?: Currency
+  fromChainId: Chain
+  toChainId?: Chain
+  selectedQuote: Quote | null
+  loading: boolean
+}
+
+export const CrossChainTradeRouteView = ({
+  currencyIn,
+  currencyOut,
+  fromChainId,
+  toChainId,
+  selectedQuote,
+  loading,
+}: Props) => {
   const steps = useMemo(() => (selectedQuote ? getCrossChainRouteSteps(selectedQuote) : []), [selectedQuote])
   const graph = useMemo(() => buildCrossChainGraph(steps), [steps])
   const quote = selectedQuote?.quote

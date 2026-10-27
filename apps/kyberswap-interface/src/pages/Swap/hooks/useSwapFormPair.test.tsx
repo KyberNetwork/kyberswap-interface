@@ -7,13 +7,14 @@ import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { NativeCurrencies } from 'constants/tokens'
-import { NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import SwapRoute from 'pages/Swap/SwapRoute'
+import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
 import { TAB, Tabs } from 'pages/Swap/layout/Tabs'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
+import { getEmbeddedSwapPair, getTradeLocation } from 'utils/swapFlow'
 
 vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
 i18n.loadAndActivate({ locale: 'en', messages: {} })
@@ -47,14 +48,14 @@ vi.mock('hooks/usePageLocation', async () => {
   const { useLocation } = await import('react-router-dom')
   return {
     default: function usePageLocation() {
-      return { ...useLocation(), isEmbeddedSwap: false }
+      const location = useLocation()
+      return { ...location, isEmbeddedSwap: /^\/(partner-swap|user-swap)/.test(location.pathname) }
     },
   }
 })
 vi.mock('hooks/usePrefetchOnIntent', () => ({ default: () => ({}) }))
 vi.mock('hooks/web3/useSyncNetworkParamWithStore', () => ({ useSyncNetworkParamWithStore: vi.fn() }))
 vi.mock('pages/Swap/SwapPage', () => ({ default: () => <Page /> }))
-vi.mock('pages/CrossChainSwap/loader', () => ({ prefetchCrossChainSwap: vi.fn() }))
 vi.mock('pages/Swap/layout/LimitTab', () => ({
   LimitTab: ({ onClick }: { onClick: () => void }) => <button onClick={onClick}>Limit Order</button>,
 }))
@@ -70,15 +71,16 @@ const usdc = new WrappedTokenInfo({
 const weth = new Token(ChainId.BASE, '0x4200000000000000000000000000000000000006', 18, 'WETH')
 tokens.values = [usdc, weth]
 
-function Page() {
+function Page({ getPairLocation }: { getPairLocation?: Parameters<typeof useSwapFormPair>[0] }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const pair = useSwapFormPair()
-  const activeTab = location.pathname.startsWith('/limit')
-    ? TAB.LIMIT
-    : location.pathname === '/cross-chain'
-    ? TAB.CROSS_CHAIN
-    : TAB.SWAP
+  const pair = useSwapFormPair(getPairLocation)
+  const activeTab =
+    location.pathname.startsWith('/limit') || new URLSearchParams(location.search).get('tab') === TAB.LIMIT
+      ? TAB.LIMIT
+      : location.pathname === '/kybercross'
+      ? TAB.KYBER_CROSS
+      : TAB.SWAP
   return (
     <>
       <Tabs activeTab={activeTab} onTabChange={() => undefined} />
@@ -114,7 +116,12 @@ const render = async (url: string) => {
             <Route path="/swap" element={<SwapRoute />} />
             <Route path="/swap/:network/:currency?" element={<SwapRoute />} />
             <Route path="/limit/:network/:currency?" element={<Page />} />
-            <Route path="/cross-chain" element={<Page />} />
+            <Route
+              path="/kybercross"
+              element={<Page getPairLocation={(pair, params) => getTradeLocation('kybercross', pair, params)} />}
+            />
+            <Route path="/partner-swap" element={<Page />} />
+            <Route path="/user-swap/:tipsId?" element={<Page />} />
           </Routes>
         </MemoryRouter>
       </I18nProvider>,
@@ -148,6 +155,121 @@ describe('unified swap pair navigation', () => {
     await click('Swap')
     expect(url()).toBe(`/swap/base/${weth.address.toLowerCase()}-to-usdc?input=12`)
     expect(pairText()).toBe(pair)
+  })
+
+  it('keeps embedded attribution and chain/token params when entering and leaving cross-chain', async () => {
+    await mount(
+      `/partner-swap?clientId=partner&chainId=8453&inputCurrency=${weth.address}&outputCurrency=${usdc.address}&feeAmount=25&feeReceiver=receiver&tab=cross_chain`,
+    )
+    expect(pairText()).toBe(`8453:${weth.address} → 8453:${usdc.address}`)
+    expect(container.textContent).toContain('Limit Order')
+    await click('Select Ethereum')
+    let next = new URL(url(), 'https://kyberswap.com')
+    expect(next.pathname).toBe('/partner-swap')
+    expect(next.searchParams.get('chainId')).toBe('1')
+    expect(next.searchParams.has('from')).toBe(false)
+    expect(next.searchParams.get('toChain')).toBe('8453')
+    expect(next.searchParams.has('tokenIn')).toBe(false)
+    expect(next.searchParams.get('feeAmount')).toBe('25')
+    expect(next.searchParams.get('clientId')).toBe('partner')
+    await click('Select Base WETH')
+    next = new URL(url(), 'https://kyberswap.com')
+    expect(next.pathname).toBe('/partner-swap')
+    expect(next.searchParams.get('chainId')).toBe('8453')
+    expect(next.searchParams.has('toChain')).toBe(false)
+    expect(next.searchParams.has('tokenOut')).toBe(false)
+    expect(pairText()).toBe(`8453:${weth.address} → 8453:${usdc.address}`)
+  })
+
+  it.each(['/partner-swap', '/user-swap/tip-id'])(
+    'writes only partner parameters when changing output chain on %s',
+    async pathname => {
+      await mount(`${pathname}?chainId=1&inputCurrency=ETH&outputCurrency=USDC&clientId=partner&feeAmount=25`)
+      await click('Select USDC')
+      const next = new URL(url(), 'https://kyberswap.com')
+      expect(next.pathname).toBe(pathname)
+      expect(next.searchParams.get('chainId')).toBe('1')
+      expect(next.searchParams.get('toChain')).toBe('8453')
+      expect(next.searchParams.get('outputCurrency')).toBe(usdc.address)
+      for (const key of ['from', 'to', 'tokenIn', 'tokenOut']) expect(next.searchParams.has(key)).toBe(false)
+      await click('Reverse')
+      const reversed = new URL(url(), 'https://kyberswap.com')
+      expect(reversed.searchParams.get('chainId')).toBe('8453')
+      expect(reversed.searchParams.get('toChain')).toBe('1')
+      expect(reversed.searchParams.get('clientId')).toBe('partner')
+      expect(reversed.searchParams.get('feeAmount')).toBe('25')
+    },
+  )
+
+  it('reads the complete partner schema without borrowing conflicting public fields', () => {
+    const pair = getEmbeddedSwapPair(
+      new URLSearchParams('chainId=8453&inputCurrency=ETH&outputCurrency=USDC&from=1&to=10&tokenIn=DAI&tokenOut=ETH'),
+    )
+    expect(pair).toEqual({ fromChain: 8453, toChain: 8453, tokenIn: 'ETH', tokenOut: 'USDC' })
+    expect(
+      getEmbeddedSwapPair(
+        new URLSearchParams('chainId=solana&toChain=1&inputCurrency=CaseSensitiveToken&outputCurrency=ETH'),
+      ),
+    ).toEqual({ fromChain: 'solana', toChain: 1, tokenIn: 'CaseSensitiveToken', tokenOut: 'ETH' })
+  })
+
+  it('keeps partner Limit Order on the embedded URL with a single-chain pair and attribution', async () => {
+    await mount(
+      `/partner-swap?clientId=partner&chainId=8453&toChain=1&inputCurrency=${weth.address}&outputCurrency=ETH&feeAmount=25`,
+    )
+    await click('Limit Order')
+    const limitUrl = new URL(url(), 'https://kyberswap.com')
+    expect(limitUrl.pathname).toBe('/partner-swap')
+    expect(limitUrl.searchParams.get('tab')).toBe('limit')
+    expect(limitUrl.searchParams.get('chainId')).toBe('8453')
+    expect(limitUrl.searchParams.get('inputCurrency')).toBe(weth.address)
+    expect(limitUrl.searchParams.get('outputCurrency')).toBe('')
+    expect(limitUrl.searchParams.has('toChain')).toBe(false)
+    expect(limitUrl.searchParams.has('from')).toBe(false)
+    expect(limitUrl.searchParams.has('tokenOut')).toBe(false)
+    expect(limitUrl.searchParams.get('feeAmount')).toBe('25')
+    await click('Swap')
+    const swapUrl = new URL(url(), 'https://kyberswap.com')
+    expect(swapUrl.pathname).toBe('/partner-swap')
+    expect(swapUrl.searchParams.get('tab')).toBe('swap')
+    expect(swapUrl.searchParams.get('clientId')).toBe('partner')
+  })
+
+  it.each(['swap', 'limit'])('honors embedded features=%s', async feature => {
+    await mount(`/partner-swap?clientId=partner&chainId=8453&features=${feature}`)
+    const labels = [...container.querySelectorAll('button')].map(button => button.textContent)
+    expect(labels.includes('Swap')).toBe(feature === 'swap')
+    expect(labels.includes('Limit Order')).toBe(feature === 'limit')
+  })
+
+  it.each(['swap', 'kybercross'] as const)('writes only public pair parameters when navigating to %s', page => {
+    const location = getTradeLocation(
+      page,
+      { fromChain: 1, toChain: 8453, tokenIn: 'ETH', tokenOut: usdc.address },
+      new URLSearchParams('chainId=1&toChain=10&inputCurrency=ETH&outputCurrency=DAI&clientId=partner&feeAmount=25'),
+    )
+    const params = new URLSearchParams(location.search)
+    expect(params.get('from')).toBe('1')
+    expect(params.get('to')).toBe('8453')
+    expect(params.has('chainId')).toBe(false)
+    expect(params.has('toChain')).toBe(false)
+    expect(params.has('inputCurrency')).toBe(false)
+    expect(params.has('outputCurrency')).toBe(false)
+    expect(params.get('clientId')).toBe('partner')
+    expect(params.get('feeAmount')).toBe('25')
+  })
+
+  it('lets a derivative retain its route while reusing pair selection and reversal', async () => {
+    await mount(`/kybercross?from=1&to=8453&tokenIn=ETH&tokenOut=${usdc.address}&input=12`)
+    await click('Select Base WETH')
+    const selectedUrl = new URL(url(), 'https://kyberswap.com')
+    expect(selectedUrl.pathname).toBe('/kybercross')
+    expect(selectedUrl.searchParams.get('from')).toBe('8453')
+    expect(selectedUrl.searchParams.get('to')).toBe('8453')
+    expect(selectedUrl.searchParams.get('input')).toBe('12')
+    await click('Reverse')
+    expect(new URL(url(), 'https://kyberswap.com').pathname).toBe('/kybercross')
+    expect(pairText()).toBe(`8453:${usdc.address} → 8453:${weth.address}`)
   })
 
   it('writes selections into the single-chain path using the legacy whitelist symbol', async () => {
@@ -186,18 +308,32 @@ describe('unified swap pair navigation', () => {
 
   it('preserves case-sensitive non-EVM token IDs in both directions', async () => {
     const token = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
-    await mount(`/cross-chain?from=${NonEvmChain.Solana}&to=8453&tokenIn=${token}&tokenOut=${usdc.address}`)
+    await mount(`/swap?from=${NonEvmChain.Solana}&to=8453&tokenIn=${token}&tokenOut=${usdc.address}`)
     const crossUrl = url()
+    expect(crossUrl).toContain('/swap?')
     await click('Swap')
-    expect(url()).toBe(crossUrl.replace('/cross-chain?', '/swap?'))
+    expect(url()).toBe(crossUrl)
     await click('Reverse')
     expect(pairText()).toBe(`8453:${usdc.address} → ${NonEvmChain.Solana}:${token}`)
     await click('Reverse')
-    expect(url()).toBe(crossUrl.replace('/cross-chain?', '/swap?'))
+    expect(url()).toBe(crossUrl)
   })
 })
 
 describe('URL token resolution status', () => {
+  it.each(['/partner-swap', '/user-swap/tip-id'])(
+    'restores defaults for empty legacy token parameters on %s',
+    async pathname => {
+      await mount(`${pathname}?chainId=8453&inputCurrency=&outputCurrency=`)
+      expect(pairText()).toBe(`8453:eth → 8453:${DEFAULT_OUTPUT_TOKENS[ChainId.BASE]?.wrapped.address}`)
+    },
+  )
+
+  it('ignores Unified fields on an embedded page', async () => {
+    await mount('/partner-swap?chainId=8453&inputCurrency=ETH&outputCurrency=USDC&tokenOut=')
+    expect(container.querySelector('[data-output-symbol]')?.textContent).toBe('USDC')
+  })
+
   it('keeps DAI pending until token metadata arrives, then resolves without an empty state', async () => {
     tokens.loading = true
     await mount('/swap/base/eth-to-dai')

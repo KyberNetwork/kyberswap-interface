@@ -6,7 +6,7 @@ import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { Stack } from 'components/Stack'
 import { SearchInput, SearchWrapper } from 'components/TokenSelectorModal/components'
 import type { TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
-import type { Chain } from 'pages/CrossChainSwap/adapters/types'
+import type { Chain } from 'pages/Swap/crossChain/adapters/types'
 import { cn } from 'utils/cn'
 
 type Props = {

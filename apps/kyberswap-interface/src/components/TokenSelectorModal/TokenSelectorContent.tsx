@@ -29,7 +29,7 @@ import { TokenSelectionContext, TokenSelectorNetwork } from 'components/TokenSel
 import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
-import { Chain, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
+import { Chain, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { CloseIcon } from 'theme'
 
 const SearchLoading = () => (

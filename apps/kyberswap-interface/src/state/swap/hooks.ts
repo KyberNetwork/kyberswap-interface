@@ -5,6 +5,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { APP_PATHS, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { isSupportedChainId } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, STABLE_TOKENS } from 'constants/tokens'
 import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
@@ -20,7 +21,7 @@ import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
 import { getSwapIntentFromPath, getTradeProductPath, isSwapLikePath, resolveSwapIntentPair } from 'utils/routes'
 import { getChainIdFromSlug } from 'utils/string'
-import { getSwapChains } from 'utils/swapFlow'
+import { getEmbeddedSwapPair, getSwapChains } from 'utils/swapFlow'
 
 interface ParsedUrlQuery {
   [key: string]: string | string[]
@@ -276,11 +277,16 @@ export const useCurrencyFromUrl = () => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const { currency: currencyParam, token: tokenParam, network } = useParams()
-  const chainId = getChainIdFromSlug(network) ?? walletChainId
   const [params] = useSearchParams()
+  const embedded = pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
+  const embeddedChain = Number(params.get('chainId'))
+  const chainId =
+    getChainIdFromSlug(network) ??
+    (embedded ? (isSupportedChainId(embeddedChain) ? embeddedChain : ChainId.MAINNET) : walletChainId)
   const isSwapPage =
     isSwapLikePath(pathname) ||
     pathname === APP_PATHS.CROSS_CHAIN ||
+    pathname === APP_PATHS.KYBER_CROSS ||
     pathname.startsWith(APP_PATHS.PARTNER_SWAP) ||
     pathname.startsWith(APP_PATHS.USER_SWAP)
   const { fromChain, toChain } = getSwapChains(isSwapPage ? params : new URLSearchParams(), chainId)
@@ -325,6 +331,16 @@ export const useCurrencyFromUrl = () => {
       toCurrency: toCurrency || defaultOutput,
     }
   }, [chainId, currencyParam, pathname, tokenParam])
+
+  if (embedded) {
+    const pair = getEmbeddedSwapPair(params)
+    return {
+      fromCurrency: pair.tokenIn,
+      toCurrency: pair.tokenOut,
+      inputChain: pair.fromChain,
+      outputChain: pair.toChain,
+    }
+  }
 
   return {
     fromCurrency: isSwapPage

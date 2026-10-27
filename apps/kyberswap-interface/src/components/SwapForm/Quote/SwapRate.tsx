@@ -5,8 +5,8 @@ import { Repeat } from 'react-feather'
 import RefreshIndicator, { type RefreshIndicatorProps } from 'components/RefreshLoading/RefreshIndicator'
 import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
-import type { Chain, Currency } from 'pages/CrossChainSwap/adapters/types'
-import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
+import type { Chain, Currency } from 'pages/Swap/crossChain/adapters/types'
+import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
 
 type Props = {
   currencyIn?: Currency

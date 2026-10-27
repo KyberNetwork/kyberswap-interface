@@ -74,6 +74,7 @@ const getFeeConfigParams = (
 export const useRouteApiDomain = () => {
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const { authenticationSuccess } = useSessionInfo()
+
   return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
 }
 
@@ -81,18 +82,17 @@ export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver'
 
 /** Defines the complete quote identity and query function for TanStack Query. */
 const useRouteRequest = (args: ArgsRouteRequest) => {
-  const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const { parsedAmount, currencyIn, currencyOut, customChain, clientId } = args
+
+  const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
   const feeConfigFromUrl = useGetFeeConfig()
 
   const dispatch = useAppDispatch()
   const aggregatorDomain = useRouteApiDomain()
-
   const getSwapFeeConfig = useGetSwapFeeConfig()
-
-  const dexes = useSelectedDexes()
+  const dexes = useSelectedDexes(chainId)
 
   const safeAppFeeConfig = useMemo(() => {
     let chargeFeeBy = ChargeFeeBy.CURRENCY_IN
@@ -132,6 +132,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
         else if (currencyOut.cmcRank || currencyOut.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
       } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
+
     return {
       feeAmount: '10',
       chargeFeeBy,
@@ -198,6 +199,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
           clientId,
         })
         const response = await enrichRouteResponse(rawResponse, routeParams)
+
         return { response, intendedFeeConfig }
       },
     }

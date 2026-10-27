@@ -4,8 +4,8 @@ import { selectBackendTransactions } from 'services/crossChainTransactions'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
-import { isProcessingTransactionStatus } from 'pages/CrossChainSwap/adapters/types'
-import { mergeTransactionHistory } from 'pages/CrossChainSwap/transactions/history'
+import { isProcessingTransactionStatus } from 'pages/Swap/crossChain/adapters/types'
+import { mergeTransactionHistory } from 'pages/Swap/crossChain/transactions/history'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { useAppSelector } from 'state/hooks'
 
@@ -16,8 +16,10 @@ export const useProcessingTransactions = () => {
   const { publicKey } = useWallet()
   const { walletInfo } = useBitcoinWallet()
   const { signedAccountId } = useWalletSelector()
+
   const local = useCrossChainTransactions()
   const server = useAppSelector(selectBackendTransactions)
+
   const senders = new Set([account?.toLowerCase(), publicKey?.toString(), walletInfo?.address, signedAccountId])
 
   return [...senders]
