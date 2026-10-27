@@ -28,7 +28,12 @@ export const SwapFormLayout = ({
   action,
   onReverse,
 }: Props) => (
-  <Stack className={cn('gap-4', hidden && 'hidden')}>
+  <Stack
+    className={cn(
+      'gap-4 [--ks-skeleton-base-color:var(--ks-buttonGray)] [--ks-skeleton-highlight-color:var(--ks-tabActive)]',
+      hidden && 'hidden',
+    )}
+  >
     <Stack id={TutorialIds.SWAP_FORM_CONTENT} className="relative z-[1] gap-3 bg-background">
       {networkSelector}
       <Stack className="gap-3">

@@ -14,7 +14,7 @@ export const TradeRouteSkeleton = ({ poolLines = 2 }: { poolLines?: 1 | 2 }) => 
       {[0, 1].map(index => (
         <PairTokenSlot key={index}>
           <TokenLink as="div" reverse={index === 1}>
-            <Skeleton height={24} variant="darkSubtle" width={108} />
+            <Skeleton height={24} width={108} />
           </TokenLink>
         </PairTokenSlot>
       ))}
@@ -24,8 +24,8 @@ export const TradeRouteSkeleton = ({ poolLines = 2 }: { poolLines?: 1 | 2 }) => 
         <div className="flex min-w-[480px] justify-evenly gap-12 px-12 py-9">
           {[0, 1].map(index => (
             <HopCard key={index}>
-              <Skeleton height={20} variant="darkSubtle" />
-              <Skeleton height={poolLines === 1 ? 31 : 55} variant="darkSubtle" />
+              <Skeleton height={20} />
+              <Skeleton height={poolLines === 1 ? 31 : 55} />
             </HopCard>
           ))}
         </div>

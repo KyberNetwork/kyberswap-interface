@@ -30,12 +30,16 @@ export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> | strin
 export const BalanceSkeleton = ({ currency }: { currency: Currency }) => {
   // Stable per token, including when rows re-sort while balances load.
   const key = `${currency.chainId}:${currency.isToken ? currency.address.toLowerCase() : 'native'}`
-  const hash = Array.from(key).reduce((value, character) => (value * 31 + character.charCodeAt(0)) >>> 0, 0)
-  const width = 40 + (hash % 4) * 8
 
   return (
     <span className="flex h-4 items-center sm:h-5">
-      <TableCellSkeleton width={width} height={14} className="animate-pulse motion-reduce:animate-none" />
+      <TableCellSkeleton
+        width={64}
+        randomWidth
+        widthSeed={key}
+        height={14}
+        className="animate-pulse motion-reduce:animate-none"
+      />
     </span>
   )
 }
