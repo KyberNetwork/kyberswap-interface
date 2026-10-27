@@ -276,19 +276,25 @@ export const StopMarketReviewSummary = ({
       ))}
 
       {isTriggerClose && (
-        <ReviewNote type="warn" dataTestId="stop-market-confirm-close-trigger-warning">
-          {swapPath ? (
-            <Trans>
-              Your trigger is very close to the current price. If you want to trade instantly, use{' '}
-              <Link to={swapPath} className="font-medium text-warning underline">
-                Swap
-              </Link>
-              .
-            </Trans>
-          ) : (
-            <Trans>Your trigger is very close to the current price. If you want to trade instantly, use Swap.</Trans>
-          )}
-        </ReviewNote>
+        <HStack
+          className="items-start gap-1.5 text-xs text-warning"
+          data-testid="stop-market-confirm-close-trigger-warning"
+        >
+          <Info size={14} className="mt-px shrink-0" />
+          <span>
+            {swapPath ? (
+              <Trans>
+                Your trigger is very close to the current price. If you want to trade instantly, use{' '}
+                <Link to={swapPath} className="text-warning underline hover:brightness-125">
+                  Swap
+                </Link>
+                .
+              </Trans>
+            ) : (
+              <Trans>Your trigger is very close to the current price. If you want to trade instantly, use Swap.</Trans>
+            )}
+          </span>
+        </HStack>
       )}
 
       {showFeeError && (
