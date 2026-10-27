@@ -67,11 +67,9 @@ export type StopMarketReviewProps = {
   isFeeLoading?: boolean
   onRetryFee?: () => void
   warnings?: StopMarketWarning[]
-  /** The terms the user accepts before signing say the same, so the note is left out. */
-  hideExecutionNote?: boolean
 }
 
-type Props = Omit<StopMarketReviewProps, 'hideExecutionNote'> & {
+type Props = StopMarketReviewProps & {
   isOpen: boolean
   needsWrap?: boolean
   /** The user has not placed a stop market order on this device yet, so must accept the terms first. */
@@ -176,7 +174,6 @@ export const StopMarketReviewSummary = ({
   isFeeLoading,
   onRetryFee,
   warnings = [],
-  hideExecutionNote,
 }: StopMarketReviewProps) => {
   const feePercentage = fee?.protocol?.percentage
   // Taken from what the order receives, so it is in the receive token and, like that amount, an estimate
@@ -270,17 +267,6 @@ export const StopMarketReviewSummary = ({
         </SummaryRow>
       </Stack>
 
-      {!hideExecutionNote && (
-        <HStack className="items-start gap-1.5 text-xs text-blue" data-testid="stop-market-confirm-execution-note">
-          <Info size={14} className="mt-px shrink-0" />
-          <span>
-            <Trans>
-              When triggered, KyberSwap executes your order at the live market price, subject to your slippage setting.
-            </Trans>
-          </span>
-        </HStack>
-      )}
-
       {warnings.map((warning, index) => (
         <ReviewNote key={index} type={warning.type} dataTestId="stop-market-confirm-warning">
           {warning.message}
@@ -289,7 +275,7 @@ export const StopMarketReviewSummary = ({
 
       {isTriggerClose && (
         <HStack
-          className="items-start gap-1.5 text-xs text-warning"
+          className="items-start gap-1.5 text-xs font-medium text-warning"
           data-testid="stop-market-confirm-close-trigger-warning"
         >
           <Info size={14} className="mt-px shrink-0" />
@@ -357,7 +343,7 @@ const StopMarketConfirmModal = ({
           <CloseIcon onClick={onDismiss} data-testid="stop-market-confirm-close" />
         </HStack>
 
-        <StopMarketReviewSummary {...review} hideExecutionNote={requiresTermsAcceptance} />
+        <StopMarketReviewSummary {...review} />
         {/* The summary reports a fee it could not estimate; this adds only the share a small order pays. */}
         <StopMarketFeeNotes fee={review.fee} isLoading={review.isFeeLoading} showShareWarning />
 
