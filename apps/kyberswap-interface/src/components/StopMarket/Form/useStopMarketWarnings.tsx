@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
+import { OrderKind, ShowOrdersState } from 'components/LimitOrder/types'
 import { useStopMarketReservedBalance } from 'components/StopMarket/hooks/useStopMarketReservedBalance'
 import {
   useIsStopMarketEligibleToken,
@@ -18,11 +19,18 @@ export type StopMarketWarning = {
   blocking?: boolean
 }
 
-/** The stop market order list sits on this page, so its link only narrows the list to the token. */
+const REVIEW_ORDERS_STATE: ShowOrdersState = { showOrders: OrderKind.STOP }
+
+/**
+ * The stop market order list sits on this page, so its link narrows the list to the token and opens the open
+ * stop market orders, whichever kind the list shows.
+ */
 const ReservedBalanceNotice = ({ symbol }: { symbol?: string }) => (
   <Trans>
     Your {symbol} balance is fully used by your open stop market orders. Cancel or reduce an order to free up balance.{' '}
-    <Link to={`?${new URLSearchParams({ search: symbol ?? '' })}`}>Review orders</Link>
+    <Link to={`?${new URLSearchParams({ search: symbol ?? '' })}`} state={REVIEW_ORDERS_STATE}>
+      Review orders
+    </Link>
   </Trans>
 )
 

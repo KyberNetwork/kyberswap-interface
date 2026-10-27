@@ -11,7 +11,7 @@ import OrderBook from 'components/LimitOrder/OrderBook'
 import { ORDER_PANEL_CARD_CLASS } from 'components/LimitOrder/OrderList/OrderListSkeleton'
 import OrdersPriceChart from 'components/LimitOrder/OrderList/OrdersPriceChart'
 import { useOpenOrderCounts } from 'components/LimitOrder/hooks/useOpenOrderCounts'
-import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { LimitOrderStatus, LimitOrderTab, OrderKind, ShowOrdersState } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
 import StopMarkets from 'components/StopMarket/MyOrders'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -24,12 +24,6 @@ import { useLimitState } from 'state/limit/hooks'
 import { useShowOpenLimitOrders, useShowPricingChart } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 import { getTradeProductPath } from 'utils/routes'
-
-/** The kinds of order the list can show, one at a time. */
-export enum OrderKind {
-  LIMIT = 'limit',
-  STOP = 'stop',
-}
 
 type MarketTab = LimitOrderTab.PRICE | LimitOrderTab.ORDER_BOOK
 
@@ -187,7 +181,7 @@ const OrderList = () => {
   const { account } = useActiveWeb3React()
   const { chainId, syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
-  const { pathname } = useLocation()
+  const { pathname, key: locationKey, state: locationState } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const isStopMarketPage = getTradeProductPath(pathname) === APP_PATHS.STOP_MARKET
   const showStopMarkets = isSupportStopMarket(chainId)
@@ -283,6 +277,14 @@ const OrderList = () => {
     setOrderTab(LimitOrderStatus.ACTIVE)
     ordersCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
+  // A link can carry the kind of order to open, as the form's "Review orders" does. Every click is its own
+  // navigation, so it opens them again after the user has switched to the other kind.
+  const requestedKind = (locationState as ShowOrdersState | null)?.showOrders
+  const showOpenOrdersRef = useRef(showOpenOrders)
+  showOpenOrdersRef.current = showOpenOrders
+  useEffect(() => {
+    if (requestedKind) showOpenOrdersRef.current(requestedKind)
+  }, [locationKey, requestedKind])
   // Links to the user's limit orders — a placed order's "View order", a notification — name them in `tab`.
   useEffect(() => {
     if (tabQuery !== LimitOrderTab.MY_ORDER) return

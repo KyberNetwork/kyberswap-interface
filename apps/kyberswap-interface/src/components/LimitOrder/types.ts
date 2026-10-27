@@ -10,6 +10,15 @@ export enum LimitOrderTab {
   MY_ORDER = 'my_order',
 }
 
+/** The kinds of order the order list can show, one at a time. */
+export enum OrderKind {
+  LIMIT = 'limit',
+  STOP = 'stop',
+}
+
+/** Navigation state a link carries to open the user's open orders of one kind in the order list. */
+export type ShowOrdersState = { showOrders?: OrderKind }
+
 export enum LimitOrderStatus {
   // status from BE
   ACTIVE = 'active',
