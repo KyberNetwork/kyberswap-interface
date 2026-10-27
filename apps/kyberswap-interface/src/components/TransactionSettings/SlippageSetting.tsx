@@ -11,10 +11,11 @@ import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 
 type Props = {
+  isCrossChain?: boolean
   shouldShowPinButton?: boolean
 }
 
-export const SlippageSetting = ({ shouldShowPinButton = true }: Props) => {
+export const SlippageSetting = ({ shouldShowPinButton = true, isCrossChain = false }: Props) => {
   const { rawSlippage, setRawSlippage, isSlippageControlPinned, togglePinSlippage } = useSlippageSettingByPage()
 
   const pairCategory = usePairCategory()
@@ -46,7 +47,12 @@ export const SlippageSetting = ({ shouldShowPinButton = true }: Props) => {
         {shouldShowPinButton && <PinButton isActive={isSlippageControlPinned} onClick={togglePinSlippage} />}
       </HStack>
 
-      <SlippageControl rawSlippage={rawSlippage} setRawSlippage={setRawSlippage} options={options} />
+      <SlippageControl
+        isCrossChain={isCrossChain}
+        rawSlippage={rawSlippage}
+        setRawSlippage={setRawSlippage}
+        options={options}
+      />
     </Stack>
   )
 }

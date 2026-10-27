@@ -11,8 +11,8 @@ import { useActiveWeb3React } from 'hooks'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
-import type { Chain, Currency, NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
-import type { Quote } from 'pages/CrossChainSwap/registry'
+import type { Chain, Currency, NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
+import type { Quote } from 'pages/Swap/crossChain/registry'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
 const evmCurrency = (currency?: Currency) => (currency && 'isNative' in currency ? currency : undefined)

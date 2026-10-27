@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ChevronRight } from 'react-feather'
 
@@ -5,12 +6,13 @@ import { SettingsAction, SettingsLabel, SettingsRow } from 'components/Transacti
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
 type Props = {
+  chainId?: ChainId
   onClick: () => void
 }
 
-export const LiquiditySourcesSetting = ({ onClick }: Props) => {
-  const allDexes = useAllDexes()
-  const [excludeDexes] = useExcludeDexes()
+export const LiquiditySourcesSetting = ({ onClick, chainId }: Props) => {
+  const allDexes = useAllDexes(chainId)
+  const [excludeDexes] = useExcludeDexes(chainId)
 
   if (!allDexes?.length) {
     return null

@@ -14,7 +14,7 @@ import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCross
 import { QuoteDetails } from 'components/SwapForm/Quote/QuoteDetails'
 import { SwapRate } from 'components/SwapForm/Quote/SwapRate'
 import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
-import type { Chain } from 'pages/CrossChainSwap/adapters/types'
+import type { Chain } from 'pages/Swap/crossChain/adapters/types'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 
 const PendingQuoteDetails = () => {
@@ -22,7 +22,7 @@ const PendingQuoteDetails = () => {
 
   return (
     <QuoteDetails className="gap-3">
-      <SlippageSetting />
+      <SlippageSetting isCrossChain />
       <SwapRate loading routes={<CrossChainRoutesButton disabled />} />
       <Stack className="gap-2">
         <CrossChainQuoteSummaryRows loading slippage={rawSlippage} showSlippage={!isSlippageControlPinned} />

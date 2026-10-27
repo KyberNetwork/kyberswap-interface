@@ -1,13 +1,20 @@
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { type To, useNavigate, useSearchParams } from 'react-router-dom'
 
-import { type Chain, type Currency, NonEvmChain, type NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
+import usePageLocation from 'hooks/usePageLocation'
+import { type Chain, type Currency, NonEvmChain, type NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
 import { useSwapCurrencyResolution } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
-import { SwapPair, getDefaultSwapTokenId, getTradeLocation, isCrossChainPair } from 'utils/swapFlow'
+import {
+  SwapPair,
+  getDefaultSwapTokenId,
+  getEmbeddedSwapSearchParams,
+  getTradeLocation,
+  isCrossChainPair,
+} from 'utils/swapFlow'
 
 const getSelectedTokenId = (currency: Currency) => {
   if ('isNative' in currency) return currencyId(currency, currency.chainId)
@@ -16,13 +23,17 @@ const getSelectedTokenId = (currency: Currency) => {
   return currency.symbol
 }
 
+const getSwapLocation = (pair: SwapPair, params: URLSearchParams) => getTradeLocation('swap', pair, params)
+
 /**
  * Owns pair selection/reversal and commits both sides in one navigation.
  * Selected metadata bridges the interval before URL lookup catches up, but is used only while ID/chain still match.
  * URL resolution owns loading; available selected metadata suppresses its loading placeholder.
  */
-export const useSwapFormPair = () => {
+export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSearchParams) => To = getSwapLocation) => {
   const navigate = useNavigate()
+  const { pathname, isEmbeddedSwap } = usePageLocation()
+
   const {
     fromCurrency,
     toCurrency,
@@ -33,12 +44,16 @@ export const useSwapFormPair = () => {
     isInputCurrencyLoading,
     isOutputCurrencyLoading,
   } = useSwapCurrencyResolution()
-  const isCrossChain = isCrossChainPair(inputChain, outputChain)
+
   const [params] = useSearchParams()
   const [selected, setSelected] = useState<{ currencyIn?: EvmCurrency; currencyOut?: EvmCurrency }>({})
+
+  const isCrossChain = isCrossChainPair(inputChain, outputChain)
+
   const matches = (currency: EvmCurrency | undefined, id: string, chain: Chain) =>
     currency?.chainId === chain &&
     [currencyId(currency, currency.chainId).toLowerCase(), currency.symbol?.toLowerCase()].includes(id.toLowerCase())
+
   const currencyIn = matches(selected.currencyIn, fromCurrency, inputChain) ? selected.currencyIn : resolvedInput
   const selectedOutput = matches(selected.currencyOut, toCurrency, outputChain) ? selected.currencyOut : resolvedOutput
   const currencyOut = currencyIn && selectedOutput?.equals(currencyIn) ? undefined : selectedOutput
@@ -56,16 +71,25 @@ export const useSwapFormPair = () => {
       : currencyOut
       ? currencyId(currencyOut, currencyOut.chainId)
       : toCurrency || getDefaultSwapTokenId(outputChain)
+
   const commitPair = (pair: SwapPair, currencies: typeof selected) => {
     setSelected(currencies)
+
     // Keep the legacy symbol/address convention on single-chain paths; cross-chain uses raw token IDs.
     const pathId = (currency: EvmCurrency | undefined, fallback: string) =>
       currency && (currency.isNative || (currency instanceof WrappedTokenInfo && currency.isWhitelisted))
         ? currency.symbol || fallback
         : fallback
+
+    if (isEmbeddedSwap) {
+      const next = getEmbeddedSwapSearchParams(pair, params)
+
+      navigate({ pathname, search: next.toString() })
+      return
+    }
+
     navigate(
-      getTradeLocation(
-        'swap',
+      getPairLocation(
         isCrossChainPair(pair.fromChain, pair.toChain)
           ? pair
           : {
@@ -86,6 +110,7 @@ export const useSwapFormPair = () => {
       chain === oppositeChain &&
       (typeof chain === 'number' ? id.toLowerCase() === oppositeId.toLowerCase() : id === oppositeId)
     const evmCurrency = 'isNative' in currency ? currency : undefined
+
     if (field === Field.INPUT) {
       commitPair(
         {
@@ -112,6 +137,7 @@ export const useSwapFormPair = () => {
   const selectCurrency = (field: Field, currency: EvmCurrency) => select(field, currency, currency.chainId)
   const selectNonEvmCurrency = (field: Field, chain: NonEvmChain, currency: NonEvmCurrency) =>
     select(field, currency, chain)
+
   const reversePair = () => {
     commitPair(
       { fromChain: outputChain, tokenIn: outputId, toChain: inputChain, tokenOut: inputId },

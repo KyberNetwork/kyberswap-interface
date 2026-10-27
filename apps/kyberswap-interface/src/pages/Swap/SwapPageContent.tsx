@@ -9,10 +9,10 @@ import CrossChainSwapPending from 'components/SwapForm/CrossChain/CrossChainSwap
 import { SingleChainSwapContent } from 'components/SwapForm/SingleChain/SingleChainSwap'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import type { Chain, NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
 import CrossChainRightPanel from 'pages/Swap/components/CrossChainRightPanel'
 import HistoryPanel, { HistoryButton } from 'pages/Swap/components/HistoryPanel'
 import { SingleChainRightPanel } from 'pages/Swap/components/SingleChainRightPanel'
+import type { Chain, NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { Header } from 'pages/Swap/layout/Header'
 import { TAB } from 'pages/Swap/layout/Tabs'
 import { Field } from 'state/swap/actions'
@@ -20,7 +20,7 @@ import { cn } from 'utils/cn'
 
 const CrossChainSwap = lazy(() => import('components/SwapForm/CrossChain/CrossChainSwap'))
 const ProcessingTransactions = lazy(() => import('pages/Swap/components/ProcessingTransactions'))
-const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
+const CrossChainSwapSources = lazy(() => import('pages/Swap/crossChain/components/CrossChainSwapSources'))
 const TokenInfo = lazy(() => import('components/TokenInfo'))
 const SwapSettingsPanel = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel'))
 const LiquiditySourcesPanel = lazy(() => import('components/SwapForm/Settings/LiquiditySourcesPanel'))
@@ -81,6 +81,9 @@ const SwapPageContent = ({
   onHistoryChange,
 }: Props) => {
   const reduceMotion = useReducedMotion()
+
+  const singleChainId = !isCrossChain && typeof inputChain === 'number' ? inputChain : undefined
+
   const crossChainSelectionProps = {
     hidden: activeTab !== TAB.SWAP,
     onChangeCurrencyIn: (currency: Currency) => selectCurrency(Field.INPUT, currency),
@@ -91,6 +94,7 @@ const SwapPageContent = ({
       selectNonEvmCurrency(Field.OUTPUT, chain, currency),
     onReverse: reversePair,
   }
+
   const pendingFormProps = {
     ...crossChainSelectionProps,
     amount,
@@ -150,6 +154,7 @@ const SwapPageContent = ({
               {activeTab === TAB.INFO && <TokenInfo tokens={[currencyIn, currencyOut]} onBack={onBackToMainTab} />}
               {activeTab === TAB.SETTINGS && (
                 <SwapSettingsPanel
+                  chainId={singleChainId}
                   crossChainQuoteMode="stream"
                   showDisplaySettings
                   mode={isCrossChain ? 'cross-chain' : 'single-chain'}
@@ -163,7 +168,7 @@ const SwapPageContent = ({
                 <CrossChainSwapSources quoteMode="stream" onBack={() => onTabChange(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
-                <LiquiditySourcesPanel onBack={() => onTabChange(TAB.SETTINGS)} />
+                <LiquiditySourcesPanel chainId={singleChainId} onBack={() => onTabChange(TAB.SETTINGS)} />
               )}
             </Suspense>
           </div>

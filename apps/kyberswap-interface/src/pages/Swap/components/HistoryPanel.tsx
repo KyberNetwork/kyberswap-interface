@@ -10,9 +10,9 @@ import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
-import { useUnifiedTransactionHistory } from 'pages/CrossChainSwap/transactions/useUnifiedTransactionHistory'
+import { useUnifiedTransactionHistory } from 'pages/Swap/crossChain/transactions/useUnifiedTransactionHistory'
 
-const TransactionHistoryList = lazy(() => import('pages/CrossChainSwap/components/TransactionHistoryList'))
+const TransactionHistoryList = lazy(() => import('pages/Swap/crossChain/components/TransactionHistoryList'))
 
 /** Controlled trigger composed into the form header; SwapPage owns visibility and panel mounting. */
 export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: () => void }) => (

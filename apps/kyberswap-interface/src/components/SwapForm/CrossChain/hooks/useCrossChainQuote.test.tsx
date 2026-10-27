@@ -4,8 +4,8 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useCrossChainQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
-import type { getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
-import type { Quote } from 'pages/CrossChainSwap/registry'
+import type { getQuotes } from 'pages/Swap/crossChain/quote/adapterQuotes'
+import type { Quote } from 'pages/Swap/crossChain/registry'
 
 const mocks = vi.hoisted(() => ({
   connection: {},
@@ -25,10 +25,10 @@ vi.mock('state/hooks', () => ({
   useAppSelector: (select: (state: typeof mocks.state) => unknown) => select(mocks.state),
 }))
 vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [50] }))
-vi.mock('pages/CrossChainSwap/factory', () => ({ registry: {} }))
-vi.mock('pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
-vi.mock('pages/CrossChainSwap/quote/adapterQuotes', () => ({ getQuotes: mocks.getQuotes }))
-vi.mock('pages/CrossChainSwap/quote/getPairInfo', () => ({
+vi.mock('pages/Swap/crossChain/factory', () => ({ registry: {} }))
+vi.mock('pages/Swap/crossChain/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
+vi.mock('pages/Swap/crossChain/quote/adapterQuotes', () => ({ getQuotes: mocks.getQuotes }))
+vi.mock('pages/Swap/crossChain/quote/getPairInfo', () => ({
   getPairInfo: async () => ({ category: 'stablePair', feeBps: 10, tokenInUsd: 1, tokenOutUsd: 1 }),
 }))
 

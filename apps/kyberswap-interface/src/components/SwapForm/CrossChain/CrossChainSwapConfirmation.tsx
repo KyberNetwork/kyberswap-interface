@@ -10,13 +10,13 @@ import {
   CrossChainQuoteSummaryRows,
 } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
-import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
+import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { Chain, Currency, NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
-import { useCrossChainExecution } from 'pages/CrossChainSwap/hooks/useCrossChainExecution'
-import { isEvmCurrency } from 'pages/CrossChainSwap/quote/utils'
-import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
+import { Chain, Currency, NonEvmChain, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
+import { useCrossChainExecution } from 'pages/Swap/crossChain/hooks/useCrossChainExecution'
+import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
+import { getNetworkInfo } from 'pages/Swap/crossChain/utils'
 import { CloseIcon, ExternalLink } from 'theme'
 import { shortenHash } from 'utils/address'
 import { getEtherscanLink } from 'utils/explorer'
@@ -32,6 +32,7 @@ type TokenBoxInfoProps = {
 
 const TokenBoxInfo = ({ chainId, currency, usdValue, amount, title }: TokenBoxInfoProps) => {
   const { name, icon } = getNetworkInfo(chainId)
+
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-border p-3">
       <div className="flex justify-between text-xs font-medium text-subText">
@@ -69,7 +70,9 @@ export const CrossChainSwapConfirmation = ({
   onDismiss,
 }: CrossChainSwapConfirmationProps) => {
   const { submittingTx, txHash, txError, handleSwap, resetExecution } = useCrossChainExecution(selectedQuote)
+
   if (!selectedQuote) return null
+
   const {
     fromChain: fromChainId,
     toChain: toChainId,
@@ -117,6 +120,7 @@ export const CrossChainSwapConfirmation = ({
         if (txError) {
           return <TransactionErrorContent message={txError} onDismiss={dismiss} />
         }
+
         return (
           <div className="flex w-full flex-col gap-4 p-4">
             <div className="flex flex-col gap-3">

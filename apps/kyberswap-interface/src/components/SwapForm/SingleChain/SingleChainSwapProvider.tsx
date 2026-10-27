@@ -39,12 +39,14 @@ const useSingleChainSwap = ({
 }: SingleChainSwapConfig) => {
   const [searchParams] = useSearchParams()
   const { chainId: walletChainId, account, walletKey } = useActiveWeb3React()
+
   const chainId = customChainId || walletChainId
   const chainError =
     !MAINNET_NETWORKS.includes(chainId) || chainId === ChainId.BLAST ? t`Swap not supported on this chain` : undefined
 
   const { typedValue, onUserInput } = useSwapInputAmount(chainSelectionMode !== 'form')
   const [recipient, setRecipient] = useState<string | null>(null)
+
   const reviewIdentity = JSON.stringify([
     chainId,
     walletChainId,
@@ -97,6 +99,7 @@ const useSingleChainSwap = ({
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
   const routeSummary = getRouteResponse?.routeSummary
+
   // Detect if a browser extension tampered with the fee params in the API request
   const isFeeTampered = useMemo(() => {
     const responseExtraFee = getRouteRawResponse?.data?.routeSummary?.extraFee
@@ -125,6 +128,7 @@ const useSingleChainSwap = ({
   })
 
   const previousSlippage = useRef(slippage)
+
   useLayoutEffect(() => {
     const changed = previousSlippage.current !== slippage
     previousSlippage.current = slippage
@@ -166,11 +170,14 @@ type ProviderProps = SingleChainSwapConfig & { children: ReactNode }
 /** Coordinates the quote and its review pause at the common ancestor of the form and route panel. */
 export const SingleChainSwapProvider = ({ children, ...config }: ProviderProps) => {
   const swap = useSingleChainSwap(config)
+
   return <SingleChainSwapContext.Provider value={{ ...config, ...swap }}>{children}</SingleChainSwapContext.Provider>
 }
 
 export const useSingleChainSwapContext = () => {
   const swap = useContext(SingleChainSwapContext)
+
   if (!swap) throw new Error('useSingleChainSwapContext must be used within SingleChainSwapProvider')
+
   return swap
 }

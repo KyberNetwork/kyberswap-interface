@@ -12,7 +12,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { Quote } from 'pages/CrossChainSwap/registry'
+import type { Quote } from 'pages/Swap/crossChain/registry'
 
 import { getCrossChainRouteSteps } from './getCrossChainRouteSteps'
 

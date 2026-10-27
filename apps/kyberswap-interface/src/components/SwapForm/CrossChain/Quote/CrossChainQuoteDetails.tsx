@@ -30,7 +30,7 @@ export const CrossChainQuoteDetails = () => {
 
   return (
     <QuoteDetails className="gap-3">
-      <SlippageSetting slippageInfo={warning?.slippageInfo} />
+      <SlippageSetting isCrossChain slippageInfo={warning?.slippageInfo} />
       <SwapRate
         currencyIn={currencyIn}
         currencyOut={currencyOut}

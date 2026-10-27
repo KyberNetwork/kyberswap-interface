@@ -8,14 +8,14 @@ import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+import { KYBERCROSS } from 'constants/env'
+import { APP_PATHS } from 'constants/index'
 import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { isSwapLikePath } from 'utils/routes'
-import { isInSafeApp } from 'utils/safeApp'
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>
@@ -29,7 +29,7 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const isActive =
-    isSwapLikePath(pathname) || [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
+    isSwapLikePath(pathname) || [APP_PATHS.LIMIT, APP_PATHS.KYBER_CROSS].some(path => pathname.startsWith(path))
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -86,10 +86,10 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
             </StyledNavLink>
           )}
 
-          {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
+          {KYBERCROSS && (
             <StyledNavLink
-              id="cross-chain-nav-link"
-              to={APP_PATHS.CROSS_CHAIN}
+              id="kybercross-nav-link"
+              to={APP_PATHS.KYBER_CROSS}
               style={{ flexDirection: 'column', width: '100%' }}
             >
               <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
                   <CrossChainIcon height={15} />
                 </IconWrapper>
                 <div className="flex">
-                  <Trans>Cross-Chain</Trans>
+                  <span>KyberCross</span>
                   <NewLabel isNew>New</NewLabel>
                 </div>
               </div>

@@ -1,8 +1,10 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
-const useSelectedDexes = () => {
-  const allDexes = useAllDexes()
-  const [excludeDexes] = useExcludeDexes()
+const useSelectedDexes = (chainId?: ChainId) => {
+  const allDexes = useAllDexes(chainId)
+  const [excludeDexes] = useExcludeDexes(chainId)
 
   const selectedDexes = allDexes?.filter(item => !excludeDexes.includes(item.id)).map(item => item.id)
 

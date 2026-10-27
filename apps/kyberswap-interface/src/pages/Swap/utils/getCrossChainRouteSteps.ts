@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { getSocketTxRoute, parseSocketQuote } from 'pages/CrossChainSwap/adapters/BungeeAdapter/utils'
-import type { Quote } from 'pages/CrossChainSwap/registry'
+import { getSocketTxRoute, parseSocketQuote } from 'pages/Swap/crossChain/adapters/BungeeAdapter/utils'
+import type { Quote } from 'pages/Swap/crossChain/registry'
 
 const amount = z.string().regex(/^\d+$/)
 const token = z.object({

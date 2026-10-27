@@ -24,10 +24,12 @@ export type ArgsGetRoute = ArgsRouteRequest & {
 const useGetRoute = (args: ArgsGetRoute) => {
   const request = useRouteRequest(args)
   const { enabled = true, isProcessingSwap = false, autoRefresh = false } = args
+
   const requestKey = JSON.stringify(request?.queryKey ?? null)
   const debouncedKey = useDebounce(requestKey, INPUT_DEBOUNCE_TIME)
   const inputPending = requestKey !== debouncedKey
   const canFetch = Boolean(request && enabled && !isProcessingSwap && !inputPending)
+
   const query = useQuery({
     queryKey: request?.queryKey ?? ['swap-route', null],
     queryFn: request?.queryFn,
@@ -42,29 +44,37 @@ const useGetRoute = (args: ArgsGetRoute) => {
       canFetch && autoRefresh && query.state.fetchStatus !== 'fetching' ? REFRESH_SECONDS * 1000 : false,
     refetchIntervalInBackground: true,
   })
+
   const { refetch } = query
   const fetcher = useCallback(() => {
     if (canFetch) void refetch({ cancelRefetch: false })
   }, [canFetch, refetch])
+
   const nextManualRefreshAt = useRef(0)
   const onRefresh = useCallback(() => {
     if (!canFetch || query.isFetching || Date.now() < nextManualRefreshAt.current) return
+
     nextManualRefreshAt.current = Date.now() + 2000
     fetcher()
   }, [canFetch, query.isFetching, fetcher])
 
   const settledAt = Math.max(query.dataUpdatedAt, query.errorUpdatedAt)
   const [now, setNow] = useState(Date.now)
+
   useEffect(() => {
     if (!canFetch || !autoRefresh || query.isFetching || !settledAt) return
+
     setNow(Date.now())
     const ticker = setInterval(() => setNow(Date.now()), 1000)
+
     return () => clearInterval(ticker)
   }, [canFetch, autoRefresh, query.isFetching, settledAt])
+
   const countdown =
     canFetch && autoRefresh && !query.isFetching && settledAt
       ? Math.max(0, REFRESH_SECONDS * 1000 - Math.max(0, now - settledAt))
       : 0
+
   const isLoading = Boolean(enabled && !isProcessingSwap && request && (inputPending || query.isFetching))
   const data = enabled && !inputPending ? query.data : undefined
 

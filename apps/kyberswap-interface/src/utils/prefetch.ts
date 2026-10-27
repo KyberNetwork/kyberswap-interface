@@ -5,7 +5,6 @@ import limitOrderApi from 'services/limitOrder'
 import { getInitialListOrdersArgs } from 'components/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS, isSupportedChainId } from 'constants/networks'
-import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { getInitialPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import store from 'state'
 
@@ -18,7 +17,6 @@ type ChunkLoader = () => Promise<unknown>
 // `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
 const ROUTE_CHUNKS: { prefix: string; load: ChunkLoader }[] = [
   // Trade — the page shell is eager, but the heavy CrossChain form stays lazy.
-  { prefix: APP_PATHS.CROSS_CHAIN, load: loadCrossChainSwap },
   // Market
   { prefix: APP_PATHS.MARKET_OVERVIEW, load: () => import('pages/MarketOverview') },
   // Earn — specific /earn/* routes must precede the /earn landing.

@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Globe } from 'react-feather'
 import { ScrollIndicator } from 'components/DropdownMenu/styles'
 import type { TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import type { Chain } from 'pages/CrossChainSwap/adapters/types'
+import type { Chain } from 'pages/Swap/crossChain/adapters/types'
 import { cn } from 'utils/cn'
 
 type ChainSelectorProps = {

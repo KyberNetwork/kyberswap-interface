@@ -8,7 +8,7 @@ import { AmountInputControls, BalanceRow, InputRow } from 'components/CurrencyIn
 import { CurrencySelect, CurrencySelectContent } from 'components/CurrencyInputPanel/CurrencySelect'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useActiveWeb3React } from 'hooks'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'

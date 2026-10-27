@@ -63,7 +63,7 @@ const PERSISTED_KEYS: string[] = [
   'profile',
   'crossChainSwap.transactions',
   'crossChainSwap.excludedSources',
-  'crossChainSwap.quoteMode',
+  'crossChainSwap.kyberCrossExcludedSources',
   'crossChainSwap.gasDropFeatureEnabled',
 ]
 

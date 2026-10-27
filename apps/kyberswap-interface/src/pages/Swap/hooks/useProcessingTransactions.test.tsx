@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import type { BackendTransaction } from 'services/crossChainTransactions'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { NonEvmChain, type NormalizedTxResponse } from 'pages/CrossChainSwap/adapters/types'
+import { NonEvmChain, type NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
 
 import { useProcessingTransactions } from './useProcessingTransactions'
 

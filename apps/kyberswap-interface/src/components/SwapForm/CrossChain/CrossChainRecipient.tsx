@@ -5,20 +5,32 @@ import { ChevronDown } from 'react-feather'
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
+import type { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
-import { NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { cn } from 'utils/cn'
 
-export const CrossChainRecipient = () => {
-  const {
-    toChainId,
-    recipient,
-    setRecipient,
-    showRecipientInput,
-    isEvmRecipientToggle,
-    toggleRecipient,
-    recipientWalletAddress,
-  } = useCrossChainSwap()
+export const CrossChainRecipient = () => <CrossChainRecipientInput {...useCrossChainSwap()} />
+
+type Props = Pick<
+  ReturnType<typeof useCrossChainRecipient>,
+  | 'recipient'
+  | 'setRecipient'
+  | 'showRecipientInput'
+  | 'isEvmRecipientToggle'
+  | 'toggleRecipient'
+  | 'recipientWalletAddress'
+> & { toChainId?: number | NonEvmChain }
+
+export const CrossChainRecipientInput = ({
+  toChainId,
+  recipient,
+  setRecipient,
+  showRecipientInput,
+  isEvmRecipientToggle,
+  toggleRecipient,
+  recipientWalletAddress,
+}: Props) => {
   const networkName =
     toChainId === NonEvmChain.Near
       ? 'NEAR'

@@ -7,7 +7,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import NetworkModal from 'components/Header/web3/NetworkModal'
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { type Chain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { type Chain, isNonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 
 type NetworkSelectorProps = {
   chainId: ChainId
@@ -29,6 +29,7 @@ export const NetworkSelector = ({ chainId, customOnSelectNetwork }: NetworkSelec
             if (isNonEvmChain(chain)) return
             setSearchParams(prev => {
               const nextSearchParams = new URLSearchParams(prev)
+              for (const key of ['from', 'to', 'tokenIn', 'tokenOut', 'toChain']) nextSearchParams.delete(key)
               nextSearchParams.set('chainId', chain.toString())
               nextSearchParams.set('inputCurrency', NativeCurrencies[chain].symbol || 'eth')
               nextSearchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKENS[chain]?.address || '')

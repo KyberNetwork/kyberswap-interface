@@ -14,14 +14,14 @@ export const useCurrenciesByPage = () => {
   const { pathname } = useLocation()
   const isSwapPage =
     isSwapLikePath(pathname) || pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.KYBER_CROSS)
 
   const currencyInSwap = useInputCurrency()
   const currencyOutSwap = useOutputCurrency()
   const limitState = useLimitState()
 
-  const currencyIn = isSwapPage ? currencyInSwap : limitState.currencyIn
-  const currencyOut = isSwapPage ? currencyOutSwap : limitState.currencyOut
+  const currencyIn = isSwapPage || isCrossChainPage ? currencyInSwap : limitState.currencyIn
+  const currencyOut = isSwapPage || isCrossChainPage ? currencyOutSwap : limitState.currencyOut
 
   const currencies = useMemo(
     () => ({
@@ -32,7 +32,7 @@ export const useCurrenciesByPage = () => {
   )
 
   const shareUrl = useMemo(() => {
-    const target = getTradeLocation(isCrossChainPage ? 'cross-chain' : isSwapPage ? 'swap' : 'limit', {
+    const target = getTradeLocation(isCrossChainPage ? 'kybercross' : isSwapPage ? 'swap' : 'limit', {
       fromChain: inputChain,
       toChain: outputChain,
       tokenIn: fromCurrency || getDefaultSwapTokenId(inputChain),

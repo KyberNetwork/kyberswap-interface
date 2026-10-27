@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import React, { useState } from 'react'
+import React, { type ReactNode, useState } from 'react'
 import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
 
@@ -12,10 +12,10 @@ import { formatTime } from 'components/SwapForm/CrossChain/Quote/CrossChainQuote
 import { CrossChainRoutesButton } from 'components/SwapForm/CrossChain/Quote/CrossChainRoutesButton'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { Currency } from 'pages/CrossChainSwap/adapters/types'
-import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
-import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
-import { Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
+import { Currency } from 'pages/Swap/crossChain/adapters/types'
+import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
+import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
+import { Quote, getQuoteId } from 'pages/Swap/crossChain/registry'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -40,6 +40,7 @@ type RouteOptionsContentProps = {
   upToLarge: boolean
   onSelect: (quote: Quote) => void
   onDismiss: () => void
+  routeBadge?: (quote: Quote, index: number) => ReactNode
 }
 
 const RouteOptionsContent = ({
@@ -50,6 +51,7 @@ const RouteOptionsContent = ({
   upToLarge,
   onSelect,
   onDismiss,
+  routeBadge,
 }: RouteOptionsContentProps) => {
   return (
     <Stack className="size-full gap-3 text-text">
@@ -95,11 +97,13 @@ const RouteOptionsContent = ({
                       </span>
                     </HStack>
 
-                    {index === 0 && (
-                      <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
-                        {t`Best Return`}
-                      </div>
-                    )}
+                    {routeBadge
+                      ? routeBadge(quote, index)
+                      : index === 0 && (
+                          <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
+                            {t`Best Return`}
+                          </div>
+                        )}
                   </HStack>
                   <HStack className="items-center justify-between gap-2 text-sm text-subText">
                     <HStack className="min-w-0 flex-wrap items-center gap-2">
@@ -154,20 +158,29 @@ type CrossChainQuoteSelectorProps = {
   onChange: (quote: Quote) => void
 }
 
+export const CrossChainQuoteSelector = (props: CrossChainQuoteSelectorProps) => {
+  const { loading, allLoading, disable } = useCrossChainSwap()
+  return <CrossChainQuoteSelectorView {...props} isLoading={!disable && (loading || allLoading)} />
+}
+
+type ViewProps = CrossChainQuoteSelectorProps & {
+  isLoading: boolean
+  routeBadge?: (quote: Quote, index: number) => ReactNode
+}
+
 /** Owns route visibility and commits selection before closing the panel. */
-export const CrossChainQuoteSelector = ({
+export const CrossChainQuoteSelectorView = ({
   quotes,
   selectedQuote,
   tokenOut,
   onChange,
-}: CrossChainQuoteSelectorProps) => {
-  const { loading, allLoading, disable, fromChainId, toChainId } = useCrossChainSwap()
+  isLoading,
+  routeBadge,
+}: ViewProps) => {
   const { trackingHandler } = useTracking()
   const [show, setShow] = useState(false)
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
-
-  const isLoading = !disable && (loading || allLoading)
 
   const handleSelect = (quote: Quote) => {
     onChange(quote)
@@ -178,8 +191,8 @@ export const CrossChainQuoteSelector = ({
         amount_out: quote.quote.formattedOutputAmount,
         amount_out_usd: quote.quote.outputUsd,
         time_estimate: quote.quote.timeEstimate,
-        from_chain: fromChainId,
-        to_chain: toChainId,
+        from_chain: quote.quote.quoteParams.fromChain,
+        to_chain: quote.quote.quoteParams.toChain,
       })
     }
   }
@@ -189,6 +202,7 @@ export const CrossChainQuoteSelector = ({
     selectedQuote,
     tokenOut,
     isLoading,
+    routeBadge,
     upToLarge,
     onSelect: handleSelect,
     onDismiss: () => setShow(false),
