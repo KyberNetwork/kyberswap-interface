@@ -39,4 +39,4 @@ export const DEFAULT_MAX_GAS_PERCENTAGE = 50
  * The highest tier rate. A fee taking a larger share of the order is the flat minimum at work on a small
  * one, which is worth pointing out.
  */
-export const HIGH_FEE_SHARE_PERCENT = 1
+export const HIGH_FEE_SHARE_PERCENT = 5

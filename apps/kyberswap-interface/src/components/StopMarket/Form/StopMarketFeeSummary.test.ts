@@ -6,6 +6,7 @@ import {
   getStopMarketFeeSummary,
   getStopMarketFeeWarningKind,
 } from 'components/StopMarket/Form/StopMarketFeeSummary'
+import { HIGH_FEE_SHARE_PERCENT } from 'components/StopMarket/constants'
 import { StopMarketFee } from 'components/StopMarket/types'
 
 // A 0.15%-tier pair on BSC, as estimate-fee returns it.
@@ -61,16 +62,17 @@ describe('getStopMarketFeeWarningKind', () => {
   })
 
   it('warns about the share alone when the tier rate applies', () => {
-    const highTier = { ...TIER, protocol: { ...TIER.protocol, percentage: 1.5 } }
+    const highTier = { ...TIER, protocol: { ...TIER.protocol, percentage: HIGH_FEE_SHARE_PERCENT + 0.5 } }
     expect(getStopMarketFeeWarningKind(highTier)).toBe('highShare')
   })
 
   it('adds the gas-spike clause when the minimum applies and the share is high', () => {
-    expect(getStopMarketFeeWarningKind(MINIMUM)).toBe('highShareMinimum')
+    const highMinimum = { ...MINIMUM, protocol: { ...MINIMUM.protocol, percentage: HIGH_FEE_SHARE_PERCENT + 0.37 } }
+    expect(getStopMarketFeeWarningKind(highMinimum)).toBe('highShareMinimum')
   })
 
-  it('has no warning when the minimum applies at a share of 1% or less', () => {
-    const lowMinimum = { ...MINIMUM, protocol: { ...MINIMUM.protocol, percentage: 1 } }
+  it('has no warning when the minimum applies at a share at or below the threshold', () => {
+    const lowMinimum = { ...MINIMUM, protocol: { ...MINIMUM.protocol, percentage: HIGH_FEE_SHARE_PERCENT } }
     expect(getStopMarketFeeWarningKind(lowMinimum)).toBe('none')
   })
 })
