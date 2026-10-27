@@ -7,6 +7,7 @@ import TopRightPopup, { TOP_RIGHT_POPUP_EXIT_MS } from 'components/Announcement/
 import { PopupType, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import { useNotificationLimitOrder } from 'components/LimitOrder/hooks/useNotificationLimitOrder'
+import { useStopMarketExecutedNotifications } from 'components/StopMarket/hooks/useStopMarketExecutedNotifications'
 import { TIMES_IN_SECS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useActivePopups, useAddPopup, useRemoveAllPopupByType, useRemovePopup } from 'state/application/hooks'
@@ -120,6 +121,7 @@ export default function Popups() {
   }, [])
 
   useNotificationLimitOrder()
+  useStopMarketExecutedNotifications()
 
   const centerPopup = centerPopups[centerPopups.length - 1]
   const visibleTopRightPopups = topRightPopups.slice(0, MAX_NOTIFICATION)

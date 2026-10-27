@@ -125,6 +125,7 @@ const notificationApi = createApi({
 })
 
 export const {
+  useGetNotificationsQuery,
   useLazyGetNotificationsQuery,
   useReadNotificationsMutation,
   useReadAllNotificationsMutation,
