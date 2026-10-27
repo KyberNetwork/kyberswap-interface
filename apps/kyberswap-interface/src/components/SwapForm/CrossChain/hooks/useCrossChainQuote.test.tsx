@@ -73,7 +73,9 @@ describe('unified quote session after aggregator integration', () => {
     expect(mocks.getQuotes).toHaveBeenCalledOnce()
     await act(async () => state.refresh.onRefresh())
     expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
-    await act(async () => vi.advanceTimersByTimeAsync(10000))
+    await act(async () => vi.advanceTimersByTimeAsync(59_999))
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    await act(async () => vi.advanceTimersByTimeAsync(1))
     expect(mocks.getQuotes).toHaveBeenCalledTimes(3)
   })
 

@@ -1,6 +1,8 @@
 import { CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import type { ReactNode } from 'react'
 
+import { Stack } from 'components/Stack'
 import { CrossChainCurrencyPanel } from 'components/SwapForm/CrossChain/CrossChainCurrencyPanel'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
@@ -174,7 +176,16 @@ export const CrossChainSwapForm = ({
       tokenInfo={<ERC8056Info tokens={erc8056Info.tokens} />}
       recipient={recipient}
       details={details}
-      action={action}
+      action={
+        <Stack className="gap-2">
+          {action}
+          {selectedQuote && (
+            <span className="text-center text-xs font-medium text-gray">
+              <Trans>Routed via</Trans> {selectedQuote.adapter.getName()}
+            </span>
+          )}
+        </Stack>
+      }
     />
   )
 }

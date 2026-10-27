@@ -64,7 +64,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     })
   }
 
-  const session = useQuoteSession({ request, loadQuotes, refreshSeconds: 10, getQuoteKey: providerKey })
+  const session = useQuoteSession({ request, loadQuotes, refreshSeconds: 60, getQuoteKey: providerKey })
   const warning = getQuoteWarning({
     selectedQuote: session.selectedQuote,
     category: session.category,

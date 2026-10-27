@@ -12,6 +12,62 @@ const quote = (provider: string, rawQuote: unknown) =>
   } as Quote)
 
 describe('cross-chain route display', () => {
+  it('omits LI.FI fee collection and keeps the Relay bridge for Base USDC to Arbitrum USDs', () => {
+    const usds = {
+      address: '0xD74f5255D557944cf7Dd0E45FF521520002D5748',
+      symbol: 'USDs',
+      decimals: 18,
+      chainId: 42161,
+    }
+    const steps = getCrossChainRouteSteps(
+      quote('LIFI', {
+        includedSteps: [
+          {
+            type: 'protocol',
+            tool: 'feeCollection',
+            toolDetails: { name: 'Integrator Fee' },
+            action: { toToken: usdc },
+            estimate: { toAmount: '99950000' },
+          },
+          {
+            type: 'cross',
+            tool: 'relaydepository',
+            toolDetails: { name: 'Relay', logoURI: 'relay.svg' },
+            action: { toToken: usds },
+            estimate: { toAmount: '99670889771887122951' },
+          },
+        ],
+      }),
+    )
+
+    expect(steps).toEqual([
+      {
+        type: 'bridge',
+        provider: 'Relay',
+        logo: 'relay.svg',
+        tokenOut: usds,
+        amountOut: '99670889771887122951',
+      },
+    ])
+  })
+
+  it('falls back to LI.FI when the only included step is fee collection', () => {
+    expect(
+      getCrossChainRouteSteps(
+        quote('LIFI', {
+          includedSteps: [
+            {
+              type: 'protocol',
+              tool: 'feeCollection',
+              toolDetails: { name: 'Integrator Fee' },
+              action: { toToken: usdc },
+            },
+          ],
+        }),
+      ),
+    ).toEqual([{ type: 'route', provider: 'LIFI', logo: 'provider.svg' }])
+  })
+
   it('uses the ordered LI.FI swap and bridge steps with their own providers and raw output units', () => {
     const steps = getCrossChainRouteSteps(
       quote('LI.FI', {
