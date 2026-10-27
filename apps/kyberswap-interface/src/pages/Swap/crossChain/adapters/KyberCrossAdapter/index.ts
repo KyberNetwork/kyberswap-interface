@@ -162,8 +162,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       throw new Error('Missing KyberCross route plan')
     }
 
-    const routeProvider = routePlan.bridge.provider
-    const normalizedRouteProvider = normalizeProvider(routeProvider)
+    const normalizedRouteProvider = normalizeProvider(routePlan.bridge.provider)
     const build =
       'route_plans' in quoteData ? (await kyberCrossApi.build(quoteData.route_plans[0])).data : quoteData.build
 
@@ -209,8 +208,6 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       amountOutUsd: normalizedQuote.outputUsd,
       platformFeePercent: normalizedQuote.platformFeePercent,
       recipient: quoteParams.recipient,
-      bridgeProvider: routeProvider,
-      routeId: routePlan.id,
       gasDrop: normalizedQuote.gasDrop,
       ...(normalizedQuote.gasDrop ? { gasDropStatus: { status: 'Pending' as const } } : {}),
     }

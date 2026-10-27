@@ -20,7 +20,6 @@ vi.mock('pages/Swap/crossChain/adapters/NearIntentsAdapter/useNearIntentsTokens'
 vi.mock('react-use', () => ({ useMedia: () => false }))
 vi.mock('pages/Swap/crossChain/factory', () => ({
   registry: { getAdapter: () => undefined },
-  CrossChainSwapFactory: { getKyberCrossBridgeSource: () => undefined },
 }))
 vi.mock('pages/Swap/crossChain/utils', () => ({ normalizeAdapterName: (name: string) => name }))
 vi.mock('./GasDrop', () => ({ GasDropTransactionLine: () => null }))

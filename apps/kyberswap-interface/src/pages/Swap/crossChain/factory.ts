@@ -111,15 +111,6 @@ export class CrossChainSwapFactory {
     ]
   }
 
-  static getKyberCrossBridgeSource(name?: string): CrossChainSource | undefined {
-    const normalizedName = normalizeAdapterName(name)
-    if (!normalizedName) return undefined
-
-    return CrossChainSwapFactory.getKyberCrossBridgeSources().find(
-      source => normalizeAdapterName(source.getName()) === normalizedName,
-    )
-  }
-
   static getSelectableSources(quoteMode: CrossChainQuoteMode): CrossChainSource[] {
     if (quoteMode === 'direct') {
       return CrossChainSwapFactory.getKyberCrossBridgeSources()
