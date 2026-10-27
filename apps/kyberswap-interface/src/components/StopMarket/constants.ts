@@ -24,7 +24,7 @@ export const getStopMarketExpiryPresets = () => [
 export const STOP_MARKET_SLIPPAGE_MULTIPLIER = 2
 
 /** Shortcuts for the trigger's distance from the market, offered next to the editable percent chip. */
-export const TRIGGER_PERCENT_PRESETS = [-50, -20, 20, 50]
+export const TRIGGER_PERCENT_PRESETS = [-50, -20, -10]
 
 /**
  * Starting fee cap carried in the signed intent. Raised to the live protocol fee from `estimate-fee`
