@@ -23,11 +23,14 @@ export const SingleChainSwapFormProvider = ({
   children,
 }: SingleChainSwapFormProviderProps) => {
   const { chainId: walletChainId } = useActiveWeb3React()
+
   const balanceIn = useCurrencyBalance(currencyIn, currencyIn?.chainId)
   const balanceOut = useCurrencyBalance(currencyOut, currencyOut?.chainId)
+
   const [ttl] = useUserTransactionTTL()
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
+
   const permitData = usePermitData(currencyIn?.chainId === walletChainId ? currencyIn.wrapped.address : undefined)
 
   return (

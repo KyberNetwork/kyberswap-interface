@@ -6,9 +6,9 @@ import type { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQu
 import { QuoteDetailRow } from 'components/SwapForm/Quote/QuoteDetails'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { Currency } from 'pages/CrossChainSwap/adapters/types'
-import { getMinimumOutputAmount } from 'pages/CrossChainSwap/quote/utils'
-import { Quote } from 'pages/CrossChainSwap/registry'
+import { Currency } from 'pages/Swap/crossChain/adapters/types'
+import { getMinimumOutputAmount } from 'pages/Swap/crossChain/quote/utils'
+import { Quote } from 'pages/Swap/crossChain/registry'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 

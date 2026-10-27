@@ -26,7 +26,7 @@ import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/CrossChainSwap/adapters/types'
+import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { DetailedRouteSummary } from 'types/route'
 
 /** Single-chain quote/execution flow. Receives resolved currencies and metadata-loading flags from its caller;
@@ -115,6 +115,7 @@ export const SingleChainSwapContent = ({
     confirmReview,
     dismissReview,
   } = useSingleChainSwapContext()
+
   const debouncedTypedValue = useDebounce(typedValue, 1000)
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
   const { displayTypedValue, onDisplayInput, onRawValue } = useERC8056TypedInput(
@@ -151,6 +152,7 @@ export const SingleChainSwapContent = ({
         paired_token: currencyOut?.symbol,
         chain: NETWORKS_INFO[c.chainId].name,
       })
+
       onChangeCurrencyIn(c)
     },
     [onChangeCurrencyIn, trackingHandler, currencyOut?.symbol],
@@ -165,10 +167,24 @@ export const SingleChainSwapContent = ({
         paired_token: currencyIn?.symbol,
         chain: NETWORKS_INFO[c.chainId].name,
       })
+
       onChangeCurrencyOut(c)
     },
     [onChangeCurrencyOut, trackingHandler, currencyIn?.symbol],
   )
+
+  const handleReverse = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      new_from_token: currencyOut?.symbol,
+      new_to_token: currencyIn?.symbol,
+      chain: networkInfo.name,
+    })
+
+    currencyIn && onChangeCurrencyOut(currencyIn)
+    routeSummary && onRawValue(routeSummary.parsedAmountOut.toExact())
+  }
 
   // Amount Entered tracking (debounced)
   useEffect(() => {
@@ -187,6 +203,7 @@ export const SingleChainSwapContent = ({
 
   useEffect(() => {
     onRouteChange?.(routeSummary)
+
     return () => onRouteChange?.(undefined)
   }, [routeSummary, onRouteChange])
 
@@ -247,17 +264,7 @@ export const SingleChainSwapContent = ({
             <AddressInputPanel id="recipient" value={recipient} onChange={onRecipientChange} />
           ) : undefined
         }
-        onReverse={() => {
-          trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
-            from_token: currencyIn?.symbol,
-            to_token: currencyOut?.symbol,
-            new_from_token: currencyOut?.symbol,
-            new_to_token: currencyIn?.symbol,
-            chain: networkInfo.name,
-          })
-          currencyIn && onChangeCurrencyOut(currencyIn)
-          routeSummary && onRawValue(routeSummary.parsedAmountOut.toExact())
-        }}
+        onReverse={handleReverse}
         details={
           <Stack className="gap-2">
             <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />

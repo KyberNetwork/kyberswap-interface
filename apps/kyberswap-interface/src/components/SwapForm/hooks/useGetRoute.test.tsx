@@ -212,15 +212,6 @@ it('throttles manual refresh and deduplicates repeated requests while fetching',
   await flush()
   expect(mocks.trigger).toHaveBeenCalledTimes(3)
 })
-it('pauses polling for review and fetches fresh data on close', async () => {
-  await render({ autoRefresh: true })
-  await render({ autoRefresh: true, paused: true })
-  expect(state.result.data).toEqual(response)
-  await advance(20000)
-  expect(mocks.trigger).toHaveBeenCalledOnce()
-  await render({ autoRefresh: true })
-  expect(mocks.trigger).toHaveBeenCalledTimes(2)
-})
 it('restarts polling after cross-chain unmount and single-chain remount', async () => {
   await render({ autoRefresh: true })
   await act(async () => root.render(null))

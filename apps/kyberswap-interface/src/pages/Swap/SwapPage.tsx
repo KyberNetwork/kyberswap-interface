@@ -17,9 +17,11 @@ const CrossChainSwapProvider = lazy(() => import('components/SwapForm/CrossChain
  * The history controller stays outside swap-mode and History visibility branches. */
 const SwapPage = () => {
   const [showHistory, setShowHistory] = useState(false)
+
   const pair = useSwapFormPair()
   const controller = useTradeController(TAB.SWAP)
   const { typedValue, onUserInput } = useSwapInputAmount()
+
   useSwapLayoutPrefetch()
 
   const contentProps = {

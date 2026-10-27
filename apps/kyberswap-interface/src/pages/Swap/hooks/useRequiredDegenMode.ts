@@ -8,7 +8,9 @@ const DEFAULT_SETTINGS_TAB = 'settings'
 export const useRequiredDegenMode = <Tab>({
   settingsTab = DEFAULT_SETTINGS_TAB as Tab,
   setActiveTab,
+  syncTabWithUrl = false,
 }: {
+  syncTabWithUrl?: boolean
   settingsTab?: Tab
   setActiveTab: (tab: Tab) => void
 }) => {
@@ -19,18 +21,19 @@ export const useRequiredDegenMode = <Tab>({
   useEffect(() => {
     if (!shouldOpenSettings) return
 
-    setActiveTab(settingsTab)
+    if (!syncTabWithUrl) setActiveTab(settingsTab)
     setHighlightDegenMode(true)
 
     setSearchParams(
       prev => {
         const nextSearchParams = new URLSearchParams(prev)
         nextSearchParams.delete(ENABLE_DEGEN_MODE_PARAM)
+        if (syncTabWithUrl) nextSearchParams.set('tab', String(settingsTab))
         return nextSearchParams
       },
       { replace: true },
     )
-  }, [shouldOpenSettings, setActiveTab, setSearchParams, settingsTab])
+  }, [shouldOpenSettings, setActiveTab, setSearchParams, settingsTab, syncTabWithUrl])
 
   useEffect(() => {
     if (!highlightDegenMode) return

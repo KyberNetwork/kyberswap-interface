@@ -5,9 +5,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
-import { NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
-import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
-import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
+import { NonEvmChainInfo } from 'pages/Swap/crossChain/adapters/types'
+import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
+import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 export const useNearIntentSelectedWallet = () => {

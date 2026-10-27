@@ -45,6 +45,7 @@ export const useSwapReviewSession = (identity: string) => {
     async (build: BuildReview, reopen = false) => {
       const phase = current.current.phase
       if (reopen ? phase !== 'closed' : phase !== 'review' && phase !== 'building') return
+
       invalidate()
 
       const request = generation.current
@@ -54,6 +55,7 @@ export const useSwapReviewSession = (identity: string) => {
 
       try {
         const buildResult = await build(controller.signal)
+
         if (generation.current === request && !controller.signal.aborted) {
           updateReview({ phase: 'review', buildResult })
         }
@@ -77,6 +79,7 @@ export const useSwapReviewSession = (identity: string) => {
   const confirmReview = useCallback(
     async (submit: SubmitReview, onError: (message: string) => void) => {
       if (current.current.phase !== 'review' || !current.current.buildResult?.data) return
+
       const request = generation.current
       const buildResult = current.current.buildResult
       updateReview({ phase: 'preparing', buildResult })
@@ -86,10 +89,12 @@ export const useSwapReviewSession = (identity: string) => {
         const txHash = await submit(() => {
           if (generation.current === request) updateReview({ phase: 'signing', buildResult })
         })
+
         if (generation.current === request) updateReview({ phase: 'submitted', buildResult, txHash })
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         if (generation.current === request) updateReview({ phase: 'error', buildResult, error: message })
+
         onError(message)
       }
     },

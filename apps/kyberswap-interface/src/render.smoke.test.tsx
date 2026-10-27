@@ -1,4 +1,15 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+const flags = vi.hoisted(() => ({ kyberCross: false }))
+vi.mock('constants/env', async importOriginal => ({
+  ...(await importOriginal<typeof import('constants/env')>()),
+  get KYBERCROSS() {
+    return flags.kyberCross
+  },
+}))
+afterEach(() => {
+  flags.kyberCross = false
+})
 
 // Representative route trees must complete the same async static render used by distinct pages and the
 // shared product shells. This waits for React.lazy route chunks and validates real content, not only fallback UI.
@@ -7,7 +18,6 @@ const ROUTES = [
   '/limit/base',
   '/stop-market/base',
   // Cross-chain and Earn
-  '/cross-chain',
   '/earn',
   '/earn/pools',
   '/earn/positions',
@@ -32,7 +42,7 @@ describe('SSR render smoke', () => {
     expect(html).toContain('<aside')
     expect(html).toContain('Instantly buy or sell tokens at superior prices')
     expect(html).toContain('Swap')
-    expect(html).toContain('Cross-Chain')
+    expect(html).not.toContain('id="cross-chain-nav-link"')
     expect(html).not.toContain('Swap EVM')
     expect(html).toContain('Route:')
     expect(html).not.toContain('<!--$?-->')
@@ -63,10 +73,12 @@ describe('SSR render smoke', () => {
   })
 
   it.each(['/partner-swap', '/user-swap'])(
-    'keeps embedded swap and feature selection working on %s',
+    'renders Unified Swap and retains Limit Order in the embedded route %s',
     async pathname => {
       const { renderRouteBodyHtml } = await import('entry-server')
-      const html = await renderRouteBodyHtml(`${pathname}?chainId=1&features=swap,limit&tab=swap`)
+      const html = await renderRouteBodyHtml(
+        `${pathname}?clientId=test&chainId=1&features=swap,limit,cross_chain&tab=cross_chain`,
+      )
 
       expect(html).toContain('id="swap-currency-input"')
       expect(html).toContain('id="swap-currency-output"')
@@ -76,6 +88,52 @@ describe('SSR render smoke', () => {
       expect(html).not.toContain('<!--$?-->')
     },
   )
+
+  it.each(['/partner-swap', '/user-swap'])(
+    'opens embedded Limit Order without the retired Cross-chain tab: %s',
+    async pathname => {
+      const { renderRouteBodyHtml } = await import('entry-server')
+      const html = await renderRouteBodyHtml(
+        `${pathname}?clientId=test&chainId=8453&inputCurrency=ETH&outputCurrency=USDC&features=swap,limit&tab=limit`,
+      )
+      expect(html).toContain('id="create-limit-order-input-tokena"')
+      expect(html).toContain('id="create-limit-order-input-tokenb"')
+      expect(html).toContain('id="limit-button"')
+      expect(html).not.toContain('id="swap-currency-input"')
+      expect(html).not.toContain('data-testid="cross-chain-tab"')
+    },
+  )
+
+  it.each(['/partner-swap', '/user-swap'])('renders embedded cross-chain from toChain on %s', async pathname => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml(
+      `${pathname}?clientId=test&chainId=1&toChain=8453&inputCurrency=ETH&outputCurrency=ETH`,
+    )
+    expect(html).toContain('id="swap-currency-input"')
+    expect(html).toContain('id="swap-currency-output"')
+    expect(html).toContain('aria-label="Swap quote"')
+  })
+
+  it('honors embedded swap-only features', async () => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml('/partner-swap?clientId=test&chainId=1&features=swap')
+    expect(html).toContain('id="swap-currency-input"')
+    expect(html).not.toContain('id="limit-button"')
+  })
+
+  it('gates both the KyberCross tab and route with KYBERCROSS', async () => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const swap = await renderRouteBodyHtml('/swap/ethereum')
+    expect(swap).not.toContain('id="kybercross-nav-link"')
+    const disabled = await renderRouteBodyHtml('/kybercross?from=1&to=8453&tokenIn=ETH&tokenOut=ETH')
+    expect(disabled).not.toContain('id="swap-currency-input"')
+    flags.kyberCross = true
+    const enabled = await renderRouteBodyHtml('/kybercross?from=1&to=8453&tokenIn=ETH&tokenOut=ETH')
+    expect(enabled).toContain('id="kybercross-nav-link"')
+    expect(enabled).toContain('id="swap-currency-input"')
+    expect(enabled).toContain('id="swap-currency-output"')
+    expect(enabled).toContain('aria-label="Swap quote"')
+  })
 
   it.each(ROUTES)('renders %s without throwing', async location => {
     const { renderRouteBodyHtml } = await import('entry-server')
@@ -118,7 +176,7 @@ describe('SSR render smoke', () => {
       { outputPath: 'limit/index.html', product: 'limit', sourceRoute: '/limit/ethereum' },
       { outputPath: 'stop-market/index.html', product: 'stop-market', sourceRoute: '/stop-market/ethereum' },
     ])
-    expect(prerenderManifest.distinctPages).toHaveLength(11)
+    expect(prerenderManifest.distinctPages).toHaveLength(10)
     expect(
       prerenderManifest.distinctPages.every(
         ({ pathname }) =>

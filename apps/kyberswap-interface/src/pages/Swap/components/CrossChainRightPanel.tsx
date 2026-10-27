@@ -25,6 +25,7 @@ type Props = {
 const CrossChainRightPanel = ({ currencyIn, currencyOut, isProviderLoading }: Props) => {
   const showChart = useShowPricingChart()
   const showRoutes = useShowTradeRoutes()
+
   const tokens = [currencyIn, currencyOut].filter((token): token is EvmCurrency => !!token)
   const hasChart = getChartTokens(tokens).length > 0
 

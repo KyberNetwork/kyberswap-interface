@@ -41,7 +41,7 @@ export const Header = ({
   const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
   const isLimitPage = !isStopMarketPage && (pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT)
   const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.KYBER_CROSS) || selectedTab === TAB.KYBER_CROSS
 
   return (
     <>

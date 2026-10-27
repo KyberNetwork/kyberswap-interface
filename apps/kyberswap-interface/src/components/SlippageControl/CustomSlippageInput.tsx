@@ -1,9 +1,7 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import Tooltip from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/trade'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDegenModeManager } from 'state/user/hooks'
@@ -27,6 +25,7 @@ export type Props = {
   onFocusChange?: (value: boolean) => void
   onChange: (value: number) => void
   isWarning?: boolean
+  isCrossChain?: boolean
   isHighlight?: boolean
   options: number[]
 }
@@ -38,6 +37,7 @@ const CustomSlippageInput: React.FC<Props> = ({
   onFocusChange,
   onChange,
   isWarning = false,
+  isCrossChain = false,
   isHighlight,
   options,
 }) => {
@@ -45,8 +45,6 @@ const CustomSlippageInput: React.FC<Props> = ({
   const inputRef = useRef<HTMLInputElement>(null)
   const previousSlippageRef = useRef(value)
   const { trackingHandler } = useTracking()
-  const { pathname } = useLocation()
-  const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const [isDegenMode] = useDegenModeManager()
   const [rawText, setRawText] = useState(getSlippageText(value, options))
 

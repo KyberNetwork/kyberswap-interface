@@ -1,8 +1,8 @@
 import { t } from '@lingui/macro'
 
-import { getPriceImpactInfo } from 'pages/CrossChainSwap/quote/priceImpact'
-import { PairCategory } from 'pages/CrossChainSwap/quote/utils'
-import { Quote } from 'pages/CrossChainSwap/registry'
+import { getPriceImpactInfo } from 'pages/Swap/crossChain/quote/priceImpact'
+import { PairCategory } from 'pages/Swap/crossChain/quote/utils'
+import { Quote } from 'pages/Swap/crossChain/registry'
 
 type Params = {
   selectedQuote: Quote | null

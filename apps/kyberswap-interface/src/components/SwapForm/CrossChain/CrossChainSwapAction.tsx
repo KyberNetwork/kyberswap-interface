@@ -14,13 +14,13 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
-import { useCrossChainApproval } from 'pages/CrossChainSwap/hooks/useCrossChainApproval'
-import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
-import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
-import { isEvmCurrency, isNearToken, isSolanaToken } from 'pages/CrossChainSwap/quote/utils'
-import { isQuoteExecutable } from 'pages/CrossChainSwap/utils'
+import { NonEvmChain, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
+import { useCrossChainApproval } from 'pages/Swap/crossChain/hooks/useCrossChainApproval'
+import { useNearBalances } from 'pages/Swap/crossChain/hooks/useNearBalances'
+import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
+import { isEvmCurrency, isNearToken, isSolanaToken } from 'pages/Swap/crossChain/quote/utils'
+import { isQuoteExecutable } from 'pages/Swap/crossChain/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { getTokenAddress } from 'utils/tokenInfo'
@@ -43,11 +43,13 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
     sender,
     receiver,
   } = useCrossChainSwap()
+
   const { account, chainId } = useActiveWeb3React()
   const isFromEvm = isEvmChain(fromChainId)
   const isFromNear = fromChainId === NonEvmChain.Near
   const isFromSol = fromChainId === NonEvmChain.Solana
   const isFromBitcoin = fromChainId === NonEvmChain.Bitcoin
+
   const evmCurrencyIn = isFromEvm && isEvmCurrency(currencyIn) ? currencyIn : undefined
   const inputAmount = evmCurrencyIn ? CurrencyAmount.fromRawAmount(evmCurrencyIn, amountInWei || '0') : undefined
 
@@ -59,6 +61,7 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
 
   const { signedAccountId } = useWalletSelector()
   const { publicKey: solanaAddress } = useWallet()
+
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
   const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
@@ -108,6 +111,7 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
         disabled: true,
       }
     }
+
     if (isFindingRoute) {
       return {
         label: t`Finding the best route`,
@@ -115,6 +119,7 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
         disabled: true,
       }
     }
+
     if (isChecking) {
       return {
         label: t`Checking approval`,
@@ -188,12 +193,15 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
 
     let insufficientBalance = false
     if (isFromEvm && (!balance || inputAmount?.greaterThan(balance))) insufficientBalance = true
+
     if (
       isFromNear &&
       BigInt((isNearToken(currencyIn) ? nearBalances[currencyIn.assetId] : undefined) || 0) < BigInt(amountInWei)
     )
       insufficientBalance = true
+
     if (isFromBitcoin && BigInt(btcBalance || 0) < BigInt(amountInWei)) insufficientBalance = true
+
     if (
       isFromSol &&
       BigInt((isSolanaToken(currencyIn) ? solanaBalances[currencyIn.id]?.rawAmount : undefined) || '0') <

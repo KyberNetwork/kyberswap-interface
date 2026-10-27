@@ -3,7 +3,7 @@ import { ReactNode, createContext, useContext } from 'react'
 import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
 import { useCrossChainQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
 import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
-import { Chain } from 'pages/CrossChainSwap/adapters/types'
+import { Chain } from 'pages/Swap/crossChain/adapters/types'
 
 export type CrossChainSwapOptions = {
   fromChain: Chain
@@ -28,6 +28,7 @@ type Props = CrossChainSwapOptions & { children: ReactNode }
 const CrossChainSwapProvider = ({ children, amount, onAmountChange, fromChain, toChain, tokenIn, tokenOut }: Props) => {
   const pair = useCrossChainPair({ fromChainId: fromChain, toChainId: toChain, tokenIn, tokenOut })
   const recipient = useCrossChainRecipient(pair.fromChainId, pair.toChainId)
+
   const quote = useCrossChainQuote({
     pair,
     amount,
@@ -45,7 +46,9 @@ const CrossChainSwapProvider = ({ children, amount, onAmountChange, fromChain, t
 
 export const useCrossChainSwap = () => {
   const ctx = useContext(CrossChainSwapContext)
+
   if (!ctx) throw new Error('useCrossChainSwap must be used within CrossChainSwapProvider')
+
   return ctx
 }
 

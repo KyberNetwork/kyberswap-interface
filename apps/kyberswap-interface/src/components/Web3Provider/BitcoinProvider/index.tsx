@@ -89,7 +89,11 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
       providers.push(fordefiProvider)
       providers.push(ledgerProvider)
 
-      if (window.location.pathname === APP_PATHS.CROSS_CHAIN) {
+      if (
+        [APP_PATHS.SWAP, APP_PATHS.KYBER_CROSS, APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP].some(path =>
+          window.location.pathname.startsWith(path),
+        )
+      ) {
         // Re-hydrate the previously connected wallet via its SILENT restore() only — never connect(), which
         // pops the wallet's approval dialog. This effect re-runs whenever the route mounts, so calling
         // connect() here made wallets without a silent path (OKX, Xverse) prompt on every cross-chain visit.

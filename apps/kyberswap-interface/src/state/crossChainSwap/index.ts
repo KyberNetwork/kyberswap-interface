@@ -1,8 +1,7 @@
 import { type Middleware, type PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit'
 import { save } from 'redux-localstorage-simple'
 
-import { KYBERCROSS } from 'constants/env'
-import type { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters/types'
+import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
 import {
   type LocalTransaction,
   type OutboxEntry,
@@ -11,7 +10,7 @@ import {
   isBackendResolved,
   localTransactionKey,
   outboxKey,
-} from 'pages/CrossChainSwap/transactions/model'
+} from 'pages/Swap/crossChain/transactions/model'
 import { useAppSelector } from 'state/hooks'
 
 const MAX_CROSS_CHAIN_TRANSACTIONS = 120
@@ -27,7 +26,7 @@ export type CrossChainQuoteMode = 'direct' | 'stream'
 
 export interface CrossChainSwapState {
   gasDropFeatureEnabled: boolean
-  quoteMode: CrossChainQuoteMode
+  kyberCrossExcludedSources: string[]
   transactions: LocalTransaction[]
   excludedSources: string[]
 }
@@ -43,7 +42,7 @@ const slice = createSlice({
   name: 'crossChainSwap',
   initialState: {
     gasDropFeatureEnabled: false,
-    quoteMode: 'direct',
+    kyberCrossExcludedSources: [] as string[],
     transactions: [] as LocalTransaction[],
     excludedSources: [] as string[],
   } as CrossChainSwapState,
@@ -115,11 +114,8 @@ const slice = createSlice({
     updateGasDropFeatureEnabled: (state, { payload }: { payload: boolean }) => {
       state.gasDropFeatureEnabled = payload
     },
-    updateQuoteMode: (state, { payload }: { payload: CrossChainQuoteMode }) => {
-      if (state.quoteMode === payload) return
-      state.quoteMode = payload
-      // Direct filters bridge providers; stream filters aggregator sources.
-      state.excludedSources = []
+    updateKyberCrossExcludedSources: (state, { payload }: { payload: string[] }) => {
+      state.kyberCrossExcludedSources = payload
     },
     updateExcludedSources: (state, { payload }: { payload: string[] }) => {
       state.excludedSources = payload
@@ -134,15 +130,13 @@ export const {
   finishTransactionSync,
   patchProviderTransactions,
   updateExcludedSources,
-  updateQuoteMode,
+  updateKyberCrossExcludedSources,
   updateGasDropFeatureEnabled,
 } = slice.actions
 
 export const useGasDropFeatureEnabled = () =>
   useAppSelector(state => state.crossChainSwap.gasDropFeatureEnabled ?? false)
 
-export const useCrossChainQuoteMode = () =>
-  useAppSelector(state => (KYBERCROSS ? state.crossChainSwap.quoteMode || 'direct' : 'stream'))
 export default slice.reducer
 
 export const useCrossChainTransactions = () => useAppSelector(state => state.crossChainSwap.transactions)

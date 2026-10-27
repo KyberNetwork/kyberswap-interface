@@ -5,8 +5,8 @@ import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@s
 import { ComponentProps, FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
 import { SOLANA_RPC } from 'constants/env'
-import { SolanaConnectModalProvider } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
-import { SOLANA_NATIVE } from 'pages/CrossChainSwap/utils'
+import { SolanaConnectModalProvider } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
+import { SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
 
 interface SolanaProviderProps {
   children: ReactNode
