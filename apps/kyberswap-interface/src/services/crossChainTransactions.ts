@@ -72,6 +72,8 @@ const crossChainTransactionsApi = createApi({
   reducerPath: 'crossChainTransactionsApi',
   baseQuery: retry(baseQuery, { maxRetries: 0 }),
   // Detail results bridge local removal and list loading, without a separate history cache.
+  // RTK data is not persisted: after reload, a settled row depends on the list
+  // returning it and can be temporarily absent if that list has not caught up.
   keepUnusedDataFor: 24 * 60 * 60,
   endpoints: builder => ({
     recordTransaction: builder.mutation<RecordedTransaction, { quoteToken: string; sourceTxHash: string }>({

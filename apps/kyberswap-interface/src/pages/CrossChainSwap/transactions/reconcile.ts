@@ -91,6 +91,8 @@ export const reconcileTransaction =
 
     entry = current(key)
     if (!entry) return
+    // Quote-token expiry limits registration retries only. Accepted records keep
+    // polling detail until settlement, a tracking issue or the tracking TTL.
     const stopped = entry.trackingIssue || now - entry.createdAt >= TRACKING_TTL
     if (stopped && !refreshStopped) {
       if (!entry.trackingIssue) patch(key, latest => ({ ...latest, trackingIssue: 'expired', quoteToken: undefined }))
