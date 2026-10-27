@@ -10,6 +10,9 @@ import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 
 export type StreamQuoteResponse = {
   provider: string
+  /** Aggregator identity must survive normalization and execution unchanged. */
+  quoteId?: string
+  quoteToken?: string
   outputAmount: string
   minOutputAmount: string
   inputUsd: number
@@ -101,6 +104,8 @@ export const normalizeStreamQuote = (data: StreamQuoteResponse, params: QuotePar
   }
 
   return normalizeQuote({
+    quoteId: data.quoteId,
+    quoteToken: data.quoteToken,
     // The request snapshot owns execution parameters; response quoteParams is intentionally ignored.
     quoteParams: { ...params },
     outputAmount,

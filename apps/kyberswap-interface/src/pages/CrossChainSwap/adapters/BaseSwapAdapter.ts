@@ -45,7 +45,7 @@ export abstract class BaseSwapAdapter implements SwapProvider {
     params: Quote,
     walletClient: WalletClient,
     nearWallet?: ReturnType<typeof useWalletSelector>,
-  ): Promise<NormalizedTxResponse>
+  ): Promise<NormalizedTxResponse | undefined>
   abstract getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
 
   canSupport(_category: string, _tokenIn?: Currency, _tokenOut?: Currency): boolean {

@@ -1,308 +1,57 @@
-import { type ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { format } from 'date-fns'
-import { type HTMLAttributes, type ReactNode, useEffect, useMemo, useState } from 'react'
-import { ChevronRight } from 'react-feather'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { formatUnits } from 'viem'
 
-import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
-import CopyHelper from 'components/Copy'
+import HistoryPagination from 'components/HistoryPagination'
 import Pagination from 'components/Pagination'
-import Skeleton from 'components/Skeleton'
-import { NETWORKS_INFO } from 'constants/networks'
-import {
-  type Chain,
-  type Currency,
-  NonEvmChain,
-  NonEvmChainInfo,
-  type NormalizedTxResponse,
-} from 'pages/CrossChainSwap/adapters/types'
-import { GasDropTransactionLine } from 'pages/CrossChainSwap/components/GasDrop'
-import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
-import { CrossChainSwapFactory, registry } from 'pages/CrossChainSwap/factory'
-import { type TransactionStatus, isProcessingTransactionStatus } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
-import { getChainName, normalizeAdapterName } from 'pages/CrossChainSwap/utils'
-import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
-import { shortenHash } from 'utils/address'
+import { TransactionHistoryItem, TransactionTableGrid } from 'pages/CrossChainSwap/components/TransactionHistoryItem'
+import type { HistoryTransaction } from 'pages/CrossChainSwap/transactions/history'
+import { localTransactionKey } from 'pages/CrossChainSwap/transactions/model'
+import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
-import { getEtherscanLink } from 'utils/explorer'
-import { formatDisplayNumber } from 'utils/numbers'
 
 const PAGE_SIZE = 6
-
-// History is a presentation owner. Status acquisition belongs to the page-level
-// TransactionHistoryUpdater so pagination and visibility do not start API calls.
-
-const isEvmChainId = (chain: Chain): chain is ChainId => typeof chain === 'number'
-
-const TransactionTableGrid = ({ children, className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'grid grid-cols-[minmax(160px,1fr)_minmax(80px,0.5fr)_minmax(80px,0.5fr)_minmax(180px,1fr)_minmax(160px,1fr)] items-center gap-3',
-      className,
-    )}
-    {...rest}
-  >
-    {children}
-  </div>
-)
 
 const TransactionTableHeaderCell = ({ children, className }: { children: ReactNode; className?: string }) => (
   <span className={cn('text-xs font-medium uppercase tracking-[0.04em] text-subText', className)}>{children}</span>
 )
 
-const getSourceExplorerLink = (tx: NormalizedTxResponse) => {
-  if (tx.sourceChain === NonEvmChain.Near) return `https://nearblocks.io/address/${tx.id}`
-  if (tx.sourceChain === NonEvmChain.Bitcoin) return `https://mempool.space/tx/${tx.sourceTxHash}`
-  if (tx.sourceChain === NonEvmChain.Solana) return `https://solscan.io/tx/${tx.sourceTxHash}`
-
-  return getEtherscanLink(tx.sourceChain, tx.sourceTxHash, 'transaction')
-}
-
-const getTargetExplorerLink = (tx: NormalizedTxResponse) => {
-  if (!tx.targetTxHash) return ''
-  if (tx.adapter.toLowerCase() === 'debridge') return `https://app.debridge.finance/order?orderId=${tx.targetTxHash}`
-  if (tx.targetChain === NonEvmChain.Near) return `https://nearblocks.io/txns/${tx.targetTxHash}`
-  if (tx.targetChain === NonEvmChain.Bitcoin) return `https://mempool.space/tx/${tx.targetTxHash}`
-  if (tx.targetChain === NonEvmChain.Solana) return `https://solscan.io/tx/${tx.targetTxHash}`
-
-  return getEtherscanLink(tx.targetChain, tx.targetTxHash, 'transaction')
-}
-
-const getChainLogo = (chain: Chain) => (isEvmChainId(chain) ? NETWORKS_INFO[chain].icon : NonEvmChainInfo[chain].icon)
-
-const StatusBadge = ({ status }: { status?: TransactionStatus }) => {
-  const statusLabelMap: Record<TransactionStatus, string> = {
-    Success: t`Success`,
-    Failed: t`Failed`,
-    Refunded: t`Refunded`,
-    Processing: t`Processing`,
+type TransactionHistoryListProps = {
+  transactions: HistoryTransaction[]
+  filter?: string
+  emptyMessage?: string
+  cursorPagination?: {
+    currentPage: number
+    canGoPrevious: boolean
+    canGoNext: boolean
+    loading: boolean
+    onPrevious: () => void
+    onNext: () => void
   }
-  const normalizedStatus = status || 'Processing'
-
-  return (
-    <div
-      className={cn(
-        'flex w-fit shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium',
-        normalizedStatus === 'Success'
-          ? 'bg-primary-20 text-primary'
-          : normalizedStatus === 'Failed'
-          ? 'bg-red-20 text-red'
-          : 'bg-warning-20 text-warning',
-      )}
-    >
-      {statusLabelMap[normalizedStatus]}
-    </div>
-  )
 }
 
-const TransactionTime = ({ tx }: { tx: NormalizedTxResponse }) => {
-  const adapter = registry.getAdapter(tx.adapter)
-  const normalizedAdapterName = normalizeAdapterName(tx.adapter)
-  const adapterAlias = adapter?.getAliases?.().find(alias => normalizeAdapterName(alias.name) === normalizedAdapterName)
-  const adapterName = adapterAlias?.name || adapter?.getName() || tx.adapter
-  const adapterIcon = adapterAlias?.icon || adapter?.getIcon()
-  const bridgeProvider =
-    CrossChainSwapFactory.getKyberCrossBridgeSource(tx.bridgeProvider) || registry.getAdapter(tx.bridgeProvider)
-  const txDate = new Date(tx.timestamp)
-  const senderLabel = tx.sender?.includes('.near') ? tx.sender : shortenHash(tx.sender)
-
-  return (
-    <div className="flex min-w-0 flex-col gap-2">
-      <div className="flex items-center gap-2 whitespace-nowrap">
-        <div className="flex min-w-fit items-center gap-1">
-          <img
-            src={adapterIcon || UnknownToken}
-            className="size-4 rounded-full"
-            width={16}
-            height={16}
-            alt={adapterName}
-            title={adapterName}
-          />
-          {bridgeProvider?.getIcon && (
-            <img src={bridgeProvider.getIcon()} className="size-4 rounded-full" alt={bridgeProvider.getName()} />
-          )}
-        </div>
-        <span className="text-sm font-medium text-text">{format(txDate, 'dd/MM/yyyy')}</span>
-        <span className="text-sm font-medium text-subText">{format(txDate, 'HH:mm:ss')}</span>
-      </div>
-      {tx.sender && (
-        <div className="flex min-w-0 items-center gap-1">
-          <span className="shrink-0 text-sm font-medium text-subText">{t`Sender:`}</span>
-          <span className="truncate text-sm font-medium text-blue">{senderLabel}</span>
-          <CopyHelper toCopy={tx.sender} />
-        </div>
-      )}
-    </div>
-  )
-}
-
-const ChainRoute = ({ tx }: { tx: NormalizedTxResponse }) => {
-  const sourceChainLogo = getChainLogo(tx.sourceChain)
-  const targetChainLogo = getChainLogo(tx.targetChain)
-
-  return (
-    <div className="flex items-center gap-1">
-      {sourceChainLogo && (
-        <img
-          src={sourceChainLogo}
-          alt={getChainName(tx.sourceChain)}
-          width={20}
-          height={20}
-          className="size-5 rounded-full"
-        />
-      )}
-      <ChevronRight size={14} className="shrink-0 text-subText" />
-      {targetChainLogo && (
-        <img
-          src={targetChainLogo}
-          alt={getChainName(tx.targetChain)}
-          width={20}
-          height={20}
-          className="size-5 rounded-full"
-        />
-      )}
-    </div>
-  )
-}
-
-type TransactionAmountLineProps = {
-  amount: string
-  chain: Chain
-  prefix: '-' | '+'
-  size?: TransactionAmountSize
-  token: Currency
-}
-
-type TransactionAmountSize = 'sm' | 'xs'
-
-const transactionAmountSizeClass: Record<TransactionAmountSize, string> = {
-  sm: 'text-sm',
-  xs: 'text-xs',
-}
-
-const TokenAmountLine = ({ amount, chain, prefix, size = 'xs', token }: TransactionAmountLineProps) => {
-  const formattedAmount = useMemo(() => {
-    try {
-      return formatDisplayNumber(formatUnits(BigInt(amount || '0'), token.decimals), { significantDigits: 6 })
-    } catch {
-      return '--'
-    }
-  }, [amount, token.decimals])
-
-  return (
-    <div className="flex min-w-0 items-center gap-1 max-sm:justify-between">
-      <TokenLogoWithChain chainId={chain} currency={token} />
-      <span className={cn('truncate font-medium text-subText', transactionAmountSizeClass[size])}>
-        {prefix}
-        {formattedAmount} {token.symbol}
-      </span>
-    </div>
-  )
-}
-
-const TransactionAmount = ({ size = 'xs', tx }: { size?: TransactionAmountSize; tx: NormalizedTxResponse }) => (
-  <div className="flex min-w-0 flex-col gap-2">
-    <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" size={size} token={tx.sourceToken} />
-    <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" size={size} token={tx.targetToken} />
-    {tx.gasDrop && <GasDropTransactionLine tx={tx} />}
-  </div>
-)
-
-const TransactionHashLink = ({ hash, href }: { hash: string; href: string }) => (
-  <div className="flex min-w-0 items-center gap-2">
-    <span className="truncate text-sm font-medium text-subText">{shortenHash(hash)}</span>
-    <ExternalLinkIcon className="w-4 shrink-0 text-subText" href={href} />
-  </div>
-)
-
-const FillTransaction = ({ tx }: { tx: NormalizedTxResponse }) => {
-  if (tx.targetTxHash) {
-    return <TransactionHashLink hash={tx.targetTxHash} href={getTargetExplorerLink(tx)} />
-  }
-
-  if (isProcessingTransactionStatus(tx.status)) {
-    return <Skeleton height="16px" width="104px" />
-  }
-
-  return <span className="text-sm font-medium text-subText">··· ···</span>
-}
-
-const MobileDetailRow = ({ label, children }: { label: string; children: ReactNode }) => (
-  <div className="flex min-w-0 items-center justify-between gap-3">
-    <span className="shrink-0 text-sm font-medium text-text">{label}</span>
-    <div className="min-w-0">{children}</div>
-  </div>
-)
-
-const TransactionCard = ({ tx }: { tx: NormalizedTxResponse }) => (
-  <div className="flex flex-col gap-2 rounded-lg border border-darkBorder p-3 hover:bg-background-60">
-    <div className="flex items-start justify-between gap-3">
-      <TransactionTime tx={tx} />
-      <StatusBadge status={tx.status} />
-    </div>
-
-    <div className="flex items-center justify-between gap-3">
-      <ChainRoute tx={tx} />
-      <TransactionAmount size="sm" tx={tx} />
-    </div>
-
-    <MobileDetailRow label={t`Deposit:`}>
-      <TransactionHashLink hash={tx.sourceTxHash} href={getSourceExplorerLink(tx)} />
-    </MobileDetailRow>
-    <MobileDetailRow label={t`Fill:`}>
-      <FillTransaction tx={tx} />
-    </MobileDetailRow>
-  </div>
-)
-
-const TransactionRow = ({ isLast, tx }: { isLast: boolean; tx: NormalizedTxResponse }) => (
-  <TransactionTableGrid
-    className={cn('min-h-16 border-b border-border/20 px-4 py-3 hover:bg-background-60', isLast && 'border-b-0')}
-  >
-    <TransactionTime tx={tx} />
-    <StatusBadge status={tx.status} />
-    <ChainRoute tx={tx} />
-    <TransactionAmount tx={tx} />
-    <div className="flex min-w-0 flex-col gap-2">
-      <div className="flex min-w-0 justify-end gap-2">
-        <span className="shrink-0 text-sm font-medium text-text">{t`Deposit:`}</span>
-        <TransactionHashLink hash={tx.sourceTxHash} href={getSourceExplorerLink(tx)} />
-      </div>
-
-      <div className="flex min-w-0 items-center justify-end gap-2">
-        <span className="shrink-0 text-sm font-medium text-text">{t`Fill:`}</span>
-        <FillTransaction tx={tx} />
-      </div>
-    </div>
-  </TransactionTableGrid>
-)
-
-/** Renders supplied transactions and owns pagination. Filtering resets the page via filterKey.
+/** Owns layout and pagination; each item owns token lookup and filtering.
  * Status acquisition belongs to the page-mounted updater. */
 const TransactionHistoryList = ({
   transactions,
-  filterKey,
+  filter,
   emptyMessage = t`No historical data available.`,
-}: {
-  transactions: NormalizedTxResponse[]
-  filterKey?: string
-  emptyMessage?: string
-}) => {
+  cursorPagination,
+}: TransactionHistoryListProps) => {
   const [currentPage, setCurrentPage] = useState(1)
 
-  useEffect(() => setCurrentPage(1), [filterKey])
+  useEffect(() => setCurrentPage(1), [filter])
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const lastPage = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE))
   const visibleTransactions = useMemo(
-    () => transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
-    [currentPage, transactions],
+    () =>
+      cursorPagination ? transactions : transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [currentPage, transactions, cursorPagination],
   )
-  const showPagination = transactions.length > PAGE_SIZE
+  const showPagination = !cursorPagination && transactions.length > PAGE_SIZE
 
   useEffect(() => {
     if (currentPage > lastPage) {
@@ -326,27 +75,36 @@ const TransactionHistoryList = ({
         </TransactionTableGrid>
       )}
 
-      <div className={cn(upToSmall && transactions.length > 0 && 'flex flex-col gap-3 p-3')}>
-        {transactions.length === 0 ? (
-          <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 px-4 py-6">
-            <NoTransactionIcon className="size-20" />
-            <span className="text-center text-sm font-medium text-subText">{emptyMessage}</span>
-          </div>
-        ) : (
-          visibleTransactions.map((tx, index) =>
-            upToSmall ? (
-              <TransactionCard key={tx.id} tx={tx} />
-            ) : (
-              <TransactionRow
-                key={tx.id}
-                tx={tx}
-                isLast={!showPagination && index === visibleTransactions.length - 1}
-              />
-            ),
-          )
-        )}
+      {/* Empty state follows rendered rows, not unresolved token IDs. This avoids
+          a second metadata map or child-to-parent result synchronization. */}
+      <div className={cn('peer empty:hidden', upToSmall && 'flex flex-col gap-3 p-3')}>
+        {visibleTransactions.map(tx => (
+          <TransactionHistoryItem
+            key={localTransactionKey(tx)}
+            tx={tx}
+            mobile={upToSmall}
+            showPagination={showPagination}
+            filter={filter}
+          />
+        ))}
+      </div>
+      <div className="hidden min-h-[220px] flex-col items-center justify-center gap-2 px-4 py-6 peer-empty:flex">
+        <NoTransactionIcon className="size-20" />
+        <span className="text-center text-sm font-medium text-subText">{emptyMessage}</span>
       </div>
 
+      {cursorPagination && (cursorPagination.canGoPrevious || cursorPagination.canGoNext) && (
+        <div className="flex justify-center bg-background px-4 py-3">
+          <HistoryPagination
+            currentPage={cursorPagination.currentPage}
+            canGoPrevious={cursorPagination.canGoPrevious}
+            canGoNext={!cursorPagination.loading && cursorPagination.canGoNext}
+            onPrevious={cursorPagination.onPrevious}
+            onNext={cursorPagination.onNext}
+            ariaLabel={t`History pages`}
+          />
+        </div>
+      )}
       {showPagination && (
         <div className="flex items-center justify-center bg-background px-4 py-2">
           <Pagination

@@ -151,7 +151,11 @@ export const GasDropQuoteLine = ({
   )
 }
 
-export const GasDropTransactionLine = ({ tx }: { tx: NormalizedTxResponse }) => {
+export const GasDropTransactionLine = ({
+  tx,
+}: {
+  tx: Pick<NormalizedTxResponse, 'targetChain' | 'gasDrop' | 'gasDropStatus' | 'status' | 'targetTxHash'>
+}) => {
   const native = NativeCurrencies[tx.targetChain as ChainId]
   const bridgeToken = useCurrencyV2(tx.gasDrop?.inputToken, tx.targetChain as ChainId)
   if (!tx.gasDrop || !native || tx.gasDropStatus?.status === 'NotExecuted') return null

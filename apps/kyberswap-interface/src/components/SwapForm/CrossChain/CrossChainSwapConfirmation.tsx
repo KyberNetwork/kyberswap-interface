@@ -10,11 +10,11 @@ import {
   CrossChainQuoteSummaryRows,
 } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
-import { useCrossChainExecution } from 'components/SwapForm/CrossChain/hooks/useCrossChainExecution'
 import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { Chain, Currency, NonEvmChain, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
+import { useCrossChainExecution } from 'pages/CrossChainSwap/hooks/useCrossChainExecution'
 import { isEvmCurrency } from 'pages/CrossChainSwap/quote/utils'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
 import { CloseIcon, ExternalLink } from 'theme'
@@ -188,7 +188,7 @@ export const CrossChainSwapConfirmation = ({
               <QuoteProviderName quote={selectedQuote} />
             </span>
 
-            <ButtonPrimary disabled={submittingTx} onClick={handleSwap}>{t`Confirm Swap`}</ButtonPrimary>
+            <ButtonPrimary disabled={submittingTx} onClick={() => handleSwap()}>{t`Confirm Swap`}</ButtonPrimary>
           </div>
         )
       }}

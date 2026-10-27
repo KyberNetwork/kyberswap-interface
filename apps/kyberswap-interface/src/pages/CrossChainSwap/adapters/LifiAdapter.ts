@@ -106,6 +106,10 @@ export class LifiAdapter extends BaseSwapAdapter {
     _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
     sendTransaction?: WalletAdapterProps['sendTransaction'],
     connection?: Connection,
+    onSourceTransaction?: (
+      sourceTxHash: string,
+      tracking?: Pick<NormalizedTxResponse, 'id' | 'depositAddress'>,
+    ) => void,
   ): Promise<NormalizedTxResponse> {
     const rawQuote = lifiQuoteSchema.parse(quote.rawQuote)
 
@@ -132,6 +136,7 @@ export class LifiAdapter extends BaseSwapAdapter {
 
       // Send through wallet adapter
       const signature = await sendTransaction(transaction, connection)
+      onSourceTransaction?.(signature)
 
       try {
         const latestBlockhash = await connection.getLatestBlockhash()

@@ -124,6 +124,10 @@ export class OrbiterAdapter extends BaseSwapAdapter {
     _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
+    onSourceTransaction?: (
+      sourceTxHash: string,
+      tracking?: Pick<NormalizedTxResponse, 'id' | 'depositAddress'>,
+    ) => void,
   ): Promise<NormalizedTxResponse> {
     const rawQuote = orbiterQuoteSchema.parse(quote.rawQuote)
 
@@ -185,6 +189,7 @@ export class OrbiterAdapter extends BaseSwapAdapter {
 
       // Send through wallet adapter
       const signature = await sendSolanaFn(transaction, solanaConnection)
+      onSourceTransaction?.(signature)
       await waitForConfirmation(signature)
 
       return {

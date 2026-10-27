@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import * as nearAPI from 'near-api-js'
 import { useEffect, useMemo, useRef } from 'react'
 
-import { useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
+import { useNearIntentsTokens } from 'pages/CrossChainSwap/adapters/NearIntentsAdapter/useNearIntentsTokens'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 
 const EMPTY_BALANCES: Record<string, string> = {}
@@ -42,8 +42,8 @@ const customViewFunction = async (
 }
 
 export const useNearBalances = (enabled = true) => {
-  const { nearTokens } = useNearTokens(!enabled)
-  const [transactions] = useCrossChainTransactions()
+  const { nearTokens } = useNearIntentsTokens(!enabled)
+  const transactions = useCrossChainTransactions()
 
   const tokenOnNears = useMemo(
     () =>

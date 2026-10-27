@@ -18,7 +18,7 @@ const nativeSolana: SolanaToken = {
   tokenProgram: '',
 }
 
-const fetchSolanaTokens = async (query: string) => {
+export const fetchSolanaTokens = async (query: string) => {
   if (cached[query]) return [cached[query]]
   if (cachedByQuery[query]) return cachedByQuery[query]
 
