@@ -51,7 +51,7 @@ export const SwapRate = ({
             <Skeleton width={100} height={14} />
           ) : hasValue && baseChain && quoteChain ? (
             <>
-              {refresh && <RefreshIndicator {...refresh} size={20} clickable />}
+              {refresh && <RefreshIndicator {...refresh} size={24} clickable />}
               <button
                 type="button"
                 onClick={() => setInverted(value => !value)}
