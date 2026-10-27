@@ -254,6 +254,12 @@ export class OptimexAdapter extends BaseSwapAdapter {
     walletClient: WalletClient,
     _nearWallet: any,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    _sendSolanaFn?: unknown,
+    _connection?: unknown,
+    onSourceTransaction?: (
+      sourceTxHash: string,
+      tracking?: Pick<NormalizedTxResponse, 'id' | 'depositAddress'>,
+    ) => void,
   ): Promise<NormalizedTxResponse> {
     const rawQuote = optimexQuoteSchema.parse(quote.rawQuote)
 
@@ -357,6 +363,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       }).catch(e => {
         throw e
       })
+      onSourceTransaction?.(res, { id: txData.trade_id })
       await fetch(`${OPTIMEX_API}/trades/${txData.trade_id}/submit-tx`, {
         method: 'POST',
         headers: {
@@ -385,6 +392,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       account,
     })
 
+    onSourceTransaction?.(hash, { id: txData.trade_id })
     await fetch(`${OPTIMEX_API}/trades/${txData.trade_id}/submit-tx`, {
       method: 'POST',
       headers: {

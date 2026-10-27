@@ -121,6 +121,10 @@ export interface NearQuoteParams extends QuoteParams {
 export interface NormalizedQuote {
   quoteParams: Readonly<QuoteParams>
 
+  /** Opaque aggregator identity used by BE transaction registration. */
+  quoteId?: string
+  quoteToken?: string
+
   gasDrop?: GasDropQuote
   minimumOutputAmount?: bigint
 
@@ -143,11 +147,17 @@ export interface NormalizedQuote {
   platformFeePercent: number
 }
 
+export type TransactionStatus = NonNullable<NormalizedTxResponse['status']>
+export const isProcessingTransactionStatus = (status?: TransactionStatus) => !status || status === 'Processing'
+
 export interface NormalizedTxResponse {
   gasDrop?: GasDropQuote
   gasDropStatus?: GasDropStatus
   id: string // specific id for each provider
+  /** Actual broadcast source-chain transaction hash; never a deposit address. */
   sourceTxHash: string
+  /** NEAR Intents provider tracking address, distinct from source/destination hashes. */
+  depositAddress?: string
   sender: string
   adapter: string
   sourceChain: Chain
@@ -190,6 +200,7 @@ export interface SwapProvider {
   getSupportedChains(): Chain[]
   getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
   getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote>
+  // Redirect wallets return no result; their callback restores the transaction.
   executeSwap(
     quote: Quote,
     walletClient: WalletClient,
@@ -197,7 +208,11 @@ export interface SwapProvider {
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
     sendSolanaTransaction?: WalletAdapterProps['sendTransaction'],
     connection?: Connection,
-  ): Promise<NormalizedTxResponse>
+    onSourceTransaction?: (
+      sourceTxHash: string,
+      tracking?: Pick<NormalizedTxResponse, 'id' | 'depositAddress'>,
+    ) => void,
+  ): Promise<NormalizedTxResponse | undefined>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
   canSupport(category: string, tokenIn?: Currency, tokenOut?: Currency): boolean
 }

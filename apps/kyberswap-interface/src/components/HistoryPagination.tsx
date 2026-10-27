@@ -10,15 +10,13 @@ type HistoryPaginationProps = {
   onPrevious: () => void
   onNext: () => void
   className?: string
+  ariaLabel?: string
 }
 
 const buttonClassName =
   'flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-black-20 p-0 text-white-60 hover:bg-black-40 disabled:pointer-events-none disabled:opacity-50'
 
-/**
- * Previous / next controls for the order-history tabs. The backend pages those with an opaque keyset
- * cursor and caps the total at "more than 1000", so there is no page count to number.
- */
+/** Previous / next controls for history backed by an opaque cursor. */
 const HistoryPagination = ({
   currentPage,
   canGoPrevious,
@@ -26,15 +24,16 @@ const HistoryPagination = ({
   onPrevious,
   onNext,
   className,
+  ariaLabel = t`Order history pages`,
 }: HistoryPaginationProps) => (
-  <nav className={cn('flex items-center justify-center gap-2', className)} aria-label={t`Order history pages`}>
+  <nav className={cn('flex items-center justify-center gap-2', className)} aria-label={ariaLabel}>
     <button
       type="button"
       className={buttonClassName}
       onClick={onPrevious}
       disabled={!canGoPrevious}
       aria-label={t`Previous page`}
-      data-testid="limit-order-history-pagination-prev"
+      data-testid="history-pagination-prev"
     >
       <ChevronLeft width={16} className="text-subText" />
     </button>
@@ -49,7 +48,7 @@ const HistoryPagination = ({
       onClick={onNext}
       disabled={!canGoNext}
       aria-label={t`Next page`}
-      data-testid="limit-order-history-pagination-next"
+      data-testid="history-pagination-next"
     >
       <ChevronRight width={16} className="text-subText" />
     </button>
