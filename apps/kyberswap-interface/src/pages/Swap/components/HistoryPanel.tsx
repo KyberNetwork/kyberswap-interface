@@ -19,7 +19,7 @@ export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: (
   <IconButton
     variant="action"
     active={active}
-    aria-label={t`Cross-chain history`}
+    aria-label="Cross-chain history"
     aria-expanded={active}
     aria-controls="swap-right-panel"
     onClick={onClick}
@@ -54,6 +54,7 @@ const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) =
 
 /** Owns the search input; rows resolve token metadata and apply the filter.
  * Polling is mounted by SwapPage independently, so closing History must not stop status updates. */
+// TODO: Add transaction details and single-chain history as separate product work.
 const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
   const { account } = useActiveWeb3React()
   const { publicKey } = useWallet()
@@ -61,13 +62,14 @@ const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
   const { signedAccountId } = useWalletSelector()
   const sender = account?.toLowerCase() || publicKey?.toString() || walletInfo?.address || signedAccountId || ''
   const [search, setSearch] = useState('')
+  // Filtering stays within the current merged page; it does not search unloaded API cursors.
   const query = search.trim().toLowerCase()
 
   return (
     <Stack className="min-w-0 rounded-xl bg-background shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
       <HStack as="header" className="flex-wrap items-center gap-4 px-4 py-2 max-sm:gap-2 max-sm:px-3">
         <HStack className="shrink-0 items-center gap-1">
-          <IconButton aria-label={t`Back to chart and route`} onClick={onBack}>
+          <IconButton aria-label="Back to chart and route" onClick={onBack}>
             <ChevronLeft size={26} className="text-subText" aria-hidden />
           </IconButton>
           <span className="text-xl font-medium text-text">{t`History`}</span>
@@ -75,14 +77,14 @@ const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
         <HStack className="h-10 min-w-0 max-w-[400px] flex-1 items-center gap-1 rounded-xl bg-black/20 pl-3 pr-2 transition-shadow duration-150 focus-within:ring-1 focus-within:ring-subText/20 max-sm:max-w-none max-sm:basis-full">
           <Search size={20} className="shrink-0 text-subText" aria-hidden />
           <Input
-            aria-label={t`Filter history by token`}
+            aria-label="Filter history by token"
             placeholder={t`Search token or address`}
             value={search}
             onChange={event => setSearch(event.target.value)}
             className="h-full min-w-0 flex-1 rounded-none border-0 bg-transparent p-0 text-sm text-text placeholder:text-sm placeholder:text-subText"
           />
           {search && (
-            <IconButton variant="action" aria-label={t`Clear token filter`} onClick={() => setSearch('')}>
+            <IconButton variant="action" aria-label="Clear token filter" onClick={() => setSearch('')}>
               <X size={20} className="text-subText transition-colors hover:text-text" aria-hidden />
             </IconButton>
           )}

@@ -81,7 +81,7 @@ const TokenInfo = ({ tokens, onBack }: { tokens: Array<Currency | undefined>; on
           <span className="text-xl font-medium text-text">{t`Token Info`}</span>
         </HStack>
         {currencies.length > 0 && (
-          <div className="max-w-full shrink-0 overflow-x-auto" aria-label={t`Token information selector`}>
+          <div className="max-w-full shrink-0 overflow-x-auto" aria-label="Token information selector">
             <div className="w-max">
               <SegmentedControl
                 size="xs"

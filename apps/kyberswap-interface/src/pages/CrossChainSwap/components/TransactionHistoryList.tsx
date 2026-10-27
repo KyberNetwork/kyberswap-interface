@@ -101,7 +101,7 @@ const TransactionHistoryList = ({
             canGoNext={!cursorPagination.loading && cursorPagination.canGoNext}
             onPrevious={cursorPagination.onPrevious}
             onNext={cursorPagination.onNext}
-            ariaLabel={t`History pages`}
+            ariaLabel="History pages"
           />
         </div>
       )}

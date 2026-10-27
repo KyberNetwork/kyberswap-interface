@@ -23,12 +23,12 @@ export const NetworkSidebar = ({ chains, selectedChainId, onChange }: Props) => 
   return (
     <Stack
       as="aside"
-      aria-label={t`Networks`}
+      aria-label="Networks"
       className="hidden min-h-0 w-48 shrink-0 gap-2 rounded-xl bg-black/20 p-2 sm:flex"
     >
       <SearchWrapper className="shrink-0">
         <SearchInput
-          aria-label={t`Search network`}
+          aria-label="Search network"
           placeholder={t`Search Network`}
           value={query}
           onChange={event => setQuery(event.target.value)}
@@ -41,7 +41,7 @@ export const NetworkSidebar = ({ chains, selectedChainId, onChange }: Props) => 
           data-open="true"
           showArrow
           className="ks-scrollbar flex h-full flex-col gap-1 overflow-y-auto"
-          aria-label={t`Select network`}
+          aria-label="Select network"
         >
           {matchingChains.map(chain => (
             <button

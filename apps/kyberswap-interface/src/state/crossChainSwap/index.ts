@@ -160,6 +160,8 @@ export const selectTransactionSync = (state: { crossChainSwap: CrossChainSwapSta
 
 // One writer for this persisted array. Save changed rows synchronously so wallet
 // navigation cannot discard a broadcast; unrelated Redux actions do not rewrite it.
+// This serializes writes within one tab only. Concurrent tabs still overwrite the
+// whole array and can lose pending rows or restore removed ones.
 export const persistCrossChainTransactions: Middleware<object, { crossChainSwap: CrossChainSwapState }> = store => {
   const persist = (save({ states: ['crossChainSwap.transactions'] }) as Middleware)(store)(action => action)
   return next => action => {

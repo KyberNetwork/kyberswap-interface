@@ -27,7 +27,7 @@ type TokenInfoButtonProps = {
 }
 
 export const TokenInfoButton = ({ onClick, size, active }: TokenInfoButtonProps) => (
-  <IconButton variant="action" active={active} aria-label={t`Token Info`} aria-pressed={active} onClick={onClick}>
+  <IconButton variant="action" active={active} aria-label="Token Info" aria-pressed={active} onClick={onClick}>
     <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
       <Info className="text-subText" size={size || 20} />
     </MouseoverTooltip>

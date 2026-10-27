@@ -220,6 +220,53 @@ it('holds timestamp ties until the cursor has covered them', () => {
   ).toHaveLength(2)
 })
 
+it('keeps settled detail visible after local removal until the list catches up', async () => {
+  local = [localRow(30)]
+  await render()
+  await waitFor(() => expect(history.loadingMore).toBe(false))
+  expect(hashes()).toEqual(['hash-30'])
+
+  const settled = { ...serverRow(30), actualOutput: '95' }
+  await act(async () => {
+    store.dispatch(
+      api.util.upsertQueryEntries([
+        {
+          endpointName: 'getTransaction',
+          arg: { sourceTxHash: settled.sourceTxHash, chain: settled.fromChain, quoteId: settled.quoteId },
+          value: settled,
+        },
+      ]),
+    )
+    local = []
+  })
+  await render()
+  expect(hashes()).toEqual(['hash-30'])
+  expect(history.transactions[0]).toMatchObject({ status: 'Success', outputAmount: '95', fromBackend: true })
+
+  fetcher.mockImplementation(async () => response([serverRow(30)]))
+  await act(async () => history.refresh())
+  await waitFor(() => expect(history.loadingMore).toBe(false))
+  expect(hashes()).toEqual(['hash-30'])
+  expect(history.transactions[0].outputAmount).toBe('95')
+})
+
+it('applies sender and cursor boundaries to unlisted settled details', () => {
+  const cached = [
+    serverRow(31),
+    serverRow(21),
+    serverRow(5),
+    { ...serverRow(32), sender: '0xother' },
+    { ...serverRow(33), status: 'in_progress' as const },
+  ]
+  const page = { transactions: range(30, 21).map(serverRow), nextCursor: 'next' }
+  expect(getLoadedHistory([page], [], cached, '0xsender').transactions.map(tx => tx.sourceTxHash)).toEqual(
+    range(31, 22).map(n => `hash-${n}`),
+  )
+  expect(
+    getLoadedHistory([{ ...page, nextCursor: null }], [], cached, '0xsender').transactions.map(tx => tx.sourceTxHash),
+  ).toEqual([...range(31, 21).map(n => `hash-${n}`), 'hash-5'])
+})
+
 it('keeps the current page on cursor failure and retries without skipping newly loaded rows', async () => {
   let fail = true
   fetcher.mockImplementation(async (request: Request) => {

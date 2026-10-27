@@ -96,7 +96,7 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
               autoFocus
               ref={inputRef}
               className="bg-white-04"
-              aria-label={t`Search token`}
+              aria-label="Search token"
               placeholder={t`Search by name, symbol or address`}
               value={query}
               onChange={event => setQuery(event.target.value)}
@@ -123,7 +123,7 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
         ) : !tokens.length ? (
           <NoResult />
         ) : (
-          <Stack className="ks-scrollbar min-h-0 flex-1 gap-2 overflow-y-auto" aria-label={t`Tokens`}>
+          <Stack className="ks-scrollbar min-h-0 flex-1 gap-2 overflow-y-auto" aria-label="Tokens">
             {tokens.map(token => {
               const id = 'id' in token ? token.id : 'assetId' in token ? token.assetId : token.symbol
               const rawBalance = getRawBalance(id)

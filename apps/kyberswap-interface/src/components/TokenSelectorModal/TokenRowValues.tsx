@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { type MouseEvent, type ReactNode } from 'react'
 import { Trash2 } from 'react-feather'
 
@@ -126,7 +126,7 @@ export const TokenRowValues = ({
       {onRemoveImportedToken && (
         <button
           type="button"
-          aria-label={t`Remove imported token`}
+          aria-label="Remove imported token"
           onClick={onClickRemove}
           onKeyDown={event => event.stopPropagation()}
           data-testid="button-remove-import-token"

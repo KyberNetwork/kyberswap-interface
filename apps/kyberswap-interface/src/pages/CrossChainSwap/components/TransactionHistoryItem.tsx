@@ -7,13 +7,9 @@ import { formatUnits } from 'viem'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import CopyHelper from 'components/Copy'
-import Skeleton from 'components/Skeleton'
-import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useCurrencyLookup } from 'hooks/useTokens'
-import { useNearIntentsTokens } from 'pages/CrossChainSwap/adapters/NearIntentsAdapter/useNearIntentsTokens'
 import {
-  BitcoinToken,
   type Chain,
   type Currency,
   NonEvmChain,
@@ -24,8 +20,8 @@ import {
 import { GasDropTransactionLine } from 'pages/CrossChainSwap/components/GasDrop'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { CrossChainSwapFactory, registry } from 'pages/CrossChainSwap/factory'
-import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import type { HistoryTransaction } from 'pages/CrossChainSwap/transactions/history'
+import { useHistoryToken } from 'pages/CrossChainSwap/transactions/useHistoryToken'
 import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 import { ExternalLinkIcon } from 'theme'
 import { shortenHash } from 'utils/address'
@@ -34,28 +30,6 @@ import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const isEvmChainId = (chain: Chain): chain is ChainId => typeof chain === 'number'
-
-// Local rows already contain Currency objects. API rows contain identifiers;
-// resolve only those through the existing token hooks/cache, without a History cache.
-const useHistoryToken = (token: Currency | string, chain: Chain): Currency | string => {
-  const id = typeof token === 'string' ? token : undefined
-  const { currency } = useCurrencyLookup(
-    isEvmChainId(chain) ? (id === ZERO_ADDRESS ? ETHER_ADDRESS : id) : undefined,
-    isEvmChainId(chain) ? chain : ChainId.MAINNET,
-  )
-  const { solanaTokens } = useSolanaTokens(id || '', chain !== NonEvmChain.Solana || id === undefined)
-  const { nearTokens } = useNearIntentsTokens(chain !== NonEvmChain.Near || id === undefined)
-
-  if (id === undefined) return token
-  if (isEvmChainId(chain)) return currency || token
-  if (chain === NonEvmChain.Bitcoin) return BitcoinToken
-  if (chain === NonEvmChain.Solana) return solanaTokens.find(currency => currency.id === id) || token
-  return (
-    nearTokens.find(
-      currency => currency.blockchain === 'near' && (currency.assetId === id || currency.contractAddress === id),
-    ) || token
-  )
-}
 
 const matchesToken = (token: Currency | string, query: string) => {
   if (typeof token === 'string') return token.toLowerCase().includes(query)
@@ -238,7 +212,7 @@ const TokenAmountLine = ({ amount, chain, prefix, size = 'xs', token }: Transact
   )
 }
 
-const TransactionAmount = ({ size = 'xs', tx }: { size?: TransactionAmountSize; tx: HistoryTransaction }) => (
+const TransactionAmount = ({ size = 'sm', tx }: { size?: TransactionAmountSize; tx: HistoryTransaction }) => (
   <div className="flex min-w-0 flex-col gap-2">
     <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" size={size} token={tx.sourceToken} />
     <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" size={size} token={tx.targetToken} />
@@ -259,7 +233,12 @@ const FillTransaction = ({ tx }: { tx: HistoryTransaction }) => {
   }
 
   if (isProcessingTransactionStatus(tx.status)) {
-    return <Skeleton height="16px" width="104px" />
+    return (
+      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-subText" role="status">
+        <Loader size="14px" className="shrink-0 text-subText motion-reduce:animate-none" aria-hidden />
+        {t`Pending`}
+      </span>
+    )
   }
 
   return <span className="text-sm font-medium text-subText">··· ···</span>
@@ -281,7 +260,7 @@ const TransactionCard = ({ tx }: { tx: HistoryTransaction }) => (
 
     <div className="flex items-center justify-between gap-3">
       <ChainRoute tx={tx} />
-      <TransactionAmount size="sm" tx={tx} />
+      <TransactionAmount tx={tx} />
     </div>
 
     <MobileDetailRow label={t`Deposit:`}>
