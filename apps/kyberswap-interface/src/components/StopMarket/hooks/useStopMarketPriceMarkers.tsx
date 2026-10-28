@@ -114,46 +114,52 @@ export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled, wi
         .filter((order): order is StopMarket => !!order)
 
       return (
-        <Stack className="min-w-[220px] gap-2.5 text-xs">
-          {shown.map(order => {
-            // Each order reads in its own direction and trigger, the way it was placed.
-            const reversed = isReversed(order)
-            const sellCurrency = reversed ? currencyOut : currencyIn
-            const sellSymbol = sellCurrency?.wrapped.symbol
-            const receiveSymbol = reversed ? currencyIn?.symbol : currencyOut?.symbol
-            const amount = sellCurrency
-              ? CurrencyAmount.fromRawAmount(sellCurrency.wrapped, order.amountIn).toSignificant(6)
-              : '--'
-            const trigger = formatDisplayNumber(getStopMarketTriggerPrice(order), { significantDigits: 6 })
-            return (
-              <HStack key={order.id} className="items-start justify-between gap-3" data-testid="price-marker-order">
-                <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1">
-                  <span className="text-subText">
-                    <Trans>Sell</Trans>
-                  </span>
-                  <span className="font-medium text-text">
-                    {amount} {sellSymbol} → {receiveSymbol}
-                  </span>
-                  <span className="text-subText">
-                    <Trans>Trigger</Trans>
-                  </span>
-                  <span className="font-medium text-warning">
-                    {trigger} {receiveSymbol}
-                  </span>
-                </div>
-                <IconButton
-                  onClick={() => setCancelTargets([order])}
-                  aria-label={t`Cancel order`}
-                  data-testid="price-marker-cancel-button"
-                  className="size-6 shrink-0 bg-buttonGray p-0 text-subText hover:text-red"
+        <Stack className="min-w-[244px] text-xs">
+          <Stack>
+            {shown.map(order => {
+              // Each order reads in its own direction and trigger, the way it was placed.
+              const reversed = isReversed(order)
+              const sellCurrency = reversed ? currencyOut : currencyIn
+              const sellSymbol = sellCurrency?.wrapped.symbol
+              const receiveSymbol = reversed ? currencyIn?.symbol : currencyOut?.symbol
+              const amount = sellCurrency
+                ? CurrencyAmount.fromRawAmount(sellCurrency.wrapped, order.amountIn).toSignificant(6)
+                : '--'
+              const trigger = formatDisplayNumber(getStopMarketTriggerPrice(order), { significantDigits: 6 })
+              return (
+                <HStack
+                  key={order.id}
+                  className="items-start justify-between gap-3 px-3 py-2.5 transition-colors focus-within:bg-white/5 hover:bg-white/5"
+                  data-testid="price-marker-order"
                 >
-                  <Trash size={14} />
-                </IconButton>
-              </HStack>
-            )
-          })}
+                  <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1">
+                    <span className="text-subText">
+                      <Trans>Sell</Trans>
+                    </span>
+                    <span className="font-medium text-text">
+                      {amount} {sellSymbol} → {receiveSymbol}
+                    </span>
+                    <span className="text-subText">
+                      <Trans>Trigger</Trans>
+                    </span>
+                    <span className="font-medium text-warning">
+                      {trigger} {receiveSymbol}
+                    </span>
+                  </div>
+                  <IconButton
+                    onClick={() => setCancelTargets([order])}
+                    aria-label={t`Cancel order`}
+                    data-testid="price-marker-cancel-button"
+                    className="size-6 shrink-0 bg-buttonGray p-0 text-subText hover:text-red"
+                  >
+                    <Trash size={14} />
+                  </IconButton>
+                </HStack>
+              )
+            })}
+          </Stack>
           {oraclePrice && (
-            <HStack className="justify-between gap-3 border-t border-border pt-2">
+            <HStack className="justify-between gap-3 border-t border-border px-3 py-2.5">
               <span className="text-subText">
                 <Trans>Oracle</Trans>
               </span>

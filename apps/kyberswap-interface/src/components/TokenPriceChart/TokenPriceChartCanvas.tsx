@@ -499,7 +499,7 @@ const MarkerDetailsList = ({ children, contentKey }: { children: ReactNode; cont
       >
         <ChevronUp size={16} />
       </ScrollIndicator>
-      <div ref={scrollRef} onScroll={updateScrollIndicators} className="min-h-0 flex-1 overflow-y-auto px-3 py-2.5">
+      <div ref={scrollRef} onScroll={updateScrollIndicators} className="min-h-0 flex-1 overflow-y-auto">
         {children}
       </div>
       <ScrollIndicator
@@ -527,13 +527,20 @@ const PriceMarkerLayer = ({
   layout: MarkerLayout
   overlay: PriceMarkerOverlay
 }) => {
-  const [openKey, setOpenKey] = useState<string | null>(null)
+  const [openMarker, setOpenMarker] = useState<{ key: string; pinned: boolean } | null>(null)
+  const openKey = openMarker?.key
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   // Labels are measured once drawn: a label pushed into the next column sits past the one it would cover.
   const labelRefs = useRef(new Map<string, HTMLButtonElement | null>())
   const [labelWidths, setLabelWidths] = useState<Record<string, number>>({})
 
   useEffect(() => () => clearTimeout(closeTimerRef.current), [])
+
+  useEffect(() => {
+    setOpenMarker(current =>
+      current && !layout.clusters.some(cluster => clusterKey(cluster) === current.key) ? null : current,
+    )
+  }, [layout.clusters])
 
   useLayoutEffect(() => {
     const next: Record<string, number> = {}
@@ -547,23 +554,41 @@ const PriceMarkerLayer = ({
     }
   }, [layout, labelWidths])
 
-  // A tap has no "leave" to close on, so a press anywhere outside the labels and details closes them.
+  // Clicked labels keep their details open until dismissed or another label is clicked.
   useEffect(() => {
     if (!openKey) return
+    const close = () => {
+      clearTimeout(closeTimerRef.current)
+      setOpenMarker(null)
+    }
     const handlePointerDown = (event: PointerEvent) => {
-      if (!(event.target instanceof Element) || !event.target.closest('[data-price-marker-layer]')) setOpenKey(null)
+      if (!(event.target instanceof Element) || !event.target.closest('[data-price-marker-layer]')) close()
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') close()
     }
     document.addEventListener('pointerdown', handlePointerDown)
-    return () => document.removeEventListener('pointerdown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [openKey])
 
   const open = (key: string) => {
     clearTimeout(closeTimerRef.current)
-    setOpenKey(key)
+    setOpenMarker(current => (current?.pinned ? current : { key, pinned: false }))
+  }
+  const togglePinned = (key: string) => {
+    clearTimeout(closeTimerRef.current)
+    setOpenMarker(current => (current?.key === key && current.pinned ? null : { key, pinned: true }))
   }
   const scheduleClose = () => {
     clearTimeout(closeTimerRef.current)
-    closeTimerRef.current = setTimeout(() => setOpenKey(null), MARKER_DETAILS_CLOSE_DELAY_MS)
+    closeTimerRef.current = setTimeout(
+      () => setOpenMarker(current => (current?.pinned ? current : null)),
+      MARKER_DETAILS_CLOSE_DELAY_MS,
+    )
   }
 
   const right = layout.scaleWidth + 8
@@ -601,6 +626,7 @@ const PriceMarkerLayer = ({
         const count = cluster.ids.length
         const group = getClusterGroup(cluster, overlay.groups)
         const tone = TONE_CLASSES[group.tone]
+        const isPinned = openKey === key && openMarker?.pinned
         return (
           <button
             key={key}
@@ -615,11 +641,14 @@ const PriceMarkerLayer = ({
             onMouseEnter={() => open(key)}
             onMouseLeave={scheduleClose}
             onFocus={() => open(key)}
-            onClick={() => open(key)}
+            onClick={() => togglePinned(key)}
+            aria-expanded={openKey === key}
+            data-active={isPinned}
             data-price-marker-layer
             className={cn(
-              'absolute z-[2] flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded border bg-buttonBlack px-1.5 py-0.5 text-[10px] font-medium leading-[14px]',
+              'absolute z-[2] flex -translate-y-1/2 cursor-pointer items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-medium leading-[14px] transition-colors',
               tone.tag,
+              isPinned ? 'bg-tableHeader' : 'bg-buttonBlack hover:bg-buttonGray focus-visible:bg-buttonGray',
             )}
             style={{ top: cluster.y, right: right + getLabelOffset(cluster) }}
           >
@@ -653,9 +682,9 @@ const PriceMarkerLayer = ({
           }}
         >
           <MarkerDetailsList contentKey={clusterKey(openCluster)}>
-            <Stack className="gap-2.5">
+            <Stack className="gap-0">
               {splitMarkerIdsByGroup(openCluster.ids, overlay.groups).map((entry, index) => (
-                <div key={entry.group.key} className={cn(index > 0 && 'border-t border-border pt-2.5')}>
+                <div key={entry.group.key} className={cn(index > 0 && 'border-t border-border')}>
                   {entry.group.renderDetails(entry.ids)}
                 </div>
               ))}
@@ -732,9 +761,10 @@ const TokenPriceChartCanvas = ({
 
   const markerOverlayRef = useRef(markerOverlay)
   const onOffscreenChangeRef = useRef(onOffscreenChange)
-  const markerColorsRef = useRef<Record<MarkerTone, string>>({
-    warning: theme.warning,
-    blue: theme.blue,
+  // lightweight-charts also uses a price line's color as the right-axis label background.
+  const markerLineColorsRef = useRef<Record<MarkerTone, string>>({
+    warning: theme.darkOrange,
+    blue: theme.darkBlue,
   })
   const maxMarkerLinesRef = useRef(MAX_MARKER_LINES)
   const markerPriceLinesRef = useRef<IPriceLine[]>([])
@@ -768,7 +798,7 @@ const TokenPriceChartCanvas = ({
         clusterMarkersByGroup(visible, groups, { minGap: MARKER_MIN_GAP_PX, maxClusters: maxMarkerLinesRef.current }),
         MARKER_LABEL_HEIGHT_PX,
       )
-      const lineColors = clusters.map(cluster => markerColorsRef.current[getClusterGroup(cluster, groups).tone])
+      const lineColors = clusters.map(cluster => markerLineColorsRef.current[getClusterGroup(cluster, groups).tone])
       const colorByCluster = new Map(clusters.map((cluster, index) => [cluster, lineColors[index]]))
       // A shared row keeps each line's axis label but draws the line itself once, in the overlay.
       const sharedRows = findSharedLines(clusters)
@@ -828,10 +858,10 @@ const TokenPriceChartCanvas = ({
 
   useEffect(() => {
     markerOverlayRef.current = markerOverlay
-    markerColorsRef.current = { warning: theme.warning, blue: theme.blue }
+    markerLineColorsRef.current = { warning: theme.darkOrange, blue: theme.darkBlue }
     maxMarkerLinesRef.current = upToSmall ? MAX_MARKER_LINES_MOBILE : MAX_MARKER_LINES
     scheduleMarkerUpdate()
-  }, [markerOverlay, theme.warning, theme.blue, upToSmall, scheduleMarkerUpdate])
+  }, [markerOverlay, theme.darkOrange, theme.darkBlue, upToSmall, scheduleMarkerUpdate])
 
   useEffect(() => {
     chartHeightRef.current = chartHeight

@@ -83,7 +83,7 @@ export const useLimitOrderPriceMarkers = ({ currencyIn, currencyOut, enabled }: 
         .filter((order): order is LimitOrder => !!order)
 
       return (
-        <Stack className="min-w-[220px] gap-2.5 text-xs">
+        <Stack className="min-w-[244px] text-xs">
           {shown.map(order => {
             // Each order reads in its own direction and rate, the way it was placed.
             const reversed = isReversed(order)
@@ -97,7 +97,11 @@ export const useLimitOrderPriceMarkers = ({ currencyIn, currencyOut, enabled }: 
               order.takerAssetDecimals,
             )
             return (
-              <HStack key={order.id} className="items-start justify-between gap-3" data-testid="price-marker-order">
+              <HStack
+                key={order.id}
+                className="items-start justify-between gap-3 px-3 py-2.5 transition-colors focus-within:bg-white/5 hover:bg-white/5"
+                data-testid="price-marker-order"
+              >
                 <div className="grid grid-cols-[auto_auto] gap-x-3 gap-y-1">
                   <span className="text-subText">
                     <Trans>Sell</Trans>
