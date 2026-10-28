@@ -203,7 +203,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
   const isExpiryChanged = expiry.expire !== undefined || expiry.customDate !== undefined
   const hasChanges = isAmountChanged || isTriggerChanged || isSlippageChanged || isExpiryChanged
 
-  // As on the creation form, a preset counts from the moment the update is confirmed.
+  // A preset is anchored when selected, so its estimate and the later signed payload use the same deadline.
   const [expiryStart, setExpiryStart] = useState(Date.now)
   const expiredAt =
     expiry.customDate?.getTime() ??
@@ -255,14 +255,6 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     onClose: completed => (completed ? onDismiss() : setIsProcessing(false)),
   })
 
-  // A preset deadline counts from the click, so the run starts on the render that carries it.
-  const [isStartRequested, setIsStartRequested] = useState(false)
-  useEffect(() => {
-    if (!isStartRequested) return
-    setIsStartRequested(false)
-    start()
-  }, [isStartRequested, start])
-
   // The review shows the deadline as it stands; moving a preset's start here would re-key the fee estimate
   // and open the review on a skeleton for nothing.
   const openReview = () => {
@@ -281,8 +273,12 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     })
   }
   const confirm = () => {
-    setExpiryStart(Date.now())
-    setIsStartRequested(true)
+    start()
+  }
+
+  const handleExpiryChange = (value: Date | number) => {
+    if (!(value instanceof Date)) setExpiryStart(Date.now())
+    setExpiry(value instanceof Date ? { customDate: value } : { expire: value })
   }
 
   // Stable per locale, for the reason the creation form gives.
@@ -457,7 +453,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
           events={{
             onToggleExpanded: () => setExpiryExpanded(expanded => !expanded),
             onOpenDatePicker: () => setShowDatePicker(true),
-            onExpireChange: value => setExpiry(value instanceof Date ? { customDate: value } : { expire: value }),
+            onExpireChange: handleExpiryChange,
           }}
           presetOptions={expiryPresets}
           tooltip={t`You can cancel anytime before expiry at no cost.`}
@@ -547,7 +543,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
         expire={expiry.expire ?? order.deadline * 1000}
         isOpen={showDatePicker}
         onDismiss={() => setShowDatePicker(false)}
-        onSetDate={value => setExpiry(value instanceof Date ? { customDate: value } : { expire: value })}
+        onSetDate={handleExpiryChange}
       />
     </>
   )
