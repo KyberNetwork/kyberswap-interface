@@ -37,7 +37,7 @@ export const getStopMarketFeeLabel = (fee: StopMarketFee): string | undefined =>
   return fee.minProtocolFeeApplied ? usd ?? rate : rate ?? usd
 }
 
-const GENERIC_FEE_TOOLTIP = () => t`Covers the protocol fee plus the gas KyberSwap pays to execute on-chain.`
+const GENERIC_FEE_TOOLTIP = () => t`Covers the protocol fee plus the gas paid to execute on-chain.`
 
 /**
  * The tooltip's first line, which only covers the case the order is in: the rate and what it comes to,
@@ -80,8 +80,8 @@ export const StopMarketFeeTooltip = ({ fee, chainId }: { fee?: StopMarketFee; ch
       <span>
         {fee.minProtocolFeeApplied ? (
           <Trans>
-            Covers the protocol fee plus the gas KyberSwap pays to execute on-chain. Execution costs the same regardless
-            of order size, so small orders pay the minimum.
+            Covers the protocol fee plus the gas paid to execute on-chain. Execution costs the same regardless of order
+            size, so small orders pay the minimum.
           </Trans>
         ) : (
           GENERIC_FEE_TOOLTIP()
