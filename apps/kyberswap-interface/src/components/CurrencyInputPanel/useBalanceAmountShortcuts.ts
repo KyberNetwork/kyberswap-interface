@@ -3,16 +3,13 @@ import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 
 import type { AmountShortcut } from 'components/CurrencyInputPanel'
+import { getGasReservation } from 'utils/gasReserve'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
 const SHARES = [25, 50, 100] as const
 
-/**
- * 25%, 50% and Max of what the shared spend helper says can be spent, with the one matching the amount
- * entered marked. That helper returns the whole balance, the native coin's included, so Max on a native
- * sell leaves nothing for gas.
- */
-export const useStopMarketAmountShortcuts = (
+/** Reserve native gas for Max; percentage presets use the full balance. */
+export const useBalanceAmountShortcuts = (
   balance: CurrencyAmount<Currency> | undefined,
   value: string,
   onChange: (value: string) => void,
@@ -20,8 +17,9 @@ export const useStopMarketAmountShortcuts = (
 ): AmountShortcut[] =>
   useMemo(() => {
     const spendable = maxAmountSpend(balance)
+    const maxAmount = getGasReservation(balance)?.maxAmount ?? spendable
     return SHARES.map(share => {
-      const amount = share === 100 ? spendable : spendable?.multiply(new Fraction(share, 100))
+      const amount = share === 100 ? maxAmount : spendable?.multiply(new Fraction(share, 100))
       const exact = amount?.toExact()
       return {
         label: share === 100 ? t`Max` : `${share}%`,

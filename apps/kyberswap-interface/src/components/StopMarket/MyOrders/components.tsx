@@ -143,13 +143,13 @@ export const StopMarketEmptyOrders = ({
     {isError ? <AlertTriangle size={22} /> : <NoDataIcon />}
     <span>
       {!isWalletConnected ? (
-        <Trans>Connect your wallet to view your stop market orders.</Trans>
+        <Trans>Connect your wallet to view your Stop Market orders.</Trans>
       ) : isError ? (
-        <Trans>Could not load your stop market orders. Retrying…</Trans>
+        <Trans>Could not load your Stop Market orders. Retrying…</Trans>
       ) : keyword ? (
         <Trans>No orders found.</Trans>
       ) : isActiveTab ? (
-        <Trans>No active stop market orders. Place your first order above.</Trans>
+        <Trans>No active Stop Market orders. Place your first order above.</Trans>
       ) : (
         <Trans>No order history yet.</Trans>
       )}

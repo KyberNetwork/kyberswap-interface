@@ -108,9 +108,9 @@ export const useStopMarketProcessing = ({
       if (status === 'success') return t`Order updated`
       return t`Sign update`
     }
-    if (status === 'active') return t`Signing stop market order`
-    if (status === 'success') return t`Stop market order placed`
-    return t`Sign stop market order`
+    if (status === 'active') return t`Signing Stop Market order`
+    if (status === 'success') return t`Stop Market order placed`
+    return t`Sign Stop Market order`
   }
 
   // Keeps the pair in the path, as Limit Order's "My Orders" does: a bare chain route falls back to

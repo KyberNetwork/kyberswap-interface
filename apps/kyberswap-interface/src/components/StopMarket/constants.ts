@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 
 import { TIMES_IN_SECS } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 
 export const STOP_MARKET_DEFAULT_EXPIRE = 7 * TIMES_IN_SECS.ONE_DAY
 
@@ -17,11 +18,37 @@ export const getStopMarketExpiryPresets = () => [
 ]
 
 /**
- * How much looser than the swap form a stop market order's slippage runs, applied to the swap form's suggestion,
- * presets and warning bands for the pair's category alike. The order fills in the market that tripped
- * it, which is usually moving fast, so a swap-tight tolerance risks a failed execution at the worst time.
+ * Stop Market slippage in basis points (100 = 1%), configured independently from Swap.
+ * Presets and warning thresholds are equivalent to Swap x2, as are defaults except Stable (5 bps).
+ * Stable and correlated pairs have no low-slippage warning.
  */
-export const STOP_MARKET_SLIPPAGE_MULTIPLIER = 2
+export const STOP_MARKET_SLIPPAGE_CONFIG: Record<
+  PAIR_CATEGORY,
+  { defaultSlippage: number; presets: number[]; lowThreshold?: number; highThreshold: number }
+> = {
+  [PAIR_CATEGORY.STABLE]: {
+    defaultSlippage: 5,
+    presets: [10, 20, 100, 200],
+    highThreshold: 40,
+  },
+  [PAIR_CATEGORY.CORRELATED]: {
+    defaultSlippage: 10,
+    presets: [10, 20, 100, 200],
+    highThreshold: 100,
+  },
+  [PAIR_CATEGORY.EXOTIC]: {
+    defaultSlippage: 100,
+    presets: [10, 20, 100, 200],
+    lowThreshold: 20,
+    highThreshold: 400,
+  },
+  [PAIR_CATEGORY.HIGH_VOLATILITY]: {
+    defaultSlippage: 300,
+    presets: [100, 300, 600, 1000],
+    lowThreshold: 100,
+    highThreshold: 1000,
+  },
+}
 
 /** Shortcuts for the trigger's distance from the market, offered next to the editable percent chip. */
 export const TRIGGER_PERCENT_PRESETS = [-50, -20, -10]

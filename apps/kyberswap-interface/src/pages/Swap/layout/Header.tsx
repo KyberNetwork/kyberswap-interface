@@ -60,7 +60,7 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
             <>
               <HiddenH1>Sell automatically when the price drops.</HiddenH1>
               <HiddenH2>
-                Set a trigger price and KyberSwap sells at the best available market price when the oracle price reaches
+                Set a trigger price and KyberSwap sells at the best available market price when the Oracle price reaches
                 it. Free to place, and your tokens stay in your wallet until it executes.
               </HiddenH2>
               {/*<span className="text-xs font-medium text-subText">{t`Protect your positions from sudden price drops`}</span>*/}

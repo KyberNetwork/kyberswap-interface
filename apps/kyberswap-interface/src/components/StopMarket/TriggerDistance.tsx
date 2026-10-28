@@ -39,11 +39,11 @@ export const TriggerDistance = ({ percent, muteWords, className, dataTestId }: P
       )}
       <span className={cn(muteWords && 'text-subText')}>
         {direction === 'below' ? (
-          <Trans>below current oracle price</Trans>
+          <Trans>below current Oracle price</Trans>
         ) : direction === 'above' ? (
-          <Trans>above current oracle price</Trans>
+          <Trans>above current Oracle price</Trans>
         ) : (
-          <Trans>Current oracle price</Trans>
+          <Trans>Current Oracle price</Trans>
         )}
       </span>
     </span>

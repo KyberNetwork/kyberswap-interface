@@ -29,7 +29,7 @@ const ExecutedSummary = ({ execution }: { execution?: StopMarketExecution }) => 
           Sold {sold} → received {received}.
         </Trans>
       ) : (
-        <Trans>Your stop market order was executed.</Trans>
+        <Trans>Your Stop Market order was executed.</Trans>
       )}
       {chainId && txHash && (
         <>

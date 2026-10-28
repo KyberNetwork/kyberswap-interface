@@ -233,7 +233,7 @@ const TokenPriceChart = ({
       <span className="text-xs text-subText">
         <Trans>
           Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from
-          actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data.
+          actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or Oracle data.
           Values may differ from prices on other platforms.
         </Trans>
       </span>

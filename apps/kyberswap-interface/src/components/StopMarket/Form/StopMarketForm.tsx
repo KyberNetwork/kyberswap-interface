@@ -4,6 +4,7 @@ import { ReactNode, memo, useEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
 import DateTimePicker from 'components/DateTimePicker'
 import { ErrorWarning } from 'components/ErrorWarning'
 import LimitOrderExpirySection from 'components/LimitOrder/Form/LimitOrderExpirySection'
@@ -19,7 +20,6 @@ import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketW
 import OrderTypeSubTabs from 'components/StopMarket/OrderTypeSubTabs'
 import { StopMarketNotice } from 'components/StopMarket/StopMarketNotice'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
-import { useStopMarketAmountShortcuts } from 'components/StopMarket/hooks/useStopMarketAmountShortcuts'
 import { useStopMarketFeeEstimate } from 'components/StopMarket/hooks/useStopMarketFeeEstimate'
 import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
@@ -125,12 +125,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const insufficientBalance = hasMatchingBalance && !!balance?.lessThan(parsedInputAmount)
   const needsWrap = !!currencyIn?.isNative && hasMatchingBalance && !insufficientBalance
 
-  const amountShortcuts = useStopMarketAmountShortcuts(
-    balance,
-    form.inputAmount,
-    form.setInputValue,
-    'stop-market-amount',
-  )
+  const amountShortcuts = useBalanceAmountShortcuts(balance, form.inputAmount, form.setInputValue, 'stop-market-amount')
 
   // Shown while the terms are set and again in the review; signing estimates once more for the cap.
   const feeEstimate = useStopMarketFeeEstimate({
@@ -229,7 +224,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const actionLabel = restrictedCurrency ? (
     restrictedTokenMessage(restrictedCurrency.symbol)
   ) : unavailableToken ? (
-    <Trans>Stop market order not available for {unavailableToken.symbol}</Trans>
+    <Trans>Stop Market order not available for {unavailableToken.symbol}</Trans>
   ) : isMissingAmount || (isMissingOutput && !isMissingTrigger) ? (
     <Trans>Enter an amount</Trans>
   ) : isMissingTrigger ? (
@@ -287,11 +282,9 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               alwaysVisible
               // The default copy describes a swap the user sends themselves; a stop market order is settled by
               // an operator, so there is no transaction of theirs to revert.
-              tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
+              tooltip={t`The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
               slippage={{ value: form.slippage, onChange: form.setSlippage }}
-              // The swap form's numbers for this pair's category, scaled for a stop market order; the wording stays the
-              // stop market order's own, since the setting is measured against the oracle at execution rather than a
-              // fresh quote.
+              // Stop Market's own settings and wording: slippage is measured against the oracle at execution.
               slippageInfo={{
                 default: form.defaultSlippage,
                 presets: form.slippagePresets,
@@ -299,7 +292,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
                 isHigh: form.slippageStatus === SLIPPAGE_STATUS.HIGH,
                 message:
                   form.slippageStatus === SLIPPAGE_STATUS.LOW
-                    ? t`Slippage this low may cause your stop market order to fail during volatile markets — the conditions it exists for.`
+                    ? t`Slippage this low may cause your Stop Market order to fail during volatile markets — the conditions it exists for.`
                     : form.slippageStatus === SLIPPAGE_STATUS.HIGH
                     ? t`Slippage this high means your order could fill meaningfully below the market price at the moment it executes.`
                     : '',

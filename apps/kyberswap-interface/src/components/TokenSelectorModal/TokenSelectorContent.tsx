@@ -1140,7 +1140,7 @@ export const TokenSelectorContent = ({
   // Every list in oracle-only mode is screened, so an empty one — searched or not — is down to the
   // filter, and says so instead of naming the tab.
   const emptyMessage = requireOracle ? (
-    <Trans>No supported tokens found. Stop market orders only support tokens with an oracle price feed.</Trans>
+    <Trans>No supported tokens found. Stop Market orders only support tokens with an Oracle price feed.</Trans>
   ) : debouncedQuery ? undefined : activeTab === TokenSelectorTab.Trending ? (
     <Trans>No trending tokens right recently. Check back later.</Trans>
   ) : activeTab === TokenSelectorTab.New ? (
@@ -1217,7 +1217,7 @@ export const TokenSelectorContent = ({
           >
             <Info size={14} className="mt-px shrink-0" />
             <span>
-              <Trans>Only tokens with an oracle price feed are shown. Stop market orders trigger on that price.</Trans>
+              <Trans>Only tokens with an Oracle price feed are shown. Stop Market orders trigger on that price.</Trans>
             </span>
           </HStack>
         )}

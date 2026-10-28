@@ -22,14 +22,12 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { getCookieValue } from 'utils/cookie'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
-import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 
 type UseCreateLimitOrderProps = {
   order: LimitOrderCreateContext
   searchParams: URLSearchParams
   onCloseReview?: () => void
   onOpenReview?: () => void
-  onSetInput?: (input: string) => void
   onResetForm?: () => void
 }
 
@@ -38,7 +36,6 @@ export const useCreateLimitOrder = ({
   searchParams,
   onCloseReview,
   onOpenReview,
-  onSetInput,
   onResetForm,
 }: UseCreateLimitOrderProps) => {
   const { currencyIn, currencyOut, chainId, inputAmount, outputAmount, displayRate, expiredAt, tradeInfo, deltaRate } =
@@ -67,8 +64,6 @@ export const useCreateLimitOrder = ({
     balance,
     wrapAmount: nativeWrapAmount,
   })
-
-  const maxAmountInput = maxAmountSpend(balance)
 
   const inputCurrencySymbol = currencyIn?.symbol
   const insufficientBalanceText = insufficientBalance ? t`Insufficient ${inputCurrencySymbol} balance` : undefined
@@ -172,21 +167,6 @@ export const useCreateLimitOrder = ({
     parsedInputAmount,
   })
 
-  const handleMaxInput = () => {
-    if (!maxAmountInput) return
-    try {
-      onSetInput?.(maxAmountInput.toExact())
-    } catch (error) {}
-  }
-
-  const handleHalfInput = () => {
-    const halfAmountInput = halfAmountSpend(balance)
-    if (!halfAmountInput) return
-    try {
-      onSetInput?.(halfAmountInput.toExact())
-    } catch (error) {}
-  }
-
   const openReview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
 
@@ -268,8 +248,7 @@ export const useCreateLimitOrder = ({
   return {
     estimateUSD,
     balance: {
-      handleHalfInput,
-      handleMaxInput,
+      currencyBalance: balance,
       insufficientBalance,
       insufficientBalanceText,
     },

@@ -1,9 +1,11 @@
 import { Trans } from '@lingui/macro'
 import { startTransition } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useMedia } from 'react-use'
 
 import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -42,21 +44,19 @@ const OrderTypeSubTabs = () => {
   const { pathname, search } = useLocation()
   const { network, currency } = useParams<{ network: string; currency?: string }>()
   const { chainId, networkInfo } = useActiveWeb3React()
+  const isMobile = useMedia('(max-width: 768px)')
 
   // Offering the tab on a chain without stop market orders would only bounce the user to Swap.
   if (!isSupportStopMarket(chainId)) return null
 
   const activePath = getTradeProductPath(pathname)
-  const subtitle = TABS.find(tab => tab.path === activePath)?.subtitle
+  const activeTab = TABS.find(tab => tab.path === activePath)
 
   return (
     <Stack className="gap-1">
       <HStack className="items-center gap-0 text-xs font-medium tracking-[0.04em]" data-testid="order-type-tabs">
         {TABS.map(({ path, key, label, tooltip }, index) => (
-          <HStack
-            key={path}
-            className={cn('items-center gap-1 pr-3', index < TABS.length - 1 && 'border-r border-darkBorder')}
-          >
+          <MouseoverTooltip key={path} text={tooltip} placement="top-start" width="280px" disableTooltip={isMobile}>
             <button
               type="button"
               data-testid={`order-type-tab-${key}`}
@@ -77,22 +77,32 @@ const OrderTypeSubTabs = () => {
               }}
               className={cn(
                 // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
-                // The padding stays on the button, so the whole cell up to the info icon switches the tab.
-                'cursor-pointer border-0 bg-transparent py-1 pr-1 uppercase transition-colors hover:text-text',
+                'cursor-pointer border-0 bg-transparent py-1 pr-3 uppercase transition-colors hover:text-text',
+                index < TABS.length - 1 && 'border-r border-darkBorder',
                 index === 0 ? 'pl-0' : 'pl-3',
                 path === activePath ? 'text-primary' : 'text-gray',
               )}
             >
               {label}
             </button>
-            <InfoHelper text={tooltip} size={12} placement="top" width="280px" margin={false} />
-          </HStack>
+          </MouseoverTooltip>
         ))}
       </HStack>
-      {subtitle && (
-        <span className="text-xs text-subText" data-testid="order-type-subtitle">
-          {subtitle}
-        </span>
+      {activeTab && (
+        <HStack className="items-center gap-1 text-xs text-subText" data-testid="order-type-subtitle">
+          <span>{activeTab.subtitle}</span>
+          {isMobile && (
+            <InfoHelper
+              key={activeTab.key}
+              text={activeTab.tooltip}
+              size={12}
+              placement="top-start"
+              width="280px"
+              margin={false}
+              clickOnly
+            />
+          )}
+        </HStack>
       )}
     </Stack>
   )

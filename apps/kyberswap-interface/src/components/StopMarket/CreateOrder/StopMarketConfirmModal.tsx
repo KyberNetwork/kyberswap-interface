@@ -192,7 +192,7 @@ export const StopMarketReviewSummary = ({
 
         <SummaryRow
           label={<Trans>Trigger Price</Trans>}
-          tooltip={t`The order triggers once the oracle price is at or below this price.`}
+          tooltip={t`The order triggers once the Oracle price is at or below this price.`}
           dataTestId="stop-market-confirm-trigger-price"
         >
           <div className="text-base font-medium">

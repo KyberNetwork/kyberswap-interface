@@ -61,7 +61,7 @@ const ReservedOrderNotice = ({ symbol, limitOrdersTo, stopMarketsTo }: ReservedO
     limitOrdersTo && stopMarketsTo ? (
       <Trans>
         <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by open orders - review
-        your <Link to={limitOrdersTo}>limit orders</Link> and <Link to={stopMarketsTo}>stop market orders</Link>.
+        your <Link to={limitOrdersTo}>limit orders</Link> and <Link to={stopMarketsTo}>Stop Market orders</Link>.
       </Trans>
     ) : stopMarketsTo ? (
       <Trans>

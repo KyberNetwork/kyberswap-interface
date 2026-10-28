@@ -54,7 +54,7 @@ const DEFAULT_LIMIT_SEO_COPY: SeoCopy = { title: LIMIT_TITLE, description: LIMIT
 // Sitemap: Stop Market Order - per chain
 const STOP_MARKET_TITLE = 'Stop Market Orders | KyberSwap'
 const STOP_MARKET_DESCRIPTION =
-  'Set a trigger price and KyberSwap sells automatically at the best available market price when the oracle price reaches it. Free to place, tokens stay in your wallet.'
+  'Set a trigger price and KyberSwap sells automatically at the best available market price when the Oracle price reaches it. Free to place, tokens stay in your wallet.'
 const DEFAULT_STOP_MARKET_SEO_COPY: SeoCopy = { title: STOP_MARKET_TITLE, description: STOP_MARKET_DESCRIPTION }
 
 // Sitemap: Cross-chain and Earn

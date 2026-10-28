@@ -40,7 +40,7 @@ export default function StopMarketAnnouncementItem({
       </div>
       <Desc>
         <Trans>
-          Your stop market order sold <Logo srcs={[tokenInLogoURL ?? '']} className="size-4 rounded-full" />{' '}
+          Your Stop Market order sold <Logo srcs={[tokenInLogoURL ?? '']} className="size-4 rounded-full" />{' '}
           {formatDisplayNumber(amountIn, { significantDigits: 6 })} {tokenInSymbol} and received{' '}
           <Logo srcs={[tokenOutLogoURL ?? '']} className="size-4 rounded-full" />{' '}
           {formatDisplayNumber(amountOut, { significantDigits: 6 })} {tokenOutSymbol}.

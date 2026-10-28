@@ -27,7 +27,7 @@ const REVIEW_ORDERS_STATE: ShowOrdersState = { showOrders: OrderKind.STOP }
  */
 const ReservedBalanceNotice = ({ symbol }: { symbol?: string }) => (
   <Trans>
-    Your {symbol} balance is fully used by your open stop market orders. Cancel or reduce an order to free up balance.{' '}
+    Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance.{' '}
     <Link to={`?${new URLSearchParams({ search: symbol ?? '' })}`} state={REVIEW_ORDERS_STATE}>
       Review orders
     </Link>
@@ -95,18 +95,18 @@ export const useStopMarketWarnings = ({
     if (!loadingSupportedTokens && !hasEligibleTokens) {
       formWarnings.push({
         type: 'warn',
-        message: <Trans>Stop market orders are not available on {NETWORKS_INFO[chainId].name} yet.</Trans>,
+        message: <Trans>Stop Market orders are not available on {NETWORKS_INFO[chainId].name} yet.</Trans>,
       })
       shouldDisableAction = true
     } else if (currencyIn && !loadingEligibility && !isEligible) {
       sellTokenWarning = (
-        <Trans>Stop market orders are not available for {currencyIn.symbol} — no oracle price feed.</Trans>
+        <Trans>Stop Market orders are not available for {currencyIn.symbol} — no Oracle price feed.</Trans>
       )
       unavailableToken = currencyIn
       shouldDisableAction = true
     } else if (currencyOut && !loadingReceiveEligibility && !isReceiveEligible) {
       receiveTokenWarning = (
-        <Trans>Cannot receive {currencyOut.symbol} — no oracle price feed for the receive token.</Trans>
+        <Trans>Cannot receive {currencyOut.symbol} — no Oracle price feed for the receive token.</Trans>
       )
       unavailableToken = currencyOut
       shouldDisableAction = true
@@ -128,7 +128,7 @@ export const useStopMarketWarnings = ({
         blocking: true,
         message: (
           <Trans>
-            The oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market.
+            The Oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market.
             Please try again shortly.
           </Trans>
         ),

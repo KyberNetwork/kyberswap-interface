@@ -6,6 +6,7 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import AnimatedHeight from 'components/AnimatedHeight'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AmountShortcutChips } from 'components/CurrencyInputPanel'
+import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DateTimePicker from 'components/DateTimePicker'
 import { ErrorWarning } from 'components/ErrorWarning'
@@ -25,7 +26,6 @@ import { StopMarketFeeNotes, StopMarketFeeValue } from 'components/StopMarket/Fo
 import TriggerPriceSection from 'components/StopMarket/Form/TriggerPriceSection'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
-import { useStopMarketAmountShortcuts } from 'components/StopMarket/hooks/useStopMarketAmountShortcuts'
 import { useStopMarketCurrency } from 'components/StopMarket/hooks/useStopMarketCurrency'
 import { useStopMarketFeeEstimate } from 'components/StopMarket/hooks/useStopMarketFeeEstimate'
 import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
@@ -188,7 +188,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
   )
 
   const balance = useCurrencyBalance(sellCurrency, order.chainId)
-  const amountShortcuts = useStopMarketAmountShortcuts(balance, inputAmount, setInputAmount, 'stop-market-edit-amount')
+  const amountShortcuts = useBalanceAmountShortcuts(balance, inputAmount, setInputAmount, 'stop-market-edit-amount')
 
   const tokenAddresses = useMemo(() => [order.tokenIn], [order.tokenIn])
   const { data: prices } = useTokenPricesWithLoading(tokenAddresses, order.chainId)
@@ -409,7 +409,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
       <div className="-my-1 px-1">
         <SlippageSetting
           alwaysVisible
-          tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
+          tooltip={t`The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
           slippage={{ value: slippage, onChange: setSlippage }}
           slippageInfo={{
             default: defaultSlippage,
@@ -418,7 +418,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
             isHigh: slippageStatus === SLIPPAGE_STATUS.HIGH,
             message:
               slippageStatus === SLIPPAGE_STATUS.LOW
-                ? t`Slippage this low may cause your stop market order to fail during volatile markets — the conditions it exists for.`
+                ? t`Slippage this low may cause your Stop Market order to fail during volatile markets — the conditions it exists for.`
                 : slippageStatus === SLIPPAGE_STATUS.HIGH
                 ? t`Slippage this high means your order could fill meaningfully below the market price at the moment it executes.`
                 : '',

@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, memo, useEffect, useRef, useState } from 'react'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
+import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
 import DateTimePicker from 'components/DateTimePicker'
 import { ErrorWarning } from 'components/ErrorWarning'
 import CreateOrderFlow from 'components/LimitOrder/CreateOrder/CreateOrderFlow'
@@ -120,11 +121,16 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     searchParams: form.searchParams,
     onCloseReview: () => setShowReview(false),
     onOpenReview: () => setShowReview(true),
-    onSetInput: form.onSetInput,
     onResetForm: form.onResetForm,
   })
 
   const { balance, estimateUSD, review, tracking, validation } = createOrder
+  const amountShortcuts = useBalanceAmountShortcuts(
+    balance.currencyBalance,
+    form.inputAmount,
+    form.onSetInput,
+    'limit-order-amount',
+  )
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton =
@@ -157,11 +163,11 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
       outputAmount: form.outputAmount,
     },
     estimateUsd: estimateUSD,
+    amountShortcuts,
     events: {
       onInputAmountChange: form.onSetInput,
       onOutputAmountChange: form.onSetOutput,
-      onMaxInput: balance.handleMaxInput,
-      onHalfInput: balance.handleHalfInput,
+      onMaxInput: amountShortcuts[amountShortcuts.length - 1]?.onClick,
       onInputTokenSelect: form.handleInputSelect,
       onOutputTokenSelect: form.handleOutputSelect,
       onInputFocus: tracking.trackingTouchInput,

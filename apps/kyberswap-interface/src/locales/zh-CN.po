@@ -49,7 +49,7 @@ msgid "Disconnect"
 msgstr "断开连接"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Stop market orders are not available on {0} yet."
+msgid "Stop Market orders are not available on {0} yet."
 msgstr ""
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
@@ -80,7 +80,7 @@ msgstr "已更新"
 
 #: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 #: src/components/StopMarket/Form/StopMarketForm.tsx
-msgid "Slippage this low may cause your stop market order to fail during volatile markets — the conditions it exists for."
+msgid "Slippage this low may cause your Stop Market order to fail during volatile markets — the conditions it exists for."
 msgstr ""
 
 #: src/pages/Earns/components/RewardsFilterSetting.tsx
@@ -88,7 +88,7 @@ msgid "Position Status"
 msgstr "收益仓位"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "Your stop market order was cancelled."
+msgid "Your Stop Market order was cancelled."
 msgstr ""
 
 #: src/components/LimitOrder/OrderList/index.tsx
@@ -142,7 +142,7 @@ msgid "Any Other Pairs"
 msgstr "其他任意交易对"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "Are you sure you want to cancel this stop market order?"
+msgid "Are you sure you want to cancel this Stop Market order?"
 msgstr ""
 
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
@@ -636,7 +636,7 @@ msgid "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected
 msgstr "向该受影响地址发放相当于受影响资产参考价值 60% 的美元稳定币，并在 3 个月内按线性方式持续归属。"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Stop market orders are not available for {0} — no oracle price feed."
+msgid "Stop Market orders are not available for {0} — no Oracle price feed."
 msgstr ""
 
 #: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
@@ -714,7 +714,7 @@ msgid "Join Now"
 msgstr "立即加入"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Your {symbol} balance is fully used by your open stop market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
+msgid "Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
 msgstr ""
 
 #: src/hooks/kyberdao/index.tsx
@@ -1378,7 +1378,7 @@ msgstr "取消订单并支付 {mainMsg} 失败"
 
 #: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
 #: src/components/StopMarket/Form/TriggerPriceSection.tsx
-msgid "above current oracle price"
+msgid "above current Oracle price"
 msgstr ""
 
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
@@ -2065,7 +2065,7 @@ msgid "<0>Note</0>: The referral bonus applies only on trades made on KyberSwap.
 msgstr "<0>注意</0>：推荐奖金仅适用于聚合器交易活动期间在 KyberSwap.com 上完成的交易。"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "No supported tokens found. Stop market orders only support tokens with an oracle price feed."
+msgid "No supported tokens found. Stop Market orders only support tokens with an Oracle price feed."
 msgstr ""
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
@@ -2104,7 +2104,7 @@ msgid "You need to first give a temporary 24H approval to KyberSwap's smart cont
 msgstr "需先给予 KyberSwap 合约 24 小时临时授权以使用您的 {0}，无需 Gas 费 <0>了解更多 ↗</0>"
 
 #: src/components/StopMarket/MyOrders/components.tsx
-msgid "Could not load your stop market orders. Retrying…"
+msgid "Could not load your Stop Market orders. Retrying…"
 msgstr ""
 
 #: src/components/Tutorial/index.tsx
@@ -2320,7 +2320,7 @@ msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "您的交易通过以下跨链来源之一进行路由"
 
 #: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
-msgid "Sign stop market order"
+msgid "Sign Stop Market order"
 msgstr ""
 
 #: src/pages/Earns/components/EarnSidebar/index.tsx
@@ -2722,7 +2722,7 @@ msgid "Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC]
 msgstr "您的投票权 = 您质押的 KNC / 总质押 KNC × 100%"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Cannot receive {0} — no oracle price feed for the receive token."
+msgid "Cannot receive {0} — no Oracle price feed for the receive token."
 msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
@@ -2926,7 +2926,7 @@ msgid "Slippage this high means your order could fill meaningfully below the mar
 msgstr ""
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "Only tokens with an oracle price feed are shown. Stop market orders trigger on that price."
+msgid "Only tokens with an Oracle price feed are shown. Stop Market orders trigger on that price."
 msgstr ""
 
 #: src/pages/KyberDAO/Vote/index.tsx
@@ -3163,7 +3163,7 @@ msgid "Create a new pool"
 msgstr "创建新资金池"
 
 #: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
-msgid "The order triggers once the oracle price is at or below this price."
+msgid "The order triggers once the Oracle price is at or below this price."
 msgstr ""
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
@@ -3641,7 +3641,7 @@ msgid "Hex (often as hexadecimal) is a base-16 numbering system, 0-9 represent t
 msgstr "十六进制（通常简称 hex）是一种以 16 为基数的记数系统，0-9 代表与十进制相同的数值（0-9）。<0/>A-F 代表十进制数值 10-15。"
 
 #: src/components/StopMarket/Form/StopMarketForm.tsx
-msgid "Stop market order not available for {0}"
+msgid "Stop Market order not available for {0}"
 msgstr ""
 
 #: src/hooks/useLogin.tsx
@@ -4912,7 +4912,7 @@ msgid "Voting starts in:"
 msgstr "投票开始于："
 
 #: src/components/TokenPriceChart/index.tsx
-msgid "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data. Values may differ from prices on other platforms."
+msgid "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or Oracle data. Values may differ from prices on other platforms."
 msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
@@ -5198,7 +5198,7 @@ msgid "Trading volume is rounded down to the nearest $100. For example, if your 
 msgstr ""
 
 #: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
-msgid "Signing stop market order"
+msgid "Signing Stop Market order"
 msgstr ""
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
@@ -5764,7 +5764,7 @@ msgid "Exact Allowance"
 msgstr "精确授权额度"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "Are you sure you want to cancel {orderCount} stop market orders?"
+msgid "Are you sure you want to cancel {orderCount} Stop Market orders?"
 msgstr ""
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
@@ -6766,7 +6766,7 @@ msgstr "您需要先授权 KyberSwap 的智能合约使用您的 {0}。<0>了解
 
 #: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 #: src/components/StopMarket/Form/StopMarketForm.tsx
-msgid "The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all."
+msgid "The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all."
 msgstr ""
 
 #: src/components/Header/index.tsx
@@ -6790,7 +6790,7 @@ msgid "Sign-in"
 msgstr "登录"
 
 #: src/components/StopMarket/MyOrders/components.tsx
-msgid "No active stop market orders. Place your first order above."
+msgid "No active Stop Market orders. Place your first order above."
 msgstr ""
 
 #: src/components/Search/index.tsx
@@ -6846,7 +6846,7 @@ msgid "Maximum Receiving"
 msgstr "最大接收量"
 
 #: src/components/StopMarket/MyOrders/components.tsx
-msgid "Connect your wallet to view your stop market orders."
+msgid "Connect your wallet to view your Stop Market orders."
 msgstr ""
 
 #: src/pages/Earns/PositionDetail/index.tsx
@@ -7236,7 +7236,7 @@ msgid "Logging out"
 msgstr "正在退出登录"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "{orderCount} stop market orders were cancelled."
+msgid "{orderCount} Stop Market orders were cancelled."
 msgstr ""
 
 #: src/components/LimitOrder/MyOrders/utils.ts
@@ -7277,7 +7277,7 @@ msgid "<0>Week 9</0> Sep 02 - Sep 08"
 msgstr "<0>第 9 周</0> 9 月 2 日 - 9 月 8 日"
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
-msgid "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>stop market orders</2>."
+msgid "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>Stop Market orders</2>."
 msgstr ""
 
 #: src/components/ModalCommunity/index.tsx
@@ -7625,7 +7625,7 @@ msgid "External Call"
 msgstr "外部调用"
 
 #: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
-msgid "Current oracle price"
+msgid "Current Oracle price"
 msgstr ""
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
@@ -7918,7 +7918,7 @@ msgstr "复制钱包地址"
 
 #: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
 #: src/components/StopMarket/CreateOrder/useCreateStopMarket.tsx
-msgid "Stop market order placed"
+msgid "Stop Market order placed"
 msgstr ""
 
 #: src/pages/Swap/layout/LimitTab.tsx
@@ -9984,7 +9984,7 @@ msgstr "订阅 Elastic 流动性仓位邮件通知，当仓位 <0>超出区间</
 
 #: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
 #: src/components/StopMarket/Form/TriggerPriceSection.tsx
-msgid "below current oracle price"
+msgid "below current Oracle price"
 msgstr ""
 
 #: src/components/Header/groups/EarnNavGroup.tsx
@@ -10524,7 +10524,7 @@ msgid "Save"
 msgstr "保存"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "The oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
+msgid "The Oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
 msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
@@ -10891,7 +10891,7 @@ msgid "This position has an active Smart Exit order."
 msgstr ""
 
 #: src/components/StopMarket/Form/TriggerPriceSection.tsx
-msgid "current oracle price"
+msgid "current Oracle price"
 msgstr ""
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx

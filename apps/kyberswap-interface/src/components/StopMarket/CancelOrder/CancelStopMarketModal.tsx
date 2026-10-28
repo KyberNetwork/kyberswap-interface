@@ -169,8 +169,8 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
           type: NotificationType.SUCCESS,
           title: t`Order cancelled`,
           summary: isCancelAll
-            ? t`${orderCount} stop market orders were cancelled.`
-            : t`Your stop market order was cancelled.`,
+            ? t`${orderCount} Stop Market orders were cancelled.`
+            : t`Your Stop Market order was cancelled.`,
         },
         10000,
       )
@@ -209,9 +209,9 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
 
         <span className="font-medium text-text" data-testid="stop-market-cancel-description">
           {isCancelAll ? (
-            <Trans>Are you sure you want to cancel {orderCount} stop market orders?</Trans>
+            <Trans>Are you sure you want to cancel {orderCount} Stop Market orders?</Trans>
           ) : (
-            <Trans>Are you sure you want to cancel this stop market order?</Trans>
+            <Trans>Are you sure you want to cancel this Stop Market order?</Trans>
           )}
         </span>
 

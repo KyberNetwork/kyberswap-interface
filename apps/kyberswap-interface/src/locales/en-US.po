@@ -49,8 +49,8 @@ msgid "Disconnect"
 msgstr "Disconnect"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Stop market orders are not available on {0} yet."
-msgstr "Stop market orders are not available on {0} yet."
+msgid "Stop Market orders are not available on {0} yet."
+msgstr "Stop Market orders are not available on {0} yet."
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 #~ msgid "Finding the best route..."
@@ -80,16 +80,16 @@ msgstr "Updated"
 
 #: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 #: src/components/StopMarket/Form/StopMarketForm.tsx
-msgid "Slippage this low may cause your stop market order to fail during volatile markets — the conditions it exists for."
-msgstr "Slippage this low may cause your stop market order to fail during volatile markets — the conditions it exists for."
+msgid "Slippage this low may cause your Stop Market order to fail during volatile markets — the conditions it exists for."
+msgstr "Slippage this low may cause your Stop Market order to fail during volatile markets — the conditions it exists for."
 
 #: src/pages/Earns/components/RewardsFilterSetting.tsx
 msgid "Position Status"
 msgstr "Position Status"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "Your stop market order was cancelled."
-msgstr "Your stop market order was cancelled."
+msgid "Your Stop Market order was cancelled."
+msgstr "Your Stop Market order was cancelled."
 
 #: src/components/LimitOrder/OrderList/index.tsx
 msgid "Open Orders"
@@ -142,8 +142,8 @@ msgid "Any Other Pairs"
 msgstr "Any Other Pairs"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "Are you sure you want to cancel this stop market order?"
-msgstr "Are you sure you want to cancel this stop market order?"
+msgid "Are you sure you want to cancel this Stop Market order?"
+msgstr "Are you sure you want to cancel this Stop Market order?"
 
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
@@ -636,8 +636,8 @@ msgid "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected
 msgstr "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months."
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Stop market orders are not available for {0} — no oracle price feed."
-msgstr "Stop market orders are not available for {0} — no oracle price feed."
+msgid "Stop Market orders are not available for {0} — no Oracle price feed."
+msgstr "Stop Market orders are not available for {0} — no Oracle price feed."
 
 #: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "<0>{0} {makerAssetSymbol}</0> and receive <1>{1} {takerAssetSymbol}</1> <2>at {takerAssetSymbol} price of {rate} {makerAssetSymbol}</2>"
@@ -714,8 +714,8 @@ msgid "Join Now"
 msgstr "Join Now"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Your {symbol} balance is fully used by your open stop market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
-msgstr "Your {symbol} balance is fully used by your open stop market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
+msgid "Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
+msgstr "Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
 
 #: src/hooks/kyberdao/index.tsx
 #~ msgid "Unknown error"
@@ -1378,8 +1378,8 @@ msgstr "Cancel order to pay {mainMsg} failed"
 
 #: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
 #: src/components/StopMarket/Form/TriggerPriceSection.tsx
-msgid "above current oracle price"
-msgstr "above current oracle price"
+msgid "above current Oracle price"
+msgstr "above current Oracle price"
 
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "I understand"
@@ -2065,8 +2065,8 @@ msgid "<0>Note</0>: The referral bonus applies only on trades made on KyberSwap.
 msgstr "<0>Note</0>: The referral bonus applies only on trades made on KyberSwap.com within the Aggregator Trading Campaign."
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "No supported tokens found. Stop market orders only support tokens with an oracle price feed."
-msgstr "No supported tokens found. Stop market orders only support tokens with an oracle price feed."
+msgid "No supported tokens found. Stop Market orders only support tokens with an Oracle price feed."
+msgstr "No supported tokens found. Stop Market orders only support tokens with an Oracle price feed."
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "You will receive at least this amount or your transaction will revert."
@@ -2104,8 +2104,8 @@ msgid "You need to first give a temporary 24H approval to KyberSwap's smart cont
 msgstr "You need to first give a temporary 24H approval to KyberSwap's smart contract to use your {0}. This doesn't require a gas fees. <0>Read more ↗</0>"
 
 #: src/components/StopMarket/MyOrders/components.tsx
-msgid "Could not load your stop market orders. Retrying…"
-msgstr "Could not load your stop market orders. Retrying…"
+msgid "Could not load your Stop Market orders. Retrying…"
+msgstr "Could not load your Stop Market orders. Retrying…"
 
 #: src/components/Tutorial/index.tsx
 msgid "To learn more about how to increase liquidity to KyberSwap Elastic, view <0> here</0>"
@@ -2320,8 +2320,8 @@ msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "Your trade is routed through one of these cross-chain sources."
 
 #: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
-msgid "Sign stop market order"
-msgstr "Sign stop market order"
+msgid "Sign Stop Market order"
+msgstr "Sign Stop Market order"
 
 #: src/pages/Earns/components/EarnSidebar/index.tsx
 msgid "Toggle sidebar"
@@ -2722,8 +2722,8 @@ msgid "Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC]
 msgstr "Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%."
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "Cannot receive {0} — no oracle price feed for the receive token."
-msgstr "Cannot receive {0} — no oracle price feed for the receive token."
+msgid "Cannot receive {0} — no Oracle price feed for the receive token."
+msgstr "Cannot receive {0} — no Oracle price feed for the receive token."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 msgid "<0>31,500 ARB</0> is allocated for this campaign each week."
@@ -2926,8 +2926,8 @@ msgid "Slippage this high means your order could fill meaningfully below the mar
 msgstr "Slippage this high means your order could fill meaningfully below the market price at the moment it executes."
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "Only tokens with an oracle price feed are shown. Stop market orders trigger on that price."
-msgstr "Only tokens with an oracle price feed are shown. Stop market orders trigger on that price."
+msgid "Only tokens with an Oracle price feed are shown. Stop Market orders trigger on that price."
+msgstr "Only tokens with an Oracle price feed are shown. Stop Market orders trigger on that price."
 
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "A portion of your voting power can only be used from the next Epoch onward"
@@ -3163,8 +3163,8 @@ msgid "Create a new pool"
 msgstr "Create a new pool"
 
 #: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
-msgid "The order triggers once the oracle price is at or below this price."
-msgstr "The order triggers once the oracle price is at or below this price."
+msgid "The order triggers once the Oracle price is at or below this price."
+msgstr "The order triggers once the Oracle price is at or below this price."
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Error {summary}."
@@ -3641,8 +3641,8 @@ msgid "Hex (often as hexadecimal) is a base-16 numbering system, 0-9 represent t
 msgstr "Hex (often as hexadecimal) is a base-16 numbering system, 0-9 represent the same values as in decimal (0-9).<0/>A-F represent decimal values 10-15."
 
 #: src/components/StopMarket/Form/StopMarketForm.tsx
-msgid "Stop market order not available for {0}"
-msgstr "Stop market order not available for {0}"
+msgid "Stop Market order not available for {0}"
+msgstr "Stop Market order not available for {0}"
 
 #: src/hooks/useLogin.tsx
 msgid "Signed out successfully"
@@ -4912,8 +4912,8 @@ msgid "Voting starts in:"
 msgstr "Voting starts in:"
 
 #: src/components/TokenPriceChart/index.tsx
-msgid "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data. Values may differ from prices on other platforms."
-msgstr "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data. Values may differ from prices on other platforms."
+msgid "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or Oracle data. Values may differ from prices on other platforms."
+msgstr "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or Oracle data. Values may differ from prices on other platforms."
 
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "The referral data, including My Referrals, My Estimated Rewards, and Referees' Wallet Addresses, is updated approximately hourly."
@@ -5198,8 +5198,8 @@ msgid "Trading volume is rounded down to the nearest $100. For example, if your 
 msgstr "Trading volume is rounded down to the nearest $100. For example, if your trading volume is $199, it will be counted as $100."
 
 #: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
-msgid "Signing stop market order"
-msgstr "Signing stop market order"
+msgid "Signing Stop Market order"
+msgstr "Signing Stop Market order"
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #~ msgid "LP Fees"
@@ -5764,8 +5764,8 @@ msgid "Exact Allowance"
 msgstr "Exact Allowance"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "Are you sure you want to cancel {orderCount} stop market orders?"
-msgstr "Are you sure you want to cancel {orderCount} stop market orders?"
+msgid "Are you sure you want to cancel {orderCount} Stop Market orders?"
+msgstr "Are you sure you want to cancel {orderCount} Stop Market orders?"
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #~ msgid "ACTIONS"
@@ -6766,8 +6766,8 @@ msgstr "You need to first allow KyberSwap's smart contract to use your {0}. <0>R
 
 #: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 #: src/components/StopMarket/Form/StopMarketForm.tsx
-msgid "The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all."
-msgstr "The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all."
+msgid "The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all."
+msgstr "The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all."
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
@@ -6790,8 +6790,8 @@ msgid "Sign-in"
 msgstr "Sign-in"
 
 #: src/components/StopMarket/MyOrders/components.tsx
-msgid "No active stop market orders. Place your first order above."
-msgstr "No active stop market orders. Place your first order above."
+msgid "No active Stop Market orders. Place your first order above."
+msgstr "No active Stop Market orders. Place your first order above."
 
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
@@ -6846,8 +6846,8 @@ msgid "Maximum Receiving"
 msgstr "Maximum Receiving"
 
 #: src/components/StopMarket/MyOrders/components.tsx
-msgid "Connect your wallet to view your stop market orders."
-msgstr "Connect your wallet to view your stop market orders."
+msgid "Connect your wallet to view your Stop Market orders."
+msgstr "Connect your wallet to view your Stop Market orders."
 
 #: src/pages/Earns/PositionDetail/index.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
@@ -7236,8 +7236,8 @@ msgid "Logging out"
 msgstr "Logging out"
 
 #: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
-msgid "{orderCount} stop market orders were cancelled."
-msgstr "{orderCount} stop market orders were cancelled."
+msgid "{orderCount} Stop Market orders were cancelled."
+msgstr "{orderCount} Stop Market orders were cancelled."
 
 #: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Insufficient funds"
@@ -7277,8 +7277,8 @@ msgid "<0>Week 9</0> Sep 02 - Sep 08"
 msgstr "<0>Week 9</0> Sep 02 - Sep 08"
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
-msgid "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>stop market orders</2>."
-msgstr "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>stop market orders</2>."
+msgid "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>Stop Market orders</2>."
+msgstr "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>Stop Market orders</2>."
 
 #: src/components/ModalCommunity/index.tsx
 #~ msgid "Community"
@@ -7625,8 +7625,8 @@ msgid "External Call"
 msgstr "External Call"
 
 #: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
-msgid "Current oracle price"
-msgstr "Current oracle price"
+msgid "Current Oracle price"
+msgstr "Current Oracle price"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
@@ -7918,8 +7918,8 @@ msgstr "Copy wallet address"
 
 #: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
 #: src/components/StopMarket/CreateOrder/useCreateStopMarket.tsx
-msgid "Stop market order placed"
-msgstr "Stop market order placed"
+msgid "Stop Market order placed"
+msgstr "Stop Market order placed"
 
 #: src/pages/Swap/layout/LimitTab.tsx
 msgid "You have {numberOfActiveOrders} active orders."
@@ -9984,8 +9984,8 @@ msgstr "Subscribe to receive emails on your Elastic liquidity positions across a
 
 #: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
 #: src/components/StopMarket/Form/TriggerPriceSection.tsx
-msgid "below current oracle price"
-msgstr "below current oracle price"
+msgid "below current Oracle price"
+msgstr "below current Oracle price"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
@@ -10524,8 +10524,8 @@ msgid "Save"
 msgstr "Save"
 
 #: src/components/StopMarket/Form/useStopMarketWarnings.tsx
-msgid "The oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
-msgstr "The oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
+msgid "The Oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
+msgstr "The Oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -10891,8 +10891,8 @@ msgid "This position has an active Smart Exit order."
 msgstr "This position has an active Smart Exit order."
 
 #: src/components/StopMarket/Form/TriggerPriceSection.tsx
-msgid "current oracle price"
-msgstr "current oracle price"
+msgid "current Oracle price"
+msgstr "current Oracle price"
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Gas Refund Program"

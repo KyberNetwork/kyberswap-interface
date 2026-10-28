@@ -233,7 +233,7 @@ export const useCreateStopMarket = ({
     notify(
       {
         type: NotificationType.SUCCESS,
-        title: replacing ? t`Order updated` : t`Stop market order placed`,
+        title: replacing ? t`Order updated` : t`Stop Market order placed`,
         summary: t`Selling ${inputAmount} ${sellSymbol} when the price reaches ${triggerPrice} ${receiveSymbol}.`,
       },
       10000,
