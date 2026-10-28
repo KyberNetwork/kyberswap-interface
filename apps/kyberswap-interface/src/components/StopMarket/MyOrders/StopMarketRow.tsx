@@ -117,6 +117,15 @@ const StopMarketRow = ({
   )
   const executionPrice = fillSummary.price
   const receivedAmount = fillSummary.received
+  const minAmountOut = getStopMarketMinReceive({
+    estimatedOutput: Number(sellCurrencyAmount.toExact()) * Number(triggerPrice),
+    slippage: order.slippage,
+    // What the fills paid; an order whose executions do not report it shows the floor before the fee.
+    fee: fillSummary.fee,
+  })
+  // A full fill never lands below the min amount out, so receiving less means only part of the order filled.
+  const isPartiallyExecuted =
+    isExecuted && receivedAmount !== undefined && minAmountOut !== undefined && receivedAmount < minAmountOut
 
   const txHash = getStopMarketExecutionTxHash(order)
   const showTxLink = isExecuted && !!txHash
@@ -283,6 +292,7 @@ const StopMarketRow = ({
             <div className="max-sm:hidden">
               <StatusCell
                 status={status}
+                partial={isPartiallyExecuted}
                 expanded={expanded}
                 onToggle={canExpand ? () => setExpanded(open => !open) : undefined}
               />
@@ -393,12 +403,7 @@ const StopMarketRow = ({
               sellSymbol={sellCurrency.symbol || '-'}
               receiveSymbol={receiveCurrency.symbol || '-'}
               triggerPrice={Number(triggerPrice)}
-              minAmountOut={getStopMarketMinReceive({
-                estimatedOutput: Number(sellCurrencyAmount.toExact()) * Number(triggerPrice),
-                slippage: order.slippage,
-                // What the fills paid; an order whose executions do not report it shows the floor before the fee.
-                fee: fillSummary.fee,
-              })}
+              minAmountOut={minAmountOut}
               createdAt={order.createdAt}
             />
           </div>

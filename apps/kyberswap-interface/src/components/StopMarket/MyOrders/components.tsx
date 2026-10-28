@@ -375,17 +375,21 @@ export const formatStopMarketStatus = (status: StopMarketDisplayStatus) => {
  */
 export const StatusCell = ({
   status,
+  partial,
   expanded,
   onToggle,
 }: {
   status: StopMarketDisplayStatus
+  /** An executed order that received less than its min amount out, so only part of it filled. */
+  partial?: boolean
   expanded?: boolean
   onToggle?: () => void
 }) => {
-  const label = formatStopMarketStatus(status)
+  const label = partial ? t`Partial Executed` : formatStopMarketStatus(status)
+  const className = cn(statusStyles({ status }), partial && 'text-blue3')
   if (!onToggle)
     return (
-      <span className={statusStyles({ status })} data-testid="stop-market-order-status" data-status={status}>
+      <span className={className} data-testid="stop-market-order-status" data-status={status} data-partial={partial}>
         {label}
       </span>
     )
@@ -397,8 +401,9 @@ export const StatusCell = ({
       aria-expanded={expanded}
       data-testid="stop-market-order-status"
       data-status={status}
+      data-partial={partial}
       className={cn(
-        statusStyles({ status }),
+        className,
         'flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 hover:brightness-110',
       )}
     >
