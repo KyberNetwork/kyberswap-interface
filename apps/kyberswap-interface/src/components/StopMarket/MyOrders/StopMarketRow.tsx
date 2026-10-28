@@ -1,7 +1,7 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useState } from 'react'
-import { AlertTriangle, Edit2, ExternalLink as LinkIcon, Repeat, Trash } from 'react-feather'
+import { Edit2, ExternalLink as LinkIcon, Repeat, Trash } from 'react-feather'
 
 import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stop_market_recreate.svg'
 import IconButton from 'components/Button/IconButton'
@@ -160,16 +160,23 @@ const StopMarketRow = ({
       ? t`Trigger price reached but the order hasn't filled yet. Still retrying.`
       : undefined
 
+  // The order can spend no more than the lower of the balance and the allowance.
+  const availableFund = [funding?.balance, funding?.allowance].reduce<bigint | undefined>(
+    (min, value) => (value !== undefined && (min === undefined || value < min) ? value : min),
+    undefined,
+  )
+  const available =
+    availableFund === undefined
+      ? '-'
+      : CurrencyAmount.fromRawAmount(sellCurrency, availableFund.toString()).toSignificant(6)
+  const orderAmount = sellCurrencyAmount.toSignificant(6)
+
   const warnings = [
     ...getStopMarketWarnings(order).map(warning => ({ code: warning.code, message: warning.message })),
     // Settling moves the balance on purpose, so an order mid-execution is not warned about it.
-    ...(retry || !showFundingWarnings || status === StopMarketDisplayStatus.TRIGGERED
+    ...(retry || !showFundingWarnings || status === StopMarketDisplayStatus.TRIGGERED || !fundingShortfalls.length
       ? []
-      : fundingShortfalls.map(shortfall =>
-          shortfall === 'balance'
-            ? { code: 'INSUFFICIENT_BALANCE', message: t`Insufficient balance — order may fail` }
-            : { code: 'INSUFFICIENT_ALLOWANCE', message: t`Insufficient allowance — order may fail` },
-        )),
+      : [{ code: 'INSUFFICIENT_FUND', message: t`Available fund: ${available}/${orderAmount} ${sellSymbol}` }]),
   ]
 
   // An executed row only has a story to tell once its fills carry both their prices and what they received.
@@ -358,11 +365,10 @@ const StopMarketRow = ({
           {warnings.map((warning, index) => (
             <HStack
               key={`${warning.code}-${index}`}
-              className="items-start gap-1.5 text-xs italic text-subText"
+              className="items-start gap-1.5 text-xs text-warning"
               data-testid="stop-market-order-warning"
               data-code={warning.code}
             >
-              <AlertTriangle size={12} className="mt-0.5 shrink-0" />
               <span>{warning.message}</span>
             </HStack>
           ))}
