@@ -11588,3 +11588,7 @@ msgstr "My Pooled {0}"
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "Success"
 msgstr "Success"
+
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "Price & My Orders"
+msgstr "Price & My Orders"

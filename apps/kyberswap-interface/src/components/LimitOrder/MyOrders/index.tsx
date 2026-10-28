@@ -10,6 +10,7 @@ import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/useCancel
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import HistoryPagination from 'components/LimitOrder/MyOrders/HistoryPagination'
 import OrderRow from 'components/LimitOrder/MyOrders/OrderRow'
+import RowsSkeleton from 'components/LimitOrder/MyOrders/RowsSkeleton'
 import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
 import { CancelAllButton, EmptyOrders, TabSelector } from 'components/LimitOrder/MyOrders/components'
 import {
@@ -133,7 +134,6 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
   const cursor = isTabActive ? undefined : getHistoryPagerCursor(pager)
 
   const {
-    data: listOrdersData,
     currentData: currentListOrdersData,
     isFetching,
     isError: isOrdersError,
@@ -150,8 +150,9 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
     { skip: !account, pollingInterval: 10_000, skipPollingIfUnfocused: true, refetchOnFocus: true },
   )
 
-  const orders = listOrdersData?.orders ?? EMPTY_LIMIT_ORDERS
-  const totalOrder = listOrdersData?.totalOrder ?? 0
+  const orders = currentListOrdersData?.orders ?? EMPTY_LIMIT_ORDERS
+  const totalOrder = currentListOrdersData?.totalOrder ?? 0
+  const isInitialLoading = !!account && !currentListOrdersData && !isOrdersError
   const hasMoreOrders = currentListOrdersData?.hasMore ?? false
   const hasOrders = orders.length > 0
   const canGoPreviousPage = canGoToPreviousHistoryPage(pager)
@@ -162,7 +163,7 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
   // A page can be empty after filtering unsupported chains even when the backend has more orders.
   const showHistoryPagination = !isTabActive && (canGoPreviousPage || hasNextHistoryPage)
   const showCancelAll = hasOrders && isTabActive
-  const showNoOrders = !hasOrders && (isOrdersLoaded || isOrdersError || !account)
+  const showNoOrders = !isInitialLoading && !hasOrders && (isOrdersLoaded || isOrdersError || !account)
 
   const {
     data: cancelAllOrdersData,
@@ -377,7 +378,8 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
 
       <TableHeader isActiveTab={isTabActive} />
       <div className="relative min-h-20">
-        <RefetchIndicator visible={isFetching} />
+        <RefetchIndicator visible={isFetching && !isInitialLoading} />
+        {isInitialLoading && <RowsSkeleton isActiveTab={isTabActive} />}
         {orders.map(order => (
           <OrderRow
             isOrderCancelling={isOrderCancelling}

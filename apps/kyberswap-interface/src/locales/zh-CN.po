@@ -11588,3 +11588,7 @@ msgstr "我已池化 {0}"
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "Success"
 msgstr "成功"
+
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "Price & My Orders"
+msgstr "价格与我的订单"

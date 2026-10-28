@@ -18,7 +18,6 @@ import {
 import { useLimitOrderFormState } from 'components/LimitOrder/Form/useLimitOrderFormState'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { HStack, Stack } from 'components/Stack'
-import OrderTypeSubTabs from 'components/StopMarket/OrderTypeSubTabs'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -178,7 +177,6 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   return (
     <>
       <Stack className="gap-4">
-        {!isEmbeddedSwap && <OrderTypeSubTabs />}
         {isEmbeddedSwap && <NetworkSelector chainId={form.chainId} />}
         <Stack className="gap-3">
           <LimitOrderInputTokenPanel {...tokenSectionProps} />

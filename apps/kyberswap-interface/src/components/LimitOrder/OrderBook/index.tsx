@@ -6,12 +6,13 @@ import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
+import { OrderBookRowsSkeleton } from 'components/LimitOrder/OrderBook/OrderBookSkeleton'
 import OrderRow from 'components/LimitOrder/OrderBook/OrderRow'
 import TableHeader, { RowWrapper } from 'components/LimitOrder/OrderBook/TableHeader'
 import { formatOrders, getSchemaToken, invertRateValue } from 'components/LimitOrder/OrderBook/utils'
 import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
-import { LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
+import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
 import { formatPriceInputValue } from 'components/LimitOrder/utils'
 import RefetchIndicator from 'components/RefetchIndicator'
 import RefreshLoading from 'components/RefreshLoading'
@@ -28,6 +29,8 @@ const refetchSafely = (refetch: () => { catch?: (onRejected: () => void) => unkn
     refetch()?.catch?.(() => {})
   } catch {}
 }
+
+const EMPTY_ORDERS: LimitOrderFromTokenPair[] = []
 
 const NoDataPanel = () => (
   <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 text-sm font-medium text-subText">
@@ -84,14 +87,14 @@ const OrderBook = () => {
   const takerAsset = takerCurrency?.wrapped.address
 
   const {
-    data: { orders = [] } = {},
+    currentData: ordersData,
     isFetching: isFetchingOrders,
     isSuccess: isOrdersLoaded,
     refetch: refetchOrders,
   } = useGetOrdersByTokenPairQuery(makerAsset && takerAsset ? { chainId, makerAsset, takerAsset } : skipToken)
 
   const {
-    data: { orders: reversedOrders = [] } = {},
+    currentData: reversedOrdersData,
     isFetching: isFetchingReversedOrder,
     isSuccess: isReversedOrdersLoaded,
     refetch: refetchReversedOrders,
@@ -100,6 +103,10 @@ const OrderBook = () => {
   )
 
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
+  const orders = ordersData?.orders ?? EMPTY_ORDERS
+  const reversedOrders = reversedOrdersData?.orders ?? EMPTY_ORDERS
+  const loadingSellOrders = isFetchingOrders && !ordersData
+  const loadingBuyOrders = isFetchingReversedOrder && !reversedOrdersData
 
   const formattedOrders = useMemo(
     () => formatOrders(orders, makerCurrency, takerCurrency, marketRate, priceUsdIn),
@@ -200,11 +207,15 @@ const OrderBook = () => {
       <SectionLabel color="var(--ks-red)" label={<Trans>SELLING</Trans>} symbol={makerCurrency?.wrapped.symbol} />
 
       <OrderSide reverse hasOrders={visibleSellOrders.length > 0}>
-        {visibleSellOrders.length > 0
-          ? visibleSellOrders.map(order => (
-              <OrderRow key={order.id} order={order} showInvertedRate={showInvertedRate} onTake={handleTakeOrder} />
-            ))
-          : isOrdersLoaded && <NoDataPanel />}
+        {loadingSellOrders ? (
+          <OrderBookRowsSkeleton />
+        ) : visibleSellOrders.length > 0 ? (
+          visibleSellOrders.map(order => (
+            <OrderRow key={order.id} order={order} showInvertedRate={showInvertedRate} onTake={handleTakeOrder} />
+          ))
+        ) : (
+          isOrdersLoaded && <NoDataPanel />
+        )}
       </OrderSide>
 
       <RowWrapper className="bg-background px-4 py-3 text-xl font-medium leading-6">
@@ -236,17 +247,21 @@ const OrderBook = () => {
       <SectionLabel color="var(--ks-primary)" label={<Trans>BUYING</Trans>} symbol={makerCurrency?.wrapped.symbol} />
 
       <OrderSide hasOrders={visibleBuyOrders.length > 0}>
-        {visibleBuyOrders.length > 0
-          ? visibleBuyOrders.map(order => (
-              <OrderRow
-                key={order.id}
-                reverse
-                order={order}
-                showInvertedRate={showInvertedRate}
-                onTake={handleTakeOrder}
-              />
-            ))
-          : isReversedOrdersLoaded && <NoDataPanel />}
+        {loadingBuyOrders ? (
+          <OrderBookRowsSkeleton />
+        ) : visibleBuyOrders.length > 0 ? (
+          visibleBuyOrders.map(order => (
+            <OrderRow
+              key={order.id}
+              reverse
+              order={order}
+              showInvertedRate={showInvertedRate}
+              onTake={handleTakeOrder}
+            />
+          ))
+        ) : (
+          isReversedOrdersLoaded && <NoDataPanel />
+        )}
       </OrderSide>
 
       {selectedOrderToTake && (

@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { Check, Info, Repeat } from 'react-feather'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
 import { useGetStopMarketActiveMakingAmountQuery } from 'services/stopMarket'
@@ -13,7 +13,8 @@ import Dots from 'components/Dots'
 import { ErrorWarning } from 'components/ErrorWarning'
 import { useHoneypotWarning } from 'components/HoneypotWarning'
 import InfoHelper from 'components/InfoHelper'
-import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { getOrderListPath } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import Loader from 'components/Loader'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { HStack, Stack } from 'components/Stack'
@@ -28,7 +29,6 @@ import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSu
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { APP_PATHS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
 import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
@@ -147,9 +147,8 @@ export default function ConfirmSwapModalContent({
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
-  const { currency: currencyParam } = useParams()
   const { currencyIn, currencyOut } = useCurrenciesByPage()
-  const { chainId, account, networkInfo } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const { honeypot } = useHoneypotWarning({
     chainId,
     tokenAddress: currencyIn?.wrapped.address,
@@ -372,12 +371,21 @@ export default function ConfirmSwapModalContent({
 
   const showReservedOrderNotice =
     !currencyIn?.isNative && hasReservedBalanceShortfall(remainAmount, limitReservedAmount + stopReservedAmount)
-  const limitOrderSearch = new URLSearchParams({
-    tab: LimitOrderTab.MY_ORDER,
-    orderTab: LimitOrderStatus.ACTIVE,
+  const limitOrdersPath = getOrderListPath({
+    kind: OrderKind.LIMIT,
+    chainId,
+    status: LimitOrderStatus.ACTIVE,
+    currencyIn,
+    currencyOut,
     search: `${currencyIn?.wrapped.symbol}/${currencyOut?.wrapped.symbol}`,
   })
-  const stopMarketSearch = new URLSearchParams({ search: currencyIn?.wrapped.symbol ?? '' })
+  const stopMarketsPath = getOrderListPath({
+    kind: OrderKind.STOP,
+    chainId,
+    currencyIn,
+    currencyOut,
+    search: currencyIn?.wrapped.symbol ?? '',
+  })
 
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [retry, setRetry] = useState(0)
@@ -532,16 +540,8 @@ export default function ConfirmSwapModalContent({
           {showReservedOrderNotice && (
             <ReservedOrderNotice
               symbol={currencyIn?.symbol}
-              limitOrdersTo={
-                limitReservedAmount > 0n
-                  ? `${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?${limitOrderSearch}`
-                  : undefined
-              }
-              stopMarketsTo={
-                stopReservedAmount > 0n
-                  ? `${APP_PATHS.STOP_MARKET}/${networkInfo.route}/${currencyParam}?${stopMarketSearch}`
-                  : undefined
-              }
+              limitOrdersTo={limitReservedAmount > 0n ? limitOrdersPath : undefined}
+              stopMarketsTo={stopReservedAmount > 0n ? stopMarketsPath : undefined}
             />
           )}
 

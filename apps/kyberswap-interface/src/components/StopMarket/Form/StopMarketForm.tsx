@@ -17,7 +17,6 @@ import StopMarketReceiveSection from 'components/StopMarket/Form/StopMarketRecei
 import TriggerPriceSection from 'components/StopMarket/Form/TriggerPriceSection'
 import { useStopMarketFormState } from 'components/StopMarket/Form/useStopMarketFormState'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
-import OrderTypeSubTabs from 'components/StopMarket/OrderTypeSubTabs'
 import { StopMarketNotice } from 'components/StopMarket/StopMarketNotice'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
 import { useStopMarketFeeEstimate } from 'components/StopMarket/hooks/useStopMarketFeeEstimate'
@@ -238,8 +237,6 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   return (
     <>
       <Stack className="gap-4" data-testid="stop-market-form">
-        <OrderTypeSubTabs />
-
         <Stack className="gap-3">
           <LimitOrderInputTokenPanel
             chainId={form.chainId}

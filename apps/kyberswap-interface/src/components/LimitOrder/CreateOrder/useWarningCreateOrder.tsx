@@ -6,7 +6,8 @@ import { Link } from 'react-router-dom'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
 import { useHoneypotWarning } from 'components/HoneypotWarning'
-import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { getOrderListPath } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { DeltaRateLimitOrder, LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
@@ -176,17 +177,20 @@ export const useWarningCreateOrder = ({
       shouldDisableAction = true
       const makerAssetSymbol = currencyIn?.wrapped.symbol
       const takerAssetSymbol = currencyOut?.wrapped.symbol
-      const search = new URLSearchParams({
-        tab: LimitOrderTab.MY_ORDER,
-        orderTab: LimitOrderStatus.ACTIVE,
+      const ordersPath = getOrderListPath({
+        kind: OrderKind.LIMIT,
+        chainId,
+        status: LimitOrderStatus.ACTIVE,
+        currencyIn,
+        currencyOut,
         search: `${makerAssetSymbol}/${takerAssetSymbol}`,
-      }).toString()
+      })
 
       addWarning(
         <ReservedBalanceNotice
           tokenIn={makerAssetSymbol}
           tokenOut={takerAssetSymbol}
-          to={`?${search}`}
+          to={ordersPath}
           onReviewClick={onSharedBalanceReview}
         />,
         {
@@ -201,6 +205,7 @@ export const useWarningCreateOrder = ({
       warnings,
     }
   }, [
+    chainId,
     currencyIn,
     currencyOut,
     deltaRate.percent,

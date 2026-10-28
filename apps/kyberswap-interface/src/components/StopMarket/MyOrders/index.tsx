@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useGetStopMarketsQuery } from 'services/stopMarket'
 
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
@@ -69,10 +69,13 @@ type Props = {
    */
   isActiveTab?: boolean
   toolbar?: ReactNode
+  /** Changes when an external link explicitly asks the shared order panel to show Stop Market orders. */
+  resetFiltersKey?: string
 }
 
-const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
+const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar, resetFiltersKey }: Props) => {
   const { account, chainId } = useActiveWeb3React()
+  const { pathname } = useLocation()
   const navigate = useNavigate()
   const { setInputValue } = useLimitActionHandlers()
   const dispatch = useAppDispatch()
@@ -91,6 +94,14 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
   const [isCancelAll, setIsCancelAll] = useState(false)
   const [cancellingIds, setCancellingIds] = useState<number[]>([])
   const [editingOrder, setEditingOrder] = useState<StopMarket>()
+
+  // An external order link changes the kind/status, but these filters belong to this list and would
+  // otherwise hide the requested order (for example, an Expired order under a previous Cancelled filter).
+  useEffect(() => {
+    setClosedFilter(ALL_CLOSED_VALUE)
+    setSelectedChainValue(ALL_CHAINS_VALUE)
+    setCurPage(1)
+  }, [pathname, resetFiltersKey])
 
   // A single-chain filter follows the wallet when the user switches network, or the list keeps showing
   // the previous chain while the form above creates orders on the new one. All Chains already covers it.
@@ -258,7 +269,12 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar }: Props) => {
           }),
         }),
       )
-      navigate(`${APP_PATHS.STOP_MARKET}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${order.tokenOut}`)
+      // Open the form even when Recreate starts from Settings or Token Info on this same product.
+      navigate(
+        `${APP_PATHS.STOP_MARKET}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${
+          order.tokenOut
+        }?tab=limit`,
+      )
     }
     // A route naming another chain is only followed on page load; later it is rewritten to the wallet's
     // chain, pair and all. An order from elsewhere therefore switches the wallet first, and a declined

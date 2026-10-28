@@ -107,6 +107,30 @@ const stopMarketApi = createApi({
       providesTags: [RTK_QUERY_TAGS.GET_STOP_MARKET_LIST],
     }),
 
+    // The tab warning covers every open order, independently of the table's page and filters.
+    getOpenStopMarkets: builder.query<StopMarket[], string>({
+      queryFn: async (userWallet, _api, _extra, fetchWithBQ) => {
+        const orders: StopMarket[] = []
+        const pageSize = 100
+        for (let page = 1; ; page++) {
+          const params = buildStopMarketListSearchParams({
+            userWallet,
+            statuses: [StopMarketStatus.OPEN],
+            page,
+            pageSize,
+          })
+          const result = await fetchWithBQ({ url: `${ORDERS_PATH}?${params.toString()}` })
+          if (result.error) return { error: result.error }
+          const data = (result.data as ApiEnvelope<ListOrdersResponse>).data
+          const pageOrders = parseStopMarkets(data?.orders)
+          orders.push(...pageOrders)
+          if (!data?.orders?.length || page * pageSize >= (data.pagination?.totalItems ?? data.orders.length))
+            return { data: orders }
+        }
+      },
+      providesTags: [RTK_QUERY_TAGS.GET_STOP_MARKET_LIST],
+    }),
+
     // Must run before sign-message: the BE doc requires each maxFeesPercentage entry to be at least
     // the live protocol fee, and the cap is signed into the intent.
     estimateStopMarketFee: builder.mutation<StopMarketFee, StopMarketCorePayload>({
@@ -224,6 +248,7 @@ const stopMarketApi = createApi({
 export const {
   useGetStopMarketConfigQuery,
   useGetStopMarketsQuery,
+  useGetOpenStopMarketsQuery,
   useGetStopMarketActiveMakingAmountQuery,
   useGetStopMarketOracleTokensQuery,
   useGetStopMarketOraclePriceQuery,

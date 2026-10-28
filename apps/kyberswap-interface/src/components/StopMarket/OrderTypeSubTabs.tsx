@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { startTransition } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
@@ -9,6 +8,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import { cn } from 'utils/cn'
 import { getTradeProductPath } from 'utils/routes'
 
@@ -45,12 +45,29 @@ const OrderTypeSubTabs = () => {
   const { network, currency } = useParams<{ network: string; currency?: string }>()
   const { chainId, networkInfo } = useActiveWeb3React()
   const isMobile = useMedia('(max-width: 768px)')
-
-  // Offering the tab on a chain without stop market orders would only bounce the user to Swap.
-  if (!isSupportStopMarket(chainId)) return null
+  const stopMarketIntent = usePrefetchOnIntent(() => {
+    void import('components/StopMarket/Form/StopMarketForm').catch(() => undefined)
+  })
 
   const activePath = getTradeProductPath(pathname)
   const activeTab = TABS.find(tab => tab.path === activePath)
+
+  const handleSelectOrderType = (path: (typeof TABS)[number]['path']) => {
+    if (path === activePath) return
+
+    // `tab` names a panel of the product being left, so it must not ride along.
+    const nextSearch = new URLSearchParams(search)
+    nextSearch.delete('tab')
+
+    // The form has its own loading boundary, so the tabs can respond immediately.
+    navigate({
+      pathname: `${path}/${network || networkInfo.route}${currency ? `/${currency}` : ''}`,
+      search: nextSearch.toString(),
+    })
+  }
+
+  // Offering the tab on a chain without stop market orders would only bounce the user to Swap.
+  if (!isSupportStopMarket(chainId)) return null
 
   return (
     <Stack className="gap-1">
@@ -61,20 +78,8 @@ const OrderTypeSubTabs = () => {
               type="button"
               data-testid={`order-type-tab-${key}`}
               aria-current={path === activePath ? 'page' : undefined}
-              onClick={() => {
-                // `tab` names a panel of the product being left, so it must not ride along.
-                const nextSearch = new URLSearchParams(search)
-                nextSearch.delete('tab')
-                // The destination page is code-split, and the app's only Suspense boundary wraps the whole
-                // body — so without a transition React swaps the entire page for the route skeleton while
-                // the chunk loads. A transition keeps the current card on screen until the next one is ready.
-                startTransition(() => {
-                  navigate({
-                    pathname: `${path}/${network || networkInfo.route}${currency ? `/${currency}` : ''}`,
-                    search: nextSearch.toString(),
-                  })
-                })
-              }}
+              {...(path === APP_PATHS.STOP_MARKET ? stopMarketIntent : {})}
+              onClick={() => handleSelectOrderType(path)}
               className={cn(
                 // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
                 'cursor-pointer border-0 bg-transparent py-1 pr-3 uppercase transition-colors hover:text-text',

@@ -21,11 +21,12 @@ import {
   normalizeActionAmount,
 } from 'components/LimitOrder/TakeOrder/utils'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
+import { useOrderListNavigation } from 'components/LimitOrder/hooks/useOrderListNavigation'
 import {
   LimitOrderFromTokenPairFormatted,
   LimitOrderStatus,
-  LimitOrderTab,
   LimitOrderTakeContext,
+  OrderKind,
 } from 'components/LimitOrder/types'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
@@ -92,6 +93,7 @@ type Props = {
 
 const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const navigate = useNavigate()
+  const navigateToOrders = useOrderListNavigation()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const limitOrderTracking = useLimitOrderTracking()
 
@@ -282,15 +284,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   }
 
   const handleViewOrder = () => {
-    const route = NETWORKS_INFO[context.order.chainId]?.route
-    if (!route) return
-
-    const search = new URLSearchParams({
-      tab: LimitOrderTab.MY_ORDER,
-      orderTab: LimitOrderStatus.CLOSED,
-    }).toString()
-
-    navigate(`${APP_PATHS.LIMIT}/${route}?${search}`)
+    navigateToOrders({ kind: OrderKind.LIMIT, status: LimitOrderStatus.CLOSED, chainId: context.order.chainId })
   }
 
   return (

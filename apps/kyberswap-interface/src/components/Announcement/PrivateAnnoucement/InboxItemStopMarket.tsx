@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { ArrowRight } from 'react-feather'
 
@@ -21,13 +20,12 @@ import {
 import { getStopMarketExecution } from 'components/Announcement/helpers'
 import { AnnouncementTemplateStopMarket } from 'components/Announcement/type'
 import { CheckCircle } from 'components/Icons'
+import { useOrderListNavigation } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import { TokenLogoWithShadow } from 'components/Logo'
-import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
-import { useNavigateToUrl } from 'utils/redirect'
 
 const formatAmount = (value?: string) => formatDisplayNumber(value, { significantDigits: 6 })
 
@@ -55,10 +53,9 @@ function InboxItemStopMarket({
   } = getStopMarketExecution(announcement) ?? {}
   const statusLabel = t`Stop Market Executed`
 
-  const navigate = useNavigateToUrl()
+  const navigateToOrders = useOrderListNavigation()
   const onClick = () => {
-    const route = NETWORKS_INFO[chainId ?? ChainId.MAINNET]?.route ?? NETWORKS_INFO[ChainId.MAINNET].route
-    navigate(`${APP_PATHS.STOP_MARKET}/${route}?orderTab=closed`, chainId)
+    navigateToOrders({ kind: OrderKind.STOP, status: LimitOrderStatus.CLOSED, chainId })
     onRead(announcement, statusLabel)
   }
 

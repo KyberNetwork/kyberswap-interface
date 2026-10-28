@@ -24,7 +24,15 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
   const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+
   const [activeTab, setActiveTab] = useState<TAB>(mainTab)
+
+  const productPath = getTradeProductPath(pathname)
+  const tabFromUrl = searchParams.get('tab')
+  const isSetting = isSettingTab(activeTab)
+  const activeMainTab = isSetting ? mainTab : activeTab
+
+  const onBackToMainTab = useCallback(() => setActiveTab(mainTab), [mainTab])
 
   useEffect(() => {
     const inputCurrency = searchParams.get('inputCurrency')
@@ -42,23 +50,20 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
 
   const highlightDegenMode = useRequiredDegenMode({ setActiveTab })
 
+  // Limit and Stop Market share a mounted page, but each product opens on its own form.
   useEffect(() => {
     setActiveTab(mainTab)
-  }, [mainTab])
+  }, [mainTab, productPath])
 
-  const isSetting = isSettingTab(activeTab)
-  const activeMainTab = isSetting ? mainTab : activeTab
-
-  const tabFromUrl = searchParams.get('tab')
   useEffect(() => {
-    if (tabFromUrl === 'settings') {
-      setActiveTab(TAB.SETTINGS)
-      searchParams.delete('tab')
-      setSearchParams(searchParams)
-    }
-  }, [tabFromUrl, searchParams, setSearchParams])
+    if (tabFromUrl !== 'settings' && tabFromUrl !== mainTab) return
 
-  const onBackToMainTab = useCallback(() => setActiveTab(mainTab), [mainTab])
+    setActiveTab(tabFromUrl === 'settings' ? TAB.SETTINGS : mainTab)
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.delete('tab')
+    setSearchParams(nextSearchParams, { replace: true })
+  }, [tabFromUrl, mainTab, searchParams, setSearchParams])
 
   return {
     activeMainTab,

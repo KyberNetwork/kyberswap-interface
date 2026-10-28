@@ -21,11 +21,9 @@ import {
 } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import { CheckCircle } from 'components/Icons'
-import { LimitOrderStatus } from 'components/LimitOrder/types'
+import { useOrderListNavigation } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import { TokenLogoWithShadow } from 'components/Logo'
-import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import { useNavigateToUrl } from 'utils/redirect'
 
 function InboxItemLimitOrder({
   announcement,
@@ -132,12 +130,17 @@ function InboxItemLimitOrder({
   })()
   const statusMessage = statusMeta.message || statusMeta.label
 
-  const navigate = useNavigateToUrl()
+  const navigateToOrders = useOrderListNavigation()
   const onClick = () => {
-    const route = NETWORKS_INFO[chainId]?.route ?? NETWORKS_INFO[ChainId.MAINNET].route
     const orderTab =
-      isFilled || isPartialFilled || isCancelled || status === LimitOrderStatus.EXPIRED ? 'closed' : 'active'
-    navigate(`${APP_PATHS.LIMIT}/${route}?tab=my_order&orderTab=${orderTab}`, chainId)
+      isFilled || isPartialFilled || isCancelled || status === LimitOrderStatus.EXPIRED
+        ? LimitOrderStatus.CLOSED
+        : LimitOrderStatus.ACTIVE
+    navigateToOrders({
+      kind: OrderKind.LIMIT,
+      status: orderTab,
+      chainId,
+    })
     onRead(announcement, statusMessage)
   }
 

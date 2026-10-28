@@ -82,8 +82,6 @@ const ExploreVaults = lazy(() => import('pages/Earns/ExploreVaults'))
 const MyVaults = lazy(() => import('pages/Earns/MyVaults'))
 const VaultDetail = lazy(() => import('pages/Earns/VaultDetail'))
 
-const StopMarketPage = lazy(() => import('pages/Swap/StopMarketPage'))
-
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
 const AppWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -288,7 +286,7 @@ export default function App() {
                   path={`${APP_PATHS.STOP_MARKET}/:network/:currency?`}
                   element={
                     <NetworkSyncedPage>
-                      <StopMarketPage />
+                      <LimitPage isStopMarketPage />
                     </NetworkSyncedPage>
                   }
                 />

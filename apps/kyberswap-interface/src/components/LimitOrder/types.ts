@@ -16,8 +16,11 @@ export enum OrderKind {
   STOP = 'stop',
 }
 
-/** Navigation state a link carries to open the user's open orders of one kind in the order list. */
-export type ShowOrdersState = { showOrders?: OrderKind }
+/** Navigation state a link carries to open one kind of order; defaults to Active. */
+export type ShowOrdersState = {
+  showOrders?: OrderKind
+  orderTab?: LimitOrderStatus.ACTIVE | LimitOrderStatus.CLOSED
+}
 
 export enum LimitOrderStatus {
   // status from BE

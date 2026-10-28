@@ -1,11 +1,12 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
 import { useGetStopMarketConfigQuery } from 'services/stopMarket'
 
 import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
+import { useOrderListNavigation } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
 import {
   ProcessingStepFailure,
@@ -18,10 +19,7 @@ import StopMarketConfirmModal, {
 } from 'components/StopMarket/CreateOrder/StopMarketConfirmModal'
 import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
 import { getStopMarketServiceErrorMessage } from 'components/StopMarket/utils'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 
 /** Whether this device has placed a stop market order, and so has accepted the terms. */
@@ -73,7 +71,7 @@ export const useStopMarketProcessing = ({
   onComplete,
   onClose,
 }: ProcessingParams) => {
-  const navigate = useNavigate()
+  const navigateToOrders = useOrderListNavigation()
   const processingState = useProcessingState<ProcessingOrderStep>()
   // The modal shows it only while a step is marked failed, so a retry hides it and a new failure replaces it.
   const [stepError, setStepError] = useState<string | undefined>()
@@ -116,9 +114,13 @@ export const useStopMarketProcessing = ({
   // Keeps the pair in the path, as Limit Order's "My Orders" does: a bare chain route falls back to
   // the chain's default pair and would swap out the tokens the user just placed an order on.
   const viewOrders = () => {
-    const pair =
-      currencyIn && currencyOut ? `/${currencyId(currencyIn, chainId)}-to-${currencyId(currencyOut, chainId)}` : ''
-    navigate(`${APP_PATHS.STOP_MARKET}/${NETWORKS_INFO[chainId].route}${pair}`)
+    navigateToOrders({
+      kind: OrderKind.STOP,
+      status: LimitOrderStatus.ACTIVE,
+      chainId,
+      currencyIn,
+      currencyOut,
+    })
   }
 
   const processingModal = (

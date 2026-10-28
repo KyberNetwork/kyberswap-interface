@@ -3,7 +3,8 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
-import { OrderKind, ShowOrdersState } from 'components/LimitOrder/types'
+import { getOrderListPath } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import { useStopMarketReservedBalance } from 'components/StopMarket/hooks/useStopMarketReservedBalance'
 import {
   useIsStopMarketEligibleToken,
@@ -19,16 +20,21 @@ export type StopMarketWarning = {
   blocking?: boolean
 }
 
-const REVIEW_ORDERS_STATE: ShowOrdersState = { showOrders: OrderKind.STOP }
-
 /**
  * The stop market order list sits on this page, so its link narrows the list to the token and opens the open
  * stop market orders, whichever kind the list shows.
  */
-const ReservedBalanceNotice = ({ symbol }: { symbol?: string }) => (
+const ReservedBalanceNotice = ({ chainId, symbol }: { chainId: ChainId; symbol?: string }) => (
   <Trans>
     Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance.{' '}
-    <Link to={`?${new URLSearchParams({ search: symbol ?? '' })}`} state={REVIEW_ORDERS_STATE}>
+    <Link
+      to={getOrderListPath({
+        kind: OrderKind.STOP,
+        chainId,
+        status: LimitOrderStatus.ACTIVE,
+        search: symbol,
+      })}
+    >
       Review orders
     </Link>
   </Trans>
@@ -143,7 +149,10 @@ export const useStopMarketWarnings = ({
      * than warned: the orders would not all be able to fire, and which one loses is decided by timing.
      */
     if (hasReservedBalanceShortfall && currencyIn) {
-      formWarnings.push({ type: 'warn', message: <ReservedBalanceNotice symbol={currencyIn.wrapped.symbol} /> })
+      formWarnings.push({
+        type: 'warn',
+        message: <ReservedBalanceNotice chainId={chainId} symbol={currencyIn.wrapped.symbol} />,
+      })
       shouldDisableAction = true
     }
 

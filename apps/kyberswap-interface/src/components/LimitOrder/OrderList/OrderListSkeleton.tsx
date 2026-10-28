@@ -1,7 +1,11 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
+import RowsSkeleton from 'components/LimitOrder/MyOrders/RowsSkeleton'
+import OrderBookSkeleton from 'components/LimitOrder/OrderBook/OrderBookSkeleton'
+import { OrderPanelCard } from 'components/LimitOrder/OrderList/OrderListComponents'
+import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { StopMarketRowsSkeleton } from 'components/StopMarket/MyOrders/components'
@@ -11,10 +15,6 @@ import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartSt
 import { useShowPricingChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { getTradeProductPath } from 'utils/routes'
-
-/** The limit-order panel's card, which both cards of the order panel use; on phones each runs edge to edge. */
-export const ORDER_PANEL_CARD_CLASS =
-  'w-full gap-0 overflow-hidden rounded-xl border border-darkBorder max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none'
 
 /** A card's opening tab bar, at the height its tabs take. */
 const TabsRowSkeleton = ({ widths }: { widths: number[] }) => (
@@ -37,7 +37,7 @@ const ChartSkeleton = () => {
           <Skeleton height={14} width={96} borderRadius={6} />
         </HStack>
         {!upToSmall && (
-          <div className="ml-auto">
+          <div className="flex flex-1 justify-end">
             <Skeleton height={12} width={220} borderRadius={6} />
           </div>
         )}
@@ -58,26 +58,6 @@ const ChartSkeleton = () => {
   )
 }
 
-/** The orders card with its controls in place and the table on its first load. */
-const OrdersCardSkeleton = () => (
-  <Stack className={ORDER_PANEL_CARD_CLASS}>
-    <TabsRowSkeleton widths={[110, 110]} />
-    <HStack className="min-h-12 items-center gap-6 border-b border-darkBorder px-4 py-2">
-      <Skeleton height={14} width={76} borderRadius={6} />
-      <Skeleton height={14} width={76} borderRadius={6} />
-    </HStack>
-    <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
-      <Skeleton height={36} width={130} borderRadius={16} />
-      <div className="max-w-[360px] flex-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none">
-        <Skeleton height={36} borderRadius={16} containerClassName="block" />
-      </div>
-    </div>
-    <div className="min-h-20">
-      <StopMarketRowsSkeleton isActiveTab />
-    </div>
-  </Stack>
-)
-
 /**
  * Stands in for the order panel while its code loads, card for card, so the page keeps its shape
  * instead of showing a spinner. The market card opens on the chart where the panel would, which
@@ -86,25 +66,51 @@ const OrdersCardSkeleton = () => (
 const OrderListSkeleton = () => {
   const { chainId } = useLimitOrderContext()
   const { pathname } = useLocation()
+  const [searchParams] = useSearchParams()
   const isShowPricingChart = useShowPricingChart()
+
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
   const hasOrderBook = getTradeProductPath(pathname) !== APP_PATHS.STOP_MARKET
+  const orderTabs = !hasChart && hasOrderBook ? [110, 110, 130] : [110, 110]
+  const isOrderBook = hasOrderBook && searchParams.get('tab') === LimitOrderTab.ORDER_BOOK
+  const isActiveTab = searchParams.get('orderTab') !== LimitOrderStatus.CLOSED
 
   return (
     <>
-      {(hasChart || hasOrderBook) && (
-        <Stack className={ORDER_PANEL_CARD_CLASS}>
-          <TabsRowSkeleton widths={[...(hasChart ? [60] : []), ...(hasOrderBook ? [130] : [])]} />
-          {hasChart ? (
-            <ChartSkeleton />
-          ) : (
-            <div className="min-h-20">
-              <StopMarketRowsSkeleton isActiveTab />
-            </div>
-          )}
-        </Stack>
+      {hasChart && (
+        <OrderPanelCard>
+          <TabsRowSkeleton widths={[160, ...(hasOrderBook ? [130] : [])]} />
+          {isOrderBook ? <OrderBookSkeleton /> : <ChartSkeleton />}
+        </OrderPanelCard>
       )}
-      <OrdersCardSkeleton />
+      {(!hasChart || !isOrderBook) && (
+        <OrderPanelCard>
+          <TabsRowSkeleton widths={orderTabs} />
+          {isOrderBook ? (
+            <OrderBookSkeleton />
+          ) : (
+            <>
+              <HStack className="min-h-12 items-center gap-6 border-b border-darkBorder px-4 py-2">
+                <Skeleton height={14} width={76} borderRadius={6} />
+                <Skeleton height={14} width={76} borderRadius={6} />
+              </HStack>
+              <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
+                <Skeleton height={36} width={130} borderRadius={16} />
+                <div className="max-w-[360px] flex-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none">
+                  <Skeleton height={36} borderRadius={16} containerClassName="block" />
+                </div>
+              </div>
+              <div className="min-h-20">
+                {hasOrderBook ? (
+                  <RowsSkeleton isActiveTab={isActiveTab} />
+                ) : (
+                  <StopMarketRowsSkeleton isActiveTab={isActiveTab} />
+                )}
+              </div>
+            </>
+          )}
+        </OrderPanelCard>
+      )}
     </>
   )
 }

@@ -20,11 +20,9 @@ import { DegenModeSetting } from 'pages/Swap/components/SwapSettingsPanel/DegenM
 import { GasDropFeatureSetting } from 'pages/Swap/components/SwapSettingsPanel/GasDropFeatureSetting'
 import { LiquiditySourcesSetting } from 'pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting'
 import {
-  useShowOpenLimitOrders,
   useShowPricingChart,
   useShowTradeRoutes,
   useSuccessSoundEnabled,
-  useToggleOpenLimitOrders,
   useTogglePricingChart,
   useToggleSuccessSound,
   useToggleTradeRoutes,
@@ -61,6 +59,7 @@ type SwapSettingsPanelProps = {
   onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
+  isLimitPage?: boolean
   /**
    * Stop market order shows Swap's degen mode — it lifts the stop market order slippage cap as well — and the pricing
    * chart it shares with Swap; the rest of Swap's trade settings do not apply to it.
@@ -78,6 +77,7 @@ type SwapSettingsPanelProps = {
 const SwapSettingsPanel = ({
   isSwapPage,
   isCrossChainPage,
+  isLimitPage,
   isStopMarketPage,
   highlightDegenMode,
   onBack,
@@ -165,16 +165,20 @@ const SwapSettingsPanel = ({
           </>
         )}
 
-        {isStopMarketPage && (
+        {(isLimitPage || isStopMarketPage) && (
           <>
-            <SettingsSection title={<Trans>Advanced Settings</Trans>}>
-              <DegenModeSetting
-                showConfirmation={showConfirmation}
-                setShowConfirmation={setShowConfirmation}
-                highlight={highlightDegenMode}
-              />
-            </SettingsSection>
-            <SettingsDivider />
+            {isStopMarketPage && (
+              <>
+                <SettingsSection title={<Trans>Advanced Settings</Trans>}>
+                  <DegenModeSetting
+                    showConfirmation={showConfirmation}
+                    setShowConfirmation={setShowConfirmation}
+                    highlight={highlightDegenMode}
+                  />
+                </SettingsSection>
+                <SettingsDivider />
+              </>
+            )}
             <SettingsSection title={<Trans>Display Settings</Trans>}>
               <DisplaySettingRow
                 label={<Trans>Pricing Chart</Trans>}
