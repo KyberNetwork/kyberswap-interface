@@ -17,7 +17,6 @@ import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { useShowPricingChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { cn } from 'utils/cn'
 import { getTradeProductPath } from 'utils/routes'
 
 /** Match the 44px tabs plus the content's separate 1px border. */
@@ -110,19 +109,20 @@ const OrderListSkeleton = () => {
                     <Skeleton
                       height={36}
                       width="100%"
-                      borderRadius={16}
-                      containerClassName={cn(isLimitList ? 'w-[130px]' : 'w-[150px]', 'max-sm:w-1/2')}
+                      borderRadius={30}
+                      containerClassName="w-[170px] max-sm:w-[calc(50%_-_4px)]"
                     />
                   )}
-                  <Skeleton height={36} width="100%" borderRadius={16} containerClassName="w-[130px] max-sm:w-1/2" />
+                  {/* Dropdown width: 130px label + 24px arrow + 16px horizontal padding. */}
+                  <Skeleton
+                    height={36}
+                    width="100%"
+                    borderRadius={30}
+                    containerClassName="w-[170px] max-sm:w-[calc(50%_-_4px)]"
+                  />
                 </div>
-                <div
-                  className={cn(
-                    'flex-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none',
-                    isLimitList ? 'max-w-[280px]' : 'max-w-[360px]',
-                  )}
-                >
-                  <Skeleton height={36} borderRadius={16} containerClassName="block" />
+                <div className="max-w-[280px] flex-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none">
+                  <Skeleton height={36} borderRadius={40} containerClassName="block" />
                 </div>
               </div>
               {isLimitList ? (

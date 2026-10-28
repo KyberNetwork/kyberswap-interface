@@ -31,6 +31,7 @@ import {
   getOrdersApiSearchKeyword,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
+import { OrderListFilters } from 'components/LimitOrder/OrderList/OrderListComponents'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import {
   LIMIT_ORDERS_PAGE_SIZE,
@@ -41,7 +42,6 @@ import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { isActiveStatus } from 'components/LimitOrder/utils'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
-import SearchInput from 'components/SearchInput'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
@@ -342,39 +342,37 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
         </div>
       )}
 
-      <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
-        <div className="flex min-w-0 items-center gap-2 max-sm:w-full">
-          {/* The Active tab always lists every live order — unfilled and partially filled alike — so only
+      <OrderListFilters
+        onSearchChange={onChangeKeyword}
+        searchDataTestId="limit-order-search-input"
+        searchPlaceholder={t`Search by token symbol or token address`}
+        searchValue={keyword}
+      >
+        {/* The Active tab always lists every live order — unfilled and partially filled alike — so only
               History offers a status to narrow by. */}
-          {!isTabActive && (
-            <DropdownMenu
-              options={closedOrderTypeOptions}
-              value={orderType}
-              width={130}
-              mobileHalfWidth
-              // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
-              // last options off whenever the table is short. A portalled menu escapes that box.
-              usePortal
-              onChange={onSelectOrderType}
-            />
-          )}
+        {!isTabActive && (
           <DropdownMenu
-            options={chainOptions}
-            value={selectedChainValue}
+            options={closedOrderTypeOptions}
+            value={orderType}
             width={130}
             mobileHalfWidth
+            data-testid="limit-order-status-filter"
+            // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
+            // last options off whenever the table is short. A portalled menu escapes that box.
             usePortal
-            onChange={onSelectChain}
+            onChange={onSelectOrderType}
           />
-        </div>
-        <SearchInput
-          className="h-9 min-h-9 max-w-[280px] flex-1 rounded-[40px] py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
-          placeholder={t`Search by token symbol or token address`}
-          maxLength={255}
-          value={keyword}
-          onChange={onChangeKeyword}
+        )}
+        <DropdownMenu
+          options={chainOptions}
+          value={selectedChainValue}
+          width={130}
+          mobileHalfWidth
+          data-testid="limit-order-chain-filter"
+          usePortal
+          onChange={onSelectChain}
         />
-      </div>
+      </OrderListFilters>
 
       <TableHeader isActiveTab={isTabActive} />
       <div className="relative min-h-20">

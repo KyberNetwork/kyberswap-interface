@@ -3,18 +3,10 @@ import { Trans, t } from '@lingui/macro'
 import { cva } from 'class-variance-authority'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
-import {
-  AlertTriangle,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink as LinkIcon,
-  RefreshCw,
-} from 'react-feather'
+import { ChevronDown, ExternalLink as LinkIcon, RefreshCw } from 'react-feather'
 
-import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import CurrencyLogo from 'components/CurrencyLogo'
-import Skeleton from 'components/Skeleton'
+import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
 import { HStack, Stack } from 'components/Stack'
 import { StopMarketRowLayout, StopMarketRowWrapper } from 'components/StopMarket/MyOrders/TableHeader'
 import { StopMarketDisplayStatus } from 'components/StopMarket/types'
@@ -71,161 +63,40 @@ export const StopMarketTabSelector = ({
   </HStack>
 )
 
-const pagerArrowClass = (enabled: boolean) =>
-  cn(
-    'flex size-7 items-center justify-center rounded-full border-0 transition',
-    enabled
-      ? 'cursor-pointer bg-primary-10 text-primary hover:brightness-110'
-      : 'cursor-not-allowed bg-white-04 text-border',
-  )
-
-/** Previous, the current page and next — the compact pager the order table ends with. */
-export const StopMarketPager = ({
-  page,
-  pageCount,
-  onPageChange,
-}: {
-  page: number
-  pageCount: number
-  onPageChange: (page: number) => void
-}) => (
-  <HStack className="items-center justify-end gap-2 bg-raisedBlack px-4 py-2" data-testid="stop-market-pagination">
-    <button
-      type="button"
-      aria-label={t`Previous page`}
-      data-testid="stop-market-pagination-previous"
-      disabled={page <= 1}
-      className={pagerArrowClass(page > 1)}
-      onClick={() => onPageChange(page - 1)}
-    >
-      <ChevronLeft size={16} />
-    </button>
-    <span
-      className="flex h-7 min-w-7 items-center justify-center rounded-lg bg-buttonBlack px-2 text-sm font-medium text-subText"
-      data-testid="stop-market-pagination-page"
-    >
-      {page}
-    </span>
-    <button
-      type="button"
-      aria-label={t`Next page`}
-      data-testid="stop-market-pagination-next"
-      disabled={page >= pageCount}
-      className={pagerArrowClass(page < pageCount)}
-      onClick={() => onPageChange(page + 1)}
-    >
-      <ChevronRight size={16} />
-    </button>
-  </HStack>
-)
-
-export const StopMarketEmptyOrders = ({
-  isActiveTab,
-  keyword,
-  isError,
-  isWalletConnected,
-}: {
-  isActiveTab: boolean
-  keyword: string
-  /** A failed request must not read as "you have no orders" — that hides outages behind a normal state. */
-  isError?: boolean
-  /** Without a wallet there is nothing to list, which is not the same as having no orders. */
-  isWalletConnected: boolean
-}) => (
-  <Stack
-    className={cn(
-      'min-h-[220px] animate-[fadeIn_0.2s_ease-out_both] items-center justify-center gap-2 text-sm font-medium motion-reduce:animate-none',
-      isError ? 'text-warning' : 'text-subText',
-    )}
-    data-testid={isError ? 'stop-market-orders-error' : 'stop-market-no-orders'}
-  >
-    {isError ? <AlertTriangle size={22} /> : <NoDataIcon />}
-    <span>
-      {!isWalletConnected ? (
-        <Trans>Connect your wallet to view your Stop Market orders.</Trans>
-      ) : isError ? (
-        <Trans>Could not load your Stop Market orders. Retrying…</Trans>
-      ) : keyword ? (
-        <Trans>No orders found.</Trans>
-      ) : isActiveTab ? (
-        <Trans>No active Stop Market orders. Place your first order above.</Trans>
-      ) : (
-        <Trans>No order history yet.</Trans>
-      )}
-    </span>
-  </Stack>
-)
-
 /**
  * A bar standing in for one line of text, boxed at that line's height so swapping it for the text moves
  * nothing: `sm` is a text-sm line (20px), `xs` a text-xs one (16px).
  */
 export const SkeletonLine = ({ size = 'sm', width }: { size?: 'sm' | 'xs'; width: number }) => (
-  <span className={cn('flex max-w-full items-center', size === 'sm' ? 'h-5' : 'h-4')}>
-    <Skeleton height={size === 'sm' ? 12 : 10} width={width} borderRadius={6} />
-  </span>
+  <div className={cn('flex max-w-full items-center', size === 'sm' ? 'h-5' : 'h-4')}>
+    <TableCellSkeleton height={size === 'sm' ? 12 : 10} width={width} />
+  </div>
 )
 
-const SKELETON_ROW_COUNT = 5
+const SKELETON_ROW_COUNT = 3
 
 /**
- * The table's first load: rows built on the same grid and padding as `StopMarketRow`, with every cell's
- * lines in place, so the real rows replace them without the table moving.
+ * Keep simple cell placeholders. Desktop PairCell sets the row height: two 20px lines,
+ * a 4px gap and 16px vertical padding = 60px. Mobile uses one pair line and the 56px row minimum.
  */
 export const StopMarketRowsSkeleton = ({ isActiveTab }: { isActiveTab: boolean }) => (
-  <div data-testid="stop-market-orders-skeleton">
+  <div className="animate-pulse motion-reduce:animate-none" data-testid="stop-market-orders-skeleton">
     {Array.from({ length: SKELETON_ROW_COUNT }, (_, index) => (
       <StopMarketRowWrapper
         key={index}
         layout={isActiveTab ? StopMarketRowLayout.ACTIVE : StopMarketRowLayout.HISTORY}
-        className="min-h-14 px-4 py-2"
+        className="min-h-[60px] px-4 py-2 max-sm:min-h-14"
       >
-        <span className="flex items-center justify-center">
-          <Skeleton circle height={20} width={20} />
-        </span>
-        <HStack className="min-w-0 items-center gap-1.5">
-          <Skeleton circle height={16} width={16} />
-          <SkeletonLine width={40} />
-          <Skeleton circle height={16} width={16} />
-          <SkeletonLine width={40} />
-        </HStack>
-        <Stack className="min-w-0 gap-0.5 max-sm:col-start-3 max-sm:items-end">
-          <SkeletonLine width={72} />
-          <SkeletonLine size="xs" width={44} />
-        </Stack>
-        <div className="max-sm:hidden">
-          <SkeletonLine width={80} />
+        <TableCellSkeleton className="justify-self-center" circle height={20} width={20} />
+        <TableCellSkeleton height={14} width="80%" />
+        <TableCellSkeleton className="max-sm:col-start-3 max-sm:justify-self-end" height={14} width="80%" />
+        <TableCellSkeleton className="max-sm:hidden" height={14} width="80%" />
+        <TableCellSkeleton className="max-sm:hidden" height={14} width="80%" />
+        <TableCellSkeleton className="max-sm:hidden" height={14} width="80%" />
+        <TableCellSkeleton className="max-sm:hidden" height={14} width="80%" />
+        <div className="flex size-7 items-center justify-center justify-self-end">
+          <TableCellSkeleton height={20} width={20} />
         </div>
-        {isActiveTab ? (
-          <>
-            <Stack className="min-w-0 gap-0.5 max-sm:hidden">
-              <SkeletonLine size="xs" width={64} />
-              <SkeletonLine width={56} />
-            </Stack>
-            <div className="max-sm:hidden">
-              <SkeletonLine width={40} />
-            </div>
-            <Stack className="min-w-0 gap-0.5 max-sm:hidden">
-              <SkeletonLine width={72} />
-              <SkeletonLine size="xs" width={36} />
-            </Stack>
-          </>
-        ) : (
-          <>
-            <div className="max-sm:hidden">
-              <SkeletonLine width={80} />
-            </div>
-            <div className="max-sm:hidden">
-              <SkeletonLine width={80} />
-            </div>
-            <div className="max-sm:hidden">
-              <SkeletonLine width={64} />
-            </div>
-          </>
-        )}
-        <span className="flex justify-end">
-          <Skeleton circle height={20} width={20} />
-        </span>
       </StopMarketRowWrapper>
     ))}
   </div>
@@ -261,7 +132,7 @@ export const PairCell = ({
     as="button"
     type="button"
     onClick={onClick}
-    className="min-w-0 cursor-pointer gap-0.5 border-0 bg-transparent p-0 text-left text-sm font-medium text-text hover:brightness-75 max-sm:flex-row max-sm:items-center max-sm:gap-1.5"
+    className="min-w-0 cursor-pointer gap-1 border-0 bg-transparent p-0 text-left text-sm font-medium text-text hover:brightness-75 max-sm:flex-row max-sm:items-center max-sm:gap-1.5"
     data-testid="stop-market-order-pair"
   >
     <HStack as="span" className="min-w-0 items-center gap-1.5 max-sm:contents">
@@ -293,12 +164,14 @@ export const AmountCell = ({
 }) => (
   // `max-w-full` lets the lines truncate when a caller aligns them with `items-end`: a flex item that is
   // not stretched sizes to its content and would otherwise spill into the neighbouring column.
-  <Stack className={cn('min-w-0 gap-0.5', className)}>
+  <Stack className={cn('min-w-0 gap-1', className)}>
     <span className="max-w-full truncate text-sm font-medium text-text" data-testid={dataTestId}>
       {value}
     </span>
     {isSubLoading && subValue === undefined ? (
-      <SkeletonLine size="xs" width={44} />
+      <div className="animate-pulse motion-reduce:animate-none">
+        <SkeletonLine size="xs" width={44} />
+      </div>
     ) : (
       subValue !== undefined && (
         <span
@@ -359,7 +232,7 @@ export const DistanceCell = ({ percent }: { percent?: number }) => {
   )
 }
 
-const statusStyles = cva('block text-xs font-medium', {
+const statusStyles = cva('block text-sm font-medium', {
   variants: {
     status: {
       [StopMarketDisplayStatus.ACTIVE]: 'text-primary',
@@ -425,7 +298,7 @@ export const StatusCell = ({
       )}
     >
       {label}
-      <ChevronDown size={14} className={cn('transition-transform', expanded && 'rotate-180')} />
+      <ChevronDown size={14} className={cn('min-w-[14px] transition-transform', expanded && 'rotate-180')} />
     </button>
   )
 }
@@ -490,7 +363,7 @@ export const StopMarketExecutionDetail = ({
 
   return (
     <Stack
-      className="gap-3 border-t border-white-04 px-4 py-2 text-xs font-medium text-subText"
+      className="gap-3 border-t border-white-04 px-4 py-3 text-xs font-medium text-subText"
       data-testid="stop-market-order-execution-detail"
     >
       <div className="grid items-center gap-x-3 gap-y-2 [grid-template-columns:44px_minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,0.8fr)_28px] max-sm:flex max-sm:flex-wrap">
@@ -576,7 +449,7 @@ export const ExpiryCell = ({ deadline }: { deadline: number }) => {
   const { label, time } = formatExpiry(deadline)
 
   return (
-    <Stack className="min-w-0 gap-0.5 font-medium" data-testid="stop-market-order-expiry">
+    <Stack className="min-w-0 gap-1 font-medium" data-testid="stop-market-order-expiry">
       <span className="truncate text-sm text-subText">{label}</span>
       {time && <span className="truncate text-xs text-gray">{time}</span>}
     </Stack>

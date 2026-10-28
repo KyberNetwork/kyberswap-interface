@@ -6,19 +6,15 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useGetStopMarketsQuery } from 'services/stopMarket'
 
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
-import { CancelAllButton } from 'components/LimitOrder/MyOrders/components'
+import { CancelAllButton, EmptyOrders } from 'components/LimitOrder/MyOrders/components'
+import { OrderListFilters } from 'components/LimitOrder/OrderList/OrderListComponents'
+import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
-import SearchInput from 'components/SearchInput'
 import CancelStopMarketModal from 'components/StopMarket/CancelOrder/CancelStopMarketModal'
 import StopMarketEditModal from 'components/StopMarket/EditOrder/StopMarketEditModal'
 import StopMarketRow from 'components/StopMarket/MyOrders/StopMarketRow'
 import StopMarketTableHeader from 'components/StopMarket/MyOrders/TableHeader'
-import {
-  StopMarketEmptyOrders,
-  StopMarketPager,
-  StopMarketRowsSkeleton,
-  StopMarketTabSelector,
-} from 'components/StopMarket/MyOrders/components'
+import { StopMarketRowsSkeleton, StopMarketTabSelector } from 'components/StopMarket/MyOrders/components'
 import { STOP_MARKET_DEFAULT_EXPIRE, getStopMarketExpiryPresets } from 'components/StopMarket/constants'
 import { useConfirmedFundingShortfalls } from 'components/StopMarket/hooks/useConfirmedFundingShortfalls'
 import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
@@ -53,9 +49,6 @@ const ALL_CLOSED_VALUE = 'all_closed'
 const HISTORY_STATUSES = [StopMarketStatus.DONE, StopMarketStatus.CANCELLED, StopMarketStatus.EXPIRED]
 const ALL_CHAINS_VALUE = 'all'
 const EMPTY_ORDERS: StopMarket[] = []
-/** Filters and search sit on the same raised surface as the table header. */
-const FILTER_TRIGGER_CLASS = 'h-9 rounded-2xl bg-raisedBlack text-text'
-
 const getClosedStatusOptions = (): MenuOption[] => [
   { label: t`All Closed Orders`, value: ALL_CLOSED_VALUE },
   { label: t`Executed Orders`, value: StopMarketStatus.DONE },
@@ -338,50 +331,43 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer, re
         </div>
       )}
 
-      <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
-        <div className="flex min-w-0 items-center gap-2 max-sm:w-full">
-          {/* Only History has statuses to choose between: an active order is `Open` to the service, and the
+      <OrderListFilters
+        onSearchChange={onChangeKeyword}
+        searchDataTestId="stop-market-search-input"
+        searchPlaceholder={t`Search by token symbol or token address`}
+        searchValue={keyword}
+      >
+        {/* Only History has statuses to choose between: an active order is `Open` to the service, and the
               Triggered state it can pass through lasts seconds. */}
-          {!isActiveTab && (
-            <DropdownMenu
-              options={getClosedStatusOptions()}
-              value={closedFilter}
-              width={150}
-              mobileHalfWidth
-              // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
-              // last option off whenever the table is short. A portalled menu escapes that box.
-              usePortal
-              triggerClassName={FILTER_TRIGGER_CLASS}
-              data-testid="stop-market-status-filter"
-              onChange={value => {
-                setClosedFilter(String(value))
-                setCurPage(1)
-              }}
-            />
-          )}
+        {!isActiveTab && (
           <DropdownMenu
-            options={chainOptions}
-            value={selectedChainValue}
+            options={getClosedStatusOptions()}
+            value={closedFilter}
             width={130}
             mobileHalfWidth
+            // The panel is clipped by the order list's rounded `overflow-hidden` shell, which cuts the
+            // last option off whenever the table is short. A portalled menu escapes that box.
             usePortal
-            triggerClassName={FILTER_TRIGGER_CLASS}
-            data-testid="stop-market-chain-filter"
+            data-testid="stop-market-status-filter"
             onChange={value => {
-              setSelectedChainValue(String(value))
+              setClosedFilter(String(value))
               setCurPage(1)
             }}
           />
-        </div>
-        <SearchInput
-          className="h-9 min-h-9 max-w-[360px] flex-1 rounded-2xl bg-raisedBlack py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
-          dataTestId="stop-market-search-input"
-          placeholder={t`Search by token symbol or token address`}
-          maxLength={255}
-          value={keyword}
-          onChange={onChangeKeyword}
+        )}
+        <DropdownMenu
+          options={chainOptions}
+          value={selectedChainValue}
+          width={130}
+          mobileHalfWidth
+          usePortal
+          data-testid="stop-market-chain-filter"
+          onChange={value => {
+            setSelectedChainValue(String(value))
+            setCurPage(1)
+          }}
         />
-      </div>
+      </OrderListFilters>
 
       <StopMarketTableHeader isActiveTab={isActiveTab} />
       <div className="relative min-h-20" data-testid="stop-market-order-list">
@@ -406,16 +392,28 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer, re
           />
         ))}
         {showNoOrders && (
-          <StopMarketEmptyOrders
-            isActiveTab={isActiveTab}
-            keyword={keyword}
-            isError={isError}
-            isWalletConnected={!!account}
-          />
+          <div
+            className="animate-[fadeIn_0.2s_ease-out_both] motion-reduce:animate-none"
+            data-testid={isError ? 'stop-market-orders-error' : 'stop-market-no-orders'}
+          >
+            <EmptyOrders isActiveTab={isActiveTab} keyword={keyword} />
+          </div>
         )}
       </div>
 
-      {totalItems > PAGE_SIZE && <StopMarketPager page={curPage} pageCount={pageCount} onPageChange={setCurPage} />}
+      {totalItems > PAGE_SIZE && (
+        <div className="flex items-center justify-center bg-background px-4 py-2">
+          <Pagination
+            haveBg={false}
+            onPageChange={setCurPage}
+            totalCount={totalItems}
+            currentPage={curPage}
+            pageSize={PAGE_SIZE}
+            style={{ padding: '0' }}
+            data-testid="stop-market-pagination"
+          />
+        </div>
+      )}
 
       {/* Keyed by order, so editing another one starts from that order's values. */}
       {editingOrder && (

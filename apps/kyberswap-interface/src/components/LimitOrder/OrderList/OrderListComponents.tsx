@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { HTMLAttributes, ReactNode, Ref } from 'react'
 
 import { OrderKind } from 'components/LimitOrder/types'
+import SearchInput from 'components/SearchInput'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -26,6 +27,35 @@ export const OrderListToolbar = ({ children }: { children: ReactNode }) => (
   <HStack className="flex-wrap items-center justify-between gap-3 border-b border-darkBorder px-4 py-3">
     {children}
   </HStack>
+)
+
+type OrderListFiltersProps = {
+  children: ReactNode
+  searchValue: string
+  searchPlaceholder: string
+  searchDataTestId?: string
+  onSearchChange: (value: string) => void
+}
+
+/** Preserve Limit's transparent filter bar; dropdowns and search own their backgrounds. */
+export const OrderListFilters = ({
+  children,
+  searchValue,
+  searchPlaceholder,
+  searchDataTestId,
+  onSearchChange,
+}: OrderListFiltersProps) => (
+  <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
+    <div className="flex min-w-0 items-center gap-2 max-sm:w-full">{children}</div>
+    <SearchInput
+      className="h-9 min-h-9 max-w-[280px] flex-1 rounded-[40px] py-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none"
+      dataTestId={searchDataTestId}
+      maxLength={255}
+      onChange={onSearchChange}
+      placeholder={searchPlaceholder}
+      value={searchValue}
+    />
+  </div>
 )
 
 export type PanelTab<T extends string> = { id: T; label: ReactNode }

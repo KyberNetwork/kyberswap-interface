@@ -215,7 +215,6 @@ const StopMarketRow = ({
         'animate-[fadeInUp_0.3s_ease-out_both] transition-colors [transition-duration:200ms] motion-reduce:animate-none',
         // A warned or retrying row is tinted whole, so the note under it reads as part of the order.
         (warnings.length > 0 || !!retryMessage) && 'bg-warning/5',
-        expanded && canExpand && 'bg-raisedBlack',
       )}
       style={{ animationDelay: `${Math.min(rowIndex * 50, 300)}ms` }}
     >
@@ -245,7 +244,7 @@ const StopMarketRow = ({
           }
         />
 
-        <Stack className="min-w-0 gap-0.5 font-medium max-sm:hidden">
+        <Stack className="min-w-0 gap-1 font-medium max-sm:hidden">
           <span className="truncate text-sm text-blue3" data-testid="stop-market-order-trigger-price">
             {isPriceInverted
               ? formatPairPrice(Number(triggerPrice) ? 1 / Number(triggerPrice) : undefined, sellCurrency.symbol)
@@ -259,7 +258,7 @@ const StopMarketRow = ({
         {isActiveTab ? (
           <>
             {/* The pair names the unit, so the price itself needs none. */}
-            <Stack className="min-w-0 gap-0.5 font-medium max-sm:hidden">
+            <Stack className="min-w-0 gap-1 font-medium max-sm:hidden">
               <HStack className="min-w-0 items-center gap-1 text-xs text-subText">
                 <span className="truncate">
                   {isPriceInverted
@@ -403,7 +402,7 @@ const StopMarketRow = ({
         <div
           inert={!expanded}
           className={cn(
-            'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+            'grid bg-white/[0.02] transition-[grid-template-rows,opacity] duration-200 ease-in-out max-sm:hidden',
             expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
           )}
         >

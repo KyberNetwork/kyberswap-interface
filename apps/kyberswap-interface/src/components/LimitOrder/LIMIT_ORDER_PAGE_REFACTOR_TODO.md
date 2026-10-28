@@ -244,6 +244,9 @@ Priority: P1, UI stability.
 Sources: [`OrderListComponents`](OrderList/OrderListComponents.tsx), [`OrderListSkeleton`](OrderList/OrderListSkeleton.tsx), [`SegmentedControl`](../SegmentedControl/index.tsx), [`OrderBookSkeleton`](OrderBook/OrderBookSkeleton.tsx), [`RowsSkeleton`](MyOrders/RowsSkeleton.tsx), Stop Market list skeletons.
 
 - [x] Preserve the order-kind label's `w-36` contract so count/warning badges do not shift the segment horizontally. Share the toolbar's padding/gap/wrapping between loaded and fallback panels without changing the global primitive.
+- [x] Share search/filter geometry and control placement using the Limit Order base surface (`bg-background`/`text-subText`) while retaining distinct status options, chain lists and debounce/query behavior.
+- [x] Align the table-header surface; keep product-specific column templates because Limit and Stop render different fields.
+- [x] Use `TableCellSkeleton` for Limit and Stop row placeholders, with one body-level pulse animation instead of per-cell shimmer instances; keep the standalone USD-loading placeholder animated as well.
 - [ ] Keep the toolbar mounted while the selected order kind changes; inactive list content may switch or be skipped without moving the controls.
 - [ ] Make loaded and fallback cards share tab height, toolbar height, padding, gaps, badge space and responsive wrapping.
 - [ ] Compare Limit and Stop forms, review/cancel modals and list states side by side for equivalent UI. Fix shared geometry in the owning component and update both consumers and their skeletons together; retain space for product-specific content.
@@ -291,8 +294,9 @@ Before marking a batch complete, confirm:
 
 - [x] Preparation 0 (documentation): record field-level owners and retention/reset decisions for main Limit, Stop and embedded Partner Swap above. No state-placement or business-rule change.
 - [x] Preparation 1 (cleanup): remove the two identified debug logs while retaining error fallbacks.
-- [x] Preparation 2 (pure contracts): add Limit rate/output/inversion and price-input/comparison coverage, plus list status/search/query preservation coverage. Reuse existing history-pager, service-pagination and Stop utility tests; these tests do not verify form remounts or async sessions.
+- [ ] Preparation 2 (pure contracts): the previously added Limit `utils.test.ts` and `MyOrders/utils.test.ts` are no longer present in the current checkout. Do not count their 13 historical cases as current coverage. Existing history-pager, service-pagination and Stop utility tests remain; these do not verify form remounts or async sessions.
 - [x] Preparation 3 (local presentation): preserve the fixed order-kind label width, share the loaded/fallback toolbar, and align fallback filters/table headers with the selected Limit/Stop layout. Keep the existing Cancel All portal and all query/operation owners. Visual verification remains separate from static checks.
+- [x] Preparation 4 (list presentation): share Limit/Stop filter geometry and trigger styling while preserving product-specific options/query semantics; align table-header surface styling and use `TableCellSkeleton` for both row skeletons.
 - [ ] Batch 1 (P0, draft correctness): implement the recorded lifetime decisions, retain Limit business draft across Settings/Info, and make Set Price a pair/chain-scoped one-shot intent. Add focused regression tests before any broad extraction.
 - [ ] Batch 2 (P0, operation correctness): close stale continuations in `useProcessingSteps`, then add operation/draft identity guards to Limit create and the affected Stop/Take/Cancel/Edit flows. Keep submitted-work persistence intact.
 - [ ] Batch 3 (P1, list ownership): consolidate URL/list ownership, remove toolbar DOM-container plumbing, and move Recreate coordination. Preserve product-specific pagination/actions plus badge/warning/marker query consumers.
@@ -305,7 +309,7 @@ Do not combine phases with unrelated Swap, Cross-Chain, backend or contract work
 
 The planning review was source-based. Browser, live-service and wallet E2E verification are not included in this TODO update and remain pending for implementation work.
 
-Preparation 0–3 validation (2026-10-29): targeted Vitest passed 5 files / 169 tests (including 13 new pure-contract cases); targeted ESLint, TypeScript and diff checks passed. Browser/visual and wallet E2E checks have not run. The checked preparation items record implementation, not proof of responsive rendering or async correctness.
+Preparation 0–4 validation (2026-10-29): targeted Vitest passed 3 files / 156 tests for the list-related verification run; the earlier preparation run passed 5 files / 169 tests including 13 new pure-contract cases. Targeted ESLint, TypeScript and diff checks passed. Browser/visual and wallet E2E checks have not run. The checked preparation items record implementation, not proof of responsive rendering or async correctness.
 
 For each implementation batch, verify separately:
 
@@ -321,3 +325,7 @@ For each implementation batch, verify separately:
 - [ ] Source trace for main Limit, Stop Market and Partner Swap entry points, including inactive-query skips and deep links.
 - [ ] Runtime scenarios: Settings/Info round trip, pair/chain/account changes, late completion after close, modal reopen, rejected network switch, chart/table cancellation freshness and loading geometry.
 - [ ] Browser and wallet E2E only when explicitly authorized for the implementation batch; report those results separately from static checks.
+
+Current diff review (2026-10-29): preserve the original transparent Limit filter-bar wrapper, search classes and dropdown defaults; use 3 skeleton rows for both Limit and Stop as requested. Filter fallback widths include the dropdown arrow and padding. Revert the unrelated Limit row-wrapper props expansion. `TableCellSkeleton` renders a div, so its Stop wrappers use divs; USD-only loading retains its own pulse. Browser/visual verification remains pending.
+
+Final source-review validation (2026-10-29): targeted ESLint for all seven changed TSX files, TypeScript and diff checks passed. Existing tests passed 6 files / 168 cases: Limit history pager/service, Stop utilities/service, expiry formatting and sell-amount rendering. The diff preserves list query arguments, debounce, filter callbacks, pagination resets and operation handlers. These checks do not verify browser colors, responsive geometry or wallet E2E; the missing preparation-2 tests remain unchecked above.
