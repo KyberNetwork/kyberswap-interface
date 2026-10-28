@@ -1,9 +1,10 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronRight, ChevronUp, TrendingUp } from 'react-feather'
+import { ChevronRight, ChevronUp, List, TrendingUp } from 'react-feather'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
+import History from 'components/Icons/History'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
 import { LIST_ORDER_TABS } from 'components/LimitOrder/MyOrders/utils'
@@ -12,7 +13,7 @@ import PanelTabs, { OrderKindTabs, OrderPanelCard, PanelTab } from 'components/L
 import OrdersPriceChart from 'components/LimitOrder/OrderList/OrdersPriceChart'
 import { useOpenOrderCounts } from 'components/LimitOrder/hooks/useOpenOrderCounts'
 import { LimitOrderStatus, LimitOrderTab, OrderKind, ShowOrdersState } from 'components/LimitOrder/types'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import StopMarkets from 'components/StopMarket/MyOrders'
 import { useStopMarketOrderWarning } from 'components/StopMarket/hooks/useStopMarketOrderWarning'
 import { APP_PATHS } from 'constants/index'
@@ -84,6 +85,7 @@ const OrderList = () => {
   const [localMarketTab, setLocalMarketTab] = useState<MarketTab>(LimitOrderTab.PRICE)
   const [shouldScrollToOrders, setShouldScrollToOrders] = useState(false)
   const ordersCardRef = useRef<HTMLDivElement>(null)
+  const [toolbarActionsContainer, setToolbarActionsContainer] = useState<HTMLDivElement | null>(null)
 
   const counts = useOpenOrderCounts(chainId)
   const { data: insufficientFundOrders = 0 } = useGetNumberOfInsufficientFundOrdersQuery(
@@ -258,11 +260,22 @@ const OrderList = () => {
       >
         <PanelTabs<OrdersTab>
           tabs={[
-            { id: LimitOrderStatus.ACTIVE, label: <Trans>Active Order</Trans> },
+            {
+              id: LimitOrderStatus.ACTIVE,
+              label: (
+                <>
+                  <List size={20} className="shrink-0" aria-hidden="true" />
+                  <Trans>Active Order</Trans>
+                </>
+              ),
+            },
             {
               id: LimitOrderStatus.CLOSED,
               label: (
                 <>
+                  <span className="flex shrink-0" aria-hidden="true">
+                    <History size={20} />
+                  </span>
                   <span className="max-sm:hidden">
                     <Trans>Order History</Trans>
                   </span>
@@ -290,35 +303,25 @@ const OrderList = () => {
           </Stack>
         )}
         <Stack className={cn('border-t border-darkBorder', !hasChart && isOrderBook && 'hidden')}>
+          <HStack className="flex-wrap items-center gap-3 border-b border-darkBorder px-4 py-3">
+            <OrderKindTabs
+              showStopMarkets={showStopMarkets}
+              kind={kind}
+              counts={isActiveTab ? counts : undefined}
+              insufficientFundOrders={insufficientFundOrders}
+              stopMarketWarning={stopMarketWarning}
+              onChange={setChosenKind}
+            />
+            <div ref={setToolbarActionsContainer} className="ml-auto shrink-0 empty:hidden" />
+          </HStack>
           {kind === OrderKind.STOP ? (
             <StopMarkets
               isActiveTab={isActiveTab}
               resetFiltersKey={stopMarketResetKey}
-              toolbar={
-                <OrderKindTabs
-                  showStopMarkets={showStopMarkets}
-                  kind={kind}
-                  counts={isActiveTab ? counts : undefined}
-                  insufficientFundOrders={insufficientFundOrders}
-                  stopMarketWarning={stopMarketWarning}
-                  onChange={setChosenKind}
-                />
-              }
+              toolbarActionsContainer={toolbarActionsContainer}
             />
           ) : (
-            <MyOrders
-              isActiveTab={isActiveTab}
-              toolbar={
-                <OrderKindTabs
-                  showStopMarkets={showStopMarkets}
-                  kind={kind}
-                  counts={isActiveTab ? counts : undefined}
-                  insufficientFundOrders={insufficientFundOrders}
-                  stopMarketWarning={stopMarketWarning}
-                  onChange={setChosenKind}
-                />
-              }
-            />
+            <MyOrders isActiveTab={isActiveTab} toolbarActionsContainer={toolbarActionsContainer} />
           )}
         </Stack>
       </OrderPanelCard>

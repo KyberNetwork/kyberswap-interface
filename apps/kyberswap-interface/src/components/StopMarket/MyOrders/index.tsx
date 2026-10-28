@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useGetStopMarketsQuery } from 'services/stopMarket'
 
@@ -64,16 +65,15 @@ const getClosedStatusOptions = (): MenuOption[] => [
 
 type Props = {
   /**
-   * Set when the panel hosting the list owns the Active / History choice: the list follows it and shows
-   * `toolbar` where its own tabs would be.
+   * Set when the hosting panel owns the Active / History choice and the persistent toolbar.
    */
   isActiveTab?: boolean
-  toolbar?: ReactNode
+  toolbarActionsContainer?: HTMLElement | null
   /** Changes when an external link explicitly asks the shared order panel to show Stop Market orders. */
   resetFiltersKey?: string
 }
 
-const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar, resetFiltersKey }: Props) => {
+const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer, resetFiltersKey }: Props) => {
   const { account, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const navigate = useNavigate()
@@ -289,28 +289,27 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbar, resetFiltersKey }:
     else changeNetwork(order.chainId, () => setEditingOrder(order))
   }
 
+  const cancelAllButton = showCancelAll ? (
+    <CancelAllButton
+      dataTestId="stop-market-cancel-all-button"
+      disabled={cancellableOrders.length === 0}
+      onClick={() => {
+        setIsCancelAll(true)
+        setCancelTargets(cancellableOrders)
+      }}
+    />
+  ) : null
+
   return (
     <div className="flex w-full flex-col" data-testid="stop-market-orders">
-      <div className="flex min-w-0 items-center border-b border-white-08">
-        {isHosted ? (
-          <div className="flex min-w-0 flex-1 items-center px-4 py-3">{toolbar}</div>
-        ) : (
+      {isHosted ? (
+        toolbarActionsContainer && createPortal(cancelAllButton, toolbarActionsContainer)
+      ) : (
+        <div className="flex min-w-0 items-center border-b border-darkBorder">
           <StopMarketTabSelector isActiveTab={isActiveTab} onChange={setOwnActiveTab} />
-        )}
-        {showCancelAll && (
-          <div className="flex shrink-0 items-center px-4">
-            {/* The confirmation modal covers it while a batch runs, so it has no busy state of its own. */}
-            <CancelAllButton
-              dataTestId="stop-market-cancel-all-button"
-              disabled={cancellableOrders.length === 0}
-              onClick={() => {
-                setIsCancelAll(true)
-                setCancelTargets(cancellableOrders)
-              }}
-            />
-          </div>
-        )}
-      </div>
+          {cancelAllButton && <div className="flex shrink-0 items-center px-4">{cancelAllButton}</div>}
+        </div>
+      )}
 
       <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
         <div className="flex min-w-0 items-center gap-2 max-sm:w-full">

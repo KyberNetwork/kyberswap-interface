@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 
@@ -60,14 +61,13 @@ const ALL_CHAINS_API_CHAIN_IDS: ChainId[] = []
 
 type MyOrdersProps = {
   /**
-   * Set when the panel hosting the list owns the Active / History choice: the list follows it and shows
-   * `toolbar` where its own tabs would be.
+   * Set when the hosting panel owns the Active / History choice and the persistent toolbar.
    */
   isActiveTab?: boolean
-  toolbar?: ReactNode
+  toolbarActionsContainer?: HTMLElement | null
 }
 
-const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
+const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyOrdersProps) => {
   const isHosted = hostedActiveTab !== undefined
   const { account } = useActiveWeb3React()
   const limitOrderTracking = useLimitOrderTracking()
@@ -322,25 +322,25 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbar }: MyOrdersProps) => {
     )
   }, [hostedActiveTab])
 
+  const cancelAllButton = showCancelAll ? (
+    <CancelAllButton
+      dataTestId="limit-order-cancel-all-button"
+      onClick={onCancelAllOrder}
+      disabled={disabledCancelAll}
+      isLoading={isLoadingCancelAllOrders}
+    />
+  ) : null
+
   return (
     <div className="flex w-full flex-col">
-      <div className="flex min-w-0 items-center border-b border-darkBorder">
-        {isHosted ? (
-          <div className="flex min-w-0 flex-1 items-center px-4 py-3">{toolbar}</div>
-        ) : (
+      {isHosted ? (
+        toolbarActionsContainer && createPortal(cancelAllButton, toolbarActionsContainer)
+      ) : (
+        <div className="flex min-w-0 items-center border-b border-darkBorder">
           <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} />
-        )}
-        {showCancelAll && (
-          <div className="flex shrink-0 items-center px-4">
-            <CancelAllButton
-              dataTestId="limit-order-cancel-all-button"
-              onClick={onCancelAllOrder}
-              disabled={disabledCancelAll}
-              isLoading={isLoadingCancelAllOrders}
-            />
-          </div>
-        )}
-      </div>
+          {cancelAllButton && <div className="flex shrink-0 items-center px-4">{cancelAllButton}</div>}
+        </div>
+      )}
 
       <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
         <div className="flex min-w-0 items-center gap-2 max-sm:w-full">

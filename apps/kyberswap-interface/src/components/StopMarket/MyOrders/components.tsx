@@ -27,7 +27,6 @@ import {
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { ExternalLink } from 'theme'
-import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -420,8 +419,6 @@ export const StatusCell = ({
   )
 }
 
-const DETAIL_CLASS = 'border-t border-white-04 px-4 pb-3 pt-2 text-xs font-medium text-subText'
-
 const formatFillAmount = (value: number | undefined) =>
   value === undefined ? '-' : formatDisplayNumber(value, { significantDigits: 6 })
 
@@ -442,22 +439,21 @@ const DetailField = ({
   dataTestId: string
   children: ReactNode
 }) => (
-  <Stack className="min-w-0 gap-0.5">
+  <HStack className="shrink-0 items-center gap-1 whitespace-nowrap">
     <span className="text-xs text-subText">{label}</span>
-    <span className="truncate text-sm font-medium text-text" data-testid={dataTestId}>
+    <span className="whitespace-nowrap text-sm font-medium text-text" data-testid={dataTestId}>
       {children}
     </span>
-  </Stack>
+  </HStack>
 )
 
 const formatDetailTime = (seconds: number | undefined) =>
   seconds ? dayjs.unix(seconds).format('DD MMM, YYYY HH:mm') : '-'
 
 /**
- * What an executed order actually did, opening under its row across the whole table width: the price it
- * filled at, the least it could have paid out, when it was placed and filled, and its transaction. An
- * order settled in several fills lists each fill with its own transaction under the totals — the strip
- * links only the latest.
+ * The metadata strip that opens under an executed history row. The row already shows the execution price
+ * and links to its latest transaction, so the expanded surface focuses on the order timeline, minimum
+ * receive amount and fee. An order settled in several fills lists each fill with its own transaction below.
  */
 export const StopMarketExecutionDetail = ({
   chainId,
@@ -482,33 +478,28 @@ export const StopMarketExecutionDetail = ({
   const latestFill = fills[fills.length - 1]
 
   return (
-    <Stack className={cn(DETAIL_CLASS, 'gap-3')} data-testid="stop-market-order-execution-detail">
-      <div className="grid grid-cols-5 gap-4 max-sm:grid-cols-2">
-        <DetailField label={<Trans>Execution price</Trans>} dataTestId="stop-market-order-detail-price">
-          {formatFillAmount(summary.price)} {receiveSymbol}
-        </DetailField>
-        <DetailField label={<Trans>Min amount out</Trans>} dataTestId="stop-market-order-detail-min-out">
-          {formatFillAmount(minAmountOut)} {receiveSymbol}
-        </DetailField>
-        <DetailField label={<Trans>Created at</Trans>} dataTestId="stop-market-order-detail-created">
-          {formatDetailTime(createdAt)}
-        </DetailField>
-        <DetailField label={<Trans>Executed at</Trans>} dataTestId="stop-market-order-detail-executed">
-          {formatDetailTime(latestFill?.createdAt)}
-        </DetailField>
-        <DetailField label={<Trans>Transaction</Trans>} dataTestId="stop-market-order-detail-tx">
-          {latestFill ? (
-            <ExternalLink
-              href={getEtherscanLink(chainId, latestFill.hash, 'transaction')}
-              className="inline-flex items-center gap-1 text-text hover:no-underline hover:brightness-125"
-            >
-              {shortenHash(latestFill.hash, 4)}
-              <LinkIcon size={12} />
-            </ExternalLink>
-          ) : (
-            '-'
-          )}
-        </DetailField>
+    <Stack
+      className="gap-3 border-t border-white-04 px-4 py-2 text-xs font-medium text-subText"
+      data-testid="stop-market-order-execution-detail"
+    >
+      <div className="grid items-center gap-x-3 gap-y-2 [grid-template-columns:44px_minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,0.8fr)_28px] max-sm:flex max-sm:flex-wrap">
+        <HStack className="col-span-4 min-w-0 items-center gap-2 max-sm:col-auto">
+          <DetailField label={<Trans>Created at</Trans>} dataTestId="stop-market-order-detail-created">
+            {formatDetailTime(createdAt)}
+          </DetailField>
+          <span className="bg-white-12 h-3 w-px shrink-0" aria-hidden="true" />
+          <DetailField label={<Trans>Executed at</Trans>} dataTestId="stop-market-order-detail-executed">
+            {formatDetailTime(latestFill?.createdAt)}
+          </DetailField>
+        </HStack>
+        <HStack className="col-span-3 col-start-5 min-w-0 flex-wrap items-center gap-x-6 gap-y-2 max-sm:col-auto">
+          <DetailField label={<Trans>Min amount out</Trans>} dataTestId="stop-market-order-detail-min-out">
+            {formatFillAmount(minAmountOut)} {receiveSymbol}
+          </DetailField>
+          <DetailField label={<Trans>Fee</Trans>} dataTestId="stop-market-order-detail-fee">
+            {summary.fee === undefined ? t`TBD` : `${formatFillAmount(summary.fee)} ${receiveSymbol}`}
+          </DetailField>
+        </HStack>
       </div>
 
       {fills.length > 1 && (

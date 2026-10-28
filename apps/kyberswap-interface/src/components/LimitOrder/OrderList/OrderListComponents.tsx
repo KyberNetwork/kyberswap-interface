@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { HTMLAttributes, ReactNode, Ref } from 'react'
 
 import { OrderKind } from 'components/LimitOrder/types'
+import SegmentedControl from 'components/SegmentedControl'
 import { HStack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
@@ -87,62 +88,53 @@ export const OrderKindTabs = ({
   ]
 
   return (
-    <HStack className="items-center gap-0 text-sm font-medium" role="tablist" data-testid="order-kind-tabs">
-      {tabs.map((tab, index) => {
-        const active = tab.id === kind
-        const isLast = index === tabs.length - 1
-
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            data-testid={`order-kind-tab-${tab.id}`}
-            onClick={() => onChange(tab.id)}
-            className={cn(
-              'flex cursor-pointer items-center gap-1.5 border-0 bg-transparent transition-colors',
-              index === 0 ? 'pr-3' : 'pl-3',
-              !isLast && 'border-r border-darkBorder',
-              active ? 'text-primary' : 'text-subText hover:text-text',
-            )}
-          >
-            {tab.label}
-            {!!tab.count && (
-              <span
-                className={cn(
-                  'flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium leading-none transition-colors',
-                  tab.id === OrderKind.STOP && stopMarketWarning
-                    ? 'bg-warning-30 text-warning'
-                    : active
-                    ? 'bg-primary-20 text-primary'
-                    : 'bg-white-08 text-subText',
-                )}
-                data-testid={`order-kind-count-${tab.id}`}
-              >
-                {tab.count}
-              </span>
-            )}
-            {/* A live warning, not a count: shown only while some limit orders cannot be funded. */}
-            {tab.id === OrderKind.LIMIT && insufficientFundOrders > 0 && (
-              <MouseoverTooltip
-                placement="top"
-                text={
-                  <Trans>You have {insufficientFundOrders} active orders that don&apos;t have sufficient funds.</Trans>
-                }
-              >
+    <div className="shrink-0" data-testid="order-kind-tabs">
+      <SegmentedControl
+        color="primary"
+        value={kind}
+        onChange={onChange}
+        options={tabs.map(tab => ({
+          value: tab.id,
+          dataTestId: `order-kind-tab-${tab.id}`,
+          label: (
+            <span className="flex w-36 items-center justify-center gap-1.5 whitespace-nowrap">
+              {tab.label}
+              {!!tab.count && (
                 <span
-                  className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning"
-                  data-testid="order-list-insufficient-funds-badge"
+                  className={cn(
+                    'flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium leading-none transition-colors',
+                    tab.id === OrderKind.STOP && stopMarketWarning
+                      ? 'bg-warning-30 text-warning'
+                      : 'bg-primary-30 text-primary',
+                  )}
+                  data-testid={`order-kind-count-${tab.id}`}
                 >
-                  {insufficientFundOrders}
+                  {tab.count}
                 </span>
-              </MouseoverTooltip>
-            )}
-          </button>
-        )
-      })}
-    </HStack>
+              )}
+              {/* A live warning, not a count: shown only while some limit orders cannot be funded. */}
+              {tab.id === OrderKind.LIMIT && insufficientFundOrders > 0 && (
+                <MouseoverTooltip
+                  placement="top"
+                  text={
+                    <Trans>
+                      You have {insufficientFundOrders} active orders that don&apos;t have sufficient funds.
+                    </Trans>
+                  }
+                >
+                  <span
+                    className="min-w-4 rounded-full bg-warning-30 px-1.5 text-xs font-medium text-warning"
+                    data-testid="order-list-insufficient-funds-badge"
+                  >
+                    {insufficientFundOrders}
+                  </span>
+                </MouseoverTooltip>
+              )}
+            </span>
+          ),
+        }))}
+      />
+    </div>
   )
 }
 
