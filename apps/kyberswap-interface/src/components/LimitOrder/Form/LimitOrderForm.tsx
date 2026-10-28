@@ -177,32 +177,34 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         <Stack className="gap-3">
           <LimitOrderInputTokenPanel {...tokenSectionProps} />
 
-          <LimitOrderRateSection
-            tokens={{ currencyIn, currencyOut }}
-            rate={{
-              displayRate: form.displayRate,
-              rateInfo: form.rateInfo,
-              tradeInfo: form.tradeInfo,
-              loadingTrade: form.loadingTrade,
-            }}
-            events={{
-              onRateChange: form.onChangeRate,
-              onInvertedRateChange: form.onChangeInvertedRate,
-              onRatePresetClick: tracking.trackingRatePresetClick,
-              onSetMarketRate: () => {
-                tracking.trackingMarketRateClick()
-                form.setPriceRateMarket()
-              },
-              onRateInputFocus: tracking.trackingTouchInput,
-              onRateInputBlur: tracking.trackingPriceSetOnBlur,
-            }}
-          />
+          <Stack className="gap-2">
+            <LimitOrderRateSection
+              tokens={{ currencyIn, currencyOut }}
+              rate={{
+                displayRate: form.displayRate,
+                rateInfo: form.rateInfo,
+                tradeInfo: form.tradeInfo,
+                loadingTrade: form.loadingTrade,
+              }}
+              events={{
+                onRateChange: form.onChangeRate,
+                onInvertedRateChange: form.onChangeInvertedRate,
+                onRatePresetClick: tracking.trackingRatePresetClick,
+                onSetMarketRate: () => {
+                  tracking.trackingMarketRateClick()
+                  form.setPriceRateMarket()
+                },
+                onRateInputFocus: tracking.trackingTouchInput,
+                onRateInputBlur: tracking.trackingPriceSetOnBlur,
+              }}
+            />
 
-          <HStack className="-my-1 justify-center">
-            <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.handleRotateClick} />
-          </HStack>
+            <HStack className="justify-center">
+              <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.handleRotateClick} />
+            </HStack>
 
-          <LimitOrderOutputTokenPanel {...tokenSectionProps} />
+            <LimitOrderOutputTokenPanel {...tokenSectionProps} />
+          </Stack>
         </Stack>
 
         <Stack className="gap-6">

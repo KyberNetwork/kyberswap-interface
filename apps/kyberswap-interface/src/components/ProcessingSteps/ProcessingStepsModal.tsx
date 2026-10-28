@@ -73,19 +73,19 @@ const ProcessingStepsBody = <Step extends string>({
   onSuccessAction: () => void
 }) => {
   const { state, dismiss, retryStep } = processing
-  const { account } = useActiveWeb3React()
-  const previousAccount = useRef(account)
+  const { account, chainId: activeChainId } = useActiveWeb3React()
+  const walletContext = `${activeChainId}:${account?.toLowerCase() ?? ''}`
+  const previousWalletContext = useRef(walletContext)
 
   const isComplete =
     !!state.steps.length && state.steps.every(step => state.completedSteps.includes(step)) && !state.errorStep
 
-  // A different wallet is a different set of balances and allowances; the run on screen is not
-  // about the account looking at it.
+  // Balances and allowances belong to the wallet/network that started this run.
   useEffect(() => {
-    const previous = previousAccount.current?.toLowerCase()
-    if (previous && previous !== account?.toLowerCase()) dismiss()
-    previousAccount.current = account
-  }, [account, dismiss])
+    const changed = previousWalletContext.current !== walletContext
+    previousWalletContext.current = walletContext
+    if (changed) dismiss()
+  }, [walletContext, dismiss])
 
   return (
     <Stack className="w-full gap-5 p-5" data-testid="processing-order-modal">
@@ -175,6 +175,12 @@ const ProcessingStepsModal = <Step extends string>({
 }: ProcessingStepsModalProps<Step>) => {
   const { state, dismiss } = processing
 
+  // Automatic dismissals must release the caller's snapshot too, without counting as a user click.
+  const handleClose = () => {
+    dismiss()
+    onClose?.()
+  }
+
   const handleDismiss = () => {
     dismiss()
     onUserDismiss?.()
@@ -182,8 +188,7 @@ const ProcessingStepsModal = <Step extends string>({
   }
 
   const handleSuccessAction = () => {
-    dismiss()
-    onClose?.()
+    handleClose()
     rest.successAction?.onClick()
   }
 
@@ -191,7 +196,7 @@ const ProcessingStepsModal = <Step extends string>({
     <Modal isOpen={state.show} onDismiss={handleDismiss} maxWidth={420} borderRadius={16}>
       <ProcessingStepsBody
         {...rest}
-        processing={processing}
+        processing={{ ...processing, dismiss: handleClose }}
         onDismiss={handleDismiss}
         onSuccessAction={handleSuccessAction}
       />

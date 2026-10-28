@@ -1,8 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useEffect, useState } from 'react'
 
 import NumericalInput from 'components/NumericalInput'
+import PercentPresetSelector from 'components/PercentPresetSelector'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
@@ -26,57 +26,8 @@ type Props = {
   className?: string
 }
 
-const PERCENT_CHIP_CLASSES = 'h-6 rounded-lg border px-2 text-xs font-medium transition-colors'
-
-/** A selected chip takes the colour of its direction: red for a drop below the oracle, green for a rise. */
-const getActiveChipClasses = (percent: number) =>
-  cn('bg-tabActive text-text', percent < 0 ? 'border-red/50' : 'border-primary-50')
-
-/** Hovering a preset previews how it looks once selected. */
-const getHoverChipClasses = (percent: number) =>
-  cn('hover:bg-tabActive hover:text-text', percent < 0 ? 'hover:border-red/50' : 'hover:border-primary-50')
-
-/** Editable percent-below-market chip. It and the price field are the same value from two sides. */
-const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (value: string) => void }) => {
-  const [draft, setDraft] = useState('')
-  const [isEditing, setIsEditing] = useState(false)
-  // A plain numeric string: the field has to round-trip, and formatDisplayNumber blanks negatives.
-  const displayValue = isEditing ? draft : percent === undefined ? '' : formatTriggerPercentValue(percent)
-
-  // Seeded with what is on screen, not the raw float: a preset lands on values like -19.999999999999996,
-  // and focusing the chip would otherwise swap the clean label for that.
-  useEffect(() => {
-    if (!isEditing && percent !== undefined) setDraft(formatTriggerPercentValue(percent))
-  }, [isEditing, percent])
-
-  return (
-    <div
-      className={cn(
-        PERCENT_CHIP_CLASSES,
-        'flex w-[82px] items-center',
-        percent !== undefined && percent !== 0 ? getActiveChipClasses(percent) : 'border-border/60 text-subText',
-      )}
-    >
-      <NumericalInput
-        allowNegative
-        maxLength={8}
-        className="h-6 bg-transparent p-0 text-xs font-medium"
-        data-testid="stop-market-trigger-percent-input"
-        placeholder="0"
-        value={displayValue}
-        onUserInput={value => {
-          // A drop of 100% or more puts the trigger at zero or below, which no price can reach.
-          if (Number(value) <= -100) return
-          setDraft(value)
-          if (value && value !== '-' && !value.endsWith('.')) onChange(value)
-        }}
-        onFocus={() => setIsEditing(true)}
-        onBlur={() => setIsEditing(false)}
-      />
-      <span className="shrink-0">%</span>
-    </div>
-  )
-}
+// A drop of 100% or more puts the trigger at zero or below.
+const normalizeCustomPercent = (value: string) => (Number(value) <= -100 ? undefined : value)
 
 /** Puts the trigger right at the oracle price, with a tooltip saying where that price comes from. */
 export const OracleMarketPriceButton = ({
@@ -130,8 +81,6 @@ const TriggerPriceSection = ({
 }: Props) => {
   const sellSymbol = sellCurrency?.symbol
   const receiveSymbol = receiveCurrency?.symbol
-  // A preset is selected when the percent field reads it, so -20% stays lit once the trigger is rounded.
-  const shownPercent = triggerPercent === undefined ? undefined : Number(formatTriggerPercentValue(triggerPercent))
 
   return (
     <Stack className={cn('gap-2 rounded-2xl bg-buttonBlack p-4', className)} data-testid="stop-market-trigger-section">
@@ -141,7 +90,6 @@ const TriggerPriceSection = ({
         </span>
         <HStack className="min-w-0 items-center justify-end gap-2">
           <OracleMarketPriceButton disabled={!marketPrice} onClick={onSetMarketPrice} />
-          {/* The unit beside the trigger field names this too. */}
           {marketPrice ? (
             <span className="min-w-0 truncate text-sm font-medium text-text" data-testid="stop-market-market-rate">
               {formatDisplayNumber(marketPrice, { significantDigits: 6 })}
@@ -164,7 +112,7 @@ const TriggerPriceSection = ({
         </div>
         {sellSymbol && receiveSymbol && (
           <span
-            className="max-w-[200px] shrink-0 truncate text-base font-medium text-subText"
+            className="max-w-[200px] shrink-0 truncate text-lg font-medium text-subText"
             data-testid="stop-market-trigger-unit"
           >
             <Trans>
@@ -174,26 +122,17 @@ const TriggerPriceSection = ({
         )}
       </HStack>
 
-      <div className="flex flex-wrap items-center gap-1">
-        <PercentInputChip percent={triggerPercent} onChange={onChangeTriggerPercent} />
-        {TRIGGER_PERCENT_PRESETS.map(percent => (
-          <button
-            key={percent}
-            type="button"
-            data-testid={`stop-market-trigger-percent-preset-${percent < 0 ? 'minus' : 'plus'}-${Math.abs(percent)}`}
-            aria-pressed={shownPercent === percent}
-            className={cn(
-              PERCENT_CHIP_CLASSES,
-              shownPercent === percent
-                ? getActiveChipClasses(percent)
-                : cn('border-border/60 text-subText', getHoverChipClasses(percent)),
-            )}
-            onClick={() => onChangeTriggerPercent(String(percent))}
-          >
-            {percent > 0 ? `+${percent}` : percent}%
-          </button>
-        ))}
-      </div>
+      <PercentPresetSelector
+        presets={TRIGGER_PERCENT_PRESETS}
+        value={triggerPercent === undefined ? '' : formatTriggerPercentValue(triggerPercent)}
+        normalizeInput={normalizeCustomPercent}
+        colorByDirection
+        testIdPrefix="stop-market-trigger-percent"
+        onChange={value => {
+          if (value) onChangeTriggerPercent(value)
+        }}
+        onPresetSelect={percent => onChangeTriggerPercent(String(percent))}
+      />
 
       {marketPrice ? (
         <TriggerDistance

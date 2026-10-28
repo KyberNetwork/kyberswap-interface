@@ -1,8 +1,9 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLocalStorage } from 'react-use'
+import { useGetStopMarketConfigQuery } from 'services/stopMarket'
 
 import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
 import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
@@ -12,12 +13,13 @@ import {
   useProcessingState,
   useProcessingSteps,
 } from 'components/ProcessingSteps/useProcessingSteps'
-import StopMarketConfirmModal from 'components/StopMarket/CreateOrder/StopMarketConfirmModal'
+import StopMarketConfirmModal, {
+  StopMarketReviewSnapshot,
+} from 'components/StopMarket/CreateOrder/StopMarketConfirmModal'
 import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
-import { StopMarketWarning } from 'components/StopMarket/Form/useStopMarketWarnings'
-import { StopMarketFee } from 'components/StopMarket/types'
 import { getStopMarketServiceErrorMessage } from 'components/StopMarket/utils'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
@@ -26,24 +28,9 @@ import { friendlyError } from 'utils/errorMessage'
 const STOP_MARKET_TERMS_ACCEPTED_KEY = 'stop-market-terms-accepted'
 
 type Props = {
-  isOpen: boolean
-  currencyIn?: Currency
-  currencyOut?: Currency
-  inputAmount: string
-  estimatedOutput: string
-  estimatedUsdIn?: string
-  triggerPrice: string
-  triggerPercent?: number
-  slippage: number
-  expiredAt: number
-  warnings?: StopMarketWarning[]
-  /** The fee for these terms, as the form estimated it. Signing estimates again for the cap. */
-  fee?: StopMarketFee
-  isFeeLoading?: boolean
-  feeError?: string
-  onRetryFee?: () => void
+  review: StopMarketReviewSnapshot
   onDismiss: () => void
-  createOrder: ReturnType<typeof useCreateStopMarket>
+  onOrderCreated: () => void
 }
 
 /**
@@ -109,6 +96,9 @@ export const useStopMarketProcessing = ({
     },
   })
 
+  // Closing a session or changing wallet unmounts its controller. Stop pending steps from advancing.
+  useEffect(() => processing.dismiss, [processing.dismiss])
+
   const limitOrderStepLabel = getLimitOrderStepLabel({ chainId, currencyIn })
   // Only the signing step names the kind of order; wrap and approve read the same as a limit order.
   const getStepLabel = (step: ProcessingOrderStep, status: ProcessingStepStatus) => {
@@ -149,57 +139,42 @@ export const useStopMarketProcessing = ({
   return { start: processing.start, processingModal }
 }
 
-const StopMarketFlow = ({
-  isOpen,
-  currencyIn,
-  currencyOut,
-  inputAmount,
-  estimatedOutput,
-  estimatedUsdIn,
-  triggerPrice,
-  triggerPercent,
-  slippage,
-  expiredAt,
-  warnings,
-  fee,
-  isFeeLoading,
-  feeError,
-  onRetryFee,
-  onDismiss,
-  createOrder,
-}: Props) => {
+/** One review and its processing run. Only this session subscribes to the execution hooks. */
+const StopMarketFlow = ({ review, onDismiss, onOrderCreated }: Props) => {
+  const [isReviewOpen, setIsReviewOpen] = useState(true)
+  const activeSession = useRef(true)
+  useEffect(() => {
+    activeSession.current = true
+    return () => {
+      activeSession.current = false
+    }
+  }, [])
+
+  const createOrder = useCreateStopMarket({
+    ...review,
+    onResetForm: () => {
+      // A submitted order may finish after dismissal; it must not reset the next form draft.
+      if (activeSession.current) onOrderCreated()
+    },
+  })
   // Set once an order is placed, not when the box is ticked: a signature refused in the wallet places
   // nothing, so the next review asks again.
   const [hasAcceptedTerms, setHasAcceptedTerms] = useLocalStorage(STOP_MARKET_TERMS_ACCEPTED_KEY, false)
   const { start, processingModal } = useStopMarketProcessing({
-    currencyIn,
-    currencyOut,
+    currencyIn: review.currencyIn,
+    currencyOut: review.currencyOut,
     createOrder,
-    onStart: onDismiss,
+    onStart: () => setIsReviewOpen(false),
+    onClose: onDismiss,
     onComplete: () => setHasAcceptedTerms(true),
   })
-  const { needsWrap } = createOrder
 
   return (
     <>
       <StopMarketConfirmModal
-        isOpen={isOpen}
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        inputAmount={inputAmount}
-        estimatedOutput={estimatedOutput}
-        estimatedUsdIn={estimatedUsdIn}
-        triggerPrice={triggerPrice}
-        triggerPercent={triggerPercent}
-        slippage={slippage}
-        expiredAt={expiredAt}
-        fee={fee}
-        feeError={feeError}
-        isFeeLoading={isFeeLoading}
-        onRetryFee={onRetryFee}
-        needsWrap={needsWrap}
+        {...review}
+        isOpen={isReviewOpen}
         requiresTermsAcceptance={!hasAcceptedTerms}
-        warnings={warnings}
         onDismiss={onDismiss}
         onSubmit={start}
       />
@@ -209,4 +184,38 @@ const StopMarketFlow = ({
   )
 }
 
-export default StopMarketFlow
+type ReviewSession = {
+  account: string
+  chainId: ChainId
+  snapshot: StopMarketReviewSnapshot
+}
+
+/** Owns the captured order and its lifetime; form validation never reads this snapshot. */
+export const useStopMarketFlow = ({ onOrderCreated }: { onOrderCreated: () => void }) => {
+  const { account, chainId } = useActiveWeb3React()
+  // Keep the contract config warm while editing, without mounting an execution controller for the draft.
+  useGetStopMarketConfigQuery(chainId)
+  const [session, setSession] = useState<ReviewSession>()
+  const isCurrentSession = !!session && session.account === account?.toLowerCase() && session.chainId === chainId
+
+  useEffect(() => {
+    if (session && !isCurrentSession) setSession(undefined)
+  }, [session, isCurrentSession])
+
+  const openReview = (snapshot: StopMarketReviewSnapshot) => {
+    if (!account || session) return
+    setSession({ account: account.toLowerCase(), chainId, snapshot })
+  }
+
+  return {
+    openReview,
+    // Hide an invalid session immediately; its unmount also cancels the processing controller.
+    flow: isCurrentSession ? (
+      <StopMarketFlow
+        review={session.snapshot}
+        onDismiss={() => setSession(undefined)}
+        onOrderCreated={onOrderCreated}
+      />
+    ) : null,
+  }
+}

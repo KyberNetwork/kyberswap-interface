@@ -1,7 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, memo, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle } from 'react-feather'
+import { ReactNode, memo, useEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -10,15 +9,15 @@ import { ErrorWarning } from 'components/ErrorWarning'
 import LimitOrderExpirySection from 'components/LimitOrder/Form/LimitOrderExpirySection'
 import { LimitOrderInputTokenPanel } from 'components/LimitOrder/Form/LimitOrderTokenSection'
 import { calcUsdPrices } from 'components/LimitOrder/utils'
-import { HStack, Stack } from 'components/Stack'
-import StopMarketFlow from 'components/StopMarket/CreateOrder/StopMarketFlow'
-import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
+import { Stack } from 'components/Stack'
+import { useStopMarketFlow } from 'components/StopMarket/CreateOrder/StopMarketFlow'
 import { StopMarketFeeNotes, StopMarketFeeValue } from 'components/StopMarket/Form/StopMarketFeeSummary'
 import StopMarketReceiveSection from 'components/StopMarket/Form/StopMarketReceiveSection'
 import TriggerPriceSection from 'components/StopMarket/Form/TriggerPriceSection'
 import { useStopMarketFormState } from 'components/StopMarket/Form/useStopMarketFormState'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
 import OrderTypeSubTabs from 'components/StopMarket/OrderTypeSubTabs'
+import { StopMarketNotice } from 'components/StopMarket/StopMarketNotice'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
 import { useStopMarketAmountShortcuts } from 'components/StopMarket/hooks/useStopMarketAmountShortcuts'
 import { useStopMarketFeeEstimate } from 'components/StopMarket/hooks/useStopMarketFeeEstimate'
@@ -30,6 +29,7 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
+import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { SLIPPAGE_STATUS } from 'utils/slippage'
 
@@ -52,11 +52,7 @@ const FieldWarning = ({
   children: ReactNode
   onViewSupportedTokens?: () => void
 }) => (
-  <HStack
-    className="animate-[fadeIn_0.2s_ease-out_both] items-start gap-1.5 text-xs font-medium text-warning motion-reduce:animate-none"
-    data-testid="stop-market-field-warning"
-  >
-    <AlertTriangle size={14} className="mt-px shrink-0" />
+  <StopMarketNotice type="warn" dataTestId="stop-market-field-warning">
     <Stack className="gap-0.5">
       <span>{children}</span>
       {onViewSupportedTokens && (
@@ -70,7 +66,7 @@ const FieldWarning = ({
         </button>
       )}
     </Stack>
-  </HStack>
+  </StopMarketNotice>
 )
 
 const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutProp }: StopMarketFormProps) => {
@@ -81,7 +77,6 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const currencyIn = currencyInProp || limitState.currencyIn
   const currencyOut = currencyOutProp || limitState.currencyOut
 
-  const [showReview, setShowReview] = useState(false)
   const tracking = useStopMarketTracking()
   const trackedPageView = useRef(false)
   const location = useLocation()
@@ -115,17 +110,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const amountUsd = estimateUsd.rawInput || undefined
 
-  const createOrder = useCreateStopMarket({
-    currencyIn,
-    currencyOut,
-    inputAmount: form.inputAmount,
-    triggerPrice: form.triggerPrice,
-    slippage: form.slippage,
-    expiredAt: form.expiredAt,
-    triggerPercent: form.triggerPercent,
-    amountUsd,
-    onResetForm: form.onResetForm,
-  })
+  const { openReview, flow } = useStopMarketFlow({ onOrderCreated: form.onResetForm })
 
   const isTokenRestricted = useIsTokenRestricted()
   const restrictedCurrency = isTokenRestricted(currencyIn)
@@ -135,7 +120,10 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     : undefined
 
   const balance = useCurrencyBalance(currencyIn ?? undefined, form.chainId)
-  const insufficientBalance = createOrder.insufficientBalance
+  const parsedInputAmount = useMemo(() => tryParseAmount(form.inputAmount, currencyIn), [form.inputAmount, currencyIn])
+  const hasMatchingBalance = !!parsedInputAmount && !!balance?.currency.equals(parsedInputAmount.currency)
+  const insufficientBalance = hasMatchingBalance && !!balance?.lessThan(parsedInputAmount)
+  const needsWrap = !!currencyIn?.isNative && hasMatchingBalance && !insufficientBalance
 
   const amountShortcuts = useStopMarketAmountShortcuts(
     balance,
@@ -152,6 +140,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     triggerPrice: form.triggerPrice,
     slippage: form.slippage,
     expiredAt: form.expiredAt,
+    pollingInterval: 30_000,
   })
 
   useEffect(() => {
@@ -191,7 +180,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const isMissingTrigger = !form.triggerPrice || Number(form.triggerPrice) === 0
   // A cleared Amount Out leaves the trigger as it was, but the order is not placed with that field blank.
   const isMissingOutput = !form.outputAmount || Number(form.outputAmount) === 0
-  // Held while the oracle price loads: the trigger is set against the market, which is not known yet.
+  // Review opens only with a complete estimate; errors are retried on this form.
   const disableAction =
     !!restrictedCurrency ||
     isMissingAmount ||
@@ -199,7 +188,40 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     isMissingOutput ||
     insufficientBalance ||
     form.loadingMarketPrice ||
+    feeEstimate.isLoading ||
+    !feeEstimate.fee ||
     validation.shouldDisableAction
+
+  const handleReview = () => {
+    if (!account || disableAction || !feeEstimate.fee) return
+    openReview({
+      currencyIn,
+      currencyOut,
+      inputAmount: form.inputAmount,
+      estimatedOutput: form.estimatedOutput,
+      estimatedUsdIn: estimateUsd.input,
+      amountUsd,
+      triggerPrice: form.triggerPrice,
+      triggerPercent: form.triggerPercent,
+      marketPrice: form.marketPrice,
+      slippage: form.slippage,
+      expiredAt: form.expiredAt,
+      fee: feeEstimate.fee,
+      warnings: validation.reviewWarnings,
+      needsWrap,
+    })
+    tracking.trackReviewOpened({
+      currencyIn,
+      currencyOut,
+      chainId: form.chainId,
+      inputAmount: form.inputAmount,
+      amountUsd,
+      triggerPrice: form.triggerPrice,
+      triggerPercent: form.triggerPercent,
+      slippage: form.slippage,
+      expiredAt: form.expiredAt,
+    })
+  }
 
   const unavailableToken = validation.unavailableToken
   const isReceiveTokenUnavailable = !!unavailableToken && !!currencyOut && unavailableToken.equals(currencyOut)
@@ -223,184 +245,157 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
       <Stack className="gap-4" data-testid="stop-market-form">
         <OrderTypeSubTabs />
 
-        <LimitOrderInputTokenPanel
-          chainId={form.chainId}
-          tokens={{ currencyIn, currencyOut, inputAmount: form.inputAmount }}
-          estimateUsd={estimateUsd}
-          events={{
-            onInputAmountChange: form.setInputValue,
-            // Clicking the balance does what Max does.
-            onMaxInput: amountShortcuts[amountShortcuts.length - 1]?.onClick,
-            onInputTokenSelect: onSelectSellToken,
-          }}
-          amountShortcuts={amountShortcuts}
-          footer={
-            validation.sellTokenWarning
-              ? openTokenSelector => (
-                  <FieldWarning onViewSupportedTokens={openTokenSelector}>{validation.sellTokenWarning}</FieldWarning>
-                )
-              : undefined
-          }
-          selectClassName={validation.sellTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
-          // The trigger is evaluated against the chain's oracle, so a token it has no feed for cannot be monitored.
-          requireOracle
-        />
-
-        <TriggerPriceSection
-          sellCurrency={currencyIn}
-          receiveCurrency={currencyOut}
-          triggerPrice={form.triggerPrice}
-          triggerPercent={form.triggerPercent}
-          marketPrice={form.marketPrice}
-          isLoadingPrice={form.loadingMarketPrice}
-          onChangeTriggerPrice={form.onChangeTriggerPrice}
-          onChangeTriggerPercent={form.onChangeTriggerPercent}
-          onSetMarketPrice={form.onSetMarketPrice}
-        />
-
-        {/* Between the trigger and what it yields, with the switch at its end as the design lays it out. */}
-        <div className="-my-1 px-1">
-          <SlippageSetting
-            alwaysVisible
-            // The default copy describes a swap the user sends themselves; a stop market order is settled by
-            // an operator, so there is no transaction of theirs to revert.
-            tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
-            slippage={{ value: form.slippage, onChange: form.setSlippage }}
-            // The swap form's numbers for this pair's category, scaled for a stop market order; the wording stays the
-            // stop market order's own, since the setting is measured against the oracle at execution rather than a
-            // fresh quote.
-            slippageInfo={{
-              default: form.defaultSlippage,
-              presets: form.slippagePresets,
-              isLow: form.slippageStatus === SLIPPAGE_STATUS.LOW,
-              isHigh: form.slippageStatus === SLIPPAGE_STATUS.HIGH,
-              message:
-                form.slippageStatus === SLIPPAGE_STATUS.LOW
-                  ? t`Slippage this low may cause your stop market order to fail during volatile markets — the conditions it exists for.`
-                  : form.slippageStatus === SLIPPAGE_STATUS.HIGH
-                  ? t`Slippage this high means your order could fill meaningfully below the market price at the moment it executes.`
-                  : '',
-            }}
-            rightComponent={
-              <div data-testid="stop-market-switch-pair">
-                <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.onSwitchPair} />
-              </div>
-            }
-          />
-        </div>
-
-        <StopMarketReceiveSection
-          sellCurrency={currencyIn}
-          receiveCurrency={currencyOut}
-          outputAmount={form.outputAmount}
-          estimatedUsd={estimateUsd.output}
-          onChangeOutput={form.onChangeOutput}
-          onSelectCurrency={onSelectReceiveToken}
-          warning={
-            validation.receiveTokenWarning
-              ? openTokenSelector => (
-                  <FieldWarning onViewSupportedTokens={isReceiveTokenUnavailable ? openTokenSelector : undefined}>
-                    {validation.receiveTokenWarning}
-                  </FieldWarning>
-                )
-              : undefined
-          }
-          selectClassName={validation.receiveTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
-        />
-
-        {/* The fee sits beside the expiry, and what it means for a small order right under them. */}
-        <Stack className="-mt-1 gap-3 px-1">
-          <LimitOrderExpirySection
-            expiry={{
-              expire: form.expire,
-              expanded: form.expiryExpanded,
-              customDateExpire: form.customDateExpire,
-              displayTime: form.displayTime,
-            }}
+        <Stack className="gap-3">
+          <LimitOrderInputTokenPanel
+            chainId={form.chainId}
+            tokens={{ currencyIn, currencyOut, inputAmount: form.inputAmount }}
+            estimateUsd={estimateUsd}
             events={{
-              onToggleExpanded: () => form.setExpiryExpanded(expanded => !expanded),
-              onOpenDatePicker: form.toggleDatePicker,
-              onExpireChange: form.onChangeExpire,
+              onInputAmountChange: form.setInputValue,
+              // Clicking the balance does what Max does.
+              onMaxInput: amountShortcuts[amountShortcuts.length - 1]?.onClick,
+              onInputTokenSelect: onSelectSellToken,
             }}
-            presetOptions={expiryPresets}
-            tooltip={t`You can cancel anytime before expiry at no cost.`}
-            rightComponent={
-              <StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} chainId={form.chainId} />
+            amountShortcuts={amountShortcuts}
+            footer={
+              validation.sellTokenWarning
+                ? openTokenSelector => (
+                    <FieldWarning onViewSupportedTokens={openTokenSelector}>{validation.sellTokenWarning}</FieldWarning>
+                  )
+                : undefined
             }
+            selectClassName={validation.sellTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
+            // The trigger is evaluated against the chain's oracle, so a token it has no feed for cannot be monitored.
+            requireOracle
           />
-          <StopMarketFeeNotes
-            fee={feeEstimate.fee}
-            isLoading={feeEstimate.isLoading}
-            errorMessage={feeEstimate.errorMessage}
-            showShareWarning
-          />
+
+          <Stack className="gap-2">
+            <TriggerPriceSection
+              sellCurrency={currencyIn}
+              receiveCurrency={currencyOut}
+              triggerPrice={form.triggerPrice}
+              triggerPercent={form.triggerPercent}
+              marketPrice={form.marketPrice}
+              isLoadingPrice={form.loadingMarketPrice}
+              onChangeTriggerPrice={form.onChangeTriggerPrice}
+              onChangeTriggerPercent={form.onChangeTriggerPercent}
+              onSetMarketPrice={form.onSetMarketPrice}
+            />
+
+            {/* Between the trigger and what it yields, with the switch at its end as the design lays it out. */}
+            <SlippageSetting
+              alwaysVisible
+              // The default copy describes a swap the user sends themselves; a stop market order is settled by
+              // an operator, so there is no transaction of theirs to revert.
+              tooltip={t`The most your fill may fall below the oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
+              slippage={{ value: form.slippage, onChange: form.setSlippage }}
+              // The swap form's numbers for this pair's category, scaled for a stop market order; the wording stays the
+              // stop market order's own, since the setting is measured against the oracle at execution rather than a
+              // fresh quote.
+              slippageInfo={{
+                default: form.defaultSlippage,
+                presets: form.slippagePresets,
+                isLow: form.slippageStatus === SLIPPAGE_STATUS.LOW,
+                isHigh: form.slippageStatus === SLIPPAGE_STATUS.HIGH,
+                message:
+                  form.slippageStatus === SLIPPAGE_STATUS.LOW
+                    ? t`Slippage this low may cause your stop market order to fail during volatile markets — the conditions it exists for.`
+                    : form.slippageStatus === SLIPPAGE_STATUS.HIGH
+                    ? t`Slippage this high means your order could fill meaningfully below the market price at the moment it executes.`
+                    : '',
+              }}
+              rightComponent={
+                <div data-testid="stop-market-switch-pair">
+                  <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.onSwitchPair} />
+                </div>
+              }
+            />
+
+            <StopMarketReceiveSection
+              sellCurrency={currencyIn}
+              receiveCurrency={currencyOut}
+              outputAmount={form.outputAmount}
+              estimatedUsd={estimateUsd.output}
+              onChangeOutput={form.onChangeOutput}
+              onSelectCurrency={onSelectReceiveToken}
+              warning={
+                validation.receiveTokenWarning
+                  ? openTokenSelector => (
+                      <FieldWarning onViewSupportedTokens={isReceiveTokenUnavailable ? openTokenSelector : undefined}>
+                        {validation.receiveTokenWarning}
+                      </FieldWarning>
+                    )
+                  : undefined
+              }
+              selectClassName={validation.receiveTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
+            />
+          </Stack>
         </Stack>
 
-        {validation.formWarnings.length > 0 && (
-          <Stack className="gap-3" data-testid="stop-market-warnings">
-            {validation.formWarnings.map((warning, index) => (
-              <ErrorWarning
-                type={warning.type}
-                key={index}
-                title={warning.message}
-                dataTestId="stop-market-warning"
-                // Fades in when it appears; keyed by position, so a message that changes while the user
-                // types updates in place instead of flashing again.
-                className="animate-[fadeIn_0.2s_ease-out_both] motion-reduce:animate-none"
-              />
-            ))}
-          </Stack>
-        )}
+        <Stack className="gap-6">
+          <Stack className="gap-4">
+            {/* The fee sits beside the expiry, and what it means for a small order right under them. */}
+            <LimitOrderExpirySection
+              expiry={{
+                expire: form.expire,
+                expanded: form.expiryExpanded,
+                customDateExpire: form.customDateExpire,
+                displayTime: form.displayTime,
+              }}
+              events={{
+                onToggleExpanded: () => form.setExpiryExpanded(expanded => !expanded),
+                onOpenDatePicker: form.toggleDatePicker,
+                onExpireChange: form.onChangeExpire,
+              }}
+              presetOptions={expiryPresets}
+              tooltip={t`You can cancel anytime before expiry at no cost.`}
+              rightComponent={
+                <StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} chainId={form.chainId} />
+              }
+            />
+            <StopMarketFeeNotes
+              fee={feeEstimate.fee}
+              isLoading={feeEstimate.isLoading}
+              errorMessage={feeEstimate.errorMessage}
+              onRetry={feeEstimate.refetch}
+              showShareWarning
+            />
 
-        {!account ? (
-          <ButtonLight onClick={toggleWalletModal} data-testid="stop-market-connect-wallet">
-            <Trans>Connect</Trans>
-          </ButtonLight>
-        ) : (
-          <ButtonPrimary
-            id="place-stop-market-button"
-            data-testid="stop-market-place-order-button"
-            disabled={disableAction}
-            onClick={() => {
-              const expiredAt = form.startExpiry()
-              tracking.trackReviewOpened({
-                currencyIn,
-                currencyOut,
-                chainId: form.chainId,
-                inputAmount: form.inputAmount,
-                amountUsd,
-                triggerPrice: form.triggerPrice,
-                triggerPercent: form.triggerPercent,
-                slippage: form.slippage,
-                expiredAt,
-              })
-              setShowReview(true)
-            }}
-          >
-            <span className="font-medium">{actionLabel}</span>
-          </ButtonPrimary>
-        )}
+            {validation.formWarnings.length > 0 && (
+              <Stack className="gap-3" data-testid="stop-market-warnings">
+                {validation.formWarnings.map((warning, index) => (
+                  <ErrorWarning
+                    type={warning.type}
+                    key={index}
+                    title={warning.message}
+                    dataTestId="stop-market-warning"
+                    // Fades in when it appears; keyed by position, so a message that changes while the user
+                    // types updates in place instead of flashing again.
+                    className="animate-[fadeIn_0.2s_ease-out_both] motion-reduce:animate-none"
+                  />
+                ))}
+              </Stack>
+            )}
+          </Stack>
+
+          {!account ? (
+            <ButtonLight onClick={toggleWalletModal} data-testid="stop-market-connect-wallet">
+              <Trans>Connect</Trans>
+            </ButtonLight>
+          ) : (
+            <ButtonPrimary
+              id="place-stop-market-button"
+              data-testid="stop-market-place-order-button"
+              disabled={disableAction}
+              onClick={handleReview}
+            >
+              <span className="font-medium">{actionLabel}</span>
+            </ButtonPrimary>
+          )}
+        </Stack>
       </Stack>
 
-      <StopMarketFlow
-        isOpen={showReview}
-        currencyIn={currencyIn}
-        currencyOut={currencyOut}
-        inputAmount={form.inputAmount}
-        estimatedOutput={form.estimatedOutput}
-        estimatedUsdIn={estimateUsd.input}
-        triggerPrice={form.triggerPrice}
-        triggerPercent={form.triggerPercent}
-        slippage={form.slippage}
-        expiredAt={form.expiredAt}
-        warnings={validation.reviewWarnings}
-        fee={feeEstimate.fee}
-        isFeeLoading={feeEstimate.isLoading}
-        feeError={feeEstimate.errorMessage}
-        onRetryFee={feeEstimate.refetch}
-        onDismiss={() => setShowReview(false)}
-        createOrder={createOrder}
-      />
+      {flow}
 
       <DateTimePicker
         returnPresetValue

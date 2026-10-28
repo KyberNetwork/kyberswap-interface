@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { Trans } from '@lingui/macro'
+import { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 
 import InfoHelper from 'components/InfoHelper'
@@ -8,6 +8,7 @@ import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import { DeltaRateLimitOrder, RateInfo } from 'components/LimitOrder/types'
 import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
+import PercentPresetSelector from 'components/PercentPresetSelector'
 import { HStack, Stack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
@@ -15,7 +16,8 @@ import { cn } from 'utils/cn'
 
 const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 const RATE_DELTA_OPTIONS = [10, 20, 50]
-const MIN_CUSTOM_PERCENT = -100
+const normalizeCustomPercent = (value: string) =>
+  Number.isFinite(Number(value)) && Number(value) < -100 ? '-100' : value
 
 export const useGetDeltaRateLimitOrder = ({
   marketPrice,
@@ -79,87 +81,6 @@ const DeltaRate = ({ deltaRate }: DeltaRateProps) => {
   )
 }
 
-type PercentInputChipProps = {
-  value: string
-  isActive: boolean
-  onActiveChange: (value: boolean) => void
-  onBlur?: () => void
-  onFocusChange: (value: boolean) => void
-  onUserInput: (value: string) => void
-}
-
-const PercentInputChip = ({
-  value,
-  isActive,
-  onActiveChange,
-  onBlur,
-  onFocusChange,
-  onUserInput,
-}: PercentInputChipProps) => {
-  const [isEditing, setIsEditing] = useState(false)
-  const [draftValue, setDraftValue] = useState(value)
-  const displayValue = isEditing ? draftValue : isActive ? value : ''
-  const displayNumber = Number(displayValue)
-  const isWarning = displayValue !== '' && displayValue !== '-' && Number.isFinite(displayNumber) && displayNumber < 0
-
-  useEffect(() => {
-    if (!isEditing) {
-      setDraftValue(value)
-    }
-  }, [isEditing, value])
-
-  const onChange = (nextValue: string) => {
-    const normalizedValue =
-      Number.isFinite(Number(nextValue)) && Number(nextValue) < MIN_CUSTOM_PERCENT
-        ? String(MIN_CUSTOM_PERCENT)
-        : nextValue
-
-    setDraftValue(normalizedValue)
-    if (!normalizedValue || normalizedValue === '-' || normalizedValue === '+') {
-      onActiveChange(false)
-      onUserInput('')
-      return
-    }
-    if (normalizedValue.endsWith('.')) return
-    onActiveChange(true)
-    onUserInput(normalizedValue)
-  }
-
-  return (
-    <div
-      className={cn(
-        'flex h-6 w-[82px] items-center rounded-lg border px-2 text-xs font-medium transition-colors',
-        isActive
-          ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
-          : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
-        isWarning && 'border-warning/50',
-      )}
-    >
-      <span className="shrink-0">{displayValue && !/^[+-]/.test(displayValue) ? '+' : ''}</span>
-      <NumericalInput
-        className="h-5 bg-transparent text-xs font-medium text-inherit placeholder:text-inherit"
-        value={displayValue}
-        placeholder={t`Custom`}
-        onUserInput={onChange}
-        onFocus={() => {
-          setIsEditing(true)
-          setDraftValue(value)
-          onFocusChange(true)
-          onActiveChange(true)
-        }}
-        onBlur={() => {
-          setIsEditing(false)
-          onFocusChange(false)
-          onBlur?.()
-        }}
-        maxLength={8}
-        allowNegative
-      />
-      <span className="shrink-0">%</span>
-    </div>
-  )
-}
-
 type RateSectionTokens = {
   currencyIn?: Currency
   currencyOut?: Currency
@@ -202,23 +123,8 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
     typeof deltaRate.rawPercent === 'number' && Number.isFinite(deltaRate.rawPercent)
       ? removeTrailingZero(deltaRate.rawPercent.toFixed(2)) || ''
       : ''
-  const percentValue = Number(percentInputValue)
-  const hasPercentValue = percentInputValue !== '' && Number.isFinite(percentValue)
-  const isPresetPercent = hasPercentValue && RATE_DELTA_OPTIONS.includes(percentValue)
-  const isCustomPercent = hasPercentValue && !isPresetPercent
-  const [isCustomPercentActive, setIsCustomPercentActive] = useState(() => isCustomPercent)
-  const [isCustomPercentFocused, setIsCustomPercentFocused] = useState(false)
-
-  useEffect(() => {
-    if (isCustomPercentFocused) return
-    setIsCustomPercentActive(isCustomPercent)
-  }, [isCustomPercentFocused, isCustomPercent])
-
-  const setRateByDelta = (percent: number, inputMethod: 'custom' | 'preset' = 'custom') => {
+  const setRateByDelta = (percent: number) => {
     if (!tradeInfo) return
-    if (inputMethod === 'preset') {
-      setIsCustomPercentActive(false)
-    }
     const nextRate = tradeInfo.marketRate * (1 + percent / 100)
     events.onRateChange?.(formatPriceInputValue(nextRate))
   }
@@ -233,7 +139,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
 
   const onClickPreset = (percent: number) => {
     events.onRatePresetClick?.(`+${percent}%`)
-    setRateByDelta(percent, 'preset')
+    setRateByDelta(percent)
   }
 
   return (
@@ -287,31 +193,16 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
         )}
       </HStack>
 
-      <div className="flex flex-wrap gap-1">
-        <PercentInputChip
-          value={percentInputValue}
-          isActive={isCustomPercentActive}
-          onActiveChange={setIsCustomPercentActive}
-          onBlur={() => events.onRatePresetClick?.('custom')}
-          onFocusChange={setIsCustomPercentFocused}
-          onUserInput={onChangePercent}
-        />
-        {RATE_DELTA_OPTIONS.map(percent => (
-          <button
-            key={percent}
-            type="button"
-            className={cn(
-              'h-6 rounded-lg border px-2 text-xs font-medium transition-colors',
-              hasPercentValue && percentValue === percent && !isCustomPercentActive
-                ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
-                : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
-            )}
-            onClick={() => onClickPreset(percent)}
-          >
-            +{percent}%
-          </button>
-        ))}
-      </div>
+      <PercentPresetSelector
+        presets={RATE_DELTA_OPTIONS}
+        value={percentInputValue}
+        normalizeInput={normalizeCustomPercent}
+        showPositiveSign
+        warnOnNegative
+        onChange={onChangePercent}
+        onPresetSelect={onClickPreset}
+        onCustomBlur={() => events.onRatePresetClick?.('custom')}
+      />
     </Stack>
   )
 }

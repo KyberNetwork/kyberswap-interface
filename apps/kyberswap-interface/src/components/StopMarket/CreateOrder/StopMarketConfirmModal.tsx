@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, useEffect, useState } from 'react'
-import { AlertTriangle, Info } from 'react-feather'
+import { Info } from 'react-feather'
 import { Link } from 'react-router-dom'
 
 import { ButtonPrimary } from 'components/Button'
@@ -19,8 +19,8 @@ import {
   getStopMarketFeeLabel,
 } from 'components/StopMarket/Form/StopMarketFeeSummary'
 import { StopMarketWarning } from 'components/StopMarket/Form/useStopMarketWarnings'
+import { StopMarketNotice } from 'components/StopMarket/StopMarketNotice'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
-import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
 import { StopMarketFee } from 'components/StopMarket/types'
 import {
   clampStopMarketDeadline,
@@ -59,6 +59,7 @@ export type StopMarketReviewProps = {
   estimatedUsdIn?: string
   triggerPrice: string
   triggerPercent?: number
+  marketPrice?: number
   slippage: number
   expiredAt: number
   fee?: StopMarketFee
@@ -70,9 +71,18 @@ export type StopMarketReviewProps = {
   warnings?: StopMarketWarning[]
 }
 
-type Props = StopMarketReviewProps & {
+/** Creation review is complete at opening and never subscribes to form estimates. */
+export type StopMarketReviewSnapshot = Omit<
+  StopMarketReviewProps,
+  'fee' | 'feeError' | 'isFeeLoading' | 'onRetryFee'
+> & {
+  fee: StopMarketFee
+  needsWrap: boolean
+  amountUsd?: number
+}
+
+type Props = StopMarketReviewSnapshot & {
   isOpen: boolean
-  needsWrap?: boolean
   /** The user has not placed a stop market order on this device yet, so must accept the terms first. */
   requiresTermsAcceptance?: boolean
   onDismiss?: () => void
@@ -110,39 +120,6 @@ const RowSkeleton = ({ dataTestId }: { dataTestId: string }) => (
 
 const Divider = () => <div className="h-px w-full bg-white-08" />
 
-// `error` is the zap flows' error note — red text on a 20% red ground — in the review's own shape.
-const NOTE_STYLES = {
-  info: { className: 'bg-primary-10 text-primary', Icon: Info },
-  warn: { className: 'bg-warning-10 text-warning', Icon: AlertTriangle },
-  error: { className: 'bg-red-20 text-red', Icon: AlertTriangle },
-} as const
-
-const ReviewNote = ({
-  type,
-  dataTestId,
-  children,
-}: {
-  type: keyof typeof NOTE_STYLES
-  dataTestId: string
-  children: ReactNode
-}) => {
-  const { className, Icon } = NOTE_STYLES[type]
-  return (
-    <HStack
-      className={cn(
-        // Fades in, since a note that depends on the fee lands once the estimate does.
-        'w-full animate-[fadeIn_0.2s_ease-out_both] items-start gap-2.5 rounded-xl px-3 py-2 text-sm motion-reduce:animate-none',
-        className,
-      )}
-      data-testid={dataTestId}
-      data-warning-type={type}
-    >
-      <Icon size={16} className="mt-0.5 shrink-0" />
-      <div className="flex-1">{children}</div>
-    </HStack>
-  )
-}
-
 /**
  * Whether the reviewed order can be signed. The order stays reviewable so a warning can be read; only
  * signing it is refused. The fee sets the cap signed into the order, so there is nothing to sign until it
@@ -168,6 +145,7 @@ export const StopMarketReviewSummary = ({
   estimatedUsdIn,
   triggerPrice,
   triggerPercent,
+  marketPrice,
   slippage,
   expiredAt,
   fee,
@@ -189,13 +167,12 @@ export const StopMarketReviewSummary = ({
       ? undefined
       : getStopMarketMinReceive({ estimatedOutput: Number(estimatedOutput), slippage, fee: feeAmount })
   const showFeeError = !!feeError && !isFeeLoading
-  // The order is refused for its size, which retrying cannot change; only a larger amount can.
+  // A too-small order cannot be fixed by retrying the estimate; the user must increase its amount.
   const isOrderTooSmall = !!getStopMarketOrderTooSmall(feeError)
   // Neither a fee nor a reason yet means the estimate is still on its way, from the moment the review opens.
   const isFeePending = isFeeLoading || (!fee && !feeError)
   const receiveSymbol = currencyOut?.symbol ?? ''
-  const { priceNumber: oraclePrice } = useStopMarketOraclePrice(currencyIn, currencyOut)
-  const isTriggerClose = isStopMarketTriggerClose({ triggerPrice, marketPrice: oraclePrice, slippage })
+  const isTriggerClose = isStopMarketTriggerClose({ triggerPrice, marketPrice, slippage })
   const swapPath = getSwapPath(currencyIn, currencyOut, inputAmount)
 
   return (
@@ -271,17 +248,18 @@ export const StopMarketReviewSummary = ({
       </Stack>
 
       {warnings.map((warning, index) => (
-        <ReviewNote key={index} type={warning.type} dataTestId="stop-market-confirm-warning">
+        <StopMarketNotice variant="box" key={index} type={warning.type} dataTestId="stop-market-confirm-warning">
           {warning.message}
-        </ReviewNote>
+        </StopMarketNotice>
       ))}
 
       {isTriggerClose && (
-        <HStack
-          className="items-start gap-1.5 text-xs font-medium text-warning"
-          data-testid="stop-market-confirm-close-trigger-warning"
+        <StopMarketNotice
+          type="warn"
+          icon={Info}
+          animate={false}
+          dataTestId="stop-market-confirm-close-trigger-warning"
         >
-          <Info size={14} className="mt-px shrink-0" />
           <span>
             {swapPath ? (
               <Trans>
@@ -294,23 +272,17 @@ export const StopMarketReviewSummary = ({
               <Trans>Your trigger is very close to the current price. If you want to trade instantly, use Swap.</Trans>
             )}
           </span>
-        </HStack>
+        </StopMarketNotice>
       )}
 
       {showFeeError && isOrderTooSmall && (
-        <HStack
-          className="items-start gap-1.5 text-xs font-medium text-warning"
-          data-testid="stop-market-confirm-fee-too-small"
-        >
-          <Info size={14} className="mt-px shrink-0" />
-          <span>
-            <Trans>The fee is higher than your order amount. Increase the amount to continue.</Trans>
-          </span>
-        </HStack>
+        <StopMarketNotice type="warn" icon={Info} animate={false} dataTestId="stop-market-confirm-fee-too-small">
+          <Trans>The fee is higher than your order amount. Increase the amount to continue.</Trans>
+        </StopMarketNotice>
       )}
 
       {showFeeError && !isOrderTooSmall && (
-        <ReviewNote type="error" dataTestId="stop-market-confirm-fee-error">
+        <StopMarketNotice variant="box" type="error" dataTestId="stop-market-confirm-fee-error">
           {feeError}
           {onRetryFee && (
             <>
@@ -325,7 +297,7 @@ export const StopMarketReviewSummary = ({
               </button>
             </>
           )}
-        </ReviewNote>
+        </StopMarketNotice>
       )}
     </>
   )
@@ -362,8 +334,8 @@ const StopMarketConfirmModal = ({
         </HStack>
 
         <StopMarketReviewSummary {...review} />
-        {/* The summary reports a fee it could not estimate; this adds only the share a small order pays. */}
-        <StopMarketFeeNotes fee={review.fee} isLoading={review.isFeeLoading} showShareWarning />
+        {/* Keep the fee-share warning from the estimate captured when review opened. */}
+        <StopMarketFeeNotes fee={review.fee} showShareWarning />
 
         {requiresTermsAcceptance && (
           <label
@@ -412,7 +384,7 @@ const StopMarketConfirmModal = ({
         )}
 
         <Stack className="gap-2">
-          {/* Eases into enabled once the fee lands, rather than snapping. */}
+          {/* The fee is settled; terms acceptance and captured blocking warnings gate confirmation. */}
           <ButtonPrimary
             className="transition-colors duration-200"
             onClick={onSubmit}

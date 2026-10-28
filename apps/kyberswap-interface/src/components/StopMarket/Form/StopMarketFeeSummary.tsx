@@ -1,16 +1,18 @@
 import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { ReactNode } from 'react'
-import { AlertTriangle, Info } from 'react-feather'
+import { useState } from 'react'
+import { Info } from 'react-feather'
 
-import Skeleton from 'components/Skeleton'
+import PlaceholderSkeleton from 'components/Skeleton/PlaceholderSkeleton'
 import { HStack, Stack } from 'components/Stack'
+import { StopMarketNotice } from 'components/StopMarket/StopMarketNotice'
 import { HIGH_FEE_SHARE_PERCENT } from 'components/StopMarket/constants'
 import { StopMarketFee } from 'components/StopMarket/types'
 import { getStopMarketOrderTooSmall } from 'components/StopMarket/utils'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NativeCurrencies } from 'constants/tokens'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -126,51 +128,47 @@ export const StopMarketFeeValue = ({ fee, isLoading, chainId }: Props & { chainI
           <Info size={12} className="shrink-0" />
         </HStack>
       </MouseoverTooltip>
-      {isLoading ? (
-        <span className="flex h-5 items-center" data-testid="stop-market-fee-loading">
-          <Skeleton height={12} width={80} borderRadius={6} />
-        </span>
-      ) : label === undefined ? (
-        <span className="font-medium text-subText">--</span>
-      ) : (
-        <span className="font-medium text-text" data-testid="stop-market-fee-value">
-          {label}
-        </span>
-      )}
+      <PlaceholderSkeleton
+        isLoading={isLoading}
+        height={16}
+        className={cn('font-medium', label === undefined ? 'text-subText' : 'text-text')}
+        contentTestId={label === undefined ? undefined : 'stop-market-fee-value'}
+        loadingTestId="stop-market-fee-loading"
+      >
+        {label ?? '--'}
+      </PlaceholderSkeleton>
     </HStack>
   )
 }
 
-const FeeWarning = ({ dataTestId, children }: { dataTestId: string; children: ReactNode }) => (
-  <HStack
-    className="animate-[fadeIn_0.2s_ease-out_both] items-start gap-1.5 text-xs font-medium text-warning motion-reduce:animate-none"
-    data-testid={dataTestId}
-  >
-    <AlertTriangle size={14} className="mt-px shrink-0" />
-    <span>{children}</span>
-  </HStack>
-)
-
 /**
  * What the fee row cannot say on its own: why there is no fee to show, or — where `showShareWarning` asks
  * for it, which the review does — that the fee takes a large share of a small order. The share is only a
- * warning — the size is the user's call. What the fee covers is the tooltip's to say. An order too small
- * to carry the minimum fee is warned about the same way, with the share the service refused it at.
+ * warning — the size is the user's call. What the fee covers is the tooltip's to say.
  */
 export const StopMarketFeeNotes = ({
   fee,
   isLoading,
   errorMessage,
   showShareWarning = false,
-}: Props & { showShareWarning?: boolean }) => {
-  if (isLoading) return null
-  const tooSmall = getStopMarketOrderTooSmall(errorMessage)
+  onRetry,
+}: Props & { showShareWarning?: boolean; onRetry?: () => void }) => {
+  // Preserve the last settled notice through debounce/refetch; only new results replace it.
+  // This is display-only: the fee value and submit guards still use the current loading state.
+  const [settled, setSettled] = useState({ fee, errorMessage })
+  if (!isLoading && (settled.fee !== fee || settled.errorMessage !== errorMessage)) {
+    setSettled({ fee, errorMessage })
+  }
+  const displayedFee = isLoading ? settled.fee : fee
+  const displayedError = isLoading ? settled.errorMessage : errorMessage
+  const tooSmall = getStopMarketOrderTooSmall(displayedError)
+
   if (tooSmall) {
     // Capped at the whole order: a share above it only says the fee swallows everything the order sells.
     const share =
       tooSmall.feeShare === undefined ? undefined : formatFeeShare(Math.min(tooSmall.feeShare, MAX_FEE_SHARE_PERCENT))
     return (
-      <FeeWarning dataTestId="stop-market-fee-too-small">
+      <StopMarketNotice type="warn" dataTestId="stop-market-fee-too-small">
         {share ? (
           <Trans>
             At this size the fee is {share}% of your order. Execution costs the same regardless of order size, and the
@@ -179,36 +177,51 @@ export const StopMarketFeeNotes = ({
         ) : (
           <Trans>The fee is higher than your order amount. Increase the amount to continue.</Trans>
         )}
-      </FeeWarning>
+      </StopMarketNotice>
     )
   }
-  if (errorMessage)
+
+  if (displayedError)
     return (
-      <HStack
-        className="animate-[fadeIn_0.2s_ease-out_both] items-start gap-1.5 text-xs font-medium text-red motion-reduce:animate-none"
-        data-testid="stop-market-fee-error"
-      >
-        <AlertTriangle size={14} className="mt-px shrink-0" />
-        <span>{errorMessage}</span>
-      </HStack>
+      <StopMarketNotice type="error" dataTestId="stop-market-fee-error">
+        <span>
+          {displayedError}
+          {onRetry && (
+            <>
+              {' '}
+              <button
+                type="button"
+                className="cursor-pointer border-0 bg-transparent p-0 font-medium text-red underline hover:brightness-110 disabled:cursor-default disabled:opacity-50"
+                onClick={onRetry}
+                disabled={!!isLoading}
+                data-testid="stop-market-fee-retry"
+              >
+                <Trans>Try again</Trans>
+              </button>
+            </>
+          )}
+        </span>
+      </StopMarketNotice>
     )
-  if (!fee || !showShareWarning) return null
-  const warningKind = getStopMarketFeeWarningKind(fee)
+  if (!displayedFee || !showShareWarning) return null
+  const warningKind = getStopMarketFeeWarningKind(displayedFee)
   if (warningKind === 'none') return null
-  const share = formatFeeShare(getFeeShare(fee) ?? 0)
+  const share = formatFeeShare(getFeeShare(displayedFee) ?? 0)
 
   return (
-    <FeeWarning dataTestId="stop-market-min-fee-warning">
-      {warningKind === 'highShareMinimum' ? (
-        <Trans>
-          At this size the fee is {share}% of your order. Execution costs the same regardless of order size, and the
-          order may not execute during unusual gas spikes.
-        </Trans>
-      ) : (
-        <Trans>
-          At this size the fee is {share}% of your order. Execution costs the same regardless of order size.
-        </Trans>
-      )}
-    </FeeWarning>
+    <StopMarketNotice type="warn" dataTestId="stop-market-min-fee-warning">
+      <span>
+        {warningKind === 'highShareMinimum' ? (
+          <Trans>
+            At this size the fee is {share}% of your order. Execution costs the same regardless of order size, and the
+            order may not execute during unusual gas spikes.
+          </Trans>
+        ) : (
+          <Trans>
+            At this size the fee is {share}% of your order. Execution costs the same regardless of order size.
+          </Trans>
+        )}
+      </span>
+    </StopMarketNotice>
   )
 }

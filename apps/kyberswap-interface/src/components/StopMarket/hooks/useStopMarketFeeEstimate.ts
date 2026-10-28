@@ -10,7 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 
 /** How long the terms have to sit still before their fee is asked for. */
-const FEE_ESTIMATE_DEBOUNCE_MS = 500
+const FEE_ESTIMATE_DEBOUNCE_MS = 300
 
 type Params = {
   currencyIn?: Currency
@@ -21,6 +21,8 @@ type Params = {
   slippage: number
   /** Milliseconds. */
   expiredAt: number
+  /** Refresh the creation form in the background; edit callers retain their existing fetch policy. */
+  pollingInterval?: number
 }
 
 /**
@@ -35,6 +37,7 @@ export const useStopMarketFeeEstimate = ({
   triggerPrice,
   slippage,
   expiredAt,
+  pollingInterval = 0,
 }: Params) => {
   const { account, chainId } = useActiveWeb3React()
 
@@ -58,7 +61,7 @@ export const useStopMarketFeeEstimate = ({
   const settledPayload = useDebounce(payload, FEE_ESTIMATE_DEBOUNCE_MS)
   const { currentData, isFetching, error, refetch } = useGetStopMarketFeeEstimateQuery(
     settledPayload as StopMarketCorePayload,
-    { skip: !settledPayload },
+    { skip: !payload || !settledPayload, pollingInterval, skipPollingIfUnfocused: true },
   )
 
   // Waiting covers the debounce too, so the figure never stands for terms the user has since changed.
@@ -69,7 +72,7 @@ export const useStopMarketFeeEstimate = ({
       ? getStopMarketServiceErrorMessage(error) ?? t`The fee could not be estimated. Please try again.`
       : undefined
   return {
-    fee: payload && !isLoading ? currentData : undefined,
+    fee: payload && !isLoading && !error ? currentData : undefined,
     isLoading,
     errorMessage,
     refetch,

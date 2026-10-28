@@ -325,6 +325,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     inputAmount,
     estimatedOutput,
     estimatedUsdIn: sellUsd,
+    marketPrice,
     triggerPrice,
     triggerPercent,
     slippage,

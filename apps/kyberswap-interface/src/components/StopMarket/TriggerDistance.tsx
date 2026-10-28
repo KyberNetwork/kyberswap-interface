@@ -43,7 +43,7 @@ export const TriggerDistance = ({ percent, muteWords, className, dataTestId }: P
         ) : direction === 'above' ? (
           <Trans>above current oracle price</Trans>
         ) : (
-          <Trans>current oracle price</Trans>
+          <Trans>Current oracle price</Trans>
         )}
       </span>
     </span>

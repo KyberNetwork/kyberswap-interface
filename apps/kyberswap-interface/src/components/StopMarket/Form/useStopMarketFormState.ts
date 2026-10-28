@@ -146,8 +146,12 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
     if (!triggerPrice) setTriggerPrice(formatTriggerPriceValue(marketPrice))
   }, [pairKey, marketPrice, loadingMarketPrice, triggerPrice, setTriggerPrice])
 
+  // Anchor preset deadlines to the draft, not to opening its review.
+  const [expiryStart, setExpiryStart] = useState(Date.now)
+
   const onChangeExpire = useCallback(
     (value: Date | number) => {
+      setExpiryStart(Date.now())
       dispatch(
         value instanceof Date
           ? updateStopMarketForm({ customDateExpire: value.getTime() })
@@ -158,6 +162,7 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
   )
 
   const onResetForm = useCallback(() => {
+    setExpiryStart(Date.now())
     setInputValue('')
     dispatch(resetStopMarketForm())
     // A cleared trigger is eligible for the market seed again on the next feed tick.
@@ -251,23 +256,10 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
     [currencyIn, currencyOut, setPair, setCurrencyOut, setInputValue, outputAmount],
   )
 
-  /**
-   * A preset expiry counts from `expiryStart`, which `startExpiry` resets as each order goes to review:
-   * every order gets its full window, and the review shows exactly the deadline that gets signed.
-   * Reading the clock on every render instead would give `expiredAt` a new value each time, which
-   * cascades into anything memoised on it.
-   */
-  const [expiryStart, setExpiryStart] = useState(Date.now)
   const expiredAt = useMemo(
     () => resolveExpiredAt(expiryStart, expire, customDateExpire),
     [expiryStart, expire, customDateExpire],
   )
-  /** Returns the deadline it produces, for callers that need it before the next render. */
-  const startExpiry = useCallback(() => {
-    const now = Date.now()
-    setExpiryStart(now)
-    return resolveExpiredAt(now, expire, customDateExpire)
-  }, [expire, customDateExpire])
   const displayTime = customDateExpire ? dayjs(customDateExpire).format('DD/MM/YYYY HH:mm') : formatTimeDuration(expire)
 
   return {
@@ -300,7 +292,6 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
     onChangeOutput,
     onSetMarketPrice,
     onChangeExpire,
-    startExpiry,
     onSelectCurrencyIn,
     onSelectCurrencyOut,
     onSwitchPair,
