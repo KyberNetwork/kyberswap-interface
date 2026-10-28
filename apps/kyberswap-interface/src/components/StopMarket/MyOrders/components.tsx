@@ -248,16 +248,27 @@ export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
  * address instead would miss: the service returns addresses lower-cased, while the whitelist map is
  * keyed by checksummed ones.
  */
-export const PairCell = ({ sellCurrency, receiveCurrency }: { sellCurrency: Currency; receiveCurrency: Currency }) => (
+export const PairCell = ({
+  sellCurrency,
+  receiveCurrency,
+  onClick,
+}: {
+  sellCurrency: Currency
+  receiveCurrency: Currency
+  onClick: () => void
+}) => (
   <Stack
-    className="min-w-0 gap-0.5 text-sm font-medium text-text max-sm:flex-row max-sm:items-center max-sm:gap-1.5"
+    as="button"
+    type="button"
+    onClick={onClick}
+    className="min-w-0 cursor-pointer gap-0.5 border-0 bg-transparent p-0 text-left text-sm font-medium text-text hover:brightness-75 max-sm:flex-row max-sm:items-center max-sm:gap-1.5"
     data-testid="stop-market-order-pair"
   >
-    <HStack className="min-w-0 items-center gap-1.5 max-sm:contents">
+    <HStack as="span" className="min-w-0 items-center gap-1.5 max-sm:contents">
       <CurrencyLogo currency={sellCurrency} size="16px" />
       <span className="truncate">{sellCurrency.symbol || '-'}</span>
     </HStack>
-    <HStack className="min-w-0 items-center gap-1.5 max-sm:contents">
+    <HStack as="span" className="min-w-0 items-center gap-1.5 max-sm:contents">
       <span className="shrink-0 text-subText">→</span>
       <CurrencyLogo currency={receiveCurrency} size="16px" />
       <span className="truncate">{receiveCurrency.symbol || '-'}</span>

@@ -1,7 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { MouseEventHandler, useMemo, useState } from 'react'
 import { ExternalLink as LinkIcon, Trash } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
@@ -23,7 +23,7 @@ import {
   getNeededMakingAmount,
   getOrderRate,
 } from 'components/LimitOrder/MyOrders/utils'
-import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import {
   calcPercentFilledOrder,
   getLimitOrderDisplayTakerSymbol,
@@ -32,6 +32,8 @@ import {
 } from 'components/LimitOrder/utils'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, isSupportLimitOrder, isSupportedChainId } from 'constants/networks'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useLimitState } from 'state/limit/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
@@ -77,7 +79,10 @@ type OrderRowProps = {
 
 const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: OrderRowProps) => {
   const navigate = useNavigate()
+  const { search } = useLocation()
   const { chainId } = useLimitOrderContext()
+  const { changeNetwork } = useChangeNetwork()
+  const { currencyIn, currencyOut } = useLimitState()
   const [expand, setExpand] = useState(false)
 
   const isSupportedOrderChain = isSupportedChainId(order.chainId)
@@ -85,7 +90,6 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
   const networkInfo = isSupportedOrderChain ? NETWORKS_INFO[order.chainId] : undefined
   const isOrderActive = isActiveStatus(order.status)
   const txs = order.transactions || []
-  const canOpenOrder = isSupportedLimitOrderChain && order.chainId === chainId
 
   const makerCurrency = useMemo(() => {
     if (!isSupportedOrderChain) return undefined
@@ -126,9 +130,23 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
   const rowLayout: RowWrapperLayout = isActiveTab ? RowWrapperLayout.ACTIVE : RowWrapperLayout.HISTORY
 
   const onClickOrder = () => {
-    if (!canOpenOrder || !networkInfo) return
-    const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()
-    navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${order.makerAsset}-to-${order.takerAsset}?${search}`)
+    if (!isSupportedLimitOrderChain || !networkInfo) return
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    const isCurrentPair =
+      order.chainId === chainId &&
+      currencyIn?.wrapped.address.toLowerCase() === order.makerAsset.toLowerCase() &&
+      currencyOut?.wrapped.address.toLowerCase() === order.takerAsset.toLowerCase()
+
+    if (isCurrentPair) return
+
+    const selectPair = () =>
+      requestAnimationFrame(() => {
+        navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${order.makerAsset}-to-${order.takerAsset}${search}`)
+      })
+
+    if (order.chainId === chainId) selectPair()
+    else changeNetwork(order.chainId, selectPair)
   }
 
   const onClickCancelOrder: MouseEventHandler<HTMLButtonElement> = event => {
@@ -149,7 +167,7 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
           takerAmount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
           takerLogo={takerLogo}
           takerSymbol={takerSymbol}
-          canOpenOrder={canOpenOrder}
+          canOpenOrder={isSupportedLimitOrderChain}
           onClick={onClickOrder}
         />
         <div className="min-w-0 max-sm:col-start-3 max-sm:row-start-1">

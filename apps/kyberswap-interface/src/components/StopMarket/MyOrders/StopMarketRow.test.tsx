@@ -49,6 +49,7 @@ const sellAmountText = (overrides: Partial<StopMarket>) => {
         isCancelling={false}
         onCancel={vi.fn()}
         onEdit={vi.fn()}
+        onSelectPair={vi.fn()}
         onRecreate={vi.fn()}
       />
     </I18nProvider>,

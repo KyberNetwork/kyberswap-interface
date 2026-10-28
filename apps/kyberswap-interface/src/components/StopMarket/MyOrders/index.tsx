@@ -29,7 +29,7 @@ import {
   getStopMarketFundingKey,
   getStopMarketRecreateDraft,
 } from 'components/StopMarket/utils'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -37,7 +37,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useRefreshPrivateAnnouncements } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
-import { useLimitActionHandlers } from 'state/limit/hooks'
+import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { updateStopMarketForm } from 'state/stopMarket/reducer'
 
 const PAGE_SIZE = 10
@@ -75,9 +75,10 @@ type Props = {
 
 const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer, resetFiltersKey }: Props) => {
   const { account, chainId } = useActiveWeb3React()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const navigate = useNavigate()
   const { setInputValue } = useLimitActionHandlers()
+  const { currencyIn, currencyOut } = useLimitState()
   const dispatch = useAppDispatch()
   const tracking = useStopMarketTracking()
   const { changeNetwork } = useChangeNetwork()
@@ -250,6 +251,32 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer, re
     setCurPage(1)
   }
 
+  const onSelectPair = (order: StopMarket) => {
+    if (!isSupportStopMarket(order.chainId)) return
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    const inputAddress = currencyIn?.isNative ? ETHER_ADDRESS : currencyIn?.wrapped.address
+    const outputAddress = currencyOut?.isNative ? ETHER_ADDRESS : currencyOut?.wrapped.address
+    const isCurrentPair =
+      order.chainId === chainId &&
+      inputAddress?.toLowerCase() === order.tokenIn.toLowerCase() &&
+      outputAddress?.toLowerCase() === order.tokenOut.toLowerCase()
+
+    if (isCurrentPair) return
+
+    const selectPair = () =>
+      requestAnimationFrame(() => {
+        navigate(
+          `${APP_PATHS.STOP_MARKET}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${
+            order.tokenOut
+          }${search}`,
+        )
+      })
+
+    if (order.chainId === chainId) selectPair()
+    else changeNetwork(order.chainId, selectPair)
+  }
+
   /**
    * Puts the whole order back on the card, not just its pair: the amount rides the shared swap state
    * and the rest is staged in the stop market order store, which the form reads on mount. `sellAmount` comes
@@ -374,6 +401,7 @@ const StopMarkets = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer, re
               setCancelTargets([target])
             }}
             onEdit={onEdit}
+            onSelectPair={onSelectPair}
             onRecreate={onRecreate}
           />
         ))}

@@ -53,6 +53,7 @@ type Props = {
   rowIndex?: number
   onCancel: (order: StopMarket) => void
   onEdit: (order: StopMarket) => void
+  onSelectPair: (order: StopMarket) => void
   /** `sellAmount` is exact, not the rounded display figure — it goes straight back into the form. */
   onRecreate: (order: StopMarket, sellAmount: string) => void
 }
@@ -78,6 +79,7 @@ const StopMarketRow = ({
   rowIndex = 0,
   onCancel,
   onEdit,
+  onSelectPair,
   onRecreate,
 }: Props) => {
   const sellCurrency = useStopMarketCurrency(order.tokenInInfo, order.chainId)
@@ -224,7 +226,7 @@ const StopMarketRow = ({
       >
         <ChainCell chainId={order.chainId} />
 
-        <PairCell sellCurrency={sellCurrency} receiveCurrency={receiveCurrency} />
+        <PairCell sellCurrency={sellCurrency} receiveCurrency={receiveCurrency} onClick={() => onSelectPair(order)} />
 
         <AmountCell
           className="max-sm:col-start-3 max-sm:items-end"
