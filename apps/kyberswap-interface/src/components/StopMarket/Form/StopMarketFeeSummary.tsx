@@ -131,7 +131,7 @@ export const StopMarketFeeValue = ({ fee, isLoading, chainId }: Props & { chainI
       <PlaceholderSkeleton
         isLoading={isLoading}
         height={16}
-        className={cn('font-medium', label === undefined ? 'text-subText' : 'text-text')}
+        className={cn('font-medium', isLoading && 'min-w-10', label === undefined ? 'text-subText' : 'text-text')}
         contentTestId={label === undefined ? undefined : 'stop-market-fee-value'}
         loadingTestId="stop-market-fee-loading"
       >

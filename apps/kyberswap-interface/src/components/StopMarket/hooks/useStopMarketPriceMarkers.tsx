@@ -184,7 +184,7 @@ export const useStopMarketPriceMarkers = ({ currencyIn, currencyOut, enabled, wi
       label: t`STOP`,
       tone: 'warning',
       renderDetails,
-      renderOffscreen: count => (count === 1 ? t`Stop Market Order` : t`Stop Market Orders`),
+      renderOffscreen: count => (count === 1 ? t`Stop Order` : t`Stop Orders`),
     }
   }, [hasPair, orders, isReversed, renderDetails])
 

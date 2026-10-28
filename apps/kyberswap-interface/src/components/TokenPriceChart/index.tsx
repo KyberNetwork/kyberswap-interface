@@ -23,7 +23,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { useStableCoins } from 'hooks/useTokens'
-import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
+import { formatPrice, formatRate, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { useAppDispatch } from 'state/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -312,7 +312,7 @@ const TokenPriceChart = ({
         <Stack className="border-t border-darkBorder p-4">
           <Stack className="relative gap-3">
             <HStack className="flex-wrap items-start justify-between gap-4">
-              <Stack>
+              <Stack className="min-w-0">
                 {/* Held at the price line's height, so the time-frame control beside it does not jump. */}
                 {isLoading && currentPrice === undefined && (
                   <span className="flex h-7 items-center" data-testid="token-price-chart-price-loading">
@@ -320,21 +320,29 @@ const TokenPriceChart = ({
                   </span>
                 )}
                 {currentPrice !== undefined && (
-                  <HStack className="flex-nowrap items-baseline gap-2">
-                    <span className="text-xl font-medium text-text">{formatValue(currentPrice)}</span>
+                  <HStack className="flex-wrap items-baseline gap-x-2 gap-y-1">
+                    {quoteCurrency ? (
+                      <span className="text-base text-subText">
+                        1 {activeToken.symbol} ={' '}
+                        <span className="text-xl font-medium text-text">{formatRate(currentPrice)}</span>{' '}
+                        {quoteToken.symbol}
+                      </span>
+                    ) : (
+                      <span className="text-xl font-medium text-text">{formatValue(currentPrice)}</span>
+                    )}
 
                     {hasPriceChange && (
-                      <>
-                        <HStack className="items-center gap-1">
-                          <span className="text-sm font-medium" style={{ color: priceChangeColor }}>
-                            {formatSignedPercent(priceChange)}
-                          </span>
+                      <HStack className="items-center gap-1">
+                        <span className="text-sm font-medium" style={{ color: priceChangeColor }}>
+                          {formatSignedPercent(priceChange)}
+                        </span>
+                        {!quoteCurrency && (
                           <span className="text-[10px]" style={{ color: priceChangeColor }}>
                             {priceChange >= 0 ? '▲' : '▼'}
                           </span>
-                        </HStack>
+                        )}
                         <span className="text-sm text-subText">(24h)</span>
-                      </>
+                      </HStack>
                     )}
                   </HStack>
                 )}
@@ -346,12 +354,12 @@ const TokenPriceChart = ({
                   const count = offscreenCounts[group.key] ?? 0
                   if (!count) return null
                   const badgeClass = cn(
-                    'rounded border px-1.5 py-0.5 text-[10px] font-medium uppercase leading-[14px]',
+                    'whitespace-nowrap rounded border px-1.5 py-0.5 text-xs font-medium uppercase leading-[14px]',
                     group.tone === 'blue' ? 'border-blue text-blue' : 'border-warning text-warning',
                   )
                   const badgeText = (
                     <>
-                      +{count} {group.renderOffscreen(count)}
+                      +{count} <span className="text-subText">{group.renderOffscreen(count)}</span>
                     </>
                   )
                   return onGroupBadgeClick ? (

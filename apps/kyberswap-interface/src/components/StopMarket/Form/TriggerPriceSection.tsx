@@ -94,7 +94,7 @@ const TriggerPriceSection = ({
               {formatDisplayNumber(marketPrice, { significantDigits: 6 })}
             </span>
           ) : isLoadingPrice ? (
-            <Skeleton height={20} width={160} />
+            <Skeleton height={20} width={80} />
           ) : null}
         </HStack>
       </HStack>
@@ -142,7 +142,7 @@ const TriggerPriceSection = ({
       ) : isLoadingPrice ? (
         // Boxed at the text-xs line the distance takes, so it lands without moving the card.
         <span className="flex h-4 items-center" data-testid="stop-market-oracle-price-loading">
-          <Skeleton height={10} width={220} borderRadius={6} />
+          <Skeleton height={16} width={160} borderRadius={6} />
         </span>
       ) : null}
     </Stack>

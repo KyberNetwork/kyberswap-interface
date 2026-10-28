@@ -1,11 +1,11 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { useLimitOrderPriceMarkers } from 'components/LimitOrder/hooks/useLimitOrderPriceMarkers'
-import { HStack } from 'components/Stack'
+import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import { useStopMarketPriceMarkers } from 'components/StopMarket/hooks/useStopMarketPriceMarkers'
 import TokenPriceChart from 'components/TokenPriceChart'
 import {
@@ -14,7 +14,6 @@ import {
   invertMarkerOverlay,
 } from 'components/TokenPriceChart/priceMarkers'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
-import { cn } from 'utils/cn'
 
 type Props = {
   currencyIn?: Currency
@@ -36,34 +35,6 @@ const hasOwnChart = (token: Currency) => {
   const quote = PRICE_CHART_QUOTES[token.chainId as ChainId]
   return !quote || !token.wrapped.equals(quote)
 }
-
-/** One of the two tokens, offered as its own dollar chart. */
-const TokenViewPill = ({
-  token,
-  isActive,
-  onClick,
-  dataTestId,
-}: {
-  token: Currency
-  isActive: boolean
-  onClick: () => void
-  dataTestId: string
-}) => (
-  <button
-    type="button"
-    role="tab"
-    aria-selected={isActive}
-    onClick={onClick}
-    data-testid={dataTestId}
-    className={cn(
-      'flex h-7 shrink-0 cursor-pointer items-center gap-1 rounded-full border-0 pl-1 pr-2.5 text-xs font-medium transition-colors',
-      isActive ? 'bg-primary-20 text-primary' : 'bg-buttonGray text-subText hover:text-text',
-    )}
-  >
-    <CurrencyLogo currency={token} size="18px" />
-    {token.symbol}
-  </button>
-)
 
 /**
  * The pair's price chart with every open order the user has on it — limit orders and stop market orders on
@@ -116,75 +87,88 @@ const OrdersPriceChart = ({ currencyIn, currencyOut, isStopMarketPage, onShowOrd
   const [baseCurrency, quoteCurrency] = isInverted ? [currencyOut, currencyIn] : [currencyIn, currencyOut]
   const chartTokens = isPairView ? [baseCurrency] : view === 'in' ? [currencyIn] : [currencyOut]
 
-  const renderHeader = ({ expand }: { expand: () => void }) =>
-    hasPair && baseCurrency && quoteCurrency ? (
-      <HStack
-        role="tablist"
-        className="min-w-0 flex-1 items-center gap-2 overflow-x-auto px-4 py-2.5"
-        data-testid="orders-chart-views"
-      >
-        <button
-          type="button"
-          role="tab"
-          aria-selected={isPairView}
-          onClick={() => {
-            setView('pair')
-            expand()
-          }}
-          data-testid="orders-chart-view-pair"
-          className={cn(
-            'flex shrink-0 cursor-pointer items-center gap-1.5 border-0 bg-transparent p-0 text-base font-medium transition-colors',
-            isPairView ? 'text-text' : 'text-subText hover:text-text',
-          )}
-        >
-          {/* The two logos overlap, the base token in front. */}
-          <span className="flex shrink-0 items-center">
-            <span className="relative z-[1] flex">
-              <CurrencyLogo currency={baseCurrency} size="20px" />
+  const renderHeader = ({ expand }: { expand: () => void }) => {
+    if (!hasPair || !baseCurrency || !quoteCurrency) return null
+
+    const options: SegmentedControlOption<ChartView>[] = [
+      {
+        value: 'pair',
+        dataTestId: 'orders-chart-view-pair',
+        label: (
+          <span className="flex items-center justify-center gap-1.5 whitespace-nowrap font-medium">
+            {/* The two logos overlap, the base token in front. */}
+            <span className="flex shrink-0 items-center">
+              <span className="relative z-[1] flex">
+                <CurrencyLogo currency={baseCurrency} size="20px" />
+              </span>
+              <span className="-ml-1.5 flex">
+                <CurrencyLogo currency={quoteCurrency} size="20px" />
+              </span>
             </span>
-            <span className="-ml-1.5 flex">
-              <CurrencyLogo currency={quoteCurrency} size="20px" />
+            <span className="inline-flex font-medium">
+              <span>{baseCurrency.symbol}</span>
+              <span>/</span>
+              <span>{quoteCurrency.symbol}</span>
             </span>
           </span>
-          {baseCurrency.symbol}/{quoteCurrency.symbol}
-        </button>
-        <button
-          type="button"
-          aria-label={t`Invert pair`}
-          data-testid="orders-chart-invert-pair"
-          onClick={() => {
-            toggleInverted()
-            expand()
-          }}
-          className="flex shrink-0 cursor-pointer items-center border-0 bg-transparent p-0 text-subText transition-colors hover:text-text"
-        >
-          <Repeat size={14} />
-        </button>
-        {(canChartIn || canChartOut) && <div className="mx-1 h-4 w-px shrink-0 bg-darkBorder" />}
-        {canChartIn && (
-          <TokenViewPill
-            token={currencyIn}
-            isActive={view === 'in'}
+        ),
+        trailingAction: (
+          <button
+            type="button"
+            aria-label={t`Invert pair`}
+            data-testid="orders-chart-invert-pair"
             onClick={() => {
-              setView('in')
+              toggleInverted()
               expand()
             }}
-            dataTestId="orders-chart-view-in"
-          />
-        )}
-        {canChartOut && (
-          <TokenViewPill
-            token={currencyOut}
-            isActive={view === 'out'}
-            onClick={() => {
-              setView('out')
+            className="flex cursor-pointer items-center border-0 bg-transparent p-0 text-subText transition-colors hover:text-text"
+          >
+            <Repeat size={14} />
+          </button>
+        ),
+      },
+    ]
+
+    const tokenViews = [
+      { value: 'in', token: currencyIn, canChart: canChartIn },
+      { value: 'out', token: currencyOut, canChart: canChartOut },
+    ] as const
+
+    tokenViews.forEach(({ value, token, canChart }) => {
+      if (!token || !canChart) return
+      const quoteSymbol = PRICE_CHART_QUOTES[token.chainId as ChainId]?.symbol
+      options.push({
+        value,
+        dataTestId: `orders-chart-view-${value}`,
+        label: (
+          <span className="flex items-center justify-center gap-1 whitespace-nowrap px-1 font-medium">
+            <CurrencyLogo currency={token} size="20px" />
+            {token.symbol}
+            <span className="text-xs font-medium">
+              <Trans>in {quoteSymbol}</Trans>
+            </span>
+          </span>
+        ),
+      })
+    })
+
+    return (
+      <div className="min-w-0 flex-1 overflow-x-auto px-4 py-3" data-testid="orders-chart-views">
+        <div className="w-max">
+          <SegmentedControl
+            color="primary"
+            equalWidth={false}
+            value={view}
+            options={options}
+            onChange={next => {
+              setView(next)
               expand()
             }}
-            dataTestId="orders-chart-view-out"
           />
-        )}
-      </HStack>
-    ) : null
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
