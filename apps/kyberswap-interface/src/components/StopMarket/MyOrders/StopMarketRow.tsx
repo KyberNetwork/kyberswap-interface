@@ -175,7 +175,7 @@ const StopMarketRow = ({
   // An executed row only has a story to tell once its fills carry both their prices and what they received.
   const canExpand = isExecuted && executionPrice !== undefined && receivedAmount !== undefined
   const [expanded, setExpanded] = useState(false)
-  // Display only: the trigger and distance stay in the order's own direction.
+  // Display only: the trigger price follows it, while the distance stays in the order's own direction.
   const [isPriceInverted, setIsPriceInverted] = useState(false)
   const recreate = () => onRecreate(order, sellCurrencyAmount.toExact())
 
@@ -219,7 +219,9 @@ const StopMarketRow = ({
 
         <Stack className="min-w-0 gap-0.5 font-medium max-sm:hidden">
           <span className="truncate text-sm text-blue3" data-testid="stop-market-order-trigger-price">
-            {formatPairPrice(triggerPrice, receiveCurrency.symbol)}
+            {isPriceInverted
+              ? formatPairPrice(Number(triggerPrice) ? 1 / Number(triggerPrice) : undefined, sellCurrency.symbol)
+              : formatPairPrice(triggerPrice, receiveCurrency.symbol)}
           </span>
           <span className="truncate text-xs text-subText" data-testid="stop-market-order-slippage">
             {formatSlippage(order.slippage)}
