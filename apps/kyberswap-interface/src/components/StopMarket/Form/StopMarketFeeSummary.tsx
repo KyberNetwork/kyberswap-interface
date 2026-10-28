@@ -1,11 +1,13 @@
 import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { ReactNode } from 'react'
 import { AlertTriangle, Info } from 'react-feather'
 
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { HIGH_FEE_SHARE_PERCENT } from 'components/StopMarket/constants'
 import { StopMarketFee } from 'components/StopMarket/types'
+import { getStopMarketOrderTooSmall } from 'components/StopMarket/utils'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NativeCurrencies } from 'constants/tokens'
@@ -17,6 +19,9 @@ type Props = {
   /** Why the fee could not be estimated; the order cannot be placed on these terms until it can. */
   errorMessage?: string
 }
+
+/** The most of an order a fee can be said to take. */
+const MAX_FEE_SHARE_PERCENT = 100
 
 const formatFeeShare = (percentage: number) => formatDisplayNumber(percentage, { significantDigits: 3 })
 
@@ -136,10 +141,21 @@ export const StopMarketFeeValue = ({ fee, isLoading, chainId }: Props & { chainI
   )
 }
 
+const FeeWarning = ({ dataTestId, children }: { dataTestId: string; children: ReactNode }) => (
+  <HStack
+    className="animate-[fadeIn_0.2s_ease-out_both] items-start gap-1.5 text-xs font-medium text-warning motion-reduce:animate-none"
+    data-testid={dataTestId}
+  >
+    <AlertTriangle size={14} className="mt-px shrink-0" />
+    <span>{children}</span>
+  </HStack>
+)
+
 /**
  * What the fee row cannot say on its own: why there is no fee to show, or — where `showShareWarning` asks
  * for it, which the review does — that the fee takes a large share of a small order. The share is only a
- * warning — the size is the user's call. What the fee covers is the tooltip's to say.
+ * warning — the size is the user's call. What the fee covers is the tooltip's to say. An order too small
+ * to carry the minimum fee is warned about the same way, with the share the service refused it at.
  */
 export const StopMarketFeeNotes = ({
   fee,
@@ -148,6 +164,24 @@ export const StopMarketFeeNotes = ({
   showShareWarning = false,
 }: Props & { showShareWarning?: boolean }) => {
   if (isLoading) return null
+  const tooSmall = getStopMarketOrderTooSmall(errorMessage)
+  if (tooSmall) {
+    // Capped at the whole order: a share above it only says the fee swallows everything the order sells.
+    const share =
+      tooSmall.feeShare === undefined ? undefined : formatFeeShare(Math.min(tooSmall.feeShare, MAX_FEE_SHARE_PERCENT))
+    return (
+      <FeeWarning dataTestId="stop-market-fee-too-small">
+        {share ? (
+          <Trans>
+            At this size the fee is {share}% of your order. Execution costs the same regardless of order size, and the
+            order may not execute during unusual gas spikes.
+          </Trans>
+        ) : (
+          <Trans>The fee is higher than your order amount. Increase the amount to continue.</Trans>
+        )}
+      </FeeWarning>
+    )
+  }
   if (errorMessage)
     return (
       <HStack
@@ -164,23 +198,17 @@ export const StopMarketFeeNotes = ({
   const share = formatFeeShare(getFeeShare(fee) ?? 0)
 
   return (
-    <HStack
-      className="animate-[fadeIn_0.2s_ease-out_both] items-start gap-1.5 text-xs font-medium text-warning motion-reduce:animate-none"
-      data-testid="stop-market-min-fee-warning"
-    >
-      <AlertTriangle size={14} className="mt-px shrink-0" />
-      <span>
-        {warningKind === 'highShareMinimum' ? (
-          <Trans>
-            At this size the fee is {share}% of your order. Execution costs the same regardless of order size, and the
-            order may not execute during unusual gas spikes.
-          </Trans>
-        ) : (
-          <Trans>
-            At this size the fee is {share}% of your order. Execution costs the same regardless of order size.
-          </Trans>
-        )}
-      </span>
-    </HStack>
+    <FeeWarning dataTestId="stop-market-min-fee-warning">
+      {warningKind === 'highShareMinimum' ? (
+        <Trans>
+          At this size the fee is {share}% of your order. Execution costs the same regardless of order size, and the
+          order may not execute during unusual gas spikes.
+        </Trans>
+      ) : (
+        <Trans>
+          At this size the fee is {share}% of your order. Execution costs the same regardless of order size.
+        </Trans>
+      )}
+    </FeeWarning>
   )
 }

@@ -22,6 +22,7 @@ import {
   getStopMarketFundingKey,
   getStopMarketFundingShortfalls,
   getStopMarketMinReceive,
+  getStopMarketOrderTooSmall,
   getStopMarketPairKey,
   getStopMarketRecreateDraft,
   getStopMarketRetry,
@@ -1029,5 +1030,24 @@ describe('isStopMarketTriggerClose', () => {
     expect(isStopMarketTriggerClose({ triggerPrice: '90', marketPrice: undefined, slippage: 50 })).toBe(false)
     expect(isStopMarketTriggerClose({ triggerPrice: '', marketPrice: 100, slippage: 50 })).toBe(false)
     expect(isStopMarketTriggerClose({ triggerPrice: '0', marketPrice: 100, slippage: 50 })).toBe(false)
+  })
+})
+
+describe('getStopMarketOrderTooSmall', () => {
+  it('reads the fee share from a too-small refusal', () => {
+    expect(
+      getStopMarketOrderTooSmall(
+        'Order too small: protocol fee exceeds the maximum rate: fee would be 1000.0000%, max 10000 bps (minimum fee 0.001 ETH on this chain); increase the amount',
+      ),
+    ).toEqual({ feeShare: 1000 })
+  })
+
+  it('still flags the refusal when it names no share', () => {
+    expect(getStopMarketOrderTooSmall('order too small; increase the amount')).toEqual({ feeShare: undefined })
+  })
+
+  it('ignores any other reason', () => {
+    expect(getStopMarketOrderTooSmall('Slippage must exceed the maximum fees')).toBeUndefined()
+    expect(getStopMarketOrderTooSmall(undefined)).toBeUndefined()
   })
 })

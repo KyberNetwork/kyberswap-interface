@@ -628,6 +628,17 @@ export const getStopMarketServiceErrorMessage = (error: unknown): string | undef
   return capitalizeFirstLetter(message)
 }
 
+/**
+ * Whether a refusal from `getStopMarketServiceErrorMessage` says the order is too small to carry its fee,
+ * e.g. "Order too small: protocol fee exceeds the maximum rate: fee would be 1000.0000%, …", and the fee's
+ * share of the order (percent) where the reason names it.
+ */
+export const getStopMarketOrderTooSmall = (message?: string): { feeShare?: number } | undefined => {
+  if (!message || !/order too small/i.test(message)) return undefined
+  const feeShare = Number(/fee would be ([\d.]+)%/i.exec(message)?.[1])
+  return { feeShare: Number.isFinite(feeShare) && feeShare > 0 ? feeShare : undefined }
+}
+
 /** The warnings the service attached that carry something to show; the rest are nothing to read out. */
 export const getStopMarketWarnings = (order: StopMarket): StopMarketWarning[] =>
   Array.isArray(order.warnings)

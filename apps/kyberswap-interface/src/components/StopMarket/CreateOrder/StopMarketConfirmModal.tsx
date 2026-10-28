@@ -25,6 +25,7 @@ import { StopMarketFee } from 'components/StopMarket/types'
 import {
   clampStopMarketDeadline,
   getStopMarketMinReceive,
+  getStopMarketOrderTooSmall,
   getTriggerDirection,
   isStopMarketTriggerClose,
 } from 'components/StopMarket/utils'
@@ -188,6 +189,8 @@ export const StopMarketReviewSummary = ({
       ? undefined
       : getStopMarketMinReceive({ estimatedOutput: Number(estimatedOutput), slippage, fee: feeAmount })
   const showFeeError = !!feeError && !isFeeLoading
+  // The order is refused for its size, which retrying cannot change; only a larger amount can.
+  const isOrderTooSmall = !!getStopMarketOrderTooSmall(feeError)
   // Neither a fee nor a reason yet means the estimate is still on its way, from the moment the review opens.
   const isFeePending = isFeeLoading || (!fee && !feeError)
   const receiveSymbol = currencyOut?.symbol ?? ''
@@ -294,7 +297,19 @@ export const StopMarketReviewSummary = ({
         </HStack>
       )}
 
-      {showFeeError && (
+      {showFeeError && isOrderTooSmall && (
+        <HStack
+          className="items-start gap-1.5 text-xs font-medium text-warning"
+          data-testid="stop-market-confirm-fee-too-small"
+        >
+          <Info size={14} className="mt-px shrink-0" />
+          <span>
+            <Trans>The fee is higher than your order amount. Increase the amount to continue.</Trans>
+          </span>
+        </HStack>
+      )}
+
+      {showFeeError && !isOrderTooSmall && (
         <ReviewNote type="error" dataTestId="stop-market-confirm-fee-error">
           {feeError}
           {onRetryFee && (
