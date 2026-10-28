@@ -21,6 +21,13 @@ export const OrderPanelCard = ({ className, ...props }: OrderPanelCardProps) => 
   />
 )
 
+/** The loaded panel and its fallback share the control height, padding and wrapping. */
+export const OrderListToolbar = ({ children }: { children: ReactNode }) => (
+  <HStack className="flex-wrap items-center justify-between gap-3 border-b border-darkBorder px-4 py-3">
+    {children}
+  </HStack>
+)
+
 export type PanelTab<T extends string> = { id: T; label: ReactNode }
 
 type PanelTabsProps<T extends string> = {
@@ -71,7 +78,8 @@ type OrderKindTabsProps = {
   counts?: { limit: number; stop: number }
   insufficientFundOrders: number
   stopMarketWarning: boolean
-  onChange: (kind: OrderKind) => void
+  /** Omitted in the code-loading fallback, where the same tabs are disabled. */
+  onChange?: (kind: OrderKind) => void
 }
 
 export const OrderKindTabs = ({

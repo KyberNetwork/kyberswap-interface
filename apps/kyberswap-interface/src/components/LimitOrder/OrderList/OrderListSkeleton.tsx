@@ -3,17 +3,21 @@ import { useMedia } from 'react-use'
 
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import RowsSkeleton from 'components/LimitOrder/MyOrders/RowsSkeleton'
+import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
 import OrderBookSkeleton from 'components/LimitOrder/OrderBook/OrderBookSkeleton'
-import { OrderPanelCard } from 'components/LimitOrder/OrderList/OrderListComponents'
-import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { OrderKindTabs, OrderListToolbar, OrderPanelCard } from 'components/LimitOrder/OrderList/OrderListComponents'
+import { LimitOrderStatus, LimitOrderTab, OrderKind } from 'components/LimitOrder/types'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import StopMarketTableHeader from 'components/StopMarket/MyOrders/TableHeader'
 import { StopMarketRowsSkeleton } from 'components/StopMarket/MyOrders/components'
 import { APP_PATHS } from 'constants/index'
+import { isSupportStopMarket } from 'constants/networks'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { useShowPricingChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { getTradeProductPath } from 'utils/routes'
 
 /** Match the 44px tabs plus the content's separate 1px border. */
@@ -71,6 +75,8 @@ const OrderListSkeleton = () => {
 
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
   const hasOrderBook = getTradeProductPath(pathname) !== APP_PATHS.STOP_MARKET
+  const showStopMarkets = isSupportStopMarket(chainId)
+  const isLimitList = hasOrderBook || !showStopMarkets
   const orderTabs = !hasChart && hasOrderBook ? [110, 110, 130] : [110, 110]
   const isOrderBook = hasOrderBook && searchParams.get('tab') === LimitOrderTab.ORDER_BOOK
   const isActiveTab = searchParams.get('orderTab') !== LimitOrderStatus.CLOSED
@@ -90,18 +96,42 @@ const OrderListSkeleton = () => {
             <OrderBookSkeleton />
           ) : (
             <>
-              <HStack className="min-h-12 items-center gap-6 border-b border-darkBorder px-4 py-2">
-                <Skeleton height={14} width={76} borderRadius={6} />
-                <Skeleton height={14} width={76} borderRadius={6} />
-              </HStack>
+              <OrderListToolbar>
+                <OrderKindTabs
+                  showStopMarkets={showStopMarkets}
+                  kind={isLimitList ? OrderKind.LIMIT : OrderKind.STOP}
+                  insufficientFundOrders={0}
+                  stopMarketWarning={false}
+                />
+              </OrderListToolbar>
               <div className="flex justify-between gap-2 px-4 py-2 max-sm:flex-col">
-                <Skeleton height={36} width={130} borderRadius={16} />
-                <div className="max-w-[360px] flex-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none">
+                <div className="flex min-w-0 items-center gap-2 max-sm:w-full">
+                  {!isActiveTab && (
+                    <Skeleton
+                      height={36}
+                      width="100%"
+                      borderRadius={16}
+                      containerClassName={cn(isLimitList ? 'w-[130px]' : 'w-[150px]', 'max-sm:w-1/2')}
+                    />
+                  )}
+                  <Skeleton height={36} width="100%" borderRadius={16} containerClassName="w-[130px] max-sm:w-1/2" />
+                </div>
+                <div
+                  className={cn(
+                    'flex-1 max-sm:w-full max-sm:max-w-none max-sm:flex-none',
+                    isLimitList ? 'max-w-[280px]' : 'max-w-[360px]',
+                  )}
+                >
                   <Skeleton height={36} borderRadius={16} containerClassName="block" />
                 </div>
               </div>
+              {isLimitList ? (
+                <TableHeader isActiveTab={isActiveTab} />
+              ) : (
+                <StopMarketTableHeader isActiveTab={isActiveTab} />
+              )}
               <div className="min-h-20">
-                {hasOrderBook ? (
+                {isLimitList ? (
                   <RowsSkeleton isActiveTab={isActiveTab} />
                 ) : (
                   <StopMarketRowsSkeleton isActiveTab={isActiveTab} />

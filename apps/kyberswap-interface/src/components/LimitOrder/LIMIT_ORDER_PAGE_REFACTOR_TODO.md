@@ -4,7 +4,7 @@ Reviewed: 2026-10-29
 
 Status: reviewed page-wide ownership and consistency plan for both features. This file separates proposed behavior fixes, structural refactors and existing contracts to preserve; it does not authorize a business-rule rewrite. Updating this plan does not mark implementation or runtime verification complete.
 
-Review outcome: keep this as an execution map, but implement it in small batches. The first correctness batch is draft lifetime plus Set Price identity; processing stale-run guards are a separate correctness batch. Shared visual changes, Cross-Chain flags and unrelated product work stay outside this plan.
+Review outcome: keep this as an execution map, but implement it in small batches. The low-risk preparation batch below precedes correctness work. The first correctness batch is draft lifetime plus Set Price identity; processing stale-run guards are a separate correctness batch. Cross-Chain flags and unrelated product work stay outside this plan; presentation changes in this batch are confined to the shared order panel and its fallback.
 
 ## Scope
 
@@ -75,7 +75,26 @@ Complete the field-level keep/reset decisions before changing state placement. S
 - Limit Order currently keeps rate, output and expiry in the form hook, so those fields are lost when `LimitPage` switches to Settings/Info. Shared pair and sell amount remain in `state/limit`.
 - Stop Market keeps trigger, slippage, expiry and custom date in its existing Redux state; its local picker/seed/typed-output state has different lifetime rules. Do not apply the Limit retention fix by copying all Stop Market fields into a new shared store.
 
-- [ ] Record the concrete field-level decisions and current behavior for each affected entry point: main Limit, Stop Market and embedded Partner Swap.
+### Field-level baseline and decisions for subsequent correctness batches
+
+These decisions specify the intended boundaries; the preparation batch does **not** implement draft retention, Set Price consumption or operation guards. Preserve current behavior unless a difference is explicitly listed below.
+
+| Fields / authoritative owner | Current behavior traced in source | Keep/reset decision |
+| --- | --- | --- |
+| Main-route pair and sell amount: `state/limit` delegates to `state/swap` and the route updater | Shared by Swap, Limit and Stop. Form-local reset does not own token URLs; successful create clears the shared sell amount. | Keep across Settings/Info and product switches. Token/chain URLs remain with the existing route owner. Preserve each form's explicit rotation amount semantics; never duplicate these values in a new draft store. |
+| Embedded pair and chain: Partner Swap query params; sell amount: shared swap state | `chainId`, `inputCurrency` and `outputCurrency` drive the embedded form; token handlers update query params. Switching away from the Limit tab unmounts the form. | Keep URL authority and preserve unrelated query params. `customChainId` defines the embedded market/draft identity even when wallet chain differs. A wallet-account change alone does not erase the draft. |
+| Limit `rateInfo`, `outputAmount`: `useLimitOrderFormState` | Local values are lost on Settings/Info or product unmount. Ordinary token selection clears the rate and re-enables market seeding; rotation swaps amounts and recalculates rate. The current Set Price request can replay on remount. | Proposed view-only fix: retain both fields across Settings/Info. Preserve the existing product-switch reset of these Limit-local fields. Preserve explicit selection/rotation math. For an externally replaced pair/chain, invalidate the old rate/output and seed only from the new identity; implement this as correctness work, not a side effect of moving state. |
+| Limit `expire`, `customDateExpire`: form hook | Defaults to 30 days on remount; selecting a preset clears the custom date. Pair selection/rotation does not reset expiry. Preset deadline is calculated from current time; custom date is absolute. | Retain across Settings/Info; retain existing reset on product switch and explicit successful-create reset. Keep across pair/chain/account changes. Preserve relative-preset versus absolute-date semantics and let validation reject an expired custom date. |
+| Stop `triggerPrice`, `triggerPair`: `state/stopMarket` | Survives view/product unmount. Only read for the matching chain and directional wrapped-token pair; a different pair reads empty and seeds from its oracle. | Preserve identity gating and seeding, including on rotation. Keep the matching trigger across Settings/Info/product switches/account changes. Do not transplant the Limit inverse-rate rule into Stop. |
+| Stop staged `slippage`: `state/stopMarket`; preferred slippage: `state/user` | Recreate's staged value wins over user preference, then pair default. Explicit selection clears staged slippage; successful reset clears it too. | Preserve this precedence and existing retention across view/product/pair/chain/account changes. A draft reset must not erase the user's preference. |
+| Stop `expire`, `customDateExpire`: Redux; `expiryStart`: form-local | Preset/custom values survive unmount. The local preset anchor is recreated on mount, and reset when expiry changes or the form resets. Custom date is absolute. | Preserve existing behavior in this scope, including re-anchoring on remount. Changing Stop deadline anchoring requires a separately stated behavior change; do not couple it to the Limit retention fix. |
+| Stop `typedOutput`, `seededPair`: form-local | Typed text is used only while pair, sell amount and trigger match its captured identity; otherwise output is derived. Both local values are lost on remount. | Keep transient typed text local; preserve re-derivation on identity changes/remount and never overwrite an existing matching trigger while seeding. |
+| Expiry expansion/date picker and rate inversion: presentation controls | Local state resets on unmount. | May close/reset across Settings/Info and product switches; it must not determine business-draft retention. |
+| Review/processing: operation owner | Stop creation captures a snapshot and gates the session by wallet/chain, with cleanup on unmount. Limit/shared processing gaps remain in item 5. | Close/invalidate on account/chain changes or unmount. Dismissal never erases a draft. Completion may reset only its originating, unchanged draft; submitted transaction/cache persistence must finish independently. |
+
+List selection, search and cursor state have separate ownership: the main panel owns `tab`/`orderTab`, while embedded market/list selection remains local. Each mounted product list keeps its status/chain filters and pager; switching the selected product list currently unmounts it and resets its local filters. The shared `search` query survives that switch. Preserve these rules in preparation work. Reset account-scoped pagination on account change without clearing unrelated preferences; changes to list mount/query behavior belong to item 3.
+
+- [x] Record the concrete field-level decisions and current behavior for main Limit, Stop Market and embedded Partner Swap; distinguish the proposed fixes from existing behavior.
 - [ ] Use a keyed boundary only when all state inside it shares the same reset policy; otherwise use a narrower owner or explicit transition.
 
 ## Ownership model
@@ -215,7 +234,7 @@ Sources: [`useLimitOrderTracking`](hooks/useLimitOrderTracking.ts), [`useStopMar
 - [ ] Ensure notification deep links use the shared navigation contract and do not fight the page's current query selection.
 - [ ] Sweep the page surface for stale debug artifacts (`console.log`, `debugger`, obsolete TODO/FIXME, unsafe casts or suppressions) before implementation work is considered complete.
 
-Current cleanup targets found during this review: `LimitOrder/utils.ts:177` and `LimitOrder/Form/LimitOrderRateSection.tsx:42`.
+Preparation cleanup: removed the two `console.log` calls in `LimitOrder/utils.ts` and `LimitOrder/Form/LimitOrderRateSection.tsx`, preserving their zero-rate/empty-comparison fallbacks. This does not mark the wider notification/tracking audit complete.
 Acceptance: each event/subscription has one lifecycle owner, does not duplicate after remount, and points to the same route/query contract as the visible list.
 
 ### 8. Align presentation, responsive geometry and loading fallbacks
@@ -224,7 +243,7 @@ Priority: P1, UI stability.
 
 Sources: [`OrderListComponents`](OrderList/OrderListComponents.tsx), [`OrderListSkeleton`](OrderList/OrderListSkeleton.tsx), [`SegmentedControl`](../SegmentedControl/index.tsx), [`OrderBookSkeleton`](OrderBook/OrderBookSkeleton.tsx), [`RowsSkeleton`](MyOrders/RowsSkeleton.tsx), Stop Market list skeletons.
 
-- [ ] Let `SegmentedControl` own segment geometry; let the toolbar own available width and sibling `gap`. Remove label-width hacks such as `w-36` when the control can express the same contract.
+- [x] Preserve the order-kind label's `w-36` contract so count/warning badges do not shift the segment horizontally. Share the toolbar's padding/gap/wrapping between loaded and fallback panels without changing the global primitive.
 - [ ] Keep the toolbar mounted while the selected order kind changes; inactive list content may switch or be skipped without moving the controls.
 - [ ] Make loaded and fallback cards share tab height, toolbar height, padding, gaps, badge space and responsive wrapping.
 - [ ] Compare Limit and Stop forms, review/cancel modals and list states side by side for equivalent UI. Fix shared geometry in the owning component and update both consumers and their skeletons together; retain space for product-specific content.
@@ -270,7 +289,11 @@ Before marking a batch complete, confirm:
 
 ## Suggested implementation order
 
-- [ ] Batch 1 (P0, draft correctness): complete the field-level lifetime matrix, retain Limit business draft across Settings/Info, and make Set Price a pair/chain-scoped one-shot intent. Add focused regression tests before any broad extraction.
+- [x] Preparation 0 (documentation): record field-level owners and retention/reset decisions for main Limit, Stop and embedded Partner Swap above. No state-placement or business-rule change.
+- [x] Preparation 1 (cleanup): remove the two identified debug logs while retaining error fallbacks.
+- [x] Preparation 2 (pure contracts): add Limit rate/output/inversion and price-input/comparison coverage, plus list status/search/query preservation coverage. Reuse existing history-pager, service-pagination and Stop utility tests; these tests do not verify form remounts or async sessions.
+- [x] Preparation 3 (local presentation): preserve the fixed order-kind label width, share the loaded/fallback toolbar, and align fallback filters/table headers with the selected Limit/Stop layout. Keep the existing Cancel All portal and all query/operation owners. Visual verification remains separate from static checks.
+- [ ] Batch 1 (P0, draft correctness): implement the recorded lifetime decisions, retain Limit business draft across Settings/Info, and make Set Price a pair/chain-scoped one-shot intent. Add focused regression tests before any broad extraction.
 - [ ] Batch 2 (P0, operation correctness): close stale continuations in `useProcessingSteps`, then add operation/draft identity guards to Limit create and the affected Stop/Take/Cancel/Edit flows. Keep submitted-work persistence intact.
 - [ ] Batch 3 (P1, list ownership): consolidate URL/list ownership, remove toolbar DOM-container plumbing, and move Recreate coordination. Preserve product-specific pagination/actions plus badge/warning/marker query consumers.
 - [ ] Batch 4 (P1, data and lifecycle): finish market-data ownership, cache invalidation, reservation freshness, notification/tracking lifecycles and chart/table cancellation feedback.
@@ -281,6 +304,8 @@ Do not combine phases with unrelated Swap, Cross-Chain, backend or contract work
 ## Verification plan and limits
 
 The planning review was source-based. Browser, live-service and wallet E2E verification are not included in this TODO update and remain pending for implementation work.
+
+Preparation 0–3 validation (2026-10-29): targeted Vitest passed 5 files / 169 tests (including 13 new pure-contract cases); targeted ESLint, TypeScript and diff checks passed. Browser/visual and wallet E2E checks have not run. The checked preparation items record implementation, not proof of responsive rendering or async correctness.
 
 For each implementation batch, verify separately:
 

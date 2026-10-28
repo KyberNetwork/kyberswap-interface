@@ -173,8 +173,8 @@ export const formatRateLimitOrder = (order: LimitOrder, invert: boolean) => {
     rateValue = invert
       ? uint256ToFraction(takingAmount, takerAssetDecimals).divide(uint256ToFraction(makingAmount, makerAssetDecimals))
       : uint256ToFraction(makingAmount, makerAssetDecimals).divide(uint256ToFraction(takingAmount, takerAssetDecimals))
-  } catch (error) {
-    console.log(error)
+  } catch {
+    // Keep the zero-rate fallback when an order cannot be formatted.
   }
   const float = parseFloat(rateValue.toFixed(16))
   return formatDisplayNumber(float, { fractionDigits: float < 1e-8 ? 16 : 8 })

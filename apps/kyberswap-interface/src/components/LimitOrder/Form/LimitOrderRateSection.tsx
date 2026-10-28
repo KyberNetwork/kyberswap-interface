@@ -38,8 +38,8 @@ export const useGetDeltaRateLimitOrder = ({
         const deltaText = `${Math.abs(delta) > 100 ? '>100' : `${sign}${delta.toFixed(2)}`}%`
         return { percent, deltaText }
       }
-    } catch (error) {
-      console.log(error)
+    } catch {
+      // Keep the empty comparison when the market rate cannot be read.
     }
     return { percent: undefined, deltaText: '' }
   }, [marketPrice, rateInfo])

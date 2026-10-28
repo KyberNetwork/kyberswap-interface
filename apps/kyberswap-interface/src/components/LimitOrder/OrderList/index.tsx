@@ -9,11 +9,16 @@ import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
 import { LIST_ORDER_TABS } from 'components/LimitOrder/MyOrders/utils'
 import OrderBook from 'components/LimitOrder/OrderBook'
-import PanelTabs, { OrderKindTabs, OrderPanelCard, PanelTab } from 'components/LimitOrder/OrderList/OrderListComponents'
+import PanelTabs, {
+  OrderKindTabs,
+  OrderListToolbar,
+  OrderPanelCard,
+  PanelTab,
+} from 'components/LimitOrder/OrderList/OrderListComponents'
 import OrdersPriceChart from 'components/LimitOrder/OrderList/OrdersPriceChart'
 import { useOpenOrderCounts } from 'components/LimitOrder/hooks/useOpenOrderCounts'
 import { LimitOrderStatus, LimitOrderTab, OrderKind, ShowOrdersState } from 'components/LimitOrder/types'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import StopMarkets from 'components/StopMarket/MyOrders'
 import { useStopMarketOrderWarning } from 'components/StopMarket/hooks/useStopMarketOrderWarning'
 import { APP_PATHS } from 'constants/index'
@@ -303,7 +308,7 @@ const OrderList = () => {
           </Stack>
         )}
         <Stack className={cn('border-t border-darkBorder', !hasChart && isOrderBook && 'hidden')}>
-          <HStack className="flex-wrap items-center gap-3 border-b border-darkBorder px-4 py-3">
+          <OrderListToolbar>
             <OrderKindTabs
               showStopMarkets={showStopMarkets}
               kind={kind}
@@ -312,8 +317,8 @@ const OrderList = () => {
               stopMarketWarning={stopMarketWarning}
               onChange={setChosenKind}
             />
-            <div ref={setToolbarActionsContainer} className="ml-auto shrink-0 empty:hidden" />
-          </HStack>
+            <div ref={setToolbarActionsContainer} className="flex flex-1 justify-end empty:hidden" />
+          </OrderListToolbar>
           {kind === OrderKind.STOP ? (
             <StopMarkets
               isActiveTab={isActiveTab}
