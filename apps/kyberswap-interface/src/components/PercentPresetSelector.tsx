@@ -67,7 +67,9 @@ const PercentPresetSelector = ({
             isCustomActive && ['hover:bg-tabActive', Number(displayValue) < 0 ? 'border-red/50' : 'border-primary-50'],
         )}
       >
-        {showPositiveSign && <span className="shrink-0">{displayValue && !/^[+-]/.test(displayValue) ? '+' : ''}</span>}
+        {showPositiveSign && (
+          <span className="shrink-0">{Number(displayValue) > 0 && !/^[+-]/.test(displayValue) ? '+' : ''}</span>
+        )}
         <NumericalInput
           className="h-5 bg-transparent text-xs font-medium text-inherit placeholder:text-inherit"
           data-testid={testIdPrefix ? `${testIdPrefix}-input` : undefined}

@@ -250,13 +250,20 @@ export const ChainCell = ({ chainId }: { chainId: ChainId }) => {
  * keyed by checksummed ones.
  */
 export const PairCell = ({ sellCurrency, receiveCurrency }: { sellCurrency: Currency; receiveCurrency: Currency }) => (
-  <HStack className="min-w-0 items-center gap-1.5 text-sm font-medium text-text" data-testid="stop-market-order-pair">
-    <CurrencyLogo currency={sellCurrency} size="16px" />
-    <span className="truncate">{sellCurrency.symbol || '-'}</span>
-    <span className="shrink-0 text-subText">→</span>
-    <CurrencyLogo currency={receiveCurrency} size="16px" />
-    <span className="truncate">{receiveCurrency.symbol || '-'}</span>
-  </HStack>
+  <Stack
+    className="min-w-0 gap-0.5 text-sm font-medium text-text max-sm:flex-row max-sm:items-center max-sm:gap-1.5"
+    data-testid="stop-market-order-pair"
+  >
+    <HStack className="min-w-0 items-center gap-1.5 max-sm:contents">
+      <CurrencyLogo currency={sellCurrency} size="16px" />
+      <span className="truncate">{sellCurrency.symbol || '-'}</span>
+    </HStack>
+    <HStack className="min-w-0 items-center gap-1.5 max-sm:contents">
+      <span className="shrink-0 text-subText">→</span>
+      <CurrencyLogo currency={receiveCurrency} size="16px" />
+      <span className="truncate">{receiveCurrency.symbol || '-'}</span>
+    </HStack>
+  </Stack>
 )
 
 /** A primary value with its USD equivalent underneath, the shape every amount column uses. */

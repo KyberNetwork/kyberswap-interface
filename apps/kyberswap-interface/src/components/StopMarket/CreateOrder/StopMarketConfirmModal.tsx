@@ -200,7 +200,7 @@ export const StopMarketReviewSummary = ({
           </div>
           {getTriggerDirection(triggerPercent) !== 'none' && (
             <div data-testid="stop-market-confirm-trigger-distance">
-              <TriggerDistance percent={triggerPercent} muteWords className="text-sm" />
+              <TriggerDistance percent={triggerPercent} className="text-sm" />
             </div>
           )}
         </SummaryRow>

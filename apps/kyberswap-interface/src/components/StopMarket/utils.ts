@@ -210,20 +210,6 @@ export const formatDistanceMagnitude = (percent: number, fractionDigits = 1) => 
   })
 }
 
-/**
- * A signed percent distance as the trigger's percent field holds it: the precision formatDistanceMagnitude
- * shows it at, so the field and the distance under it agree, but in plain decimal notation the field can
- * parse back — no grouping, no subscript zeros.
- */
-export const formatTriggerPercentValue = (percent: number): string => {
-  const magnitude = Math.abs(percent)
-  const sign = percent < 0 ? '-' : ''
-  const rounded = Math.round(magnitude * 10) / 10
-  if (rounded !== 0 || magnitude === 0) return `${sign}${rounded.toFixed(1)}`
-  const firstDigit = Number(magnitude.toPrecision(1))
-  return `${sign}${firstDigit.toFixed(Math.max(1, -Math.floor(Math.log10(firstDigit))))}`
-}
-
 /** Trigger price as a human decimal string, tokenOut per tokenIn. */
 export const getStopMarketTriggerPrice = (order: StopMarket) => order.condition?.field?.value?.lte ?? ''
 

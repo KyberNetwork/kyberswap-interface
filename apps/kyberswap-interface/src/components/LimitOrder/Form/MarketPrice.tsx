@@ -15,6 +15,7 @@ type MarketPriceProps = {
   symbolOut?: string
   className?: string
   showInverted?: boolean
+  numericOnly?: boolean
 }
 
 const MarketPrice = ({
@@ -24,6 +25,7 @@ const MarketPrice = ({
   symbolOut,
   className,
   showInverted: controlledShowInverted,
+  numericOnly = false,
 }: MarketPriceProps) => {
   const [internalShowInverted, setInternalShowInverted] = useState(false)
   const showInverted = controlledShowInverted ?? internalShowInverted
@@ -47,7 +49,9 @@ const MarketPrice = ({
 
   const priceLabel = (
     <span className={cn('min-w-0 truncate text-sm font-medium text-text', className)}>
-      {showInverted
+      {numericOnly
+        ? formattedPrice
+        : showInverted
         ? `1 ${symbolOut} = ${formattedPrice} ${symbolIn}`
         : `1 ${symbolIn} = ${formattedPrice} ${symbolOut}`}
     </span>

@@ -21,7 +21,7 @@ import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
-import { useShowOpenLimitOrders, useShowPricingChart } from 'state/user/hooks'
+import { useShowPricingChart } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 import { getTradeProductPath } from 'utils/routes'
 
@@ -189,10 +189,7 @@ const OrderList = () => {
   // The chart follows the Pricing Chart display setting it shares with Swap.
   const isShowPricingChart = useShowPricingChart()
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
-  // Stop market order can hide the open limit orders from its settings; the Limit page always offers them,
-  // as it has no settings to bring them back.
-  const isShowOpenLimitOrders = useShowOpenLimitOrders()
-  const hasOrderBook = !isStopMarketPage || isShowOpenLimitOrders
+  const hasOrderBook = !isStopMarketPage
   const marketTabs: PanelTab<MarketTab>[] = [
     ...(hasChart
       ? [

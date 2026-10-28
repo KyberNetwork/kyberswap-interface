@@ -13,7 +13,6 @@ import {
   buildStopMarketPayload,
   clampStopMarketDeadline,
   formatDistanceMagnitude,
-  formatTriggerPercentValue,
   formatTriggerPriceValue,
   getStopMarketCurrentPrice,
   getStopMarketDisplayStatus,
@@ -130,22 +129,6 @@ describe('isActiveStopMarketStatus', () => {
     expect(isActiveStopMarketStatus(StopMarketDisplayStatus.EXECUTED)).toBe(false)
     expect(isActiveStopMarketStatus(StopMarketDisplayStatus.CANCELLED)).toBe(false)
     expect(isActiveStopMarketStatus(StopMarketDisplayStatus.EXPIRED)).toBe(false)
-  })
-})
-
-describe('formatTriggerPercentValue', () => {
-  it('keeps the sign and one decimal, as the distance shows it', () => {
-    expect(formatTriggerPercentValue(-19.999999999999996)).toBe('-20.0')
-    expect(formatTriggerPercentValue(6.62)).toBe('6.6')
-    expect(formatTriggerPercentValue(1234.5)).toBe('1234.5')
-    expect(formatTriggerPercentValue(0)).toBe('0.0')
-  })
-
-  it('keeps the rounded first significant digit of a distance one decimal would zero, in plain notation', () => {
-    expect(formatTriggerPercentValue(-0.00899)).toBe('-0.009')
-    expect(formatTriggerPercentValue(0.023)).toBe('0.02')
-    expect(formatTriggerPercentValue(-0.0099)).toBe('-0.01')
-    expect(formatTriggerPercentValue(-0.000092)).toBe('-0.00009')
   })
 })
 

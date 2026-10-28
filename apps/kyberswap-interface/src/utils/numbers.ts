@@ -206,3 +206,7 @@ export const formatDisplayNumber = (
 
   return formatter.format(Number(parsedFraction.toFixed(100)))
 }
+
+/** Custom percent inputs share this display format; keep the underlying value unchanged. */
+export const formatPercentageInput = (percent: number | undefined): string =>
+  percent === undefined || !Number.isFinite(percent) ? '' : String(Number(percent.toFixed(2)))

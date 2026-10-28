@@ -2,9 +2,8 @@ import { Trans } from '@lingui/macro'
 import { cva } from 'class-variance-authority'
 
 import { formatDistanceMagnitude, getTriggerDirection } from 'components/StopMarket/utils'
-import { cn } from 'utils/cn'
 
-/** The colour a trigger's distance from the oracle price takes: red below it, green above, muted at it. */
+/** The colour applied to the direction marker and distance percentage. */
 export const triggerDistanceText = cva('transition-colors duration-200', {
   variants: {
     direction: {
@@ -17,27 +16,25 @@ export const triggerDistanceText = cva('transition-colors duration-200', {
 
 type Props = {
   percent?: number
-  /** Keeps the words after the figure in the muted colour, the way a review row reads. */
-  muteWords?: boolean
   className?: string
   dataTestId?: string
 }
 
 /**
- * Where the trigger sits against the oracle price — "↓ 20.4% below current oracle price" — coloured by its
- * direction, the same on the form and in the reviews. With no distance to show (no trigger yet, or one
- * right at the oracle) it names the price the distance is measured from.
+ * Shows the trigger's distance from the oracle price. Only the direction marker and percentage are coloured;
+ * the descriptive words stay in the surrounding text colour. With no distance to show (no trigger yet, or
+ * one right at the oracle) it names the price the distance is measured from.
  */
-export const TriggerDistance = ({ percent, muteWords, className, dataTestId }: Props) => {
+export const TriggerDistance = ({ percent, className, dataTestId }: Props) => {
   const direction = getTriggerDirection(percent)
   return (
-    <span className={cn(triggerDistanceText({ direction }), className)} data-testid={dataTestId}>
+    <span className={className} data-testid={dataTestId}>
       {direction !== 'none' && percent !== undefined && (
-        <>
+        <span className={triggerDistanceText({ direction })}>
           {direction === 'below' ? '↓' : '↑'} {formatDistanceMagnitude(percent)}%{' '}
-        </>
+        </span>
       )}
-      <span className={cn(muteWords && 'text-subText')}>
+      <span className="text-subText">
         {direction === 'below' ? (
           <Trans>below current Oracle price</Trans>
         ) : direction === 'above' ? (

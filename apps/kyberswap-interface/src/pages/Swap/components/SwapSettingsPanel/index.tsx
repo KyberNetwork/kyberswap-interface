@@ -95,8 +95,6 @@ const SwapSettingsPanel = ({
   const globalTogglePricingChart = useTogglePricingChart()
   const globalToggleTradeRoutes = useToggleTradeRoutes()
   const toggleSuccessSound = useToggleSuccessSound()
-  const isShowOpenLimitOrders = useShowOpenLimitOrders()
-  const toggleOpenLimitOrders = useToggleOpenLimitOrders()
   const isShowPricingChart = displaySettings?.isShowPricingChart ?? globalShowPricingChart
   const isShowTradeRoutes = displaySettings?.isShowTradeRoutes ?? globalShowTradeRoutes
   const togglePricingChart = displaySettings?.togglePricingChart ?? globalTogglePricingChart
@@ -183,12 +181,6 @@ const SwapSettingsPanel = ({
                 tooltip={<Trans>Turn on to display pricing chart.</Trans>}
                 isActive={isShowPricingChart}
                 toggle={togglePricingChart}
-              />
-              <DisplaySettingRow
-                label={<Trans>Open Limit Order</Trans>}
-                tooltip={<Trans>Turn on to display open limit orders.</Trans>}
-                isActive={isShowOpenLimitOrders}
-                toggle={toggleOpenLimitOrders}
               />
             </SettingsSection>
           </>

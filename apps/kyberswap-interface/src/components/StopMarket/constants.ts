@@ -3,7 +3,7 @@ import { t } from '@lingui/macro'
 import { TIMES_IN_SECS } from 'constants/index'
 import { PAIR_CATEGORY } from 'constants/trade'
 
-export const STOP_MARKET_DEFAULT_EXPIRE = 7 * TIMES_IN_SECS.ONE_DAY
+export const STOP_MARKET_DEFAULT_EXPIRE = 14 * TIMES_IN_SECS.ONE_DAY
 
 /**
  * The expiry durations the card offers. Shared by the inline control and the custom-date modal: the
@@ -11,7 +11,8 @@ export const STOP_MARKET_DEFAULT_EXPIRE = 7 * TIMES_IN_SECS.ONE_DAY
  * them knows about turns that duration into a 1970 date.
  */
 export const getStopMarketExpiryPresets = () => [
-  { value: STOP_MARKET_DEFAULT_EXPIRE, label: t`7 Days` },
+  { value: 7 * TIMES_IN_SECS.ONE_DAY, label: t`7 Days` },
+  { value: STOP_MARKET_DEFAULT_EXPIRE, label: t`14 Days` },
   { value: 30 * TIMES_IN_SECS.ONE_DAY, label: t`30 Days` },
   { value: 90 * TIMES_IN_SECS.ONE_DAY, label: t`90 Days` },
   { value: 36500 * TIMES_IN_SECS.ONE_DAY, label: t`Forever` },

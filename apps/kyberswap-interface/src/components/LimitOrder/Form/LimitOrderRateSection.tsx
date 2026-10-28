@@ -6,13 +6,14 @@ import { Repeat } from 'react-feather'
 import InfoHelper from 'components/InfoHelper'
 import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import { DeltaRateLimitOrder, RateInfo } from 'components/LimitOrder/types'
-import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder/utils'
+import { formatPriceInputValue } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
 import PercentPresetSelector from 'components/PercentPresetSelector'
 import { HStack, Stack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
+import { formatPercentageInput } from 'utils/numbers'
 
 const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 const RATE_DELTA_OPTIONS = [10, 20, 50]
@@ -119,10 +120,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
   const rateValue = showInvertedRate ? rateInfo.invertRate : displayRate
   const onRateValueChange = showInvertedRate ? events.onInvertedRateChange : events.onRateChange
 
-  const percentInputValue =
-    typeof deltaRate.rawPercent === 'number' && Number.isFinite(deltaRate.rawPercent)
-      ? removeTrailingZero(deltaRate.rawPercent.toFixed(2)) || ''
-      : ''
+  const percentInputValue = formatPercentageInput(deltaRate.rawPercent)
   const setRateByDelta = (percent: number) => {
     if (!tradeInfo) return
     const nextRate = tradeInfo.marketRate * (1 + percent / 100)
@@ -130,10 +128,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
   }
 
   const onChangePercent = (value: string) => {
-    if (!value || value === '-') {
-      events.onRateChange?.('')
-      return
-    }
+    if (!value) return
     setRateByDelta(Number(value))
   }
 
@@ -155,13 +150,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
           >
             <Trans>Market</Trans>
           </button>
-          <MarketPrice
-            price={tradeInfo}
-            loading={loadingTrade}
-            showInverted={showInvertedRate}
-            symbolIn={currencyIn?.symbol}
-            symbolOut={currencyOut?.symbol}
-          />
+          <MarketPrice price={tradeInfo} loading={loadingTrade} showInverted={showInvertedRate} numericOnly />
         </HStack>
       </HStack>
 

@@ -87,7 +87,9 @@ const StopMarketRow = ({
   const triggerPrice = getStopMarketTriggerPrice(order)
 
   const sellCurrencyAmount = CurrencyAmount.fromRawAmount(sellCurrency, order.amountIn)
-  const sellAmount = `${sellCurrencyAmount.toSignificant(6)} ${sellCurrency.symbol ?? ''}`
+  const sellAmount = `${formatDisplayNumber(sellCurrencyAmount.toExact(), { significantDigits: 6 })} ${
+    sellCurrency.symbol ?? ''
+  }`
 
   // The order values itself while open (by the oracle) and once executed (by the settlement). Only a
   // cancelled or expired one has no figure, and is priced once by the price service for its own chain.
@@ -110,11 +112,12 @@ const StopMarketRow = ({
   // Every fill counts towards the execution price and the received total, however many the order took.
   const fills = getStopMarketFills(order)
   const isExecuted = status === StopMarketDisplayStatus.EXECUTED
-  const fillSummary = summarizeStopMarketFills(
-    fills,
-    // An executed order sold all of it, so its own amount is the exact total.
-    isExecuted ? Number(sellCurrencyAmount.toExact()) : undefined,
-  )
+  const totalOrderAmount = Number(sellCurrencyAmount.toExact())
+  const fillSummary = summarizeStopMarketFills(fills, isExecuted ? totalOrderAmount : undefined)
+  // Executed orders sold the full amount even if settlement details have not arrived yet.
+  // Missing amounts on existing fills are unknown; only an order with no fills has sold zero.
+  const actualAmount = isExecuted ? totalOrderAmount : fills.length ? fillSummary.amountIn : 0
+  const isFullyFilled = actualAmount !== undefined && actualAmount >= totalOrderAmount
   const executionPrice = fillSummary.price
   const receivedAmount = fillSummary.received
   const minAmountOut = getStopMarketMinReceive({
@@ -226,7 +229,14 @@ const StopMarketRow = ({
         <AmountCell
           className="max-sm:col-start-3 max-sm:items-end"
           dataTestId="stop-market-order-sell-amount"
-          value={sellAmount}
+          value={
+            <>
+              <span className="text-primary">
+                {actualAmount === undefined ? '-' : formatDisplayNumber(actualAmount, { significantDigits: 6 })}
+              </span>
+              {isFullyFilled ? <> {sellCurrency.symbol}</> : <>/{sellAmount}</>}
+            </>
+          }
           isSubLoading={isServicePriceLoading}
           subValue={
             sellAmountUsd ? formatDisplayNumber(sellAmountUsd, { style: 'currency', significantDigits: 4 }) : undefined

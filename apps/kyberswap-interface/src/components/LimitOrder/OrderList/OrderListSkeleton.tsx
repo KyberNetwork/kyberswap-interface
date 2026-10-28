@@ -8,7 +8,7 @@ import { StopMarketRowsSkeleton } from 'components/StopMarket/MyOrders/component
 import { APP_PATHS } from 'constants/index'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
-import { useShowOpenLimitOrders, useShowPricingChart } from 'state/user/hooks'
+import { useShowPricingChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { getTradeProductPath } from 'utils/routes'
 
@@ -81,16 +81,14 @@ const OrdersCardSkeleton = () => (
 /**
  * Stands in for the order panel while its code loads, card for card, so the page keeps its shape
  * instead of showing a spinner. The market card opens on the chart where the panel would, which
- * follows the Pricing Chart setting and the chain. Stop market order leaves the card out when it hides the open
- * limit orders and has no chart either.
+ * follows the Pricing Chart setting and the chain. Stop Market leaves the card out when it has no chart.
  */
 const OrderListSkeleton = () => {
   const { chainId } = useLimitOrderContext()
   const { pathname } = useLocation()
   const isShowPricingChart = useShowPricingChart()
-  const isShowOpenLimitOrders = useShowOpenLimitOrders()
   const hasChart = isShowPricingChart && Boolean(PRICE_CHART_QUOTES[chainId])
-  const hasOrderBook = getTradeProductPath(pathname) !== APP_PATHS.STOP_MARKET || isShowOpenLimitOrders
+  const hasOrderBook = getTradeProductPath(pathname) !== APP_PATHS.STOP_MARKET
 
   return (
     <>

@@ -7,10 +7,9 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopMarket/constants'
-import { formatTriggerPercentValue } from 'components/StopMarket/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, formatPercentageInput } from 'utils/numbers'
 
 type Props = {
   sellCurrency?: Currency
@@ -124,7 +123,7 @@ const TriggerPriceSection = ({
 
       <PercentPresetSelector
         presets={TRIGGER_PERCENT_PRESETS}
-        value={triggerPercent === undefined ? '' : formatTriggerPercentValue(triggerPercent)}
+        value={formatPercentageInput(triggerPercent)}
         normalizeInput={normalizeCustomPercent}
         colorByDirection
         testIdPrefix="stop-market-trigger-percent"
