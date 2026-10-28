@@ -24,7 +24,15 @@ export type StopMarketWarning = {
  * The stop market order list sits on this page, so its link narrows the list to the token and opens the open
  * stop market orders, whichever kind the list shows.
  */
-const ReservedBalanceNotice = ({ chainId, symbol }: { chainId: ChainId; symbol?: string }) => (
+const ReservedBalanceNotice = ({
+  chainId,
+  symbol,
+  onReviewClick,
+}: {
+  chainId: ChainId
+  symbol?: string
+  onReviewClick?: () => void
+}) => (
   <Trans>
     Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance.{' '}
     <Link
@@ -34,6 +42,7 @@ const ReservedBalanceNotice = ({ chainId, symbol }: { chainId: ChainId; symbol?:
         status: LimitOrderStatus.ACTIVE,
         search: symbol,
       })}
+      onClick={onReviewClick}
     >
       Review orders
     </Link>
@@ -50,6 +59,7 @@ type Props = {
   marketPriceUnavailable?: boolean
   /** Raw amount of the open order being edited, whose claim on the balance the edit gives up. */
   releasedAmount?: string
+  onSharedBalanceReview?: () => void
 }
 
 /**
@@ -63,6 +73,7 @@ export const useStopMarketWarnings = ({
   inputAmount,
   marketPriceUnavailable,
   releasedAmount,
+  onSharedBalanceReview,
 }: Props) => {
   const { hasEligibleTokens, isLoading: loadingSupportedTokens } = useStopMarketSupportedTokens(chainId)
   const { isEligible, isLoading: loadingEligibility } = useIsStopMarketEligibleToken(currencyIn)
@@ -151,7 +162,13 @@ export const useStopMarketWarnings = ({
     if (hasReservedBalanceShortfall && currencyIn) {
       formWarnings.push({
         type: 'warn',
-        message: <ReservedBalanceNotice chainId={chainId} symbol={currencyIn.wrapped.symbol} />,
+        message: (
+          <ReservedBalanceNotice
+            chainId={chainId}
+            symbol={currencyIn.wrapped.symbol}
+            onReviewClick={onSharedBalanceReview}
+          />
+        ),
       })
       shouldDisableAction = true
     }
@@ -177,5 +194,6 @@ export const useStopMarketWarnings = ({
     loadingSupportedTokens,
     loadingEligibility,
     loadingReceiveEligibility,
+    onSharedBalanceReview,
   ])
 }

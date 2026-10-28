@@ -216,6 +216,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     inputAmount,
     marketPriceUnavailable: !loadingMarketPrice && !marketPrice,
     releasedAmount: order.amountIn,
+    onSharedBalanceReview: onDismiss,
   })
   // The pair cannot change here, so a token that has lost its feed has no field of its own to flag.
   const warnings = [

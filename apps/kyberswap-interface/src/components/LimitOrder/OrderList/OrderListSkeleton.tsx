@@ -16,25 +16,25 @@ import { useShowPricingChart } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { getTradeProductPath } from 'utils/routes'
 
-/** A card's opening tab bar, at the height its tabs take. */
+/** Match the 44px tabs plus the content's separate 1px border. */
 const TabsRowSkeleton = ({ widths }: { widths: number[] }) => (
-  <HStack className="min-h-11 items-center gap-8 border-b border-darkBorder bg-background px-4">
+  <HStack className="box-content min-h-11 items-center gap-8 border-b border-darkBorder bg-background px-4">
     {widths.map((width, index) => (
       <Skeleton key={index} height={16} width={width} borderRadius={6} />
     ))}
   </HStack>
 )
 
-/** The chart as `TokenPriceChart` first draws it: one pair tab, then the price and the chart. */
+/** Matches `OrdersPriceChart`: a segmented view control, then the price and the chart. */
 const ChartSkeleton = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
     <>
       <HStack className="items-center gap-3 pr-4">
-        <HStack className="min-h-11 items-center gap-1.5 px-4 py-3">
-          <Skeleton circle height={20} width={20} />
-          <Skeleton height={14} width={96} borderRadius={6} />
+        <HStack className="min-w-0 flex-1 items-center overflow-hidden px-4 py-3">
+          {/* The md control is 20px content + 16px padding + 2px border. */}
+          <Skeleton height={38} width={240} rounded />
         </HStack>
         {!upToSmall && (
           <div className="flex flex-1 justify-end">
