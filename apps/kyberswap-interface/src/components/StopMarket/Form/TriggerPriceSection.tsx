@@ -28,6 +28,14 @@ type Props = {
 
 const PERCENT_CHIP_CLASSES = 'h-6 rounded-lg border px-2 text-xs font-medium transition-colors'
 
+/** A selected chip takes the colour of its direction: red for a drop below the oracle, green for a rise. */
+const getActiveChipClasses = (percent: number) =>
+  cn('bg-tabActive text-text', percent < 0 ? 'border-red/50' : 'border-primary-50')
+
+/** Hovering a preset previews how it looks once selected. */
+const getHoverChipClasses = (percent: number) =>
+  cn('hover:bg-tabActive hover:text-text', percent < 0 ? 'hover:border-red/50' : 'hover:border-primary-50')
+
 /** Editable percent-below-market chip. It and the price field are the same value from two sides. */
 const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (value: string) => void }) => {
   const [draft, setDraft] = useState('')
@@ -46,9 +54,7 @@ const PercentInputChip = ({ percent, onChange }: { percent?: number; onChange: (
       className={cn(
         PERCENT_CHIP_CLASSES,
         'flex w-[82px] items-center',
-        percent !== undefined && percent !== 0
-          ? 'border-primary-50 bg-tabActive text-text'
-          : 'border-border/60 text-subText',
+        percent !== undefined && percent !== 0 ? getActiveChipClasses(percent) : 'border-border/60 text-subText',
       )}
     >
       <NumericalInput
@@ -135,9 +141,10 @@ const TriggerPriceSection = ({
         </span>
         <HStack className="min-w-0 items-center justify-end gap-2">
           <OracleMarketPriceButton disabled={!marketPrice} onClick={onSetMarketPrice} />
-          {marketPrice && sellSymbol && receiveSymbol ? (
+          {/* The unit beside the trigger field names this too. */}
+          {marketPrice ? (
             <span className="min-w-0 truncate text-sm font-medium text-text" data-testid="stop-market-market-rate">
-              1 {sellSymbol} = {formatDisplayNumber(marketPrice, { significantDigits: 6 })} {receiveSymbol}
+              {formatDisplayNumber(marketPrice, { significantDigits: 6 })}
             </span>
           ) : isLoadingPrice ? (
             <Skeleton height={20} width={160} />
@@ -178,8 +185,8 @@ const TriggerPriceSection = ({
             className={cn(
               PERCENT_CHIP_CLASSES,
               shownPercent === percent
-                ? 'border-primary-50 bg-tabActive text-text'
-                : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
+                ? getActiveChipClasses(percent)
+                : cn('border-border/60 text-subText', getHoverChipClasses(percent)),
             )}
             onClick={() => onChangeTriggerPercent(String(percent))}
           >

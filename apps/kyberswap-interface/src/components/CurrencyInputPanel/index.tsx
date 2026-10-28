@@ -179,13 +179,14 @@ const BalanceRow = ({
   const showTopActions = (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && currency && account
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
+  // Shortcuts, when given, stand in for Max and Half and sit beside the balance they split.
+  const showShortcuts = showTopActions && !!amountShortcuts?.length
+
   return (
     <div className="flex min-h-5 items-center justify-between text-xs">
       {(label && positionLabel === 'in') || showTopActions ? (
         <div className="flex items-center gap-1">
           {label && positionLabel === 'in' && label}
-          {/* Shortcuts, when given, stand in for Max and Half. */}
-          {showTopActions && !!amountShortcuts?.length && <AmountShortcutChips shortcuts={amountShortcuts} />}
           {showTopActions && !amountShortcuts?.length && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
@@ -201,11 +202,14 @@ const BalanceRow = ({
         <div />
       )}
 
-      <div onClick={onMax} className={cn('group flex items-center gap-1', onMax && 'cursor-pointer')}>
-        <Wallet className="text-subText group-hover:text-text" />
-        <span className="font-medium text-subText group-hover:text-text" data-testid="balance">
-          {balance}
-        </span>
+      <div className="flex items-center gap-1">
+        {showShortcuts && <AmountShortcutChips shortcuts={amountShortcuts} />}
+        <div onClick={onMax} className={cn('group flex items-center gap-1', onMax && 'cursor-pointer')}>
+          <Wallet className="text-subText group-hover:text-text" />
+          <span className="font-medium text-subText group-hover:text-text" data-testid="balance">
+            {balance}
+          </span>
+        </div>
       </div>
     </div>
   )
