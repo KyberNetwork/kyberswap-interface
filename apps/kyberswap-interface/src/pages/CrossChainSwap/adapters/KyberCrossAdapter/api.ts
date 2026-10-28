@@ -179,6 +179,8 @@ type BridgePlan = {
 
 export type RoutePlan = {
   id: string
+  // Quote-issued signature; send the entire route plan to builds without modification.
+  sig: string
   estimated_duration_sec?: number
   tags?: string[]
   request: RoutePlanRequestSnapshot

@@ -499,6 +499,7 @@ describe('KyberCross route options', () => {
   }
   const createRoute = (id: string, output: string, time: number): RoutePlan => ({
     id,
+    sig: `v1.${id.padEnd(43, 'A')}`,
     expires_at: '2026-09-28T00:00:00Z',
     flow_type: 'bridge_only',
     request: {
@@ -593,6 +594,8 @@ describe('KyberCross route options', () => {
     const result = await adapter.executeSwap({ ...selected, isReadOnly: false }, {} as WalletClient)
 
     expect(build).toHaveBeenCalledWith(routes[1])
+    expect(build.mock.calls[0][0]).toBe(routes[1])
+    expect(build.mock.calls[0][0].sig).toBe(routes[1].sig)
     expect(result).toMatchObject({ routeId: 'second', outputAmount: '99000000', bridgeProvider: 'relay' })
     expect(routes).toHaveLength(2)
   })
@@ -603,6 +606,7 @@ describe('KyberCross route options', () => {
     const refreshed = {
       ...chosen,
       id: 'chosen-refreshed',
+      sig: `v1.${'B'.repeat(43)}`,
       expected_output_amount: '97000000',
       min_output_amount: '96000000',
     }
@@ -654,6 +658,31 @@ describe('KyberCross route options', () => {
     vi.spyOn(kyberCrossExecution, 'executeKyberCross').mockResolvedValue(`0x${'1'.repeat(64)}`)
     await adapter.executeSwap(selected, {} as WalletClient)
     expect(build).toHaveBeenCalledWith(refreshed)
+    expect(build.mock.calls[0][0].sig).toBe(refreshed.sig)
+  })
+
+  it.each([undefined, ''])('rejects a direct route with sig %s before building', async sig => {
+    const route = { ...createRoute('unsigned', '99000000', 20), sig }
+    const build = vi.spyOn(kyberCrossApi, 'build')
+    const execute = vi.spyOn(kyberCrossExecution, 'executeKyberCross')
+    const adapter = new KyberCrossAdapter()
+
+    await expect(
+      adapter.executeSwap(
+        {
+          adapter,
+          isReadOnly: false,
+          quote: {
+            ...normalizedQuote,
+            quoteParams: params,
+            rawQuote: { data: { route_plans: [route], ks_allowance_hub_address: address } },
+          },
+        },
+        {} as WalletClient,
+      ),
+    ).rejects.toThrow()
+    expect(build).not.toHaveBeenCalled()
+    expect(execute).not.toHaveBeenCalled()
   })
 
   it('preserves provider and explicit quote ID selection for other adapters', () => {

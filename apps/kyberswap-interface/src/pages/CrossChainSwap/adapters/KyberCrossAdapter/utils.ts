@@ -28,6 +28,7 @@ const rawQuoteSchema = z
           route_plans: z
             .array(
               routeSummarySchema.extend({
+                sig: z.string().min(1),
                 expected_output_amount: z.string().regex(/^\d+$/),
                 min_output_amount: z.string().regex(/^\d+$/),
                 request: z.record(z.unknown()),
