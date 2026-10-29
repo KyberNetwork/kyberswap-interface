@@ -6,6 +6,7 @@ import { useSwitchChain } from 'wagmi'
 import { NotificationType } from 'components/Announcement/type'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { deferWalletChainSync } from 'hooks/web3/walletChainSync'
 import { useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
@@ -27,6 +28,8 @@ export function useChangeNetwork() {
 
   const changeNetworkHandler = useCallback(
     (desiredChainId: ChainId, successCallback?: () => void) => {
+      // Keep the chain write and immediate destination callback in the same turn. Deferring pair
+      // navigation to another frame lets the URL-sync effect navigate to a chain-only route first.
       dispatch(updateChainId(desiredChainId))
       successCallback?.()
     },
@@ -171,6 +174,9 @@ export function useChangeNetwork() {
       }
 
       console.info('[Switch network] start:', { desiredChainId })
+      // The provider can receive chainChanged before the awaited RPC resolves. Let this handler
+      // commit Redux and the destination first instead of letting the listener drop the URL pair.
+      const resumeWalletChainSync = deferWalletChainSync()
       try {
         await switchChainAsync({ chainId: desiredChainId as number })
         console.info('[Switch network] success:', { desiredChainId })
@@ -183,6 +189,8 @@ export function useChangeNetwork() {
         )
         failureCallback(desiredChainId, error as Error, customFailureCallback)
       } finally {
+        // Always resume, including on rejection, so later changes made in the wallet still sync.
+        resumeWalletChainSync()
         console.info('[Switch network] settled:', { desiredChainId })
       }
     },

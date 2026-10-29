@@ -28,20 +28,17 @@ export const useOrderListActions = () => {
   const tracking = useStopMarketTracking()
   const { changeNetwork } = useChangeNetwork()
   const actionId = useRef(0)
-  const frame = useRef<number | undefined>(undefined)
 
   // Switching network is part of the intent; changing account or unmounting the panel cancels its continuation.
   useEffect(
     () => () => {
       actionId.current += 1
-      if (frame.current !== undefined) cancelAnimationFrame(frame.current)
     },
     [account],
   )
 
   const onTargetChain = (targetChain: ChainId, currentChain: ChainId, onReady: () => void) => {
     const id = ++actionId.current
-    if (frame.current !== undefined) cancelAnimationFrame(frame.current)
     const complete = () => {
       if (id !== actionId.current) return
       actionId.current += 1
@@ -60,18 +57,13 @@ export const useOrderListActions = () => {
       currencyOut?.wrapped.address.toLowerCase() === order.takerAsset.toLowerCase()
     if (isCurrentPair) {
       actionId.current += 1
-      if (frame.current !== undefined) cancelAnimationFrame(frame.current)
       return
     }
 
     onTargetChain(order.chainId, limitChainId, () => {
-      frame.current = requestAnimationFrame(() => {
-        navigate(
-          `${APP_PATHS.LIMIT}/${NETWORKS_INFO[order.chainId].route}/${order.makerAsset}-to-${
-            order.takerAsset
-          }${search}`,
-        )
-      })
+      navigate(
+        `${APP_PATHS.LIMIT}/${NETWORKS_INFO[order.chainId].route}/${order.makerAsset}-to-${order.takerAsset}${search}`,
+      )
     })
   }
 
@@ -86,18 +78,13 @@ export const useOrderListActions = () => {
       outputAddress?.toLowerCase() === order.tokenOut.toLowerCase()
     if (isCurrentPair) {
       actionId.current += 1
-      if (frame.current !== undefined) cancelAnimationFrame(frame.current)
       return
     }
 
     onTargetChain(order.chainId, walletChainId, () => {
-      frame.current = requestAnimationFrame(() => {
-        navigate(
-          `${APP_PATHS.STOP_MARKET}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${
-            order.tokenOut
-          }${search}`,
-        )
-      })
+      navigate(
+        `${APP_PATHS.STOP_MARKET}/${NETWORKS_INFO[order.chainId].route}/${order.tokenIn}-to-${order.tokenOut}${search}`,
+      )
     })
   }
 
