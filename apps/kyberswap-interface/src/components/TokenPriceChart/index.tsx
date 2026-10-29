@@ -2,7 +2,7 @@ import { ChainId, type Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { ReactNode, Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import { ReactNode, Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertTriangle, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import tokenChartApi, {
@@ -69,18 +69,9 @@ type TokenPriceChartProps = {
    * Handed `expand`, which the tabs call on a tap: the chart starts collapsed on a phone.
    */
   header?: (controls: { expand: () => void }) => ReactNode
-  /** Makes each marker group's off-screen count a button, handed the group's key. */
-  onGroupBadgeClick?: (groupKey: string) => void
 }
 
-const TokenPriceChart = ({
-  tokens,
-  flatten,
-  quoteCurrency,
-  markerOverlay,
-  header,
-  onGroupBadgeClick,
-}: TokenPriceChartProps) => {
+const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header }: TokenPriceChartProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -110,6 +101,8 @@ const TokenPriceChart = ({
   const [isExpanded, setIsExpanded] = useState(!upToSmall)
   // By marker group, as the canvas last counted them outside the visible price range.
   const [offscreenCounts, setOffscreenCounts] = useState<Record<string, number>>({})
+  const focusRequestNonceRef = useRef(0)
+  const [focusMarkerRequest, setFocusMarkerRequest] = useState<{ groupKey: string; nonce: number }>()
 
   const resolvedActiveTabIndex = activeTabIndex < filteredTokens.length ? activeTabIndex : 0
   const activeToken = filteredTokens[resolvedActiveTabIndex] ?? filteredTokens[0]
@@ -336,11 +329,6 @@ const TokenPriceChart = ({
                         <span className="text-sm font-medium" style={{ color: priceChangeColor }}>
                           {formatSignedPercent(priceChange)}
                         </span>
-                        {!quoteCurrency && (
-                          <span className="text-[10px]" style={{ color: priceChangeColor }}>
-                            {priceChange >= 0 ? '▲' : '▼'}
-                          </span>
-                        )}
                         <span className="text-sm text-subText">(24h)</span>
                       </HStack>
                     )}
@@ -362,20 +350,19 @@ const TokenPriceChart = ({
                       +{count} <span className="text-subText">{group.renderOffscreen(count)}</span>
                     </>
                   )
-                  return onGroupBadgeClick ? (
+                  return (
                     <button
                       type="button"
                       key={group.key}
                       data-testid={`price-marker-offscreen-${group.key}`}
-                      onClick={() => onGroupBadgeClick(group.key)}
+                      onClick={() => {
+                        focusRequestNonceRef.current += 1
+                        setFocusMarkerRequest({ groupKey: group.key, nonce: focusRequestNonceRef.current })
+                      }}
                       className={cn(badgeClass, 'cursor-pointer bg-transparent transition-colors hover:bg-white/10')}
                     >
                       {badgeText}
                     </button>
-                  ) : (
-                    <span key={group.key} data-testid={`price-marker-offscreen-${group.key}`} className={badgeClass}>
-                      {badgeText}
-                    </span>
                   )
                 })}
                 <SegmentedControl
@@ -409,6 +396,7 @@ const TokenPriceChart = ({
               >
                 <Suspense fallback={<PoolChartSkeleton height={chartHeight} type="candle" />}>
                   <TokenPriceChartCanvas
+                    focusMarkerRequest={focusMarkerRequest}
                     key={`${activeTokenAddress}:${quoteAddress}:${timeFrame}`}
                     chartData={chartData}
                     canLoadMore={hasNextPage}

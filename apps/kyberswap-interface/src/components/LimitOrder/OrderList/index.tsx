@@ -250,7 +250,6 @@ const OrderList = () => {
                   currencyIn={currencyIn}
                   currencyOut={currencyOut}
                   isStopMarketPage={isStopMarketPage}
-                  onShowOrders={orderKind => showOrders(orderKind === 'stop' ? OrderKind.STOP : OrderKind.LIMIT)}
                 />
               ) : (
                 <OpenLimitOrders count={counts.limit} onShowOrders={() => showOrders(OrderKind.LIMIT)} />

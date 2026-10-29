@@ -3,8 +3,11 @@ import {
   type AutoscaleInfo,
   type AutoscaleInfoProvider,
   type CandlestickData,
+  CandlestickSeries,
+  ColorType,
   CrosshairMode,
   type HistogramData,
+  HistogramSeries,
   type IPriceLine,
   type ISeriesApi,
   LineStyle,
@@ -35,6 +38,7 @@ import {
   type PlacedMarkerCluster,
   type PriceMarkerGroup,
   type PriceMarkerOverlay,
+  clusterMarkers,
   clusterMarkersByGroup,
   countMarkersByGroup,
   findSharedLines,
@@ -72,6 +76,7 @@ type TooltipState = {
 }
 
 type TokenPriceChartCanvasProps = {
+  focusMarkerRequest?: { groupKey: string; nonce: number }
   chartData: DisplayCandle[]
   canLoadMore?: boolean
   onLoadMore?: () => void
@@ -109,6 +114,8 @@ const MAX_MARKER_LINES = 6
 const MAX_MARKER_LINES_MOBILE = 3
 /** How long a marker's details stay open after the pointer leaves, so it can travel into them. */
 const MARKER_DETAILS_CLOSE_DELAY_MS = 150
+/** Slower pan so the next focused line remains trackable while the pair is being inspected. */
+const MARKER_FOCUS_DURATION_MS = 400
 /** Each colour's dash on a shared line, and the gap after it. */
 const SHARED_LINE_DASH_PX = 6
 const SHARED_LINE_GAP_PX = 3
@@ -289,7 +296,7 @@ const getChartOptions = ({
 }) => ({
   height: chartHeight,
   layout: {
-    background: { color: 'transparent' },
+    background: { type: ColorType.Solid as const, color: 'transparent' },
     fontFamily: CHART_FONT_FAMILY,
     textColor: subTextColor,
   },
@@ -312,7 +319,7 @@ const getChartOptions = ({
   },
   rightPriceScale: {
     borderVisible: false,
-    drawTicks: false,
+    ticksVisible: false,
     entireTextOnly: true,
     scaleMargins: {
       top: 0.08,
@@ -701,6 +708,7 @@ const DETAILS_OFFSET_PX = 14
 const DETAILS_EDGE_PX = 8
 
 const TokenPriceChartCanvas = ({
+  focusMarkerRequest,
   chartData,
   canLoadMore = false,
   onLoadMore,
@@ -771,7 +779,11 @@ const TokenPriceChartCanvas = ({
   const referenceLineRef = useRef<IPriceLine | null>(null)
   const markerLinePricesKeyRef = useRef('')
   const markerLayoutKeyRef = useRef(getMarkerLayoutKey(EMPTY_MARKER_LAYOUT))
+  const markerOffscreenCountsKeyRef = useRef('')
   const markerFrameRef = useRef(0)
+  const focusFrameRef = useRef(0)
+  const isMarkerFocusAnimatingRef = useRef(false)
+  const markerFocusIndexRef = useRef(new Map<string, number>())
   const [markerLayout, setMarkerLayout] = useState<MarkerLayout>(EMPTY_MARKER_LAYOUT)
 
   /**
@@ -837,12 +849,98 @@ const TokenPriceChartCanvas = ({
         paneHeight,
       }
       const layoutKey = getMarkerLayoutKey(layout)
-      if (layoutKey === markerLayoutKeyRef.current) return
-      markerLayoutKeyRef.current = layoutKey
-      setMarkerLayout(layout)
-      onOffscreenChangeRef.current?.(countMarkersByGroup([...aboveIds, ...belowIds], groups))
+      const offscreenCounts = countMarkersByGroup([...aboveIds, ...belowIds], groups)
+      const offscreenCountsKey = groups.map(group => `${group.key}:${offscreenCounts[group.key] ?? 0}`).join('|')
+      if (layoutKey !== markerLayoutKeyRef.current) {
+        markerLayoutKeyRef.current = layoutKey
+        setMarkerLayout(layout)
+      }
+      if (!isMarkerFocusAnimatingRef.current && offscreenCountsKey !== markerOffscreenCountsKeyRef.current) {
+        markerOffscreenCountsKeyRef.current = offscreenCountsKey
+        onOffscreenChangeRef.current?.(offscreenCounts)
+      }
     })
   }, [])
+
+  const cancelMarkerFocus = useCallback(() => {
+    globalThis.cancelAnimationFrame(focusFrameRef.current)
+    focusFrameRef.current = 0
+    if (isMarkerFocusAnimatingRef.current) {
+      isMarkerFocusAnimatingRef.current = false
+      scheduleMarkerUpdate()
+    }
+  }, [scheduleMarkerUpdate])
+
+  const focusMarkerGroup = useCallback(
+    (groupKey: string) => {
+      const scale = chartRef.current?.priceScale('right')
+      const series = candlestickSeriesRef.current
+      const start = scale?.getVisibleRange()
+      const group = markerOverlayRef.current?.groups.find(group => group.key === groupKey)
+      if (!scale || !series || !start || !group?.markers.length) return
+
+      cancelMarkerFocus()
+      const rangeSize = start.to - start.from
+      if (!Number.isFinite(rangeSize) || rangeSize <= 0) return
+
+      // Use the same pixel-gap clustering as the drawn labels, so repeated clicks visit lines rather
+      // than individual orders. The order is high-to-low on the price axis and wraps at the end.
+      const lines = clusterMarkers(
+        group.markers.flatMap(marker => {
+          const y = series.priceToCoordinate(marker.price)
+          return y === null ? [] : [{ ...marker, y }]
+        }),
+        { minGap: MARKER_MIN_GAP_PX, maxClusters: Number.MAX_SAFE_INTEGER },
+      ).sort((a, b) => b.price - a.price)
+      if (!lines.length) return
+
+      const previousIndex = markerFocusIndexRef.current.get(groupKey)
+      const firstOffscreenIndex = lines.findIndex(line => line.price < start.from || line.price > start.to)
+      const nextIndex =
+        previousIndex === undefined
+          ? firstOffscreenIndex >= 0
+            ? firstOffscreenIndex
+            : 0
+          : (previousIndex + 1) % lines.length
+      markerFocusIndexRef.current.set(groupKey, nextIndex)
+      const focusCenter = lines[nextIndex].price
+
+      // Preserve the current zoom level: every click only pans the price scale.
+      let targetFrom = focusCenter - rangeSize / 2
+      let targetTo = focusCenter + rangeSize / 2
+      if (targetFrom < 0) {
+        targetFrom = 0
+        targetTo = rangeSize
+      }
+      const target = { from: targetFrom, to: targetTo }
+      const duration = globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : MARKER_FOCUS_DURATION_MS
+      const startedAt = performance.now()
+      isMarkerFocusAnimatingRef.current = true
+      const animate = (now: number) => {
+        const progress = duration ? Math.min((now - startedAt) / duration, 1) : 1
+        const eased = 1 - (1 - progress) ** 3
+        scale.setAutoScale(false)
+        scale.setVisibleRange({
+          from: start.from + (target.from - start.from) * eased,
+          to: start.to + (target.to - start.to) * eased,
+        })
+        scheduleMarkerUpdate()
+        if (progress < 1) {
+          focusFrameRef.current = globalThis.requestAnimationFrame(animate)
+        } else {
+          focusFrameRef.current = 0
+          isMarkerFocusAnimatingRef.current = false
+          scheduleMarkerUpdate()
+        }
+      }
+      focusFrameRef.current = globalThis.requestAnimationFrame(animate)
+    },
+    [cancelMarkerFocus, scheduleMarkerUpdate],
+  )
+
+  useEffect(() => {
+    if (focusMarkerRequest) focusMarkerGroup(focusMarkerRequest.groupKey)
+  }, [focusMarkerRequest, focusMarkerGroup])
 
   useEffect(() => {
     chartDataRef.current = chartData
@@ -858,10 +956,13 @@ const TokenPriceChartCanvas = ({
 
   useEffect(() => {
     markerOverlayRef.current = markerOverlay
+    cancelMarkerFocus()
+    markerFocusIndexRef.current.clear()
+    markerOffscreenCountsKeyRef.current = ''
     markerLineColorsRef.current = { warning: theme.darkOrange, blue: theme.darkBlue }
     maxMarkerLinesRef.current = upToSmall ? MAX_MARKER_LINES_MOBILE : MAX_MARKER_LINES
     scheduleMarkerUpdate()
-  }, [markerOverlay, theme.darkOrange, theme.darkBlue, upToSmall, scheduleMarkerUpdate])
+  }, [cancelMarkerFocus, markerOverlay, theme.darkOrange, theme.darkBlue, upToSmall, scheduleMarkerUpdate])
 
   useEffect(() => {
     chartHeightRef.current = chartHeight
@@ -878,7 +979,7 @@ const TokenPriceChartCanvas = ({
     })
     chartRef.current = chart
 
-    const candlestickSeries = chart.addCandlestickSeries(initialCandlestickSeriesOptionsRef.current)
+    const candlestickSeries = chart.addSeries(CandlestickSeries, initialCandlestickSeriesOptionsRef.current)
     candlestickSeries.applyOptions({
       autoscaleInfoProvider: createRobustAutoscaleInfoProvider({
         chartDataRef,
@@ -889,7 +990,7 @@ const TokenPriceChartCanvas = ({
       }),
     })
 
-    const volumeSeries = chart.addHistogramSeries({
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       lastValueVisible: false,
       priceFormat: { type: 'volume' },
       priceScaleId: 'volume',
@@ -939,6 +1040,10 @@ const TokenPriceChartCanvas = ({
       if (event.buttons) scheduleMarkerUpdate()
     }
     container.addEventListener('pointermove', handlePointerMove)
+    container.addEventListener('pointerdown', cancelMarkerFocus)
+    container.addEventListener('wheel', cancelMarkerFocus, { passive: true })
+    // Double-clicking the price axis restores autoscale, which can hide orders again.
+    container.addEventListener('dblclick', scheduleMarkerUpdate)
 
     const resizeObserver = new ResizeObserver(entries => {
       const entry = entries[0]
@@ -955,6 +1060,10 @@ const TokenPriceChartCanvas = ({
       setTooltip(null)
       resizeObserver.disconnect()
       container.removeEventListener('pointermove', handlePointerMove)
+      container.removeEventListener('pointerdown', cancelMarkerFocus)
+      container.removeEventListener('wheel', cancelMarkerFocus)
+      container.removeEventListener('dblclick', scheduleMarkerUpdate)
+      cancelMarkerFocus()
       chart.unsubscribeCrosshairMove(handleCrosshairMove)
       chart.timeScale().unsubscribeVisibleLogicalRangeChange(scheduleMarkerUpdate)
       globalThis.cancelAnimationFrame(markerFrameRef.current)
@@ -967,7 +1076,7 @@ const TokenPriceChartCanvas = ({
       volumeSeriesRef.current = null
       chart.remove()
     }
-  }, [scheduleMarkerUpdate])
+  }, [cancelMarkerFocus, scheduleMarkerUpdate])
 
   useEffect(() => {
     if (!chartRef.current || !candlestickSeriesRef.current || !canLoadMore || !onLoadMore) return

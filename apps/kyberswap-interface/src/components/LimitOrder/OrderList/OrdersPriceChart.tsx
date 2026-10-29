@@ -20,8 +20,6 @@ type Props = {
   currencyOut?: Currency
   /** The stop market order form is on screen, whose triggers are set against the oracle rather than the last trade. */
   isStopMarketPage: boolean
-  /** Jumps to the open orders of one kind; the chart's count badges call it with their group's kind. */
-  onShowOrders?: (kind: 'limit' | 'stop') => void
 }
 
 /** What the chart draws: the pair, or either of its tokens on its own against the dollar. */
@@ -42,7 +40,7 @@ const hasOwnChart = (token: Currency) => {
  * picks what is drawn: the pair, which reads either way round, or one of its tokens priced in dollars,
  * on which the orders have no level to sit at.
  */
-const OrdersPriceChart = ({ currencyIn, currencyOut, isStopMarketPage, onShowOrders }: Props) => {
+const OrdersPriceChart = ({ currencyIn, currencyOut, isStopMarketPage }: Props) => {
   const hasPair = !!currencyIn && !!currencyOut && !currencyIn.wrapped.equals(currencyOut.wrapped)
   const pairKey = hasPair ? `${currencyIn.wrapped.address}:${currencyOut.wrapped.address}` : ''
   const canChartIn = !!currencyIn && hasOwnChart(currencyIn)
@@ -179,13 +177,6 @@ const OrdersPriceChart = ({ currencyIn, currencyOut, isStopMarketPage, onShowOrd
         quoteCurrency={hasPair && isPairView ? quoteCurrency : undefined}
         markerOverlay={markerOverlay}
         header={hasPair ? renderHeader : undefined}
-        onGroupBadgeClick={
-          onShowOrders
-            ? groupKey => {
-                if (groupKey === 'limit' || groupKey === 'stop') onShowOrders(groupKey)
-              }
-            : undefined
-        }
       />
       {limitOrders.modal}
       {stopMarkets.modal}
