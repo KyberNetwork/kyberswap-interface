@@ -205,3 +205,32 @@ export const getCrossingArrow = (ids: string[], markers: PriceMarker[]): string 
   if (crossings.has('down')) return '↓'
   return ''
 }
+
+/** Lines of different kinds on one pixel row, drawn as one line in their colours by turns. */
+type SharedMarkerLine = { y: number; colors: string[] }
+
+export type MarkerLayout = {
+  clusters: PlacedMarkerCluster[]
+  sharedLines: SharedMarkerLine[]
+  aboveIds: string[]
+  belowIds: string[]
+  scaleWidth: number
+  paneHeight: number
+}
+export const MARKER_LABEL_HEIGHT_PX = 22
+
+/** The group a line belongs to; every line comes from one of the overlay's groups. */
+export const getClusterGroup = (cluster: PlacedMarkerCluster, groups: PriceMarkerGroup[]) =>
+  groups.find(group => group.key === cluster.groupKey) ?? groups[0]
+
+export const clusterKey = (cluster: PlacedMarkerCluster) => cluster.ids.join(',')
+
+export const getMarkerLayoutKey = (layout: MarkerLayout) =>
+  [
+    layout.clusters.map(cluster => `${clusterKey(cluster)}@${Math.round(cluster.y)}#${cluster.column}`).join('|'),
+    layout.sharedLines.map(line => `${Math.round(line.y)}:${line.colors.join('/')}`).join('|'),
+    layout.aboveIds.join(','),
+    layout.belowIds.join(','),
+    layout.scaleWidth,
+    layout.paneHeight,
+  ].join(';')

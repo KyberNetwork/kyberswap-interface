@@ -18,6 +18,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
+import type { DisplayCandle } from 'components/TokenPriceChart/chartOptions'
 import type { PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
@@ -29,8 +30,6 @@ import { useAppDispatch } from 'state/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import type { DisplayCandle } from './TokenPriceChartCanvas'
 
 const TokenPriceChartCanvas = lazy(() => import('./TokenPriceChartCanvas'))
 

@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Keep chart attribution visible without competing with the price data. */
+.tv-lightweight-charts #tv-attr-logo {
+  transform: scale(0.6);
+  transform-origin: bottom left;
+  opacity: 0.5;
+}
+
 /* Primary CTA emitted by `@kyber/token-selector` (e.g. the "Connect" button
    inside the Liquidity Source modal). The package only emits the className
    and expects the host app to style it. Kept unlayered + with `!` so it wins
