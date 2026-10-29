@@ -310,6 +310,7 @@ export const TokenSelectorContent = ({
   // in memory (whitelist, imports, favorites, held tokens) are screened against the feed list here.
   const {
     hasOracle,
+    tokens: oracleTokens,
     tokenFilter: oracleTokenFilter,
     isReady: isOracleListReady,
     isLoading: isOracleListLoading,
@@ -391,7 +392,18 @@ export const TokenSelectorContent = ({
     [sort],
   )
 
-  const defaultTokens = useAllTokens(false, primaryChainId)
+  const allTokens = useAllTokens(false, primaryChainId)
+  // The oracle list includes supported tokens outside the Swap whitelist. Preserve their API
+  // isWhitelisted flag so the standard row dimming and import behavior still apply.
+  const defaultTokens = useMemo(() => {
+    if (!requireOracle) return allTokens
+    return Object.fromEntries(
+      oracleTokens.map(token => {
+        const currency = new WrappedTokenInfo(token)
+        return [currency.address, currency]
+      }),
+    )
+  }, [requireOracle, oracleTokens, allTokens])
   const tokenImports = useUserAddedTokens(primaryChainId)
   // On the All tab, favorites float above non-favorites (but only after wallet value / balance).
   const favoriteAddressSet = useMemo(() => new Set(favoriteTokens ?? []), [favoriteTokens])
@@ -761,7 +773,7 @@ export const TokenSelectorContent = ({
   // oracle filter screens it against is.
   const isListLoading =
     (requireOracle && isOracleListLoading) ||
-    (isAllTab && (debouncedQuery ? isLoadingTokenSearch : Object.keys(defaultTokens).length === 0)) ||
+    (isAllTab && (debouncedQuery ? isLoadingTokenSearch : !requireOracle && Object.keys(defaultTokens).length === 0)) ||
     (isNewTab && newLoading && !newTokens.length) ||
     (isTrendingTab && trendingLoading && !trendingTokens.length)
 

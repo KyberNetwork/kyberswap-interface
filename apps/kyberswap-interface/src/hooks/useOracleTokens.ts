@@ -2,9 +2,10 @@ import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useGetStopMarketOracleTokensQuery } from 'services/stopMarket'
 
+import type { TokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isTokenNative } from 'utils/tokenInfo'
 
-const EMPTY_ADDRESSES = new Set<string>()
+const EMPTY_TOKENS: TokenInfo[] = []
 
 /**
  * The address a currency's feed is listed under: its wrapped token's, which is what an order holds. The
@@ -26,7 +27,8 @@ export const useOracleTokens = (chainId: ChainId | undefined, options?: { skip?:
   const skip = !chainId || !!options?.skip
   const { currentData, isError } = useGetStopMarketOracleTokensQuery(chainId as ChainId, { skip })
 
-  const addresses = useMemo(() => (currentData ? new Set(currentData.addresses) : EMPTY_ADDRESSES), [currentData])
+  const tokens = currentData?.tokens ?? EMPTY_TOKENS
+  const addresses = useMemo(() => new Set(tokens.map(token => token.address.toLowerCase())), [tokens])
   const isReady = !skip && currentData !== undefined
 
   const hasOracle = useCallback(
@@ -36,6 +38,7 @@ export const useOracleTokens = (chainId: ChainId | undefined, options?: { skip?:
 
   return {
     addresses,
+    tokens,
     hasOracle,
     tokenFilter: skip ? undefined : currentData?.tokenFilter,
     isReady,

@@ -204,11 +204,11 @@ const ksSettingApi = createApi({
       }),
     }),
     /**
-     * Lowercased addresses of every token on the chain that `tokenFilter` keeps, whitelisted or not —
+     * Every token on the chain that `tokenFilter` keeps, with its original whitelist status —
      * the filter names an oracle's price feeds (`hasChainlinkOracle`, `hasPythOracle`, …). The endpoint
      * caps `pageSize` at 100, so a longer list is read page by page.
      */
-    getOracleTokens: builder.query<string[], { chainId: ChainId; tokenFilter: string }>({
+    getOracleTokens: builder.query<TokenInfo[], { chainId: ChainId; tokenFilter: string }>({
       queryFn: async ({ chainId, tokenFilter }, _api, _extra, fetchWithBQ) => {
         const fetchPage = async (page: number) => {
           const result = await fetchWithBQ({
@@ -237,7 +237,7 @@ const ksSettingApi = createApi({
           }
         }
 
-        return { data: tokens.map(token => token.address.toLowerCase()) }
+        return { data: tokens }
       },
       // An oracle's feed list changes rarely; `getStopMarketOracleTokens` reads it and holds the answer.
       keepUnusedDataFor: 60 * 60,

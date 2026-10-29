@@ -223,10 +223,10 @@ const stopMarketApi = createApi({
         if (!tokenFilter) return { error: { status: 'CUSTOM_ERROR', error: 'The oracle config names no token filter' } }
 
         try {
-          const addresses = await api
+          const tokens = await api
             .dispatch(ksSettingApi.endpoints.getOracleTokens.initiate({ chainId, tokenFilter }, { subscribe: false }))
             .unwrap()
-          return { data: { tokenFilter, addresses } }
+          return { data: { tokenFilter, tokens } }
         } catch (error) {
           return { error: { status: 'CUSTOM_ERROR', error: String(error) } }
         }
