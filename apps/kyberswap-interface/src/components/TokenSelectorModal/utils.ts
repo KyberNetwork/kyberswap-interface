@@ -116,6 +116,13 @@ export const fetchTokens = async (
   }
 }
 
+/** Treat NativeCurrency and its 0xEeee catalog row as one asset, keeping wrapped native separate. */
+export const isSameCurrency = (first?: Currency | null, second?: Currency | null): boolean =>
+  !!first &&
+  !!second &&
+  first.chainId === second.chainId &&
+  getTokenAddress(first).toLowerCase() === getTokenAddress(second).toLowerCase()
+
 /**
  * Whether picking this token should open the import-warning screen rather than select it directly:
  * a non-native, non-whitelisted token that the user hasn't imported yet (and import is available).

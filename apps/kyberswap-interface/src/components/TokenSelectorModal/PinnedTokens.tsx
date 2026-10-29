@@ -7,6 +7,7 @@ import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { AutoRow } from 'components/Row'
 import { HStack } from 'components/Stack'
+import { isSameCurrency } from 'components/TokenSelectorModal/utils'
 import { cn } from 'utils/cn'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -33,7 +34,7 @@ export const PinnedTokens = ({ onSelect, selectedCurrency, tokens = [], onToggle
     <AutoColumn className="gap-3">
       <AutoRow className="gap-2">
         {(tokens as Token[]).map((token: Token) => {
-          const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
+          const selected = isSameCurrency(selectedCurrency, token)
           const { symbol } = getDisplayTokenInfo(token)
           return (
             <HStack
