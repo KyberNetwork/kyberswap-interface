@@ -1,8 +1,11 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { useState } from 'react'
+import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 
 import { ErrorWarning } from 'components/ErrorWarning'
+import { calcInvert, formatPriceInputValue } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
 import PercentPresetSelector from 'components/PercentPresetSelector'
 import Skeleton from 'components/Skeleton'
@@ -12,6 +15,7 @@ import { TRIGGER_PERCENT_PRESETS } from 'components/StopMarket/constants'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useStableCoins } from 'hooks/useTokens'
 import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 import { formatDisplayNumber, formatPercentageInput } from 'utils/numbers'
@@ -76,19 +80,28 @@ export const OracleMarketPriceButton = ({
   disabled,
   onClick,
   dataTestId = 'stop-market-market-price-button',
+  inverted = false,
 }: {
   disabled: boolean
   onClick: () => void
   dataTestId?: string
+  inverted?: boolean
 }) => (
   <MouseoverTooltip
     placement="top"
     width="280px"
     text={
-      <Trans>
-        Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or falls
-        below your level.
-      </Trans>
+      inverted ? (
+        <Trans>
+          Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or rises
+          above your level.
+        </Trans>
+      ) : (
+        <Trans>
+          Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or falls
+          below your level.
+        </Trans>
+      )
     }
   >
     {/* Disabled, it lets the pointer through, so the tooltip's wrapper still sees the hover — a disabled
@@ -106,9 +119,9 @@ export const OracleMarketPriceButton = ({
 )
 
 /**
- * The price the order triggers at, typed as the receive token per sell token — the direction the oracle
- * quotes the pair in. The rate beside Oracle is that feed's price, not the app's USD-ratio price, and the
- * chip row sets the trigger as a distance from it.
+ * The price the order triggers at, stored as the receive token per sell token — the direction the oracle
+ * quotes the pair in. The field can be shown and edited in either pair direction, like the Limit Order
+ * rate field, while the chip row and order payload continue using the canonical oracle direction.
  */
 const TriggerPriceSection = ({
   sellCurrency,
@@ -122,8 +135,29 @@ const TriggerPriceSection = ({
   onSetMarketPrice,
   className,
 }: Props) => {
-  const sellSymbol = sellCurrency?.symbol
-  const receiveSymbol = receiveCurrency?.symbol
+  const { isStableCoin } = useStableCoins(sellCurrency?.chainId)
+  const defaultInverted =
+    !!receiveCurrency && isStableCoin(sellCurrency?.wrapped.address) && !isStableCoin(receiveCurrency.wrapped.address)
+  const pairKey = `${sellCurrency?.chainId}:${sellCurrency?.wrapped.address}:${receiveCurrency?.wrapped.address}`
+  const [priceDirection, setPriceDirection] = useState<{ pairKey: string; inverted: boolean }>()
+  // Follow the stable quote as metadata loads, until the user chooses a direction for this pair.
+  const showInvertedPrice = priceDirection?.pairKey === pairKey ? priceDirection.inverted : defaultInverted
+  // Like Limit Order, keep the entered inverse alongside its canonical price.
+  const [typedInverse, setTypedInverse] = useState<{ value: string; price: string }>()
+  const displayedTriggerPrice = showInvertedPrice
+    ? typedInverse?.price === triggerPrice
+      ? typedInverse.value
+      : formatPriceInputValue(Number(triggerPrice) > 0 ? 1 / Number(triggerPrice) : undefined)
+    : triggerPrice
+  const baseCurrency = showInvertedPrice ? receiveCurrency : sellCurrency
+  const quoteCurrency = showInvertedPrice ? sellCurrency : receiveCurrency
+  const displayedMarketPrice = showInvertedPrice && marketPrice ? 1 / marketPrice : marketPrice
+
+  const onTriggerPriceInput = (value: string) => {
+    const price = showInvertedPrice ? calcInvert(value) : value
+    setTypedInverse(showInvertedPrice ? { value, price } : undefined)
+    onChangeTriggerPrice(price)
+  }
 
   return (
     <Stack className={cn('gap-2 rounded-2xl bg-buttonBlack p-4', className)} data-testid="stop-market-trigger-section">
@@ -132,10 +166,10 @@ const TriggerPriceSection = ({
           <Trans>Trigger at</Trans>
         </span>
         <HStack className="min-w-0 items-center justify-end gap-2">
-          <OracleMarketPriceButton disabled={!marketPrice} onClick={onSetMarketPrice} />
+          <OracleMarketPriceButton disabled={!marketPrice} inverted={showInvertedPrice} onClick={onSetMarketPrice} />
           {marketPrice ? (
             <span className="min-w-0 truncate text-sm font-medium text-text" data-testid="stop-market-market-rate">
-              {formatDisplayNumber(marketPrice, { significantDigits: 6 })}
+              {formatDisplayNumber(displayedMarketPrice, { significantDigits: 6 })}
             </span>
           ) : isLoadingPrice ? (
             <Skeleton height={20} width={80} />
@@ -149,19 +183,29 @@ const TriggerPriceSection = ({
             maxLength={50}
             className="bg-transparent text-xl font-medium text-primary"
             data-testid="stop-market-trigger-price"
-            value={triggerPrice}
-            onUserInput={onChangeTriggerPrice}
+            value={displayedTriggerPrice}
+            onUserInput={onTriggerPriceInput}
           />
         </div>
-        {sellSymbol && receiveSymbol && (
-          <span
-            className="max-w-[200px] shrink-0 truncate text-lg font-medium text-subText"
-            data-testid="stop-market-trigger-unit"
-          >
-            <Trans>
-              {receiveSymbol} per {sellSymbol}
-            </Trans>
-          </span>
+        {quoteCurrency && baseCurrency && (
+          <HStack className="min-w-0 shrink-0 items-center gap-1.5">
+            <span
+              className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText"
+              data-testid="stop-market-trigger-unit"
+            >
+              {quoteCurrency.symbol}/{baseCurrency.symbol}
+            </span>
+            <button
+              type="button"
+              data-testid="stop-market-trigger-invert"
+              aria-label={t`Invert price`}
+              aria-pressed={showInvertedPrice}
+              className="flex shrink-0 items-center justify-center text-subText transition hover:brightness-75"
+              onClick={() => setPriceDirection({ pairKey, inverted: !showInvertedPrice })}
+            >
+              <Repeat size={14} />
+            </button>
+          </HStack>
         )}
       </HStack>
 
