@@ -74,24 +74,29 @@ export const useMyOrdersNotifications = ({
   useEffect(() => {
     if (!account) return
 
+    let active = true
     const callback: NotificationOrderCallback = data => {
+      if (!active) return
       const orders: LimitOrder[] = data?.orders ?? []
       if (orders.length) refreshListOrder()
     }
 
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
+      if (!active) return
       refreshListOrder()
       const cancelledOrders: LimitOrder[] = data?.orders ?? []
       trackCancelledOrders(cancelledOrders)
     })
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, callback)
     const unsubscribeFilled = subscribeNotificationOrderFilled(account, chainId, data => {
+      if (!active) return
       const filledOrders: LimitOrder[] = data?.orders ?? []
       if (filledOrders.length) refreshListOrder()
       filledOrders.forEach(trackFilledOrder)
     })
 
     return () => {
+      active = false
       unsubscribeCancelled?.()
       unsubscribeExpired?.()
       unsubscribeFilled?.()

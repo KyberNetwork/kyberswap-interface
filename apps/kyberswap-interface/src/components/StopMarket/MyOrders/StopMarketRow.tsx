@@ -5,6 +5,7 @@ import { Edit2, ExternalLink as LinkIcon, Repeat, Trash } from 'react-feather'
 
 import { ReactComponent as RecreateIcon } from 'assets/svg/ic_stop_market_recreate.svg'
 import IconButton from 'components/Button/IconButton'
+import { OrderRowDetails } from 'components/LimitOrder/OrderList/OrderListComponents'
 import { HStack, Stack } from 'components/Stack'
 import { StopMarketRowLayout, StopMarketRowWrapper } from 'components/StopMarket/MyOrders/TableHeader'
 import {
@@ -396,29 +397,19 @@ const StopMarketRow = ({
         </Stack>
       )}
 
-      {/* Kept mounted so it can animate both ways; `inert` keeps the hidden transaction links out of the
-          tab order while it is collapsed. */}
       {canExpand && (
-        <div
-          inert={!expanded}
-          className={cn(
-            'grid bg-white/[0.02] transition-[grid-template-rows,opacity] duration-200 ease-in-out max-sm:hidden',
-            expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-          )}
-        >
-          <div className="min-h-0 overflow-hidden">
-            <StopMarketExecutionDetail
-              chainId={order.chainId}
-              fills={fills}
-              summary={fillSummary}
-              sellSymbol={sellCurrency.symbol || '-'}
-              receiveSymbol={receiveCurrency.symbol || '-'}
-              triggerPrice={Number(triggerPrice)}
-              minAmountOut={minAmountOut}
-              createdAt={order.createdAt}
-            />
-          </div>
-        </div>
+        <OrderRowDetails expanded={expanded}>
+          <StopMarketExecutionDetail
+            chainId={order.chainId}
+            fills={fills}
+            summary={fillSummary}
+            sellSymbol={sellCurrency.symbol || '-'}
+            receiveSymbol={receiveCurrency.symbol || '-'}
+            triggerPrice={Number(triggerPrice)}
+            minAmountOut={minAmountOut}
+            createdAt={order.createdAt}
+          />
+        </OrderRowDetails>
       )}
     </div>
   )

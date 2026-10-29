@@ -16,6 +16,7 @@ import PanelTabs, {
   PanelTab,
 } from 'components/LimitOrder/OrderList/OrderListComponents'
 import OrdersPriceChart from 'components/LimitOrder/OrderList/OrdersPriceChart'
+import { useOrderListActions } from 'components/LimitOrder/OrderList/useOrderListActions'
 import { useOpenOrderCounts } from 'components/LimitOrder/hooks/useOpenOrderCounts'
 import { LimitOrderStatus, LimitOrderTab, OrderKind, ShowOrdersState } from 'components/LimitOrder/types'
 import { Stack } from 'components/Stack'
@@ -110,6 +111,7 @@ const OrderList = () => {
   const isActiveTab = orderTab !== LimitOrderStatus.CLOSED
   const stopMarketWarning = useStopMarketOrderWarning(showStopMarkets && isActiveTab)
   const kind = showStopMarkets ? chosenKind : OrderKind.LIMIT
+  const { onSelectLimitPair, onSelectStopPair, onRecreateStopOrder } = useOrderListActions()
 
   const requestedKind = (locationState as ShowOrdersState | null)?.showOrders
   const requestedTab = (locationState as ShowOrdersState | null)?.orderTab
@@ -308,6 +310,7 @@ const OrderList = () => {
           </Stack>
         )}
         <Stack className={cn('border-t border-darkBorder', !hasChart && isOrderBook && 'hidden')}>
+          {/* Keep the segmented control mounted so its indicator can animate between order kinds. */}
           <OrderListToolbar>
             <OrderKindTabs
               showStopMarkets={showStopMarkets}
@@ -323,10 +326,16 @@ const OrderList = () => {
             <StopMarkets
               isActiveTab={isActiveTab}
               resetFiltersKey={stopMarketResetKey}
+              onSelectPair={onSelectStopPair}
+              onRecreate={onRecreateStopOrder}
               toolbarActionsContainer={toolbarActionsContainer}
             />
           ) : (
-            <MyOrders isActiveTab={isActiveTab} toolbarActionsContainer={toolbarActionsContainer} />
+            <MyOrders
+              isActiveTab={isActiveTab}
+              onSelectPair={onSelectLimitPair}
+              toolbarActionsContainer={toolbarActionsContainer}
+            />
           )}
         </Stack>
       </OrderPanelCard>

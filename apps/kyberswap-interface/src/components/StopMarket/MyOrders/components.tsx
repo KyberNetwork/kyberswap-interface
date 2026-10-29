@@ -23,46 +23,6 @@ import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export const StopMarketTabSelector = ({
-  isActiveTab,
-  onChange,
-}: {
-  isActiveTab: boolean
-  onChange: (isActive: boolean) => void
-}) => (
-  <HStack className="min-w-0 flex-1 items-center gap-0 px-4 py-3 text-sm font-medium" data-testid="stop-market-tabs">
-    <button
-      type="button"
-      data-testid="stop-market-tab-active"
-      aria-selected={isActiveTab}
-      onClick={() => onChange(true)}
-      className={cn(
-        'cursor-pointer border-0 border-r border-darkBorder bg-transparent pr-3 transition-colors',
-        isActiveTab ? 'text-primary' : 'text-subText hover:text-text',
-      )}
-    >
-      <Trans>Active Orders</Trans>
-    </button>
-    <button
-      type="button"
-      data-testid="stop-market-tab-history"
-      aria-selected={!isActiveTab}
-      onClick={() => onChange(false)}
-      className={cn(
-        'cursor-pointer border-0 bg-transparent pl-3 transition-colors',
-        !isActiveTab ? 'text-primary' : 'text-subText hover:text-text',
-      )}
-    >
-      <span className="max-sm:hidden">
-        <Trans>Order History</Trans>
-      </span>
-      <span className="sm:hidden">
-        <Trans>History</Trans>
-      </span>
-    </button>
-  </HStack>
-)
-
 /**
  * A bar standing in for one line of text, boxed at that line's height so swapping it for the text moves
  * nothing: `sm` is a text-sm line (20px), `xs` a text-xs one (16px).
@@ -366,7 +326,7 @@ export const StopMarketExecutionDetail = ({
       className="gap-3 border-t border-white-04 px-4 py-3 text-xs font-medium text-subText"
       data-testid="stop-market-order-execution-detail"
     >
-      <div className="grid items-center gap-x-3 gap-y-2 [grid-template-columns:44px_minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,1.5fr)_minmax(0,0.8fr)_28px] max-sm:flex max-sm:flex-wrap">
+      <StopMarketRowWrapper layout={StopMarketRowLayout.HISTORY} className="gap-y-2 max-sm:flex max-sm:flex-wrap">
         <HStack className="col-span-4 min-w-0 items-center gap-2 max-sm:col-auto">
           <DetailField label={<Trans>Created at</Trans>} dataTestId="stop-market-order-detail-created">
             {formatDetailTime(createdAt)}
@@ -384,7 +344,7 @@ export const StopMarketExecutionDetail = ({
             {summary.fee === undefined ? t`TBD` : `${formatFillAmount(summary.fee)} ${receiveSymbol}`}
           </DetailField>
         </HStack>
-      </div>
+      </StopMarketRowWrapper>
 
       {fills.length > 1 && (
         // One grid for every fill, so their figures line up in columns; a phone wraps each fill instead.

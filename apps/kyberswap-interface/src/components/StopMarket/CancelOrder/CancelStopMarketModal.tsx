@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   useCancelAllStopMarketsMutation,
   useCancelStopMarketMutation,
@@ -73,6 +73,17 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false)
   const [error, setError] = useState('')
   const [pickedChainId, setPickedChainId] = useState<ChainId>()
+  const requestController = useRef(new AbortController())
+  const isOpen = orders.length > 0
+
+  useEffect(() => {
+    requestController.current = new AbortController()
+    setIsCancelling(false)
+    setIsSwitchingNetwork(false)
+    setError('')
+    setPickedChainId(undefined)
+    return () => requestController.current.abort()
+  }, [account, isOpen])
 
   /**
    * One signature reaches one chain, so Cancel All asks which chain to clear rather than leaving the
@@ -118,21 +129,25 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
     if (!targetChainId) return
     setError('')
     setIsSwitchingNetwork(true)
+    const signal = requestController.current.signal
     try {
       await changeNetwork(targetChainId)
     } finally {
-      setIsSwitchingNetwork(false)
+      if (!signal.aborted) setIsSwitchingNetwork(false)
     }
   }
 
   const handleDismiss = () => {
+    requestController.current.abort()
     setError('')
     setPickedChainId(undefined)
     onDismiss()
   }
 
   const onConfirm = async () => {
-    if (!targetChainId || !account) return
+    if (!targetChainId || !account || isCancelling) return
+    const signal = requestController.current.signal
+    if (signal.aborted) return
     setIsCancelling(true)
     setError('')
 
@@ -141,11 +156,13 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
       if (isCancelAll) {
         const params = { chainId, userWallet: account }
         const typedData = await getCancelAllSignMessage(params).unwrap()
+        if (signal.aborted) return
         const rawSignature = await signTypedDataRaw({
           chainId,
           account: account as Address,
           typedData: stripEmptyEip712Salt(typedData),
         })
+        if (signal.aborted) return
         // The service checks the signature against the moment it issued, so that travels back with it.
         await cancelAll({
           ...params,
@@ -156,11 +173,13 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
         if (!order) return
         const params = { chainId, userWallet: account, orderId: order.id }
         const typedData = await getCancelSignMessage(params).unwrap()
+        if (signal.aborted) return
         const rawSignature = await signTypedDataRaw({
           chainId,
           account: account as Address,
           typedData: stripEmptyEip712Salt(typedData),
         })
+        if (signal.aborted) return
         await cancelOrder({ ...params, signature: formatSignature(rawSignature) }).unwrap()
       }
 
@@ -175,12 +194,15 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
         10000,
       )
       selectedOrders.forEach(tracking.trackOrderCancelled)
+      // Submitted cancellations still invalidate cache and report success for their original orders.
+      // Only callbacks into the current UI are suppressed after dismissal or a wallet change.
+      if (signal.aborted) return
       onCancelled(selectedOrders.map(o => o.id))
       handleDismiss()
     } catch (cancelError) {
-      setError(friendlyError(cancelError))
+      if (!signal.aborted) setError(friendlyError(cancelError))
     } finally {
-      setIsCancelling(false)
+      if (!signal.aborted) setIsCancelling(false)
     }
   }
 

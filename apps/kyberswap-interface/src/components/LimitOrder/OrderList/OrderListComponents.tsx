@@ -1,7 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { HTMLAttributes, ReactNode, Ref } from 'react'
+import { Trash } from 'react-feather'
 
+import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { OrderKind } from 'components/LimitOrder/types'
+import Loader from 'components/Loader'
 import SearchInput from 'components/SearchInput'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack } from 'components/Stack'
@@ -27,6 +30,61 @@ export const OrderListToolbar = ({ children }: { children: ReactNode }) => (
   <HStack className="flex-wrap items-center justify-between gap-3 border-b border-darkBorder px-4 py-3">
     {children}
   </HStack>
+)
+
+type CancelAllButtonProps = {
+  disabled?: boolean
+  /** The open orders it would cancel are still being fetched. */
+  isLoading?: boolean
+  onClick: () => void
+  dataTestId?: string
+}
+
+/** The one Cancel All button, which the limit and the stop market order lists both offer. */
+export const CancelAllButton = ({ disabled, isLoading, onClick, dataTestId }: CancelAllButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    data-testid={dataTestId}
+    className="flex w-fit animate-[fadeIn_0.2s_ease-out_both] cursor-pointer items-center gap-1.5 rounded-[16px] border border-tabActive bg-white-08 px-3 py-1 text-sm font-medium text-subText transition-colors hover:text-text disabled:cursor-default disabled:opacity-50 disabled:hover:text-subText motion-reduce:animate-none"
+  >
+    {isLoading ? <Loader size="14px" /> : <Trash size={14} />}
+    <Trans>Cancel All</Trans>
+  </button>
+)
+
+type EmptyOrdersProps = {
+  isActiveTab: boolean
+  keyword: string
+}
+
+export const EmptyOrders = ({ isActiveTab, keyword }: EmptyOrdersProps) => (
+  <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 text-sm font-medium text-subText">
+    <NoDataIcon />
+    <span>
+      {keyword ? (
+        <Trans>No orders found.</Trans>
+      ) : isActiveTab ? (
+        <Trans>You don&apos;t have any open orders yet.</Trans>
+      ) : (
+        <Trans>You don&apos;t have any order history.</Trans>
+      )}
+    </span>
+  </div>
+)
+
+/** Both tables keep details mounted for collapse; hidden links must not receive keyboard focus. */
+export const OrderRowDetails = ({ expanded, children }: { expanded: boolean; children: ReactNode }) => (
+  <div
+    inert={!expanded}
+    className={cn(
+      'grid bg-white/[0.02] transition-[grid-template-rows,opacity] duration-200 ease-in-out max-sm:hidden',
+      expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+    )}
+  >
+    <div className="min-h-0 overflow-hidden">{children}</div>
+  </div>
 )
 
 type OrderListFiltersProps = {

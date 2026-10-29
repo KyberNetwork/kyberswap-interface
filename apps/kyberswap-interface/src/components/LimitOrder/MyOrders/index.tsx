@@ -13,7 +13,6 @@ import HistoryPagination from 'components/LimitOrder/MyOrders/HistoryPagination'
 import OrderRow from 'components/LimitOrder/MyOrders/OrderRow'
 import RowsSkeleton from 'components/LimitOrder/MyOrders/RowsSkeleton'
 import TableHeader from 'components/LimitOrder/MyOrders/TableHeader'
-import { CancelAllButton, EmptyOrders, TabSelector } from 'components/LimitOrder/MyOrders/components'
 import {
   INITIAL_HISTORY_PAGER_STATE,
   canGoToNextHistoryPage,
@@ -25,13 +24,11 @@ import {
 } from 'components/LimitOrder/MyOrders/historyPager'
 import { useMyOrdersNotifications } from 'components/LimitOrder/MyOrders/useMyOrdersNotifications'
 import {
-  LIST_ORDER_TABS,
-  getActiveTabByOrderType,
   getCloseOrderOptions,
   getOrdersApiSearchKeyword,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
-import { OrderListFilters } from 'components/LimitOrder/OrderList/OrderListComponents'
+import { CancelAllButton, EmptyOrders, OrderListFilters } from 'components/LimitOrder/OrderList/OrderListComponents'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import {
   LIMIT_ORDERS_PAGE_SIZE,
@@ -39,14 +36,11 @@ import {
   useSupportedLimitOrderChains,
 } from 'components/LimitOrder/listOrdersArgs'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { isActiveStatus } from 'components/LimitOrder/utils'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
-import usePageLocation from 'hooks/usePageLocation'
-import useTab from 'hooks/useTab'
 
 const ALL_CHAINS_VALUE = 'all'
 const EMPTY_LIMIT_ORDERS: LimitOrder[] = []
@@ -60,18 +54,14 @@ const EMPTY_LIMIT_ORDERS: LimitOrder[] = []
 const ALL_CHAINS_API_CHAIN_IDS: ChainId[] = []
 
 type MyOrdersProps = {
-  /**
-   * Set when the hosting panel owns the Active / History choice and the persistent toolbar.
-   */
-  isActiveTab?: boolean
-  toolbarActionsContainer?: HTMLElement | null
+  isActiveTab: boolean
+  toolbarActionsContainer: HTMLElement | null
+  onSelectPair: (order: LimitOrder) => void
 }
 
-const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyOrdersProps) => {
-  const isHosted = hostedActiveTab !== undefined
+const MyOrders = ({ isActiveTab: isTabActive, toolbarActionsContainer, onSelectPair }: MyOrdersProps) => {
   const { account } = useActiveWeb3React()
   const limitOrderTracking = useLimitOrderTracking()
-  const { isEmbeddedSwap } = usePageLocation()
   const { chainId, networkName } = useLimitOrderContext()
   const { options: supportedLimitOrderChainOptions, chainIds: supportedLimitOrderChains } =
     useSupportedLimitOrderChains()
@@ -79,33 +69,35 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
   const [searchParams, setSearchParams] = useSearchParams()
   const invalidateTag = useInvalidateTagLimitOrder()
 
-  const { activeTab: orderTab, setActiveTab: setOrderTab } = useTab<LimitOrderStatus>({
-    tabs: LIST_ORDER_TABS,
-    queryKey: 'orderTab',
-    defaultTab: LimitOrderStatus.ACTIVE,
-    // A hosting panel keeps the choice in the query itself.
-    syncQuery: !isEmbeddedSwap && !isHosted,
-  })
-
   const [pager, setPager] = useState(INITIAL_HISTORY_PAGER_STATE)
-  const [orderType, setOrderType] = useState<LimitOrderStatus>(
-    isHosted
-      ? hostedActiveTab
-        ? LimitOrderStatus.ACTIVE
-        : LimitOrderStatus.CLOSED
-      : orderTab || LimitOrderStatus.ACTIVE,
-  )
+  const [closedOrderType, setClosedOrderType] = useState(LimitOrderStatus.CLOSED)
+  const orderType = isTabActive ? LimitOrderStatus.ACTIVE : closedOrderType
   const [selectedChainValue, setSelectedChainValue] = useState<string>(ALL_CHAINS_VALUE)
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isCancelAll, setIsCancelAll] = useState(false)
+  const dismissTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   /** Cursor already bounced back to page 1, so a repeated 400 on it does not loop. */
   const rejectedCursorRef = useRef<string | undefined>(undefined)
 
+  const accountKey = account?.toLowerCase() || ''
+  const [selectionAccount, setSelectionAccount] = useState(accountKey)
+  // Reset only wallet-owned state before rendering a modal for the new account.
+  // Search and filter preferences belong to the list and survive wallet changes.
+  if (selectionAccount !== accountKey) {
+    setSelectionAccount(accountKey)
+    setCurrentOrder(undefined)
+    setIsOpenCancel(false)
+    setIsCancelAll(false)
+    setPager(INITIAL_HISTORY_PAGER_STATE)
+  }
+  useEffect(() => {
+    clearTimeout(dismissTimer.current)
+    rejectedCursorRef.current = undefined
+  }, [accountKey])
+
   const keyword = searchParams.get('search') || ''
 
-  const isTabActive = isActiveStatus(orderType)
-  const activeTab = getActiveTabByOrderType(orderType)
   const closedOrderTypeOptions: MenuOption[] = getCloseOrderOptions().map(option => ({
     label: option.label,
     value: option.value,
@@ -166,7 +158,7 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
   const showNoOrders = !isInitialLoading && !hasOrders && (isOrdersLoaded || isOrdersError || !account)
 
   const {
-    data: cancelAllOrdersData,
+    currentData: cancelAllOrdersData,
     isError: isCancelAllOrdersError,
     isFetching: isFetchingCancelAllOrders,
     isSuccess: isCancelAllOrdersLoaded,
@@ -219,16 +211,8 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
     [searchParams, setSearchParams],
   )
 
-  const onSelectTab = (type: LimitOrderStatus) => {
-    setOrderType(type)
-    setOrderTab(type)
-    onReset()
-  }
-
   const onSelectOrderType = (type: string | number) => {
-    const nextOrderType = type as LimitOrderStatus
-    setOrderType(nextOrderType)
-    setOrderTab(isActiveStatus(nextOrderType) ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED)
+    setClosedOrderType(type as LimitOrderStatus)
     onReset()
   }
 
@@ -260,13 +244,15 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
   const hideConfirmCancel = useCallback(() => {
     setIsOpenCancel(false)
     setIsCancelAll(false)
-    setTimeout(() => {
+    clearTimeout(dismissTimer.current)
+    dismissTimer.current = setTimeout(() => {
       setCurrentOrder(undefined)
     }, 300)
   }, [])
 
   const openCancelModal = useCallback(
     (order?: LimitOrder) => {
+      clearTimeout(dismissTimer.current)
       setCurrentOrder(order)
       setIsOpenCancel(true)
       setIsCancelAll(false)
@@ -284,10 +270,12 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
     setIsCancelAll(true)
   }
 
-  // A cursor is scoped to one maker's keyset, so it cannot survive a wallet switch.
+  useEffect(() => () => clearTimeout(dismissTimer.current), [])
+
+  // Account changes reset the pager above; a different status starts a new keyset too.
   useEffect(() => {
     onReset()
-  }, [orderType, account, onReset])
+  }, [orderType, onReset])
 
   // A tampered or expired cursor comes back as a 400 that would otherwise be re-sent every poll.
   useEffect(() => {
@@ -299,48 +287,24 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
     onReset()
   }, [cursor, isOrdersError, ordersError, onReset])
 
+  // Limit history starts on All Closed Orders after a visit to Active, as before.
   useEffect(() => {
-    if (!orderTab || isHosted) return
-    setOrderType(orderType => {
-      if (isActiveStatus(orderType) === isActiveStatus(orderTab)) {
-        return orderType
-      }
-      return orderTab
-    })
-    onReset()
-  }, [orderTab, isHosted, onReset])
-
-  // The host's choice, keeping the closed status picked within History while History stays chosen.
-  useEffect(() => {
-    if (hostedActiveTab === undefined) return
-    setOrderType(orderType =>
-      isActiveStatus(orderType) === hostedActiveTab
-        ? orderType
-        : hostedActiveTab
-        ? LimitOrderStatus.ACTIVE
-        : LimitOrderStatus.CLOSED,
-    )
-  }, [hostedActiveTab])
-
-  const cancelAllButton = showCancelAll ? (
-    <CancelAllButton
-      dataTestId="limit-order-cancel-all-button"
-      onClick={onCancelAllOrder}
-      disabled={disabledCancelAll}
-      isLoading={isLoadingCancelAllOrders}
-    />
-  ) : null
+    if (isTabActive) setClosedOrderType(LimitOrderStatus.CLOSED)
+  }, [isTabActive])
 
   return (
     <div className="flex w-full flex-col">
-      {isHosted ? (
-        toolbarActionsContainer && createPortal(cancelAllButton, toolbarActionsContainer)
-      ) : (
-        <div className="flex min-w-0 items-center border-b border-darkBorder">
-          <TabSelector setActiveTab={onSelectTab} activeTab={activeTab} />
-          {cancelAllButton && <div className="flex shrink-0 items-center px-4">{cancelAllButton}</div>}
-        </div>
-      )}
+      {toolbarActionsContainer &&
+        showCancelAll &&
+        createPortal(
+          <CancelAllButton
+            dataTestId="limit-order-cancel-all-button"
+            disabled={disabledCancelAll}
+            isLoading={isLoadingCancelAllOrders}
+            onClick={onCancelAllOrder}
+          />,
+          toolbarActionsContainer,
+        )}
 
       <OrderListFilters
         onSearchChange={onChangeKeyword}
@@ -385,6 +349,7 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
             key={order.id}
             order={order}
             onCancelOrder={openCancelModal}
+            onSelectPair={onSelectPair}
           />
         ))}
         {showNoOrders && <EmptyOrders isActiveTab={isTabActive} keyword={keyword} />}
@@ -414,6 +379,7 @@ const MyOrders = ({ isActiveTab: hostedActiveTab, toolbarActionsContainer }: MyO
       )}
 
       <CancelOrderModal
+        key={accountKey}
         isOpen={isOpenCancel}
         onDismiss={hideConfirmCancel}
         isCancelAll={isCancelAll}
