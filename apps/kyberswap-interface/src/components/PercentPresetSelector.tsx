@@ -9,6 +9,7 @@ type Props = {
   presets: readonly number[]
   value: string
   normalizeInput: (value: string) => string | undefined
+  emptyFocusValue?: string
   showPositiveSign?: boolean
   warnOnNegative?: boolean
   /** Use red for negative trigger percentages and green for positive ones. */
@@ -23,6 +24,7 @@ const PercentPresetSelector = ({
   presets,
   value,
   normalizeInput,
+  emptyFocusValue = '',
   showPositiveSign,
   warnOnNegative,
   colorByDirection,
@@ -77,7 +79,7 @@ const PercentPresetSelector = ({
           value={displayValue}
           placeholder={t`Custom`}
           onUserInput={handleInput}
-          onFocus={() => setEditing({ value: displayValue, active: true })}
+          onFocus={() => setEditing({ value: displayValue || emptyFocusValue, active: true })}
           onBlur={() => {
             setEditing(null)
             onCustomBlur?.()

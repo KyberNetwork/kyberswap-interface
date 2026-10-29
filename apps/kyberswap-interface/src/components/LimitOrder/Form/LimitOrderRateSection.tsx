@@ -186,7 +186,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
         presets={RATE_DELTA_OPTIONS}
         value={percentInputValue}
         normalizeInput={normalizeCustomPercent}
-        showPositiveSign
+        showPositiveSign={false}
         warnOnNegative
         onChange={onChangePercent}
         onPresetSelect={onClickPreset}

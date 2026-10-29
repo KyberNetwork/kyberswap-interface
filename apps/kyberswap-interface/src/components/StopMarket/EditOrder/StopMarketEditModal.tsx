@@ -167,6 +167,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
   const trigger = Number(triggerPrice)
   const hasTrigger = trigger > 0 && Number.isFinite(trigger)
   const triggerPercent = marketPrice && hasTrigger ? getTriggerPercent(trigger, marketPrice) : undefined
+  const isTriggerAboveOracle = (triggerPercent ?? 0) > 0
 
   /** The percent chip is the same value from the other side, so typing in it drives the price. */
   const onChangeTriggerPercent = (percent: string) => {
@@ -217,6 +218,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     marketPriceUnavailable: !loadingMarketPrice && !marketPrice,
     releasedAmount: order.amountIn,
     onSharedBalanceReview: onDismiss,
+    isTriggerAboveOracle,
   })
   // The pair cannot change here, so a token that has lost its feed has no field of its own to flag.
   const warnings = [
@@ -296,7 +298,6 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     : originalExpiryLabel
 
   const isMissingAmount = !parsedAmount || parsedAmount.equalTo(0)
-  const isTriggerAboveOracle = (triggerPercent ?? 0) > 0
   const disableAction =
     !hasChanges ||
     isMissingAmount ||

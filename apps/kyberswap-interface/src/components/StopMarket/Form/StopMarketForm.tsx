@@ -90,12 +90,14 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   }, [])
 
   const form = useStopMarketFormState({ currencyIn, currencyOut })
+  const isTriggerAboveOracle = (form.triggerPercent ?? 0) > 0
   const validation = useStopMarketWarnings({
     chainId: form.chainId,
     currencyIn,
     currencyOut,
     inputAmount: form.inputAmount,
     marketPriceUnavailable: form.marketPriceUnavailable,
+    isTriggerAboveOracle,
   })
 
   const estimateUsd = calcUsdPrices({
@@ -172,7 +174,6 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const isMissingAmount = !form.inputAmount || Number(form.inputAmount) === 0
   const isMissingTrigger = !form.triggerPrice || Number(form.triggerPrice) === 0
-  const isTriggerAboveOracle = (form.triggerPercent ?? 0) > 0
   // A cleared Amount Out leaves the trigger as it was, but the order is not placed with that field blank.
   const isMissingOutput = !form.outputAmount || Number(form.outputAmount) === 0
   // Review opens only with a complete estimate; errors are retried on this form.

@@ -169,6 +169,7 @@ const TriggerPriceSection = ({
         presets={TRIGGER_PERCENT_PRESETS}
         value={formatPercentageInput(triggerPercent)}
         normalizeInput={normalizeCustomPercent}
+        emptyFocusValue="-"
         colorByDirection
         testIdPrefix="stop-market-trigger-percent"
         onChange={value => {

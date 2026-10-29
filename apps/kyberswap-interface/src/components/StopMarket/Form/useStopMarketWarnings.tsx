@@ -60,6 +60,7 @@ type Props = {
   /** Raw amount of the open order being edited, whose claim on the balance the edit gives up. */
   releasedAmount?: string
   onSharedBalanceReview?: () => void
+  isTriggerAboveOracle?: boolean
 }
 
 /**
@@ -74,6 +75,7 @@ export const useStopMarketWarnings = ({
   marketPriceUnavailable,
   releasedAmount,
   onSharedBalanceReview,
+  isTriggerAboveOracle = false,
 }: Props) => {
   const { hasEligibleTokens, isLoading: loadingSupportedTokens } = useStopMarketSupportedTokens(chainId)
   const { isEligible, isLoading: loadingEligibility } = useIsStopMarketEligibleToken(currencyIn)
@@ -160,16 +162,18 @@ export const useStopMarketWarnings = ({
      * than warned: the orders would not all be able to fire, and which one loses is decided by timing.
      */
     if (hasReservedBalanceShortfall && currencyIn) {
-      formWarnings.push({
-        type: 'warn',
-        message: (
-          <ReservedBalanceNotice
-            chainId={chainId}
-            symbol={currencyIn.wrapped.symbol}
-            onReviewClick={onSharedBalanceReview}
-          />
-        ),
-      })
+      if (!isTriggerAboveOracle) {
+        formWarnings.push({
+          type: 'warn',
+          message: (
+            <ReservedBalanceNotice
+              chainId={chainId}
+              symbol={currencyIn.wrapped.symbol}
+              onReviewClick={onSharedBalanceReview}
+            />
+          ),
+        })
+      }
       shouldDisableAction = true
     }
 
@@ -188,6 +192,7 @@ export const useStopMarketWarnings = ({
     currencyOut,
     marketPriceUnavailable,
     hasReservedBalanceShortfall,
+    isTriggerAboveOracle,
     hasEligibleTokens,
     isEligible,
     isReceiveEligible,
