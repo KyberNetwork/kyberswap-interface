@@ -134,7 +134,13 @@ const OrdersPriceChart = ({ currencyIn, currencyOut, isStopMarketPage }: Props) 
 
     tokenViews.forEach(({ value, token, canChart }) => {
       if (!token || !canChart) return
-      const quoteSymbol = PRICE_CHART_QUOTES[token.chainId as ChainId]?.symbol
+      const quote = PRICE_CHART_QUOTES[token.chainId as ChainId]
+      const matchesPair =
+        (token.wrapped.equals(baseCurrency.wrapped) && quote?.equals(quoteCurrency.wrapped)) ||
+        (token.wrapped.equals(quoteCurrency.wrapped) && quote?.equals(baseCurrency.wrapped))
+      if (matchesPair) return
+
+      const quoteSymbol = quote?.symbol
       options.push({
         value,
         dataTestId: `orders-chart-view-${value}`,

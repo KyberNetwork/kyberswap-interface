@@ -34,7 +34,7 @@ import {
 import { type PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
 import useTokenPriceChartMarkers from 'components/TokenPriceChart/useTokenPriceChartMarkers'
 import useTheme from 'hooks/useTheme'
-import { formatPrice } from 'pages/Earns/PoolDetail/Information/utils'
+import { formatRate } from 'pages/Earns/PoolDetail/Information/utils'
 import { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
 import { hexAlpha } from 'utils/colorAlpha'
@@ -45,7 +45,7 @@ type TokenPriceChartCanvasProps = {
   canLoadMore?: boolean
   onLoadMore?: () => void
   timeFrame: TokenChartTimeFrame
-  /** Formats prices in the candle tooltip; defaults to USD. */
+  /** Formats rates in the candle tooltip; defaults to a unitless rate. */
   formatValue?: (value?: number) => string
   markerOverlay?: PriceMarkerOverlay
   /** Told, by group key, how many markers sit outside the visible price range whenever that changes. */
@@ -57,7 +57,7 @@ const TokenPriceChartCanvas = ({
   canLoadMore = false,
   onLoadMore,
   timeFrame,
-  formatValue = formatPrice,
+  formatValue = formatRate,
   markerOverlay,
   onOffscreenChange,
 }: TokenPriceChartCanvasProps) => {

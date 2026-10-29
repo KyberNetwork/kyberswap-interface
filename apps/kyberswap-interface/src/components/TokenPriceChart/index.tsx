@@ -24,12 +24,11 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { useStableCoins } from 'hooks/useTokens'
-import { formatPrice, formatRate, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
+import { formatRate, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { useAppDispatch } from 'state/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
-import { formatDisplayNumber } from 'utils/numbers'
 
 const TokenPriceChartCanvas = lazy(() => import('./TokenPriceChartCanvas'))
 
@@ -112,19 +111,11 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
   const fromBucketMs = useMemo(() => getTokenChartFromBucketMs({ timeFrame }), [timeFrame])
   const chartRequestKey = `${chainId}:${activeTokenAddress}:${quoteAddress}:${timeFrame}`
 
-  // Only the chain's USD chart quote reads as dollars. The stablecoin list is not USD-only (EURC), so
-  // every other quote carries its own symbol.
-  const isUsdQuote = !quoteToken || (!!stableToken && quoteKey === getCurrencyKey(stableToken))
   const quoteSymbol = quoteToken?.symbol
   const formatValue = useMemo(
-    () =>
-      isUsdQuote
-        ? formatPrice
-        : (value?: number) =>
-            value === undefined || !Number.isFinite(value)
-              ? '--'
-              : `${formatDisplayNumber(value, { significantDigits: 6 })} ${quoteSymbol ?? ''}`.trim(),
-    [isUsdQuote, quoteSymbol],
+    () => (value?: number) =>
+      value === undefined || !Number.isFinite(value) ? '--' : `${formatRate(value)} ${quoteSymbol ?? ''}`.trim(),
+    [quoteSymbol],
   )
 
   useEffect(() => {
@@ -313,15 +304,12 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
                 )}
                 {currentPrice !== undefined && (
                   <HStack className="flex-wrap items-baseline gap-x-2 gap-y-1">
-                    {quoteCurrency ? (
-                      <span className="text-base text-subText">
-                        1 {activeToken.symbol} ={' '}
-                        <span className="text-xl font-medium text-text">{formatRate(currentPrice)}</span>{' '}
-                        {quoteToken.symbol}
+                    <span className="text-base text-subText">
+                      1 {activeToken.symbol} ={' '}
+                      <span className="text-xl font-medium text-text">
+                        {formatRate(currentPrice)} {quoteToken.symbol}
                       </span>
-                    ) : (
-                      <span className="text-xl font-medium text-text">{formatValue(currentPrice)}</span>
-                    )}
+                    </span>
 
                     {hasPriceChange && (
                       <HStack className="items-center gap-1">
