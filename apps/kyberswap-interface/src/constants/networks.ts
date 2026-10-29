@@ -88,7 +88,7 @@ export const isSupportLimitOrder = (chainId: ChainId, envKey: EnvKeys = ENV_KEY)
  *
  * Every entry must be one the conditional-order service accepts: it rejects an unknown chain with
  * `chain id is not supported`, and one bad id fails the whole order-list request, so listing a chain
- * it does not know breaks the table for every chain at once. Polygon is left out for that reason.
+ * it does not know breaks the table for every chain at once.
  * Chains it accepts but has no oracle feeds for stay in — the form degrades to "not available yet".
  */
 const STOP_MARKET_NETWORKS: ChainId[] = [
@@ -97,6 +97,10 @@ const STOP_MARKET_NETWORKS: ChainId[] = [
   ChainId.BSCMAINNET,
   ChainId.OPTIMISM,
   ChainId.BASE,
+  ChainId.MATIC,
+  ChainId.AVAXMAINNET,
+  ChainId.ROBINHOOD,
+  ChainId.HYPEREVM,
 ]
 
 export const isSupportStopMarket = (chainId: ChainId): boolean => STOP_MARKET_NETWORKS.includes(chainId)

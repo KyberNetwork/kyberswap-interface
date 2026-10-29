@@ -69,7 +69,7 @@ import {
 } from 'components/TokenSelectorModal/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { ETHER_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -122,6 +122,7 @@ interface TokenSelectorContentProps {
   /**
    * List only tokens the stop market order oracle can price, on whichever chain the selector is showing — the
    * oracle, and so the filter that finds its feeds, comes from that chain's oracle config.
+   * Chain selection is limited to networks supporting stop market orders.
    */
   requireOracle?: boolean
 }
@@ -291,9 +292,10 @@ export const TokenSelectorContent = ({
   // config order at the bottom. Only fetched when the dropdown is actually shown.
   const chainVolumes = useChainsVolume(showDiscoveryTabs)
   const rankedChains = useMemo(() => {
-    if (!Object.keys(chainVolumes).length) return supportedChains
-    return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
-  }, [supportedChains, chainVolumes])
+    const chains = requireOracle ? supportedChains.filter(chain => isSupportStopMarket(chain.chainId)) : supportedChains
+    if (!Object.keys(chainVolumes).length) return chains
+    return [...chains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
+  }, [supportedChains, chainVolumes, requireOracle])
   const removeToken = useRemoveUserAddedToken()
   const isTokenImported = useIsTokenImported()
   const isTokenRestricted = useIsTokenRestricted()
