@@ -77,7 +77,7 @@ const PercentPresetSelector = ({
           value={displayValue}
           placeholder={t`Custom`}
           onUserInput={handleInput}
-          onFocus={() => setEditing({ value, active: true })}
+          onFocus={() => setEditing({ value: displayValue, active: true })}
           onBlur={() => {
             setEditing(null)
             onCustomBlur?.()
