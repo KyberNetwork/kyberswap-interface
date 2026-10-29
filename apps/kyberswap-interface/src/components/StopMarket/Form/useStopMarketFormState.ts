@@ -103,9 +103,8 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
   const marketPriceUnavailable = !!pairKey && !loadingMarketPrice && !marketPrice
 
   /**
-   * How far the trigger sits from the market price, negative below it and positive above. Any side is a
-   * valid order: the trigger fires once the oracle is at or under it, and the fill must still clear
-   * `trigger × (1 − slippage)`, so a trigger above the market waits for the price to rise to that floor.
+   * Distance in the contract's sell-to-receive direction, negative below the oracle and positive above.
+   * Keep either side editable; the form directs above-oracle triggers to Limit Order.
    */
   const triggerPercent = useMemo(() => {
     const price = Number(triggerPrice)

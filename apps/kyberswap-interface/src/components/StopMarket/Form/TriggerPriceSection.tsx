@@ -1,6 +1,8 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { Link } from 'react-router-dom'
 
+import { ErrorWarning } from 'components/ErrorWarning'
 import NumericalInput from 'components/NumericalInput'
 import PercentPresetSelector from 'components/PercentPresetSelector'
 import Skeleton from 'components/Skeleton'
@@ -8,14 +10,17 @@ import { HStack, Stack } from 'components/Stack'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopMarket/constants'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { cn } from 'utils/cn'
+import { currencyId } from 'utils/currencyId'
 import { formatDisplayNumber, formatPercentageInput } from 'utils/numbers'
 
 type Props = {
   sellCurrency?: Currency
   receiveCurrency?: Currency
   triggerPrice: string
-  /** Signed distance from the market price; negative once the trigger is a valid stop market order. */
+  /** Signed distance from the oracle price, in the sell-to-receive direction. */
   triggerPercent?: number
   marketPrice?: number
   isLoadingPrice?: boolean
@@ -25,8 +30,46 @@ type Props = {
   className?: string
 }
 
+type HigherOraclePriceWarningProps = Pick<Props, 'sellCurrency' | 'receiveCurrency' | 'triggerPercent'> & {
+  onNavigateToLimitOrder?: () => void
+}
+
 // A drop of 100% or more puts the trigger at zero or below.
 const normalizeCustomPercent = (value: string) => (Number(value) <= -100 ? undefined : value)
+
+export const HigherOraclePriceWarning = ({
+  sellCurrency,
+  receiveCurrency,
+  triggerPercent,
+  onNavigateToLimitOrder,
+}: HigherOraclePriceWarningProps) => {
+  const chainId = sellCurrency?.chainId as ChainId | undefined
+  const limitOrderPath =
+    chainId && sellCurrency && receiveCurrency
+      ? `${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}/${currencyId(sellCurrency, chainId)}-to-${currencyId(
+          receiveCurrency,
+          chainId,
+        )}`
+      : undefined
+
+  if (!((triggerPercent ?? 0) > 0) || !limitOrderPath) return null
+
+  return (
+    <ErrorWarning
+      type="warn"
+      dataTestId="stop-market-higher-trigger-warning"
+      title={
+        <Trans>
+          To set a trigger at a higher price, use{' '}
+          <Link to={limitOrderPath} className="text-primary" onClick={onNavigateToLimitOrder}>
+            Limit Order
+          </Link>
+          .
+        </Trans>
+      }
+    />
+  )
+}
 
 /** Puts the trigger right at the oracle price, with a tooltip saying where that price comes from. */
 export const OracleMarketPriceButton = ({
@@ -43,7 +86,8 @@ export const OracleMarketPriceButton = ({
     width="280px"
     text={
       <Trans>
-        Derived from each token&apos;s independent price feed. Your order triggers when this price reaches your level.
+        Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or falls
+        below your level.
       </Trans>
     }
   >

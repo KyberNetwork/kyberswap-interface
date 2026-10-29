@@ -23,7 +23,7 @@ import {
 import { useStopMarketProcessing } from 'components/StopMarket/CreateOrder/StopMarketFlow'
 import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
 import { StopMarketFeeNotes, StopMarketFeeValue } from 'components/StopMarket/Form/StopMarketFeeSummary'
-import TriggerPriceSection from 'components/StopMarket/Form/TriggerPriceSection'
+import TriggerPriceSection, { HigherOraclePriceWarning } from 'components/StopMarket/Form/TriggerPriceSection'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
 import { useStopMarketCurrency } from 'components/StopMarket/hooks/useStopMarketCurrency'
@@ -296,10 +296,12 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     : originalExpiryLabel
 
   const isMissingAmount = !parsedAmount || parsedAmount.equalTo(0)
+  const isTriggerAboveOracle = (triggerPercent ?? 0) > 0
   const disableAction =
     !hasChanges ||
     isMissingAmount ||
     !hasTrigger ||
+    isTriggerAboveOracle ||
     createOrder.insufficientBalance ||
     loadingMarketPrice ||
     validation.shouldDisableAction
@@ -462,16 +464,24 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
             <StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} chainId={order.chainId} />
           }
         />
-        <StopMarketFeeNotes
-          fee={feeEstimate.fee}
-          isLoading={feeEstimate.isLoading}
-          errorMessage={feeEstimate.errorMessage}
-          showShareWarning
-        />
+        {!isTriggerAboveOracle && (
+          <StopMarketFeeNotes
+            fee={feeEstimate.fee}
+            isLoading={feeEstimate.isLoading}
+            errorMessage={feeEstimate.errorMessage}
+            showShareWarning
+          />
+        )}
       </Stack>
 
-      {warnings.length > 0 && (
+      {(warnings.length > 0 || isTriggerAboveOracle) && (
         <Stack className="gap-3" data-testid="stop-market-warnings">
+          <HigherOraclePriceWarning
+            sellCurrency={sellCurrency}
+            receiveCurrency={receiveCurrency}
+            triggerPercent={triggerPercent}
+            onNavigateToLimitOrder={onDismiss}
+          />
           {warnings.map((warning, index) => (
             <ErrorWarning
               type={warning.type}

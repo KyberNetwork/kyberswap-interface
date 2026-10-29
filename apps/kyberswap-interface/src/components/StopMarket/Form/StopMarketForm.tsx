@@ -14,7 +14,7 @@ import { Stack } from 'components/Stack'
 import { useStopMarketFlow } from 'components/StopMarket/CreateOrder/StopMarketFlow'
 import { StopMarketFeeNotes, StopMarketFeeValue } from 'components/StopMarket/Form/StopMarketFeeSummary'
 import StopMarketReceiveSection from 'components/StopMarket/Form/StopMarketReceiveSection'
-import TriggerPriceSection from 'components/StopMarket/Form/TriggerPriceSection'
+import TriggerPriceSection, { HigherOraclePriceWarning } from 'components/StopMarket/Form/TriggerPriceSection'
 import { useStopMarketFormState } from 'components/StopMarket/Form/useStopMarketFormState'
 import { useStopMarketWarnings } from 'components/StopMarket/Form/useStopMarketWarnings'
 import { StopMarketNotice } from 'components/StopMarket/StopMarketNotice'
@@ -172,6 +172,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const isMissingAmount = !form.inputAmount || Number(form.inputAmount) === 0
   const isMissingTrigger = !form.triggerPrice || Number(form.triggerPrice) === 0
+  const isTriggerAboveOracle = (form.triggerPercent ?? 0) > 0
   // A cleared Amount Out leaves the trigger as it was, but the order is not placed with that field blank.
   const isMissingOutput = !form.outputAmount || Number(form.outputAmount) === 0
   // Review opens only with a complete estimate; errors are retried on this form.
@@ -179,6 +180,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     !!restrictedCurrency ||
     isMissingAmount ||
     isMissingTrigger ||
+    isTriggerAboveOracle ||
     isMissingOutput ||
     insufficientBalance ||
     form.loadingMarketPrice ||
@@ -343,16 +345,23 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
                 <StopMarketFeeValue fee={feeEstimate.fee} isLoading={feeEstimate.isLoading} chainId={form.chainId} />
               }
             />
-            <StopMarketFeeNotes
-              fee={feeEstimate.fee}
-              isLoading={feeEstimate.isLoading}
-              errorMessage={feeEstimate.errorMessage}
-              onRetry={feeEstimate.refetch}
-              showShareWarning
-            />
+            {!isTriggerAboveOracle && (
+              <StopMarketFeeNotes
+                fee={feeEstimate.fee}
+                isLoading={feeEstimate.isLoading}
+                errorMessage={feeEstimate.errorMessage}
+                onRetry={feeEstimate.refetch}
+                showShareWarning
+              />
+            )}
 
-            {validation.formWarnings.length > 0 && (
+            {(validation.formWarnings.length > 0 || isTriggerAboveOracle) && (
               <Stack className="gap-3" data-testid="stop-market-warnings">
+                <HigherOraclePriceWarning
+                  sellCurrency={currencyIn}
+                  receiveCurrency={currencyOut}
+                  triggerPercent={form.triggerPercent}
+                />
                 {validation.formWarnings.map((warning, index) => (
                   <ErrorWarning
                     type={warning.type}

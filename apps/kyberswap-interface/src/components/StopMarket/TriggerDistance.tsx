@@ -9,7 +9,7 @@ export const triggerDistanceText = cva('transition-colors duration-200', {
   variants: {
     direction: {
       below: 'text-red',
-      above: 'text-primary',
+      above: 'text-warning',
       none: 'text-subText',
     },
   },
