@@ -473,15 +473,13 @@ const sumIfComplete = (values: Array<number | undefined>) => {
 }
 
 /**
- * The fills taken together. `orderAmountIn` is for a caller that knows the whole order went, as it
- * does once executed: the order's own amount is exact, where each execution reports its share in an
- * ambiguous format. The price weighs each fill's price by what it sold, and falls back to a plain mean
- * when the sizes are not all known.
+ * The fills taken together. The price weighs each fill's price by what it sold, and falls back to a
+ * plain mean when the sizes are not all known.
  */
-export const summarizeStopMarketFills = (fills: StopMarketFill[], orderAmountIn?: number): StopMarketFillSummary => {
+export const summarizeStopMarketFills = (fills: StopMarketFill[]): StopMarketFillSummary => {
   if (!fills.length) return {}
 
-  const amountIn = orderAmountIn ?? sumIfComplete(fills.map(fill => fill.amountIn))
+  const amountIn = sumIfComplete(fills.map(fill => fill.amountIn))
   const amountOut = sumIfComplete(fills.map(fill => fill.amountOut))
   const received = sumIfComplete(fills.map(fill => fill.received))
   const fee = sumIfComplete(fills.map(fill => fill.fee))

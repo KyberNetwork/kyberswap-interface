@@ -797,14 +797,6 @@ describe('summarizeStopMarketFills', () => {
     expect(summary.fee).toBeCloseTo(7.2, 10)
   })
 
-  it("prefers the order's own amount for the total sold", () => {
-    const fills = [
-      { hash: 'a', amountIn: 0.04, amountOut: 95.2, price: 2380 },
-      { hash: 'b', amountIn: 0.06, amountOut: 144, price: 2400 },
-    ]
-    expect(summarizeStopMarketFills(fills, 0.1).amountIn).toBe(0.1)
-  })
-
   it('gives no total when a fill does not report its part, rather than an understated one', () => {
     const summary = summarizeStopMarketFills([
       { hash: 'a', amountOut: 95.2, price: 2380 },

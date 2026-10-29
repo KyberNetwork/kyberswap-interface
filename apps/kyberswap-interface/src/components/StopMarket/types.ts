@@ -139,6 +139,8 @@ export type StopMarket = {
   amountIn: string
   /** `amountIn` in tokenIn's human units. */
   amountInHuman?: string
+  /** Total actually sold, as a raw integer in tokenIn's own decimals. Done can still be partial. */
+  filledAmountIn?: string
   tokenInInfo: StopMarketTokenInfo
   tokenOutInfo: StopMarketTokenInfo
   /** Max slippage in basis points, 1..10000. */

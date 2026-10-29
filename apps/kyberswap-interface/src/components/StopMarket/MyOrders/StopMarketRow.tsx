@@ -116,22 +116,25 @@ const StopMarketRow = ({
   const fills = getStopMarketFills(order)
   const isExecuted = status === StopMarketDisplayStatus.EXECUTED
   const totalOrderAmount = Number(sellCurrencyAmount.toExact())
-  const fillSummary = summarizeStopMarketFills(fills, isExecuted ? totalOrderAmount : undefined)
-  // Executed orders sold the full amount even if settlement details have not arrived yet.
-  // Missing amounts on existing fills are unknown; only an order with no fills has sold zero.
-  const actualAmount = isExecuted ? totalOrderAmount : fills.length ? fillSummary.amountIn : 0
+  const fillSummary = summarizeStopMarketFills(fills)
+  // Done closes the order, even after a partial fill. Prefer the API's total, then settlement amounts.
+  // A completed order without either amount is unknown until settlement details arrive.
+  const actualAmount =
+    order.filledAmountIn != null
+      ? Number(CurrencyAmount.fromRawAmount(sellCurrency, order.filledAmountIn).toExact())
+      : fills.length || isExecuted
+      ? fillSummary.amountIn
+      : 0
   const isFullyFilled = actualAmount !== undefined && actualAmount >= totalOrderAmount
   const executionPrice = fillSummary.price
   const receivedAmount = fillSummary.received
+  // The execution details still show the order's minimum output, independently of its fill status.
   const minAmountOut = getStopMarketMinReceive({
-    estimatedOutput: Number(sellCurrencyAmount.toExact()) * Number(triggerPrice),
+    estimatedOutput: totalOrderAmount * Number(triggerPrice),
     slippage: order.slippage,
-    // What the fills paid; an order whose executions do not report it shows the floor before the fee.
     fee: fillSummary.fee,
   })
-  // A full fill never lands below the min amount out, so receiving less means only part of the order filled.
-  const isPartiallyExecuted =
-    isExecuted && receivedAmount !== undefined && minAmountOut !== undefined && receivedAmount < minAmountOut
+  const isPartiallyExecuted = isExecuted && actualAmount !== undefined && actualAmount > 0 && !isFullyFilled
 
   const txHash = getStopMarketExecutionTxHash(order)
   const showTxLink = isExecuted && !!txHash
@@ -232,12 +235,16 @@ const StopMarketRow = ({
           className="max-sm:col-start-3 max-sm:items-end"
           dataTestId="stop-market-order-sell-amount"
           value={
-            <>
-              <span className="text-primary">
-                {actualAmount === undefined ? '-' : formatDisplayNumber(actualAmount, { significantDigits: 6 })}
-              </span>
-              {isFullyFilled ? <> {sellCurrency.symbol}</> : <>/{sellAmount}</>}
-            </>
+            isActiveTab ? (
+              sellAmount
+            ) : (
+              <>
+                <span className="text-primary">
+                  {actualAmount === undefined ? '-' : formatDisplayNumber(actualAmount, { significantDigits: 6 })}
+                </span>
+                {isFullyFilled ? <> {sellCurrency.symbol}</> : <>/{sellAmount}</>}
+              </>
+            )
           }
           isSubLoading={isServicePriceLoading}
           subValue={
