@@ -4,6 +4,8 @@ import { WalletClient, formatUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ETHER_ADDRESS } from 'constants/index'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { xyQuoteSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
 import { Quote } from '../registry'
@@ -97,25 +99,23 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       ? Number(r.dstQuoteTokenUsdValue)
       : tokenOutUsd * +formattedOutputAmount
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(r.dstQuoteTokenAmount),
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: 0,
       timeEstimate: r.estimatedTransferTime,
       contractAddress: r.contractAddress,
       rawQuote: r,
 
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10_000,
-    }
+    })
   }
 
   async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+    const rawQuote = xyQuoteSchema.parse(quote.rawQuote)
+
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
@@ -135,17 +135,17 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       // slippage: quote.quoteParams.slippage,
       slippage: (buildSlippage * 100) / 10_000,
       receiver: quote.quoteParams.recipient,
-      bridgeProvider: quote.rawQuote.bridgeDescription.provider,
-      srcBridgeTokenAddress: quote.rawQuote.bridgeDescription.srcBridgeTokenAddress,
-      dstBridgeTokenAddress: quote.rawQuote.bridgeDescription.dstBridgeTokenAddress,
+      bridgeProvider: rawQuote.bridgeDescription.provider,
+      srcBridgeTokenAddress: rawQuote.bridgeDescription.srcBridgeTokenAddress,
+      dstBridgeTokenAddress: rawQuote.bridgeDescription.dstBridgeTokenAddress,
       affiliate: CROSS_CHAIN_FEE_RECEIVER,
       //represents the fee you wish to collect. It is an integer between 0 and 100,000. In this range, 100,000 corresponds to 10%, 10,000 represents 1%, and so on in a similar fashion.
       commissionRate: (quote.quoteParams.feeBps / 10_000) * 1_000_000,
 
-      ...(quote.rawQuote.srcSwapDescription ? { srcSwapProvider: quote.rawQuote.srcSwapDescription.provider } : {}),
-      ...(quote.rawQuote.dstSwapDescription
+      ...(rawQuote.srcSwapDescription ? { srcSwapProvider: rawQuote.srcSwapDescription.provider } : {}),
+      ...(rawQuote.dstSwapDescription
         ? {
-            dstSwapProvider: quote.rawQuote.dstSwapDescription?.provider,
+            dstSwapProvider: rawQuote.dstSwapDescription?.provider,
           }
         : {}),
     }
@@ -157,7 +157,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     }
     const resp = await fetch(`${XY_FINANCE_API}/buildTx?${queryParams.toString()}`).then(res => res.json())
 
-    if (BigInt(resp.route.minReceiveAmount) < BigInt(quote.rawQuote.minReceiveAmount)) {
+    if (BigInt(resp.route.minReceiveAmount) < BigInt(rawQuote.minReceiveAmount)) {
       throw new Error('Rate has changed')
     }
 

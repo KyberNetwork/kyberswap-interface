@@ -12,6 +12,7 @@ import {
   TransactionSubmittedContent,
 } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
+import { getERC8056DisplayAmount } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { permitError } from 'state/swap/actions'
 import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
@@ -49,14 +50,14 @@ const SwapModal: React.FC<Props> = props => {
     txHash: '',
   })
 
-  const { routeSummary, displayTypedValue } = useSwapFormContext()
+  const { routeSummary, displayTypedValue, outputERC8056Info } = useSwapFormContext()
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
   const amountInDisplay = displayTypedValue || routeSummary?.parsedAmountIn?.toSignificant(6)
   const symbolIn = getCurrencyDisplaySymbol(currencyIn)
-  const amountOutDisplay = amountOut?.toSignificant(6)
+  const amountOutDisplay = getERC8056DisplayAmount(outputERC8056Info, amountOut)?.toSignificant(6)
   const symbolOut = getCurrencyDisplaySymbol(currencyOut)
 
   // text to show while loading

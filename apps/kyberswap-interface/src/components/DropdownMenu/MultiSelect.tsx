@@ -5,12 +5,12 @@ import { Check } from 'react-feather'
 import { MenuOption } from 'components/DropdownMenu'
 import {
   DropdownContent,
+  DropdownContentItem,
   DropdownIcon,
   DropdownTitle,
   DropdownTitleWrapper,
   DropdownWrapper,
   ItemIcon,
-  MultiSelectDropdownContentItem,
 } from 'components/DropdownMenu/styles'
 
 const AllOptionValue = ''
@@ -119,7 +119,7 @@ const MultiSelect = ({
       {open && (
         <DropdownContent alignItems={alignItems} standalone>
           {options.map((option: MenuOption) => (
-            <MultiSelectDropdownContentItem
+            <DropdownContentItem
               key={option.value}
               className={showOnlyButton ? 'group w-full' : undefined}
               onClick={() => handleSelectItem(option.value)}
@@ -156,7 +156,7 @@ const MultiSelect = ({
                   {parsedValue.includes(option.value) && <Check className="ml-auto" size={14} />}
                 </>
               )}
-            </MultiSelectDropdownContentItem>
+            </DropdownContentItem>
           ))}
         </DropdownContent>
       )}

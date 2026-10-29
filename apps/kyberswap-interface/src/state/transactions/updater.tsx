@@ -31,9 +31,17 @@ import {
 import { expireInventory } from 'state/walletInventory/store'
 import { isAddress } from 'utils/address'
 import { findTx } from 'utils/transaction'
-import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
+import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes, toEventSelector } from 'utils/viem'
 
 const appsSdk = new SafeAppsSDK()
+
+// Emitted by the vault's withdraw queue for a new native redemption; the request id is its first indexed topic.
+const VAULT_WITHDRAW_REQUESTED_TOPIC = toEventSelector(
+  'OnChainWithdrawRequested(bytes32,address,address,uint96,uint128,uint128,uint40,uint24,uint24)',
+)
+
+const getVaultWithdrawRequestId = (logs: { topics?: string[] }[] | undefined): string | undefined =>
+  logs?.find(log => log.topics?.[0] === VAULT_WITHDRAW_REQUESTED_TOPIC)?.topics?.[1]
 
 // Viem-native replacement detector. Mirrors what `find-replacement-tx` used to do:
 // scan blocks since `sentAtBlock` for a transaction from the same sender with the
@@ -311,7 +319,48 @@ export default function Updater(): null {
               spender_address: extraInfo?.contract,
               tx_hash: receipt.transactionHash,
               chain: networkInfoRef.current?.name,
+              ...transaction.extraInfo?.trackingPayload,
             })
+            break
+          }
+          case TRANSACTION_TYPE.EARN_VAULT_DEPOSIT: {
+            const trackingPayload = transaction.extraInfo?.trackingPayload
+            if (trackingPayload) {
+              // Volume rides on deposits only, so a deposit and the withdrawal that later unwinds it
+              // are not counted twice.
+              trackingHandler(TRACKING_EVENT_TYPE.VAULT_DEPOSIT_COMPLETED, {
+                ...trackingPayload,
+                tx_hash: receipt.transactionHash,
+                volume: trackingPayload.amount_in_usd,
+              })
+            }
+            break
+          }
+          case TRANSACTION_TYPE.EARN_VAULT_WITHDRAW:
+          case TRANSACTION_TYPE.EARN_VAULT_WITHDRAW_REQUEST: {
+            const trackingPayload = transaction.extraInfo?.trackingPayload
+            if (trackingPayload) {
+              // A native withdrawal is complete once its request is in the queue: the solver pays it
+              // out later with nothing more for the user to do.
+              trackingHandler(TRACKING_EVENT_TYPE.VAULT_WITHDRAW_COMPLETED, {
+                ...trackingPayload,
+                tx_hash: receipt.transactionHash,
+                request_id:
+                  transaction.type === TRANSACTION_TYPE.EARN_VAULT_WITHDRAW_REQUEST
+                    ? getVaultWithdrawRequestId(receipt.logs)
+                    : undefined,
+              })
+            }
+            break
+          }
+          case TRANSACTION_TYPE.EARN_VAULT_WITHDRAW_CANCEL: {
+            const trackingPayload = transaction.extraInfo?.trackingPayload
+            if (trackingPayload) {
+              trackingHandler(TRACKING_EVENT_TYPE.VAULT_WITHDRAW_REQUEST_CANCELLED, {
+                ...trackingPayload,
+                tx_hash: receipt.transactionHash,
+              })
+            }
             break
           }
           // case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
@@ -341,6 +390,25 @@ export default function Updater(): null {
           }
           default:
             break
+        }
+      } else {
+        // A vault transaction that reverts fails its flow here; one refused or never sent is reported
+        // by the form that tried to send it.
+        const trackingPayload = transaction.extraInfo?.trackingPayload
+        const isVaultWithdraw =
+          transaction.type === TRANSACTION_TYPE.EARN_VAULT_WITHDRAW ||
+          transaction.type === TRANSACTION_TYPE.EARN_VAULT_WITHDRAW_REQUEST
+        if (trackingPayload && (transaction.type === TRANSACTION_TYPE.EARN_VAULT_DEPOSIT || isVaultWithdraw)) {
+          trackingHandler(
+            isVaultWithdraw ? TRACKING_EVENT_TYPE.VAULT_WITHDRAW_FAILED : TRACKING_EVENT_TYPE.VAULT_DEPOSIT_FAILED,
+            {
+              ...trackingPayload,
+              tx_hash: receipt.transactionHash,
+              failed_step: isVaultWithdraw ? 'withdraw' : 'deposit',
+              error_type: 'tx_reverted',
+              error_message: 'Transaction reverted',
+            },
+          )
         }
       }
     },

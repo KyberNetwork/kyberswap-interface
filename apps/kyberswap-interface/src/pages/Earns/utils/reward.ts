@@ -1,7 +1,22 @@
-import { RewardData, RewardType } from 'services/reward'
+import { ClaimTransaction, RewardData, RewardType } from 'services/reward'
 
 import { NetworkInfo } from 'constants/networks/type'
 import { ChainRewardInfo, NftRewardInfo, RewardInfo, TokenInfo, TokenRewardInfo } from 'pages/Earns/types'
+
+// Rewards can live on more than one distributor contract at a time (an active one, plus any
+// deprecated predecessor still holding an unclaimed balance). A claim is authorised against
+// `msg.sender` on-chain, so those cannot be aggregated into a single call and each distributor
+// needs its own transaction. The top level `calldata`/`contractAddress` mirror only one entry, so
+// claiming off them alone would silently leave the other distributor's rewards behind.
+export const getClaimTransactions = (data: {
+  calldata: string
+  contractAddress: string
+  transactions?: Array<ClaimTransaction>
+}): Array<ClaimTransaction> => {
+  if (data.transactions?.length) return data.transactions
+  // Reward-service builds predating multi-distributor support only return the scalar pair.
+  return [{ contractAddress: data.contractAddress, calldata: data.calldata }]
+}
 
 export const defaultRewardInfo: RewardInfo = {
   totalUsdValue: 0,

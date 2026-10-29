@@ -11,11 +11,11 @@ import {
   formatBpsLabel,
   formatPercent,
   getOutputTokenItems,
-  getSlippageNotice,
   getZapFeePercent,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getSlippageNotice } from 'utils/slippage'
 
 type EstimateInfoProps = {
   pool: Pool

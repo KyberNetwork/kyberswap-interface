@@ -2,7 +2,7 @@ import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { formatUnits } from 'viem'
 
@@ -18,6 +18,7 @@ import { Stack } from 'components/Stack'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
+import { CROSS_CHAIN_ONLY_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -34,6 +35,7 @@ import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConne
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { shortenHash } from 'utils/address'
+import { getGasReservation } from 'utils/gasReserve'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const TokenPanel = ({
@@ -48,7 +50,9 @@ export const TokenPanel = ({
   evmLayout,
   setShowBtcConnect,
   loading,
+  headerAction,
 }: {
+  headerAction?: ReactNode
   evmLayout?: boolean
   setShowBtcConnect: (val: boolean) => void
   selectedChain?: Chain
@@ -191,7 +195,8 @@ export const TokenPanel = ({
       return
     }
 
-    onUserInput(evmBalance?.toExact() || '0')
+    const gasReservation = getGasReservation(evmBalance)
+    onUserInput((gasReservation?.maxAmount ?? evmBalance)?.toExact() || '0')
   }
 
   const balanceSection = (
@@ -216,13 +221,17 @@ export const TokenPanel = ({
               NonEvmChain.Solana,
               NonEvmChain.Bitcoin,
               NonEvmChain.Near,
-              ...supportedChains.map(chain => chain.chainId),
+              // Blast is supported by the cross-chain aggregator while inactive for same-chain swaps.
+              ...new Set([...supportedChains.map(chain => chain.chainId), ChainId.BLAST, ...CROSS_CHAIN_ONLY_NETWORKS]),
             ]}
             ref={ref}
           />
 
           {evmLayout ? (
-            balanceSection
+            <div className="flex items-center gap-2">
+              {headerAction}
+              {balanceSection}
+            </div>
           ) : (
             <div className="relative text-xs font-medium text-subText">
               <div

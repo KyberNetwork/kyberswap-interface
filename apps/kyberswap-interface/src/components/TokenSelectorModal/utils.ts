@@ -4,6 +4,7 @@ import { useQueries } from '@tanstack/react-query'
 import axios from 'axios'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
+import { fetchAbstractTokens } from 'services/crossChainTokens'
 import ksSettingApi from 'services/ksSetting'
 
 import { KS_SETTING_API } from 'constants/env'
@@ -84,6 +85,18 @@ export const fetchTokens = async (
 ): Promise<WrappedTokenInfo[]> => {
   try {
     const primaryChainId = chainIds[0]
+    if (primaryChainId === ChainId.ABSTRACT) {
+      const query = search?.trim().toLowerCase() || ''
+      const tokens = (await fetchAbstractTokens()).filter(
+        token =>
+          token.address.toLowerCase() === query ||
+          token.symbol.toLowerCase().includes(query) ||
+          token.name.toLowerCase().includes(query),
+      )
+      return filterTruthy(
+        tokens.slice((page - 1) * TOKEN_SEARCH_PAGE_SIZE, page * TOKEN_SEARCH_PAGE_SIZE).map(formatAndCacheToken),
+      )
+    }
     if (search && primaryChainId && isAddress(primaryChainId, search)) {
       return fetchTokenByAddress(search, primaryChainId)
     }
@@ -266,12 +279,19 @@ export function getTokenComparator(
   tokenPrices: TokenPriceMap,
   // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
-  // Held tokens that are on no list (checksummed). These sort below every listed holding, whatever
-  // either side is worth, and above tokens the wallet does not hold: an airdropped impersonation is
-  // minted with an enormous supply and may even carry a quote, and neither may hand it the top.
+  // Held tokens that are on no list (checksummed). A priced one sorts below every listed holding,
+  // whatever either side is worth, and above tokens the wallet does not hold: an airdropped
+  // impersonation is minted with an enormous supply and may even carry a quote, and neither may hand
+  // it the top. An unpriced one is almost always spam and sorts last, below every listed token.
   unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
+  const symbolOrder = (tokenA: Token, tokenB: Token) => {
+    if (tokenA.symbol && tokenB.symbol) {
+      return tokenA.symbol.toLowerCase().localeCompare(tokenB.symbol.toLowerCase())
+    }
+    return tokenA.symbol ? -1 : tokenB.symbol ? 1 : 0
+  }
   return function sortTokens(tokenA: Token, tokenB: Token): number {
     const balanceA = isTokenNative(tokenA) ? ethBalance : balances[tokenA.address]
     const balanceB = isTokenNative(tokenB) ? ethBalance : balances[tokenB.address]
@@ -283,8 +303,14 @@ export function getTokenComparator(
     const heldA = !!balanceA?.greaterThan('0')
     const heldB = !!balanceB?.greaterThan('0')
 
-    // A listed holding ranks above any unlisted one before value is even looked at.
     if (unlistedAddresses?.size) {
+      // Unpriced unlisted holdings go last, among themselves alphabetically rather than by amount.
+      const spamA = unlistedAddresses.has(tokenA.address) && !(priceA > 0)
+      const spamB = unlistedAddresses.has(tokenB.address) && !(priceB > 0)
+      if (spamA !== spamB) return spamA ? 1 : -1
+      if (spamA) return symbolOrder(tokenA, tokenB)
+
+      // A listed holding ranks above any unlisted one before value is even looked at.
       const listedHeldA = heldA && !unlistedAddresses.has(tokenA.address)
       const listedHeldB = heldB && !unlistedAddresses.has(tokenB.address)
       if (listedHeldA !== listedHeldB) return listedHeldA ? -1 : 1
@@ -307,11 +333,7 @@ export function getTokenComparator(
       if (favA !== favB) return favA ? -1 : 1
     }
 
-    if (tokenA.symbol && tokenB.symbol) {
-      return tokenA.symbol.toLowerCase().localeCompare(tokenB.symbol.toLowerCase())
-    }
-
-    return tokenA.symbol ? -1 : tokenB.symbol ? 1 : 0
+    return symbolOrder(tokenA, tokenB)
   }
 }
 

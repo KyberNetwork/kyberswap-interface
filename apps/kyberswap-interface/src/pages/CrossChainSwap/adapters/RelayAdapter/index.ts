@@ -10,6 +10,7 @@ import {
 import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 import {
+  abstract,
   arbitrum,
   avalanche,
   base,
@@ -45,6 +46,8 @@ import {
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { parseRelayQuote } from 'pages/CrossChainSwap/quote/rawQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
@@ -64,6 +67,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       baseApiUrl: MAINNET_RELAY_API,
       source: 'kyberswap',
       chains: [
+        abstract,
         arbitrum,
         avalanche,
         base,
@@ -106,6 +110,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       ChainId.BASE,
       ChainId.BERA,
       ChainId.BLAST,
+      ChainId.ABSTRACT,
       ChainId.BSCMAINNET,
       ChainId.FANTOM,
       ChainId.LINEA,
@@ -175,30 +180,25 @@ export class RelayAdapter extends BaseSwapAdapter {
       ? Number(resp.details?.currencyOut?.amountUsd || 0)
       : params.tokenOutUsd * +formattedOutputAmount
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(resp.details?.currencyOut?.amount || '0'),
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      //rate: Number(resp.details?.rate || 0),
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: Number(resp.fees?.gas?.amountUsd || 0),
       timeEstimate: resp.details?.timeEstimate || 0,
       // Relay executes any approval steps itself; skip the app's separate approval flow.
       contractAddress: ZERO_ADDRESS,
       rawQuote: resp,
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10000,
-    }
+    })
   }
 
   async executeSwap(quote: Quote, walletClient: WalletClient | AdaptedWallet): Promise<NormalizedTxResponse> {
     return new Promise<NormalizedTxResponse>((resolve, reject) => {
       getClient()
         .actions.execute({
-          quote: quote.quote.rawQuote,
+          quote: parseRelayQuote(quote.quote.rawQuote),
           wallet: walletClient,
           onProgress: ({ currentStep }) => {
             if (currentStep?.id === 'deposit' && currentStep.requestId && currentStep.kind === 'transaction') {

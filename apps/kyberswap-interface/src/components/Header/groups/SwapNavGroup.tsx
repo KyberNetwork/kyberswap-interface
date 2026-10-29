@@ -44,7 +44,13 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
         <DropdownTextAnchor>
-          <Trans>Trade</Trans>
+          {upToSmall ? (
+            <Trans>Trade</Trans>
+          ) : (
+            <StyledNavLink to={`${APP_PATHS.SWAP}/${networkInfo.route}`} style={{ padding: 0 }}>
+              <Trans>Trade</Trans>
+            </StyledNavLink>
+          )}
         </DropdownTextAnchor>
       }
       dropdownContent={

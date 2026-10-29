@@ -40,9 +40,24 @@ interface TokenReward {
   claimableUSDValues: { [tokenAddress: string]: string }
 }
 
+export interface ClaimTransaction {
+  contractAddress: string
+  // The distributor this claim is sent to. A `deprecated` contract no longer accrues new rewards
+  // but stays claimable while a user still has an unclaimed balance on it.
+  distributorStatus?: 'active' | 'deprecated'
+  calldata: string
+  rewardTokens?: Array<string>
+  rewardAmounts?: Array<string>
+}
+
 interface ClaimResponse {
+  // `calldata` and `contractAddress` mirror exactly one entry of `transactions` (the active
+  // distributor's), never an aggregate of all of them. Rewards may be spread across several
+  // distributor contracts, and a claim is bound to `msg.sender` on-chain, so they cannot be
+  // collapsed into one call — read `transactions` and submit one tx per entry.
   calldata: string
   contractAddress: string
+  transactions?: Array<ClaimTransaction>
 }
 
 export enum RewardType {

@@ -11,6 +11,9 @@ export interface NearToken {
   logo: string
 }
 
+// Keep quote and balance effect dependencies stable while the query has no data.
+const EMPTY_NEAR_TOKENS: NearToken[] = []
+
 const getTokenLogoUrl = (token: NearToken) => {
   const { symbol, contractAddress } = token
 
@@ -113,7 +116,7 @@ export const useNearTokens = (skip = false) => {
   })
 
   return {
-    nearTokens: data || [],
+    nearTokens: data ?? EMPTY_NEAR_TOKENS,
     isLoadingNearTokens: isLoading,
   }
 }

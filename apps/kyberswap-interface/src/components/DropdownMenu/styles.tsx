@@ -181,40 +181,12 @@ DropdownContent.displayName = 'DropdownContent'
 export const DropdownContentItem = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex cursor-pointer items-center justify-start gap-2 rounded-xl p-2 capitalize hover:bg-tableHeader [&.selected]:bg-primary-20 [&.selected]:text-primary',
+      'flex w-full cursor-pointer items-center justify-start gap-2 rounded-xl p-2 capitalize',
+      'hover:bg-tableHeader [&.selected]:bg-primary-20 [&.selected]:text-primary',
       className,
     )}
     {...rest}
   >
     {children}
   </div>
-)
-
-export const MultiSelectItemActions = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('ml-auto flex items-center gap-2', className)} {...rest}>
-    {children}
-  </div>
-)
-
-export const OnlyButton = ({ children, className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) => (
-  <span
-    className={cn(
-      'invisible whitespace-nowrap rounded-lg bg-primary-20 px-2 py-0.5 text-xs text-primary hover:bg-primary/35',
-      'group-hover/multi-select-item:visible',
-      className,
-    )}
-    {...rest}
-  >
-    {children}
-  </span>
-)
-
-export const MultiSelectDropdownContentItem = ({
-  children,
-  className,
-  ...rest
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <DropdownContentItem className={cn('group/multi-select-item justify-start self-stretch', className)} {...rest}>
-    {children}
-  </DropdownContentItem>
 )

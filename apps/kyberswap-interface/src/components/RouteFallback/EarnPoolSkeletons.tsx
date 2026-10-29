@@ -4,30 +4,36 @@ import PoolListSkeleton, { PoolTableHeaderSkeleton } from 'components/RouteFallb
 import { ListingFilterTagsSkeleton, TitleRowSkeleton } from 'components/RouteFallback/common'
 import Skeleton from 'components/Skeleton'
 
+/**
+ * Hero, the two top sections (Liquidity Pools + Partner Vaults), the wide bottom section and the
+ * explore button — the shape `pages/Earns/Landing` renders. The shell supplies the page padding.
+ */
 export const EarnLandingSkeleton = () => (
-  <div className="flex w-full max-w-[1152px] flex-col gap-16 px-4 py-[60px] max-xxs:py-9">
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col items-center gap-4">
-        <Skeleton width={549} height={40} />
-        <div className="flex flex-col items-center gap-2">
-          <Skeleton width={749} height={20} />
-          <Skeleton width={731} height={20} />
+  <div className="flex w-full flex-col gap-6">
+    <div className="flex flex-col items-center gap-8 px-4 pb-4 pt-8 max-xs:gap-6 max-xs:px-0 max-xs:pb-2 max-xs:pt-4">
+      <div className="flex w-full max-w-[880px] flex-col items-center gap-4">
+        <Skeleton width={520} height={48} />
+        <div className="flex w-full flex-col items-center gap-2">
+          <Skeleton width="90%" height={20} containerClassName="block w-full text-center" />
+          <Skeleton width="70%" height={20} containerClassName="block w-full text-center" />
         </div>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-[18px] max-sm:flex-col">
+      <div className="flex flex-wrap items-center justify-center gap-8 max-xs:flex-col max-xs:gap-4">
         <Skeleton width={133} height={24} />
-        <Skeleton width={140} height={42} />
-        <Skeleton width={200} height={42} />
+        <Skeleton width={120} height={32} />
+        <Skeleton width={200} height={42} rounded />
       </div>
     </div>
-    <div className="grid grid-cols-3 gap-5 max-sm:grid-cols-1">
-      {Array.from({ length: 3 }, (_, i) => (
-        <Skeleton key={i} height={390} />
-      ))}
+
+    <div className="grid grid-cols-[868fr_408fr] gap-[22px] max-lg:grid-cols-1 max-lg:gap-4">
+      <Skeleton height={470} containerClassName="block" />
+      <Skeleton height={470} containerClassName="block" />
     </div>
-    <div className="flex flex-col gap-10">
-      <Skeleton height={268} />
-      <Skeleton height={267} />
+
+    <Skeleton height={430} containerClassName="block" />
+
+    <div className="flex justify-center pt-2">
+      <Skeleton width={200} height={42} rounded />
     </div>
   </div>
 )

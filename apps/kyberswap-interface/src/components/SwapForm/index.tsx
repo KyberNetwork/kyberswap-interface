@@ -25,7 +25,7 @@ import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import { getERC8056RawTypedValue, useERC8056DisplayTypedValue } from 'hooks/useERC8056Token'
+import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
@@ -162,12 +162,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
-  const displayTypedValue = useERC8056DisplayTypedValue(erc8056Info.inputInfo, typedValue)
-  const handleUserInput = useCallback(
-    (value: string) => {
-      updateInputAmount(Field.INPUT, getERC8056RawTypedValue(erc8056Info.inputInfo, value))
-    },
-    [erc8056Info.inputInfo, updateInputAmount],
+  const { displayTypedValue, onDisplayInput, onRawValue } = useERC8056TypedInput(
+    erc8056Info.inputInfo,
+    typedValue,
+    onUserInput,
   )
 
   const {
@@ -201,6 +199,10 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
   const routeSummary = getRouteResponse?.routeSummary
+  const displayAmountOut = useMemo(
+    () => getERC8056DisplayAmount(erc8056Info.outputInfo, routeSummary?.parsedAmountOut),
+    [erc8056Info.outputInfo, routeSummary?.parsedAmountOut],
+  )
 
   // Detect if a browser extension tampered with the fee params in the API request
   const isFeeTampered = useMemo(() => {
@@ -254,6 +256,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       routeSummary={routeSummary}
       typedValue={typedValue}
       displayTypedValue={displayTypedValue}
+      inputERC8056Info={erc8056Info.inputInfo}
+      outputERC8056Info={erc8056Info.outputInfo}
       recipient={recipient}
       isAdvancedMode={isDegenMode}
     >
@@ -266,8 +270,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <InputCurrencyPanel
                 wrapType={wrapType}
                 typedValue={displayTypedValue}
-                setTypedValue={onUserInput}
-                onUserInput={handleUserInput}
+                setTypedValue={onRawValue}
+                onUserInput={onDisplayInput}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 balanceIn={balanceIn}
@@ -288,14 +292,14 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                     chain: networkInfo.name,
                   })
                   currencyIn && onChangeCurrencyOut(currencyIn)
-                  routeSummary && onUserInput(routeSummary.parsedAmountOut.toExact())
+                  routeSummary && onRawValue(routeSummary.parsedAmountOut.toExact())
                 }}
               />
 
               <OutputCurrencyPanel
                 wrapType={wrapType}
                 parsedAmountIn={parsedAmount}
-                parsedAmountOut={routeSummary?.parsedAmountOut}
+                parsedAmountOut={displayAmountOut}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 amountOutUsd={routeSummary?.amountOutUsd}

@@ -82,6 +82,7 @@ const TokenSelectorModal = (props: TokenSelectorProps) => {
       account={account}
       additionalTokenAddresses={additionalTokenAddresses}
       externalTokenBalances={tokenBalances}
+      liveTokenBalances={tokenOptions?.liveTokenBalances}
       enableWalletInventory={enableWalletInventory}
     >
       <TokenModal {...props} />

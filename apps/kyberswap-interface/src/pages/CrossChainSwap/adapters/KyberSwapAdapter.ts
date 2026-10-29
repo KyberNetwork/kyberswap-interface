@@ -1,6 +1,7 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
 import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
+import type { RouteSummary } from 'services/route/types/getRoute'
 import { WalletClient, formatUnits } from 'viem'
 
 import kyberswapIcon from 'assets/images/kyberswap.ico'
@@ -17,6 +18,8 @@ import {
   NormalizedTxResponse,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { kyberSwapQuoteSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import store from 'state'
 
@@ -70,23 +73,18 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
     const inputUsd = tokenInUsd * +formattedInputAmount
     const outputUsd = tokenOutUsd * +formattedOutputAmount
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount: BigInt(routeSummary?.amountOut),
-      formattedOutputAmount,
-      inputUsd: tokenInUsd * +formatUnits(BigInt(params.amount), params.fromToken.decimals),
-      outputUsd: tokenOutUsd * +formattedOutputAmount,
-      rate: +formattedOutputAmount / +formattedInputAmount,
+      inputUsd,
+      outputUsd,
       timeEstimate: 1,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      // TODO: what is gas fee for across
-      gasFeeUsd: 0,
       contractAddress: response.data?.data?.routerAddress || '',
       rawQuote: routeSummary,
 
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: 0,
-    }
+    })
   }
 
   async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
@@ -101,20 +99,15 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 60 * 20)
 
-    const rawQuote = {
-      ...quote.rawQuote,
-      amountInUsd: quote.rawQuote.rawAmountInUsd as string,
-      amountOutUsd: quote.rawQuote.rawAmountOutUsd as string,
-    }
-    delete rawQuote.rawAmountInUsd
-    delete rawQuote.rawAmountOutUsd
+    const { rawAmountInUsd, rawAmountOutUsd, ...routeSummary } = kyberSwapQuoteSchema.parse(quote.rawQuote)
+    const rawQuote = { ...routeSummary, amountInUsd: rawAmountInUsd, amountOutUsd: rawAmountOutUsd }
 
     const response = await store.dispatch(
       routeApi.endpoints.buildRoute.initiate({
         authentication: false,
         url,
         payload: {
-          routeSummary: rawQuote as any,
+          routeSummary: rawQuote as RouteSummary,
           deadline: deadline.getTime(),
           sender: quote.quoteParams.sender,
           recipient: quote.quoteParams.recipient,

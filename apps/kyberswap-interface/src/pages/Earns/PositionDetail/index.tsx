@@ -9,7 +9,7 @@ import { useUserPositionsQuery } from 'services/earn'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { ListingPageNavigateButton, ListingPageWrapper } from 'components/Listing/Page'
 import { wagmiConfig } from 'components/Web3Provider'
@@ -363,11 +363,7 @@ const PositionDetail = () => {
             text={t`Explorer Pools`}
             to={APP_PATHS.EARN_POOLS}
           />
-          <ListingPageNavigateButton
-            icon={<IconUserEarnPosition />}
-            text={t`My Positions`}
-            to={APP_PATHS.EARN_POSITIONS}
-          />
+          <ListingPageNavigateButton icon={<MyPositionsIcon />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         </div>
       </EmptyPositionText>
     ),

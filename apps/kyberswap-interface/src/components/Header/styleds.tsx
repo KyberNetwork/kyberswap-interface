@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { type CSSProperties, type PropsWithChildren, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
 
@@ -96,4 +97,12 @@ export const DropdownTextAnchor = ({ className, ...props }: React.HTMLAttributes
 
 export const NewLabel = ({ isNew, children }: PropsWithChildren<{ isNew?: boolean }>) => (
   <span className={cn('ml-1 text-[10px]', isNew ? 'text-red' : 'text-subText')}>{children}</span>
+)
+
+/** Raised red "New" marker, matching the network selector's new-chain tag. Its parent must be a
+ *  `flex items-center` row for the negative top margin to lift it. */
+export const NewTag = ({ className }: { className?: string }) => (
+  <span className={cn('-mt-2.5 ml-0.5 text-xs font-normal normal-case tracking-normal text-red', className)}>
+    {t`New`}
+  </span>
 )

@@ -8,8 +8,6 @@ import { NativeCurrencies } from 'constants/tokens'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
-export const PAGE_SIZE = 10
-
 export const LIST_ORDER_TABS = [LimitOrderStatus.ACTIVE, LimitOrderStatus.CLOSED] as const
 
 type ListOrderTab = (typeof LIST_ORDER_TABS)[number]
@@ -18,17 +16,6 @@ type OrderTypeOption = {
   label: string
   value: LimitOrderStatus
 }
-
-export const getActiveOrderOptions = (): OrderTypeOption[] => [
-  {
-    label: t`All Active Orders`,
-    value: LimitOrderStatus.ACTIVE,
-  },
-  {
-    label: t`Open Orders`,
-    value: LimitOrderStatus.OPEN,
-  },
-]
 
 export const getCloseOrderOptions = (): OrderTypeOption[] => [
   {
@@ -48,9 +35,6 @@ export const getCloseOrderOptions = (): OrderTypeOption[] => [
     value: LimitOrderStatus.EXPIRED,
   },
 ]
-
-export const getOrderTypeOptions = (orderType: LimitOrderStatus): OrderTypeOption[] =>
-  isActiveStatus(orderType) ? getActiveOrderOptions() : getCloseOrderOptions()
 
 export const getActiveTabByOrderType = (orderType: LimitOrderStatus): ListOrderTab =>
   isActiveStatus(orderType) ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED

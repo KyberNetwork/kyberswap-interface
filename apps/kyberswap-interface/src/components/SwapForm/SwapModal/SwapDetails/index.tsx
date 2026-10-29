@@ -13,12 +13,13 @@ import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
 import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
-import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import { useFeeERC8056Info, useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { SwapFeeLabel, TooltipTextOfSwapFee, formatSwapFeePercent } from 'components/SwapForm/TradeSummary'
 import { TextHelper } from 'components/Text'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
+import { getERC8056DisplayAmount } from 'hooks/useERC8056Token'
 import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
@@ -157,7 +158,8 @@ export type Props = {
 export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, priceImpact, buildData }: Props) {
   const { chainId, networkInfo, account } = useActiveWeb3React()
   const { active } = useWeb3React()
-  const { slippage, routeSummary, recipient: recipientAddressOrName } = useSwapFormContext()
+  const { slippage, routeSummary, recipient: recipientAddressOrName, outputERC8056Info } = useSwapFormContext()
+  const feeERC8056Info = useFeeERC8056Info()
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const { rawSlippage } = useSlippageSettingByPage()
   const { isEmbeddedSwap } = usePageLocation()
@@ -169,7 +171,9 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const [showDetailGas, setShowDetailGas] = useState(false)
 
   const currencyOut = routeSummary?.parsedAmountOut?.currency
-  const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildData?.amountOut || '0')
+  const amountOut =
+    currencyOut &&
+    getERC8056DisplayAmount(outputERC8056Info, CurrencyAmount.fromRawAmount(currencyOut, buildData?.amountOut || '0'))
 
   const minimumAmountOutText = minimumAmountOut ? <CurrencyAmountText amount={minimumAmountOut} /> : ''
   const maximumAmountOutText = amountOut ? <CurrencyAmountText amount={amountOut} /> : ''
@@ -177,11 +181,13 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const priceImpactResult = checkPriceImpact(priceImpact)
 
   const feeCurrencyAmountFromGet = routeSummary?.fee?.currencyAmount
-  const {
-    feeAmount: feeAmountFromBuild = '',
-    currencyAmount: feeCurrencyAmountFromBuild = undefined,
-    currency: currencyFromBuild = undefined,
-  } = calculateFeeFromBuildData(routeSummary, buildData)
+  const { currencyAmount: feeCurrencyAmountFromBuild = undefined, currency: currencyFromBuild = undefined } =
+    calculateFeeFromBuildData(routeSummary, buildData)
+  const feeAmountFromBuild = feeCurrencyAmountFromBuild
+    ? formatDisplayNumber(getERC8056DisplayAmount(feeERC8056Info, feeCurrencyAmountFromBuild).toExact(), {
+        significantDigits: 10,
+      })
+    : ''
 
   const feeAmount = routeSummary?.extraFee?.feeAmount
   const feeAmountWithSymbol =

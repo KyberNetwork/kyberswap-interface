@@ -2,7 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useUserPositionsQuery } from 'services/earn'
-import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
+import {
+  ClaimTransaction,
+  useBatchClaimEncodeDataMutation,
+  useClaimEncodeDataMutation,
+  useRewardInfoQuery,
+} from 'services/reward'
 import { MerklRewardsResponse, markChainAsReloaded } from 'services/rewardMerkl'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -22,7 +27,7 @@ import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
 import { isMerklReasonForPosition } from 'pages/Earns/utils/merkl'
-import { parseReward } from 'pages/Earns/utils/reward'
+import { getClaimTransactions, parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -110,6 +115,11 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   const [openClaimModal, setOpenClaimModal] = useState(false)
   const [openClaimAllModal, setOpenClaimAllModal] = useState(false)
   const [pendingClaims, setPendingClaims] = useState<Array<{ txHash: string; claimKey: string }>>([])
+  // Claim keys whose transactions are still being broadcast one wallet prompt at a time. Without
+  // this, an early transaction confirming while the user is still approving a later one would be
+  // read as "the whole claim is done" and close the modal mid-sequence.
+  const claimsInFlightRef = useRef<Record<string, boolean>>({})
+  const [claimsInFlightTick, setClaimsInFlightTick] = useState(0)
 
   const [position, setPosition] = useState<ParsedPosition | null>(null)
   const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null)
@@ -177,6 +187,61 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     setFilteredRewardInfo(null)
   }, [account])
 
+  // Submits one transaction per distributor, in sequence, prompting the wallet once per entry.
+  // Each hash is registered as soon as it is broadcast, so a rejection partway through keeps the
+  // transactions already sent. Throws on the first failure, leaving the rest unsent.
+  const submitClaimTransactions = useCallback(
+    async ({
+      transactions,
+      claimKey,
+      summary,
+      onError,
+    }: {
+      transactions: Array<ClaimTransaction>
+      claimKey: string
+      summary: string
+      onError?: (error: Error) => void
+    }) => {
+      claimsInFlightRef.current[claimKey] = true
+      setClaimsInFlightTick(tick => tick + 1)
+
+      try {
+        for (const [index, transaction] of transactions.entries()) {
+          const res = await submitTransaction({
+            account,
+            chainId,
+            isSmartConnector,
+            txData: {
+              to: transaction.contractAddress,
+              data: `0x${transaction.calldata}`,
+            },
+            onError,
+          })
+
+          const { txHash, error } = res
+          if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
+          setPendingClaims(prev => {
+            if (prev.some(item => item.txHash === txHash)) return prev
+            return [...prev, { txHash, claimKey }]
+          })
+
+          addTransactionWithType({
+            type: TRANSACTION_TYPE.CLAIM_REWARD,
+            hash: txHash,
+            extraInfo: {
+              summary: transactions.length > 1 ? `rewards (${index + 1}/${transactions.length}): ${summary}` : summary,
+            },
+          })
+        }
+      } finally {
+        delete claimsInFlightRef.current[claimKey]
+        setClaimsInFlightTick(tick => tick + 1)
+      }
+    },
+    [account, addTransactionWithType, chainId, isSmartConnector],
+  )
+
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo || !claimInfo.dex) return
 
@@ -208,16 +273,12 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       return
     }
 
-    const { calldata, contractAddress } = encodeData.data
-
-    const res = await submitTransaction({
-      account,
-      chainId,
-      isSmartConnector,
-      txData: {
-        to: contractAddress,
-        data: `0x${calldata}`,
-      },
+    await submitClaimTransactions({
+      transactions: getClaimTransactions(encodeData.data),
+      claimKey: `${claimInfo.chainId}:${claimInfo.nftId}`,
+      summary: `rewards: ${claimInfo.tokens
+        .map(token => `${formatDisplayNumber(token.amount, { significantDigits: 4 })} ${token.symbol}`)
+        .join(', ')}`,
       onError: (error: Error) => {
         notify({
           title: t`Error`,
@@ -227,25 +288,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         setOpenClaimModal(false)
       },
     })
-    const { txHash, error } = res
-    if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
-
-    setPendingClaims(prev => {
-      const claimKey = `${claimInfo.chainId}:${claimInfo.nftId}`
-      if (prev.some(item => item.txHash === txHash)) return prev
-      return [...prev, { txHash, claimKey }]
-    })
-
-    addTransactionWithType({
-      type: TRANSACTION_TYPE.CLAIM_REWARD,
-      hash: txHash,
-      extraInfo: {
-        summary: `rewards: ${claimInfo.tokens
-          .map(token => `${formatDisplayNumber(token.amount, { significantDigits: 4 })} ${token.symbol}`)
-          .join(', ')}`,
-      },
-    })
-  }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, isSmartConnector, notify])
+  }, [account, chainId, claimEncodeData, claimInfo, notify, submitClaimTransactions])
 
   const handleClaimAll = useCallback(async () => {
     if (!account || !chainId) return
@@ -274,16 +317,14 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       return
     }
 
-    const { calldata, contractAddress } = encodeData.data
-
-    const res = await submitTransaction({
-      account,
-      chainId,
-      isSmartConnector,
-      txData: {
-        to: contractAddress,
-        data: `0x${calldata}`,
-      },
+    await submitClaimTransactions({
+      transactions: getClaimTransactions(encodeData.data),
+      claimKey: `all:${chainId}`,
+      summary: `rewards: ${filteredRewardInfo?.chains
+        ?.find(chain => chain.chainId === chainId)
+        ?.tokens?.filter(token => token.claimableAmount > 0)
+        .map(token => `${formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} ${token.symbol}`)
+        .join(', ')}`,
       onError: (error: Error) => {
         notify({
           title: t`Error`,
@@ -292,27 +333,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         })
       },
     })
-    const { txHash, error } = res
-    if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
-
-    setPendingClaims(prev => {
-      const claimKey = `all:${chainId}`
-      if (prev.some(item => item.txHash === txHash)) return prev
-      return [...prev, { txHash, claimKey }]
-    })
-
-    addTransactionWithType({
-      type: TRANSACTION_TYPE.CLAIM_REWARD,
-      hash: txHash,
-      extraInfo: {
-        summary: `rewards: ${filteredRewardInfo?.chains
-          ?.find(chain => chain.chainId === chainId)
-          ?.tokens?.filter(token => token.claimableAmount > 0)
-          .map(token => `${formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} ${token.symbol}`)
-          .join(', ')}`,
-      },
-    })
-  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, filteredRewardInfo, isSmartConnector, notify])
+  }, [account, batchClaimEncodeData, chainId, filteredRewardInfo, notify, submitClaimTransactions])
 
   const onOpenClaim = (position?: ParsedPosition) => {
     if (!position) return
@@ -498,8 +519,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   useEffect(() => {
     if (!pendingClaims.length || !allTransactions) return
     const resolvedTxHashes: string[] = []
-    let shouldCloseClaim = false
-    let shouldCloseClaimAll = false
+    const succeededClaimKeys = new Set<string>()
     const merklChainIdsToReload = new Set<number>()
 
     pendingClaims.forEach(claim => {
@@ -508,12 +528,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       if (!receipt) return
       resolvedTxHashes.push(claim.txHash)
       if (receipt.status === 1) {
-        if (claimInfo && `${claimInfo.chainId}:${claimInfo.nftId}` === claim.claimKey) {
-          shouldCloseClaim = true
-        }
-        if (claim.claimKey.startsWith('all:')) {
-          shouldCloseClaimAll = true
-        }
+        succeededClaimKeys.add(claim.claimKey)
         if (claim.claimKey.startsWith('merkl:')) {
           const chainId = Number(claim.claimKey.split(':')[1])
           if (chainId > 0 && !Number.isNaN(chainId)) merklChainIdsToReload.add(chainId)
@@ -522,6 +537,21 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         }
       }
     })
+
+    // A claim spanning several distributor contracts broadcasts one tx per contract under the same
+    // claim key, so the modal must stay open until every one of them has a receipt — and until the
+    // sequence has finished prompting, since later transactions have no hash to wait on yet.
+    const stillPendingClaimKeys = new Set(
+      pendingClaims.filter(item => !resolvedTxHashes.includes(item.txHash)).map(item => item.claimKey),
+    )
+    const isClaimKeyBusy = (key: string) => stillPendingClaimKeys.has(key) || !!claimsInFlightRef.current[key]
+    const positionClaimKey = claimInfo ? `${claimInfo.chainId}:${claimInfo.nftId}` : null
+    const shouldCloseClaim =
+      !!positionClaimKey && succeededClaimKeys.has(positionClaimKey) && !isClaimKeyBusy(positionClaimKey)
+    const shouldCloseClaimAll =
+      Array.from(succeededClaimKeys).some(key => key.startsWith('all:')) &&
+      !Array.from(stillPendingClaimKeys).some(key => key.startsWith('all:')) &&
+      !Object.keys(claimsInFlightRef.current).some(key => key.startsWith('all:'))
 
     if (resolvedTxHashes.length) {
       setPendingClaims(prev => prev.filter(item => !resolvedTxHashes.includes(item.txHash)))
@@ -537,7 +567,18 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         reloadMerklUntilUpdated(chainId)
       })
     }
-  }, [account, allTransactions, claimInfo, onCloseClaim, pendingClaims, refetchRewardInfo, reloadMerklUntilUpdated])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    account,
+    allTransactions,
+    claimInfo,
+    onCloseClaim,
+    pendingClaims,
+    refetchRewardInfo,
+    reloadMerklUntilUpdated,
+    // Re-evaluates once a multi-transaction claim stops prompting, so the modal can close.
+    claimsInFlightTick,
+  ])
 
   useEffect(() => {
     if (!rewardInfo?.chains.length && !merklChainRewards.length) setOpenClaimAllModal(false)

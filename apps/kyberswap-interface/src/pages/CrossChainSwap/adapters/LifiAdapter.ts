@@ -5,8 +5,10 @@ import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import { MAINNET_NETWORKS } from 'constants/networks'
+import { CROSS_CHAIN_ONLY_NETWORKS, MAINNET_NETWORKS } from 'constants/networks'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
+import { evmTransactionSchema, lifiQuoteSchema } from 'pages/CrossChainSwap/quote/rawQuote'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 import { toBigIntSafe } from 'utils/bigint'
 
@@ -37,7 +39,7 @@ export class LifiAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/aed3a971-48be-4c3c-9597-5ab78073fbf11745552578218.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
+    return [NonEvmChain.Solana, ...MAINNET_NETWORKS, ...CROSS_CHAIN_ONLY_NETWORKS]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -82,25 +84,19 @@ export class LifiAdapter extends BaseSwapAdapter {
       ? Number(r.estimate.toAmountUSD)
       : params.tokenOutUsd * +formattedOutputAmount
 
-    return {
+    return normalizeQuote({
       quoteParams: params,
       outputAmount,
-      formattedOutputAmount,
       inputUsd,
       outputUsd,
-
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-
-      gasFeeUsd: 0,
 
       timeEstimate: r.estimate.executionDuration,
       contractAddress: r.transactionRequest?.to || r.estimate.approvalAddress,
       rawQuote: r,
 
-      protocolFee: 0,
+      additionalFeeUsd: 0,
       platformFeePercent: (params.feeBps * 100) / 10_000,
-    }
+    })
   }
 
   async executeSwap(
@@ -111,9 +107,11 @@ export class LifiAdapter extends BaseSwapAdapter {
     sendTransaction?: WalletAdapterProps['sendTransaction'],
     connection?: Connection,
   ): Promise<NormalizedTxResponse> {
+    const rawQuote = lifiQuoteSchema.parse(quote.rawQuote)
+
     if (quote.quoteParams.fromChain === NonEvmChain.Solana) {
       if (!connection || !sendTransaction) throw new Error('Connection is not defined for Solana swap')
-      const txBuffer = Buffer.from(quote.rawQuote.transactionRequest.data, 'base64')
+      const txBuffer = Buffer.from(rawQuote.transactionRequest.data, 'base64')
 
       // Try to deserialize as VersionedTransaction first
       let transaction
@@ -187,12 +185,13 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
+    const transaction = evmTransactionSchema.parse(rawQuote.transactionRequest)
     const tx = await walletClient.sendTransaction({
       chain: undefined,
       account,
-      to: quote.rawQuote.transactionRequest.to,
-      value: BigInt(quote.rawQuote.transactionRequest.value),
-      data: quote.rawQuote.transactionRequest.data,
+      to: transaction.to,
+      value: BigInt(transaction.value),
+      data: transaction.data,
     })
 
     return {

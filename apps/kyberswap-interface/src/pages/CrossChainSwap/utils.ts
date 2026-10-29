@@ -17,7 +17,9 @@ export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = '3htqHCEhYzU9cs3hKpAs7fZLA8QNFJ2g
 export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
 export const SOLANA_NATIVE = '11111111111111111111111111111111'
 
-export const normalizeAdapterName = (name: string) => name.toLowerCase().replace(/\s+/g, '')
+export const normalizeAdapterName = (name?: string): string => {
+  return name?.toLowerCase().replace(/[\s_-]+/g, '') ?? ''
+}
 
 export const getNetworkInfo = (chain: Chain) => {
   if (isEvmChain(chain))
@@ -47,6 +49,7 @@ export const CANONICAL_TOKENS: Record<string, Record<number, string>> = {
     [ChainId.HYPEREVM]: '0x1fbccdc677c10671ee50b46c61f0f7d135112450',
     [ChainId.ROBINHOOD]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
     [ChainId.ARC]: '0x128cC466B61f542da60c70e3aA11c10e19B84EDB',
+    [ChainId.ABSTRACT]: WETH[ChainId.ABSTRACT].address,
   },
   BNB: {
     [ChainId.BSCMAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',

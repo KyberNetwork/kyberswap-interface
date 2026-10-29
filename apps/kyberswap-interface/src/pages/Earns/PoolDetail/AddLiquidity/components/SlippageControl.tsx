@@ -9,16 +9,12 @@ import { HStack, Stack } from 'components/Stack'
 import { TextHelper } from 'components/Text'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/trade'
 import useTheme from 'hooks/useTheme'
-import {
-  formatPercent,
-  getSlippageNotice,
-  getSlippageStorageKey,
-  getZapFeePercent,
-} from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { formatPercent, getSlippageStorageKey, getZapFeePercent } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { useDegenModeManager } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
+import { getSlippageNotice } from 'utils/slippage'
 
 const PRESET_SLIPPAGE_OPTIONS = [5, 10, 50, 100]
 const SLIPPAGE_INPUT_REGEX = /^(\d+)\.?(\d{1,2})?$/
