@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { cva } from 'class-variance-authority'
 
+import { removeTrailingZero } from 'components/LimitOrder/utils'
 import { formatDistanceMagnitude, getTriggerDirection } from 'components/StopMarket/utils'
 
 /** The colour applied to the direction marker and distance percentage. */
@@ -31,7 +32,7 @@ export const TriggerDistance = ({ percent, className, dataTestId }: Props) => {
     <span className={className} data-testid={dataTestId}>
       {direction !== 'none' && percent !== undefined && (
         <span className={triggerDistanceText({ direction })}>
-          {direction === 'below' ? '↓' : '↑'} {formatDistanceMagnitude(percent)}%{' '}
+          {direction === 'below' ? '↓' : '↑'} {removeTrailingZero(formatDistanceMagnitude(percent, 2))}%{' '}
         </span>
       )}
       <span className="text-subText">
