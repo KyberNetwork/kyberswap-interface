@@ -225,7 +225,11 @@ const StopMarketRow = ({
       {/* Dimmed on the grid, not the row: the entrance animation holds the row's own opacity. */}
       <StopMarketRowWrapper
         layout={isActiveTab ? StopMarketRowLayout.ACTIVE : StopMarketRowLayout.HISTORY}
-        className={cn('min-h-14 px-4 py-2 transition-opacity duration-200', isCancelling && 'opacity-50')}
+        className={cn(
+          'min-h-14 px-4 py-2 transition-[background-color,opacity] duration-200',
+          expanded && 'bg-raisedBlack',
+          isCancelling && 'opacity-50',
+        )}
       >
         <ChainCell chainId={order.chainId} />
 

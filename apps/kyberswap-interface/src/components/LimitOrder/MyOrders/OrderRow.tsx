@@ -128,7 +128,10 @@ const OrderRow = ({ order, onCancelOrder, onSelectPair, isOrderCancelling, isAct
 
   return (
     <>
-      <RowWrapper layout={rowLayout} className="min-h-16 px-4 py-2">
+      <RowWrapper
+        layout={rowLayout}
+        className={cn('min-h-16 px-4 py-2 transition-colors duration-200', expand && 'bg-raisedBlack')}
+      >
         <span className="flex items-center justify-center max-sm:row-span-2 max-sm:self-center">
           {networkInfo?.icon && <img className="size-5" src={networkInfo.icon} alt="Network" />}
         </span>

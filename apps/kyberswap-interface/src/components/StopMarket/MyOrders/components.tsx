@@ -277,15 +277,19 @@ const formatTriggerGap = (gapPercent: number) => formatDistanceMagnitude(gapPerc
 const DetailField = ({
   label,
   dataTestId,
+  className,
+  title,
   children,
 }: {
   label: ReactNode
   dataTestId: string
+  className?: string
+  title?: string
   children: ReactNode
 }) => (
-  <HStack className="shrink-0 items-center gap-1 whitespace-nowrap">
-    <span className="text-xs text-subText">{label}</span>
-    <span className="whitespace-nowrap text-sm font-medium text-text" data-testid={dataTestId}>
+  <HStack className={cn('min-w-0 items-center gap-1 whitespace-nowrap', className)}>
+    <span className="shrink-0 text-xs text-subText">{label}</span>
+    <span className="min-w-0 truncate text-sm font-medium text-text" data-testid={dataTestId} title={title}>
       {children}
     </span>
   </HStack>
@@ -320,6 +324,10 @@ export const StopMarketExecutionDetail = ({
   createdAt: number
 }) => {
   const latestFill = fills[fills.length - 1]
+  const createdAtValue = formatDetailTime(createdAt)
+  const executedAtValue = formatDetailTime(latestFill?.createdAt)
+  const minAmountOutValue = `${formatFillAmount(minAmountOut)} ${receiveSymbol}`
+  const feeValue = summary.fee === undefined ? t`TBD` : `${formatFillAmount(summary.fee)} ${receiveSymbol}`
 
   return (
     <Stack
@@ -327,23 +335,40 @@ export const StopMarketExecutionDetail = ({
       data-testid="stop-market-order-execution-detail"
     >
       <StopMarketRowWrapper layout={StopMarketRowLayout.HISTORY} className="gap-y-2 max-sm:flex max-sm:flex-wrap">
-        <HStack className="col-span-4 min-w-0 items-center gap-2 max-sm:col-auto">
-          <DetailField label={<Trans>Created at</Trans>} dataTestId="stop-market-order-detail-created">
-            {formatDetailTime(createdAt)}
+        <HStack className="col-span-4 min-w-0 items-center gap-3 max-sm:col-auto">
+          <DetailField
+            label={<Trans>Created at</Trans>}
+            dataTestId="stop-market-order-detail-created"
+            title={createdAtValue}
+          >
+            {createdAtValue}
           </DetailField>
           <span className="bg-white-12 h-3 w-px shrink-0" aria-hidden="true" />
-          <DetailField label={<Trans>Executed at</Trans>} dataTestId="stop-market-order-detail-executed">
-            {formatDetailTime(latestFill?.createdAt)}
+          <DetailField
+            label={<Trans>Executed at</Trans>}
+            dataTestId="stop-market-order-detail-executed"
+            title={executedAtValue}
+          >
+            {executedAtValue}
           </DetailField>
         </HStack>
-        <HStack className="col-span-3 col-start-5 min-w-0 flex-wrap items-center gap-x-6 gap-y-2 max-sm:col-auto">
-          <DetailField label={<Trans>Min amount out</Trans>} dataTestId="stop-market-order-detail-min-out">
-            {formatFillAmount(minAmountOut)} {receiveSymbol}
+        <div className="col-span-3 col-start-5 grid min-w-0 grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] items-center gap-x-3 gap-y-2 max-sm:col-auto max-sm:flex max-sm:flex-nowrap max-sm:gap-x-2">
+          <DetailField
+            label={<Trans>Min amount out</Trans>}
+            dataTestId="stop-market-order-detail-min-out"
+            title={minAmountOutValue}
+          >
+            {minAmountOutValue}
           </DetailField>
-          <DetailField label={<Trans>Fee</Trans>} dataTestId="stop-market-order-detail-fee">
-            {summary.fee === undefined ? t`TBD` : `${formatFillAmount(summary.fee)} ${receiveSymbol}`}
+          <DetailField
+            label={<Trans>Fee</Trans>}
+            dataTestId="stop-market-order-detail-fee"
+            className="translate-x-2"
+            title={feeValue}
+          >
+            {feeValue}
           </DetailField>
-        </HStack>
+        </div>
       </StopMarketRowWrapper>
 
       {fills.length > 1 && (

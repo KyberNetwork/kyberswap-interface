@@ -79,7 +79,7 @@ export const OrderRowDetails = ({ expanded, children }: { expanded: boolean; chi
   <div
     inert={!expanded}
     className={cn(
-      'grid bg-white/[0.02] transition-[grid-template-rows,opacity] duration-200 ease-in-out max-sm:hidden',
+      'grid bg-raisedBlack transition-[grid-template-rows,opacity] duration-200 ease-in-out max-sm:hidden',
       expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
     )}
   >
