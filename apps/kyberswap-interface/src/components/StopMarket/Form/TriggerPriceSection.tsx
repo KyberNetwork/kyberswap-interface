@@ -16,6 +16,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useStableCoins } from 'hooks/useTokens'
+import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 import { formatDisplayNumber, formatPercentageInput } from 'utils/numbers'
@@ -91,17 +92,22 @@ export const OracleMarketPriceButton = ({
     placement="top"
     width="280px"
     text={
-      inverted ? (
-        <Trans>
-          Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or rises
-          above your level.
-        </Trans>
-      ) : (
-        <Trans>
-          Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or falls
-          below your level.
-        </Trans>
-      )
+      <Stack className="items-start gap-1">
+        {inverted ? (
+          <Trans>
+            Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or rises
+            above your level.
+          </Trans>
+        ) : (
+          <Trans>
+            Derived from each token&apos;s independent price feed. Your order triggers when this price reaches or falls
+            below your level.
+          </Trans>
+        )}
+        <ExternalLink href="https://docs.kyberswap.com/user-guide/stop-market#which-price-does-a-stop-market-monitor">
+          <Trans>Learn more ↗</Trans>
+        </ExternalLink>
+      </Stack>
     }
   >
     {/* Disabled, it lets the pointer through, so the tooltip's wrapper still sees the hover — a disabled

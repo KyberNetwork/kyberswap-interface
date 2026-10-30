@@ -12,6 +12,7 @@ import { getStopMarketOrderTooSmall } from 'components/StopMarket/utils'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NativeCurrencies } from 'constants/tokens'
+import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -78,22 +79,21 @@ export const getStopMarketFeeSummary = (fee: StopMarketFee, chainId?: ChainId): 
  * minimum applies, why small orders pay it. Without a fee it says only what the fee is for.
  */
 export const StopMarketFeeTooltip = ({ fee, chainId }: { fee?: StopMarketFee; chainId?: ChainId }) => {
-  if (!fee) return <>{GENERIC_FEE_TOOLTIP()}</>
-  const summary = getStopMarketFeeSummary(fee, chainId)
+  const summary = fee ? getStopMarketFeeSummary(fee, chainId) : undefined
 
   return (
     <Stack className="gap-1" data-testid="stop-market-fee-tooltip">
       {summary && <span className="font-medium text-text">{summary}</span>}
       <span>
-        {fee.minProtocolFeeApplied ? (
-          <Trans>
-            Covers the protocol fee plus the gas paid to execute on-chain. Execution costs the same regardless of order
-            size, so small orders pay the minimum.
-          </Trans>
+        {fee?.minProtocolFeeApplied ? (
+          <Trans>Covers the protocol fee plus the gas paid to execute on-chain.</Trans>
         ) : (
           GENERIC_FEE_TOOLTIP()
         )}
       </span>
+      <ExternalLink href="https://docs.kyberswap.com/getting-started/fee-schedule#stop-market" className="w-fit">
+        <Trans>View details</Trans>
+      </ExternalLink>
     </Stack>
   )
 }
