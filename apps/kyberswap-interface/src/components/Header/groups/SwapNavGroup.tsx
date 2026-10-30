@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Repeat } from 'react-feather'
+import { Repeat, TrendingDown } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
@@ -9,7 +9,7 @@ import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
-import { isSupportLimitOrder } from 'constants/networks'
+import { isSupportLimitOrder, isSupportStopMarket } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -29,7 +29,8 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const isActive =
-    isSwapLikePath(pathname) || [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
+    isSwapLikePath(pathname) ||
+    [APP_PATHS.LIMIT, APP_PATHS.STOP_MARKET, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -86,6 +87,24 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
             </StyledNavLink>
           )}
 
+          {isSupportStopMarket(chainId) && (
+            <StyledNavLink
+              id="stop-market-nav-link"
+              to={`${APP_PATHS.STOP_MARKET}/${networkInfo.route}`}
+              style={{ flexDirection: 'column', width: '100%' }}
+            >
+              <div className="flex items-center gap-3">
+                <IconWrapper>
+                  <TrendingDown size={16} />
+                </IconWrapper>
+                <div className="flex">
+                  <Trans>Stop Market</Trans>
+                  <NewLabel isNew>New</NewLabel>
+                </div>
+              </div>
+            </StyledNavLink>
+          )}
+
           {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
             <StyledNavLink
               id="cross-chain-nav-link"
@@ -98,7 +117,6 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
                 </IconWrapper>
                 <div className="flex">
                   <Trans>Cross-Chain</Trans>
-                  <NewLabel isNew>New</NewLabel>
                 </div>
               </div>
             </StyledNavLink>

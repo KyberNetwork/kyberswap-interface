@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { isMobile } from 'react-device-detect'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { cn } from 'utils/cn'
@@ -50,7 +49,7 @@ const NavGroup: React.FC<Props> = ({
           data-align={dropdownAlign}
           onClick={e => {
             e.stopPropagation()
-            if (isMobile) setIsHovered(false)
+            setIsHovered(false)
           }}
           className={cn(
             'absolute top-full w-max rounded-2xl bg-tableHeader p-2',

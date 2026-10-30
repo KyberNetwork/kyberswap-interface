@@ -2442,8 +2442,8 @@ msgid "Info"
 msgstr "Info"
 
 #: src/components/StopMarket/OrderTypeSubTabs.tsx
-msgid "Stop Market: Triggers a swap via KyberSwap Aggregator when your pre-set price is hit. Output depends on market conditions."
-msgstr "Stop Market: Triggers a swap via KyberSwap Aggregator when your pre-set price is hit. Output depends on market conditions."
+msgid "Stop Market: Automatically triggers a swap via KyberSwap Aggregator when your specified price parameters are met, based on third-party price data."
+msgstr "Stop Market: Automatically triggers a swap via KyberSwap Aggregator when your specified price parameters are met, based on third-party price data."
 
 #: src/pages/Earns/components/SmartExit/useSmartExit.ts
 msgid "Your smart exit order has been successfully created and is now active."

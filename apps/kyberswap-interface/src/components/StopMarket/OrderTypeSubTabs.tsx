@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
+import { NewTag } from 'components/Header/styleds'
 import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -27,8 +28,8 @@ const TABS = [
     subtitle: <Trans>Trade the moment your price is hit</Trans>,
     tooltip: (
       <Trans>
-        Stop Market: Triggers a swap via KyberSwap Aggregator when your pre-set price is hit. Output depends on market
-        conditions.
+        Stop Market: Automatically triggers a swap via KyberSwap Aggregator when your specified price parameters are
+        met, based on third-party price data.
       </Trans>
     ),
   },
@@ -82,13 +83,14 @@ const OrderTypeSubTabs = () => {
               onClick={() => handleSelectOrderType(path)}
               className={cn(
                 // The CSS reset forces text-transform:none on buttons, so uppercase belongs here, not on the row.
-                'cursor-pointer border-0 bg-transparent py-1 pr-3 uppercase transition-colors hover:text-text',
+                'inline-flex cursor-pointer items-center border-0 bg-transparent py-1 pr-3 uppercase transition-colors hover:text-text',
                 index < TABS.length - 1 && 'border-r border-darkBorder',
                 index === 0 ? 'pl-0' : 'pl-3',
                 path === activePath ? 'text-primary' : 'text-gray',
               )}
             >
               {label}
+              {path === APP_PATHS.STOP_MARKET && <NewTag className="font-medium" />}
             </button>
           </MouseoverTooltip>
         ))}
