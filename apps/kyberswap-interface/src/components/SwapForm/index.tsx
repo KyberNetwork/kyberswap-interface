@@ -9,6 +9,10 @@ import FeeControlGroup from 'components/FeeControlGroup'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { NetworkSelector } from 'components/NetworkSelector'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/ERC8056Info'
+import ExactOutOvershootSetting, {
+  DEFAULT_EXACT_OUT_OVERSHOOT_BPS,
+  parseExactOutOvershootBps,
+} from 'components/SwapForm/ExactOutOvershootSetting'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import MultichainKNCNote from 'components/SwapForm/MultichainKNCNote'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
@@ -19,10 +23,12 @@ import SwapActionButton from 'components/SwapForm/SwapActionButton'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import TradeSummary from 'components/SwapForm/TradeSummary'
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
+import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { EXACT_OUT_SUPPORTED_CHAINS } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
@@ -85,13 +91,23 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   const { typedValue } = useSwapState()
   const [recipient, setRecipient] = useState<string | null>(null)
 
+  // The side the user typed last; the other side is quoted from it.
+  const [independentField, setIndependentField] = useState<Field>(Field.INPUT)
+  const [typedOutValue, setTypedOutValue] = useState('')
+  const [exactOutOvershootBps, setExactOutOvershootBps] = useState(DEFAULT_EXACT_OUT_OVERSHOOT_BPS)
+
   const { onUserInput: updateInputAmount } = useSwapActionHandlers()
   const onUserInput = useCallback(
     (value: string) => {
+      setIndependentField(Field.INPUT)
       updateInputAmount(Field.INPUT, value)
     },
     [updateInputAmount],
   )
+  const onUserOutput = useCallback((value: string) => {
+    setIndependentField(Field.OUTPUT)
+    setTypedOutValue(value)
+  }, [])
 
   const handleChangeCurrencyIn = useCallback(
     (c: Currency) => {
@@ -151,6 +167,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
     const isValidRegex = /^\d*\.?\d*$/.test(inputAmount)
     if (isValidRegex && Number.isFinite(Number(inputAmount)) && !Number.isNaN(Number(inputAmount))) {
+      setIndependentField(Field.INPUT)
       updateInputAmount(Field.INPUT, inputAmount)
     } else {
       notify({
@@ -175,6 +192,13 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
+  // Exact-out quotes take no platform fee, so they stay off wherever the swap must charge one.
+  const feeConfigFromUrl = useGetFeeConfig()
+  const canTypeOutput =
+    EXACT_OUT_SUPPORTED_CHAINS.includes(chainId) && !isInSafeApp && !feeConfigFromUrl && !isWrapOrUnwrap
+  const isExactOut = canTypeOutput && independentField === Field.OUTPUT
+  const parsedTypedAmountOut = useParsedAmount(currencyOut, typedOutValue)
+
   const {
     fetcher: getRoute,
     result,
@@ -184,6 +208,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     currencyIn,
     currencyOut,
     parsedAmount,
+    parsedAmountOut: isExactOut ? parsedTypedAmountOut : undefined,
+    exactOutMaxOvershootBps: parseExactOutOvershootBps(exactOutOvershootBps),
     isProcessingSwap,
     customChain: chainId,
     clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
@@ -199,6 +225,13 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
   const routeSummary = getRouteResponse?.routeSummary
+  // While exact-out, the input amount is the quoted one: it is what gets shown, approved and spent.
+  const quotedTypedValueIn = isExactOut ? routeSummary?.parsedAmountIn.toExact() ?? '' : undefined
+  const inputTypedValue = quotedTypedValueIn ?? typedValue
+  const inputDisplayTypedValue = quotedTypedValueIn ?? displayTypedValue
+  const parsedAmountIn = isExactOut ? routeSummary?.parsedAmountIn : parsedAmount
+  const requestedAmount = isExactOut ? parsedTypedAmountOut : parsedAmount
+
   const displayAmountOut = useMemo(
     () => getERC8056DisplayAmount(erc8056Info.outputInfo, routeSummary?.parsedAmountOut),
     [erc8056Info.outputInfo, routeSummary?.parsedAmountOut],
@@ -229,15 +262,17 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     permit,
     currencyIn,
     currencyOut,
+    isExactOut,
   })
 
   const swapInputError = useGetInputError({
     currencyIn,
     currencyOut,
-    typedValue,
+    typedValue: isExactOut ? typedOutValue : typedValue,
     recipient,
     balanceIn,
-    parsedAmountFromTypedValue: parsedAmount,
+    parsedAmountFromTypedValue: requestedAmount,
+    parsedAmountToSpend: parsedAmountIn,
   })
 
   useEffect(() => {
@@ -254,8 +289,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     <SwapFormContextProvider
       slippage={slippage}
       routeSummary={routeSummary}
-      typedValue={typedValue}
-      displayTypedValue={displayTypedValue}
+      typedValue={inputTypedValue}
+      displayTypedValue={inputDisplayTypedValue}
       inputERC8056Info={erc8056Info.inputInfo}
       outputERC8056Info={erc8056Info.outputInfo}
       recipient={recipient}
@@ -269,7 +304,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             <div className="flex flex-col gap-2">
               <InputCurrencyPanel
                 wrapType={wrapType}
-                typedValue={displayTypedValue}
+                typedValue={inputDisplayTypedValue}
+                routeLoading={isExactOut && routeLoading}
                 setTypedValue={onRawValue}
                 onUserInput={onDisplayInput}
                 currencyIn={currencyIn}
@@ -308,6 +344,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 onChangeCurrencyOut={handleChangeCurrencyOut}
                 customChainId={customChainId}
                 routeLoading={routeLoading}
+                typedValue={isExactOut ? typedOutValue : undefined}
+                onUserInput={canTypeOutput ? onUserOutput : undefined}
               />
             </div>
 
@@ -317,6 +355,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} />
+            {isExactOut && <ExactOutOvershootSetting value={exactOutOvershootBps} onChange={setExactOutOvershootBps} />}
             {!isWrapOrUnwrap && <FeeControlGroup />}
           </div>
         </div>
@@ -328,7 +367,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               routeSummary={routeSummary}
               routeLoading={routeLoading}
               slippage={slippage}
-              disableRefresh={!parsedAmount || parsedAmount.equalTo(0) || isProcessingSwap}
+              disableRefresh={!requestedAmount || requestedAmount.equalTo(0) || isProcessingSwap}
               refreshCallback={getRoute}
               isFeeTampered={isFeeTampered}
             />
@@ -340,11 +379,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
           <SwapActionButton
             isGettingRoute={isGettingRoute}
-            parsedAmountFromTypedValue={parsedAmount}
+            parsedAmountFromTypedValue={parsedAmountIn}
             balanceIn={balanceIn}
             balanceOut={balanceOut}
             isDegenMode={isDegenMode}
-            typedValue={typedValue}
+            typedValue={inputTypedValue}
             currencyIn={currencyIn}
             currencyOut={currencyOut}
             wrapInputError={wrapInputError}
