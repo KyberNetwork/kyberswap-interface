@@ -17,6 +17,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
 type Props = {
+  requireOracle?: boolean
   isOpen: boolean
   selectedCurrency?: Currency | null
   otherSelectedCurrency?: Currency | null
@@ -48,6 +49,7 @@ type Props = {
 
 const TokenSelectorModal = ({
   isOpen,
+  requireOracle = false,
   onDismiss,
   onCurrencySelect,
   selectedCurrency,
@@ -82,7 +84,7 @@ const TokenSelectorModal = ({
     onDismiss,
   })
   const { importToken } = selection
-  const supportsNonEvm = selection.chainSelectionMode === 'form' && !!onSelectNonEvmCurrency
+  const supportsNonEvm = !requireOracle && selection.chainSelectionMode === 'form' && !!onSelectNonEvmCurrency
 
   // Track each modal session independently of the selected view.
   const lastOpen = useLast(isOpen)
@@ -134,6 +136,7 @@ const TokenSelectorModal = ({
             selected chain, tab, query and scroll survive those round-trips — unmounting it resets them. */}
         <div className={cn(tokenToShowInfo || importToken ? 'hidden' : 'contents')}>
           <TokenSelectorContent
+            requireOracle={requireOracle}
             onDismiss={selection.dismiss}
             onRequestSelect={selection.requestSelection}
             anchorChainId={anchorChainId}

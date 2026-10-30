@@ -2,12 +2,18 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 
-import { tokenRowKey } from 'components/TokenSelectorModal/types'
+import { type TokenSearchFilters, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { TOKEN_SEARCH_PAGE_SIZE, fetchTokens, useAddressRpcTokenSearch } from 'components/TokenSelectorModal/utils'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { isAddress } from 'utils/address'
 
-export const useTokenSearch = (primaryChainId: ChainId, debouncedQuery: string, active: boolean) => {
+export const useTokenSearch = (
+  primaryChainId: ChainId,
+  debouncedQuery: string,
+  active: boolean,
+  searchFilters?: TokenSearchFilters,
+  allowRpcSearch = true,
+) => {
   const { supportedChains } = useChainsConfig()
   const chainIdList = useMemo(() => [primaryChainId], [primaryChainId])
   const isAllTab = active
@@ -21,10 +27,10 @@ export const useTokenSearch = (primaryChainId: ChainId, debouncedQuery: string, 
     isFetching: isFetchingTokenSearch,
     isLoading: isLoadingTokenSearch,
   } = useInfiniteQuery({
-    queryKey: ['currency-search-tokens', primaryChainId, debouncedQuery],
+    queryKey: ['currency-search-tokens', primaryChainId, debouncedQuery, searchFilters?.oracleTokenFilter],
     initialPageParam: 1,
     enabled: !!debouncedQuery && isAllTab,
-    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList),
+    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList, searchFilters),
     getNextPageParam: (lastPage, allPages) =>
       debouncedQuery && !isQueryValidEVMAddress && lastPage.length === TOKEN_SEARCH_PAGE_SIZE
         ? allPages.length + 1
@@ -56,6 +62,7 @@ export const useTokenSearch = (primaryChainId: ChainId, debouncedQuery: string, 
     isQueryValidEVMAddress,
     isFetchedTokenSearch,
     isFetchingTokenSearch,
+    enabled: allowRpcSearch,
     hasTokenSearchResults: !!tokenSearchResults.length,
   })
 

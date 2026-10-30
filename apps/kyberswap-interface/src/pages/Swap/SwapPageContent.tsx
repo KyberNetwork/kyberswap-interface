@@ -15,15 +15,13 @@ import { SingleChainRightPanel } from 'pages/Swap/components/SingleChainRightPan
 import type { Chain, NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { Header } from 'pages/Swap/layout/Header'
 import { TAB } from 'pages/Swap/layout/Tabs'
+import { LiquiditySourcesPanel, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
 import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
 
 const CrossChainSwap = lazy(() => import('components/SwapForm/CrossChain/CrossChainSwap'))
 const ProcessingTransactions = lazy(() => import('pages/Swap/components/ProcessingTransactions'))
 const CrossChainSwapSources = lazy(() => import('pages/Swap/crossChain/components/CrossChainSwapSources'))
-const TokenInfo = lazy(() => import('components/TokenInfo'))
-const SwapSettingsPanel = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel'))
-const LiquiditySourcesPanel = lazy(() => import('components/SwapForm/Settings/LiquiditySourcesPanel'))
 
 const SwapFormLoader = () => (
   <Center className="h-40">

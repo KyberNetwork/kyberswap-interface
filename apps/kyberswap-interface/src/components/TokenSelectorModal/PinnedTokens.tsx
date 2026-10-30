@@ -1,4 +1,3 @@
-import { isSameCurrency } from 'components/TokenSelectorModal/utils'
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { type ComponentProps, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -6,6 +5,7 @@ import { Edit2, XCircle } from 'react-feather'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack } from 'components/Stack'
+import { isSameCurrency } from 'components/TokenSelectorModal/utils'
 import { cn } from 'utils/cn'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -32,7 +32,7 @@ export const PinnedTokens = ({ onSelect, selectedCurrency, tokens, onToggleFavor
   return (
     <HStack className="flex-wrap items-center gap-2">
       {(tokens as Token[]).map((token: Token) => {
-        const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
+        const selected = isSameCurrency(selectedCurrency, token)
         const { symbol } = getDisplayTokenInfo(token)
         return (
           <PinnedTokenPill

@@ -10,6 +10,6 @@ import { lazy } from 'react'
  */
 // Limit Order and Stop Market share this one, so switching between them keeps the panel mounted.
 export const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
-export const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
+export const SwapSettingsPanel = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel'))
 export const TokenInfo = lazy(() => import('components/TokenInfo'))
-export const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/LiquiditySourcesPanel'))
+export const LiquiditySourcesPanel = lazy(() => import('components/SwapForm/Settings/LiquiditySourcesPanel'))

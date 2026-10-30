@@ -94,7 +94,10 @@ export const getVisibleCandles = (chartData: DisplayCandle[], visibleLogicalRang
   )
 }
 
-const getRobustAutoscaleInfo = (candles: DisplayCandle[], baseInfo: AutoscaleInfo | null): AutoscaleInfo | null => {
+export const getRobustAutoscaleInfo = (
+  candles: DisplayCandle[],
+  baseInfo: AutoscaleInfo | null,
+): AutoscaleInfo | null => {
   if (!baseInfo || candles.length < 8) return baseInfo
 
   const bodyPrices = candles.flatMap(candle => [candle.open, candle.close]).filter(Number.isFinite)
@@ -283,4 +286,14 @@ export const getTooltipPosition = ({
   )
 
   return { left, top }
+}
+
+export const getInitialVisibleRange = (candleCount: number) => {
+  const lastCandleIndex = candleCount - 1
+  const visibleCandleCount = Math.min(candleCount, DEFAULT_VISIBLE_CANDLES)
+  const sidePadding = (DEFAULT_VISIBLE_CANDLES - visibleCandleCount) / 2
+  return {
+    from: Math.max(lastCandleIndex - (DEFAULT_VISIBLE_CANDLES - 1), 0) - sidePadding,
+    to: lastCandleIndex + sidePadding + 0.5,
+  }
 }

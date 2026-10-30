@@ -6,7 +6,7 @@ import { useCatalogPriceFallback } from 'components/TokenSelectorModal/hooks/use
 import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
 import { useTokensMetrics } from 'components/TokenSelectorModal/hooks/useTokensMetrics'
 import { useTrendingTokens } from 'components/TokenSelectorModal/hooks/useTrendingTokens'
-import { TokenRowExtraMap, TokenSort, tokenRowKey } from 'components/TokenSelectorModal/types'
+import { TokenRowExtraMap, TokenSearchFilters, TokenSort, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
 const EMPTY_CURRENCIES: Currency[] = []
@@ -15,6 +15,7 @@ const EMPTY_EXTRAS: TokenRowExtraMap = {}
 
 // Resolves lists and metrics for Trending, New, Imported, and Favorites; All is composed by the caller.
 type Props = {
+  searchFilters?: TokenSearchFilters
   primaryChainId: ChainId
   activeTab: TokenSelectorTab
   sort: TokenSort | null
@@ -24,6 +25,7 @@ type Props = {
 }
 
 export const useTokenTabData = ({
+  searchFilters,
   primaryChainId,
   activeTab,
   sort,
@@ -43,13 +45,13 @@ export const useTokenTabData = ({
     loading: trendingLoading,
     hasMore: trendingHasMore,
     fetchMore: fetchMoreTrending,
-  } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab)
+  } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab, searchFilters)
 
   const {
     tokens: newTokens,
     extras: newExtras,
     loading: newLoading,
-  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab)
+  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab, searchFilters)
 
   // Trending is already ordered server-side; the others keep their own natural order until sorted.
   const trendingCurrencies = useMemo(() => localFilter(trendingTokens), [localFilter, trendingTokens])

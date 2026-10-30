@@ -2,6 +2,7 @@ import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { KeyboardEvent, ReactNode, useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { Info } from 'react-feather'
 
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
@@ -26,7 +27,7 @@ import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { useTokenSelectorData } from 'components/TokenSelectorModal/hooks/useTokenSelectorData'
 import { useTokenSelectorView } from 'components/TokenSelectorModal/hooks/useTokenSelectorView'
 import { TokenSelectionContext, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
-import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { Chain, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
@@ -56,6 +57,7 @@ const EmptyTokenMessage = ({ activeTab }: { activeTab: TokenSelectorTab }) => {
 }
 
 type Props = {
+  requireOracle?: boolean
   chainSelectionMode?: 'wallet' | 'form'
   initialNonEvmChain?: NonEvmChain
   selectedNonEvmCurrency?: NonEvmCurrency
@@ -77,6 +79,7 @@ type Props = {
 }
 
 export const TokenSelectorContent = ({
+  requireOracle = false,
   chainSelectionMode,
   onSelectNonEvmCurrency,
   initialNonEvmChain,
@@ -119,7 +122,9 @@ export const TokenSelectorContent = ({
   } = view
 
   // Networks available to this caller and the temporary browsing chain.
-  const networks: TokenSelectorNetwork[] = onSelectNonEvmCurrency
+  const networks: TokenSelectorNetwork[] = requireOracle
+    ? rankedChains.filter(chain => isSupportStopMarket(chain.chainId))
+    : onSelectNonEvmCurrency
     ? [
         ...rankedChains,
         ...[ChainId.BLAST, ...CROSS_CHAIN_ONLY_NETWORKS]
@@ -140,6 +145,7 @@ export const TokenSelectorContent = ({
 
   // EVM list data; non-EVM content owns its own data sources.
   const data = useTokenSelectorData({
+    requireOracle,
     primaryChainId: selectedChainId,
     activeTab,
     debouncedQuery,
@@ -150,6 +156,9 @@ export const TokenSelectorContent = ({
   })
   const {
     visibleCurrencies,
+    isListable,
+    notice,
+    emptyMessage,
     impersonators,
     quickSelectTokens,
     isListLoading,
@@ -199,7 +208,7 @@ export const TokenSelectorContent = ({
 
       const query = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[selectedChainId]
-      if (query === native.symbol?.toLowerCase() || query === native.name?.toLowerCase()) {
+      if ((query === native.symbol?.toLowerCase() || query === native.name?.toLowerCase()) && isListable(native)) {
         requestSelect(native)
         return
       }
@@ -210,7 +219,7 @@ export const TokenSelectorContent = ({
 
       requestSelect(candidate)
     },
-    [searchQuery, selectedChainId, visibleCurrencies, impersonators, requestSelect],
+    [searchQuery, selectedChainId, visibleCurrencies, impersonators, requestSelect, isListable],
   )
 
   // Display state for the active EVM tab.
@@ -298,6 +307,15 @@ export const TokenSelectorContent = ({
                   )}
                 </HStack>
 
+                {notice && (
+                  <HStack
+                    className="items-start gap-1.5 text-xs font-medium text-subText"
+                    data-testid="token-selector-oracle-note"
+                  >
+                    <Info size={14} className="mt-px shrink-0" />
+                    <span>{notice}</span>
+                  </HStack>
+                )}
                 {showPinnedTokens && quickSelectTokens.length > 0 && (
                   <PinnedTokens
                     tokens={quickSelectTokens}
@@ -372,7 +390,11 @@ export const TokenSelectorContent = ({
                         onSelect={currency => requestSelect(currency)}
                       />
                     ) : (
-                      <NoResult message={debouncedQuery ? undefined : <EmptyTokenMessage activeTab={activeTab} />} />
+                      <NoResult
+                        message={
+                          emptyMessage ?? (debouncedQuery ? undefined : <EmptyTokenMessage activeTab={activeTab} />)
+                        }
+                      />
                     )}
                   </Stack>
                 )}

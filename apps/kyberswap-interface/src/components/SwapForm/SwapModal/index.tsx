@@ -98,7 +98,7 @@ const SwapModal = ({ isOpen, tokenAddToMetaMask, onDismiss, onConfirm, swapCallb
               currency={currencyOut}
               amount={routeSummary?.parsedAmountOut}
               source="post_swap"
-              onNavigate={handleDismiss}
+              onNavigate={onDismiss}
             />
           }
         />

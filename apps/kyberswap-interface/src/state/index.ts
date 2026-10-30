@@ -250,7 +250,6 @@ let clientStore: AppStore | undefined
 export const getClientStore = (): AppStore => {
   if (!clientStore) {
     clientStore = makeStore(getClientPreloadedState())
-    setupListeners(clientStore.dispatch)
     cleanupReduxPersist()
     clientStore.dispatch(updateVersion())
     // Focus and online events, which `refetchOnFocus`, `refetchOnReconnect` and `skipPollingIfUnfocused`

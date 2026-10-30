@@ -10,17 +10,33 @@ import type { SwapReviewData } from 'components/SwapForm/SwapModal/useSwapReview
 import PriceImpactNote from 'components/SwapForm/Warnings/PriceImpactNote'
 import { MouseoverTooltip } from 'components/Tooltip'
 
-const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
-  <ErrorWarning
-    type="warn"
-    title={
+type ReservedOrderNoticeProps = {
+  symbol: string | undefined
+  limitOrdersTo?: string
+  stopMarketsTo?: string
+}
+
+/** Points at whichever open orders hold a claim on the token being sold. */
+const ReservedOrderNotice = ({ symbol, limitOrdersTo, stopMarketsTo }: ReservedOrderNoticeProps) => {
+  const title =
+    limitOrdersTo && stopMarketsTo ? (
+      <Trans>
+        <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by open orders - review
+        your <Link to={limitOrdersTo}>limit orders</Link> and <Link to={stopMarketsTo}>Stop Market orders</Link>.
+      </Trans>
+    ) : stopMarketsTo ? (
+      <Trans>
+        <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Stop Market
+        Order - review it <Link to={stopMarketsTo}>here</Link>.
+      </Trans>
+    ) : limitOrdersTo ? (
       <Trans>
         <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
-        review it <Link to={to}>here</Link>.
+        review it <Link to={limitOrdersTo}>here</Link>.
       </Trans>
-    }
-  />
-)
+    ) : null
+  return title && <ErrorWarning type="warn" title={title} />
+}
 
 const BuildErrorMessage = ({
   errorWhileBuildRoute,
@@ -94,6 +110,7 @@ type Props = {
     | 'honeypot'
     | 'showReservedOrderWarning'
     | 'reservedOrderLink'
+    | 'reservedStopMarketLink'
   >
   slippage: number
   defaultSlp: number
@@ -137,6 +154,7 @@ const SwapReviewWarnings = ({
     honeypot,
     showReservedOrderWarning,
     reservedOrderLink,
+    reservedStopMarketLink,
   } = review
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
   const isSlippageNotEnough = isSlippageBuildError(errorWhileBuildRoute)
@@ -156,7 +174,11 @@ const SwapReviewWarnings = ({
         />
       )}
       {showReservedOrderWarning && (
-        <ReservedOrderNotice symbol={parsedAmountIn?.currency.symbol} to={reservedOrderLink} />
+        <ReservedOrderNotice
+          symbol={parsedAmountIn?.currency.symbol}
+          limitOrdersTo={reservedOrderLink}
+          stopMarketsTo={reservedStopMarketLink}
+        />
       )}
 
       {errorWhileBuildRoute ? (

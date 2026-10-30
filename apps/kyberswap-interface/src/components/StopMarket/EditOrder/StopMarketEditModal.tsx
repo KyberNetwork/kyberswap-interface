@@ -38,7 +38,7 @@ import {
   getStopMarketTriggerPrice,
   getTriggerPercent,
 } from 'components/StopMarket/utils'
-import SlippageSetting from 'components/SwapForm/SlippageSetting'
+import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { tryParseAmount } from 'state/swap/hooks'

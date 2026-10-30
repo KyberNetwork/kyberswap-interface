@@ -12,7 +12,7 @@ export const isCrossChainPair = (from: Chain, to: Chain) => from !== to || typeo
 
 /** Write one pair representation: a path for single-chain, query parameters for cross-chain. */
 export const getTradeLocation = (
-  page: 'swap' | 'limit' | 'cross-chain' | 'kybercross',
+  page: 'swap' | 'limit' | 'stop-market' | 'cross-chain' | 'kybercross',
   pair: SwapPair,
   params = new URLSearchParams(),
 ) => {
@@ -34,7 +34,9 @@ export const getTradeLocation = (
     const network = NETWORKS_INFO[pair.fromChain as ChainId].route
     const tokenIn = encodeURIComponent(pair.tokenIn.toLowerCase())
     const tokenOut = encodeURIComponent(pair.tokenOut.toLowerCase())
-    pathname = `${page === 'limit' ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${network}/${tokenIn}-to-${tokenOut}`
+    pathname = `${
+      page === 'limit' ? APP_PATHS.LIMIT : page === 'stop-market' ? APP_PATHS.STOP_MARKET : APP_PATHS.SWAP
+    }/${network}/${tokenIn}-to-${tokenOut}`
   }
   return { pathname, search: search.size ? `?${search.toString()}` : '' }
 }

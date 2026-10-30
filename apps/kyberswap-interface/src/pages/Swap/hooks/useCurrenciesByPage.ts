@@ -14,6 +14,7 @@ export const useCurrenciesByPage = () => {
   const { pathname } = useLocation()
   const isSwapPage =
     isSwapLikePath(pathname) || pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
+  const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
   const isCrossChainPage = pathname.startsWith(APP_PATHS.KYBER_CROSS)
 
   const currencyInSwap = useInputCurrency()
@@ -32,14 +33,17 @@ export const useCurrenciesByPage = () => {
   )
 
   const shareUrl = useMemo(() => {
-    const target = getTradeLocation(isCrossChainPage ? 'kybercross' : isSwapPage ? 'swap' : 'limit', {
-      fromChain: inputChain,
-      toChain: outputChain,
-      tokenIn: fromCurrency || getDefaultSwapTokenId(inputChain),
-      tokenOut: toCurrency || getDefaultSwapTokenId(outputChain),
-    })
+    const target = getTradeLocation(
+      isCrossChainPage ? 'kybercross' : isSwapPage ? 'swap' : isStopMarketPage ? 'stop-market' : 'limit',
+      {
+        fromChain: inputChain,
+        toChain: outputChain,
+        tokenIn: fromCurrency || getDefaultSwapTokenId(inputChain),
+        tokenOut: toCurrency || getDefaultSwapTokenId(outputChain),
+      },
+    )
     return `${window.location.origin}${target.pathname}${target.search}`
-  }, [inputChain, outputChain, fromCurrency, toCurrency, isSwapPage, isCrossChainPage])
+  }, [inputChain, outputChain, fromCurrency, toCurrency, isSwapPage, isCrossChainPage, isStopMarketPage])
 
   return {
     currencies,

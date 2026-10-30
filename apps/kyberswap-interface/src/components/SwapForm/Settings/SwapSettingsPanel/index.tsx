@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { type ReactNode, Suspense, lazy, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
@@ -5,7 +6,6 @@ import { ChevronLeft } from 'react-feather'
 import IconButton from 'components/Button/IconButton'
 import { HStack, Stack } from 'components/Stack'
 import { DegenModeSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/DegenModeSetting'
-import { GasDropFeatureSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/GasDropFeatureSetting'
 import { LiquiditySourcesSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/LiquiditySourcesSetting'
 import { SlippageSetting } from 'components/TransactionSettings/SlippageSetting'
 import { TransactionTimeLimitSetting } from 'components/TransactionSettings/TransactionTimeLimitSetting'
@@ -17,7 +17,6 @@ import {
   SettingsToggle,
 } from 'components/TransactionSettings/components'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { KYBERCROSS } from 'constants/env'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 import {
@@ -53,6 +52,8 @@ export const DisplaySettingRow = ({ label, tooltip, isActive, toggle }: DisplayS
 )
 
 type SwapSettingsPanelProps = {
+  chainId?: ChainId
+  additionalSettings?: ReactNode
   mode: 'single-chain' | 'cross-chain' | 'limit' | 'stop-market'
   /** Independent of quote mode: unified cross-chain also supports chart/route display preferences. */
   showDisplaySettings?: boolean
@@ -70,6 +71,8 @@ type SwapSettingsPanelProps = {
 }
 
 const SwapSettingsPanel = ({
+  chainId,
+  additionalSettings,
   mode,
   showDisplaySettings = mode === 'single-chain',
   crossChainQuoteMode,
@@ -115,15 +118,15 @@ const SwapSettingsPanel = ({
       <Stack className="w-full gap-4">
         {(mode === 'single-chain' || mode === 'cross-chain') && (
           <SettingsSection title={<Trans>Advanced Settings</Trans>}>
-            <SlippageSetting />
+            <SlippageSetting isCrossChain={mode === 'cross-chain'} />
             {mode === 'single-chain' && <TransactionTimeLimitSetting />}
             <DegenModeSetting
               showConfirmation={showConfirmation}
               onConfirmationChange={setShowConfirmation}
               highlight={highlightDegenMode}
             />
-            {mode === 'single-chain' && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-            {mode === 'cross-chain' && crossChainQuoteMode !== 'stream' && KYBERCROSS && <GasDropFeatureSetting />}
+            {mode === 'single-chain' && <LiquiditySourcesSetting chainId={chainId} onClick={onClickLiquiditySources} />}
+            {additionalSettings}
             {mode === 'cross-chain' && (
               <Suspense fallback={null}>
                 <CrossChainSourceSetting onClick={onClickCrossChainSources} quoteMode={crossChainQuoteMode} />

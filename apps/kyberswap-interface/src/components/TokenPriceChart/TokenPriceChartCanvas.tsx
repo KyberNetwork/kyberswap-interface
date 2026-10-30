@@ -17,7 +17,6 @@ import { type TokenChartTimeFrame } from 'services/tokenChart'
 import { PriceChartTooltip } from 'components/TokenPriceChart/PriceChartTooltip'
 import { PriceMarkerLayer } from 'components/TokenPriceChart/TokenPriceChartOverlays'
 import {
-  DEFAULT_VISIBLE_CANDLES,
   type DisplayCandle,
   LOAD_MORE_THRESHOLD,
   SYMBOL_FONT,
@@ -25,6 +24,7 @@ import {
   createRobustAutoscaleInfoProvider,
   getCandlestickSeriesOptions,
   getChartOptions,
+  getInitialVisibleRange,
   getPriceScaleConfig,
   getSafeChartVolume,
   getTooltipPosition,
@@ -349,13 +349,7 @@ const TokenPriceChartCanvas = ({
     return scheduleAfterNextPaint(() => {
       if (!chartRef.current || hasInitializedViewRef.current) return
 
-      const lastCandleIndex = chartData.length - 1
-      const visibleCandleCount = Math.min(chartData.length, DEFAULT_VISIBLE_CANDLES)
-      const sidePadding = (DEFAULT_VISIBLE_CANDLES - visibleCandleCount) / 2
-      chartRef.current.timeScale().setVisibleLogicalRange({
-        from: Math.max(lastCandleIndex - (DEFAULT_VISIBLE_CANDLES - 1), 0) - sidePadding,
-        to: lastCandleIndex + sidePadding + 0.5,
-      })
+      chartRef.current.timeScale().setVisibleLogicalRange(getInitialVisibleRange(chartData.length))
       hasInitializedViewRef.current = true
       setIsViewportReady(true)
       scheduleMarkerUpdate()
