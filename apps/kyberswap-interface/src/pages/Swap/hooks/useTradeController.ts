@@ -59,8 +59,7 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
     if (!isEmbeddedSwap && (inputCurrency || outputCurrency)) {
       navigate(`${productPath}/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, chainId, navigate])
+  }, [chainId, isEmbeddedSwap, navigate, productPath, searchParams])
 
   const highlightDegenMode = useRequiredDegenMode({
     setActiveTab: onTabChange,

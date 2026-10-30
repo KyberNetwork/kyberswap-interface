@@ -57,8 +57,8 @@ export const useTokenSelectorData = ({
 
   const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const source = useTokenSelectorSource(primaryChainId, requireOracle)
-  const { defaultTokens, searchFilters, isListable, allowRpcSearch } = source
+  const selectorSource = useTokenSelectorSource(primaryChainId, requireOracle)
+  const { defaultTokens, searchFilters, isListable, allowRpcSearch } = selectorSource
   const tokenImports = useUserAddedTokens(primaryChainId)
 
   const favorites = useTokenFavorites(primaryChainId, defaultTokens)
@@ -138,7 +138,7 @@ export const useTokenSelectorData = ({
   // instead of a balance, so they read nothing.
   const balanceTokens = useMemo<Token[]>(() => {
     if (isTrendingTab || isNewTab) return EMPTY_TOKENS
-    const source: (Currency | undefined)[] = isImportedTab
+    const tabTokensSource: (Currency | undefined)[] = isImportedTab
       ? tokenImports
       : isFavoritesTab
       ? pinnedTokens
@@ -147,7 +147,7 @@ export const useTokenSelectorData = ({
       : Object.values(defaultTokens)
     // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
     // search hit) have no balance to show here either.
-    return source.filter(
+    return tabTokensSource.filter(
       (token): token is Token =>
         !!token && !isTokenNative(token) && token.chainId === primaryChainId && isListable(token),
     )
@@ -302,11 +302,11 @@ export const useTokenSelectorData = ({
     visibleCurrencies: isAllTab ? allTabTokens : tabData.currencies,
     listExtras: tabData.extras,
     isListLoading:
-      source.isLoading ||
-      (isAllTab ? (debouncedQuery ? search.loading : source.isDefaultListLoading) : tabData.loading),
+      selectorSource.isLoading ||
+      (isAllTab ? (debouncedQuery ? search.loading : selectorSource.isDefaultListLoading) : tabData.loading),
     isListable,
-    notice: source.notice,
-    emptyMessage: source.emptyMessage,
+    notice: selectorSource.notice,
+    emptyMessage: selectorSource.emptyMessage,
     listHasMore: isAllTab ? search.hasMore : tabData.hasMore,
     handleLoadMore,
     handleRowsRendered,

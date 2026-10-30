@@ -73,10 +73,13 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
   const focusRequestNonceRef = useRef(0)
   const [focusMarkerRequest, setFocusMarkerRequest] = useState<{ groupKey: string; nonce: number }>()
 
-  const hasCurrentSelection = selection?.context === selectionContext
-  const resolvedActiveTabIndex = hasCurrentSelection ? selection.index : defaultActiveTabIndex
+  const resolvedActiveTabIndex = selection?.context === selectionContext ? selection.index : defaultActiveTabIndex
   const activeToken = filteredTokens[resolvedActiveTabIndex]
-  if (selection && !hasCurrentSelection) setSelection(undefined)
+
+  useEffect(() => {
+    if (selection && selection.context !== selectionContext) setSelection(undefined)
+  }, [selection, selectionContext])
+
   const {
     stableToken,
     quoteToken,
