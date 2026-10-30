@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import usePageLocation from 'hooks/usePageLocation'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
 import { type MainTab, TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
 import { getTradeProductPath } from 'utils/routes'
+import { getEmbeddedSwapPair, getEmbeddedSwapSearchParams } from 'utils/swapFlow'
 
 export type TradeController = {
   activeMainTab: TAB
@@ -14,56 +16,71 @@ export type TradeController = {
   highlightDegenMode: boolean
   mainTab: MainTab
   onBackToMainTab: () => void
-  setActiveTab: React.Dispatch<React.SetStateAction<TAB>>
+  onTabChange: (tab: TAB) => void
   shouldHighlightSwapBox: boolean
 }
 
 export const useTradeController = (mainTab: MainTab): TradeController => {
   const { chainId } = useActiveWeb3React()
   const qs = useParsedQueryString<{ highlightBox: string }>()
-  const { pathname } = useLocation()
+  const { pathname, isEmbeddedSwap } = usePageLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-
-  const [activeTab, setActiveTab] = useState<TAB>(mainTab)
-
   const productPath = getTradeProductPath(pathname)
-  const tabFromUrl = searchParams.get('tab')
+  const [localTab, setLocalTab] = useState<TAB>(mainTab)
+
+  const tabFromUrl = searchParams.get('tab') as TAB | null
+  const activeTab = isEmbeddedSwap
+    ? tabFromUrl && (tabFromUrl === TAB.SWAP || tabFromUrl === TAB.LIMIT || isSettingTab(tabFromUrl))
+      ? tabFromUrl
+      : mainTab
+    : localTab
   const isSetting = isSettingTab(activeTab)
   const activeMainTab = isSetting ? mainTab : activeTab
 
-  const onBackToMainTab = useCallback(() => setActiveTab(mainTab), [mainTab])
+  const onTabChange = useCallback(
+    (tab: TAB) => {
+      if (isEmbeddedSwap) {
+        setSearchParams(previous => {
+          const next = getEmbeddedSwapSearchParams(getEmbeddedSwapPair(previous), previous)
+          next.set('tab', tab)
+
+          return next
+        })
+      } else setLocalTab(tab)
+    },
+    [isEmbeddedSwap, setSearchParams],
+  )
 
   useEffect(() => {
     const inputCurrency = searchParams.get('inputCurrency')
     const outputCurrency = searchParams.get('outputCurrency')
 
-    if (inputCurrency || outputCurrency) {
-      navigate(
-        `${getTradeProductPath(pathname)}/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${
-          outputCurrency || ''
-        }`,
-      )
+    if (!isEmbeddedSwap && (inputCurrency || outputCurrency)) {
+      navigate(`${productPath}/${NETWORKS_INFO[chainId].route}/${inputCurrency || ''}-to-${outputCurrency || ''}`)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, chainId, navigate])
+  }, [chainId, isEmbeddedSwap, navigate, productPath, searchParams])
 
-  const highlightDegenMode = useRequiredDegenMode({ setActiveTab })
+  const highlightDegenMode = useRequiredDegenMode({
+    setActiveTab: onTabChange,
+    syncTabWithUrl: isEmbeddedSwap,
+  })
 
-  // Limit and Stop Market share a mounted page, but each product opens on its own form.
   useEffect(() => {
-    setActiveTab(mainTab)
+    setLocalTab(mainTab)
   }, [mainTab, productPath])
 
   useEffect(() => {
-    if (tabFromUrl !== 'settings' && tabFromUrl !== mainTab) return
+    if (!isEmbeddedSwap && (tabFromUrl === TAB.SETTINGS || tabFromUrl === mainTab)) {
+      setLocalTab(tabFromUrl)
 
-    setActiveTab(tabFromUrl === 'settings' ? TAB.SETTINGS : mainTab)
+      const next = new URLSearchParams(searchParams)
+      next.delete('tab')
+      setSearchParams(next, { replace: true })
+    }
+  }, [isEmbeddedSwap, tabFromUrl, mainTab, searchParams, setSearchParams])
 
-    const nextSearchParams = new URLSearchParams(searchParams)
-    nextSearchParams.delete('tab')
-    setSearchParams(nextSearchParams, { replace: true })
-  }, [tabFromUrl, mainTab, searchParams, setSearchParams])
+  const onBackToMainTab = useCallback(() => onTabChange(mainTab), [mainTab, onTabChange])
 
   return {
     activeMainTab,
@@ -71,7 +88,7 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
     highlightDegenMode,
     mainTab,
     onBackToMainTab,
-    setActiveTab,
+    onTabChange,
     shouldHighlightSwapBox: qs.highlightBox === 'true',
   }
 }

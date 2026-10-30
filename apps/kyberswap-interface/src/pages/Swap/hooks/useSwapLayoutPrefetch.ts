@@ -2,17 +2,10 @@ import { useEffect } from 'react'
 
 type LazyComponentLoader = () => Promise<unknown>
 
-// Warm the lazy content rendered inside SwapLayout's two Suspense regions.
-//
-// SwapLayout backs all three trade pages, so anything listed here is fetched on /swap and /limit too. Keep
-// it to chunks those pages can actually show: the cross-chain form and its panels sit behind ~3.5MB of
-// non-EVM wallet SDKs (NEAR / Solana / Bitcoin adapters + factory), which is far too much to spend on a tab
-// most visitors never open. Tabs already warms that stack on hover/touch/focus of the Cross-Chain tab
-// (usePrefetchOnIntent + prefetchCrossChainSwap), and the CrossChain page's own lazy boundaries fetch it on
-// render, so both real paths to it stay covered.
+// Warm only common settings and panels; wallet/provider stacks load with the active swap flow.
 const LEFT_CONTENT_LOADERS: LazyComponentLoader[] = [
-  () => import('pages/Swap/components/SwapSettingsPanel'),
-  () => import('pages/Swap/components/LiquiditySourcesPanel'),
+  () => import('components/SwapForm/Settings/SwapSettingsPanel'),
+  () => import('components/SwapForm/Settings/LiquiditySourcesPanel'),
   () => import('components/TokenInfo'),
 ]
 

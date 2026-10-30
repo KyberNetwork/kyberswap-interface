@@ -7,14 +7,15 @@ import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { getTokenLogoURL } from 'utils/tokenLogo'
 
-export default function AddTokenToMetaMask({ token }: { token: Token }) {
-  const { chainId, walletKey } = useActiveWeb3React()
-  const { connector } = useWeb3React()
+/** Owns wallet_watchAsset eligibility and execution. The connected wallet chain must match the token chain. */
+const AddTokenToMetaMask = ({ token }: { token: Token }) => {
+  const { walletKey } = useActiveWeb3React()
+  const { connector, chainId } = useWeb3React()
   // Routes wallet_watchAsset through the active connector's provider so it works for the
   // metaMask SDK on mobile (no window.ethereum) as well as desktop injected wallets.
   const { mutate: watchAsset } = useWatchAsset()
 
-  function addToMetaMask() {
+  const addToMetaMask = () => {
     watchAsset(
       {
         type: 'ERC20',
@@ -22,7 +23,7 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
           address: token.address,
           symbol: token.symbol ?? '',
           decimals: token.decimals,
-          image: getTokenLogoURL(token.address, chainId),
+          image: getTokenLogoURL(token.address, token.chainId),
         },
       },
       {
@@ -34,7 +35,7 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
   }
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector?.id || ''] ?? connector?.icon
 
-  if (!walletKey || !icon) return null
+  if (!walletKey || !icon || chainId !== token.chainId) return null
   // walletKey is the connector id; match the wagmi v3 ids exactly.
   // Coinbase auto-tracks tokens; WalletConnect-paired wallets often don't support wallet_watchAsset.
   if (walletKey === CONNECTION.WALLET_CONNECT_CONNECTOR_ID) return null
@@ -47,3 +48,5 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
     </ButtonEmpty>
   )
 }
+
+export default AddTokenToMetaMask

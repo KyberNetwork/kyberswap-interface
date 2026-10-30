@@ -51,7 +51,6 @@ export const SITEMAP_PAGE_ROUTES = [
   ...SITEMAP_LIMIT_CHAIN_SLUGS.map(chain => `/limit/${chain}`),
   // Stop market order is built but not launched, so its routes resolve without being advertised for indexing.
   // Add them here when the feature goes live.
-  '/cross-chain',
   '/earn',
   '/earn/pools',
   '/earn/positions',

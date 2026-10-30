@@ -1,14 +1,19 @@
 import { formatBalance } from '@kyber/utils/balance'
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { ComponentProps, ComponentPropsWithoutRef, forwardRef } from 'react'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { ComponentProps, ComponentPropsWithRef, ComponentPropsWithoutRef, ReactNode } from 'react'
 import { Search } from 'react-feather'
 
-import Column, { AutoColumn } from 'components/Column'
+import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
+import { Stack } from 'components/Stack'
 import { BALANCE_MAX_LENGTH } from 'components/TokenSelectorModal/constants'
+import useCopyClipboard from 'hooks/useCopyClipboard'
+import { CloseIcon } from 'theme/components'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
-export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
-  const exact = balance.toExact()
+export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> | string }) => {
+  const exact = typeof balance === 'string' ? balance : balance.toExact()
 
   return (
     <span className="max-w-full truncate text-xs tabular-nums text-text sm:text-sm" title={exact}>
@@ -22,39 +27,102 @@ export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   )
 }
 
-export const ContentWrapper = ({ className, ...rest }: ComponentProps<typeof Column>) => (
-  <Column className={cn('relative w-full flex-1', className)} {...rest} />
-)
+export const BalanceSkeleton = ({ currency }: { currency: Currency }) => {
+  // Stable per token, including when rows re-sort while balances load.
+  const key = `${currency.chainId}:${currency.isToken ? currency.address.toLowerCase() : 'native'}`
 
-export const PaddedColumn = forwardRef<HTMLDivElement, ComponentProps<typeof AutoColumn>>(
-  ({ className, ...props }, ref) => <AutoColumn ref={ref} className={cn('gap-3 p-5 pb-3', className)} {...props} />,
+  return (
+    <span className="flex h-4 items-center sm:h-5">
+      <TableCellSkeleton
+        width={64}
+        randomWidth
+        widthSeed={key}
+        height={14}
+        className="animate-pulse motion-reduce:animate-none"
+      />
+    </span>
+  )
+}
+
+export const ContentWrapper = ({ className, ...props }: ComponentProps<typeof Stack>) => (
+  <Stack className={cn('relative w-full flex-1', className)} {...props} />
 )
-PaddedColumn.displayName = 'PaddedColumn'
 
 export const SearchWrapper = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
   <div className={cn('relative h-10', className)} {...props} />
 )
 
-export const SearchIcon = ({ className, ...props }: ComponentProps<typeof Search>) => (
-  <Search className={cn('absolute right-3 top-1/2 -translate-y-1/2', className)} {...props} />
-)
+export const SearchControl = ({ query, onClear }: { query: string; onClear: () => void }) =>
+  query ? (
+    <button
+      type="button"
+      aria-label="Clear search"
+      data-testid="clear-search"
+      onClick={onClear}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-subText transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
+    >
+      <CloseIcon className="size-4 min-w-4 hover:brightness-100" aria-hidden />
+    </button>
+  ) : (
+    <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-subText" />
+  )
 
-export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
-  ({ className, ...props }, ref) => (
-    <input
-      ref={ref}
-      className={cn(
-        'absolute size-full whitespace-nowrap rounded-xl bg-black/20 px-3 pr-9 text-sm leading-normal text-text outline-none [-webkit-appearance:none]',
-        'placeholder:text-sm placeholder:text-gray',
-        'focus:outline-none',
-        className,
-      )}
-      {...props}
-    />
-  ),
+export const SearchInput = ({ className, ...props }: ComponentPropsWithRef<'input'>) => (
+  <input
+    className={cn(
+      'absolute size-full whitespace-nowrap rounded-xl bg-black/20 px-3 pr-9 text-sm leading-normal text-text outline-none [-webkit-appearance:none]',
+      'placeholder:text-sm placeholder:text-gray',
+      'focus:outline-none',
+      className,
+    )}
+    {...props}
+  />
 )
-SearchInput.displayName = 'SearchInput'
 
 export const Separator = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
   <div className={cn('h-px w-full shrink-0 bg-border', className)} {...props} />
 )
+
+// Compact age badge for the New tab, counted from when the token was whitelisted: "NEW" under 12h,
+// then hours ("15H") up to a day, then days ("3D").
+export const formatAgeBadge = (addedAt?: number): string | null => {
+  if (!addedAt) return null
+  const hours = Math.floor(Date.now() / 1000 / 3600 - addedAt / 3600)
+  if (hours < 12) return 'NEW'
+  if (hours < 24) return `${hours}H`
+  return `${Math.floor(hours / 24)}D`
+}
+
+// Shortened token address shown next to the name on the All tab; click the text to copy.
+export const AddressCopy = ({ chainId, address }: { chainId: ChainId; address: string }) => {
+  const [copied, setCopied] = useCopyClipboard(1500)
+  const short = shortenAddress(chainId, address, 4, false)
+  return (
+    <span
+      role="button"
+      data-testid="copy-token-address"
+      onClick={e => {
+        e.stopPropagation()
+        setCopied(address)
+      }}
+      className="relative shrink-0 cursor-pointer text-gray transition-colors hover:text-text"
+    >
+      {short}
+      {copied === address && (
+        <span className="pointer-events-none absolute bottom-[calc(100%+4px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-tableHeader px-1.5 py-0.5 text-[10px] font-medium text-text shadow-[0px_2px_8px_rgba(0,0,0,0.4)]">
+          <Trans>Copied!</Trans>
+        </span>
+      )}
+    </span>
+  )
+}
+
+export const NoResult = ({ message }: { message?: ReactNode }) => {
+  return (
+    <Stack className="h-full p-5" data-testid="no-token-result">
+      <p className="whitespace-pre-line text-center text-sm font-medium text-text4">
+        {message || <Trans>No results found.</Trans>}
+      </p>
+    </Stack>
+  )
+}

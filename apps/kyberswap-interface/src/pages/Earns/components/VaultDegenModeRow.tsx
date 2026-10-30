@@ -44,7 +44,7 @@ const VaultDegenModeRow = ({ highlight }: { highlight?: boolean }) => {
         <SettingsToggle isActive={isDegenMode} toggle={handleToggle} />
       </InfoRow>
 
-      <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
+      <AdvanceModeModal show={showConfirmation} onDismiss={() => setShowConfirmation(false)} />
     </>
   )
 }

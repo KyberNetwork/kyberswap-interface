@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { type ReactNode } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -22,25 +23,36 @@ import { formatSlippage } from 'utils/slippage'
 type TokenInfoButtonProps = {
   onClick?: () => void
   size?: number
+  active?: boolean
 }
 
-export const TokenInfoButton = ({ onClick, size }: TokenInfoButtonProps) => (
-  <IconButton variant="action" onClick={onClick}>
+export const TokenInfoButton = ({ onClick, size, active }: TokenInfoButtonProps) => (
+  <IconButton variant="action" active={active} aria-label="Token Info" aria-pressed={active} onClick={onClick}>
     <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
       <Info className="text-subText" size={size || 20} />
     </MouseoverTooltip>
   </IconButton>
 )
 
+/** Owns header tab actions; History is supplied by the page.
+ * Unified mixed-chain pairs expose Token Info when either side is EVM; legacy cross-chain stays excluded. */
 type HeaderRightMenuProps = {
   activeTab: TAB
-  setActiveTab: (tab: TAB) => void
+  onTabChange: (tab: TAB) => void
+  historyButton?: ReactNode
+  isCrossChainMode?: boolean
   activeMainTab?: TAB
 }
 
-export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
+export const HeaderRightMenu = ({
+  activeTab,
+  onTabChange,
+  activeMainTab,
+  isCrossChainMode,
+  historyButton,
+}: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
-  const { currencies } = useCurrenciesByPage()
+  const { currencies, inputChain, outputChain } = useCurrenciesByPage()
   const { trackingHandler } = useTracking(currencies)
 
   const [isDegenMode] = useDegenModeManager()
@@ -54,12 +66,16 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: Head
   // Stop market order sits under the Limit Order tab but has display settings of its own.
   const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
   const isSwapPage = isSwapLikePath(pathname) || activeMainTab === TAB.SWAP
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
+  const isCrossChainPage =
+    isCrossChainMode || pathname.startsWith(APP_PATHS.KYBER_CROSS) || activeMainTab === TAB.KYBER_CROSS
   const defaultTab =
-    activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)
+    activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.KYBER_CROSS : TAB.SWAP)
+
+  const supportsTokenInfo =
+    !isCrossChainPage || (isSwapPage && (typeof inputChain === 'number' || typeof outputChain === 'number'))
 
   const onToggleActionTab = (tab: TAB) => {
-    setActiveTab(activeTab === tab ? defaultTab : tab)
+    onTabChange(activeTab === tab ? defaultTab : tab)
   }
 
   const handleTokenInfoClick = () => {
@@ -88,7 +104,10 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: Head
 
   return (
     <div className="flex items-center gap-1">
-      {!isCrossChainPage && <TokenInfoButton size={upToXXSmall ? 16 : 20} onClick={handleTokenInfoClick} />}
+      {supportsTokenInfo && (
+        <TokenInfoButton active={activeTab === TAB.INFO} size={upToXXSmall ? 16 : 20} onClick={handleTokenInfoClick} />
+      )}
+      {historyButton}
       {(!isLimitPage || isLimitOrderRoute || isStopMarketPage) && (
         <IconButton
           variant="action"

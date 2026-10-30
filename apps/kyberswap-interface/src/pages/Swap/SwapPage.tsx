@@ -1,43 +1,70 @@
-import { useState } from 'react'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Suspense, lazy, useState } from 'react'
 
-import { PopulatedSwapForm } from 'pages/Swap/components/PopulatedSwapForm'
-import { SwapRightPanel } from 'pages/Swap/components/SwapRightPanel'
-import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
+import { SingleChainSwapFormProvider } from 'components/SwapForm/SingleChain/SingleChainSwapFormProvider'
+import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
+import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
+import SwapPageContent from 'pages/Swap/SwapPageContent'
+import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
+import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
-import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
 import { TAB } from 'pages/Swap/layout/Tabs'
-import { LiquiditySourcesPanel, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
-import type { DetailedRouteSummary } from 'types/route'
 
+const TransactionHistoryUpdater = lazy(() => import('pages/Swap/components/TransactionHistoryUpdater'))
+const CrossChainSwapProvider = lazy(() => import('components/SwapForm/CrossChain/hooks/useCrossChainSwap'))
+
+/** Owns shared page state and the active quote provider for both panels.
+ * The history controller stays outside swap-mode and History visibility branches. */
 const SwapPage = () => {
+  const [showHistory, setShowHistory] = useState(false)
+
+  const pair = useSwapFormPair()
   const controller = useTradeController(TAB.SWAP)
-  const { activeTab, highlightDegenMode, onBackToMainTab, setActiveTab } = controller
-  const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
-  const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
+  const { typedValue, onUserInput } = useSwapInputAmount()
+
+  useSwapLayoutPrefetch()
+
+  const contentProps = {
+    ...pair,
+    activeTab: controller.activeTab,
+    onTabChange: controller.onTabChange,
+    onBackToMainTab: controller.onBackToMainTab,
+    highlightDegenMode: controller.highlightDegenMode,
+    shouldHighlightSwapBox: controller.shouldHighlightSwapBox,
+    amount: typedValue,
+    onAmountChange: onUserInput,
+    showHistory,
+    onHistoryChange: setShowHistory,
+  }
 
   return (
-    <SwapLayout
-      controller={controller}
-      rightPanel={<SwapRightPanel currencyIn={currencyIn} currencyOut={currencyOut} routeSummary={routeSummary} />}
-    >
-      <PopulatedSwapForm
-        routeSummary={routeSummary}
-        setRouteSummary={setRouteSummary}
-        hidden={activeTab !== TAB.SWAP}
-      />
-      {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
-      {activeTab === TAB.SETTINGS && (
-        <SwapSettingsPanel
-          isCrossChainPage={false}
-          isSwapPage
-          highlightDegenMode={highlightDegenMode}
-          onBack={onBackToMainTab}
-          onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-          onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
-        />
+    <NonEvmProviders>
+      <Suspense fallback={null}>
+        <TransactionHistoryUpdater />
+      </Suspense>
+      {pair.isCrossChain ? (
+        <Suspense fallback={<SwapPageContent {...contentProps} isProviderLoading />}>
+          <CrossChainSwapProvider
+            amount={typedValue}
+            onAmountChange={onUserInput}
+            tokenIn={pair.inputId}
+            tokenOut={pair.outputId}
+            fromChain={pair.inputChain}
+            toChain={pair.outputChain}
+          >
+            <SwapPageContent {...contentProps} />
+          </CrossChainSwapProvider>
+        </Suspense>
+      ) : (
+        <SingleChainSwapFormProvider
+          chainId={pair.inputChain as ChainId}
+          currencyIn={pair.currencyIn}
+          currencyOut={pair.currencyOut}
+        >
+          <SwapPageContent {...contentProps} />
+        </SingleChainSwapFormProvider>
       )}
-      {activeTab === TAB.LIQUIDITY_SOURCES && <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />}
-    </SwapLayout>
+    </NonEvmProviders>
   )
 }
 

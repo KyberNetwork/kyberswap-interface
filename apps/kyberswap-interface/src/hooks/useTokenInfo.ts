@@ -18,18 +18,22 @@ export interface TokenInfo {
   name: string
 }
 
-export default function useTokenInfo(token: Token | undefined): {
+/** Loads market metadata on the token chain, independently of the wallet network.
+ * Only current-argument data is exposed while switching tokens; callers render loading separately. */
+const useTokenInfo = (
+  token: Token | undefined,
+): {
   data: TokenInfo
   loading: boolean
   error: any
-} {
+} => {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = token?.chainId || currentChain
   const coingeckoAPI = useCoingeckoAPI()
 
   const tokenAddress = (token?.address || '').toLowerCase()
   const {
-    data: rawData,
+    currentData: rawData,
     error,
     isFetching,
   } = useGetMarketTokenInfoQuery(
@@ -54,3 +58,5 @@ export default function useTokenInfo(token: Token | undefined): {
 
   return { data: result, loading: isFetching, error }
 }
+
+export default useTokenInfo

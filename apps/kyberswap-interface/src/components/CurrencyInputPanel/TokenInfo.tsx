@@ -29,7 +29,7 @@ const SPREAD_THRESHOLD = {
   [TOKEN_CATEGORY.HIGH_VOLATILITY]: 5,
 }
 
-export default function TokenInfo({ token, isNativeToken = false }: { token: Token; isNativeToken?: boolean }) {
+const TokenInfo = ({ token, isNativeToken = false }: { token: Token; isNativeToken?: boolean }) => {
   const theme = useTheme()
 
   const { data: priceData, isFetching: isFetchingPrice } = useGetPricesQuery(
@@ -82,48 +82,6 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     [priceInfo?.buyPrice, priceInfo?.sellPrice, priceInfo?.spread, spreadThreshold],
   )
 
-  const tooltipContent = (
-    <div className="flex flex-col gap-0.5">
-      <div className="flex items-center gap-0.5">
-        <span>{isNativeToken ? t`Native token` : shortenAddress(token?.wrapped.address || '', 6)}</span>
-        {!isNativeToken ? <CopyHelper size={14} toCopy={token?.wrapped.address} /> : null}
-      </div>
-      <div className="flex items-center gap-1">
-        <span>{t`Buy`}:</span>
-        <span className={priceInfo?.buyPrice ? 'text-primary' : 'text-warning'}>
-          {priceInfo?.buyPrice
-            ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
-            : t`N/A`}
-        </span>
-      </div>
-      <div className="flex items-center gap-1">
-        <span>{t`Sell`}:</span>
-        <span className={priceInfo?.sellPrice ? 'text-blue' : 'text-warning'}>
-          {priceInfo?.sellPrice
-            ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
-            : t`N/A`}
-        </span>
-      </div>
-      {spreadCheck.display ? (
-        <div className="flex items-center gap-1">
-          <span>{t`Spread`}:</span>
-          <span className={spreadCheck.warning ? 'text-warning' : 'text-text'}>
-            {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : t`N/A`}
-          </span>
-        </div>
-      ) : null}
-      {spreadCheck.warning ? (
-        <span className="italic text-warning">
-          <Trans>
-            The current difference between buy and sell is{' '}
-            {formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 })}% of the mid point, which might be higher
-            than usual for similar tokens.
-          </Trans>
-        </span>
-      ) : null}
-    </div>
-  )
-
   // Flag a genuinely high spread, or a missing price — but only once the price fetch has SETTLED.
   // While the just-selected token's price is still loading, the icon must not glow warning (it
   // briefly did, since the price hadn't arrived yet to compute the spread).
@@ -142,7 +100,47 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     >
       <Tooltip
         show={showTooltip}
-        text={tooltipContent}
+        text={
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
+              <span>{isNativeToken ? t`Native token` : shortenAddress(token?.wrapped.address || '', 6)}</span>
+              {!isNativeToken ? <CopyHelper size={14} margin="0" toCopy={token?.wrapped.address} /> : null}
+            </div>
+            <div className="flex items-center gap-1">
+              <span>{t`Buy`}:</span>
+              <span className={priceInfo?.buyPrice ? 'text-primary' : 'text-warning'}>
+                {priceInfo?.buyPrice
+                  ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
+                  : t`N/A`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span>{t`Sell`}:</span>
+              <span className={priceInfo?.sellPrice ? 'text-blue' : 'text-warning'}>
+                {priceInfo?.sellPrice
+                  ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
+                  : t`N/A`}
+              </span>
+            </div>
+            {spreadCheck.display ? (
+              <div className="flex items-center gap-1">
+                <span>{t`Spread`}:</span>
+                <span className={spreadCheck.warning ? 'text-warning' : 'text-text'}>
+                  {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : t`N/A`}
+                </span>
+              </div>
+            ) : null}
+            {spreadCheck.warning ? (
+              <span className="italic text-warning">
+                <Trans>
+                  The current difference between buy and sell is{' '}
+                  {formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 })}% of the mid point, which might be
+                  higher than usual for similar tokens.
+                </Trans>
+              </span>
+            ) : null}
+          </div>
+        }
         delay={200}
         placement="top"
         width="fit-content"
@@ -157,3 +155,5 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     </div>
   )
 }
+
+export default TokenInfo

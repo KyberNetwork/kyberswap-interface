@@ -169,18 +169,6 @@ const getLegacyPairCanonicalPath = (productPath: string, networkRoute: string, s
   )}`
 }
 
-const getCrossChainCanonicalPath = (searchParams: URLSearchParams) => {
-  const from = getSingleSearchParam(searchParams, 'from')?.trim().toLowerCase()
-  const to = getSingleSearchParam(searchParams, 'to')?.trim().toLowerCase()
-  const tokenIn = getSingleSearchParam(searchParams, 'tokenIn')?.trim()
-  const tokenOut = getSingleSearchParam(searchParams, 'tokenOut')?.trim()
-
-  if (!from || !to || !tokenIn || !tokenOut) return undefined
-
-  const normalizedState = new URLSearchParams({ from, to, tokenIn, tokenOut })
-  return `${APP_PATHS.CROSS_CHAIN}?${normalizedState.toString()}`
-}
-
 // Home is `${SITE_URL}/` (trailing slash) to match index.html's canonical + sitemap.xml; other paths
 // already start with '/', so they append directly.
 export const toSiteUrl = (path: string) => (path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`)
@@ -328,14 +316,14 @@ export const resolveRouteMetadata = (pathname: string, search: string): RouteSeo
   }
 
   // Sitemap: Cross-chain and Earn
-  if (normalizedPath === APP_PATHS.CROSS_CHAIN) {
-    const canonicalPath = getCrossChainCanonicalPath(searchParams) || normalizedPath
+  if (normalizedPath === APP_PATHS.KYBER_CROSS) {
+    const canonicalPath = APP_PATHS.KYBER_CROSS
     return {
-      title: 'Cross-Chain Swap | KyberSwap',
+      title: 'KyberCross | KyberSwap',
       description: CROSS_CHAIN_DESCRIPTION,
       canonicalPath,
       jsonLd: buildSiteJsonLd(canonicalPath),
-      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      robots: NOINDEX_ROBOTS,
     }
   }
 

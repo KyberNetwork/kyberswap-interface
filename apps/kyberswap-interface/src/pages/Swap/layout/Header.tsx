@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ErrorWarning } from 'components/ErrorWarning'
@@ -14,14 +14,24 @@ import { CloseIcon } from 'theme'
 import { cn } from 'utils/cn'
 import { isSwapLikePath } from 'utils/routes'
 
+/** Shared header composition. historyButton is a slot so the consuming page retains History state and lifecycle. */
 type HeaderProps = {
   activeTab: TAB
-  setActiveTab: (tab: TAB) => void
+  onTabChange: (tab: TAB) => void
   customChainId?: ChainId
+  historyButton?: ReactNode
+  isCrossChainMode?: boolean
   activeMainTab?: TAB
 }
 
-export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: HeaderProps) => {
+export const Header = ({
+  activeTab,
+  onTabChange,
+  customChainId,
+  activeMainTab,
+  isCrossChainMode,
+  historyButton,
+}: HeaderProps) => {
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
@@ -31,14 +41,20 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
   const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
   const isLimitPage = !isStopMarketPage && (pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT)
   const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.KYBER_CROSS) || selectedTab === TAB.KYBER_CROSS
 
   return (
     <>
       <Stack className="w-full items-center gap-2">
         <HStack className="min-h-9 w-full items-center justify-between gap-0">
-          <Tabs activeTab={selectedTab} setActiveTab={setActiveTab} customChainId={customChainId} />
-          <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
+          <Tabs activeTab={selectedTab} onTabChange={onTabChange} customChainId={customChainId} />
+          <HeaderRightMenu
+            activeTab={activeTab}
+            onTabChange={onTabChange}
+            activeMainTab={activeMainTab}
+            isCrossChainMode={isCrossChainMode}
+            historyButton={historyButton}
+          />
         </HStack>
         <HStack
           className={cn(

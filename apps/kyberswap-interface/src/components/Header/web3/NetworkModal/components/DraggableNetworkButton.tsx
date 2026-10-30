@@ -15,7 +15,7 @@ import { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { cn } from 'utils/cn'
 
 const NewLabel = ({
@@ -104,12 +104,13 @@ const DraggableNetworkButton = ({
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
     } else if (Object.values(NonEvmChain).includes(chainId)) {
-      if (window.location.pathname !== APP_PATHS.CROSS_CHAIN)
-        navigate(`${APP_PATHS.CROSS_CHAIN}?from=${chainId}&showConnect=true`)
+      if (window.location.pathname !== APP_PATHS.SWAP)
+        navigate(`${APP_PATHS.SWAP}?from=${chainId}&to=1&showConnect=true`)
       else {
         const to = searchParams.get('to')
         if (chainId !== to) {
           searchParams.set('from', chainId)
+          searchParams.delete('tokenIn')
           searchParams.set('showConnect', 'true')
         }
         setSearchParams(searchParams, { replace: true })

@@ -18,7 +18,7 @@ export const SettingsSection = ({ title, children }: SettingsSectionProps) => (
 )
 
 export const SettingsDivider = () => (
-  <div className="-mx-4 w-[calc(100%+2rem)] border-t border-solid border-border/60" />
+  <div className="relative h-px before:absolute before:-inset-x-4 before:inset-y-0 before:border-t before:border-solid before:border-border/60 before:content-['']" />
 )
 
 export const SettingsRow = ({ className, ...props }: StackProps) => (

@@ -1,0 +1,23 @@
+import { t } from '@lingui/macro'
+
+import type { PairCategory } from 'pages/Swap/crossChain/quote/utils'
+
+export const getPriceImpactInfo = (priceImpact: number | null, category: PairCategory, isEvmPair: boolean) => {
+  const highThreshold = isEvmPair ? (category === 'stablePair' ? 1 : 2) : 3
+  const veryHighThreshold = isEvmPair ? (category === 'stablePair' ? 3 : 5) : 10
+  const unableToCalculate = isEvmPair && (priceImpact === null || !Number.isFinite(priceImpact))
+  const isHigh = priceImpact !== null && priceImpact > highThreshold
+  const isVeryHigh = unableToCalculate || (priceImpact !== null && priceImpact >= veryHighThreshold)
+
+  return {
+    isHigh,
+    isVeryHigh,
+    message: unableToCalculate
+      ? 'Unable to calculate price impact'
+      : isVeryHigh
+      ? t`The price impact is high — double check the output before proceeding.`
+      : isHigh
+      ? t`The price impact might be high — double check the output before proceeding.`
+      : '',
+  }
+}
