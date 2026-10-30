@@ -177,8 +177,34 @@ export type AnnouncementTemplatePopup = {
   ctaName: string // in notification center
 }
 
+/**
+ * A stop market order executed notification. Every field is a string, amounts and prices already in human
+ * units; a field the service left unfilled arrives as its `{{.name}}` placeholder.
+ */
+export type AnnouncementTemplateStopMarket = {
+  order: {
+    id: string
+    chainId: string
+    status: string
+    txHash: string
+    tokenInSymbol: string
+    tokenInLogoURL: string
+    amountIn: string
+    tokenOutSymbol: string
+    tokenOutLogoURL: string
+    amountOut: string
+    /** tokenOut per tokenIn. */
+    triggerPrice: string
+    executedPrice: string
+    /** Unix seconds. */
+    executedAt: string
+  }
+  popupType: PopupType
+}
+
 export type AnnouncementTemplate =
   | AnnouncementTemplateLimitOrder
+  | AnnouncementTemplateStopMarket
   | AnnouncementTemplatePoolPosition
   | AnnouncementTemplatePopup
   | AnnouncementTemplatePriceAlert

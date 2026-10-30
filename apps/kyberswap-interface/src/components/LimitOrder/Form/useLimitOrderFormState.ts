@@ -37,6 +37,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     setCurrencyIn: updateCurrencyIn,
     setCurrencyOut: updateCurrencyOut,
     switchCurrency: rotateCurrency,
+    setPair: updatePair,
     setInputValue: setInputAmount,
   } = useLimitActionHandlers()
   const { inputAmount } = useLimitState()
@@ -61,13 +62,13 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     setRateInfo(rateInfo => ({ ...rateInfo, invertRate: '', rate: '', rateFraction: undefined }))
   }
 
+  const toCurrencyParam = (currency: Currency | undefined) =>
+    !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address
+
   const setCurrencyIn = (currency: Currency | undefined) => {
     if (useUrlParams) {
       const nextSearchParams = new URLSearchParams(searchParams)
-      nextSearchParams.set(
-        'inputCurrency',
-        !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
-      )
+      nextSearchParams.set('inputCurrency', toCurrencyParam(currency))
       setSearchParams(nextSearchParams)
     } else updateCurrencyIn(currency)
     autoFillMarketPrice.current = false
@@ -76,10 +77,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const setCurrencyOut = (currency: Currency | undefined) => {
     if (useUrlParams) {
       const nextSearchParams = new URLSearchParams(searchParams)
-      nextSearchParams.set(
-        'outputCurrency',
-        !currency ? '' : currency.isNative ? currency.symbol || '' : currency.wrapped.address,
-      )
+      nextSearchParams.set('outputCurrency', toCurrencyParam(currency))
       setSearchParams(nextSearchParams)
     } else updateCurrencyOut(currency)
     autoFillMarketPrice.current = false
@@ -94,6 +92,16 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
       nextSearchParams.set('inputCurrency', cout)
       setSearchParams(nextSearchParams)
     } else rotateCurrency()
+  }
+
+  /** Both sides at once, for a pick that turns the pair round: the setters above each change one side. */
+  const setPair = (nextIn: Currency, nextOut: Currency) => {
+    if (useUrlParams) {
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set('inputCurrency', toCurrencyParam(nextIn))
+      nextSearchParams.set('outputCurrency', toCurrencyParam(nextOut))
+      setSearchParams(nextSearchParams)
+    } else updatePair(nextIn, nextOut)
   }
 
   const onSetInput = (input: string) => {
@@ -189,27 +197,8 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     setOutputAmount(output)
   }
 
-  const handleInputSelect = (currency: Currency, resetRate = true) => {
-    if (currencyOut && currency?.equals(currencyOut)) {
-      switchCurrency()
-      return
-    }
-    setCurrencyIn(currency)
-    resetRate && clearRate()
-  }
-
-  const handleOutputSelect = (currency: Currency) => {
-    if (currencyIn && currency?.equals(currencyIn)) {
-      switchCurrency()
-      return
-    }
-    setCurrencyOut(currency)
-    clearRate()
-  }
-
-  const handleRotateClick = () => {
-    limitOrderTracking.trackFormSideSelected({ currencyIn, currencyOut, chain: networkInfo.name })
-    switchCurrency()
+  /** Carries the amounts and the rate across as the two sides trade places. */
+  const carryAcrossRotation = () => {
     setInputAmount(outputAmount)
     setOutputAmount(inputAmount)
     if (currencyIn) {
@@ -221,6 +210,37 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
         invertRate: calcInvert(rate),
       })
     }
+  }
+
+  const handleRotateClick = () => {
+    limitOrderTracking.trackFormSideSelected({ currencyIn, currencyOut, chain: networkInfo.name })
+    switchCurrency()
+    carryAcrossRotation()
+  }
+
+  /**
+   * Picking the asset the other side already holds — the very token, or its native or wrapped form —
+   * turns the pair round as the rotate button does, then keeps the form the user picked: with WBNB to
+   * buy, choosing BNB to sell leaves BNB sold and the previous sell token bought.
+   */
+  const handleInputSelect = (currency: Currency, resetRate = true) => {
+    if (currencyIn && currencyOut && currency?.wrapped.equals(currencyOut.wrapped)) {
+      setPair(currency, currencyIn)
+      carryAcrossRotation()
+      return
+    }
+    setCurrencyIn(currency)
+    resetRate && clearRate()
+  }
+
+  const handleOutputSelect = (currency: Currency) => {
+    if (currencyIn && currencyOut && currency?.wrapped.equals(currencyIn.wrapped)) {
+      setPair(currencyOut, currency)
+      carryAcrossRotation()
+      return
+    }
+    setCurrencyOut(currency)
+    clearRate()
   }
 
   const toggleDatePicker = () => {

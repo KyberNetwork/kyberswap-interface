@@ -19,7 +19,8 @@ const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcem
       let templateBody = {}
       try {
         const parsed = event.templateBody
-          .replace(/\{\{\.\w+\}\}/, 'unknown')
+          // Every field the service left unfilled; one left as `"{{.x}}"` breaks the quote stripping below.
+          .replace(/\{\{\.\w+\}\}/g, 'unknown')
           .replace(/"\{/g, '{')
           .replace(/\}"/g, '}')
         templateBody = JSON.parse(parsed)
@@ -125,6 +126,7 @@ const notificationApi = createApi({
 })
 
 export const {
+  useGetNotificationsQuery,
   useLazyGetNotificationsQuery,
   useReadNotificationsMutation,
   useReadAllNotificationsMutation,

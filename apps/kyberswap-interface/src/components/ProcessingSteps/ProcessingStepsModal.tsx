@@ -73,25 +73,27 @@ const ProcessingStepsBody = <Step extends string>({
   onSuccessAction: () => void
 }) => {
   const { state, dismiss, retryStep } = processing
-  const { account } = useActiveWeb3React()
-  const previousAccount = useRef(account)
+  const { account, chainId: activeChainId } = useActiveWeb3React()
+  const walletContext = `${activeChainId}:${account?.toLowerCase() ?? ''}`
+  const previousWalletContext = useRef(walletContext)
 
   const isComplete =
     !!state.steps.length && state.steps.every(step => state.completedSteps.includes(step)) && !state.errorStep
 
-  // A different wallet is a different set of balances and allowances; the run on screen is not
-  // about the account looking at it.
+  // Balances and allowances belong to the wallet/network that started this run.
   useEffect(() => {
-    const previous = previousAccount.current?.toLowerCase()
-    if (previous && previous !== account?.toLowerCase()) dismiss()
-    previousAccount.current = account
-  }, [account, dismiss])
+    const changed = previousWalletContext.current !== walletContext
+    previousWalletContext.current = walletContext
+    if (changed) dismiss()
+  }, [walletContext, dismiss])
 
   return (
-    <Stack className="w-full gap-5 p-5">
+    <Stack className="w-full gap-5 p-5" data-testid="processing-order-modal">
       <HStack className="items-center justify-between gap-4">
-        <div className="text-xl font-medium text-text">{title}</div>
-        <CloseIcon onClick={onDismiss} />
+        <div className="text-xl font-medium text-text" data-testid="processing-order-title">
+          {title}
+        </div>
+        <CloseIcon onClick={onDismiss} data-testid="processing-order-close" />
       </HStack>
 
       <Stack className="gap-3">
@@ -104,7 +106,12 @@ const ProcessingStepsBody = <Step extends string>({
               completedSteps: state.completedSteps,
             })
             return (
-              <HStack key={step} className="min-h-8 w-full items-center gap-2">
+              <HStack
+                key={step}
+                className="min-h-8 w-full items-center gap-2"
+                data-testid={`processing-step-${step}`}
+                data-status={status}
+              >
                 <StepIcon index={index} status={status} />
                 <span
                   className={cn(
@@ -118,7 +125,11 @@ const ProcessingStepsBody = <Step extends string>({
                   {getStepLabel(step, status)}
                 </span>
                 {status === 'error' && state.canRetry && retryStep && (
-                  <ButtonLight onClick={() => retryStep(step)} className="w-auto gap-1 px-2 py-1 text-xs">
+                  <ButtonLight
+                    onClick={() => retryStep(step)}
+                    className="w-auto gap-1 px-2 py-1 text-xs"
+                    data-testid="processing-step-retry"
+                  >
                     <RotateCw size={14} />
                     {t`Retry`}
                   </ButtonLight>
@@ -139,12 +150,12 @@ const ProcessingStepsBody = <Step extends string>({
         )}
 
         {isComplete && (
-          <HStack className="gap-3">
-            <ButtonOutlined onClick={onDismiss} className="flex-1">
+          <HStack className="gap-3" data-testid="processing-order-complete">
+            <ButtonOutlined onClick={onDismiss} className="flex-1" data-testid="processing-order-close-button">
               <Trans>Close</Trans>
             </ButtonOutlined>
             {successAction && (
-              <ButtonPrimary onClick={onSuccessAction} className="flex-1">
+              <ButtonPrimary onClick={onSuccessAction} className="flex-1" data-testid="processing-order-view-button">
                 {successAction.label}
               </ButtonPrimary>
             )}
@@ -164,6 +175,12 @@ const ProcessingStepsModal = <Step extends string>({
 }: ProcessingStepsModalProps<Step>) => {
   const { state, dismiss } = processing
 
+  // Automatic dismissals must release the caller's snapshot too, without counting as a user click.
+  const handleClose = () => {
+    dismiss()
+    onClose?.()
+  }
+
   const handleDismiss = () => {
     dismiss()
     onUserDismiss?.()
@@ -171,8 +188,7 @@ const ProcessingStepsModal = <Step extends string>({
   }
 
   const handleSuccessAction = () => {
-    dismiss()
-    onClose?.()
+    handleClose()
     rest.successAction?.onClick()
   }
 
@@ -180,7 +196,7 @@ const ProcessingStepsModal = <Step extends string>({
     <Modal isOpen={state.show} onDismiss={handleDismiss} maxWidth={420} borderRadius={16}>
       <ProcessingStepsBody
         {...rest}
-        processing={processing}
+        processing={{ ...processing, dismiss: handleClose }}
         onDismiss={handleDismiss}
         onSuccessAction={handleSuccessAction}
       />

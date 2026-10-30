@@ -40,57 +40,60 @@ type HeaderRightMenuProps = {
 
 export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
-  const isSwapPage = isSwapLikePath(pathname) || activeMainTab === TAB.SWAP
-  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
-  const defaultTab =
-    activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)
-
   const { currencies } = useCurrenciesByPage()
   const { trackingHandler } = useTracking(currencies)
 
-  const onToggleActionTab = (tab: TAB) => {
-    if (activeTab === tab) {
-      setActiveTab(defaultTab)
-    } else {
-      setActiveTab(tab)
-    }
-  }
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
   const [transactionTimeout] = useUserTransactionTTL()
   const { networkInfo } = useActiveWeb3React()
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
+  const isLimitOrderRoute = pathname.startsWith(APP_PATHS.LIMIT)
+  const isLimitPage = isLimitOrderRoute || activeMainTab === TAB.LIMIT
+  // Stop market order sits under the Limit Order tab but has display settings of its own.
+  const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
+  const isSwapPage = isSwapLikePath(pathname) || activeMainTab === TAB.SWAP
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
+  const defaultTab =
+    activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)
+
+  const onToggleActionTab = (tab: TAB) => {
+    setActiveTab(activeTab === tab ? defaultTab : tab)
+  }
+
+  const handleTokenInfoClick = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.SWAP_TOKEN_INFO_CLICK)
+    onToggleActionTab(TAB.INFO)
+  }
+
+  const handleSettingsClick = () => {
+    onToggleActionTab(TAB.SETTINGS)
+
+    if (isLimitPage || isStopMarketPage) return
+
+    if (isCrossChainPage) {
+      trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_OPENED, {
+        current_max_slippage: formatSlippage(slippage, false),
+      })
+      return
+    }
+
+    trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK, {
+      current_max_slippage: formatSlippage(slippage, false),
+      current_transaction_time_limit: transactionTimeout / 60,
+      current_gas_token: networkInfo.nativeToken.symbol,
+    })
+  }
+
   return (
     <div className="flex items-center gap-1">
-      {!isCrossChainPage && (
-        <TokenInfoButton
-          size={upToXXSmall ? 16 : 20}
-          onClick={() => {
-            trackingHandler(TRACKING_EVENT_TYPE.SWAP_TOKEN_INFO_CLICK)
-            onToggleActionTab(TAB.INFO)
-          }}
-        />
-      )}
-      {!isLimitPage && (
+      {!isCrossChainPage && <TokenInfoButton size={upToXXSmall ? 16 : 20} onClick={handleTokenInfoClick} />}
+      {(!isLimitPage || isLimitOrderRoute || isStopMarketPage) && (
         <IconButton
           variant="action"
           active={activeTab === TAB.SETTINGS}
-          onClick={() => {
-            onToggleActionTab(TAB.SETTINGS)
-            if (isCrossChainPage) {
-              trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_OPENED, {
-                current_max_slippage: formatSlippage(slippage, false),
-              })
-            } else {
-              trackingHandler(TRACKING_EVENT_TYPE.SWAP_SETTINGS_CLICK, {
-                current_max_slippage: formatSlippage(slippage, false),
-                current_transaction_time_limit: transactionTimeout / 60,
-                current_gas_token: networkInfo.nativeToken.symbol,
-              })
-            }
-          }}
+          onClick={handleSettingsClick}
           aria-label="Swap Settings"
         >
           <MouseoverTooltip

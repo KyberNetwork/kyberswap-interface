@@ -1,349 +1,70 @@
-import dayjs from 'dayjs'
 import {
-  type AutoscaleInfo,
-  type AutoscaleInfoProvider,
   type CandlestickData,
-  CrosshairMode,
+  CandlestickSeries,
   type HistogramData,
+  HistogramSeries,
+  type IPriceLine,
   type ISeriesApi,
   LineStyle,
-  type LogicalRange,
   type MouseEventParams,
-  type Time,
   type UTCTimestamp,
   createChart,
 } from 'lightweight-charts'
-import { type MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import { type TokenChartTimeFrame } from 'services/tokenChart'
 
-import { Stack } from 'components/Stack'
+import { PriceChartTooltip } from 'components/TokenPriceChart/PriceChartTooltip'
+import { PriceMarkerLayer } from 'components/TokenPriceChart/TokenPriceChartOverlays'
+import {
+  DEFAULT_VISIBLE_CANDLES,
+  type DisplayCandle,
+  LOAD_MORE_THRESHOLD,
+  SYMBOL_FONT,
+  type TooltipState,
+  createRobustAutoscaleInfoProvider,
+  getCandlestickSeriesOptions,
+  getChartOptions,
+  getPriceScaleConfig,
+  getSafeChartVolume,
+  getTooltipPosition,
+  getUnixTimestampFromChartTime,
+  scheduleAfterNextPaint,
+} from 'components/TokenPriceChart/chartOptions'
+import { type PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
+import useTokenPriceChartMarkers from 'components/TokenPriceChart/useTokenPriceChartMarkers'
 import useTheme from 'hooks/useTheme'
-import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
+import { formatRate } from 'pages/Earns/PoolDetail/Information/utils'
 import { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
 import { hexAlpha } from 'utils/colorAlpha'
-import { formatDisplayNumber } from 'utils/numbers'
-
-export type DisplayCandle = {
-  bucket: string
-  changePercent?: number
-  close: number
-  high: number
-  low: number
-  open: number
-  rangePercent?: number
-  time: number
-  transactions?: number
-  volume: number
-}
-
-type TooltipState = {
-  candle: DisplayCandle
-  left: number
-  top: number
-}
 
 type TokenPriceChartCanvasProps = {
+  focusMarkerRequest?: { groupKey: string; nonce: number }
   chartData: DisplayCandle[]
   canLoadMore?: boolean
   onLoadMore?: () => void
   timeFrame: TokenChartTimeFrame
+  /** Formats rates in the candle tooltip; defaults to a unitless rate. */
+  formatValue?: (value?: number) => string
+  markerOverlay?: PriceMarkerOverlay
+  /** Told, by group key, how many markers sit outside the visible price range whenever that changes. */
+  onOffscreenChange?: (counts: Record<string, number>) => void
 }
-
-const DEFAULT_VISIBLE_CANDLES = 40
-const LOAD_MORE_THRESHOLD = 20
-
-const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
-  if (timeFrame === '1d' || timeFrame === '7d') {
-    return dayjs.unix(timestamp).format('MMM D')
-  }
-  return dayjs.unix(timestamp).format('MMM D, HH:mm')
-}
-
-const formatTooltipDate = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
-  if (timeFrame === '7d') {
-    return dayjs.unix(timestamp).format('MMM D, YYYY')
-  }
-  return dayjs.unix(timestamp).format('MMM D, YYYY, HH:mm')
-}
-
-const scheduleAfterNextPaint = (callback: () => void) => {
-  let frameId = 0
-  let nestedFrameId = 0
-
-  frameId = globalThis.requestAnimationFrame(() => {
-    nestedFrameId = globalThis.requestAnimationFrame(callback)
-  })
-
-  return () => {
-    globalThis.cancelAnimationFrame(frameId)
-    globalThis.cancelAnimationFrame(nestedFrameId)
-  }
-}
-
-const getPriceScaleConfig = (chartData: DisplayCandle[]) => {
-  const minPrice = Math.min(...chartData.map(candle => candle.open)) || 0.1
-
-  const precision =
-    minPrice < 1e-8 ? 12 : minPrice < 1e-6 ? 10 : minPrice < 1e-4 ? 8 : minPrice < 1e-2 ? 6 : minPrice < 1 ? 4 : 2
-  const minMove = 10 ** -precision
-
-  return {
-    minMove,
-    precision,
-  }
-}
-
-const getVisibleCandles = (chartData: DisplayCandle[], visibleLogicalRange: LogicalRange | null) => {
-  if (!visibleLogicalRange) {
-    return chartData.slice(Math.max(chartData.length - DEFAULT_VISIBLE_CANDLES, 0))
-  }
-
-  return chartData.slice(
-    Math.max(Math.floor(visibleLogicalRange.from), 0),
-    Math.min(Math.ceil(visibleLogicalRange.to) + 1, chartData.length),
-  )
-}
-
-const getRobustAutoscaleInfo = (candles: DisplayCandle[], baseInfo: AutoscaleInfo | null): AutoscaleInfo | null => {
-  if (!baseInfo || candles.length < 8) return baseInfo
-
-  const bodyPrices = candles.flatMap(candle => [candle.open, candle.close]).filter(Number.isFinite)
-  const wickPrices = candles.flatMap(candle => [candle.high, candle.low]).filter(Number.isFinite)
-
-  if (!bodyPrices.length || wickPrices.length < 8) return baseInfo
-
-  const bodyMin = Math.min(...bodyPrices)
-  const bodyMax = Math.max(...bodyPrices)
-  const bodyMid = (bodyMin + bodyMax) / 2
-  const bodyPadding = Math.max((bodyMax - bodyMin) * 0.45, bodyMid * 0.02)
-  const visibleMin = bodyMin - bodyPadding
-  const visibleMax = bodyMax + bodyPadding
-  const includedWickPrices = wickPrices.filter(price => price >= visibleMin && price <= visibleMax)
-  const minValue = Math.min(bodyMin, ...includedWickPrices) - bodyPadding * 0.2
-  const maxValue = Math.max(bodyMax, ...includedWickPrices) + bodyPadding * 0.2
-
-  if (minValue <= 0 || minValue >= maxValue) return baseInfo
-
-  return {
-    ...baseInfo,
-    priceRange: {
-      minValue,
-      maxValue,
-    },
-  }
-}
-
-const createRobustAutoscaleInfoProvider = ({
-  chartDataRef,
-  getVisibleLogicalRange,
-}: {
-  chartDataRef: MutableRefObject<DisplayCandle[]>
-  getVisibleLogicalRange: () => LogicalRange | null
-}): AutoscaleInfoProvider => {
-  return baseImplementation =>
-    getRobustAutoscaleInfo(getVisibleCandles(chartDataRef.current, getVisibleLogicalRange()), baseImplementation())
-}
-
-const getUnixTimestampFromChartTime = (time: Time) => {
-  if (typeof time === 'number') return time
-  if (typeof time === 'string') return Math.floor(Date.parse(`${time}T00:00:00Z`) / 1000)
-
-  return Math.floor(Date.UTC(time.year, time.month - 1, time.day) / 1000)
-}
-
-// Axis labels carry subscript digits (0.0₅28…) and Work Sans has no glyph for them, so the chart needs
-// the same symbol face the DOM uses — canvas text resolves its own font list, not the CSS stack.
-const SYMBOL_FONT = 'Inter Symbols'
-const CHART_FONT_FAMILY = `'Work Sans', '${SYMBOL_FONT}', sans-serif`
-
-const getChartOptions = ({
-  chartHeight,
-  crosshairColor,
-  gridColor,
-  subTextColor,
-  timeFrame,
-}: {
-  chartHeight: number
-  crosshairColor: string
-  gridColor: string
-  subTextColor: string
-  timeFrame: TokenChartTimeFrame
-}) => ({
-  height: chartHeight,
-  layout: {
-    background: { color: 'transparent' },
-    fontFamily: CHART_FONT_FAMILY,
-    textColor: subTextColor,
-  },
-  grid: {
-    vertLines: { color: gridColor },
-    horzLines: { color: gridColor },
-  },
-  crosshair: {
-    mode: CrosshairMode.Normal,
-    vertLine: {
-      color: crosshairColor,
-      labelVisible: false,
-      style: LineStyle.Dashed,
-    },
-    horzLine: {
-      color: crosshairColor,
-      labelVisible: true,
-      style: LineStyle.Dashed,
-    },
-  },
-  rightPriceScale: {
-    borderVisible: false,
-    drawTicks: false,
-    entireTextOnly: true,
-    scaleMargins: {
-      top: 0.08,
-      bottom: 0.22,
-    },
-  },
-  timeScale: {
-    borderVisible: false,
-    tickMarkFormatter: (time: number) => formatAxisTimeLabel(time, timeFrame),
-    timeVisible: timeFrame !== '7d',
-  },
-  localization: {
-    priceFormatter: (value: number) => formatDisplayNumber(value, { fractionDigits: 4, fallback: '' }),
-  },
-})
-
-const getCandlestickSeriesOptions = ({
-  downCandleColor,
-  priceMinMove,
-  pricePrecision,
-  upCandleColor,
-}: {
-  downCandleColor: string
-  priceMinMove: number
-  pricePrecision: number
-  upCandleColor: string
-}) => ({
-  upColor: upCandleColor,
-  downColor: downCandleColor,
-  borderUpColor: upCandleColor,
-  borderDownColor: downCandleColor,
-  wickUpColor: upCandleColor,
-  wickDownColor: downCandleColor,
-  priceFormat: {
-    type: 'price' as const,
-    minMove: priceMinMove,
-    precision: pricePrecision,
-  },
-  priceLineColor: upCandleColor,
-  priceLineStyle: LineStyle.Dashed,
-  priceLineVisible: true,
-})
-
-const getTooltipPosition = ({
-  chartHeight,
-  containerWidth,
-  pointX,
-  pointY,
-}: {
-  chartHeight: number
-  containerWidth: number
-  pointX: number
-  pointY: number
-}) => {
-  const tooltipWidth = 220
-  const tooltipHeight = 210
-  const tooltipEdgePadding = 12
-  const tooltipLeftOffset = 12
-  const tooltipRightOffset = tooltipLeftOffset + 4
-  const tooltipTopOffset = 12
-
-  const cursorLeft = pointX
-  const frameWidth = containerWidth
-  const isLeftHalf = pointX < containerWidth / 2
-
-  const left = Math.min(
-    Math.max(
-      isLeftHalf ? cursorLeft + tooltipRightOffset : cursorLeft - tooltipWidth - tooltipLeftOffset,
-      tooltipEdgePadding,
-    ),
-    frameWidth - tooltipWidth - tooltipEdgePadding,
-  )
-  const top = Math.min(
-    Math.max(pointY + tooltipTopOffset, tooltipEdgePadding),
-    chartHeight - tooltipHeight - tooltipEdgePadding,
-  )
-
-  return { left, top }
-}
-
-const PriceChartTooltip = ({ timeFrame, tooltip }: { timeFrame: TokenChartTimeFrame; tooltip: TooltipState }) => {
-  const theme = useTheme()
-  const { candle, left, top } = tooltip
-  const priceChange = candle.changePercent ?? (candle.open ? ((candle.close - candle.open) / candle.open) * 100 : 0)
-  const priceRange = candle.rangePercent ?? (candle.low ? ((candle.high - candle.low) / candle.low) * 100 : 0)
-
-  return (
-    <Stack
-      className="pointer-events-none absolute z-[2] min-w-[220px] gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
-      style={{ left, top, boxShadow: `0 12px 32px ${theme.shadow}` }}
-    >
-      <span className="text-xs text-subText">{formatTooltipDate(candle.time, timeFrame)}</span>
-
-      <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
-        <span className="text-xs text-subText">Open</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.open)}</span>
-
-        <span className="text-xs text-subText">High</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.high)}</span>
-
-        <span className="text-xs text-subText">Low</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.low)}</span>
-
-        <span className="text-xs text-subText">Close</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.close)}</span>
-
-        <span className="text-xs text-subText">%Change</span>
-        <span
-          className="text-right text-xs font-medium"
-          style={{ color: priceChange >= 0 ? theme.primary : theme.red }}
-        >
-          {formatSignedPercent(priceChange)}
-        </span>
-
-        <span className="text-xs text-subText">Range</span>
-        <span className="text-right text-xs font-medium text-text">
-          {formatSignedPercent(priceRange).replace(/^\+/, '')}
-        </span>
-
-        {candle.volume > 0 && (
-          <>
-            <span className="text-xs text-subText">Vol</span>
-            <span className="text-right text-xs font-medium text-text">
-              {formatDisplayNumber(candle.volume, { significantDigits: 4 })}
-            </span>
-          </>
-        )}
-
-        {candle.transactions !== undefined ? (
-          <>
-            <span className="text-xs text-subText">Transactions</span>
-            <span className="text-right text-xs font-medium text-text">
-              {formatDisplayNumber(candle.transactions, { significantDigits: 4 })}
-            </span>
-          </>
-        ) : null}
-      </div>
-    </Stack>
-  )
-}
-
 const TokenPriceChartCanvas = ({
-  chartData,
+  focusMarkerRequest,
+  chartData: rawChartData,
   canLoadMore = false,
   onLoadMore,
   timeFrame,
+  formatValue = formatRate,
+  markerOverlay,
+  onOffscreenChange,
 }: TokenPriceChartCanvasProps) => {
+  const chartData = useMemo(
+    () => rawChartData.map(candle => ({ ...candle, volume: getSafeChartVolume(candle.volume) })),
+    [rawChartData],
+  )
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -366,15 +87,20 @@ const TokenPriceChartCanvas = ({
       }),
     [chartHeight, crosshairColor, gridColor, subTextColor, timeFrame],
   )
+  const referencePrice = markerOverlay?.referencePrice
+  // The reference line replaces the last candle's tag; two "current" prices from two sources would
+  // only leave the reader guessing which one the markers answer to.
+  const showLastValue = referencePrice === undefined
   const candlestickSeriesOptions = useMemo(
     () =>
       getCandlestickSeriesOptions({
         downCandleColor,
         priceMinMove: priceScaleConfig.minMove,
         pricePrecision: priceScaleConfig.precision,
+        showLastValue,
         upCandleColor,
       }),
-    [downCandleColor, priceScaleConfig.minMove, priceScaleConfig.precision, upCandleColor],
+    [downCandleColor, priceScaleConfig.minMove, priceScaleConfig.precision, showLastValue, upCandleColor],
   )
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<ReturnType<typeof createChart> | null>(null)
@@ -388,6 +114,23 @@ const TokenPriceChartCanvas = ({
   const hasInitializedViewRef = useRef(false)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
   const [isViewportReady, setIsViewportReady] = useState(false)
+  const referenceLineRef = useRef<IPriceLine | null>(null)
+  const markerLineColors = useMemo(
+    () => ({ warning: theme.darkOrange, blue: theme.darkBlue }),
+    [theme.darkOrange, theme.darkBlue],
+  )
+
+  const { markerLayout, markerOverlayRef, scheduleMarkerUpdate, cancelMarkerFocus, disposeMarkers } =
+    useTokenPriceChartMarkers({
+      chartRef,
+      candlestickSeriesRef,
+      chartHeightRef,
+      focusMarkerRequest,
+      markerOverlay,
+      onOffscreenChange,
+      upToSmall,
+      markerLineColors,
+    })
 
   useEffect(() => {
     chartDataRef.current = chartData
@@ -409,15 +152,18 @@ const TokenPriceChartCanvas = ({
     })
     chartRef.current = chart
 
-    const candlestickSeries = chart.addCandlestickSeries(initialCandlestickSeriesOptionsRef.current)
+    const candlestickSeries = chart.addSeries(CandlestickSeries, initialCandlestickSeriesOptionsRef.current)
     candlestickSeries.applyOptions({
       autoscaleInfoProvider: createRobustAutoscaleInfoProvider({
         chartDataRef,
+        // The reference price replaces the last candle's tag, so it has to stay on the pane. Marker
+        // prices are left out: a stop far below the market would flatten every candle.
+        getPinnedPrice: () => markerOverlayRef.current?.referencePrice,
         getVisibleLogicalRange: () => chart.timeScale().getVisibleLogicalRange(),
       }),
     })
 
-    const volumeSeries = chart.addHistogramSeries({
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       lastValueVisible: false,
       priceFormat: { type: 'volume' },
       priceScaleId: 'volume',
@@ -460,6 +206,17 @@ const TokenPriceChartCanvas = ({
     }
 
     chart.subscribeCrosshairMove(handleCrosshairMove)
+    chart.timeScale().subscribeVisibleLogicalRangeChange(scheduleMarkerUpdate)
+
+    // Dragging the price axis rescales without any chart event, so follow the pointer while it drags.
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.buttons) scheduleMarkerUpdate()
+    }
+    container.addEventListener('pointermove', handlePointerMove)
+    container.addEventListener('pointerdown', cancelMarkerFocus)
+    container.addEventListener('wheel', cancelMarkerFocus, { passive: true })
+    // Double-clicking the price axis restores autoscale, which can hide orders again.
+    container.addEventListener('dblclick', scheduleMarkerUpdate)
 
     const resizeObserver = new ResizeObserver(entries => {
       const entry = entries[0]
@@ -467,6 +224,7 @@ const TokenPriceChartCanvas = ({
       if (!entry) return
 
       chart.resize(entry.contentRect.width, chartHeightRef.current)
+      scheduleMarkerUpdate()
     })
 
     resizeObserver.observe(container)
@@ -474,13 +232,20 @@ const TokenPriceChartCanvas = ({
     return () => {
       setTooltip(null)
       resizeObserver.disconnect()
+      container.removeEventListener('pointermove', handlePointerMove)
+      container.removeEventListener('pointerdown', cancelMarkerFocus)
+      container.removeEventListener('wheel', cancelMarkerFocus)
+      container.removeEventListener('dblclick', scheduleMarkerUpdate)
+      disposeMarkers()
       chart.unsubscribeCrosshairMove(handleCrosshairMove)
+      chart.timeScale().unsubscribeVisibleLogicalRangeChange(scheduleMarkerUpdate)
+      referenceLineRef.current = null
       chartRef.current = null
       candlestickSeriesRef.current = null
       volumeSeriesRef.current = null
       chart.remove()
     }
-  }, [])
+  }, [cancelMarkerFocus, disposeMarkers, markerOverlayRef, scheduleMarkerUpdate])
 
   useEffect(() => {
     if (!chartRef.current || !candlestickSeriesRef.current || !canLoadMore || !onLoadMore) return
@@ -519,6 +284,31 @@ const TokenPriceChartCanvas = ({
     candlestickSeriesRef.current?.applyOptions(candlestickSeriesOptions)
   }, [candlestickSeriesOptions, chartOptions])
 
+  useEffect(() => {
+    const series = candlestickSeriesRef.current
+    if (!series) return
+
+    if (referencePrice === undefined) {
+      if (referenceLineRef.current) series.removePriceLine(referenceLineRef.current)
+      referenceLineRef.current = null
+      return
+    }
+
+    const options = { price: referencePrice, color: theme.primary }
+    if (referenceLineRef.current) {
+      referenceLineRef.current.applyOptions(options)
+      return
+    }
+    referenceLineRef.current = series.createPriceLine({
+      ...options,
+      lineWidth: 1,
+      lineStyle: LineStyle.Dashed,
+      lineVisible: true,
+      axisLabelVisible: true,
+      title: '',
+    })
+  }, [referencePrice, theme.primary])
+
   // Drawing to a canvas neither pulls a webfont in nor repaints once one arrives, so request the symbol
   // face directly and redraw when it lands. Without this the labels can keep the system fallback's
   // subscript digits, which sit below the baseline at a fraction of the size.
@@ -552,6 +342,7 @@ const TokenPriceChartCanvas = ({
 
     candlestickSeriesRef.current.setData(candlestickData)
     volumeSeriesRef.current.setData(volumeData)
+    scheduleMarkerUpdate()
 
     if (!chartData.length || hasInitializedViewRef.current) return
 
@@ -567,17 +358,23 @@ const TokenPriceChartCanvas = ({
       })
       hasInitializedViewRef.current = true
       setIsViewportReady(true)
+      scheduleMarkerUpdate()
     })
-  }, [chartData, volumeDownColor, volumeUpColor])
+  }, [chartData, scheduleMarkerUpdate, volumeDownColor, volumeUpColor])
 
   return (
     <div className="relative w-full" style={{ height: `${chartHeight}px` }}>
-      {tooltip && isViewportReady ? <PriceChartTooltip timeFrame={timeFrame} tooltip={tooltip} /> : null}
+      {tooltip && isViewportReady ? (
+        <PriceChartTooltip formatValue={formatValue} timeFrame={timeFrame} tooltip={tooltip} />
+      ) : null}
       <PoolChartWrapper
         height={chartHeight}
         ref={chartContainerRef}
         style={{ visibility: isViewportReady ? 'visible' : 'hidden' }}
       />
+      {markerOverlay && isViewportReady ? (
+        <PriceMarkerLayer chartHeight={chartHeight} layout={markerLayout} overlay={markerOverlay} />
+      ) : null}
     </div>
   )
 }

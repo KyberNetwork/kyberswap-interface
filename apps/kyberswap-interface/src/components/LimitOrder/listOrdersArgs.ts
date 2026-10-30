@@ -12,7 +12,7 @@ import { sortChainOptionsByPriority } from 'pages/Earns/hooks/useSupportedDexesA
 export const LIMIT_ORDERS_PAGE_SIZE = 10
 
 export const useSupportedLimitOrderChains = () => {
-  const { supportedChains } = useChainsConfig()
+  const { supportedChains, isLoaded } = useChainsConfig()
 
   return useMemo(() => {
     const options: MenuOption[] = supportedChains
@@ -20,8 +20,8 @@ export const useSupportedLimitOrderChains = () => {
       .map(chain => ({ label: chain.name, value: chain.chainId.toString(), icon: chain.icon }))
       .sort(sortChainOptionsByPriority)
 
-    return { options, chainIds: options.map(option => Number(option.value) as ChainId) }
-  }, [supportedChains])
+    return { options, chainIds: options.map(option => Number(option.value) as ChainId), isLoaded }
+  }, [supportedChains, isLoaded])
 }
 
 /**

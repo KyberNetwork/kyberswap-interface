@@ -49,15 +49,28 @@ type Props = {
     default: number
     presets: number[]
   }
+  /**
+   * Feature-local value. Without it the control reads and writes the global Swap setting, which is
+   * wrong for a form that stores its own slippage on the order it creates.
+   */
+  slippage?: { value: number; onChange: (value: number) => void }
+  /** Renders regardless of the Swap settings pin, for forms that own the control outright. */
+  alwaysVisible?: boolean
 }
-const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
+const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwaysVisible }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
   const [triedSimulatedSlippage, setTriedSimulatedSlippage] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
-  const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
+  const {
+    rawSlippage: globalSlippage,
+    setRawSlippage: setGlobalSlippage,
+    isSlippageControlPinned,
+  } = useSlippageSettingByPage()
+  const rawSlippage = slippage ? slippage.value : globalSlippage
+  const setRawSlippage = slippage ? slippage.onChange : setGlobalSlippage
 
   const defaultSlippage = useDefaultSlippageByPair()
   const defaultSlp = slippageInfo ? slippageInfo.default : defaultSlippage
@@ -86,7 +99,8 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     [pairCategory, slippageInfo],
   )
 
-  const actionFromUrl = searchParams.get('action')
+  // The deep link targets the Swap setting, so an instance holding its own value ignores it.
+  const actionFromUrl = slippage ? null : searchParams.get('action')
   useEffect(() => {
     if (actionFromUrl === 'open-slippage-panel') {
       setExpanded(true)
@@ -100,12 +114,12 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     }
   }, [actionFromUrl, searchParams, setSearchParams])
 
-  if (!isSlippageControlPinned) {
+  if (!isSlippageControlPinned && !alwaysVisible) {
     return null
   }
 
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex w-full flex-col" data-testid="slippage-setting">
       <div className="flex items-center justify-between gap-1 text-subText">
         <div className="flex items-end gap-1">
           <span className="text-xs font-medium text-subText">
@@ -135,9 +149,13 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
           <div
             role="button"
             onClick={() => setExpanded(e => !e)}
+            data-testid="slippage-setting-toggle"
             className="flex cursor-pointer items-center gap-1 hover:brightness-[0.85]"
           >
-            <span className={cn('text-sm font-medium leading-none', isWarningSlippage ? 'text-warning' : 'text-text')}>
+            <span
+              data-testid="slippage-value"
+              className={cn('text-sm font-medium leading-none', isWarningSlippage ? 'text-warning' : 'text-text')}
+            >
               {msg ? (
                 <MouseoverTooltip text={slippageInfo ? msg : t`Your slippage ${msg}`}>
                   {formatSlippage(rawSlippage)}
@@ -192,7 +210,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
             </Stack>
 
             {slippageInfo ? (
-              msg && <ErrorWarning type="warn" title={msg} />
+              msg && <ErrorWarning type="warn" title={msg} dataTestId="slippage-warning" />
             ) : (
               <SlippageWarningNote rawSlippage={rawSlippage} />
             )}

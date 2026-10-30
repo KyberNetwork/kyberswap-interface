@@ -25,6 +25,7 @@ import {
   NETWORKS_INFO,
   SUPPORTED_NETWORKS,
   isSupportLimitOrder,
+  isSupportStopMarket,
 } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
@@ -274,6 +275,18 @@ export default function App() {
                   element={
                     <NetworkSyncedPage>
                       <LimitPage />
+                    </NetworkSyncedPage>
+                  }
+                />
+              )}
+
+              <Route path={APP_PATHS.STOP_MARKET} element={<RedirectPathToTradeNetwork />} />
+              {isSupportStopMarket(chainId) && (
+                <Route
+                  path={`${APP_PATHS.STOP_MARKET}/:network/:currency?`}
+                  element={
+                    <NetworkSyncedPage>
+                      <LimitPage isStopMarketPage />
                     </NetworkSyncedPage>
                   }
                 />

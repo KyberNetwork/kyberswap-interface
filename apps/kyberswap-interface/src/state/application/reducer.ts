@@ -10,6 +10,7 @@ import {
   ApplicationModal,
   addPopup,
   closeModal,
+  refreshPrivateAnnouncements,
   removePopup,
   setAnnouncementDetail,
   setCoinbaseIsSubscribed,
@@ -49,6 +50,8 @@ interface ApplicationState {
       announcements: AnnouncementTemplatePopup[]
       hasMore: boolean // need to load more or not
     }
+    /** Bumped when the inbox should refetch now rather than on its next interval. */
+    privateAnnouncementsVersion: number
   }
   readonly config: {
     [chainId in ChainId]?: KyberSwapConfigResponse
@@ -68,6 +71,7 @@ const initialStateNotification = {
     announcements: [],
     hasMore: false,
   },
+  privateAnnouncementsVersion: 0,
 }
 
 export const initialStateConfirmModal = {
@@ -155,6 +159,13 @@ export default createReducer(initialState, builder =>
       state.notification = {
         ...notification,
         announcementDetail,
+      }
+    })
+    .addCase(refreshPrivateAnnouncements, state => {
+      const notification = state.notification ?? initialStateNotification
+      state.notification = {
+        ...notification,
+        privateAnnouncementsVersion: (notification.privateAnnouncementsVersion ?? 0) + 1,
       }
     })
     .addCase(setCoinbaseLoading, (state, { payload }) => {

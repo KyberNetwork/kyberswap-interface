@@ -37,6 +37,8 @@ export const setAnnouncementDetail = createAction<{
   hasMore: boolean
 }>('application/setAnnouncementDetail')
 
+export const refreshPrivateAnnouncements = createAction('application/refreshPrivateAnnouncements')
+
 export const setConfirmData = createAction<ConfirmModalState>('application/setConfirmData')
 export const setCoinbaseLoading = createAction<boolean>('application/setCoinbaseLoading')
 export const setCoinbaseIsSubscribed = createAction<boolean>('application/setCoinbaseIsSubscribed')

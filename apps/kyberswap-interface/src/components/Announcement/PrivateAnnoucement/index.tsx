@@ -7,8 +7,10 @@ import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/In
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
 import InboxItemPrivateMessage from 'components/Announcement/PrivateAnnoucement/InboxItemPrivateMessage'
 import InboxItemSmartExit from 'components/Announcement/PrivateAnnoucement/InboxItemSmartExit'
+import InboxItemStopMarket from 'components/Announcement/PrivateAnnoucement/InboxItemStopMarket'
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplate, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
+import { isStopMarketExecutedTemplate } from 'constants/env'
 import { formatTime } from 'utils/time'
 
 export type PrivateAnnouncementProp<T extends AnnouncementTemplate = AnnouncementTemplate> = {
@@ -55,7 +57,10 @@ export default function InboxItem({ announcement, onRead, style, onPin, onDelete
     title: PRIVATE_ANN_TITLE()[templateType],
   }
   try {
-    const component = ANNOUNCEMENT_MAP()[templateType]
+    // Stop market orders are listed as limit orders and told apart by their template.
+    const component = isStopMarketExecutedTemplate(announcement.templateId)
+      ? (InboxItemStopMarket as (data: PrivateAnnouncementProp) => React.JSX.Element)
+      : ANNOUNCEMENT_MAP()[templateType]
     return component ? React.createElement(component, props) : null
   } catch (error) {
     return null

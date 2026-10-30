@@ -31,7 +31,9 @@ export const useCancellingOrders = ({ chainId }: { chainId: ChainId }) => {
   const { account } = useActiveWeb3React()
   const transactions = useAllTransactions(true)
 
-  const [cancellingOrders, setCancellingOrders] = useState(EMPTY_CANCELLING_ORDERS)
+  const scopeKey = `${account?.toLowerCase() || ''}:${chainId}`
+  const [subscription, setSubscription] = useState({ scopeKey, orders: EMPTY_CANCELLING_ORDERS })
+  const cancellingOrders = subscription.scopeKey === scopeKey ? subscription.orders : EMPTY_CANCELLING_ORDERS
   const [localCancellingOrdersIds, setLocalCancellingOrdersIds] = useState<number[]>([])
 
   const { currentData } = useGetLOConfigQuery(chainId)
@@ -63,19 +65,25 @@ export const useCancellingOrders = ({ chainId }: { chainId: ChainId }) => {
   }, [account, chainId])
 
   useEffect(() => {
-    if (!account) {
-      setCancellingOrders(EMPTY_CANCELLING_ORDERS)
-      return
-    }
+    let active = true
+    setSubscription({ scopeKey, orders: EMPTY_CANCELLING_ORDERS })
+    if (!account) return
 
     const unsubscribe = subscribeCancellingOrders(account, chainId, data => {
-      setCancellingOrders({
-        orderIds: data?.orderIds ?? [],
-        noncesByContract: data?.noncesByContract ?? {},
+      if (!active) return
+      setSubscription({
+        scopeKey,
+        orders: {
+          orderIds: data?.orderIds ?? [],
+          noncesByContract: data?.noncesByContract ?? {},
+        },
       })
     })
-    return () => unsubscribe?.()
-  }, [account, chainId])
+    return () => {
+      active = false
+      unsubscribe?.()
+    }
+  }, [account, chainId, scopeKey])
 
   useEffect(() => {
     setLocalCancellingOrdersIds(current => current.filter(orderId => !transactionOrderIds.all.includes(orderId)))

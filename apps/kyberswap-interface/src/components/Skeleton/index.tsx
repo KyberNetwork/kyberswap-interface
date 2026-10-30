@@ -3,10 +3,18 @@ import LoadingSkeleton from 'react-loading-skeleton'
 
 import useTheme from 'hooks/useTheme'
 
-type SkeletonVariant = 'light' | 'dark' | 'darkSubtle'
+type SkeletonVariant = 'light' | 'dark' | 'darkSubtle' | 'muted'
 
 export type SkeletonProps = ComponentProps<typeof LoadingSkeleton> & {
   rounded?: boolean
+  /**
+   * Choose by the surrounding surface and how prominent loading should be:
+   * - `light`: theme background/button colors for general card or section placeholders (Skeleton default).
+   * - `dark`: stronger white overlay for placeholders that need more contrast on dark surfaces.
+   * - `darkSubtle`: softer white overlay for secondary rows, token lists and banners on dark surfaces.
+   * - `muted`: solid muted fill with a gentle shimmer for values updating beside existing content,
+   *   such as fees or balances (PlaceholderSkeleton default).
+   */
   variant?: SkeletonVariant
 }
 
@@ -44,6 +52,10 @@ const Skeleton = ({
     darkSubtle: {
       baseColor: WHITE_08,
       highlightColor: WHITE_14,
+    },
+    muted: {
+      baseColor: theme.buttonGray,
+      highlightColor: `color-mix(in srgb, ${theme.buttonGray} 80%, ${theme.border})`,
     },
   }
 

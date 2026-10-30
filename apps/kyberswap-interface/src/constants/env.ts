@@ -65,9 +65,10 @@ export const TOKEN_API_URL = required('TOKEN_API_URL')
 export const KD_API_URL = optional('KD_API_URL') || optional('KYBER_AI_API_URL')
 export const AFFILIATE_SERVICE_URL = required('AFFILIATE_SERVICE')
 export const SOLANA_RPC = required('SOLANA_RPC')
-export const SMART_EXIT_API_URL = required('SMART_EXIT_API_URL')
+/** Smart Exit and Stop Market are two products of one conditional-order service, on a single host. */
+export const CONDITIONAL_SERVICE_URL = required('CONDITIONAL_SERVICE_URL')
 export const CROSSCHAIN_AGGREGATOR_API = required('CROSSCHAIN_AGGREGATOR_API')
-export const KYBERCROSS = false
+export const KYBERCROSS = true
 export const CROSSCHAIN_KYBERCROSS_API = required('CROSSCHAIN_KYBERCROSS_API')
 
 type FirebaseConfig = {
@@ -137,6 +138,16 @@ export enum EnvKeys {
   DEV = 'development',
 }
 
+/**
+ * The stop market order executed template. It is listed, counted and read with the limit order notifications,
+ * and its items are told apart by this id.
+ */
+const STOP_MARKET_EXECUTED_TEMPLATE_IDS: { [key in EnvKeys]: string } = {
+  [EnvKeys.DEV]: '',
+  [EnvKeys.STG]: '18',
+  [EnvKeys.PROD]: '44',
+}
+
 type TemplateConfig = { [type in PrivateAnnouncementType]: string } & { EXCLUDE: string }
 const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   [EnvKeys.DEV]: {
@@ -151,7 +162,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   },
   [EnvKeys.STG]: {
     [PrivateAnnouncementType.PRICE_ALERT]: '',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '3,4,5,6,7,8,9',
+    [PrivateAnnouncementType.LIMIT_ORDER]: `3,4,5,6,7,8,9,${STOP_MARKET_EXECUTED_TEMPLATE_IDS[EnvKeys.STG]}`,
     [PrivateAnnouncementType.SMART_EXIT]: '12,13,14,15,16',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',
@@ -161,7 +172,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   },
   [EnvKeys.PROD]: {
     [PrivateAnnouncementType.PRICE_ALERT]: '',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '31,34,35,36',
+    [PrivateAnnouncementType.LIMIT_ORDER]: `31,34,35,36,${STOP_MARKET_EXECUTED_TEMPLATE_IDS[EnvKeys.PROD]}`,
     [PrivateAnnouncementType.SMART_EXIT]: '39,40,41,42,43',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',
@@ -178,6 +189,11 @@ export const NOTI_ENV = NOTIFICATION_API.includes('pre-') ? EnvKeys.STG : EnvKey
 export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
   return ANNOUNCEMENT_TEMPLATE_IDS[NOTI_ENV]?.[type]
 }
+
+export const getStopMarketExecutedTemplateIds = () => STOP_MARKET_EXECUTED_TEMPLATE_IDS[NOTI_ENV]
+
+export const isStopMarketExecutedTemplate = (templateId?: number) =>
+  templateId !== undefined && STOP_MARKET_EXECUTED_TEMPLATE_IDS[NOTI_ENV] === String(templateId)
 
 export const getAnnouncementTemplateType = (templateId?: number) => {
   const entries = Object.entries(ANNOUNCEMENT_TEMPLATE_IDS[NOTI_ENV] ?? {})

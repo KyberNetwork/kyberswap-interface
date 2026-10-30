@@ -7,6 +7,7 @@ import {
   SwapIntent,
   getSwapIntentFromPath,
   getSyncedNetworkPathname,
+  getTradeProductPath,
   isPathOrChild,
   isSwapLikePath,
   resolveSwapIntentPair,
@@ -69,12 +70,27 @@ describe('getSwapIntentFromPath', () => {
   })
 })
 
+describe('getTradeProductPath', () => {
+  it.each([
+    ['/limit', '/limit'],
+    ['/limit/base/eth-to-usdc', '/limit'],
+    ['/stop-market', '/stop-market'],
+    ['/stop-market/base/eth-to-usdc', '/stop-market'],
+    ['/swap/base/eth-to-usdc', '/swap'],
+    ['/cross-chain', '/swap'],
+    ['/limited-partners', '/swap'],
+  ] as const)('maps %s to %s', (pathname, expected) => {
+    expect(getTradeProductPath(pathname)).toBe(expected)
+  })
+})
+
 describe('getSyncedNetworkPathname', () => {
   it.each([
     ['/swap/ethereum/eth-to-usdc', '/swap/base'],
     ['/buy/ethereum/wbtc', '/swap/base'],
     ['/sell/ethereum/wbtc', '/swap/base'],
     ['/limit/ethereum/eth-to-usdc', '/limit/base'],
+    ['/stop-market/ethereum/eth-to-usdc', '/stop-market/base'],
     ['/pools/ethereum', '/pools/base'],
   ] as const)('syncs %s to %s', (pathname, expected) => {
     expect(getSyncedNetworkPathname(pathname, 'ethereum', 'base')).toBe(expected)

@@ -1,4 +1,5 @@
 import { type Middleware, combineReducers, configureStore } from '@reduxjs/toolkit'
+import { setupListeners } from '@reduxjs/toolkit/query'
 import { load, save } from 'redux-localstorage-simple'
 import aggregatorStatsApi from 'services/aggregatorStats'
 import announcementApi, { publicAnnouncementApi } from 'services/announcement'
@@ -27,6 +28,7 @@ import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
 import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
+import stopMarketApi from 'services/stopMarket'
 import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
 import tokenCatalogApi from 'services/tokenCatalog'
@@ -46,6 +48,7 @@ import mint from 'state/mint/reducer'
 import pair from 'state/pair/reducer'
 import pools from 'state/pools/reducer'
 import profile from 'state/profile/reducer'
+import stopMarket from 'state/stopMarket/reducer'
 import swap from 'state/swap/reducer'
 import tokenPrices from 'state/tokenPrices'
 import topTokens from 'state/topTokens'
@@ -95,6 +98,7 @@ const rootReducer = combineReducers({
   transactions,
   crossChainSwap,
   swap,
+  stopMarket,
   mint,
   mintV2,
   burn,
@@ -110,6 +114,7 @@ const rootReducer = combineReducers({
   [coingeckoApi.reducerPath]: coingeckoApi.reducer,
   [contractQuery.reducerPath]: contractQuery.reducer,
   [limitOrderApi.reducerPath]: limitOrderApi.reducer,
+  [stopMarketApi.reducerPath]: stopMarketApi.reducer,
   [externalApi.reducerPath]: externalApi.reducer,
 
   [kyberDAO.reducerPath]: kyberDAO.reducer,
@@ -150,6 +155,7 @@ const apiMiddlewares: Middleware[] = [
   externalApi,
   contractQuery,
   limitOrderApi,
+  stopMarketApi,
   aggregatorStatsApi,
   announcementApi,
   publicAnnouncementApi,
@@ -229,6 +235,9 @@ export const getClientStore = (): AppStore => {
     clientStore = makeStore(getClientPreloadedState())
     cleanupReduxPersist()
     clientStore.dispatch(updateVersion())
+    // Focus and online events, which `refetchOnFocus`, `refetchOnReconnect` and `skipPollingIfUnfocused`
+    // on the RTK Query hooks listen for.
+    setupListeners(clientStore.dispatch)
   }
   return clientStore
 }

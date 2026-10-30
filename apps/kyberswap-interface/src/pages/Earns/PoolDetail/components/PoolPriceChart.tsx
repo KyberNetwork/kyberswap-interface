@@ -1,5 +1,9 @@
 import {
+  CandlestickSeries,
+  ColorType,
   CrosshairMode,
+  HistogramSeries,
+  type ISeriesApi,
   LineStyle,
   type MouseEventParams,
   type Time,
@@ -105,7 +109,7 @@ const getChartOptions = ({
 }) => ({
   height: chartHeight,
   layout: {
-    background: { color: 'transparent' },
+    background: { type: ColorType.Solid as const, color: 'transparent' },
     fontFamily: CHART_FONT_FAMILY,
     textColor: subTextColor,
   },
@@ -128,7 +132,7 @@ const getChartOptions = ({
   },
   rightPriceScale: {
     borderVisible: false,
-    drawTicks: false,
+    ticksVisible: false,
     entireTextOnly: true,
     scaleMargins: {
       top: 0.08,
@@ -343,8 +347,8 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   )
 
   const chartRef = useRef<ReturnType<typeof createChart> | null>(null)
-  const candlestickSeriesRef = useRef<any>(null)
-  const volumeSeriesRef = useRef<any>(null)
+  const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
+  const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null)
   const chartDataByTimeRef = useRef<Map<number, DisplayCandle>>(new Map())
   const chartHeightRef = useRef(chartHeight)
   const latestChartOptionsRef = useRef(chartOptions)
@@ -394,8 +398,8 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
     })
     chartRef.current = chart
 
-    const candlestickSeries = chart.addCandlestickSeries(latestCandlestickSeriesOptionsRef.current)
-    const volumeSeries = chart.addHistogramSeries({
+    const candlestickSeries = chart.addSeries(CandlestickSeries, latestCandlestickSeriesOptionsRef.current)
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       lastValueVisible: false,
       priceFormat: { type: 'volume' },
       priceScaleId: 'volume',
