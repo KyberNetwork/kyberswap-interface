@@ -1,18 +1,36 @@
 # Limit Order and Stop Market page refactor TODO
 
-Reviewed: 2026-10-29
+Reviewed: 2026-10-30
 
 Status: reviewed page-wide ownership and consistency plan for both features. This file separates proposed behavior fixes, structural refactors and existing contracts to preserve; it does not authorize a business-rule rewrite. Updating this plan does not mark implementation or runtime verification complete.
 
 Review outcome: keep this as an execution map, but implement it in small batches when the work is explicitly resumed. The current code status is the source of truth: the provider relocation was reverted, the order-list batch is complete, and no new P0/P1 correctness refactor is being started in this update. Cross-Chain flags and unrelated product work stay outside this plan; presentation changes remain confined to the shared order panel and its fallback.
 
-## Current execution decision (2026-10-29)
+## Why this refactor exists
+
+This page combines two products that intentionally share a shell, pair selection, order-panel navigation and parts of the execution UI. Over time, state and async work have accumulated at different boundaries: some values belong to the shared page, some to a product draft, some to a list query and some to one wallet operation. The code is difficult to change safely when those lifetimes are represented by a conditional render, a mirrored local state value or an effect that reacts to another layer's flag.
+
+The refactor is useful only when it makes one of these concrete problems smaller:
+
+| Current problem | User or maintenance risk | Refactor motivation | Desired result |
+| --- | --- | --- | --- |
+| Limit form fields live inside a view that unmounts for Settings/Info. | A user can lose a rate, output amount or expiry without submitting anything. | Put business draft ownership at the product boundary while keeping the view replaceable. | Settings/Info navigation preserves the intended draft and resets only fields whose identity changed. |
+| Order Book Set Price is a retained command without pair/chain identity. | A delayed or replayed command can write a price from pair A into pair B or a newly mounted form. | Make the command typed, identity-scoped and one-shot. | A request is applied once to the matching draft and then cleared. |
+| Shared processing has an operation run ID, but awaited product submission work can continue after the UI session changes. | A late completion can update a new modal or reset a newer draft; retrying an unknown transaction can duplicate work. | Keep the reviewed snapshot and stale-result policy with one operation owner. | Old UI callbacks are ignored while already-submitted persistence still completes. |
+| Limit and Stop have equivalent controls but different owners and duplicated presentation decisions. | A small UI fix can drift between products or accidentally merge their business rules. | Share mechanics only at a real common boundary and update both callers together. | Equivalent interactions look and behave consistently; rate/trigger, fee/slippage, signing and API differences remain explicit. |
+| List, chart, badge, reservation and notification queries have different freshness and identity needs. | A stale pair/account response can affect validation or visible order state, while indiscriminate skipping can remove badges or markers. | Document query consumers and identity boundaries before moving requests. | Each query has one owner, correct pair/account/chain scope and deliberate refresh behavior. |
+| Large feature files mix presentation, query state and wallet flow. | A maintainer must trace unrelated concerns to make a local change, increasing regression risk. | Split by lifecycle and intent, not by arbitrary line count. | UI renders data and emits intents; state owns values; flow owns transitions and async cleanup. |
+
+These motivations describe the value of the work; they do not authorize a business-rule rewrite. A batch is worthwhile only when its before/after behavior and owner are reviewable.
+
+## Current execution decision (2026-10-30)
 
 - No immediate P0/P1 refactor is required from the current review. Keep the remaining draft, Set Price, processing and chart/marker items as deferred backlog rather than active implementation work.
 - `LimitOrderProvider` remains owned by `SwapLayout`/`PartnerSwapLayout`. The attempted page-boundary relocation was reverted and is not required for the next refactor batch.
 - Closing a processing modal remains an intentional user action. Do not add a new cancellation or stale-continuation behavior solely from that action without a separately approved product contract. Preserve submitted-transaction tracking where it already exists.
 - Set Price remains the existing Order Book/chart-to-form convenience flow. Pair/chain identity and one-shot consumption stay documented as future hardening, not an immediate P0.
 - The next implementation decision should be made from a concrete user-visible regression or an explicitly approved scope change.
+- The 2026-10-30 audit found no new urgent defect. The remaining work is valuable as ownership hardening, but should be scheduled only when a concrete regression, recurring maintenance cost or explicitly approved scope justifies it.
 
 ## Scope
 
@@ -137,6 +155,8 @@ These findings are a refactor map, not a request to create a controller, context
 
 Priority: deferred P0 prerequisite, lifetime/reset contract; structural extraction follows only when this scope is resumed.
 
+Motivation: the shared shell, conditional form, right panel and embedded Partner Swap do not have the same lifetime. Treating them as one render tree makes it easy to reset a draft when only a view changed, or to keep an operation alive after its account or chain is no longer valid. Establishing identities first gives later changes a safe boundary and prevents a broad provider move from becoming a substitute for a real lifecycle decision.
+
 Sources: [`LimitPage`](../../pages/Swap/LimitPage.tsx), [`SwapLayout`](../../pages/Swap/layout/SwapLayout.tsx), [`useTradeController`](../../pages/Swap/hooks/useTradeController.ts), [`PartnerSwap`](../../pages/PartnerSwap/index.tsx), [`OrderTypeSubTabs`](../StopMarket/OrderTypeSubTabs.tsx).
 
 - [ ] Complete the lifetime/reset matrix above; define separate identities for shell navigation, product drafts, list queries and operations.
@@ -151,6 +171,8 @@ Acceptance: each field has an explicit keep/reset policy. The draft-retention fi
 ### 2. Make form draft ownership explicit
 
 Priority: deferred P0 for the draft-retention fix; deferred P1 for behavior-preserving form extraction.
+
+Motivation: the form is currently both a view and the owner of business fields. That is why Limit rate/output/expiry disappear when Settings or Info replaces the form, while Stop Market correctly keeps its Redux-backed fields with different pair rules. Making ownership explicit lets the user keep an intentional draft without copying Limit and Stop into one store or changing their pricing semantics.
 
 Sources: [`LimitOrderForm`](Form/LimitOrderForm.tsx), [`useLimitOrderFormState`](Form/useLimitOrderFormState.ts), [`useStopMarketFormState`](../StopMarket/Form/useStopMarketFormState.ts), [`state/limit`](../../state/limit/hooks.ts).
 
@@ -168,6 +190,8 @@ Acceptance: a draft has one owner, reset behavior is testable by identity, and f
 
 Priority: deferred P1, structural cleanup.
 
+Motivation: Active/History, order kind, market tabs, filters and row actions used to be spread across the panel and each list. That creates mirrored state, synchronization effects and navigation paths that can disagree. One panel authority plus product-local list controllers makes a tab or deep link predictable, while keeping pagination and status contracts where they belong.
+
 Sources: [`OrderList`](OrderList/index.tsx), [`MyOrders`](MyOrders/index.tsx), [`StopMarkets`](../StopMarket/MyOrders/index.tsx), [`useTab`](../../hooks/useTab.ts), [`useOrderListNavigation`](hooks/useOrderListNavigation.ts).
 
 - [x] Keep one authority for market tab, Active/History and order kind; remove local mirrors and synchronization effects where the host already owns that choice.
@@ -182,6 +206,8 @@ Acceptance: Active/History, order kind, query params and list filters have one o
 ### 4. Scope Order Book, chart and price selection by identity
 
 Priority: deferred P0 for Set Price replay/identity fixes; deferred P1 for market-data ownership cleanup.
+
+Motivation: chart and book data are pair/chain-specific, but a Set Price request is currently identified only by an incrementing request id. A remount can therefore consume an old command, and a query transition can briefly expose data from the previous identity. Identity-scoped intents and `currentData` boundaries protect the form from applying the wrong market state without introducing another cache.
 
 Sources: [`LimitOrderContext`](LimitOrderContext.tsx), [`OrderBook`](OrderBook/index.tsx), [`OrdersPriceChart`](OrderList/OrdersPriceChart.tsx), [`useLimitOrderPriceMarkers`](hooks/useLimitOrderPriceMarkers.tsx), [`useStopMarketPriceMarkers`](../StopMarket/hooks/useStopMarketPriceMarkers.tsx), [`useLimitOrderFormState`](Form/useLimitOrderFormState.ts).
 
@@ -198,9 +224,11 @@ Acceptance: a late Set Price from pair A cannot change pair B or a new draft; ch
 
 Priority: deferred P0, async correctness. Modal dismissal remains intentional under the current product contract.
 
+Motivation: wallet work outlives React renders. A review snapshot can be replaced, a modal can close and reopen, or the account can change while allowance, signing or receipt work is awaiting. The existing run id prevents some continuation paths, but it is not by itself a complete contract for product submission chains. A session owner makes the safe rule explicit: ignore stale UI effects, preserve work already submitted, and never let an old run reset a newer draft.
+
 Sources: [`useProcessingSteps`](../ProcessingSteps/useProcessingSteps.ts), [`CreateOrderFlow`](CreateOrder/CreateOrderFlow.tsx), [`useCreateLimitOrder`](CreateOrder/useCreateLimitOrder.tsx), [`TakeOrderConfirmModal`](TakeOrder/TakeOrderConfirmModal.tsx), [`useTakeLimitOrder`](TakeOrder/useTakeLimitOrder.ts), [`CancelOrderModal`](CancelOrder/CancelOrderModal.tsx), [`StopMarketFlow`](../StopMarket/CreateOrder/StopMarketFlow.tsx), [`StopMarketEditModal`](../StopMarket/EditOrder/StopMarketEditModal.tsx), [`CancelStopMarketModal`](../StopMarket/CancelOrder/CancelStopMarketModal.tsx).
 
-Known implementation detail: `useProcessingSteps` already has a run ID and checks between steps, but some continuations inside steps are unguarded. Dismissal while `checkApprovalManually()` is pending can still be followed by `approveCallback()`, and wrap/final-step completions can still update UI state. Under the current product decision, modal dismissal is intentional and this is deferred rather than treated as an active P0 defect.
+Known implementation detail: `useProcessingSteps` already has a run ID and checks between steps, but some continuations inside steps are unguarded. Dismissal while `checkApprovalManually()` is pending can still be followed by `approveCallback()`, and wrap/final-step completions can still update UI state. The product submit chains also await fee estimation, sign-message retrieval, wallet signing and submission inside `useCreateStopMarket`/the Limit equivalent; those awaits need the same session contract if this batch is resumed. Under the current product decision, modal dismissal is intentional and this is deferred rather than treated as an active P0 defect.
 
 - [ ] Audit and fix shared processing continuations first: recheck the run after awaited reads before starting another wallet action, and guard late success/failure/loading callbacks within each step.
 - [ ] Reuse the existing run identity rather than adding a competing processing state machine. Trace all shared callers and test their affected contract when changing this hook.
@@ -211,7 +239,8 @@ Known implementation detail: `useProcessingSteps` already has a run ID and check
 - [ ] Preserve persistence for work already submitted: transaction tracking, notification acknowledgements and cache invalidation must still run when the modal closes.
 - [ ] Apply the established Stop Market creation session pattern to Limit Order creation where behavior is equivalent.
 - [ ] Consolidate equivalent review/processing lifecycle mechanics for both products in the lowest shared owner. Keep product-specific review content, terms, step definitions, validation, signing and submission explicit; do not copy a second session implementation or force every operation through the same sequence.
-- [ ] Give cancellation A/B and edit/recreate runs an operation identity so a late result cannot update a newly opened modal or row.
+- [x] Stop Market cancellation ignores stale UI completions after dismissal, account change and unmount; submitted mutations still invalidate caches and track success. Limit cancellation already has an AbortController and account-scoped modal boundary.
+- [ ] Audit the remaining edit/recreate and any unverified Limit operation paths for the same A/B identity rule so a late result cannot update a newly opened modal or row.
 
 Deferred acceptance when this scope resumes: define the intended behavior for wallet/chain changes, modal dismissal, page leave and modal reopen before adding guards. Preserve submitted-work persistence and keep any approved operation/session contract separate from presentation cleanup.
 
@@ -219,9 +248,12 @@ Deferred acceptance when this scope resumes: define the intended behavior for wa
 
 Priority: deferred P1, consistency.
 
+Motivation: the same server result can feed validation, approval, badges, rows, chart markers and notifications, but those consumers do not all need the same refresh policy. In particular, reserved or active-making amounts must not silently come from a previous account/chain/token while a new request is loading. Documenting query ownership and freshness prevents both stale validation and over-fetching, while preserving backend pagination and product-specific endpoints.
+
 Sources: [`services/limitOrder.ts`](../../services/limitOrder.ts), [`services/stopMarket.ts`](../../services/stopMarket.ts), [`MyOrders`](MyOrders/index.tsx), [`StopMarkets`](../StopMarket/MyOrders/index.tsx), [`useStopMarketReservedBalance`](../StopMarket/hooks/useStopMarketReservedBalance.ts), [`useCreateStopMarket`](../StopMarket/CreateOrder/useCreateStopMarket.tsx), [`useCreateLimitOrder`](CreateOrder/useCreateLimitOrder.tsx).
 
 - [ ] Document the query key and refresh owner for account totals, filtered list pages, pair-specific book data, chart markers, active-making amounts, fee estimates and oracle prices.
+- [ ] For reservation/active-making reads, use the response belonging to the current account, chain and token identity while arguments change; do not let a previous `data` value drive validation or approval during the transition. Prefer the existing `currentData` contract or an equivalent explicit identity check.
 - [ ] Keep backend pagination authority (`hasMore`, cursor and `totalOrder`) at the service/query boundary; views should not reconstruct a competing pagination model. Preserve the current split: active Limit requests keep the supported `chainIds` list for exact totals, while history All Chains uses the backend's omitted-chain filter path.
 - [ ] Define one freshness policy for reserved/active-making amounts used by validation and approval, including external cancellation, expiry and execution notifications.
 - [ ] Align refresh triggers for equivalent user actions in both products while retaining their distinct reservation calculations, cache tags, endpoints and pagination contracts.
@@ -234,12 +266,15 @@ Acceptance: a mutation or execution notification refreshes every surface that de
 
 Priority: deferred P1, ownership clarity.
 
+Motivation: notifications and analytics are external side effects with their own account, chain and remount lifetimes. If a presentation component owns a subscription or a flow emits tracking from several layers, remounts can duplicate events or acknowledge the wrong order. Keeping subscriptions, acknowledgement, tracking and navigation at explicit seams makes the behavior auditable without coupling shared UI to product-specific event schemas.
+
 Sources: [`useLimitOrderTracking`](hooks/useLimitOrderTracking.ts), [`useStopMarketTracking`](../StopMarket/hooks/useStopMarketTracking.ts), [`useNotificationLimitOrder`](hooks/useNotificationLimitOrder.tsx), [`useStopMarketExecutedNotifications`](../StopMarket/hooks/useStopMarketExecutedNotifications.tsx), [`useMyOrdersNotifications`](MyOrders/useMyOrdersNotifications.ts).
 
 - [ ] Keep page-view and form interaction tracking at the shared form owner, guarded against ordinary rerenders. Define whether a Settings/Info remount is a new page view or the same page session before changing the current mount-local guard.
 - [ ] Keep operation success/failure tracking with the operation session, and list refresh/notification acknowledgement with the notification owner.
 - [ ] Align tracking lifecycle boundaries across equivalent interactions, preserving each product's event names/payloads and acknowledgement rules outside shared presentation components.
-- [ ] Define account/chain cleanup for Firebase subscriptions, polling and seen-ID refs.
+- [x] Limit Firebase subscriptions and Stop execution notifications clean up on account changes/unmount; order-list cancellation state is reset at the account boundary.
+- [ ] Complete the broader account/chain audit for every polling, seen-ID and acknowledgement ref, and document which external work intentionally survives a modal close.
 - [ ] Ensure notification deep links use the shared navigation contract and do not fight the page's current query selection.
 - [ ] Sweep the page surface for stale debug artifacts (`console.log`, `debugger`, obsolete TODO/FIXME, unsafe casts or suppressions) before implementation work is considered complete.
 
@@ -249,6 +284,8 @@ Acceptance: each event/subscription has one lifecycle owner, does not duplicate 
 ### 8. Align presentation, responsive geometry and loading fallbacks
 
 Priority: deferred P1, UI stability.
+
+Motivation: equivalent Limit and Stop controls should not shift, lose focus or change hit areas merely because one is loading or because a count/translation is longer. Aligning the shared geometry and its fallbacks reduces layout shift and visual drift, while leaving product-specific columns and content free to grow. This is a usability and maintenance gain, not a reason to redesign the page.
 
 Sources: [`OrderListComponents`](OrderList/OrderListComponents.tsx), [`OrderListSkeleton`](OrderList/OrderListSkeleton.tsx), [`SegmentedControl`](../SegmentedControl/index.tsx), [`OrderBookSkeleton`](OrderBook/OrderBookSkeleton.tsx), [`RowsSkeleton`](MyOrders/RowsSkeleton.tsx), Stop Market list skeletons.
 
@@ -267,6 +304,8 @@ Acceptance: loading-to-content transitions do not shift the page materially, con
 ### 9. Keep the file structure cohesive while refactoring
 
 Priority: deferred P1, maintainability.
+
+Motivation: splitting a large file without a lifecycle boundary only moves the same state and props through more files. A cohesive structure lowers the number of places a maintainer must inspect for one change and keeps dependencies directional. The goal is a clear owner and a short path from intent to effect, not a target file count or a generic abstraction.
 
 - [ ] Split only by a meaningful lifecycle: page coordinator, form draft, list controller, market data, operation session and presentation views.
 - [ ] Review files above roughly 300–400 lines for a real boundary, especially `OrderList`, `MyOrders`, Stop Market list/form and execution modals; do not fragment cohesive flows into forwarding-only files.
@@ -378,3 +417,15 @@ Segment animation correction: `OrderKindTabs` must remain outside the Limit/Stop
 - Limit cancelling subscription snapshots are scoped to account/chain and hidden immediately when that scope changes. Replaced Firebase subscription callbacks and notification callbacks are ignored after cleanup.
 - Stop Edit already checks order ownership inside its modal. Pending network-switch ordering for Edit is explicitly excluded by user direction; no change to that flow in this follow-up.
 - Verification remains source/static plus the retained contract and business-logic tests above; the removed SSR handler tests are not counted as lifecycle coverage.
+
+### Refactor motivation audit (2026-10-30)
+
+This audit updates the plan's explanation and status; it does not start an implementation batch.
+
+- The order-list work remains complete. Its value is reduced mirrored state and predictable deep-link/list ownership; it is not an unfinished prerequisite for draft or processing work.
+- Stop Market cancellation already has the intended stale-UI protection for dismissal, account change and unmount. Keep this as a preserved contract and audit only the remaining edit/recreate paths.
+- The main correctness motivations still open are Limit draft loss across Settings/Info, replayable Set Price without pair/chain identity, and incomplete session guards across awaited fee/sign/submit work. These are separate behavior changes and must not be hidden inside a presentation extraction.
+- Reservation and active-making amount reads are now called out separately because validation and approval must not consume a previous account/chain/token response while RTK Query arguments are changing. The desired fix is identity/freshness handling at the query boundary, not a second cache or an invented polling policy.
+- Shared UI refactoring is justified where it removes drift in equivalent Limit/Stop controls. Product-specific rate versus trigger math, fee/slippage, terms, signing, cancellation and pagination remain separate because their contracts differ.
+
+Verification for this audit: the focused source/contract run passed 6 files and 172 tests. Markdown links in this TODO resolve, and `git diff --check` passed. No implementation files were changed, and no browser, live-service or wallet E2E verification was run.
