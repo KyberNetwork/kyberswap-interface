@@ -1,12 +1,15 @@
 import { Trans, t } from '@lingui/macro'
+import type { EthereumProvider } from '@walletconnect/ethereum-provider'
 import dayjs from 'dayjs'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 import { Connector, useConnect, useSwitchChain } from 'wagmi'
 
+import OATH_ICON from 'assets/wallets-connect/oath.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { RowBetween } from 'components/Row'
 import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
+import { OATH_WALLET, connectOathWallet, queueWalletConnect } from 'components/Web3Provider/oathWalletConnect'
 import { PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -157,14 +160,16 @@ export const OptionButton = ({
   )
 }
 
-export const WalletOption = React.memo(({ connector }: { connector: Connector }) => {
+export const WalletOption = React.memo(({ connector, oath = false }: { connector: Connector; oath?: boolean }) => {
   const [isAcceptedTerm] = useIsAcceptedTerm()
 
   const { chainId } = useActiveWeb3React()
   const notify = useNotify()
 
-  const { name } = connector
-  const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
+  const name = oath ? OATH_WALLET.name : connector.name
+  const icon = oath ? OATH_ICON : CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
+  const startingRef = useRef(false)
+  const [isStarting, setStarting] = useState(false)
 
   const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
   const { switchChainAsync } = useSwitchChain()
@@ -175,6 +180,7 @@ export const WalletOption = React.memo(({ connector }: { connector: Connector })
     variables,
     isPending: isSomeOptionPending,
     connect,
+    connectAsync,
   } = useConnect({
     mutation: {
       onSuccess: async data => {
@@ -233,19 +239,50 @@ export const WalletOption = React.memo(({ connector }: { connector: Connector })
       role="button"
       id={`connect-${name}`}
       onClick={() => {
-        if (!isAcceptedTerm) return
+        if (!isAcceptedTerm || startingRef.current) return
         intendedChainIdRef.current = chainId
         // Skip the chainId hint for WalletConnect — wagmi's post-pair
         // switchChain rethrows UserRejectedRequestError, which rolls back the
         // whole connect mutation and leaves the WC session orphaned in its
         // own storage. Realigned in onSuccess instead.
         if (connector.id === CONNECTION.WALLET_CONNECT_CONNECTOR_ID) {
-          connect({ connector })
+          startingRef.current = true
+          setStarting(true)
+          let mutationStarted = false
+          const startConnection = () => {
+            mutationStarted = true
+            return connectAsync({ connector })
+          }
+          void queueWalletConnect(async () => {
+            if (!oath) return startConnection()
+            const controllers = await import('@reown/appkit-controllers')
+            return connectOathWallet(
+              controllers,
+              async () => {
+                const provider = (await connector.getProvider()) as Awaited<ReturnType<typeof EthereumProvider.init>>
+                if (provider.session) await connector.disconnect()
+              },
+              startConnection,
+            )
+          })
+            .catch(() => {
+              if (!mutationStarted) {
+                notify({
+                  type: NotificationType.ERROR,
+                  title: t`Something went wrong`,
+                  summary: t`Please try again in a moment.`,
+                })
+              }
+            })
+            .finally(() => {
+              startingRef.current = false
+              setStarting(false)
+            })
         } else {
           connect({ connector, chainId: chainId as any })
         }
       }}
-      connected={isCurrentOptionPending}
+      connected={isCurrentOptionPending || isStarting}
       isDisabled={!isAcceptedTerm}
     >
       <Icon>
