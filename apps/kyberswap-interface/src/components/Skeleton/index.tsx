@@ -4,7 +4,7 @@ import LoadingSkeleton from 'react-loading-skeleton'
 import useSkeletonWidth, { type SkeletonWidthProps } from 'components/Skeleton/useSkeletonWidth'
 import useTheme from 'hooks/useTheme'
 
-type SkeletonVariant = 'light' | 'dark' | 'darkSubtle'
+type SkeletonVariant = 'light' | 'dark' | 'darkSubtle' | 'muted'
 
 export type SkeletonProps = ComponentProps<typeof LoadingSkeleton> &
   SkeletonWidthProps & {
@@ -42,6 +42,10 @@ const Skeleton = ({
     light: {
       baseColor: `var(--ks-skeleton-base-color, ${theme.background})`,
       highlightColor: `var(--ks-skeleton-highlight-color, ${theme.buttonGray})`,
+    },
+    muted: {
+      baseColor: theme.buttonGray,
+      highlightColor: `color-mix(in srgb, ${theme.buttonGray} 80%, ${theme.border})`,
     },
     dark: {
       baseColor: WHITE_12,

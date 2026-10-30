@@ -2,17 +2,17 @@ import { ChainId, type Currency } from '@kyberswap/ks-sdk-core'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import {
+import tokenChartApi, {
   TOKEN_CHART_CANDLE_INTERVAL_MS,
   type TokenChartCandle,
   type TokenChartQueryParams,
   type TokenChartTimeFrame,
   getTokenChartFromBucketMs,
-  useLazyTokenPriceChartQuery,
   useTokenPriceChartQuery,
 } from 'services/tokenChart'
 
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
+import { useAppDispatch } from 'state/hooks'
 
 const mergeTokenChartCandles = (candles: TokenChartCandle[]) =>
   [...candles]
@@ -25,20 +25,26 @@ const countRecentTransactions = (candles: TokenChartCandle[], count: number) => 
 
 /** Owns chart queries, pagination and candle derivation for one token/timeframe.
  * Cache identity includes chain, token and quote; activity uses currentData to avoid cross-token warnings. */
-export const useTokenPriceChartData = (token: Currency | undefined, timeFrame: TokenChartTimeFrame) => {
+export const useTokenPriceChartData = (
+  token: Currency | undefined,
+  timeFrame: TokenChartTimeFrame,
+  quoteCurrency?: Currency,
+) => {
   const chainId = token?.chainId ?? ChainId.MAINNET
   const activeTokenAddress = token?.wrapped.address.toLowerCase()
   const stableToken = PRICE_CHART_QUOTES[chainId]
+  const quoteToken = quoteCurrency ?? stableToken
+  const quoteAddress = quoteToken?.wrapped.address.toLowerCase()
   const stableAddress = stableToken?.wrapped.address.toLowerCase()
   const fromBucketMs = useMemo(() => getTokenChartFromBucketMs({ timeFrame }), [timeFrame])
-  const chartRequestKey = `${chainId}:${activeTokenAddress}:${stableAddress}:${timeFrame}`
-  const [fetchTokenChart] = useLazyTokenPriceChartQuery()
+  const chartRequestKey = `${chainId}:${activeTokenAddress}:${quoteAddress}:${timeFrame}`
+  const dispatch = useAppDispatch()
 
   const initialQueryParams: TokenChartQueryParams = {
     chainId,
     tokenAddress: activeTokenAddress as string,
     stableAddress,
-    quoteAddress: stableAddress,
+    quoteAddress,
     timeFrame,
     fromBucketMs,
   }
@@ -52,9 +58,12 @@ export const useTokenPriceChartData = (token: Currency | undefined, timeFrame: T
     isLoading,
   } = useInfiniteQuery({
     queryKey: ['token-price-chart', chartRequestKey, fromBucketMs],
-    enabled: Boolean(activeTokenAddress && stableAddress),
+    enabled: Boolean(activeTokenAddress && stableAddress && quoteAddress),
     initialPageParam: initialQueryParams,
-    queryFn: async ({ pageParam }) => fetchTokenChart(pageParam).unwrap(),
+    queryFn: async ({ pageParam }) =>
+      dispatch(
+        tokenChartApi.endpoints.tokenPriceChart.initiate(pageParam, { subscribe: false, forceRefetch: true }),
+      ).unwrap(),
     getNextPageParam: lastPage => {
       if (!lastPage?.candles.length) return undefined
 
@@ -77,7 +86,7 @@ export const useTokenPriceChartData = (token: Currency | undefined, timeFrame: T
       timeFrame: '1h',
       fromBucketMs: getTokenChartFromBucketMs({ timeFrame: '1h' }),
     },
-    { skip: !activeTokenAddress || !stableAddress },
+    { skip: !activeTokenAddress || !stableAddress || !quoteAddress },
   )
 
   const handleLoadMore = async () => {
@@ -110,6 +119,7 @@ export const useTokenPriceChartData = (token: Currency | undefined, timeFrame: T
 
   return {
     stableToken,
+    quoteToken,
     chartRequestKey,
     chartData,
     currentPrice,

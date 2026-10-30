@@ -40,6 +40,7 @@ export const DropdownIcon = ({
 )
 
 type Props = {
+  isCrossChain?: boolean
   rightComponent?: ReactNode
   tooltip?: ReactNode
   slippageInfo?: {
@@ -57,7 +58,14 @@ type Props = {
   /** Renders regardless of the Swap settings pin, for forms that own the control outright. */
   alwaysVisible?: boolean
 }
-const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwaysVisible }: Props) => {
+const SlippageSetting = ({
+  rightComponent,
+  tooltip,
+  slippageInfo,
+  slippage,
+  alwaysVisible,
+  isCrossChain = false,
+}: Props) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
@@ -188,6 +196,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwa
           <Stack className="gap-3 pt-2">
             <Stack className="gap-1">
               <SlippageControl
+                isCrossChain={isCrossChain}
                 isHighlight={isHighlight}
                 rawSlippage={rawSlippage}
                 setRawSlippage={setRawSlippage}

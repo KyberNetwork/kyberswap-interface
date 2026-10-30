@@ -14,7 +14,7 @@ import {
   ROW_CONTENT_HEIGHT,
 } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
-import { getNeedsImport } from 'components/TokenSelectorModal/utils'
+import { getNeedsImport, isSameCurrency } from 'components/TokenSelectorModal/utils'
 import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
 import { restrictedTokenKey } from 'hooks/useRestrictedTokens'
 import { getTokenAddress } from 'utils/tokenInfo'
@@ -87,8 +87,8 @@ export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<
   const importAsRow = needsImport && (!!data.importAsRow || held)
   const rightColumn = needsImport && !importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
-  const isSelected = Boolean(data.selectedCurrency?.equals(currency))
-  const otherSelected = Boolean(data.otherCurrency?.equals(currency))
+  const isSelected = isSameCurrency(data.selectedCurrency, currency)
+  const otherSelected = isSameCurrency(data.otherCurrency, currency)
 
   const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
   const isFavorite = favoriteTokenAddress ? data.favoriteAddressSet.has(favoriteTokenAddress.toLowerCase()) : false

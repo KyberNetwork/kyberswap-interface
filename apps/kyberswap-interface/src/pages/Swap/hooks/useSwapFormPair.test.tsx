@@ -353,3 +353,13 @@ describe('URL token resolution status', () => {
     expect(container.querySelector('[data-loading]')?.textContent).toBe('false')
   })
 })
+
+it('keeps Stop Market share URLs on their own product while preserving the pair', () => {
+  const location = getTradeLocation('stop-market', {
+    fromChain: ChainId.BASE,
+    toChain: ChainId.BASE,
+    tokenIn: 'ETH',
+    tokenOut: 'USDC',
+  })
+  expect(location).toEqual({ pathname: '/stop-market/base/eth-to-usdc', search: '' })
+})

@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { type PropsWithChildren, type ReactNode, Suspense, lazy } from 'react'
 
 import { FarmingPoolBannerSkeleton, TrendingPoolBannerSkeleton } from 'components/EarnBanner/Skeletons'
@@ -25,22 +26,34 @@ const FarmingPoolBanner = lazy(() => import('components/EarnBanner/FarmingPoolBa
 const TrendingPoolBanner = lazy(() => import('components/EarnBanner/TrendingPoolBanner'))
 
 type SwapLayoutProps = PropsWithChildren<{
+  customChainId?: ChainId
   controller: TradeController
   rightPanel?: ReactNode
   /** Shown while the right panel's code loads; a page with a shaped placeholder passes it here. */
   rightPanelFallback?: ReactNode
 }>
 
-export const SwapLayout = ({ children, controller, rightPanel, rightPanelFallback }: SwapLayoutProps) => {
+export const SwapLayout = ({
+  children,
+  controller,
+  rightPanel,
+  rightPanelFallback,
+  customChainId,
+}: SwapLayoutProps) => {
   const { activeMainTab, activeTab, shouldHighlightSwapBox, onTabChange } = controller
   useSwapLayoutPrefetch()
 
   return (
     <PageWrapper>
       <Container>
-        <LimitOrderProvider>
+        <LimitOrderProvider customChainId={customChainId}>
           <SwapFormWrapper>
-            <Header activeTab={activeTab} onTabChange={onTabChange} activeMainTab={activeMainTab} />
+            <Header
+              customChainId={customChainId}
+              activeTab={activeTab}
+              onTabChange={onTabChange}
+              activeMainTab={activeMainTab}
+            />
 
             <TradeBody
               data-highlight={shouldHighlightSwapBox}

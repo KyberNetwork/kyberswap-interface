@@ -6,13 +6,13 @@ import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { useInventoryDiscoveries } from 'components/TokenSelectorModal/hooks/useInventoryDiscoveries'
 import { useTokenFavorites } from 'components/TokenSelectorModal/hooks/useTokenFavorites'
 import { useTokenSearch } from 'components/TokenSelectorModal/hooks/useTokenSearch'
+import { useTokenSelectorSource } from 'components/TokenSelectorModal/hooks/useTokenSelectorSource'
 import { useTokenTabData } from 'components/TokenSelectorModal/hooks/useTokenTabData'
 import { TokenSort } from 'components/TokenSelectorModal/types'
 import { concatUnseenTokens, mergeHeldSearchResults, useTokenComparator } from 'components/TokenSelectorModal/utils'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useBalanceWait } from 'hooks/useBalanceWait'
-import { useAllTokens } from 'hooks/useTokens'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 import { isTokenListReady } from 'state/walletInventory/assets'
@@ -27,6 +27,7 @@ const EMPTY_CURRENCIES: Currency[] = []
 const EMPTY_TOKENS: Token[] = []
 
 type Props = {
+  requireOracle?: boolean
   primaryChainId: ChainId
   activeTab: TokenSelectorTab
   debouncedQuery: string
@@ -37,6 +38,7 @@ type Props = {
 }
 
 export const useTokenSelectorData = ({
+  requireOracle = false,
   primaryChainId,
   activeTab,
   debouncedQuery,
@@ -55,17 +57,19 @@ export const useTokenSelectorData = ({
 
   const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const defaultTokens = useAllTokens(false, primaryChainId)
+  const source = useTokenSelectorSource(primaryChainId, requireOracle)
+  const { defaultTokens, searchFilters, isListable, allowRpcSearch } = source
   const tokenImports = useUserAddedTokens(primaryChainId)
 
   const favorites = useTokenFavorites(primaryChainId, defaultTokens)
   const { pinnedTokens, favoriteAddressSet } = favorites
 
-  const search = useTokenSearch(primaryChainId, debouncedQuery, isAllTab)
+  const search = useTokenSearch(primaryChainId, debouncedQuery, isAllTab, searchFilters, allowRpcSearch)
   const { tokenSearchResults, currentChainRpcToken } = search
 
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
+      if (!isListable(token)) return false
       if (filterWrap && otherSelectedCurrency?.equals(WETH[primaryChainId])) {
         return !isTokenNative(token)
       }
@@ -74,7 +78,7 @@ export const useTokenSelectorData = ({
       }
       return true
     },
-    [primaryChainId, otherSelectedCurrency, filterWrap],
+    [primaryChainId, otherSelectedCurrency, filterWrap, isListable],
   )
 
   // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
@@ -114,6 +118,13 @@ export const useTokenSelectorData = ({
         : EMPTY_CURRENCIES,
     [isAllTab, debouncedQuery, tokenImports, primaryChainId],
   )
+  const searchNativeMatches = useMemo(
+    () =>
+      isAllTab && debouncedQuery
+        ? filterTokens(primaryChainId, Object.values(defaultTokens).filter(isTokenNative), debouncedQuery)
+        : EMPTY_TOKENS,
+    [isAllTab, debouncedQuery, primaryChainId, defaultTokens],
+  )
   // Every address the wallet holds; only set while searching, to lead with held matches and badge them.
   const heldAddresses = useMemo(
     () => (isAllTab && debouncedQuery && inventory.active ? new Set(Object.keys(inventory.rows)) : undefined),
@@ -137,7 +148,8 @@ export const useTokenSelectorData = ({
     // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
     // search hit) have no balance to show here either.
     return source.filter(
-      (token): token is Token => !!token && !isTokenNative(token) && token.chainId === primaryChainId,
+      (token): token is Token =>
+        !!token && !isTokenNative(token) && token.chainId === primaryChainId && isListable(token),
     )
   }, [
     isTrendingTab,
@@ -153,6 +165,7 @@ export const useTokenSelectorData = ({
     searchImportMatches,
     defaultTokens,
     primaryChainId,
+    isListable,
   ])
 
   const balanceTokensWithDiscoveries = useMemo(
@@ -191,7 +204,10 @@ export const useTokenSelectorData = ({
     if (!isAllTab) return EMPTY_CURRENCIES
     if (debouncedQuery) {
       return mergeHeldSearchResults(
-        concatUnseenTokens(tokenSearchResults.concat(filterTruthy([currentChainRpcToken])), searchImportMatches),
+        concatUnseenTokens(
+          tokenSearchResults.concat(filterTruthy([currentChainRpcToken])),
+          searchImportMatches.concat(searchNativeMatches),
+        ),
         searchDiscoveryMatches,
         heldAddresses,
         impersonators,
@@ -205,6 +221,7 @@ export const useTokenSelectorData = ({
     currentChainRpcToken,
     searchDiscoveryMatches,
     searchImportMatches,
+    searchNativeMatches,
     heldAddresses,
     defaultTokens,
     discoveryTokens,
@@ -239,11 +256,11 @@ export const useTokenSelectorData = ({
     const native = NativeCurrencies[primaryChainId] as Currency | undefined
     const nativeMatchesSearch =
       !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
-    const nativeLead = nativeMatchesSearch && native ? [native] : []
+    const nativeLead = nativeMatchesSearch && native && isListable(native) ? [native] : []
     const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
     const list = [...nativeLead, ...rest]
     return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
-  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth])
+  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, isListable])
 
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
@@ -264,6 +281,7 @@ export const useTokenSelectorData = ({
   )
 
   const tabData = useTokenTabData({
+    searchFilters,
     primaryChainId,
     activeTab,
     sort,
@@ -283,7 +301,12 @@ export const useTokenSelectorData = ({
   return {
     visibleCurrencies: isAllTab ? allTabTokens : tabData.currencies,
     listExtras: tabData.extras,
-    isListLoading: isAllTab ? (debouncedQuery ? search.loading : !Object.keys(defaultTokens).length) : tabData.loading,
+    isListLoading:
+      source.isLoading ||
+      (isAllTab ? (debouncedQuery ? search.loading : source.isDefaultListLoading) : tabData.loading),
+    isListable,
+    notice: source.notice,
+    emptyMessage: source.emptyMessage,
     listHasMore: isAllTab ? search.hasMore : tabData.hasMore,
     handleLoadMore,
     handleRowsRendered,

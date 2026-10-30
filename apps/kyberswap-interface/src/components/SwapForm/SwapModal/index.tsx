@@ -94,11 +94,7 @@ const SwapModal = ({ isOpen, tokenAddToMetaMask, onDismiss, onConfirm, swapCallb
           onDismiss={onDismiss}
           tokenAddToMetaMask={tokenAddToMetaMask as Token}
           extraAction={
-            <SetExitPriceButton
-              currency={currencyOut}
-              amount={routeSummary?.parsedAmountOut}
-              onNavigate={handleDismiss}
-            />
+            <SetExitPriceButton currency={currencyOut} amount={routeSummary?.parsedAmountOut} onNavigate={onDismiss} />
           }
         />
       ) : error ? (
