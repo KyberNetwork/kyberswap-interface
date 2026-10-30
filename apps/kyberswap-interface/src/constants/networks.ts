@@ -83,6 +83,28 @@ export const isSupportLimitOrder = (chainId: ChainId, envKey: EnvKeys = ENV_KEY)
   return limitOrder === '*' || (limitOrder || []).includes(envKey)
 }
 
+/**
+ * Stop market order runs on a fixed chain set instead of the per-chain, per-env `limitOrder` config.
+ *
+ * Every entry must be one the conditional-order service accepts: it rejects an unknown chain with
+ * `chain id is not supported`, and one bad id fails the whole order-list request, so listing a chain
+ * it does not know breaks the table for every chain at once.
+ * Chains it accepts but has no oracle feeds for stay in — the form degrades to "not available yet".
+ */
+const STOP_MARKET_NETWORKS: ChainId[] = [
+  ChainId.MAINNET,
+  ChainId.ARBITRUM,
+  ChainId.BSCMAINNET,
+  ChainId.OPTIMISM,
+  ChainId.BASE,
+  ChainId.MATIC,
+  ChainId.AVAXMAINNET,
+  ChainId.ROBINHOOD,
+  ChainId.HYPEREVM,
+]
+
+export const isSupportStopMarket = (chainId: ChainId): boolean => STOP_MARKET_NETWORKS.includes(chainId)
+
 // Available to cross-chain wallets and token reads, but not single-chain products.
 export const CROSS_CHAIN_ONLY_NETWORKS: ChainId[] = [ChainId.ABSTRACT]
 

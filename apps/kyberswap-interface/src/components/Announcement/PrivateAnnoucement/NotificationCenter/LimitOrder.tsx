@@ -1,14 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useNavigate } from 'react-router-dom'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
 import { Desc, Time, Title, Wrapper } from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
-import { LimitOrderStatus } from 'components/LimitOrder/types'
+import { useOrderListNavigation } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import Logo from 'components/Logo'
-import { APP_PATHS } from 'constants/index'
 import { formatTime } from 'utils/time'
 
 export default function AnnouncementItem({
@@ -52,9 +51,16 @@ export default function AnnouncementItem({
     </span>
   )
 
-  const navigate = useNavigate()
+  const navigateToOrders = useOrderListNavigation()
+  const onClick = () => {
+    const orderTab =
+      isFilled || isPartialFilled || status === LimitOrderStatus.CANCELLED || status === LimitOrderStatus.EXPIRED
+        ? LimitOrderStatus.CLOSED
+        : LimitOrderStatus.ACTIVE
+    navigateToOrders({ kind: OrderKind.LIMIT, status: orderTab, chainId })
+  }
   return (
-    <Wrapper onClick={() => navigate(APP_PATHS.LIMIT)}>
+    <Wrapper onClick={onClick}>
       <div className="flex w-full justify-between">
         <Title>
           <InboxIcon type={templateType} chainId={chainId} />

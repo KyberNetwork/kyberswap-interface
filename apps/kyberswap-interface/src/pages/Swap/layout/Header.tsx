@@ -11,6 +11,7 @@ import { HeaderRightMenu } from 'pages/Swap/layout/HeaderRightMenu'
 import { TAB, Tabs } from 'pages/Swap/layout/Tabs'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
+import { cn } from 'utils/cn'
 import { isSwapLikePath } from 'utils/routes'
 
 type HeaderProps = {
@@ -26,7 +27,9 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
   const { pathname } = useLocation()
 
   const selectedTab = activeMainTab || activeTab
-  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT
+  // Stop market order lives under the Limit Order top-level tab, so it must be excluded before the limit copy applies.
+  const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
+  const isLimitPage = !isStopMarketPage && (pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT)
   const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
 
@@ -37,7 +40,12 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
           <Tabs activeTab={selectedTab} setActiveTab={setActiveTab} customChainId={customChainId} />
           <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
         </HStack>
-        <HStack className="w-full items-center justify-between gap-3">
+        <HStack
+          className={cn(
+            'w-full items-center justify-between',
+            isLimitPage || isStopMarketPage ? '-mt-4 gap-0' : 'gap-3',
+          )}
+        >
           {isLimitPage && (
             <>
               <HiddenH1>Auto execute with your price target.</HiddenH1>
@@ -45,7 +53,17 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
                 Gasless & no slippage - Kyberswap Limit Order execute on-chain automatically when the market reaches
                 your price.
               </HiddenH2>
-              <span className="text-xs font-medium text-subText">{t`Buy or sell tokens at customized prices`}</span>
+              {/*<span className="text-xs font-medium text-subText">{t`Buy or sell tokens at customized prices`}</span>*/}
+            </>
+          )}
+          {isStopMarketPage && (
+            <>
+              <HiddenH1>Sell automatically when the price drops.</HiddenH1>
+              <HiddenH2>
+                Set a trigger price and KyberSwap sells at the best available market price when the Oracle price reaches
+                it. Free to place, and your tokens stay in your wallet until it executes.
+              </HiddenH2>
+              {/*<span className="text-xs font-medium text-subText">{t`Protect your positions from sudden price drops`}</span>*/}
             </>
           )}
           {isSwapPage && (

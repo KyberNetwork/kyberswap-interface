@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { SMART_EXIT_API_URL } from 'constants/env'
+import { CONDITIONAL_SERVICE_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { SmartExitCondition, SmartExitFee, SmartExitOrder } from 'pages/Earns/types'
 
@@ -47,7 +47,7 @@ export interface SmartExitConfig {
 
 const smartExitApi = createApi({
   reducerPath: 'smartExitApi',
-  baseQuery: fetchBaseQuery({ baseUrl: SMART_EXIT_API_URL }),
+  baseQuery: fetchBaseQuery({ baseUrl: CONDITIONAL_SERVICE_URL }),
   tagTypes: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
   endpoints: builder => ({
     getSmartExitConfig: builder.query<SmartExitConfig, ChainId>({

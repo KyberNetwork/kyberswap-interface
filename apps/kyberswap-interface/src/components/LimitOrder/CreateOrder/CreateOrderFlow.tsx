@@ -1,15 +1,12 @@
 import { Trans, t } from '@lingui/macro'
-import { useNavigate } from 'react-router-dom'
 
 import CreateOrderConfirmModal from 'components/LimitOrder/CreateOrder/CreateOrderConfirmModal'
 import type { useCreateLimitOrder } from 'components/LimitOrder/CreateOrder/useCreateLimitOrder'
 import { ProcessingOrderStep, getLimitOrderStepLabel } from 'components/LimitOrder/ProcessingOrder/steps'
-import { LimitOrderCreateContext, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { useOrderListNavigation } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrderCreateContext, LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
 import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
-import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { currencyId } from 'utils/currencyId'
 
 type CreateOrderController = ReturnType<typeof useCreateLimitOrder>
 
@@ -21,19 +18,18 @@ type CreateOrderFlowProps = {
 }
 
 const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderFlowProps) => {
-  const navigate = useNavigate()
+  const navigateToOrders = useOrderListNavigation()
   const { currencyIn, currencyOut, chainId } = order
   const processingState = useProcessingState<ProcessingOrderStep>()
 
   const viewCreatedOrder = () => {
-    const currencyPair =
-      currencyIn && currencyOut ? `/${currencyId(currencyIn, chainId)}-to-${currencyId(currencyOut, chainId)}` : ''
-    const search = new URLSearchParams({
-      tab: LimitOrderTab.MY_ORDER,
-      orderTab: LimitOrderStatus.ACTIVE,
-    }).toString()
-
-    navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId].route}${currencyPair}?${search}`)
+    navigateToOrders({
+      kind: OrderKind.LIMIT,
+      status: LimitOrderStatus.ACTIVE,
+      chainId,
+      currencyIn,
+      currencyOut,
+    })
   }
 
   const processing = useProcessingSteps<ProcessingOrderStep>({

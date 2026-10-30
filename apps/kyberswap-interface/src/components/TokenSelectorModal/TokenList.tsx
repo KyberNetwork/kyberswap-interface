@@ -16,7 +16,7 @@ import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { Balance } from 'components/TokenSelectorModal/components'
 import { BALANCE_COLUMN_CLASS, METRIC_COLUMN_CLASS } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
-import { getNeedsImport } from 'components/TokenSelectorModal/utils'
+import { getNeedsImport, isSameCurrency } from 'components/TokenSelectorModal/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
@@ -517,8 +517,8 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   const importAsRow = needsImport && (!!data.importAsRow || held)
   const rightColumn = needsImport && !importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
-  const isSelected = Boolean(data.selectedCurrency?.equals(currency))
-  const otherSelected = Boolean(data.otherCurrency?.equals(currency))
+  const isSelected = isSameCurrency(data.selectedCurrency, currency)
+  const otherSelected = isSameCurrency(data.otherCurrency, currency)
 
   const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
   const isFavorite = favoriteTokenAddress ? data.favoriteAddressSet.has(favoriteTokenAddress.toLowerCase()) : false

@@ -1,16 +1,18 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 
 import {
   AnnouncementTemplateLimitOrder,
   AnnouncementTemplateSmartExit,
+  AnnouncementTemplateStopMarket,
   PoolPositionAnnouncement,
   PrivateAnnouncement,
   SmartExitReason,
   SmartExitStatus,
 } from 'components/Announcement/type'
 import { LimitOrderStatus } from 'components/LimitOrder/types'
-import { EnvKeys, NOTI_ENV } from 'constants/env'
+import { EnvKeys, NOTI_ENV, isStopMarketExecutedTemplate } from 'constants/env'
 import { Metric, SmartExitCondition } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -22,9 +24,60 @@ export const getEarnPosition = (announcement?: PrivateAnnouncement): PoolPositio
   return undefined
 }
 
+/** A template field the service filled in; nothing for one it left as its `{{.name}}` placeholder. */
+export const getFilledTemplateField = (value?: string) =>
+  value && !value.includes('{{') && value !== 'unknown' ? value : undefined
+
+export type StopMarketExecution = {
+  chainId?: ChainId
+  txHash?: string
+  tokenInSymbol?: string
+  tokenInLogoURL?: string
+  amountIn?: string
+  tokenOutSymbol?: string
+  tokenOutLogoURL?: string
+  amountOut?: string
+  /** tokenOut per tokenIn. */
+  triggerPrice?: string
+  executedPrice?: string
+  /** Unix seconds. */
+  executedAt?: number
+}
+
+/** A stop market order executed notification's order, with only the fields the service filled in. */
+export const getStopMarketExecution = (announcement?: PrivateAnnouncement): StopMarketExecution | undefined => {
+  if (!isStopMarketExecutedTemplate(announcement?.templateId)) return undefined
+  const order = (announcement?.templateBody as AnnouncementTemplateStopMarket | undefined)?.order
+  if (!order) return undefined
+  const chainId = Number(getFilledTemplateField(order.chainId))
+  const executedAt = Number(getFilledTemplateField(order.executedAt))
+  return {
+    chainId: chainId > 0 ? (chainId as ChainId) : undefined,
+    txHash: getFilledTemplateField(order.txHash),
+    tokenInSymbol: getFilledTemplateField(order.tokenInSymbol),
+    tokenInLogoURL: getFilledTemplateField(order.tokenInLogoURL),
+    amountIn: getFilledTemplateField(order.amountIn),
+    tokenOutSymbol: getFilledTemplateField(order.tokenOutSymbol),
+    tokenOutLogoURL: getFilledTemplateField(order.tokenOutLogoURL),
+    amountOut: getFilledTemplateField(order.amountOut),
+    triggerPrice: getFilledTemplateField(order.triggerPrice),
+    executedPrice: getFilledTemplateField(order.executedPrice),
+    executedAt: executedAt > 0 ? executedAt : undefined,
+  }
+}
+
 export const getLimitOrderPreview = (
   announcement?: PrivateAnnouncement,
 ): { pair?: string; status?: string } | undefined => {
+  // Stop market orders are listed with limit orders.
+  const execution = getStopMarketExecution(announcement)
+  if (execution) {
+    const { tokenInSymbol, tokenOutSymbol } = execution
+    return {
+      pair: tokenInSymbol && tokenOutSymbol ? `${tokenInSymbol}/${tokenOutSymbol}` : undefined,
+      status: 'Stop Market Executed',
+    }
+  }
   const body = announcement?.templateBody as AnnouncementTemplateLimitOrder | undefined
   const order = body?.order
   if (!order) return undefined

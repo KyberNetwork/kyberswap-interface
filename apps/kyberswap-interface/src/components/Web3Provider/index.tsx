@@ -48,6 +48,7 @@ import { setMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLin
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import { KYBERSWAP_URL } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
+import { syncWalletChain } from 'hooks/web3/walletChainSync'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 
@@ -631,7 +632,9 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     const unwatch = watchChainId(wagmiConfig, {
       onChange(chainId) {
         if (isSupportedChainId(chainId)) {
-          dispatch(updateChainId(chainId as any))
+          // App-requested switches own the chain + destination update. Buffer early wallet events
+          // until that operation settles; otherwise sync external wallet changes immediately.
+          syncWalletChain(() => dispatch(updateChainId(chainId as any)))
         }
       },
     })

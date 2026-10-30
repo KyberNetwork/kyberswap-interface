@@ -18,7 +18,7 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress } from 'utils/address'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
-import { getSwapIntentFromPath, resolveSwapIntentPair } from 'utils/routes'
+import { getSwapIntentFromPath, getTradeProductPath, resolveSwapIntentPair } from 'utils/routes'
 
 interface ParsedUrlQuery {
   [key: string]: string | string[]
@@ -30,6 +30,7 @@ export function useSwapState(): AppState['swap'] {
 
 export function useSwapActionHandlers(): {
   onCurrencySelection: (field: Field, currency: Currency) => void
+  onPairSelection: (currencyIn: Currency, currencyOut: Currency) => void
   onSwitchTokens: () => void
   onSwitchTokensV2: () => void
   onUserInput: (field: Field, typedValue: string) => void
@@ -45,16 +46,37 @@ export function useSwapActionHandlers(): {
 
   const allTokens = useAllTokens()
 
+  // How the pair route names a currency: by symbol when it is native or whitelisted, else by address.
+  const getUrlCurrencyId = useCallback(
+    (currency: Currency) =>
+      allTokens[currency?.wrapped.address || '']?.isWhitelisted || currency.isNative
+        ? currency.symbol?.toLowerCase() || ''
+        : currency.address.toLowerCase(),
+    [allTokens],
+  )
+
+  const navigateToPair = useCallback(
+    (from: string, to: string) => {
+      // Preserve existing search params
+      const currentSearchParams = new URLSearchParams(window.location.search)
+      const searchString = currentSearchParams.toString()
+
+      const newPath = `${getTradeProductPath(window.location.pathname)}/${
+        NETWORKS_INFO[chainId].route
+      }/${encodeURIComponent(from)}-to-${encodeURIComponent(to)}`
+
+      navigate(searchString ? `${newPath}?${searchString}` : newPath)
+    },
+    [chainId, navigate],
+  )
+
   const onCurrencySelection = useCallback(
     (field: Field, currency: Currency) => {
       let f = fromCurrency,
         to = toCurrency
 
-      const isWhitelisted = allTokens[currency?.wrapped.address || '']?.isWhitelisted
-
       if (field === Field.INPUT) {
-        const newFrom =
-          isWhitelisted || currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.address.toLowerCase()
+        const newFrom = getUrlCurrencyId(currency)
         f = newFrom
         if (
           newFrom === toCurrency ||
@@ -64,8 +86,7 @@ export function useSwapActionHandlers(): {
           to = fromCurrency
         }
       } else {
-        const newTo =
-          isWhitelisted || currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.address.toLowerCase()
+        const newTo = getUrlCurrencyId(currency)
         to = newTo
         if (
           newTo === f ||
@@ -76,17 +97,19 @@ export function useSwapActionHandlers(): {
         }
       }
 
-      // Preserve existing search params
-      const currentSearchParams = new URLSearchParams(window.location.search)
-      const searchString = currentSearchParams.toString()
-
-      const newPath = `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
-        NETWORKS_INFO[chainId].route
-      }/${encodeURIComponent(f)}-to-${encodeURIComponent(to)}`
-
-      navigate(searchString ? `${newPath}?${searchString}` : newPath)
+      navigateToPair(f, to)
     },
-    [fromCurrency, chainId, toCurrency, navigate, allTokens],
+    [fromCurrency, toCurrency, getUrlCurrencyId, navigateToPair],
+  )
+
+  /**
+   * Sets both sides in one navigation. Each single-side setter builds its route from the pair as the
+   * URL held it when the handler was made, so two in a row would have the second undo the first.
+   */
+  const onPairSelection = useCallback(
+    (currencyIn: Currency, currencyOut: Currency) =>
+      navigateToPair(getUrlCurrencyId(currencyIn), getUrlCurrencyId(currencyOut)),
+    [getUrlCurrencyId, navigateToPair],
   )
 
   const [isDegenMode] = useDegenModeManager()
@@ -108,7 +131,7 @@ export function useSwapActionHandlers(): {
 
   const onSwitchTokens = useCallback(() => {
     navigate(
-      `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+      `${getTradeProductPath(window.location.pathname)}/${
         NETWORKS_INFO[chainId].route
       }/${toCurrency}-to-${fromCurrency}`,
     )
@@ -116,7 +139,7 @@ export function useSwapActionHandlers(): {
 
   const onSwitchTokensV2 = useCallback(() => {
     navigate(
-      `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+      `${getTradeProductPath(window.location.pathname)}/${
         NETWORKS_INFO[chainId].route
       }/${toCurrency}-to-${fromCurrency}`,
     )
@@ -147,6 +170,7 @@ export function useSwapActionHandlers(): {
     onSwitchTokens,
     onSwitchTokensV2,
     onCurrencySelection,
+    onPairSelection,
     onUserInput,
     onChangeRecipient,
     onResetSelectCurrency, // deselect token in select input: (use cases: remove "imported token")
@@ -341,12 +365,15 @@ export const useOutputCurrency = () => {
   return isSamePair(inputCurrency, outputCurrency) ? undefined : outputCurrency
 }
 
-export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
+/** A pair named by its tokens' addresses, for a category other than the one of the pair on the page. */
+export type PairTokens = { tokenIn: string; tokenOut: string }
+
+export const usePairCategory = (customChainId?: ChainId, pair?: PairTokens): PAIR_CATEGORY => {
   const { chainId } = useActiveWeb3React()
   const inputCurrency = useInputCurrency()
   const outputCurrency = useOutputCurrency()
-  const inputAddress = inputCurrency?.wrapped.address
-  const outputAddress = outputCurrency?.wrapped.address
+  const inputAddress = pair ? pair.tokenIn : inputCurrency?.wrapped.address
+  const outputAddress = pair ? pair.tokenOut : outputCurrency?.wrapped.address
 
   const { data } = useCheckPairQuery(
     {
@@ -361,8 +388,8 @@ export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
 
   return data?.data.category || PAIR_CATEGORY.EXOTIC
 }
-export const useDefaultSlippageByPair = (customChainId?: ChainId) => {
-  const cat = usePairCategory(customChainId)
+export const useDefaultSlippageByPair = (customChainId?: ChainId, pair?: PairTokens) => {
+  const cat = usePairCategory(customChainId, pair)
 
   switch (cat) {
     case PAIR_CATEGORY.STABLE:

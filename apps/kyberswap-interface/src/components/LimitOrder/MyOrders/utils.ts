@@ -3,14 +3,11 @@ import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { isActiveStatus } from 'components/LimitOrder/utils'
 import { NativeCurrencies } from 'constants/tokens'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 export const LIST_ORDER_TABS = [LimitOrderStatus.ACTIVE, LimitOrderStatus.CLOSED] as const
-
-type ListOrderTab = (typeof LIST_ORDER_TABS)[number]
 
 type OrderTypeOption = {
   label: string
@@ -35,9 +32,6 @@ export const getCloseOrderOptions = (): OrderTypeOption[] => [
     value: LimitOrderStatus.EXPIRED,
   },
 ]
-
-export const getActiveTabByOrderType = (orderType: LimitOrderStatus): ListOrderTab =>
-  isActiveStatus(orderType) ? LimitOrderStatus.ACTIVE : LimitOrderStatus.CLOSED
 
 export const formatStatus = (status: LimitOrderStatus): string => {
   switch (status) {

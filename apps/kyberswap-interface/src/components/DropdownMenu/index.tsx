@@ -34,6 +34,8 @@ type DropdownMenuProps = {
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   usePortal?: boolean
+  /** Extra classes for the trigger, for a surface that styles its filters differently. */
+  triggerClassName?: string
   onChange: (value: string | number) => void
   /** When set, the trigger and each option get `<testid>-trigger` / `<testid>-option` (+ `data-value`). */
   'data-testid'?: string
@@ -51,6 +53,7 @@ const DropdownMenu = ({
   mobileFullWidth = false,
   mobileHalfWidth = false,
   usePortal = false,
+  triggerClassName,
   onChange,
   'data-testid': dataTestId,
 }: DropdownMenuProps) => {
@@ -170,6 +173,7 @@ const DropdownMenu = ({
           flatten={flatten}
           background={background}
           highlight={flatten && open}
+          className={triggerClassName}
           onClick={handleOpenChange}
           data-testid={dataTestId ? `${dataTestId}-trigger` : undefined}
         >

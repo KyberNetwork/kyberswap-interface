@@ -17,6 +17,10 @@ msgstr ""
 msgid "Uncorrelated tokens filled orders will give 5 Points per USD. This section includes orders of any eligible token to any eligible token that do not fall in category 1; 3 and 4."
 msgstr "Uncorrelated tokens filled orders will give 5 Points per USD. This section includes orders of any eligible token to any eligible token that do not fall in category 1; 3 and 4."
 
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Invert rate"
+msgstr "Invert rate"
+
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "Rate:"
 msgstr "Rate:"
@@ -44,6 +48,10 @@ msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgid "Disconnect"
 msgstr "Disconnect"
 
+#: src/components/StopMarket/Form/useStopMarketWarnings.tsx
+msgid "Stop Market orders are not available on {0} yet."
+msgstr "Stop Market orders are not available on {0} yet."
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 #~ msgid "Finding the best route..."
 #~ msgstr "Finding the best route..."
@@ -70,11 +78,19 @@ msgstr "Cond:"
 msgid "Updated"
 msgstr "Updated"
 
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "Slippage this low may cause your Stop Market order to fail during volatile markets — the conditions it exists for."
+msgstr "Slippage this low may cause your Stop Market order to fail during volatile markets — the conditions it exists for."
+
 #: src/pages/Earns/components/RewardsFilterSetting.tsx
 msgid "Position Status"
 msgstr "Position Status"
 
-#: src/components/LimitOrder/MyOrders/utils.ts
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Your Stop Market order was cancelled."
+msgstr "Your Stop Market order was cancelled."
+
 #: src/components/LimitOrder/OrderList/index.tsx
 msgid "Open Orders"
 msgstr "Open Orders"
@@ -125,6 +141,10 @@ msgstr "Increase Liquidity"
 msgid "Any Other Pairs"
 msgstr "Any Other Pairs"
 
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Are you sure you want to cancel this Stop Market order?"
+msgstr "Are you sure you want to cancel this Stop Market order?"
+
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
 msgstr "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
@@ -137,6 +157,10 @@ msgstr "Exported profiles will not be associated with your wallet. Your export c
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "1. John refers Vitalik."
 msgstr "1. John refers Vitalik."
+
+#: src/components/StopMarket/OrderTypeSubTabs.tsx
+msgid "Trade at exactly your price"
+msgstr "Trade at exactly your price"
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "Refunded"
@@ -153,6 +177,10 @@ msgstr "Wrap {nativeSymbol}"
 #: src/pages/Earns/components/SmartExit/Warning.tsx
 msgid "Trigger time must be before the order expires. Adjust the time settings accordingly."
 msgstr "Trigger time must be before the order expires. Adjust the time settings accordingly."
+
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Triggered"
+msgstr "Triggered"
 
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #~ msgid "day"
@@ -221,6 +249,11 @@ msgstr "Farming rewards"
 msgid "Volume"
 msgstr "Volume"
 
+#: src/components/LimitOrder/MyOrders/HistoryPagination.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Next page"
+msgstr "Next page"
+
 #: src/components/Tutorial/TutorialSwap/index.tsx
 #~ msgid "Select from over thousands of tokens and start trading. KyberSwap finds you superior prices across multiple exchanges & combines them into one trade!"
 #~ msgstr "Select from over thousands of tokens and start trading. KyberSwap finds you superior prices across multiple exchanges & combines them into one trade!"
@@ -242,6 +275,11 @@ msgstr "Waiting For Confirmation"
 msgid "FAQ"
 msgstr "FAQ"
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+#: src/components/StopMarket/CreateOrder/useCreateStopMarket.tsx
+msgid "Order updated"
+msgstr "Order updated"
+
 #: src/components/Header/web3/SelectNetwork.tsx
 msgid "Unable to switch network. Please try it on your wallet."
 msgstr "Unable to switch network. Please try it on your wallet."
@@ -249,6 +287,11 @@ msgstr "Unable to switch network. Please try it on your wallet."
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Which activities earn points?"
 msgstr "Which activities earn points?"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Cancel and reclaim"
+msgstr "Cancel and reclaim"
 
 #: src/components/LimitOrder/LimitOrderForm.tsx
 #: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
@@ -367,6 +410,8 @@ msgid "Elastic is not supported on Blast. Please switch to other chains"
 msgstr "Elastic is not supported on Blast. Please switch to other chains"
 
 #: src/components/LimitOrder/MyOrders/components.tsx
+#: src/components/LimitOrder/OrderList/index.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/KyberDAO/Vote/ProposalListComponent.tsx
 msgid "History"
@@ -452,6 +497,10 @@ msgstr "You can make trades with high price impact and without any confirmation 
 msgid "No contract found"
 msgstr "No contract found"
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Fill {fillNumber}"
+msgstr "Fill {fillNumber}"
+
 #: src/constants/index.ts
 #~ msgid "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs."
 #~ msgstr "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs."
@@ -478,6 +527,7 @@ msgstr "An error occurred. Invalid Permit Signature."
 
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 #: src/components/LimitOrder/Form/LimitOrderForm.tsx
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Switch to {0}"
 msgstr "Switch to {0}"
@@ -494,6 +544,10 @@ msgstr "Request withdrawal"
 #: src/utils/time.ts
 msgid "{min} {formatM} ago"
 msgstr "{min} {formatM} ago"
+
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "Expand"
+msgstr "Expand"
 
 #: src/pages/Earns/components/VaultDeposit/SlippageSelect.tsx
 msgid "Applied to the swap this deposit or withdrawal routes through. A higher tolerance helps the transaction succeed, but you may get a worse price."
@@ -514,6 +568,11 @@ msgstr "Vote now"
 #: src/components/WalletPopup/Transactions/PendingWarning.tsx
 msgid "Transaction stuck? <0><1>See here</1></0>"
 msgstr "Transaction stuck? <0><1>See here</1></0>"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "You can cancel anytime before expiry at no cost."
+msgstr "You can cancel anytime before expiry at no cost."
 
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "By KyberSwap"
@@ -542,6 +601,10 @@ msgstr "My wallet generates 100 eligible transaction hashes. Are only the first 
 msgid "You've eligible for Week {rewaredWeek} \"Swap For An Opportunity\" Campaign Rewards 🎁"
 msgstr "You've eligible for Week {rewaredWeek} \"Swap For An Opportunity\" Campaign Rewards 🎁"
 
+#: src/components/StopMarket/Form/TriggerPriceSection.tsx
+msgid "Trigger at"
+msgstr "Trigger at"
+
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Is the SafePal X1 Hardware Wallet free?"
 msgstr "Is the SafePal X1 Hardware Wallet free?"
@@ -559,8 +622,8 @@ msgstr "When"
 msgid "FDV"
 msgstr "FDV"
 
-#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
-#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#: src/pages/Earns/components/VaultDeposit/useDepositForm.ts
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 msgid "Finding best route"
 msgstr "Finding best route"
 
@@ -571,6 +634,10 @@ msgstr "Stable Pairs:"
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months."
 msgstr "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months."
+
+#: src/components/StopMarket/Form/useStopMarketWarnings.tsx
+msgid "Stop Market orders are not available for {0} — no Oracle price feed."
+msgstr "Stop Market orders are not available for {0} — no Oracle price feed."
 
 #: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "<0>{0} {makerAssetSymbol}</0> and receive <1>{1} {takerAssetSymbol}</1> <2>at {takerAssetSymbol} price of {rate} {makerAssetSymbol}</2>"
@@ -646,6 +713,10 @@ msgstr "Ended"
 msgid "Join Now"
 msgstr "Join Now"
 
+#: src/components/StopMarket/Form/useStopMarketWarnings.tsx
+msgid "Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
+msgstr "Your {symbol} balance is fully used by your open Stop Market orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
+
 #: src/hooks/kyberdao/index.tsx
 #~ msgid "Unknown error"
 #~ msgstr "Unknown error"
@@ -716,8 +787,8 @@ msgid "TOTAL AMOUNT (USD)"
 msgstr "TOTAL AMOUNT (USD)"
 
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
-msgid "Cancel & reclaim"
-msgstr "Cancel & reclaim"
+#~ msgid "Cancel & reclaim"
+#~ msgstr "Cancel & reclaim"
 
 #: src/components/LimitOrder/CreateOrder/CreateOrderConfirmModal.tsx
 msgid "Review your order"
@@ -732,6 +803,7 @@ msgid "Joined"
 msgstr "Joined"
 
 #: src/components/TransactionSettings/index.tsx
+#: src/pages/Earns/components/VaultDegenModeRow.tsx
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings.tsx
 #: src/pages/Swap/components/SwapSettingsPanel/DegenModeSetting.tsx
 msgid "Degen Mode"
@@ -777,6 +849,10 @@ msgstr "Your Balance"
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 msgid "Est. Gas Fee"
 msgstr "Est. Gas Fee"
+
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "{fillGap}% below trigger"
+msgstr "{fillGap}% below trigger"
 
 #: src/components/TipLinkGeneratorModal/index.tsx
 msgid "Unsupported file"
@@ -829,7 +905,12 @@ msgstr "The current rewards are based on your current rank. See Information for 
 msgid "Error occur, please try again"
 msgstr "Error occur, please try again"
 
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Discard changes"
+msgstr "Discard changes"
+
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
 msgid "Bulk Cancellation"
 msgstr "Bulk Cancellation"
 
@@ -946,6 +1027,18 @@ msgstr "Get notified via Telegram when this position moves out of range or back 
 #~ msgid "and receive"
 #~ msgstr "and receive"
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+msgid "Signing update"
+msgstr "Signing update"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Review New Stop Market Order"
+msgstr "Review New Stop Market Order"
+
+#: src/components/LimitOrder/MyOrders/HistoryPagination.tsx
+msgid "Order history pages"
+msgstr "Order history pages"
+
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Increase liquidity"
 msgstr "Increase liquidity"
@@ -965,8 +1058,8 @@ msgstr "No participants found for this week."
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor."
-msgstr "The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor."
+#~ msgid "The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor."
+#~ msgstr "The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor."
 
 #: src/components/TokenSelectorModal/TabBar.tsx
 msgid "Trending"
@@ -1204,6 +1297,7 @@ msgid "Signing..."
 msgstr "Signing..."
 
 #: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
@@ -1282,6 +1376,11 @@ msgstr "Automatically remove liquidity from this position when your pre-set rice
 msgid "Cancel order to pay {mainMsg} failed"
 msgstr "Cancel order to pay {mainMsg} failed"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+#: src/components/StopMarket/Form/TriggerPriceSection.tsx
+msgid "above current Oracle price"
+msgstr "above current Oracle price"
+
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "I understand"
 msgstr "I understand"
@@ -1303,6 +1402,10 @@ msgstr "Forgot your Passcode?"
 #: src/components/RefreshLoading/index.tsx
 #~ msgid "Click to refresh, occur once per second."
 #~ msgstr "Click to refresh, occur once per second."
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Min. Receive"
+msgstr "Min. Receive"
 
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 msgid "There was an issue while trying to find a price for these tokens. Please try again. Otherwise, you may select some other tokens to swap."
@@ -1372,8 +1475,8 @@ msgid "Due to a <0><1>potential issue</1></0> with our legacy Elastic protocol, 
 msgstr "Due to a <0><1>potential issue</1></0> with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited <2>{0}</2> where you can add liquidity normally instead."
 
 #: src/components/LimitOrder/OrderList/index.tsx
-msgid "My Order(s)"
-msgstr "My Order(s)"
+#~ msgid "My Order(s)"
+#~ msgstr "My Order(s)"
 
 #: src/pages/Campaign/components/MyDashboard/ReferralDashboard.tsx
 #~ msgid "TIME"
@@ -1489,6 +1592,10 @@ msgstr "Show less"
 msgid "How are points calculated?"
 msgstr "How are points calculated?"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+msgid "You will receive:"
+msgstr "You will receive:"
+
 #: src/components/DateTimePicker/index.tsx
 #: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
 msgid "1 Day"
@@ -1499,6 +1606,10 @@ msgstr "1 Day"
 #: src/pages/KyberDAO/StakeKNC/SwitchToEthereumModal.tsx
 msgid "Switch Network"
 msgstr "Switch Network"
+
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Gas-less Cancel All Orders"
+msgstr "Gas-less Cancel All Orders"
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Exotic tokens are generally lower-liquidity or lesser-known assets that do not meet the criteria for Stable, Common, or High Volatility categories."
@@ -1563,6 +1674,10 @@ msgstr "How do I claim my SafePal X1 Hardware Wallet?"
 msgid "Refreshing route"
 msgstr "Refreshing route"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Wrap & Confirm Stop Market Order"
+msgstr "Wrap & Confirm Stop Market Order"
+
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Actions"
@@ -1590,6 +1705,7 @@ msgid "Wallet is not connected"
 msgstr "Wallet is not connected"
 
 #: src/components/ConfirmModal.tsx
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
 #: src/pages/Campaign/components/JoinReferral.tsx
@@ -1752,6 +1868,7 @@ msgstr "By signing this message, you confirm your participation in the KyberSwap
 msgid "Fee Yield"
 msgstr "Fee Yield"
 
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 #: src/pages/NotificationCenter/PriceAlerts/AlertType.tsx
 msgid "below"
 msgstr "below"
@@ -1882,6 +1999,10 @@ msgstr "Insufficient {symbol} balance"
 msgid "Order successfully listed"
 msgstr "Order successfully listed"
 
+#: src/components/StopMarket/MyOrders/index.tsx
+msgid "Executed Orders"
+msgstr "Executed Orders"
+
 #: src/pages/Campaign/components/ClaimButton.tsx
 #: src/pages/Campaign/components/ClaimButton.tsx
 msgid "Claim failed"
@@ -1934,9 +2055,18 @@ msgstr "Total Amount (USDC)"
 #~ msgid "Once you add {0}, the order will be executed at <0>{1}%</0> below the market price."
 #~ msgstr "Once you add {0}, the order will be executed at <0>{1}%</0> below the market price."
 
+#: src/components/StopMarket/constants.ts
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Forever"
+msgstr "Forever"
+
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "<0>Note</0>: The referral bonus applies only on trades made on KyberSwap.com within the Aggregator Trading Campaign."
 msgstr "<0>Note</0>: The referral bonus applies only on trades made on KyberSwap.com within the Aggregator Trading Campaign."
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "No supported tokens found. Stop Market orders only support tokens with an Oracle price feed."
+msgstr "No supported tokens found. Stop Market orders only support tokens with an Oracle price feed."
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "You will receive at least this amount or your transaction will revert."
@@ -1972,6 +2102,10 @@ msgstr "My claim-able rewards"
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "You need to first give a temporary 24H approval to KyberSwap's smart contract to use your {0}. This doesn't require a gas fees. <0>Read more ↗</0>"
 msgstr "You need to first give a temporary 24H approval to KyberSwap's smart contract to use your {0}. This doesn't require a gas fees. <0>Read more ↗</0>"
+
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Could not load your Stop Market orders. Retrying…"
+msgstr "Could not load your Stop Market orders. Retrying…"
 
 #: src/components/Tutorial/index.tsx
 msgid "To learn more about how to increase liquidity to KyberSwap Elastic, view <0> here</0>"
@@ -2012,6 +2146,10 @@ msgstr "Connect wallet to view notification"
 msgid "In-Progress"
 msgstr "In-Progress"
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+msgid "View order"
+msgstr "View order"
+
 #: src/components/LimitOrder/OrderList/index.tsx
 msgid "Open Limit Orders"
 msgstr "Open Limit Orders"
@@ -2020,9 +2158,10 @@ msgstr "Open Limit Orders"
 msgid "Market Price"
 msgstr "Market Price"
 
-#: src/components/LimitOrder/ListOrder/index.tsx
-#~ msgid "Search by token symbol or token address"
-#~ msgstr "Search by token symbol or token address"
+#: src/components/LimitOrder/MyOrders/index.tsx
+#: src/components/StopMarket/MyOrders/index.tsx
+msgid "Search by token symbol or token address"
+msgstr "Search by token symbol or token address"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -2057,6 +2196,7 @@ msgstr "Any Other Pairs:"
 msgid "Join Referral Campaign Failed"
 msgstr "Join Referral Campaign Failed"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "You will receive"
@@ -2114,6 +2254,7 @@ msgstr "(ii) holds a licence issued by MAS for the provision of, or is authorise
 #~ msgid "Sell {symbol} at rate"
 #~ msgstr "Sell {symbol} at rate"
 
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
 msgid "Pair"
@@ -2178,6 +2319,10 @@ msgstr "Active Alerts"
 msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "Your trade is routed through one of these cross-chain sources."
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+msgid "Sign Stop Market order"
+msgstr "Sign Stop Market order"
+
 #: src/pages/Earns/components/EarnSidebar/index.tsx
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
@@ -2217,8 +2362,8 @@ msgid "Delegate Address"
 msgstr "Delegate Address"
 
 #: src/pages/Earns/components/VaultPriceImpactNote.tsx
-msgid "Unable to calculate the price impact of this route."
-msgstr "Unable to calculate the price impact of this route."
+#~ msgid "Unable to calculate the price impact of this route."
+#~ msgstr "Unable to calculate the price impact of this route."
 
 #: src/pages/Campaign/components/JoinReferral.tsx
 msgid "Invite your friends"
@@ -2227,6 +2372,10 @@ msgstr "Invite your friends"
 #: src/components/ElasticHackedModal.tsx
 msgid "Go to My Pool"
 msgstr "Go to My Pool"
+
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Trigger price reached but the order hasn't filled yet. Still retrying."
+msgstr "Trigger price reached but the order hasn't filled yet. Still retrying."
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -2248,6 +2397,10 @@ msgstr "At execution, KyberSwap compares candidate pools on-chain in real time a
 #: src/components/Menu/FaucetModal.tsx
 msgid "Faucet"
 msgstr "Faucet"
+
+#: src/components/StopMarket/Form/TriggerPriceSection.tsx
+msgid "Derived from each token's independent price feed. Your order triggers when this price reaches your level."
+msgstr "Derived from each token's independent price feed. Your order triggers when this price reaches your level."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -2288,6 +2441,10 @@ msgstr "RANK"
 msgid "Info"
 msgstr "Info"
 
+#: src/components/StopMarket/OrderTypeSubTabs.tsx
+msgid "Stop Market: Automatically triggers a swap via KyberSwap Aggregator when your specified price parameters are met, based on third-party price data."
+msgstr "Stop Market: Automatically triggers a swap via KyberSwap Aggregator when your specified price parameters are met, based on third-party price data."
+
 #: src/pages/Earns/components/SmartExit/useSmartExit.ts
 msgid "Your smart exit order has been successfully created and is now active."
 msgstr "Your smart exit order has been successfully created and is now active."
@@ -2313,6 +2470,7 @@ msgstr "Some topics that you need to be whitelist to subscribe"
 
 #: src/components/CurrencyInputPanel/index.tsx
 #: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
+#: src/components/StopMarket/hooks/useStopMarketAmountShortcuts.ts
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
@@ -2323,6 +2481,10 @@ msgstr "Max"
 msgid "Go back"
 msgstr "Go back"
 
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
+msgid "Slippage"
+msgstr "Slippage"
+
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Only trading volume executed on <0>kyberswap.com/swap/base</0> is counted."
 msgstr "Only trading volume executed on <0>kyberswap.com/swap/base</0> is counted."
@@ -2330,6 +2492,10 @@ msgstr "Only trading volume executed on <0>kyberswap.com/swap/base</0> is counte
 #: src/components/Tutorial/TutorialSwap/TutorialMobile.tsx
 #~ msgid "{0} easy ways to get started with KyberSwap"
 #~ msgstr "{0} easy ways to get started with KyberSwap"
+
+#: src/components/StopMarket/Form/useStopMarketWarnings.tsx
+msgid "Cannot receive {0} when selling {1} — they are the same asset."
+msgstr "Cannot receive {0} when selling {1} — they are the same asset."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -2379,6 +2545,7 @@ msgid "<0>Slippage</0><1>is high. Your transaction may be front-run</1>"
 msgstr "<0>Slippage</0><1>is high. Your transaction may be front-run</1>"
 
 #: src/components/LimitOrder/MyOrders/utils.ts
+#: src/components/StopMarket/MyOrders/index.tsx
 msgid "Cancelled Orders"
 msgstr "Cancelled Orders"
 
@@ -2422,12 +2589,10 @@ msgstr "Rewards are distributed based on the points leaderboard - the more point
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
-#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/components/VaultDeposit/useDepositForm.ts
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/UserPositions/TableContent.tsx
-#: src/pages/Earns/VaultDetail/DepositTab.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 msgid "Connect Wallet"
 msgstr "Connect Wallet"
 
@@ -2442,6 +2607,11 @@ msgstr "Exit this position"
 #: src/components/SwapForm/SlippageSettingGroup.tsx
 #~ msgid "Gas Token"
 #~ msgstr "Gas Token"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "Set a trigger price"
+msgstr "Set a trigger price"
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Bitcoin L1 ↔ Solana L1"
@@ -2551,6 +2721,10 @@ msgstr "We have sent a verification code to <0>{email}</0>. Please enter the cod
 msgid "Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%."
 msgstr "Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%."
 
+#: src/components/StopMarket/Form/useStopMarketWarnings.tsx
+msgid "Cannot receive {0} — no Oracle price feed for the receive token."
+msgstr "Cannot receive {0} — no Oracle price feed for the receive token."
+
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 msgid "<0>31,500 ARB</0> is allocated for this campaign each week."
 msgstr "<0>31,500 ARB</0> is allocated for this campaign each week."
@@ -2580,6 +2754,7 @@ msgid "Confirmation"
 msgstr "Confirmation"
 
 #: src/pages/Swap/components/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Display Settings"
 msgstr "Display Settings"
 
@@ -2594,8 +2769,7 @@ msgstr "You are currently claiming"
 msgid "Rethink"
 msgstr "Rethink"
 
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 msgid "No asset can be withdrawn from this vault right now."
 msgstr "No asset can be withdrawn from this vault right now."
 
@@ -2604,6 +2778,7 @@ msgid "Multichain team ceased operations, and we discourage user interaction wit
 msgstr "Multichain team ceased operations, and we discourage user interaction with the deployed Wrapped KNC token contracts on various chains. See more <0>here</0>"
 
 #: src/components/LimitOrder/MyOrders/components.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
 msgid "No orders found."
 msgstr "No orders found."
 
@@ -2745,12 +2920,21 @@ msgstr "Swaps"
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "Slippage this high means your order could fill meaningfully below the market price at the moment it executes."
+msgstr "Slippage this high means your order could fill meaningfully below the market price at the moment it executes."
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Only tokens with an Oracle price feed are shown. Stop Market orders trigger on that price."
+msgstr "Only tokens with an Oracle price feed are shown. Stop Market orders trigger on that price."
+
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "A portion of your voting power can only be used from the next Epoch onward"
 msgstr "A portion of your voting power can only be used from the next Epoch onward"
 
 #: src/components/TokenInfo/SecurityInfo/Content.tsx
-#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/pages/Earns/VaultDetail/withdrawRequestStatus.ts
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -2838,6 +3022,7 @@ msgstr "{pendingLength} Pending"
 
 #: src/components/LimitOrder/MyOrders/utils.ts
 #: src/components/LimitOrder/MyOrders/utils.ts
+#: src/components/StopMarket/MyOrders/components.tsx
 msgid "Active"
 msgstr "Active"
 
@@ -2977,6 +3162,10 @@ msgstr "Zap Out"
 msgid "Create a new pool"
 msgstr "Create a new pool"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "The order triggers once the Oracle price is at or below this price."
+msgstr "The order triggers once the Oracle price is at or below this price."
+
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Error {summary}."
 msgstr "Error {summary}."
@@ -3008,6 +3197,10 @@ msgstr "Limit order price is <0>{displayPercent}</0> higher than the market. We 
 #: src/pages/ProAmmPool/index.tsx
 msgid "Show closed positions"
 msgstr "Show closed positions"
+
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
+msgid "Distance"
+msgstr "Distance"
 
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "Trades made on <0>https://kyberswap.com/swap/arbitrum</0> which created the rewards from Trading campaign will be eligible for referrals bonus."
@@ -3055,6 +3248,10 @@ msgstr "successfully filled"
 msgid "Enter your email address to receive notifications."
 msgstr "Enter your email address to receive notifications."
 
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
+msgid "Sell Amount"
+msgstr "Sell Amount"
+
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 msgid "Alerts Created: {totalAlerts}/{maxAlerts}"
 msgstr "Alerts Created: {totalAlerts}/{maxAlerts}"
@@ -3086,8 +3283,6 @@ msgstr "Price Alert"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
-#: src/pages/Earns/PoolExplorer/Filter.tsx
-#: src/pages/Earns/PoolExplorer/index.tsx
 #: src/pages/Earns/PositionDetail/Header.tsx
 #: src/pages/Earns/PositionDetail/index.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
@@ -3096,7 +3291,7 @@ msgstr "Price Alert"
 msgid "My Positions"
 msgstr "My Positions"
 
-#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/pages/Earns/VaultDetail/withdrawRequestStatus.ts
 msgid "Replaced"
 msgstr "Replaced"
 
@@ -3107,6 +3302,10 @@ msgstr "User denied message signature"
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "→ Hash 1 is chosen for promotional rewards."
 msgstr "→ Hash 1 is chosen for promotional rewards."
+
+#: src/components/StopMarket/hooks/useStopMarketPriceMarkers.tsx
+msgid "Trigger"
+msgstr "Trigger"
 
 #: src/components/LimitOrder/TakeOrder/useTakeOrderValidation.tsx
 msgid "Max fill: <0>{0} {1}</0> at this rate"
@@ -3120,6 +3319,14 @@ msgstr "You have successfully cancelled all orders."
 msgid "Search by chain name"
 msgstr "Search by chain name"
 
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Cancelling..."
+msgstr "Cancelling..."
+
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Order cancelled"
+msgstr "Order cancelled"
+
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 #~ msgid "Step 1 - Stake KNC on KyberDAO<0/>Step 2 - Trade on KyberSwap"
 #~ msgstr "Step 1 - Stake KNC on KyberDAO<0/>Step 2 - Trade on KyberSwap"
@@ -3127,6 +3334,10 @@ msgstr "Search by chain name"
 #: src/components/Header/web3/SelectWallet.tsx
 #~ msgid "You are not signed in with this wallet address. If you wish, you can <0>sign-in</0> to link your wallet to a profile. This will allow us to offer you a better experience."
 #~ msgstr "You are not signed in with this wallet address. If you wish, you can <0>sign-in</0> to link your wallet to a profile. This will allow us to offer you a better experience."
+
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "Collapse"
+msgstr "Collapse"
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "profile <0>{currentProfileName}</0>"
@@ -3210,6 +3421,11 @@ msgstr "Joined Weekly Rewards"
 #~ msgid "Processing time"
 #~ msgstr "Processing time"
 
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Cancel request"
+msgstr "Cancel request"
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemEarnPosition.tsx
 msgid "Removed:"
 msgstr "Removed:"
@@ -3273,6 +3489,10 @@ msgstr "Confirm Price"
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Stake Information"
 msgstr "Stake Information"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Replaced by"
+msgstr "Replaced by"
 
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "You are canceling {0} active orders"
@@ -3339,6 +3559,10 @@ msgstr "Please connect your wallet to view your affected position(s). If your Af
 msgid "TXN HASH"
 msgstr "TXN HASH"
 
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Trigger price reached, but your {maxSlippage} max slippage is too tight for current market conditions. Still retrying — raise your slippage to fill sooner."
+msgstr "Trigger price reached, but your {maxSlippage} max slippage is too tight for current market conditions. Still retrying — raise your slippage to fill sooner."
+
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 msgid "Best Return"
 msgstr "Best Return"
@@ -3383,6 +3607,11 @@ msgstr "Take Back Ownership"
 msgid "My Current Position"
 msgstr "My Current Position"
 
+#: src/components/StopMarket/Form/TriggerPriceSection.tsx
+#: src/components/StopMarket/hooks/useStopMarketPriceMarkers.tsx
+msgid "Oracle"
+msgstr "Oracle"
+
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "You've joined. Start trading this week to appear on the leaderboard."
 msgstr "You've joined. Start trading this week to appear on the leaderboard."
@@ -3410,6 +3639,10 @@ msgstr "Available LP Tokens"
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Hex (often as hexadecimal) is a base-16 numbering system, 0-9 represent the same values as in decimal (0-9).<0/>A-F represent decimal values 10-15."
 msgstr "Hex (often as hexadecimal) is a base-16 numbering system, 0-9 represent the same values as in decimal (0-9).<0/>A-F represent decimal values 10-15."
+
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "Stop Market order not available for {0}"
+msgstr "Stop Market order not available for {0}"
 
 #: src/hooks/useLogin.tsx
 msgid "Signed out successfully"
@@ -3482,6 +3715,7 @@ msgid "KyberDAO is a community platform that allows KNC token holders to partici
 msgstr "KyberDAO is a community platform that allows KNC token holders to participate in governance. KNC holders can stake KNC to vote on proposals. In return, they receive rewards from fees generated on KyberSwap through trading activities in Kyber Network."
 
 #: src/components/Header/groups/SwapNavGroup.tsx
+#: src/components/Header/groups/SwapNavGroup.tsx
 msgid "Trade"
 msgstr "Trade"
 
@@ -3544,6 +3778,7 @@ msgstr "New Suggested Slippage:"
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/Swap/components/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Advanced Settings"
 msgstr "Advanced Settings"
 
@@ -3572,9 +3807,22 @@ msgstr "Send"
 msgid "Deposit Anyway"
 msgstr "Deposit Anyway"
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Executed at"
+msgstr "Executed at"
+
+#: src/components/LimitOrder/hooks/useLimitOrderPriceMarkers.tsx
+msgid "LIMIT"
+msgstr "LIMIT"
+
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 msgid "Deposit token"
 msgstr "Deposit token"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/Form/StopMarketReceiveSection.tsx
+msgid "Amount Out"
+msgstr "Amount Out"
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Staking KNC"
@@ -3622,6 +3870,10 @@ msgstr "Each week, eligible participants have approximately 7 days to claim thei
 #~ msgid "Routed via {0}"
 #~ msgstr "Routed via {0}"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Try again"
+msgstr "Try again"
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Where you can buy KNC"
 msgstr "Where you can buy KNC"
@@ -3640,6 +3892,8 @@ msgid "Earn breadcrumbs"
 msgstr "Earn breadcrumbs"
 
 #: src/components/LimitOrder/Form/LimitOrderTokenSection.tsx
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 msgid "You Sell"
 msgstr "You Sell"
 
@@ -3675,12 +3929,21 @@ msgstr "Position Partially Removed"
 msgid "Smart Exit is currently not supported on {dexName}"
 msgstr "Smart Exit is currently not supported on {dexName}"
 
+#: src/pages/Earns/components/VaultDegenModeRow.tsx
+msgid "Turn this on to make trades with very high price impact. This can result in bad rates and loss of funds. Be cautious."
+msgstr "Turn this on to make trades with very high price impact. This can result in bad rates and loss of funds. Be cautious."
+
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PriceAlert.tsx
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 #: src/pages/NotificationCenter/PriceAlerts/CommonSingleAlert.tsx
 msgid "Note"
 msgstr "Note"
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
+msgid "Expires"
+msgstr "Expires"
 
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
@@ -3756,6 +4019,10 @@ msgstr "Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}"
 #~ msgid "Deposit flow coming soon."
 #~ msgstr "Deposit flow coming soon."
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Executed"
+msgstr "Executed"
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 msgid "{filledPercentLabel} Filled"
 msgstr "{filledPercentLabel} Filled"
@@ -3822,6 +4089,10 @@ msgstr "Removing {0} {1} and {2} {3}{4}{5}"
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your import token"
 msgstr "Your import token"
+
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Requested {summary}"
+msgstr "Requested {summary}"
 
 #: src/pages/Earns/SmartExitOrders/OrderItem.tsx
 msgid "Received amount"
@@ -3894,7 +4165,9 @@ msgstr "Review the Cross-chain Swap"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 #: src/components/LimitOrder/MyOrders/utils.ts
-#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
+#: src/pages/Earns/VaultDetail/withdrawRequestStatus.ts
 msgid "Expired"
 msgstr "Expired"
 
@@ -3963,6 +4236,10 @@ msgstr "Max fee is capped at 100% for safety."
 #: src/components/Announcement/helpers.ts
 msgid "Smart Exit updated"
 msgstr "Smart Exit updated"
+
+#: src/components/StopMarket/hooks/useStopMarketFeeEstimate.ts
+msgid "The fee could not be estimated. Please try again."
+msgstr "The fee could not be estimated. Please try again."
 
 #: src/components/Badge/RangeBadge.tsx
 msgid "Your position has 0 liquidity, and is not earning fees"
@@ -4034,6 +4311,10 @@ msgstr "We could not read fee data from the server. Please try again."
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 #~ msgid "Receive as"
 #~ msgstr "Receive as"
+
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "You have {insufficientFundOrders} active orders that don't have sufficient funds."
+msgstr "You have {insufficientFundOrders} active orders that don't have sufficient funds."
 
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "My fees earned"
@@ -4171,6 +4452,10 @@ msgstr "Insufficient liquidity for this trade"
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Total est. rewards"
 msgstr "Total est. rewards"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Insufficient {sellSymbol} funds"
+msgstr "Insufficient {sellSymbol} funds"
 
 #: src/utils/slippage.ts
 #: src/utils/slippage.ts
@@ -4362,8 +4647,8 @@ msgid "Total Earned"
 msgstr "Total Earned"
 
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
-msgid "Expired on"
-msgstr "Expired on"
+#~ msgid "Expired on"
+#~ msgstr "Expired on"
 
 #: src/components/SwapForm/PriceImpactNote.tsx
 #~ msgid "<0>Price Impact</0> is very high. You will lose funds! {0}"
@@ -4380,6 +4665,10 @@ msgstr "Open scan explorer"
 #: src/components/Menu/FaucetModal.tsx
 msgid "Request"
 msgstr "Request"
+
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Price Impact is high"
+msgstr "Price Impact is high"
 
 #: src/pages/Campaign/components/MyDashboard/RaffleDashboard.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
@@ -4405,6 +4694,7 @@ msgstr "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out mor
 #~ msgstr "Approving {tokenSymbol}"
 
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
 msgid "Cancel Order"
 msgstr "Cancel Order"
 
@@ -4439,6 +4729,10 @@ msgstr "How can I be eligible to the trading campaign?"
 #: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
 msgid "1 Hour"
 msgstr "1 Hour"
+
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+msgid "Processing Stop Market Order"
+msgstr "Processing Stop Market Order"
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees."
@@ -4519,6 +4813,7 @@ msgstr "<0>Bitcoin L1 winning wallets</0> will only receive an airdrop <1>if the
 msgid "<0>667 x <1/></0> are reserved for the Top 667 participants on the weekly leaderboard. Any rewards that remain unclaimed after the leaderboard claim period will move to a First-Come, First-Served (FCFS) round in the following week."
 msgstr "<0>667 x <1/></0> are reserved for the Top 667 participants on the weekly leaderboard. Any rewards that remain unclaimed after the leaderboard claim period will move to a First-Come, First-Served (FCFS) round in the following week."
 
+#: src/components/StopMarket/Form/StopMarketFeeSummary.tsx
 #: src/pages/CrossChainSwap/components/QuoteSteps.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
@@ -4529,6 +4824,10 @@ msgstr "Fee"
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Example: A user earns 100 points. Total participant points = 1,000. Weekly reward pool = $20,000. User reward = (100 / 1,000) × 20,000 = $2,000."
 msgstr "Example: A user earns 100 points. Total participant points = 1,000. Weekly reward pool = $20,000. User reward = (100 / 1,000) × 20,000 = $2,000."
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Returned"
+msgstr "Returned"
 
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
 msgid "Est. Output (incl. fee)"
@@ -4542,6 +4841,11 @@ msgstr "Gas Fee"
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 msgid "Route Options"
 msgstr "Route Options"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Review Update"
+msgstr "Review Update"
 
 #: src/components/TipLinkGeneratorModal/index.tsx
 msgid "Failed to generate link"
@@ -4608,8 +4912,8 @@ msgid "Voting starts in:"
 msgstr "Voting starts in:"
 
 #: src/components/TokenPriceChart/index.tsx
-msgid "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data. Values may differ from prices on other platforms."
-msgstr "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data. Values may differ from prices on other platforms."
+msgid "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or Oracle data. Values may differ from prices on other platforms."
+msgstr "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or Oracle data. Values may differ from prices on other platforms."
 
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "The referral data, including My Referrals, My Estimated Rewards, and Referees' Wallet Addresses, is updated approximately hourly."
@@ -4659,6 +4963,10 @@ msgstr "Your available LP Token balance after staking (if applicable)"
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Can not read QR code"
 msgstr "Can not read QR code"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Edit Stop Market Order"
+msgstr "Edit Stop Market Order"
 
 #: src/pages/Campaign/components/CampaignStats/NearIntentCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
@@ -4792,6 +5100,10 @@ msgstr "Closed Positions"
 msgid "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
 msgstr "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
 
+#: src/components/StopMarket/hooks/useStopMarketPriceMarkers.tsx
+msgid "Stop Market Order"
+msgstr "Stop Market Order"
+
 #: src/components/ReadMore/index.tsx
 #~ msgid "Read more"
 #~ msgstr "Read more"
@@ -4808,6 +5120,10 @@ msgstr "Powered By"
 msgid "Cannot vote at this moment"
 msgstr "Cannot vote at this moment"
 
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Invert price"
+msgstr "Invert price"
+
 #: src/pages/ElasticSnapshot/index.tsx
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "POSITION LIQUIDITY (USD)"
@@ -4817,6 +5133,10 @@ msgstr "POSITION LIQUIDITY (USD)"
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #~ msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
 #~ msgstr "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
+
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Trigger price reached, but your balance is short. You need {balanceShort} more {sellSymbol} — still retrying, so the order will fill once your balance is topped up."
+msgstr "Trigger price reached, but your balance is short. You need {balanceShort} more {sellSymbol} — still retrying, so the order will fill once your balance is topped up."
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Points are earned from eligible trading activity using Swap, Zap, Cross-Chain Swap, Limit Order and Smart Exit Orders on kyberswap.com"
@@ -4833,6 +5153,10 @@ msgstr "Merkl Bonus:"
 #: src/pages/Earns/Landing/index.tsx
 msgid "💎 Stable Pairs"
 msgstr "💎 Stable Pairs"
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Review Stop Market Order"
+msgstr "Review Stop Market Order"
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Unwrap"
@@ -4873,6 +5197,10 @@ msgstr "List of pools added as favorite"
 msgid "Trading volume is rounded down to the nearest $100. For example, if your trading volume is $199, it will be counted as $100."
 msgstr "Trading volume is rounded down to the nearest $100. For example, if your trading volume is $199, it will be counted as $100."
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+msgid "Signing Stop Market order"
+msgstr "Signing Stop Market order"
+
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #~ msgid "LP Fees"
 #~ msgstr "LP Fees"
@@ -4894,6 +5222,10 @@ msgstr "<0>Week 5</0> Aug 05 - Aug 11"
 #: src/components/LimitOrder/utils.ts
 msgid "Invalid signature"
 msgstr "Invalid signature"
+
+#: src/components/LimitOrder/MyOrders/HistoryPagination.tsx
+msgid "Page {currentPage}"
+msgstr "Page {currentPage}"
 
 #: src/pages/Earns/components/SmartExit/Metrics/TimeInput.tsx
 msgid "Set Schedule"
@@ -4977,8 +5309,7 @@ msgstr "Username (Optional)"
 msgid "Please review the details of your deposit:"
 msgstr "Please review the details of your deposit:"
 
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 msgid "Withdrawals are unavailable for this vault right now."
 msgstr "Withdrawals are unavailable for this vault right now."
 
@@ -5017,6 +5348,10 @@ msgstr "Use any 2 different products: +20 points"
 #: src/components/DateTimePicker/index.tsx
 msgid "Order will Expire on"
 msgstr "Order will Expire on"
+
+#: src/components/StopMarket/CreateOrder/useCreateStopMarket.tsx
+msgid "Selling {inputAmount} {sellSymbol} when the price reaches {triggerPrice} {receiveSymbol}."
+msgstr "Selling {inputAmount} {sellSymbol} when the price reaches {triggerPrice} {receiveSymbol}."
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "High Volatility tokens are newly listed tokens that experience significant price swings."
@@ -5180,6 +5515,10 @@ msgstr "Refers to any trading pairs that are not classified as Stable Pairs."
 msgid "Approving token"
 msgstr "Approving token"
 
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "<0>Notice</0>: Some of your {symbol} is already reserved by an open Stop Market Order - review it <1>here</1>."
+msgstr "<0>Notice</0>: Some of your {symbol} is already reserved by an open Stop Market Order - review it <1>here</1>."
+
 #: src/components/SwapForm/GasPriceNote.tsx
 #~ msgid "Gas fees and Price Impact are very high. You will lose your funds."
 #~ msgstr "Gas fees and Price Impact are very high. You will lose your funds."
@@ -5191,6 +5530,7 @@ msgstr "Profile Picture"
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
 #: src/pages/CrossChainSwap/components/Summary.tsx
+#: src/pages/Earns/components/VaultPriceImpactRow.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price Impact"
@@ -5284,6 +5624,10 @@ msgstr "EVM ↔ EVM (excl same chain)"
 msgid "Can't create pool because {0} is a fee-on-transfer token"
 msgstr "Can't create pool because {0} is a fee-on-transfer token"
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Min amount out"
+msgstr "Min amount out"
+
 #: src/components/ProcessingSteps/stepLabels.ts
 msgid "Approve token"
 msgstr "Approve token"
@@ -5316,6 +5660,10 @@ msgstr "If a campaign has 10 reward-qualifying hashes and my wallet owns 5, how 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "In the event that multiple participants achieve the same score for a ranked position (e.g., two users tied for Rank 1), the corresponding rewards for that rank and the following rank will be combined and equally distributed among the tied participants."
 msgstr "In the event that multiple participants achieve the same score for a ranked position (e.g., two users tied for Rank 1), the corresponding rewards for that rank and the following rank will be combined and equally distributed among the tied participants."
+
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Cancel by signing a message, without paying gas. You can recreate the orders anytime."
+msgstr "Cancel by signing a message, without paying gas. You can recreate the orders anytime."
 
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
 msgid "Creating Order..."
@@ -5372,6 +5720,8 @@ msgstr "Staked {0}"
 #~ msgid "Suitable for stable pairs. Anticipating price to fluctuate within ~0.3%. You can earn fees even if the price goes up by 0.15% or goes down by 0.15%."
 #~ msgstr "Suitable for stable pairs. Anticipating price to fluctuate within ~0.3%. You can earn fees even if the price goes up by 0.15% or goes down by 0.15%."
 
+#: src/pages/Earns/components/VaultSettingsMenu.tsx
+#: src/pages/Earns/components/VaultSettingsMenu.tsx
 #: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 #: src/pages/Swap/layout/HeaderRightMenu.tsx
 msgid "Settings"
@@ -5413,6 +5763,10 @@ msgstr "Click Migrate to start the migration process from KNC Legacy to the new 
 msgid "Exact Allowance"
 msgstr "Exact Allowance"
 
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Are you sure you want to cancel {orderCount} Stop Market orders?"
+msgstr "Are you sure you want to cancel {orderCount} Stop Market orders?"
+
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #~ msgid "ACTIONS"
 #~ msgstr "ACTIONS"
@@ -5452,6 +5806,10 @@ msgstr "You wish to give KyberSwap permission to use the selected token for tran
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #~ msgid "MORE INFORMATION"
 #~ msgstr "MORE INFORMATION"
+
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "No order history yet."
+msgstr "No order history yet."
 
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
 #: src/components/WalletPopup/MyAssets.tsx
@@ -5495,7 +5853,7 @@ msgstr "Category 2"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
-#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/pages/Earns/VaultDetail/withdrawRequestStatus.ts
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Pending"
 msgstr "Pending"
@@ -5503,6 +5861,10 @@ msgstr "Pending"
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "Affected Assets taken from Affected Pools by subsequent activity (“Category 2 MBA”) of two mimicking bots mimicking the Primary Exploit, which Affected Assets have yet to be recovered"
 msgstr "Affected Assets taken from Affected Pools by subsequent activity (“Category 2 MBA”) of two mimicking bots mimicking the Primary Exploit, which Affected Assets have yet to be recovered"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Wrap & Confirm"
+msgstr "Wrap & Confirm"
 
 #: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your order was {filledPercent}% filled"
@@ -5588,9 +5950,12 @@ msgstr "Exit when fee yield"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Header/groups/SwapNavGroup.tsx
+#: src/components/LimitOrder/hooks/useLimitOrderPriceMarkers.tsx
 #: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 #: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/OrderList/index.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
+#: src/components/StopMarket/OrderTypeSubTabs.tsx
 #: src/components/SwapForm/PriceImpactNote.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Swap/layout/LimitTab.tsx
@@ -5653,6 +6018,10 @@ msgstr "Stake your KNC (<0>Kyber Network Crystal</0>) tokens to <1>vote on KIPs<
 msgid "LP Fee APR"
 msgstr "LP Fee APR"
 
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Cancel Stop Market Order"
+msgstr "Cancel Stop Market Order"
+
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "You have no saved tokens yet."
 msgstr "You have no saved tokens yet."
@@ -5707,9 +6076,17 @@ msgstr "Points are calculated based on the trading volume of eligible tokens —
 msgid "Export Profile"
 msgstr "Export Profile"
 
+#: src/components/StopMarket/OrderTypeSubTabs.tsx
+msgid "Trade the moment your price is hit"
+msgstr "Trade the moment your price is hit"
+
 #: src/utils/errorMessage.ts
 msgid "An error occurred"
 msgstr "An error occurred"
+
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+msgstr "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "You are connected to KyberSwap with wallet <0>{0}</0> while your current profile <1>{currentProfileName}</1> was created by wallet <2>{1}</2>. Do you wish to keep using"
@@ -5853,6 +6230,10 @@ msgstr "Your wallet not support chain {name}"
 #: src/pages/Earns/components/VaultDeposit/vaultSteps.tsx
 #~ msgid "Approve {tokenSymbol}"
 #~ msgstr "Approve {tokenSymbol}"
+
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "{fillGap}% above trigger"
+msgstr "{fillGap}% above trigger"
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "Cycle ends in"
@@ -6030,6 +6411,10 @@ msgstr "TOTAL CLAIMABLE REWARDS"
 msgid "You have zero liquidity to remove"
 msgstr "You have zero liquidity to remove"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Instant exit uses market liquidity; output may differ from native redeem."
+msgstr "Instant exit uses market liquidity; output may differ from native redeem."
+
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
 #: src/pages/Earns/MyVaults/index.tsx
@@ -6038,6 +6423,7 @@ msgstr "My Vaults"
 
 #: src/components/DateTimePicker/index.tsx
 #: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+#: src/components/StopMarket/constants.ts
 msgid "7 Days"
 msgstr "7 Days"
 
@@ -6058,8 +6444,8 @@ msgid "Cancel Orders Failed"
 msgstr "Cancel Orders Failed"
 
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem."
-msgstr "Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem."
+#~ msgid "Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem."
+#~ msgstr "Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem."
 
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "This token isn't frequently swapped. Please do your own research before trading."
@@ -6098,6 +6484,10 @@ msgstr "Price Range"
 #: src/pages/CrossChainSwap/components/QuoteProviderName.tsx
 #~ msgid "Beta"
 #~ msgstr "Beta"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Withdrawals progress"
+msgstr "Withdrawals progress"
 
 #: src/components/PositionCard/index.tsx
 #: src/pages/ElasticLegacy/AllPositionLegacy.tsx
@@ -6169,6 +6559,10 @@ msgstr "For every $100 volume, participants earn points based on the following d
 #~ msgid "ORDER STATUS"
 #~ msgstr "ORDER STATUS"
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Created at"
+msgstr "Created at"
+
 #: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 msgid "Swapping {0} for {1}"
 msgstr "Swapping {0} for {1}"
@@ -6191,12 +6585,9 @@ msgstr "Sign-In with Wallet"
 msgid "Suggestion"
 msgstr "Suggestion"
 
-#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-#~ msgid "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
-#~ msgstr "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
+#: src/pages/Earns/components/VaultPriceImpactRow.tsx
+msgid "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
+msgstr "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
 
 #: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
 #~ msgid "Open settings"
@@ -6207,6 +6598,7 @@ msgid "Position History"
 msgstr "Position History"
 
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/pages/Earns/VaultDetail/withdrawRequestStatus.ts
 msgid "Requested"
 msgstr "Requested"
 
@@ -6293,9 +6685,9 @@ msgstr "No notifications found"
 msgid "<0>Your </0><1>Slippage</1><2> {msg}</2>"
 msgstr "<0>Your </0><1>Slippage</1><2> {msg}</2>"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
-#~ msgid "Cancel Orders"
-#~ msgstr "Cancel Orders"
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Cancel Orders"
+msgstr "Cancel Orders"
 
 #: src/components/Toggle/ListToggle.tsx
 #~ msgid "OFF"
@@ -6346,6 +6738,10 @@ msgstr "How to participate"
 msgid "Unable to join Weekly Rewards"
 msgstr "Unable to join Weekly Rewards"
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Deposited {summary}"
+msgstr "Deposited {summary}"
+
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "Vote submitting"
 msgstr "Vote submitting"
@@ -6353,6 +6749,10 @@ msgstr "Vote submitting"
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "Affected Assets taken from Affected Pools by the primary KyberSwap Elastic Exploit (“Primary Exploit”) which commenced on November 22, 2023 at 10:54 PM UTC, which Affected Assets have yet to be recovered"
 msgstr "Affected Assets taken from Affected Pools by the primary KyberSwap Elastic Exploit (“Primary Exploit”) which commenced on November 22, 2023 at 10:54 PM UTC, which Affected Assets have yet to be recovered"
+
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Withdrawn {summary}"
+msgstr "Withdrawn {summary}"
 
 #: src/pages/Earns/components/SmartExit/index.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
@@ -6363,6 +6763,11 @@ msgstr "Set Up Smart Exit"
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "You need to first allow KyberSwap's smart contract to use your {0}. <0>Read more ↗</0>"
 msgstr "You need to first allow KyberSwap's smart contract to use your {0}. <0>Read more ↗</0>"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all."
+msgstr "The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all."
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
@@ -6383,6 +6788,10 @@ msgstr "User reward = (User Points/Total Points) * Weekly Prize Pool"
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "Sign-in"
 msgstr "Sign-in"
+
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "No active Stop Market orders. Place your first order above."
+msgstr "No active Stop Market orders. Place your first order above."
 
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
@@ -6436,6 +6845,10 @@ msgstr "Connected successfully with profile {name}."
 msgid "Maximum Receiving"
 msgstr "Maximum Receiving"
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Connect your wallet to view your Stop Market orders."
+msgstr "Connect your wallet to view your Stop Market orders."
+
 #: src/pages/Earns/PositionDetail/index.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
 msgid "View Pools"
@@ -6444,6 +6857,15 @@ msgstr "View Pools"
 #: src/pages/KyberDAO/Vote/SearchProposal.tsx
 msgid "Search proposals"
 msgstr "Search proposals"
+
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Price Impact is very high. You will lose funds!"
+msgstr "Price Impact is very high. You will lose funds!"
+
+#: src/components/LimitOrder/MyOrders/HistoryPagination.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Previous page"
+msgstr "Previous page"
 
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 msgid "3rd Party (Merkl) Incentives"
@@ -6555,6 +6977,10 @@ msgstr "Blog"
 msgid "Eligible Transactions"
 msgstr "Eligible Transactions"
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Transaction"
+msgstr "Transaction"
+
 #: src/components/Toggle/LegacyToggle.tsx
 #~ msgid "Off"
 #~ msgstr "Off"
@@ -6569,8 +6995,8 @@ msgstr "Kyber Zap"
 #~ msgstr "per"
 
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
-msgid "Pending withdrawals"
-msgstr "Pending withdrawals"
+#~ msgid "Pending withdrawals"
+#~ msgstr "Pending withdrawals"
 
 #: src/pages/NotificationCenter/PriceAlerts/Header.tsx
 msgid "Alerts History"
@@ -6703,6 +7129,10 @@ msgstr "Verifying"
 msgid "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
 msgstr "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
 
+#: src/components/StopMarket/Form/StopMarketFeeSummary.tsx
+msgid "At this size the fee is {share}% of your order. Execution costs the same regardless of order size."
+msgstr "At this size the fee is {share}% of your order. Execution costs the same regardless of order size."
+
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
@@ -6759,6 +7189,10 @@ msgstr "Order will trigger on"
 #~ msgid "+{otherRequestCount} more"
 #~ msgstr "+{otherRequestCount} more"
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Position Balance: <0/> {0}"
+msgstr "Position Balance: <0/> {0}"
+
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #~ msgid "LIMIT ORDER(S)"
@@ -6772,6 +7206,7 @@ msgstr "Order will trigger on"
 msgid "<0>To become a Referrer</0>, users simply need to click on \"Invite your friends,\" sign an on-chain message to confirm their participation (if you were referred by a friend and have already signed the message as a referee, you won't need to sign again), and then generate a link ready to share."
 msgstr "<0>To become a Referrer</0>, users simply need to click on \"Invite your friends,\" sign an on-chain message to confirm their participation (if you were referred by a friend and have already signed the message as a referee, you won't need to sign again), and then generate a link ready to share."
 
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 #: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Turn on to display pricing chart."
 msgstr "Turn on to display pricing chart."
@@ -6800,9 +7235,17 @@ msgstr "Remove liquidity"
 msgid "Logging out"
 msgstr "Logging out"
 
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "{orderCount} Stop Market orders were cancelled."
+msgstr "{orderCount} Stop Market orders were cancelled."
+
 #: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Insufficient funds"
 msgstr "Insufficient funds"
+
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "View supported tokens"
+msgstr "View supported tokens"
 
 #: src/components/WalletPopup/type.ts
 msgid "Reward Center"
@@ -6821,6 +7264,10 @@ msgstr "<0>Week 3</0> July 22 - July 28"
 msgid "Insufficient liquidity available. Please reload page or increase max slippage and try again!"
 msgstr "Insufficient liquidity available. Please reload page or increase max slippage and try again!"
 
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Edit Order"
+msgstr "Edit Order"
+
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Unstaking {inputValue} KNC from KyberDAO"
 msgstr "Unstaking {inputValue} KNC from KyberDAO"
@@ -6828,6 +7275,10 @@ msgstr "Unstaking {inputValue} KNC from KyberDAO"
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 9</0> Sep 02 - Sep 08"
 msgstr "<0>Week 9</0> Sep 02 - Sep 08"
+
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>Stop Market orders</2>."
+msgstr "<0>Notice</0>: Some of your {symbol} is already reserved by open orders - review your <1>limit orders</1> and <2>Stop Market orders</2>."
 
 #: src/components/ModalCommunity/index.tsx
 #~ msgid "Community"
@@ -6850,6 +7301,10 @@ msgstr "Cancel an order"
 #: src/pages/NotificationCenter/PriceAlerts/DeleteSingleAlertButton.tsx
 msgid "Delete"
 msgstr "Delete"
+
+#: src/components/StopMarket/constants.ts
+msgid "90 Days"
+msgstr "90 Days"
 
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
@@ -6928,6 +7383,7 @@ msgid "Acknowledge"
 msgstr "Acknowledge"
 
 #: src/components/DateTimePicker/index.tsx
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
 #: src/components/TokenSelectorModal/SwitchChainModal.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
@@ -6945,7 +7401,6 @@ msgstr "Acknowledge"
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
-#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 #: src/pages/ElasticSnapshot/components/TermAndPolicyModal.tsx
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 msgid "Cancel"
@@ -7083,6 +7538,7 @@ msgstr "Set Custom Slippage"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 #: src/components/ProcessingSteps/ProcessingStepsModal.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "View transaction"
 msgstr "View transaction"
@@ -7167,6 +7623,10 @@ msgstr "Pool Address:"
 #: src/components/TokenInfo/utils.ts
 msgid "External Call"
 msgstr "External Call"
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Current Oracle price"
+msgstr "Current Oracle price"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
@@ -7294,6 +7754,10 @@ msgstr "Your passcode"
 msgid "Your Position Liquidity"
 msgstr "Your Position Liquidity"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Free to place and cancel · Fee on execution"
+msgstr "Free to place and cancel · Fee on execution"
+
 #: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "No staking is required to earn rewards in these pools"
@@ -7329,11 +7793,16 @@ msgstr "DAO Governance"
 msgid "Condition saved"
 msgstr "Condition saved"
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
 #: src/pages/Campaign/hooks/useRaffleCampaignJoin.ts
 #: src/pages/Campaign/hooks/useSafePalCampaignJoin.ts
 #: src/utils/errorMessage.ts
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
+
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
+msgid "Received"
+msgstr "Received"
 
 #: src/components/Menu/components/LegacySection.tsx
 #: src/pages/MyPool/index.tsx
@@ -7350,10 +7819,8 @@ msgstr "Withdraw Anyway"
 #~ msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range."
 #~ msgstr "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range."
 
-#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
-#: src/pages/Earns/VaultDetail/DepositTab.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#: src/pages/Earns/components/VaultDeposit/useDepositForm.ts
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 msgid "Switch to {chainName}"
 msgstr "Switch to {chainName}"
 
@@ -7392,6 +7859,7 @@ msgid "Trigger time must be in the future. Adjust the time settings accordingly.
 msgstr "Trigger time must be in the future. Adjust the time settings accordingly."
 
 #: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
+#: src/components/LimitOrder/hooks/useLimitOrderPriceMarkers.tsx
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -7403,6 +7871,7 @@ msgid "Example:"
 msgstr "Example:"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/UserPositions/index.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -7447,6 +7916,11 @@ msgstr "Disable the alert after it triggers once"
 msgid "Copy wallet address"
 msgstr "Copy wallet address"
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+#: src/components/StopMarket/CreateOrder/useCreateStopMarket.tsx
+msgid "Stop Market order placed"
+msgstr "Stop Market order placed"
+
 #: src/pages/Swap/layout/LimitTab.tsx
 msgid "You have {numberOfActiveOrders} active orders."
 msgstr "You have {numberOfActiveOrders} active orders."
@@ -7489,6 +7963,7 @@ msgstr "Join Referral Campaign Success"
 
 #: src/components/Announcement/AnnouncementHeader.tsx
 #: src/components/Announcement/PrivateAnnoucement/index.tsx
+#: src/components/LimitOrder/hooks/useLimitOrderPriceMarkers.tsx
 msgid "Limit Orders"
 msgstr "Limit Orders"
 
@@ -7572,6 +8047,10 @@ msgstr "Analytics ↗"
 #: src/components/WalletPopup/SendToken/WarningBrave.tsx
 msgid "Please ensure the selected token has been imported in your Brave wallet before sending. Otherwise, your transaction will be rejected. In this case, you can quickly import token with contract address below."
 msgstr "Please ensure the selected token has been imported in your Brave wallet before sending. Otherwise, your transaction will be rejected. In this case, you can quickly import token with contract address below."
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Fee (incl. gas)"
+msgstr "Fee (incl. gas)"
 
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
@@ -7659,6 +8138,10 @@ msgstr "Earn History"
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "How do you calculate the rewards?"
 msgstr "How do you calculate the rewards?"
+
+#: src/components/StopMarket/Form/StopMarketFeeSummary.tsx
+msgid "Covers the protocol fee plus the gas KyberSwap pays to execute on-chain. Execution costs the same regardless of order size, so small orders pay the minimum."
+msgstr "Covers the protocol fee plus the gas KyberSwap pays to execute on-chain. Execution costs the same regardless of order size, so small orders pay the minimum."
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Importing..."
@@ -7821,9 +8304,9 @@ msgstr "Notifications"
 #~ msgid "Unable to access wallet"
 #~ msgstr "Unable to access wallet"
 
-#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
-#~ msgid "Back"
-#~ msgstr "Back"
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Back"
+msgstr "Back"
 
 #: src/pages/Earns/VaultDetail/index.tsx
 #~ msgid "Position Balance: {amount} {symbol}"
@@ -7854,13 +8337,13 @@ msgid "Order Rate"
 msgstr "Order Rate"
 
 #: src/components/LimitOrder/TakeOrder/useTakeOrderValidation.tsx
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+#: src/components/StopMarket/Form/StopMarketForm.tsx
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 #: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
-#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
-#: src/pages/Earns/VaultDetail/DepositTab.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#: src/pages/Earns/components/VaultDeposit/useDepositForm.ts
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 msgid "Enter an amount"
@@ -7869,6 +8352,7 @@ msgstr "Enter an amount"
 #: src/components/Header/web3/SelectWallet.tsx
 #: src/components/LimitOrder/Form/LimitOrderForm.tsx
 #: src/components/Menu/FaucetModal.tsx
+#: src/components/StopMarket/Form/StopMarketForm.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/components/YieldPools/ElasticFarmGroup/buttons.tsx
 #: src/pages/Campaign/components/CampaignStats/NearIntentCampaignStats.tsx
@@ -7936,6 +8420,10 @@ msgstr "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}
 msgid "Your order to pay {mainMsg} was successfully filled"
 msgstr "Your order to pay {mainMsg} was successfully filled"
 
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "a newer request"
+msgstr "a newer request"
+
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/LimitOrder.tsx
 msgid "Your order to pay <0/> {makingAmount} {makerAssetSymbol} and receive <1/> {takingAmount} {takerAssetSymbol} when <2>1 {makerAssetSymbol} is equal to </2><3>{takingAmountRate} {takerAssetSymbol}</3> was {statusMessage}"
 msgstr "Your order to pay <0/> {makingAmount} {makerAssetSymbol} and receive <1/> {takingAmount} {takerAssetSymbol} when <2>1 {makerAssetSymbol} is equal to </2><3>{takingAmountRate} {takerAssetSymbol}</3> was {statusMessage}"
@@ -7968,11 +8456,16 @@ msgstr "Enter {networkName} receiving address"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Header/groups/CampaignNavGroup.tsx
+#: src/components/Header/styleds.tsx
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/components/TokenSelectorModal/TabBar.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "New"
 msgstr "New"
+
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+msgid "Updating Stop Market Order"
+msgstr "Updating Stop Market Order"
 
 #: src/hooks/useLogin.tsx
 #: src/hooks/useLogin.tsx
@@ -8003,6 +8496,10 @@ msgstr "Approving"
 msgid "Github"
 msgstr "Github"
 
+#: src/pages/Earns/utils/vaultFormat.ts
+msgid "{count} tokens"
+msgstr "{count} tokens"
+
 #: src/components/SwapForm/SlippageSettingGroup.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "Add MEV Protection to safeguard you from front-running attacks."
@@ -8017,6 +8514,7 @@ msgid "Blacklisted Function"
 msgstr "Blacklisted Function"
 
 #: src/components/LimitOrder/MyOrders/components.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
 msgid "Active Orders"
 msgstr "Active Orders"
 
@@ -8065,8 +8563,8 @@ msgid "The Campaign will take place over 6 weeks, from March 16 at 8:00 AM UTC."
 msgstr "The Campaign will take place over 6 weeks, from March 16 at 8:00 AM UTC."
 
 #: src/pages/Earns/VaultDetail/index.tsx
-msgid "Your balance: <0/> {symbol}"
-msgstr "Your balance: <0/> {symbol}"
+#~ msgid "Your balance: <0/> {symbol}"
+#~ msgstr "Your balance: <0/> {symbol}"
 
 #: src/pages/MyPool/index.tsx
 #: src/pages/ProAmmPool/index.tsx
@@ -8119,6 +8617,10 @@ msgstr "View"
 msgid "Created / Expiry"
 msgstr "Created / Expiry"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Unavailable"
+msgstr "Unavailable"
+
 #: src/pages/MarketOverview/TableContent.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Remove failed"
@@ -8127,6 +8629,10 @@ msgstr "Remove failed"
 #: src/components/SwapForm/GasPriceNote.tsx
 #~ msgid "Gas fees is very high. You will lose your funds."
 #~ msgstr "Gas fees is very high. You will lose your funds."
+
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Execution price"
+msgstr "Execution price"
 
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableHeader.tsx
@@ -8149,7 +8655,6 @@ msgstr "EVM ↔ Solana L1"
 msgid "Review Order"
 msgstr "Review Order"
 
-#: src/components/LimitOrder/MyOrders/index.tsx
 #: src/pages/Earns/UserPositions/Filter.tsx
 msgid "Search by token symbol or address"
 msgstr "Search by token symbol or address"
@@ -8212,6 +8717,7 @@ msgstr "Show 24h volume"
 #~ msgstr "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
 #: src/pages/Earns/components/SmartExit/PoolPrice.tsx
 #: src/pages/Earns/components/SmartExit/PoolPrice.tsx
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
@@ -8339,6 +8845,10 @@ msgstr "The more you stake and vote, the more KNC you will earn."
 msgid "Import"
 msgstr "Import"
 
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Trigger a swap when price reaches"
+msgstr "Trigger a swap when price reaches"
+
 #: src/components/Announcement/helpers.ts
 msgid "Condition never met"
 msgstr "Condition never met"
@@ -8382,6 +8892,10 @@ msgstr "Receive"
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Protocol Fee"
 msgstr "Protocol Fee"
+
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "Insufficient {0} funds"
+msgstr "Insufficient {0} funds"
 
 #: src/pages/ElasticLegacy/index.tsx
 msgid "Due to a potential issue with our legacy <0>Elastic protocol</0>, we have permanently paused our <1>Elastic {0} (Legacy)</1>. If you wish to participate in our {1}, check out our new and audited <2>Elastic {2}</2>."
@@ -8428,8 +8942,8 @@ msgid "Cancel All"
 msgstr "Cancel All"
 
 #: src/pages/Earns/components/VaultPriceImpactNote.tsx
-msgid "Price impact is very high — you will lose a significant part of this amount. Try a smaller size."
-msgstr "Price impact is very high — you will lose a significant part of this amount. Try a smaller size."
+#~ msgid "Price impact is very high — you will lose a significant part of this amount. Try a smaller size."
+#~ msgstr "Price impact is very high — you will lose a significant part of this amount. Try a smaller size."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -8448,6 +8962,10 @@ msgstr "I pay"
 #: src/pages/Earns/PoolExplorer/DesktopTableRow.tsx
 #~ msgid "Add liquidity with price range:"
 #~ msgstr "Add liquidity with price range:"
+
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Gas-less Cancel"
+msgstr "Gas-less Cancel"
 
 #: src/pages/MyPool/index.tsx
 msgid "Here you can view all your liquidity and staked balances in the Classic Pools."
@@ -8472,6 +8990,7 @@ msgid "Processing Time"
 msgstr "Processing Time"
 
 #: src/components/TransactionSettings/index.tsx
+#: src/pages/Earns/components/VaultSettingsMenu.tsx
 #: src/pages/Swap/layout/HeaderRightMenu.tsx
 msgid "Degen mode is on. Be cautious!"
 msgstr "Degen mode is on. Be cautious!"
@@ -8651,6 +9170,10 @@ msgstr "Any wallet engaging in cheating, such as wash trading, sybil attacks, fl
 msgid "Phase 2"
 msgstr "Phase 2"
 
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Insufficient allowance — order may fail"
+msgstr "Insufficient allowance — order may fail"
+
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput.tsx
 msgid "100%"
 msgstr "100%"
@@ -8693,6 +9216,10 @@ msgstr "Invalid pool info"
 msgid "Copy address to clipboard"
 msgstr "Copy address to clipboard"
 
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Edit order"
+msgstr "Edit order"
+
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "You are eligible for <0>{0}</0> unclaimed farming rewards, you can claim them by clicking the \"Claim Rewards\" button below."
 msgstr "You are eligible for <0>{0}</0> unclaimed farming rewards, you can claim them by clicking the \"Claim Rewards\" button below."
@@ -8726,6 +9253,10 @@ msgstr "Select a token to find your liquidity."
 msgid "Checking approval"
 msgstr "Checking approval"
 
+#: src/components/StopMarket/MyOrders/components.tsx
+msgid "Retrying"
+msgstr "Retrying"
+
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 msgid "Your position <0/> {token0Symbol}-{token1Symbol} is <1>{statusMessage}</1><2/>"
 msgstr "Your position <0/> {token0Symbol}-{token1Symbol} is <1>{statusMessage}</1><2/>"
@@ -8741,6 +9272,11 @@ msgstr "After your first week of Limit-Order activities (from Monday 0:00 UTC to
 #: src/pages/Campaign/components/CampaignStats/SafePalCampaignStats.tsx
 msgid "Your Total Points"
 msgstr "Your Total Points"
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
+msgid "Trigger Price"
+msgstr "Trigger Price"
 
 #: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Select a Chain"
@@ -8827,6 +9363,10 @@ msgstr "🕑️ Timeline"
 msgid "{symbolsText}: accrued dividends are included in the balance display. The tradeable amount and wallet signing prompt will reflect the base balance."
 msgstr "{symbolsText}: accrued dividends are included in the balance display. The tradeable amount and wallet signing prompt will reflect the base balance."
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Position Balance"
+msgstr "Position Balance"
+
 #: src/components/WalletPopup/SendToken/WarningBrave.tsx
 msgid "Notice for Brave wallet users"
 msgstr "Notice for Brave wallet users"
@@ -8869,6 +9409,10 @@ msgstr "Partner Vaults"
 msgid "Specify the amount of time that must pass before the alert can be fired again."
 msgstr "Specify the amount of time that must pass before the alert can be fired again."
 
+#: src/pages/Swap/layout/Header.tsx
+msgid "Protect your positions from sudden price drops"
+msgstr "Protect your positions from sudden price drops"
+
 #: src/components/Badge/RangeBadge.tsx
 msgid "The price of this pool is outside of your selected price range. Currently, your position is not earning any fees or rewards."
 msgstr "The price of this pool is outside of your selected price range. Currently, your position is not earning any fees or rewards."
@@ -8885,6 +9429,10 @@ msgstr "The Estimated Rewards will vary based on the points earned by you and al
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Clear All Pending Transactions"
 msgstr "Clear All Pending Transactions"
+
+#: src/components/StopMarket/hooks/useStopMarketPriceMarkers.tsx
+msgid "Stop Market Orders"
+msgstr "Stop Market Orders"
 
 #: src/pages/SwapV3/ApprovalModal.tsx
 #~ msgid "Custom Allowance"
@@ -8933,6 +9481,11 @@ msgstr "Change"
 msgid "KNC Migration"
 msgstr "KNC Migration"
 
+#: src/components/LimitOrder/OrderList/index.tsx
+#: src/components/StopMarket/OrderTypeSubTabs.tsx
+msgid "Stop Market"
+msgstr "Stop Market"
+
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 msgid "Choose your Route"
 msgstr "Choose your Route"
@@ -8946,6 +9499,10 @@ msgstr "Choose your Route"
 #: src/components/SwapForm/SwapModal/SwapDetails/UpdatedBadge.tsx
 msgid "We got you a higher amount. The initial output amount was {output}"
 msgstr "We got you a higher amount. The initial output amount was {output}"
+
+#: src/pages/Earns/components/VaultSettingsMenu.tsx
+msgid "Advanced Setting"
+msgstr "Advanced Setting"
 
 #: src/pages/Campaign/components/JoinReferral.tsx
 msgid "Nonce Retrieval Failed"
@@ -8975,6 +9532,7 @@ msgstr "There is no maximum allocation for each eligible wallet."
 
 #: src/components/DateTimePicker/index.tsx
 #: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+#: src/components/StopMarket/constants.ts
 msgid "30 Days"
 msgstr "30 Days"
 
@@ -9077,10 +9635,15 @@ msgstr "Position"
 #~ msgid "Chart is unavailable right now"
 #~ msgstr "Chart is unavailable right now"
 
+#: src/components/StopMarket/OrderTypeSubTabs.tsx
+msgid "Limit Order: Fills at your exact price, when a taker takes it."
+msgstr "Limit Order: Fills at your exact price, when a taker takes it."
+
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
 msgid "KyberSwap's RPC endpoint"
 msgstr "KyberSwap's RPC endpoint"
 
+#: src/pages/Earns/PoolExplorer/Filter.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Create Pool"
 msgstr "Create Pool"
@@ -9093,6 +9656,10 @@ msgstr "You will receive at least this amount, or your transaction will revert."
 #: src/pages/Earns/components/SmartExit/Metrics/FeeYieldInput.tsx
 msgid "Based on the amount of fee tokens your position has earned compared with your initial deposited token amounts."
 msgstr "Based on the amount of fee tokens your position has earned compared with your initial deposited token amounts."
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "Confirm Stop Market Order"
+msgstr "Confirm Stop Market Order"
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 msgid "Add to favorites"
@@ -9178,6 +9745,10 @@ msgstr "KNC"
 msgid "{0} out of {1} selected"
 msgstr "{0} out of {1} selected"
 
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "Active Order"
+msgstr "Active Order"
+
 #: src/pages/Earns/components/SmartExit/Metrics/FeeYieldInput.tsx
 msgid "This calculation is <0>token-based</0>, <1>not USD-based</1>, and does not change with price fluctuations."
 msgstr "This calculation is <0>token-based</0>, <1>not USD-based</1>, and does not change with price fluctuations."
@@ -9220,6 +9791,10 @@ msgstr "Attention"
 #~ msgid "ACTION"
 #~ msgstr "ACTION"
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Increase"
+msgstr "Increase"
+
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Highlighted Pools"
 msgstr "Highlighted Pools"
@@ -9235,6 +9810,10 @@ msgstr "Connected successfully with the current wallet address."
 #: src/components/TokenInfo/utils.ts
 msgid "Total Supply"
 msgstr "Total Supply"
+
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "The queue prices this redemption when you submit it and locks the amount into the request, so this is the amount that arrives."
+msgstr "The queue prices this redemption when you submit it and locks the amount into the request, so this is the amount that arrives."
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity for a token pair and earn fees on the trades that are in your selected price range."
@@ -9339,6 +9918,7 @@ msgid "And"
 msgstr "And"
 
 #: src/components/SwapForm/PriceImpactNote.tsx
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
 msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
 msgstr "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
 
@@ -9390,7 +9970,7 @@ msgid "Note that adding the RPC endpoint automatically is only available via the
 msgstr "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re using another wallet please add the RPC endpoint manually in your wallet’s custom network settings. Please make sure you understand how it works and use it at your own caution."
 
 #: src/components/WalletPopup/Transactions/Status.tsx
-#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/pages/Earns/VaultDetail/withdrawRequestStatus.ts
 msgid "Completed"
 msgstr "Completed"
 
@@ -9401,6 +9981,11 @@ msgstr "You have no Transaction History"
 #: src/pages/ProAmmPool/index.tsx
 msgid "Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes<0>out-of-range</0> or comes back <1>in-range</1>, you will receive an email."
 msgstr "Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes<0>out-of-range</0> or comes back <1>in-range</1>, you will receive an email."
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+#: src/components/StopMarket/Form/TriggerPriceSection.tsx
+msgid "below current Oracle price"
+msgstr "below current Oracle price"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
@@ -9466,8 +10051,8 @@ msgid "Could not find a route for these tokens."
 msgstr "Could not find a route for these tokens."
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
-#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
-#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#: src/pages/Earns/components/VaultDeposit/useDepositForm.ts
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 msgid "No route found"
 msgstr "No route found"
 
@@ -9491,8 +10076,7 @@ msgstr "Fee estimation unavailable"
 msgid "Yes, the wallet is free, and participants only need to pay the shipping fee, which varies by location."
 msgstr "Yes, the wallet is free, and participants only need to pay the shipping fee, which varies by location."
 
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 msgid "{nativeAssetSymbol} cannot be withdrawn from this vault."
 msgstr "{nativeAssetSymbol} cannot be withdrawn from this vault."
 
@@ -9530,6 +10114,10 @@ msgstr "View positions"
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 msgid "Price:"
 msgstr "Price:"
+
+#: src/components/LimitOrder/OrderList/OrdersPriceChart.tsx
+msgid "Invert pair"
+msgstr "Invert pair"
 
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Order has been successfully cancelled."
@@ -9597,6 +10185,7 @@ msgid "Invalid wallet address"
 msgstr "Invalid wallet address"
 
 #: src/components/LimitOrder/MyOrders/utils.ts
+#: src/components/StopMarket/MyOrders/index.tsx
 msgid "Expired Orders"
 msgstr "Expired Orders"
 
@@ -9659,6 +10248,10 @@ msgstr "Insufficient ERC20 balance to pay gas fee"
 msgid "Top 667 each week are marked as Winner."
 msgstr "Top 667 each week are marked as Winner."
 
+#: src/pages/Earns/PoolExplorer/Filter.tsx
+msgid "Can't find the right pool? Create New Pool yourself"
+msgstr "Can't find the right pool? Create New Pool yourself"
+
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "Is there a deadline to claim your gas refunds?"
 msgstr "Is there a deadline to claim your gas refunds?"
@@ -9692,6 +10285,10 @@ msgstr "Pickup time"
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "POSITION FEE (USD)"
 msgstr "POSITION FEE (USD)"
+
+#: src/components/StopMarket/Form/StopMarketForm.tsx
+msgid "Place Stop Market Order"
+msgstr "Place Stop Market Order"
 
 #: src/components/Tutorial/TutorialSwap/constant.ts
 #~ msgid "Place Limit Orders, Bridge Tokens or Buy Crypto"
@@ -9778,6 +10375,10 @@ msgstr "Wrong Chain"
 msgid "Max gas fee exceeded (retrying)"
 msgstr "Max gas fee exceeded (retrying)"
 
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Updating requires a new signature. No gas"
+msgstr "Updating requires a new signature. No gas"
+
 #: src/pages/Earns/SmartExitOrders/index.tsx
 #: src/pages/Earns/SmartExitOrders/OrderItem.tsx
 msgid "Max gas"
@@ -9801,6 +10402,10 @@ msgstr "You have successfully unsubscribed from all email notifications"
 msgid "Remove without fees"
 msgstr "Remove without fees"
 
+#: src/components/StopMarket/SetExitPriceButton.tsx
+msgid "Set exit price"
+msgstr "Set exit price"
+
 #: src/pages/CrossChainSwap/components/QuoteSteps.tsx
 msgid "Route via"
 msgstr "Route via"
@@ -9808,6 +10413,11 @@ msgstr "Route via"
 #: src/pages/NotificationCenter/const.ts
 msgid "Below"
 msgstr "Below"
+
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+#: src/components/StopMarket/Form/StopMarketFeeSummary.tsx
+msgid "Covers the protocol fee plus the gas KyberSwap pays to execute on-chain."
+msgstr "Covers the protocol fee plus the gas KyberSwap pays to execute on-chain."
 
 #: src/pages/NotificationCenter/NotificationPreference/index.tsx
 msgid "You must connect wallet and fill an email first"
@@ -9872,6 +10482,12 @@ msgstr "Undelegate"
 msgid "KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at the user's own risk."
 msgstr "KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at the user's own risk."
 
+#: src/components/LimitOrder/hooks/useLimitOrderPriceMarkers.tsx
+#: src/components/StopMarket/hooks/useStopMarketPriceMarkers.tsx
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Cancel order"
+msgstr "Cancel order"
+
 #: src/hooks/usePermitNft.ts
 msgid "Successfully signed {v} permit for NFT #{tokenId}"
 msgstr "Successfully signed {v} permit for NFT #{tokenId}"
@@ -9883,6 +10499,10 @@ msgstr "Option {userSelectedOption}"
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Each wallet may have multiple reward-qualifying transaction hashes."
 msgstr "Each wallet may have multiple reward-qualifying transaction hashes."
+
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Recreate order"
+msgstr "Recreate order"
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
@@ -9902,6 +10522,10 @@ msgstr "Stake Amount"
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Save"
 msgstr "Save"
+
+#: src/components/StopMarket/Form/useStopMarketWarnings.tsx
+msgid "The Oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
+msgstr "The Oracle price for this pair is unavailable right now, so the trigger cannot be compared with the market. Please try again shortly."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -9967,6 +10591,7 @@ msgid "Gas Refund Rewards is only available on Ethereum chain. Switch your netwo
 msgstr "Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue <0>here</0>"
 
 #: src/components/LimitOrder/MyOrders/index.tsx
+#: src/components/StopMarket/MyOrders/index.tsx
 msgid "All Chains"
 msgstr "All Chains"
 
@@ -9984,6 +10609,7 @@ msgid "Fill order anyway"
 msgstr "Fill order anyway"
 
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Status"
@@ -10057,6 +10683,10 @@ msgstr "Earning in USD"
 #: src/components/ErrorBoundary/FallbackView.tsx
 msgid "Oops! Something went wrong"
 msgstr "Oops! Something went wrong"
+
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
+msgid "Execution Price"
+msgstr "Execution Price"
 
 #: src/pages/Earns/Landing/index.tsx
 msgid "🔥 High APR"
@@ -10214,6 +10844,14 @@ msgstr "Your Smart Exit condition has been created successfully."
 msgid "VOL"
 msgstr "VOL"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
+msgid "When the trigger price is reached, your order is submitted for execution at the current market price. Execution depends on market conditions."
+msgstr "When the trigger price is reached, your order is submitted for execution at the current market price. Execution depends on market conditions."
+
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Trigger price reached, but your {sellSymbol} approval is too low — still retrying, so the order will fill once it is raised."
+msgstr "Trigger price reached, but your {sellSymbol} approval is too low — still retrying, so the order will fill once it is raised."
+
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Reward"
 msgstr "Reward"
@@ -10244,9 +10882,17 @@ msgstr "There was an issue while trying to confirm your price. Please try to swa
 msgid "FOR TRADERS"
 msgstr "FOR TRADERS"
 
+#: src/components/StopMarket/Form/TriggerPriceSection.tsx
+msgid "{receiveSymbol} per {sellSymbol}"
+msgstr "{receiveSymbol} per {sellSymbol}"
+
 #: src/pages/Earns/PositionDetail/Header.tsx
 msgid "This position has an active Smart Exit order."
 msgstr "This position has an active Smart Exit order."
+
+#: src/components/StopMarket/Form/TriggerPriceSection.tsx
+msgid "current Oracle price"
+msgstr "current Oracle price"
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Gas Refund Program"
@@ -10291,13 +10937,18 @@ msgid "Imported Guest"
 msgstr "Imported Guest"
 
 #: src/components/LimitOrder/MyOrders/utils.ts
-#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
+#: src/pages/Earns/VaultDetail/withdrawRequestStatus.ts
 msgid "Cancelled"
 msgstr "Cancelled"
 
 #: src/pages/Campaign/components/SafePalClaimModal.tsx
 msgid "Claim deadline: {deadlineText}"
 msgstr "Claim deadline: {deadlineText}"
+
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "View my open orders ({count})"
+msgstr "View my open orders ({count})"
 
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "You have to stake KNC to be able to vote and earn voting reward."
@@ -10320,14 +10971,17 @@ msgstr "You don't have sufficient fund for this transaction."
 msgid "Import Profile"
 msgstr "Import Profile"
 
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 msgid "Amount below the queue minimum"
 msgstr "Amount below the queue minimum"
 
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Are you sure you want to clear all pending transactions? This will remove them from your list but will not affect their status on-chain."
 msgstr "Are you sure you want to clear all pending transactions? This will remove them from your list but will not affect their status on-chain."
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "You received"
+msgstr "You received"
 
 #: src/components/Announcement/helpers.ts
 msgid "Liquidity changed"
@@ -10373,6 +11027,10 @@ msgstr "Value"
 msgid "Transaction time limit"
 msgstr "Transaction time limit"
 
+#: src/components/StopMarket/hooks/useStopMarketPriceMarkers.tsx
+msgid "STOP"
+msgstr "STOP"
+
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "This suggestion is based on your trade's estimated slippage and token pair volatility, with a cap applied."
 msgstr "This suggestion is based on your trade's estimated slippage and token pair volatility, with a cap applied."
@@ -10396,6 +11054,7 @@ msgid "Claim Now"
 msgstr "Claim Now"
 
 #: src/pages/Swap/components/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Pricing Chart"
 msgstr "Pricing Chart"
 
@@ -10414,6 +11073,10 @@ msgstr "Select Metric"
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "No Smart Exit orders yet"
 msgstr "No Smart Exit orders yet"
+
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Insufficient balance — order may fail"
+msgstr "Insufficient balance — order may fail"
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "User Points: Points earned within the $100,000 volume cap"
@@ -10441,6 +11104,10 @@ msgstr "How can I be eligible to the Referral Program?"
 msgid "24h Volume"
 msgstr "24h Volume"
 
+#: src/components/StopMarket/CreateOrder/StopMarketFlow.tsx
+msgid "Sign update"
+msgstr "Sign update"
+
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Choose Grant Option"
 msgstr "Choose Grant Option"
@@ -10459,6 +11126,8 @@ msgid "LM Reward:"
 msgstr "LM Reward:"
 
 #: src/components/LimitOrder/MyOrders/components.tsx
+#: src/components/LimitOrder/OrderList/index.tsx
+#: src/components/StopMarket/MyOrders/components.tsx
 msgid "Order History"
 msgstr "Order History"
 
@@ -10470,6 +11139,10 @@ msgstr "Zap Out to Any Token"
 msgid "Swap fees charged by {clientId}."
 msgstr "Swap fees charged by {clientId}."
 
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Unable to calculate Price Impact."
+msgstr "Unable to calculate Price Impact."
+
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "In order to join the Referral Program, users can generate their own referral link and share it with other users to be eligible to the referrer reward. Referrers get 10% of their referee ARB allocation. Referees will get a 5% bonus based on their initial ARB allocation for the week once they have been referred by other users. Note that only trades made on <0>KyberSwap.com</0> are eligible, trades on other platforms are not eligible for this Referral Program."
 msgstr "In order to join the Referral Program, users can generate their own referral link and share it with other users to be eligible to the referrer reward. Referrers get 10% of their referee ARB allocation. Referees will get a 5% bonus based on their initial ARB allocation for the week once they have been referred by other users. Note that only trades made on <0>KyberSwap.com</0> are eligible, trades on other platforms are not eligible for this Referral Program."
@@ -10478,6 +11151,7 @@ msgstr "In order to join the Referral Program, users can generate their own refe
 msgid "Withdraw to any token"
 msgstr "Withdraw to any token"
 
+#: src/components/StopMarket/CreateOrder/StopMarketConfirmModal.tsx
 #: src/components/SwapForm/SlippageSetting.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/TransactionSettings/SlippageSetting.tsx
@@ -10503,6 +11177,14 @@ msgstr "Compound"
 msgid "You don't have any vault positions yet"
 msgstr "You don't have any vault positions yet"
 
+#: src/components/StopMarket/CancelOrder/CancelStopMarketModal.tsx
+msgid "Cancel by signing a message, without paying gas. You can recreate the order anytime."
+msgstr "Cancel by signing a message, without paying gas. You can recreate the order anytime."
+
+#: src/components/StopMarket/EditOrder/StopMarketEditModal.tsx
+msgid "Trigger reached"
+msgstr "Trigger reached"
+
 #: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
 msgid "Continue"
 msgstr "Continue"
@@ -10516,6 +11198,8 @@ msgid "Tier {0}"
 msgstr "Tier {0}"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
+#: src/components/LimitOrder/hooks/useLimitOrderPriceMarkers.tsx
+#: src/components/StopMarket/hooks/useStopMarketPriceMarkers.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
 msgid "Sell"
 msgstr "Sell"
@@ -10529,6 +11213,7 @@ msgid "No trending tokens right recently. Check back later."
 msgstr "No trending tokens right recently. Check back later."
 
 #: src/components/LimitOrder/MyOrders/utils.ts
+#: src/components/StopMarket/MyOrders/index.tsx
 msgid "All Closed Orders"
 msgstr "All Closed Orders"
 
@@ -10549,8 +11234,8 @@ msgid "Smart Exit created"
 msgstr "Smart Exit created"
 
 #: src/components/LimitOrder/OrderList/index.tsx
-msgid "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
-msgstr "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
+#~ msgid "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
+#~ msgstr "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
 
 #: src/components/TipLinkGeneratorModal/index.tsx
 msgid "Please upload an image file."
@@ -10573,6 +11258,7 @@ msgid "Grant Plan: USD stablecoins equivalent of {0} of Reference Value of Affec
 msgstr "Grant Plan: USD stablecoins equivalent of {0} of Reference Value of Affected Assets associated with such Affected Address, vested over {1} months."
 
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/components/StopMarket/MyOrders/TableHeader.tsx
 #: src/pages/MarketOverview/Filter.tsx
 msgid "Chain"
 msgstr "Chain"
@@ -10590,8 +11276,8 @@ msgid "Points are earned each time a user swap eligible tokens on KyberSwap Aggr
 msgstr "Points are earned each time a user swap eligible tokens on KyberSwap Aggregator API. Eligible tokens are indexed in 4 different categories, giving different amount of points per USD swapped. Eligible tokens can be found on <0>this list</0>"
 
 #: src/components/LimitOrder/MyOrders/utils.ts
-msgid "All Active Orders"
-msgstr "All Active Orders"
+#~ msgid "All Active Orders"
+#~ msgstr "All Active Orders"
 
 #: src/pages/Campaign/components/CampaignStats/index.tsx
 #: src/pages/Campaign/components/CampaignStats/NearIntentCampaignStats.tsx
@@ -10655,8 +11341,8 @@ msgid "Migrate"
 msgstr "Migrate"
 
 #: src/pages/Earns/components/VaultPriceImpactNote.tsx
-msgid "Price impact is higher than usual for this route."
-msgstr "Price impact is higher than usual for this route."
+#~ msgid "Price impact is higher than usual for this route."
+#~ msgstr "Price impact is higher than usual for this route."
 
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "The Total Claimable Rewards is the real amount of ARB that a user will get after filtering sybils, cheaters and potential calculation issues. All ARB allocations from recognized sybils and cheaters will be re-allocated proportionally to other eligible Limit-Order users."
@@ -10673,6 +11359,10 @@ msgstr "Code Referral"
 #: src/components/Tutorial/TutorialSwap/index.tsx
 #~ msgid "Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional rewards!"
 #~ msgstr "Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional rewards!"
+
+#: src/components/StopMarket/MyOrders/StopMarketRow.tsx
+msgid "Trigger price reached, but your balance is short — still retrying, so the order will fill once your balance is topped up."
+msgstr "Trigger price reached, but your balance is short — still retrying, so the order will fill once your balance is topped up."
 
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Claim your claimable farming rewards from a position."
@@ -10816,6 +11506,7 @@ msgstr "Wrapping {nativeSymbol}"
 msgid "Claim Rewards"
 msgstr "Claim Rewards"
 
+#: src/components/LimitOrder/hooks/useLimitOrderPriceMarkers.tsx
 #: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Filled"
 msgstr "Filled"
@@ -10861,10 +11552,8 @@ msgstr "OK"
 msgid "are under review after failing to finalize in the 2 days vesting period."
 msgstr "are under review after failing to finalize in the 2 days vesting period."
 
-#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
-#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
-#: src/pages/Earns/VaultDetail/DepositTab.tsx
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#: src/pages/Earns/components/VaultDeposit/useDepositForm.ts
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
@@ -10899,3 +11588,7 @@ msgstr "My Pooled {0}"
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "Success"
 msgstr "Success"
+
+#: src/components/LimitOrder/OrderList/index.tsx
+msgid "Price & My Orders"
+msgstr "Price & My Orders"

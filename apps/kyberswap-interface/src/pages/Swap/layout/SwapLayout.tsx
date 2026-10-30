@@ -26,9 +26,11 @@ const TrendingPoolBanner = lazy(() => import('components/EarnBanner/TrendingPool
 type SwapLayoutProps = PropsWithChildren<{
   controller: TradeController
   rightPanel?: ReactNode
+  /** Shown while the right panel's code loads; a page with a shaped placeholder passes it here. */
+  rightPanelFallback?: ReactNode
 }>
 
-export const SwapLayout = ({ children, controller, rightPanel }: SwapLayoutProps) => {
+export const SwapLayout = ({ children, controller, rightPanel, rightPanelFallback }: SwapLayoutProps) => {
   const { activeMainTab, activeTab, shouldHighlightSwapBox, setActiveTab } = controller
   useSwapLayoutPrefetch()
 
@@ -70,7 +72,7 @@ export const SwapLayout = ({ children, controller, rightPanel }: SwapLayoutProps
                 <FarmingPoolBanner />
               </BannerWrapper>
             </Suspense>
-            <Suspense fallback={<LocalLoader />}>{rightPanel}</Suspense>
+            <Suspense fallback={rightPanelFallback ?? <LocalLoader />}>{rightPanel}</Suspense>
           </RightPanel>
         </LimitOrderProvider>
       </Container>

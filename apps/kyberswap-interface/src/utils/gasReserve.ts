@@ -3,7 +3,7 @@ import { parseUnits } from 'viem'
 
 import { isNativeAsset } from 'utils/nativeErc20'
 
-// Native-token units, shared by Swap/Wrap, Cross-chain swap and Pool Detail Add Liquidity.
+// Native-token units, shared by Swap/Wrap, Limit Order, Stop Market, Cross-chain swap and Pool Detail Add Liquidity.
 // Missing chains have no reservation.
 const NATIVE_GAS_RESERVE: Partial<Record<ChainId, string | null>> = {
   [ChainId.MAINNET]: '0.005',

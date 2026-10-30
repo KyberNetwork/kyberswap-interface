@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, memo, useEffect, useRef, useState } from 'react'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
+import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
 import DateTimePicker from 'components/DateTimePicker'
 import { ErrorWarning } from 'components/ErrorWarning'
 import CreateOrderFlow from 'components/LimitOrder/CreateOrder/CreateOrderFlow'
@@ -119,11 +120,16 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     searchParams: form.searchParams,
     onCloseReview: () => setShowReview(false),
     onOpenReview: () => setShowReview(true),
-    onSetInput: form.onSetInput,
     onResetForm: form.onResetForm,
   })
 
   const { balance, estimateUSD, review, tracking, validation } = createOrder
+  const amountShortcuts = useBalanceAmountShortcuts(
+    balance.currencyBalance,
+    form.inputAmount,
+    form.onSetInput,
+    'limit-order-amount',
+  )
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton =
@@ -156,11 +162,11 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
       outputAmount: form.outputAmount,
     },
     estimateUsd: estimateUSD,
+    amountShortcuts,
     events: {
       onInputAmountChange: form.onSetInput,
       onOutputAmountChange: form.onSetOutput,
-      onMaxInput: balance.handleMaxInput,
-      onHalfInput: balance.handleHalfInput,
+      onMaxInput: amountShortcuts[amountShortcuts.length - 1]?.onClick,
       onInputTokenSelect: form.handleInputSelect,
       onOutputTokenSelect: form.handleOutputSelect,
       onInputFocus: tracking.trackingTouchInput,
@@ -175,32 +181,34 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         <Stack className="gap-3">
           <LimitOrderInputTokenPanel {...tokenSectionProps} />
 
-          <LimitOrderRateSection
-            tokens={{ currencyIn, currencyOut }}
-            rate={{
-              displayRate: form.displayRate,
-              rateInfo: form.rateInfo,
-              tradeInfo: form.tradeInfo,
-              loadingTrade: form.loadingTrade,
-            }}
-            events={{
-              onRateChange: form.onChangeRate,
-              onInvertedRateChange: form.onChangeInvertedRate,
-              onRatePresetClick: tracking.trackingRatePresetClick,
-              onSetMarketRate: () => {
-                tracking.trackingMarketRateClick()
-                form.setPriceRateMarket()
-              },
-              onRateInputFocus: tracking.trackingTouchInput,
-              onRateInputBlur: tracking.trackingPriceSetOnBlur,
-            }}
-          />
+          <Stack className="gap-2">
+            <LimitOrderRateSection
+              tokens={{ currencyIn, currencyOut }}
+              rate={{
+                displayRate: form.displayRate,
+                rateInfo: form.rateInfo,
+                tradeInfo: form.tradeInfo,
+                loadingTrade: form.loadingTrade,
+              }}
+              events={{
+                onRateChange: form.onChangeRate,
+                onInvertedRateChange: form.onChangeInvertedRate,
+                onRatePresetClick: tracking.trackingRatePresetClick,
+                onSetMarketRate: () => {
+                  tracking.trackingMarketRateClick()
+                  form.setPriceRateMarket()
+                },
+                onRateInputFocus: tracking.trackingTouchInput,
+                onRateInputBlur: tracking.trackingPriceSetOnBlur,
+              }}
+            />
 
-          <HStack className="-my-1 justify-center">
-            <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.handleRotateClick} />
-          </HStack>
+            <HStack className="justify-center">
+              <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.handleRotateClick} />
+            </HStack>
 
-          <LimitOrderOutputTokenPanel {...tokenSectionProps} />
+            <LimitOrderOutputTokenPanel {...tokenSectionProps} />
+          </Stack>
         </Stack>
 
         <Stack className="gap-6">

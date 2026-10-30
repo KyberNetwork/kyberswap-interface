@@ -26,7 +26,12 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
+import {
+  useDetailAnnouncement,
+  useModalOpen,
+  usePrivateAnnouncementsVersion,
+  useToggleNotificationCenter,
+} from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -224,18 +229,14 @@ function AnnouncementComponent() {
     selectedCategory,
   ])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchEarnPreview()
-      fetchLimitOrderPreview()
-      fetchSmartExitPreview()
-      fetchGeneralPreview()
-      if (isOpenInbox && activeTab === Tab.NOTIFICATIONS && selectedCategory) {
-        fetchByCategory(selectedCategory, true)
-      }
-    }, 10000)
-
-    return () => clearInterval(interval)
+  const refreshAll = useCallback(() => {
+    fetchEarnPreview()
+    fetchLimitOrderPreview()
+    fetchSmartExitPreview()
+    fetchGeneralPreview()
+    if (isOpenInbox && activeTab === Tab.NOTIFICATIONS && selectedCategory) {
+      fetchByCategory(selectedCategory, true)
+    }
   }, [
     activeTab,
     fetchByCategory,
@@ -246,6 +247,19 @@ function AnnouncementComponent() {
     isOpenInbox,
     selectedCategory,
   ])
+
+  useEffect(() => {
+    const interval = setInterval(refreshAll, 10000)
+    return () => clearInterval(interval)
+  }, [refreshAll])
+
+  // A popup elsewhere in the app asks for the inbox to show what it just announced.
+  const privateAnnouncementsVersion = usePrivateAnnouncementsVersion()
+  const refreshAllRef = useRef(refreshAll)
+  refreshAllRef.current = refreshAll
+  useEffect(() => {
+    if (privateAnnouncementsVersion) refreshAllRef.current()
+  }, [privateAnnouncementsVersion])
 
   const loadMoreAnnouncements = useCallback(() => {
     if (!selectedCategory) return undefined

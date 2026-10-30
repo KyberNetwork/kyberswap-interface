@@ -21,6 +21,7 @@ import {
   ApplicationModal,
   addPopup,
   closeModal,
+  refreshPrivateAnnouncements,
   removePopup,
   setAnnouncementDetail,
   setOpenModal,
@@ -266,6 +267,15 @@ export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnn
     [dispatch, announcementDetail],
   )
   return [announcementDetail, setDetail]
+}
+
+export const usePrivateAnnouncementsVersion = () =>
+  useAppSelector(state => state.application.notification?.privateAnnouncementsVersion ?? 0)
+
+/** Asks the inbox to refetch now, e.g. right after a popup announced something it lists. */
+export const useRefreshPrivateAnnouncements = () => {
+  const dispatch = useDispatch()
+  return useCallback(() => dispatch(refreshPrivateAnnouncements()), [dispatch])
 }
 
 export function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {

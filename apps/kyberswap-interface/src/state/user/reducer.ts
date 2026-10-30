@@ -17,6 +17,7 @@ import {
   toggleFavoriteToken,
   toggleHolidayMode,
   toggleMyEarningChart,
+  toggleOpenLimitOrders,
   togglePricingChart,
   toggleSuccessSound,
   toggleTradeRoutes,
@@ -27,6 +28,7 @@ import {
   updatePoolDegenMode,
   updatePoolSlippageTolerance,
   updateSafeAppAcceptedTermOfUse,
+  updateStopMarketSlippage,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -115,6 +117,13 @@ export interface UserState {
   crossChain: CrossChainSetting
   myEarningChart: boolean
   showPricingChart: boolean
+  /** Whether the stop market order page offers the book of open limit orders beside its form. */
+  showOpenLimitOrders: boolean
+  /**
+   * The stop market order slippage the user picked, in basis points, kept across orders and visits. Unset
+   * while they have not picked one, or picked the suggestion itself, so it follows the pair.
+   */
+  stopMarketSlippage?: number
   showTradeRoutes: boolean
   successSoundEnabled: boolean
   favoriteChains: string[]
@@ -154,6 +163,7 @@ const initialState: UserState = {
   crossChain: CROSS_CHAIN_SETTING_DEFAULT,
   myEarningChart: true,
   showPricingChart: true,
+  showOpenLimitOrders: true,
   showTradeRoutes: true,
   successSoundEnabled: true,
   favoriteChains: [],
@@ -182,6 +192,14 @@ export default createReducer(initialState, builder =>
         state.showPricingChart = initialState.showPricingChart
       }
 
+      if (typeof state.showOpenLimitOrders !== 'boolean') {
+        state.showOpenLimitOrders = initialState.showOpenLimitOrders
+      }
+
+      if (state.stopMarketSlippage !== undefined && typeof state.stopMarketSlippage !== 'number') {
+        state.stopMarketSlippage = undefined
+      }
+
       if (typeof state.successSoundEnabled !== 'boolean') {
         state.successSoundEnabled = initialState.successSoundEnabled
       }
@@ -193,6 +211,11 @@ export default createReducer(initialState, builder =>
       if (action.payload.userDegenMode) {
         state.userDegenModeAutoDisableTimestamp = Date.now() + AUTO_DISABLE_DEGEN_MODE_MINUTES * 60 * 1000
       } else {
+        // A stop market order slippage above the normal cap only stands while degen mode is on; past it, the
+        // stop market order goes back to following the pair's suggestion.
+        if (state.stopMarketSlippage !== undefined && state.stopMarketSlippage > MAX_NORMAL_SLIPPAGE_IN_BIPS) {
+          state.stopMarketSlippage = undefined
+        }
         // If max slippage <= 19.99%, no need update slippage.
         if (state.userSlippageTolerance <= MAX_NORMAL_SLIPPAGE_IN_BIPS) {
           return
@@ -319,6 +342,12 @@ export default createReducer(initialState, builder =>
     })
     .addCase(togglePricingChart, state => {
       state.showPricingChart = !state.showPricingChart
+    })
+    .addCase(toggleOpenLimitOrders, state => {
+      state.showOpenLimitOrders = !state.showOpenLimitOrders
+    })
+    .addCase(updateStopMarketSlippage, (state, { payload: { stopMarketSlippage } }) => {
+      state.stopMarketSlippage = stopMarketSlippage
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes

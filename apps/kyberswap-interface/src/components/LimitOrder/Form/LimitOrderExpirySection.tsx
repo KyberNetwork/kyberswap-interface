@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ButtonHTMLAttributes } from 'react'
+import { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Calendar, ChevronDown } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
@@ -32,6 +32,8 @@ const ExpireOptionButton = ({
   />
 )
 
+export type ExpiryPresetOption = { value: number; label: string }
+
 type Props = {
   expiry?: {
     expire?: number
@@ -44,13 +46,21 @@ type Props = {
     onOpenDatePicker?: () => void
     onExpireChange?: (val: Date | number) => void
   }
+  /** Durations in seconds offered above the Custom Date entry. */
+  presetOptions?: ExpiryPresetOption[]
+  tooltip?: string
+  /** Shown after the value in the header. */
+  rightComponent?: ReactNode
 }
 
 const LimitOrderExpirySection = ({
   expiry: { expire, expanded, customDateExpire, displayTime } = {},
   events = {},
+  presetOptions,
+  tooltip,
+  rightComponent,
 }: Props) => {
-  const expirePresetOptions = [
+  const expirePresetOptions = presetOptions ?? [
     { value: TIMES_IN_SECS.ONE_HOUR, label: t`1 Hour` },
     { value: TIMES_IN_SECS.ONE_DAY, label: t`1 Day` },
     { value: 7 * TIMES_IN_SECS.ONE_DAY, label: t`7 Days` },
@@ -66,13 +76,15 @@ const LimitOrderExpirySection = ({
     : expirePresetOptions.find(item => item.value === expire)?.label || displayTime
 
   return (
-    <Stack>
+    <Stack data-testid="expiry-setting">
       <HStack className="items-center justify-between gap-1 text-subText">
         <HStack className="items-center gap-2">
           <TextDashed fontSize={14} className="flex h-fit items-center text-subText">
             <MouseoverTooltip
               placement="bottom"
-              text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
+              text={
+                tooltip ?? t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`
+              }
             >
               <Trans>Expires In</Trans>:
             </MouseoverTooltip>
@@ -81,13 +93,17 @@ const LimitOrderExpirySection = ({
             className="cursor-pointer items-center gap-1 hover:brightness-75"
             role="button"
             onClick={events.onToggleExpanded}
+            data-testid="expiry-setting-toggle"
           >
-            <span className="text-sm font-medium text-text/80">{fullDisplayTime}</span>
+            <span className="text-sm font-medium text-text/80" data-testid="expiry-value">
+              {fullDisplayTime}
+            </span>
             <DropdownIcon size={14} data-flip={expanded}>
               <ChevronDown size={14} />
             </DropdownIcon>
           </HStack>
         </HStack>
+        {rightComponent}
       </HStack>
 
       <div
@@ -98,7 +114,10 @@ const LimitOrderExpirySection = ({
       >
         <div className="min-h-0 overflow-hidden">
           <div className="pt-2">
-            <div className="grid w-full max-w-full grid-cols-3 gap-1 rounded-[20px] bg-tabBackground p-1">
+            <div
+              className="grid w-full max-w-full grid-cols-3 gap-1 rounded-[20px] bg-tabBackground p-1"
+              data-testid="expiry-options"
+            >
               {expireOptions.map(item => {
                 const active = customDateExpire ? item.custom : item.value === expire
 
@@ -111,6 +130,7 @@ const LimitOrderExpirySection = ({
                     }}
                     active={active}
                     custom={item.custom}
+                    data-testid={item.custom ? 'expiry-option-custom' : `expiry-option-${item.value}`}
                   >
                     {item.custom ? (
                       <HStack as="span" className="items-center justify-center gap-1">

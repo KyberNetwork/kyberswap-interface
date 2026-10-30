@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { motion, useAnimationControls, useReducedMotion } from 'framer-motion'
@@ -14,7 +14,7 @@ import {
   useState,
 } from 'react'
 import { isMobile } from 'react-device-detect'
-import { X } from 'react-feather'
+import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
 
 import InfoHelper from 'components/InfoHelper'
@@ -47,6 +47,7 @@ import { useChainsVolume } from 'components/TokenSelectorModal/hooks/useChainsVo
 import { useInventoryDiscoveries } from 'components/TokenSelectorModal/hooks/useInventoryDiscoveries'
 import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
+import { useTokenSelectorSource } from 'components/TokenSelectorModal/hooks/useTokenSelectorSource'
 import { useTokensMetrics } from 'components/TokenSelectorModal/hooks/useTokensMetrics'
 import { useTrendingTokens } from 'components/TokenSelectorModal/hooks/useTrendingTokens'
 import {
@@ -73,10 +74,9 @@ import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useBalanceWait } from 'hooks/useBalanceWait'
-import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
-import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
+import { fetchListTokenByAddresses } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -109,7 +109,6 @@ interface TokenSelectorContentProps {
   showPinnedTokens?: boolean
   onImportToken?: (token: Token) => void
   customChainId?: ChainId
-  filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
   trackingSource?: string
@@ -118,6 +117,12 @@ interface TokenSelectorContentProps {
   showDiscoveryTabs?: boolean
   /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
   onSelectChain?: (chainId: ChainId) => void
+  /**
+   * List only tokens the stop market order oracle can price, on whichever chain the selector is showing — the
+   * oracle, and so the filter that finds its feeds, comes from that chain's oracle config.
+   * Chain selection is limited to networks supporting stop market orders.
+   */
+  requireOracle?: boolean
 }
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
@@ -269,17 +274,28 @@ export const TokenSelectorContent = ({
   isOpen,
   onImportToken,
   customChainId,
-  filterWrap = false,
   title,
   tooltip,
   trackingSource,
   onShowTokenInfo,
   showDiscoveryTabs = true,
   onSelectChain,
+  requireOracle = false,
 }: TokenSelectorContentProps) => {
   const { chainId: web3ChainId, account } = useActiveWeb3React()
   const anchorChainId = customChainId || web3ChainId
-  const { supportedChains } = useChainsConfig()
+  const [selectedChainId, setSelectedChainId] = useState<ChainId>(anchorChainId)
+  const {
+    defaultTokens,
+    supportedChains,
+    searchFilters,
+    isListable,
+    isLoading: isSourceLoading,
+    isDefaultListLoading,
+    allowRpcSearch,
+    notice,
+    emptyMessage: sourceEmptyMessage,
+  } = useTokenSelectorSource(selectedChainId, requireOracle)
   const { trackingHandler } = useTracking()
   // Rank the chain dropdown by trailing volume (busiest first); chains the volume API omits keep their
   // config order at the bottom. Only fetched when the dropdown is actually shown.
@@ -293,7 +309,6 @@ export const TokenSelectorContent = ({
   const isTokenRestricted = useIsTokenRestricted()
   const notifyRestrictedToken = useNotifyRestrictedToken()
 
-  const [selectedChainId, setSelectedChainId] = useState<ChainId>(anchorChainId)
   const primaryChainId = selectedChainId
   const chainIdList = useMemo(() => [selectedChainId], [selectedChainId])
   const trendingSupported = isTrendingSupportedChain(primaryChainId)
@@ -364,7 +379,6 @@ export const TokenSelectorContent = ({
     [sort],
   )
 
-  const defaultTokens = useAllTokens(false, primaryChainId)
   const tokenImports = useUserAddedTokens(primaryChainId)
   // On the All tab, favorites float above non-favorites (but only after wallet value / balance).
   const favoriteAddressSet = useMemo(() => new Set(favoriteTokens ?? []), [favoriteTokens])
@@ -375,25 +389,12 @@ export const TokenSelectorContent = ({
     loading: trendingLoading,
     hasMore: trendingHasMore,
     fetchMore: fetchMoreTrending,
-  } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab)
+  } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab, searchFilters)
   const {
     tokens: newTokens,
     extras: newExtras,
     loading: newLoading,
-  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab)
-
-  const filterWrapFunc = useCallback(
-    (token: Currency | undefined) => {
-      if (filterWrap && otherSelectedCurrency?.equals(WETH[primaryChainId])) {
-        return !isTokenNative(token)
-      }
-      if (filterWrap && otherSelectedCurrency && isTokenNative(otherSelectedCurrency)) {
-        return !token?.equals(WETH[primaryChainId])
-      }
-      return true
-    },
-    [primaryChainId, otherSelectedCurrency, filterWrap],
-  )
+  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab, searchFilters)
 
   const {
     data: tokenSearchData,
@@ -403,10 +404,10 @@ export const TokenSelectorContent = ({
     isFetching: isFetchingTokenSearch,
     isLoading: isLoadingTokenSearch,
   } = useInfiniteQuery({
-    queryKey: ['currency-search-tokens', selectedChainId, debouncedQuery],
+    queryKey: ['currency-search-tokens', selectedChainId, debouncedQuery, searchFilters?.oracleTokenFilter],
     initialPageParam: 1,
     enabled: !!debouncedQuery && isAllTab,
-    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList),
+    queryFn: ({ pageParam }) => fetchTokens(debouncedQuery, pageParam, chainIdList, searchFilters),
     getNextPageParam: (lastPage, allPages) =>
       debouncedQuery && !isQueryValidEVMAddress && lastPage.length === TOKEN_SEARCH_PAGE_SIZE
         ? allPages.length + 1
@@ -439,6 +440,7 @@ export const TokenSelectorContent = ({
     isFetchedTokenSearch,
     isFetchingTokenSearch,
     hasTokenSearchResults: !!tokenSearchResults.length,
+    enabled: allowRpcSearch,
   })
 
   // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
@@ -478,6 +480,14 @@ export const TokenSelectorContent = ({
         : EMPTY_CURRENCIES,
     [isAllTab, debouncedQuery, tokenImports, primaryChainId],
   )
+  const searchNativeMatches = useMemo(
+    () =>
+      isAllTab && debouncedQuery
+        ? filterTokens(primaryChainId, Object.values(defaultTokens).filter(isTokenNative), debouncedQuery)
+        : EMPTY_TOKENS,
+    [isAllTab, debouncedQuery, primaryChainId, defaultTokens],
+  )
+
   // Every address the wallet holds; only set while searching, to lead with held matches and badge them.
   const heldAddresses = useMemo(
     () => (isAllTab && debouncedQuery && inventory.active ? new Set(Object.keys(inventory.rows)) : undefined),
@@ -499,9 +509,10 @@ export const TokenSelectorContent = ({
       ? [...tokenSearchResults, currentChainRpcToken, ...searchDiscoveryMatches, ...searchImportMatches]
       : Object.values(defaultTokens)
     // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
-    // search hit) have no balance to show here either.
+    // search hit) have no balance to show here either, and neither do rows the source filter hides.
     return source.filter(
-      (token): token is Token => !!token && !isTokenNative(token) && token.chainId === primaryChainId,
+      (token): token is Token =>
+        !!token && !isTokenNative(token) && token.chainId === primaryChainId && isListable(token),
     )
   }, [
     isTrendingTab,
@@ -517,6 +528,7 @@ export const TokenSelectorContent = ({
     searchImportMatches,
     defaultTokens,
     primaryChainId,
+    isListable,
   ])
 
   const balanceTokensWithDiscoveries = useMemo(
@@ -555,13 +567,16 @@ export const TokenSelectorContent = ({
     if (!isAllTab) return EMPTY_CURRENCIES
     if (debouncedQuery) {
       return mergeHeldSearchResults(
-        concatUnseenTokens(tokenSearchResults.concat(filterTruthy([currentChainRpcToken])), searchImportMatches),
+        concatUnseenTokens(
+          tokenSearchResults.concat(filterTruthy([currentChainRpcToken])),
+          searchImportMatches.concat(searchNativeMatches),
+        ),
         searchDiscoveryMatches,
         heldAddresses,
         impersonators,
-      ).filter(filterWrapFunc)
+      ).filter(isListable)
     }
-    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
+    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(isListable)
   }, [
     isAllTab,
     debouncedQuery,
@@ -569,11 +584,12 @@ export const TokenSelectorContent = ({
     currentChainRpcToken,
     searchDiscoveryMatches,
     searchImportMatches,
+    searchNativeMatches,
     heldAddresses,
     defaultTokens,
     discoveryTokens,
     tokenComparator,
-    filterWrapFunc,
+    isListable,
     impersonators,
   ])
 
@@ -583,9 +599,9 @@ export const TokenSelectorContent = ({
       const filtered = debouncedQuery
         ? (filterTokens(primaryChainId, tokens as Token[], debouncedQuery) as Currency[])
         : tokens
-      return filtered.filter(filterWrapFunc)
+      return filtered.filter(isListable)
     },
-    [debouncedQuery, primaryChainId, filterWrapFunc],
+    [debouncedQuery, primaryChainId, isListable],
   )
 
   // Filter to the current chain synchronously so stale pills from the previous chain never render
@@ -598,16 +614,17 @@ export const TokenSelectorContent = ({
   // Quick-select pills: always lead with the chain's native token, then fill the rest from config /
   // favorites (dropping any native duplicate). Capped at 5 (4 on mobile) when the Favorites tab exists
   // to hold the overflow; uncapped otherwise (see the discovery-off note below). The native lead is
-  // only hidden by a non-matching text search — never by the wrap filter — so it's always present.
+  // hidden by a non-matching text search and by the same rule as every listed row — the source filter
+  // (when excluded by the source).
   const quickSelectTokens = useMemo(() => {
     const native = NativeCurrencies[primaryChainId] as Currency | undefined
     const nativeMatchesSearch =
       !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
-    const nativeLead = nativeMatchesSearch && native ? [native] : []
+    const nativeLead = nativeMatchesSearch && native && isListable(native) ? [native] : []
     const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
     const list = [...nativeLead, ...rest]
     return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
-  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth])
+  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, isListable])
 
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
@@ -735,9 +752,10 @@ export const TokenSelectorContent = ({
     sortByFdv,
   ])
 
-  // Show skeleton rows while a tab's whole list is loading from the API.
+  // Source eligibility must resolve before any tab can display its tokens.
   const isListLoading =
-    (isAllTab && (debouncedQuery ? isLoadingTokenSearch : Object.keys(defaultTokens).length === 0)) ||
+    isSourceLoading ||
+    (isAllTab && (debouncedQuery ? isLoadingTokenSearch : isDefaultListLoading)) ||
     (isNewTab && newLoading && !newTokens.length) ||
     (isTrendingTab && trendingLoading && !trendingTokens.length)
 
@@ -927,7 +945,7 @@ export const TokenSelectorContent = ({
       if (e.key !== 'Enter') return
       const s = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[primaryChainId]
-      if (s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) {
+      if ((s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) && isListable(native)) {
         handleCurrencySelect(native)
         return
       }
@@ -948,7 +966,16 @@ export const TokenSelectorContent = ({
         handleCurrencySelect(candidate)
       }
     },
-    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken, impersonators],
+    [
+      visibleCurrencies,
+      handleCurrencySelect,
+      searchQuery,
+      primaryChainId,
+      tokenImports,
+      onImportToken,
+      impersonators,
+      isListable,
+    ],
   )
 
   const handleClickFavorite = useCallback(
@@ -1107,7 +1134,8 @@ export const TokenSelectorContent = ({
 
   const subtitle = getTabSubtitle(activeTab)
   const emptyMessage =
-    activeTab === TokenSelectorTab.Trending ? (
+    sourceEmptyMessage ??
+    (debouncedQuery ? undefined : activeTab === TokenSelectorTab.Trending ? (
       <Trans>No trending tokens right recently. Check back later.</Trans>
     ) : activeTab === TokenSelectorTab.New ? (
       <Trans>No newly whitelisted token recently.</Trans>
@@ -1115,7 +1143,7 @@ export const TokenSelectorContent = ({
       <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
     ) : activeTab === TokenSelectorTab.Favorites ? (
       <Trans>You have no saved tokens yet.</Trans>
-    ) : undefined
+    ) : undefined)
 
   return (
     <ContentWrapper data-testid="token-selector-modal">
@@ -1175,6 +1203,16 @@ export const TokenSelectorContent = ({
             <ChainSelector chains={rankedChains} selectedChainId={selectedChainId} onChange={handleChainChange} />
           )}
         </HStack>
+
+        {notice && (
+          <HStack
+            className="items-start gap-1.5 text-xs font-medium text-subText"
+            data-testid="token-selector-oracle-note"
+          >
+            <Info size={14} className="mt-px shrink-0" />
+            <span>{notice}</span>
+          </HStack>
+        )}
 
         {showPinnedTokens && (
           <div
@@ -1290,7 +1328,7 @@ export const TokenSelectorContent = ({
                   onSelect={handleOtherChainSelect}
                 />
               ) : (
-                <NoResult message={debouncedQuery ? undefined : emptyMessage} />
+                <NoResult message={emptyMessage} />
               )}
             </Stack>
           )}

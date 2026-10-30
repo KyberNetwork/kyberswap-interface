@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { type NavigateOptions, useNavigate } from 'react-router-dom'
 
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -44,15 +44,15 @@ export const useNavigateToUrl = () => {
   const { changeNetwork } = useChangeNetwork()
 
   const redirect = useCallback(
-    (actionURL: string) => {
+    (actionURL: string, options?: NavigateOptions) => {
       if (actionURL && actionURL.startsWith('/')) {
-        navigate(actionURL)
+        navigate(actionURL, options)
         return
       }
       const { pathname, host, search } = new URL(actionURL)
       if (!validateRedirectURL(actionURL, { _dangerousSkipCheckWhitelist: true })) return
       if (window.location.host === host) {
-        navigate(`${pathname}${search}`)
+        navigate(`${pathname}${search}`, options)
       } else {
         window.open(actionURL)
       }
@@ -61,13 +61,13 @@ export const useNavigateToUrl = () => {
   )
 
   return useCallback(
-    (actionURL: string, chainId?: ChainId) => {
+    (actionURL: string, chainId?: ChainId, options?: NavigateOptions) => {
       try {
         if (!actionURL) return
         if (chainId && chainId !== currentChain) {
-          changeNetwork(chainId, () => redirect(actionURL))
+          changeNetwork(chainId, () => redirect(actionURL, options))
         } else {
-          redirect(actionURL)
+          redirect(actionURL, options)
         }
       } catch (error) {}
     },

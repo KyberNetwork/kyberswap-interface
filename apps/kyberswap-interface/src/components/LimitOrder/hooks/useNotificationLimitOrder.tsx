@@ -4,8 +4,8 @@ import { useAckNotificationOrderMutation } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
 import { SummaryNotify } from 'components/LimitOrder/MyOrders/SummaryNotify'
-import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { APP_PATHS } from 'constants/index'
+import { getOrderListPath } from 'components/LimitOrder/hooks/useOrderListNavigation'
+import { LimitOrder, LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
@@ -49,7 +49,11 @@ export const useNotificationLimitOrder = () => {
             {
               type: cancelAllSuccess ? NotificationType.SUCCESS : NotificationType.ERROR,
               title: cancelAllSuccess ? t`Limit Order` : t`Cancel Orders Failed`,
-              link: APP_PATHS.LIMIT,
+              link: getOrderListPath({
+                kind: OrderKind.LIMIT,
+                chainId,
+                status: cancelAllSuccess ? LimitOrderStatus.CLOSED : LimitOrderStatus.ACTIVE,
+              }),
               summary: (
                 <SummaryNotify
                   message={
@@ -88,7 +92,7 @@ export const useNotificationLimitOrder = () => {
             type: NotificationType.SUCCESS,
             title: t`Limit Order`,
             summary: <SummaryNotify orders={orderCancelSuccess} type={LimitOrderStatus.CANCELLED} />,
-            link: APP_PATHS.LIMIT,
+            link: getOrderListPath({ kind: OrderKind.LIMIT, chainId, status: LimitOrderStatus.CLOSED }),
           },
           10000,
         )
