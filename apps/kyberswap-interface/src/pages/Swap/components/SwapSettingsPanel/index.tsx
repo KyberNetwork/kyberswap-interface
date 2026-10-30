@@ -19,6 +19,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { DegenModeSetting } from 'pages/Swap/components/SwapSettingsPanel/DegenModeSetting'
 import { GasDropFeatureSetting } from 'pages/Swap/components/SwapSettingsPanel/GasDropFeatureSetting'
 import { LiquiditySourcesSetting } from 'pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting'
+import { RouterV3Setting } from 'pages/Swap/components/SwapSettingsPanel/RouterV3Setting'
 import {
   useShowPricingChart,
   useShowTradeRoutes,
@@ -124,6 +125,7 @@ const SwapSettingsPanel = ({
           <SettingsSection title={<Trans>Advanced Settings</Trans>}>
             <SlippageSetting />
             {isSwapPage && <TransactionTimeLimitSetting />}
+            {isSwapPage && <RouterV3Setting />}
             <DegenModeSetting
               showConfirmation={showConfirmation}
               setShowConfirmation={setShowConfirmation}

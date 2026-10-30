@@ -9,6 +9,7 @@ import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
 import SwapOnlyButton, { Props as SwapOnlyButtonProps } from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
+import useV2Allowance from 'components/SwapForm/hooks/useV2Allowance'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -112,6 +113,7 @@ const SwapActionButton: React.FC<Props> = ({
   // the router never calls `transferFrom` and there is nothing to approve or permit. Other surfaces
   // (limit orders, zap) still move the token by allowance and keep the normal flow.
   const paysNative = paysNativeOnSwap(currencyIn)
+  const hasV2Allowance = useV2Allowance(showWrap ? undefined : currencyIn, routeSummary?.routerAddress)
 
   const [rawApproval, approveCallback, currentAllowance] = useApproveCallback({
     amount: paysNative ? undefined : parsedAmountFromTypedValue,
@@ -170,6 +172,20 @@ const SwapActionButton: React.FC<Props> = ({
   }
 
   const approveTooltipText = () => {
+    if (hasV2Allowance) {
+      return (
+        <Trans>
+          New audited router contract - a one-time approval for your {currencyIn?.symbol} is needed.{' '}
+          <a
+            href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/instantly-swap-at-superior-rates#step-4-approve-contract-to-swap-tokens"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Read more ↗
+          </a>
+        </Trans>
+      )
+    }
     if (currentAllowance && +currentAllowance?.toExact() > 0) {
       if (walletKey && walletKey?.toString() === 'METAMASK') {
         return (
