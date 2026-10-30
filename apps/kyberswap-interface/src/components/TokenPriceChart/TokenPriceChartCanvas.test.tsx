@@ -10,6 +10,7 @@ import { type DisplayCandle } from 'components/TokenPriceChart/chartOptions'
 const mocks = vi.hoisted(() => {
   const series = { applyOptions: vi.fn(), setData: vi.fn(), barsInLogicalRange: vi.fn() }
   const timeScale = {
+    height: () => 24,
     getVisibleLogicalRange: vi.fn(),
     setVisibleLogicalRange: vi.fn(),
     subscribeVisibleLogicalRangeChange: vi.fn((_callback: (range: { from: number; to: number }) => void) => undefined),
@@ -18,9 +19,8 @@ const mocks = vi.hoisted(() => {
     ),
   }
   const chart = {
-    addCandlestickSeries: vi.fn(() => series),
-    addHistogramSeries: vi.fn(() => series),
-    priceScale: () => ({ applyOptions: vi.fn() }),
+    addSeries: vi.fn(() => series),
+    priceScale: () => ({ applyOptions: vi.fn(), width: () => 60 }),
     timeScale: () => timeScale,
     applyOptions: vi.fn(),
     resize: vi.fn(),
@@ -30,7 +30,8 @@ const mocks = vi.hoisted(() => {
   }
   return { chart, series, timeScale, createChart: vi.fn(() => chart), disconnect: vi.fn() }
 })
-vi.mock('lightweight-charts', () => ({
+vi.mock('lightweight-charts', async importOriginal => ({
+  ...(await importOriginal<typeof import('lightweight-charts')>()),
   createChart: mocks.createChart,
   CrosshairMode: { Normal: 0 },
   LineStyle: { Dashed: 2 },
@@ -44,7 +45,7 @@ vi.mock('pages/Earns/PoolDetail/components/PoolChartState', () => ({
     <div {...props} />
   ),
 }))
-vi.mock('components/TokenPriceChart/PriceChartTooltip', () => ({ default: () => <span data-tooltip /> }))
+vi.mock('components/TokenPriceChart/PriceChartTooltip', () => ({ PriceChartTooltip: () => <span data-tooltip /> }))
 
 const candles: DisplayCandle[] = [{ bucket: '1', time: 1, open: 1, close: 2, high: 3, low: 1, volume: 10 }]
 let root: ReturnType<typeof createRoot> | undefined
@@ -97,7 +98,7 @@ it('preserves viewport on updates and releases resize, crosshair and pagination 
   resize([{ contentRect: { width: 500 } }])
   expect(mocks.chart.resize).toHaveBeenCalledWith(500, 360)
 
-  const rangeHandler = mocks.timeScale.subscribeVisibleLogicalRangeChange.mock.calls[0][0]
+  const rangeHandler = mocks.timeScale.subscribeVisibleLogicalRangeChange.mock.calls[1][0]
   mocks.series.barsInLogicalRange.mockReturnValue({ barsBefore: 20 })
   rangeHandler({ from: 0, to: 1 })
   expect(loadMore).toHaveBeenCalledOnce()

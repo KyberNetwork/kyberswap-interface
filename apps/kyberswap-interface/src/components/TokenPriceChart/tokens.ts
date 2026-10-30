@@ -11,12 +11,12 @@ export const getCurrencyKey = (currency: Currency) => {
 }
 
 /** Shared eligibility rules for the chart and its parent empty state: supported chain, non-quote token, unique identity. */
-export const getChartTokens = (tokens: Array<Currency | undefined> = []) =>
+export const getChartTokens = (tokens: Array<Currency | undefined> = [], quoteCurrency?: Currency) =>
   tokens.reduce<Currency[]>((result, token) => {
     if (!token) return result
 
-    const quoteToken = PRICE_CHART_QUOTES[token.chainId]
-    if (!quoteToken) return result
+    const quoteToken = quoteCurrency ?? PRICE_CHART_QUOTES[token.chainId]
+    if (!quoteToken || quoteToken.chainId !== token.chainId) return result
 
     const key = getCurrencyKey(token)
     if (key === getCurrencyKey(quoteToken) || result.some(item => getCurrencyKey(item) === key)) return result

@@ -68,6 +68,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const setCurrencyIn = (currency: Currency | undefined) => {
     if (useUrlParams) {
       const nextSearchParams = new URLSearchParams(searchParams)
+      for (const key of ['from', 'to', 'tokenIn', 'tokenOut', 'toChain']) nextSearchParams.delete(key)
       nextSearchParams.set('inputCurrency', toCurrencyParam(currency))
       setSearchParams(nextSearchParams)
     } else updateCurrencyIn(currency)
@@ -77,6 +78,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const setCurrencyOut = (currency: Currency | undefined) => {
     if (useUrlParams) {
       const nextSearchParams = new URLSearchParams(searchParams)
+      for (const key of ['from', 'to', 'tokenIn', 'tokenOut', 'toChain']) nextSearchParams.delete(key)
       nextSearchParams.set('outputCurrency', toCurrencyParam(currency))
       setSearchParams(nextSearchParams)
     } else updateCurrencyOut(currency)
@@ -88,6 +90,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
       const cin = searchParams.get('inputCurrency') || ''
       const cout = searchParams.get('outputCurrency') || ''
       const nextSearchParams = new URLSearchParams(searchParams)
+      for (const key of ['from', 'to', 'tokenIn', 'tokenOut', 'toChain']) nextSearchParams.delete(key)
       nextSearchParams.set('outputCurrency', cin)
       nextSearchParams.set('inputCurrency', cout)
       setSearchParams(nextSearchParams)
@@ -98,6 +101,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const setPair = (nextIn: Currency, nextOut: Currency) => {
     if (useUrlParams) {
       const nextSearchParams = new URLSearchParams(searchParams)
+      for (const key of ['from', 'to', 'tokenIn', 'tokenOut', 'toChain']) nextSearchParams.delete(key)
       nextSearchParams.set('inputCurrency', toCurrencyParam(nextIn))
       nextSearchParams.set('outputCurrency', toCurrencyParam(nextOut))
       setSearchParams(nextSearchParams)

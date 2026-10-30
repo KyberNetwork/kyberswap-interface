@@ -4,7 +4,12 @@ import { type CSSProperties, type ComponentPropsWithRef, type ReactNode, useCall
 
 import { ReactComponent as Lock } from 'assets/svg/ic_lock.svg'
 import Card from 'components/Card'
-import { AmountInputControls, BalanceRow, InputRow } from 'components/CurrencyInputPanel/AmountInputControls'
+import {
+  AmountInputControls,
+  type AmountShortcut,
+  BalanceRow,
+  InputRow,
+} from 'components/CurrencyInputPanel/AmountInputControls'
 import { CurrencySelect, CurrencySelectContent } from 'components/CurrencyInputPanel/CurrencySelect'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useActiveWeb3React } from 'hooks'
@@ -59,8 +64,15 @@ const PoolLockContent = () => (
   </div>
 )
 
+export { AmountShortcutChips, type AmountShortcut } from 'components/CurrencyInputPanel/AmountInputControls'
+export type CurrencyInputPanelFooter = ReactNode | ((openTokenSelector: () => void) => ReactNode)
+
 interface CurrencyInputPanelProps {
   value: string
+  amountShortcuts?: AmountShortcut[]
+  footer?: CurrencyInputPanelFooter
+  readOnlyInput?: boolean
+  requireOracle?: boolean
   onMax?: () => void
   onHalf?: () => void
   onUserInput?: (value: string) => void
@@ -110,6 +122,10 @@ interface CurrencyInputPanelProps {
 
 const CurrencyInputPanel = ({
   value,
+  amountShortcuts,
+  footer,
+  readOnlyInput,
+  requireOracle,
   error,
   onUserInput,
   onMax,
@@ -187,6 +203,7 @@ const CurrencyInputPanel = ({
         <Container hideInput={hideInput} error={error} $outline={outline}>
           {!hideBalance && (
             <BalanceRow
+              amountShortcuts={amountShortcuts}
               balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
               customBalanceText={customBalanceText}
               label={label}
@@ -203,6 +220,7 @@ const CurrencyInputPanel = ({
               <AmountInputControls
                 balanceActionsEnabled={balanceActionsEnabled ?? !!(currency && account)}
                 disabledInput={disabledInput}
+                readOnlyInput={readOnlyInput}
                 error={error}
                 estimatedUsd={estimatedUsd}
                 lockIcon={lockIcon}
@@ -244,6 +262,7 @@ const CurrencyInputPanel = ({
               </CurrencySelect>
             )}
           </InputRow>
+          {typeof footer === 'function' ? footer(() => setModalOpen(true)) : footer}
         </Container>
         {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
           <TokenSelectorModal
@@ -259,6 +278,7 @@ const CurrencyInputPanel = ({
             filterWrap={filterWrap}
             customChainId={customChainId}
             trackingSource={trackingSource}
+            requireOracle={requireOracle}
           />
         )}
       </InputPanel>
