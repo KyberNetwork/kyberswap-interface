@@ -83,21 +83,25 @@ describe('mapRouteStateToSwapStatus', () => {
     expect(result).toEqual({ txHash: '', status: 'Success', amountOut: '95' })
   })
 
-  it('falls back to the destination bridge amount and hash for a successful bridge-only route', () => {
-    const result = mapRouteStateToSwapStatus(
-      createTrackingExecution({
-        route_state: 'SUCCESS',
-        data: {
-          bridge: {
-            source: { tx_hash: SOURCE_TX_HASH, token: ADDRESS, amount: '100' },
-            dest: { tx_hash: BRIDGE_DEST_TX_HASH, token: ADDRESS, amount: '99' },
+  it.each([FINAL_DEST_TX_HASH, null, undefined])(
+    'uses only the route execution destination hash (%s) for a bridge-only route',
+    destTxHash => {
+      const result = mapRouteStateToSwapStatus(
+        createTrackingExecution({
+          route_state: 'SUCCESS',
+          dest_tx_hash: destTxHash,
+          data: {
+            bridge: {
+              source: { tx_hash: SOURCE_TX_HASH, token: ADDRESS, amount: '100' },
+              dest: { tx_hash: BRIDGE_DEST_TX_HASH, token: ADDRESS, amount: '99' },
+            },
           },
-        },
-      }),
-    )
+        }),
+      )
 
-    expect(result).toEqual({ txHash: BRIDGE_DEST_TX_HASH, status: 'Success', amountOut: '99' })
-  })
+      expect(result).toEqual({ txHash: destTxHash ?? '', status: 'Success', amountOut: '99' })
+    },
+  )
 
   it('uses the destination withdrawal amount when it is the final action', () => {
     const result = mapRouteStateToSwapStatus(

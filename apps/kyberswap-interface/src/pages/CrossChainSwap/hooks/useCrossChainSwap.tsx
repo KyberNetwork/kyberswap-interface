@@ -25,7 +25,7 @@ import { getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
 import { getPairInfo } from 'pages/CrossChainSwap/quote/getPairInfo'
 import { getPriceImpactInfo } from 'pages/CrossChainSwap/quote/priceImpact'
 import { PairCategory, isEvmCurrency } from 'pages/CrossChainSwap/quote/utils'
-import { CrossChainSwapAdapterRegistry, Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
+import { CrossChainSwapAdapterRegistry, Quote, getSelectedQuote } from 'pages/CrossChainSwap/registry'
 import {
   BTC_DEFAULT_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER,
@@ -75,7 +75,7 @@ const RegistryContext = createContext<
       allLoading: boolean
       quotes: Quote[]
       selectedQuote: Quote | null
-      setSelectedQuoteId: (quote: string | null) => void
+      setSelectedQuoteKey: (quote: string | null) => void
       amountInWei: string | undefined
       nearTokens: NearToken[]
       getQuote: () => Promise<void>
@@ -290,19 +290,14 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const [quotes, setQuotes] = useState<Quote[]>([])
 
-  const [selectedQuoteId, setSelectedQuoteId] = useState<string | null>(null)
+  const [selectedQuoteKey, setSelectedQuoteKey] = useState<string | null>(null)
   const walletClient = useGatedWalletClient()
   const [slippage] = useUserSlippageTolerance()
   const [checkSameAsset] = useLazyCheckSameAssetQuery()
 
   const selectedQuote = useMemo(() => {
-    return quotes.find(q => getQuoteId(q) === selectedQuoteId) || quotes[0] || null
-  }, [quotes, selectedQuoteId])
-
-  // reset selected quote when from or to chain changes
-  useEffect(() => {
-    setSelectedQuoteId(null)
-  }, [currencyIn, currencyOut, fromChainId, toChainId])
+    return getSelectedQuote(quotes, selectedQuoteKey)
+  }, [quotes, selectedQuoteKey])
 
   const [category, setCategory] = useState<PairCategory>('commonPair')
   const getQuotePriceImpactInfo = useCallback(
@@ -349,13 +344,25 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   useEffect(() => () => abortControllerRef.current.abort(), [])
 
+  const tokenInKey = isFromEvm ? tokenIn.toLowerCase() : tokenIn
+  const tokenOutKey = isToEvm ? tokenOut.toLowerCase() : tokenOut
+
+  // Invalidate the old pair immediately, before the debounced quote request starts.
+  // Token IDs stay stable when currency objects or token metadata are refreshed.
+  useEffect(() => {
+    requestIdRef.current += 1
+    abortControllerRef.current.abort()
+    setQuotes([])
+    setSelectedQuoteKey(null)
+  }, [fromChainId, toChainId, tokenInKey, tokenOutKey])
+
   const setQuoteMode = useCallback(
     (mode: CrossChainQuoteMode) => {
       if (mode === quoteMode || showPreview) return
       requestIdRef.current += 1
       abortControllerRef.current.abort()
       setQuotes([])
-      setSelectedQuoteId(null)
+      setSelectedQuoteKey(null)
       setLoading(true)
       setAllLoading(false)
       dispatch(updateQuoteMode(mode))
@@ -425,7 +432,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       requestIdRef.current += 1
       abortControllerRef.current.abort()
       setQuotes([])
-      setSelectedQuoteId(null)
+      setSelectedQuoteKey(null)
       setLoading(false)
       setAllLoading(false)
       return
@@ -567,7 +574,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         disable,
         getQuote,
         selectedQuote,
-        setSelectedQuoteId,
+        setSelectedQuoteKey,
         registry,
         fromChainId,
         toChainId,
