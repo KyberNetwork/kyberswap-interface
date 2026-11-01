@@ -13,7 +13,14 @@ function controller<T extends object>(state: T) {
     state,
     listeners,
     subscribeKey<K extends keyof T>(_key: K, callback: (value: T[K]) => void) {
-      const wrapped = () => callback(state[_key])
+      let previous = state[_key]
+      const wrapped = () => {
+        const next = state[_key]
+        if (!Object.is(previous, next)) {
+          previous = next
+          callback(next)
+        }
+      }
       listeners.add(wrapped)
       return () => listeners.delete(wrapped)
     },
@@ -115,6 +122,42 @@ describe('Oath WalletConnect presentation', () => {
       presentation.dispose()
     }
     expect(sdk.RouterController.state.data).toBeUndefined()
+  })
+
+  it.each([false, true])('keeps Oath selected when the real SDK reopens (mobile=%s)', async mobile => {
+    const sdk = await import('@reown/appkit-controllers')
+    const manualControl = sdk.OptionsController.state.manualWCControl
+    const prefetch = vi.spyOn(sdk.ApiController, 'prefetch').mockResolvedValue([])
+    const platform = vi.spyOn(sdk.CoreHelperUtil, 'isMobile').mockReturnValue(mobile)
+    const events = vi.spyOn(sdk.EventsController, 'sendEvent').mockImplementation(() => {})
+    sdk.OptionsController.setManualWCControl(true)
+    const presentation = presentOathWallet(sdk)
+    try {
+      await sdk.ModalController.open()
+      await flush()
+      expect(sdk.RouterController.state.view).toBe('ConnectingWalletConnect')
+      expect(sdk.RouterController.state.data?.wallet?.id).toBe(OATH_WALLET.id)
+
+      // Valtio does not notify open subscribers again when open is already true.
+      await sdk.ModalController.open()
+      await flush()
+      expect(sdk.RouterController.state.view).toBe('ConnectingWalletConnect')
+      expect(sdk.RouterController.state.data?.wallet?.id).toBe(OATH_WALLET.id)
+
+      sdk.ModalController.close()
+      presentation.dispose()
+      await sdk.ModalController.open()
+      await flush()
+      expect(sdk.RouterController.state.view).toBe(mobile ? 'AllWallets' : 'ConnectingWalletConnectBasic')
+      expect(sdk.RouterController.state.data).toBeUndefined()
+    } finally {
+      sdk.ModalController.close()
+      presentation.dispose()
+      sdk.OptionsController.setManualWCControl(manualControl)
+      prefetch.mockRestore()
+      platform.mockRestore()
+      events.mockRestore()
+    }
   })
 
   it('finishes stale-session preparation before wagmi connects and preserves the result', async () => {

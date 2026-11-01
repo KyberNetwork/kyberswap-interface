@@ -28,8 +28,9 @@ export function presentOathWallet({ ModalController, ConnectionController, Route
       if (open) showOath()
     }),
     RouterController.subscribeKey('view', view => {
-      // The SDK can re-open its generic desktop view when a new URI arrives.
-      if (view === 'ConnectingWalletConnectBasic') showOath()
+      // Reopening an already-open modal only changes the route, not the open flag.
+      // AppKit uses AllWallets on mobile and ConnectingWalletConnectBasic on desktop.
+      if (view === 'ConnectingWalletConnectBasic' || view === 'AllWallets') showOath()
     }),
   ]
   return {
