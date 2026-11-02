@@ -3,8 +3,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
-import { Chain, NonEvmChain, isNonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
+import { Chain, NonEvmChain, isNonEvmChain } from 'types/crossChain'
 
 export type SwapPair = { fromChain: Chain; toChain: Chain; tokenIn: string; tokenOut: string }
 

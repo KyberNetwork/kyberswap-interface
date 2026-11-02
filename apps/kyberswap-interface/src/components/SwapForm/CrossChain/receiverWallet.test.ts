@@ -1,7 +1,11 @@
 // @vitest-environment happy-dom
 import { afterEach, expect, it, vi } from 'vitest'
 
-import { RECEIVER_WALLETS_KEY, beginNearReceiverRedirect, completeNearReceiverRedirect } from './receiverWallet'
+import {
+  RECEIVER_WALLETS_KEY,
+  beginNearReceiverRedirect,
+  completeNearReceiverRedirect,
+} from 'components/SwapForm/CrossChain/receiverWallet'
 
 const wallet = { id: 'my-near-wallet', name: 'MyNearWallet', icon: '/near.svg' }
 afterEach(() => {

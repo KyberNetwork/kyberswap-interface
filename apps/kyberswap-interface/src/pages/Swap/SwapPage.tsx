@@ -10,7 +10,7 @@ import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { TAB } from 'pages/Swap/layout/Tabs'
 
-const TransactionHistoryUpdater = lazy(() => import('pages/Swap/components/TransactionHistoryUpdater'))
+const TransactionUpdater = lazy(() => import('pages/Swap/transactions/TransactionUpdater'))
 const CrossChainSwapProvider = lazy(() => import('components/SwapForm/CrossChain/hooks/useCrossChainSwap'))
 
 /** Owns shared page state and the active quote provider for both panels.
@@ -40,7 +40,7 @@ const SwapPage = () => {
   return (
     <NonEvmProviders>
       <Suspense fallback={null}>
-        <TransactionHistoryUpdater />
+        <TransactionUpdater />
       </Suspense>
       {pair.isCrossChain ? (
         <Suspense fallback={<SwapPageContent {...contentProps} isProviderLoading />}>

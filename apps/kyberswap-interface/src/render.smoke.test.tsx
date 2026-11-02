@@ -40,7 +40,7 @@ describe('SSR render smoke', () => {
     expect(html).toContain('id="swap-currency-input"')
     expect(html).toContain('id="swap-currency-output"')
     expect(html).toContain('<aside')
-    expect(html).toContain('Instantly buy or sell tokens at superior prices')
+    expect(html).toContain('Swap between tokens on different chains')
     expect(html).toContain('Swap')
     expect(html).not.toContain('id="cross-chain-nav-link"')
     expect(html).not.toContain('Swap EVM')

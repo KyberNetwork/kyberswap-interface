@@ -11,8 +11,8 @@ import {
 } from 'components/SwapForm/CrossChain/hooks/useReceiverWalletOptions'
 import type { ReceiverWallet } from 'components/SwapForm/CrossChain/receiverWallet'
 import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { useIsAcceptedTerm } from 'state/user/hooks'
+import { NonEvmChain } from 'types/crossChain'
 
 export const CrossChainReceiverWalletModal = ({
   chain,

@@ -5,10 +5,10 @@ import { useState } from 'react'
 import { CrossChainWalletSelector } from 'components/SwapForm/CrossChain/CrossChainWalletSelector'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
 import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
 import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
+import { NonEvmChain } from 'types/crossChain'
 
 export const CrossChainSenderWalletSelector = ({ chain }: { chain: NonEvmChain }) => {
   const { publicKey, wallet: solanaWallet, disconnect: disconnectSolana } = useWallet()

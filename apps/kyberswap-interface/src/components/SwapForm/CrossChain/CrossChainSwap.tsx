@@ -16,8 +16,8 @@ import { useCrossChainWalletIntent } from 'components/SwapForm/CrossChain/hooks/
 import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { NonEvmChain, isNonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
+import { NonEvmChain, isNonEvmChain } from 'types/crossChain'
 
 type Props = CrossChainFormSelectionProps
 

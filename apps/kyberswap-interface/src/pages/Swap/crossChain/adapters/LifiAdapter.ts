@@ -6,23 +6,20 @@ import { WalletClient, formatUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
 import { CROSS_CHAIN_ONLY_NETWORKS, MAINNET_NETWORKS } from 'constants/networks'
-import type { SolanaToken } from 'pages/Swap/crossChain/adapters/types'
+import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { evmTransactionSchema, lifiQuoteSchema } from 'pages/Swap/crossChain/quote/rawQuote'
+import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/Swap/crossChain/utils'
-import { toBigIntSafe } from 'utils/bigint'
-
-import { Quote } from '../registry'
 import {
-  BaseSwapAdapter,
   Chain,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NonEvmChain,
-  NormalizedQuote,
   NormalizedTxResponse,
-  QuoteParams,
+  type SolanaToken,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'types/crossChain'
+import { toBigIntSafe } from 'utils/bigint'
 
 export class LifiAdapter extends BaseSwapAdapter {
   constructor() {

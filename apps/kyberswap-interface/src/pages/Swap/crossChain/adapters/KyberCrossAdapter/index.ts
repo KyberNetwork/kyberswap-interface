@@ -5,14 +5,7 @@ import { type Address, type Hash, WalletClient, formatUnits } from 'viem'
 
 import kyberswapIcon from 'assets/images/kyberswap.ico'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
-import {
-  BaseSwapAdapter,
-  Chain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  QuoteParams,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import {
   type NearIntentsBridgeMetadata,
   type QuoteRequest,
@@ -36,6 +29,7 @@ import {
 } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/utils'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
+import { Chain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 // ============================================
 // KyberCrossAdapter

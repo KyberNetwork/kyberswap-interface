@@ -1,17 +1,11 @@
 import { KyberCrossAdapter } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter'
-import {
-  Currency,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NearQuoteParams,
-  QuoteParams,
-  SwapProvider,
-  isEvmChain,
-} from 'pages/Swap/crossChain/adapters/types'
+import { NearQuoteParams, QuoteParams, SwapProvider } from 'pages/Swap/crossChain/adapters/types'
 import { CrossChainSwapFactory } from 'pages/Swap/crossChain/factory'
 import { getSourceFilters, streamQuotes } from 'pages/Swap/crossChain/quote/streamQuotes'
 import { PairCategory, sortQuotesByNetOutput } from 'pages/Swap/crossChain/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/Swap/crossChain/registry'
 import type { CrossChainQuoteMode } from 'state/crossChainSwap'
+import { Currency, NOT_SUPPORTED_CHAINS_PRICE_SERVICE, isEvmChain } from 'types/crossChain'
 
 const DEFAULT_QUOTE_TIMEOUT_MS = 10_000
 const KYBERCROSS_QUOTE_TIMEOUT_MS = 60_000

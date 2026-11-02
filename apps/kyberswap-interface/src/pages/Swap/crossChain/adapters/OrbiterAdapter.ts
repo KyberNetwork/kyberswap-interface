@@ -8,21 +8,18 @@ import { WalletClient, formatUnits } from 'viem'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import type { SolanaToken } from 'pages/Swap/crossChain/adapters/types'
+import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { evmTransactionSchema, orbiterQuoteSchema } from 'pages/Swap/crossChain/quote/rawQuote'
+import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/Swap/crossChain/utils'
-
-import { Quote } from '../registry'
 import {
-  BaseSwapAdapter,
   Chain,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NormalizedQuote,
   NormalizedTxResponse,
-  QuoteParams,
+  type SolanaToken,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'types/crossChain'
 
 interface Step {
   action: string

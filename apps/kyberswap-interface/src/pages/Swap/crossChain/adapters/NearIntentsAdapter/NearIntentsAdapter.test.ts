@@ -3,15 +3,14 @@ import type { useWalletSelector } from '@near-wallet-selector/react-hook'
 import type { WalletClient } from 'viem'
 import { afterEach, expect, it, vi } from 'vitest'
 
-import type { Quote } from 'pages/Swap/crossChain/registry'
-
-import { NearToken, NonEvmChain } from '../types'
-import { NearIntentsAdapter } from './index'
+import { NearIntentsAdapter } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/index'
 import {
   getMyNearWalletPendingTransaction,
   getNearTransferHash,
   removeMyNearWalletPendingTransaction,
-} from './pendingTransaction'
+} from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/pendingTransaction'
+import type { Quote } from 'pages/Swap/crossChain/registry'
+import { NearToken, NonEvmChain } from 'types/crossChain'
 
 const transferHash = '7'.repeat(44)
 const storageHash = '8'.repeat(44)

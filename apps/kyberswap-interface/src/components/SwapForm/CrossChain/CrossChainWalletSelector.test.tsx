@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { CrossChainWalletSelector } from 'components/SwapForm/CrossChain/CrossChainWalletSelector'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import { NonEvmChain } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({
   nearAddress: null as string | null,

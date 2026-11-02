@@ -1,11 +1,11 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
+import useSingleChainSwapExecution from 'components/SwapForm/SingleChain/useSingleChainSwapExecution'
 import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import { getFeeInfoForMixPanel, getSwapConfirmedTracking } from 'components/SwapForm/SwapActionButton/swapTracking'
 import SwapModal from 'components/SwapForm/SwapModal'
 import type { BuildReview, SubmitReview, SwapReviewState } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { useActiveWeb3React } from 'hooks'
-import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
@@ -63,7 +63,7 @@ const SwapOnlyButton = ({
   const isBuildingRoute = review.phase === 'building'
   const { priceImpact } = routeSummary || {}
 
-  const swapCallback = useSwapCallbackV3(isPermitSwap)
+  const swapCallback = useSingleChainSwapExecution(isPermitSwap)
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
   const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
 

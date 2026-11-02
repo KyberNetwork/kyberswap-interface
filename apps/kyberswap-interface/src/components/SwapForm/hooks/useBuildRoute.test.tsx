@@ -3,7 +3,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import useBuildRoute from './useBuildRoute'
+import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
 
 const mocks = vi.hoisted(() => ({ build: vi.fn() }))
 vi.mock('react-router-dom', () => ({ useSearchParams: () => [new URLSearchParams()] }))

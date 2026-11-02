@@ -2,7 +2,7 @@ import { type BaseQueryFn, type FetchArgs, createApi, fetchBaseQuery, retry } fr
 import { z } from 'zod'
 
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
-import { isBackendResolved, transactionIdentity } from 'pages/Swap/crossChain/transactions/model'
+import { isBackendResolved, transactionIdentity } from 'state/crossChainSwap/model'
 
 export const verificationSchema = z.enum(['pending', 'verified', 'mismatched', 'not_found'])
 export const backendStatusSchema = z.enum(['unknown', 'in_progress', 'success', 'failed', 'refunded'])

@@ -5,9 +5,9 @@ import Badge, { BadgeVariant } from 'components/Badge'
 import IconButton from 'components/Button/IconButton'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { HStack, Stack } from 'components/Stack'
-import ProcessingTransactionItem from 'pages/Swap/components/ProcessingTransactionItem'
-import { localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
-import { useProcessingTransactions } from 'pages/Swap/hooks/useProcessingTransactions'
+import ProcessingTransactionItem from 'pages/Swap/transactions/ProcessingTransactionItem'
+import { useProcessingTransactions } from 'pages/Swap/transactions/useProcessingTransactions'
+import { localTransactionKey } from 'state/crossChainSwap/model'
 import { cn } from 'utils/cn'
 
 const ProcessingTransactions = ({ onOpenHistory }: { onOpenHistory: () => void }) => {

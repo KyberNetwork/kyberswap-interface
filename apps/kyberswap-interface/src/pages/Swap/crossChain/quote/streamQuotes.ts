@@ -1,10 +1,11 @@
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
-import { Currency, NearQuoteParams, QuoteParams } from 'pages/Swap/crossChain/adapters/types'
+import { NearQuoteParams, QuoteParams } from 'pages/Swap/crossChain/adapters/types'
 import { CrossChainSwapFactory } from 'pages/Swap/crossChain/factory'
 import { normalizeStreamQuote, parseQuoteResponse } from 'pages/Swap/crossChain/quote/parseStreamQuote'
 import { PairCategory, getCurrencyAddress, sortQuotesByOutput } from 'pages/Swap/crossChain/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/Swap/crossChain/registry'
 import type { CrossChainQuoteMode } from 'state/crossChainSwap'
+import { Currency } from 'types/crossChain'
 
 const SSE_EVENT = {
   INIT: 'init',

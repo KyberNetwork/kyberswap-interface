@@ -7,12 +7,12 @@ import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { Chain, NonEvmChain, isNonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import {
   BTC_DEFAULT_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
 } from 'pages/Swap/crossChain/utils'
+import { Chain, NonEvmChain, isNonEvmChain } from 'types/crossChain'
 
 type RecipientInput = { mode: 'wallet' | 'paste'; pastedAddress: string; expanded: boolean }
 const EMPTY_INPUT: RecipientInput = { mode: 'wallet', pastedAddress: '', expanded: true }

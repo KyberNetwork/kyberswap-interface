@@ -1,5 +1,5 @@
 import { AcrossDepositStatusResponse } from 'pages/Swap/crossChain/adapters/AcrossAdapter/types'
-import { SwapStatus } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
+import { SwapStatus } from 'types/crossChain'
 
 const ACROSS_STATUS_ERROR_GRACE_PERIOD = 2 * 60 * 60 * 1_000
 

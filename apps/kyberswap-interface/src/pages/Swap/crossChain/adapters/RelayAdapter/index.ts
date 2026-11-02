@@ -35,21 +35,19 @@ import {
 
 import { arc, elysium, robinhood, wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
-import {
-  BaseSwapAdapter,
-  Chain,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  QuoteParams,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
-import type { SolanaToken } from 'pages/Swap/crossChain/adapters/types'
+import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { parseRelayQuote } from 'pages/Swap/crossChain/quote/rawQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/Swap/crossChain/utils'
+import {
+  Chain,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
+  NormalizedTxResponse,
+  type SolanaToken,
+  SwapStatus,
+} from 'types/crossChain'
 
 const SolanaChainId = 792703809
 

@@ -4,7 +4,7 @@ import { CrossChainReceiverWalletModal } from 'components/SwapForm/CrossChain/Cr
 import { CrossChainWalletSelector } from 'components/SwapForm/CrossChain/CrossChainWalletSelector'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import { NonEvmChain } from 'types/crossChain'
 
 export const CrossChainReceiverWalletSelector = ({ chain }: { chain: NonEvmChain }) => {
   const {

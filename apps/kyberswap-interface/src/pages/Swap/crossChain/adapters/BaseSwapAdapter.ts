@@ -1,35 +1,16 @@
 import type { useWalletSelector } from '@near-wallet-selector/react-hook'
 import type { WalletClient } from 'viem'
 
-import {
-  Chain,
-  Currency,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  QuoteParams,
-  SwapProvider,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/types'
+import { NormalizedQuote, QuoteParams, SwapProvider } from 'pages/Swap/crossChain/adapters/types'
 import { Quote } from 'pages/Swap/crossChain/registry'
+import { Chain, Currency, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
-// Re-export the leaf types/values so eager modules (utils, redux) can import the small
-// enum/types without pulling in the adapter SDK barrel.
-export {
-  BitcoinToken,
-  NonEvmChain,
-  NonEvmChainInfo,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-} from 'pages/Swap/crossChain/adapters/types'
 export type {
-  Chain,
-  Currency,
   EvmQuoteParams,
   NearQuoteParams,
   NormalizedQuote,
-  NormalizedTxResponse,
   QuoteParams,
   SwapProvider,
-  SwapStatus,
 } from 'pages/Swap/crossChain/adapters/types'
 
 export abstract class BaseSwapAdapter implements SwapProvider {

@@ -19,7 +19,7 @@ import { ErrorName } from 'utils/transactionError'
 
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
-const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
+const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { connector, isSmartConnector } = useWeb3React()
   const walletKey = connector?.name
@@ -63,6 +63,13 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       hash: '',
       type: TRANSACTION_TYPE.SWAP,
       extraInfo: {
+        swap: {
+          inputAmount: inputAmount.quotient.toString(),
+          outputAmount: outputAmount.quotient.toString(),
+          inputDecimals: inputAmount.currency.decimals,
+          outputDecimals: outputAmount.currency.decimals,
+          recipient: recipient || account || '',
+        },
         tokenAmountIn: inputAmountStr,
         tokenAmountOut: outputAmountStr,
         tokenAmountInDisplay: displayTypedValue || inputAmountStr,
@@ -119,23 +126,12 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     displayOutputAmount,
   ])
 
-  const handleSwapResponse = useCallback(
-    (tx: { hash: string }) => {
-      const swapData = getSwapData()
-
-      addTransactionWithType({
-        ...swapData,
-        hash: tx.hash,
-      })
-    },
-    [addTransactionWithType, getSwapData],
-  )
-
-  const swapCallbackForEVM = useCallback(
+  const executeSwap = useCallback(
     async (routerAddress: string | undefined, encodedSwapData: string | undefined, onRequestSignature?: () => void) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
+      const swapData = getSwapData()
       const value = swapTxValue(inputAmount)
 
       const response = await sendEVMTransaction({
@@ -153,13 +149,22 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
-      handleSwapResponse(response)
+      addTransactionWithType({ ...swapData, hash: response.hash })
       return response?.hash
     },
-    [account, chainId, handleSwapResponse, inputAmount, walletKey, isSmartConnector, isSmartSettlement],
+    [
+      account,
+      chainId,
+      getSwapData,
+      addTransactionWithType,
+      inputAmount,
+      walletKey,
+      isSmartConnector,
+      isSmartSettlement,
+    ],
   )
 
-  return swapCallbackForEVM
+  return executeSwap
 }
 
-export default useSwapCallbackV3
+export default useSingleChainSwapExecution

@@ -4,9 +4,9 @@ import { useMedia } from 'react-use'
 
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
 import Pagination from 'components/Pagination'
-import { TransactionHistoryItem, TransactionTableGrid } from 'pages/Swap/crossChain/components/TransactionHistoryItem'
-import type { HistoryTransaction } from 'pages/Swap/crossChain/transactions/history'
-import { localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
+import { TransactionHistoryItem, TransactionTableGrid } from 'pages/Swap/transactions/TransactionHistoryItem'
+import type { HistoryTransaction } from 'pages/Swap/transactions/history'
+import { localTransactionKey } from 'state/crossChainSwap/model'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 

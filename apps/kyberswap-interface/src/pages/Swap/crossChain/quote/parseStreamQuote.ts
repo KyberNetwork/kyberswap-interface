@@ -5,8 +5,9 @@ import { z } from 'zod'
 
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { NonEvmChain, type NormalizedQuote, type QuoteParams } from 'pages/Swap/crossChain/adapters/types'
+import { type NormalizedQuote, type QuoteParams } from 'pages/Swap/crossChain/adapters/types'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
+import { NonEvmChain } from 'types/crossChain'
 
 export type StreamQuoteResponse = {
   provider: string

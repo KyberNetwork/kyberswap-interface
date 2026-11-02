@@ -1,6 +1,4 @@
 import arbitrumIcon from 'assets/networks/arbitrum.svg'
-import type { CrossChainQuoteMode } from 'state/crossChainSwap'
-
 import {
   AcrossAdapter,
   DeBridgeAdapter,
@@ -13,13 +11,14 @@ import {
   SwapProvider,
   SymbiosisAdapter,
   XYFinanceAdapter,
-} from './adapters'
-import { BungeeAdapter } from './adapters/BungeeAdapter'
-import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
-import { OptimexAdapter } from './adapters/OptimexAdapter'
-import { OrbiterAdapter } from './adapters/OrbiterAdapter'
-import { CrossChainSwapAdapterRegistry } from './registry'
-import { normalizeAdapterName } from './utils'
+} from 'pages/Swap/crossChain/adapters'
+import { BungeeAdapter } from 'pages/Swap/crossChain/adapters/BungeeAdapter'
+import { NearIntentsAdapter } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter'
+import { OptimexAdapter } from 'pages/Swap/crossChain/adapters/OptimexAdapter'
+import { OrbiterAdapter } from 'pages/Swap/crossChain/adapters/OrbiterAdapter'
+import { CrossChainSwapAdapterRegistry } from 'pages/Swap/crossChain/registry'
+import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 
 export type CrossChainSource = Pick<SwapProvider, 'getName'> & Partial<Pick<SwapProvider, 'getIcon' | 'canSupport'>>
 

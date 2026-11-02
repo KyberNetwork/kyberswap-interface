@@ -9,6 +9,13 @@ import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import CopyHelper from 'components/Copy'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
+import { GasDropTransactionLine } from 'pages/Swap/crossChain/components/GasDropTransactionLine'
+import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
+import { registry } from 'pages/Swap/crossChain/factory'
+import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
+import type { HistoryTransaction } from 'pages/Swap/transactions/history'
+import { useHistoryToken } from 'pages/Swap/transactions/useHistoryToken'
+import { ExternalLinkIcon } from 'theme'
 import {
   type Chain,
   type Currency,
@@ -16,14 +23,7 @@ import {
   NonEvmChainInfo,
   type TransactionStatus,
   isProcessingTransactionStatus,
-} from 'pages/Swap/crossChain/adapters/types'
-import { GasDropTransactionLine } from 'pages/Swap/crossChain/components/GasDropTransactionLine'
-import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
-import { registry } from 'pages/Swap/crossChain/factory'
-import type { HistoryTransaction } from 'pages/Swap/crossChain/transactions/history'
-import { useHistoryToken } from 'pages/Swap/crossChain/transactions/useHistoryToken'
-import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
-import { ExternalLinkIcon } from 'theme'
+} from 'types/crossChain'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'

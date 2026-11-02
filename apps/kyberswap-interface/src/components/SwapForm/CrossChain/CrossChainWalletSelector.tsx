@@ -8,7 +8,7 @@ import Wallet from 'components/Icons/Wallet'
 import { Stack } from 'components/Stack'
 import type { ReceiverWallet } from 'components/SwapForm/CrossChain/receiverWallet'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import { NonEvmChain } from 'types/crossChain'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 

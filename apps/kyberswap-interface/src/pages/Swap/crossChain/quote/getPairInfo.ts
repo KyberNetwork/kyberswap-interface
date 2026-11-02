@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { fetchTokenCategories, fetchTokenPrices } from 'services/tokenCatalog'
 
-import { Chain, Currency, NonEvmChain, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import {
   PairCategory,
   TokenPricesResponse,
@@ -10,6 +9,7 @@ import {
   isStableCurrency,
 } from 'pages/Swap/crossChain/quote/utils'
 import { isCanonicalPair } from 'pages/Swap/crossChain/utils'
+import { Chain, Currency, NonEvmChain, isEvmChain } from 'types/crossChain'
 
 type SameAssetRequest = {
   abort: () => void

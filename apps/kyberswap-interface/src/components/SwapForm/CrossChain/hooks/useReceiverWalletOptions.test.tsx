@@ -4,9 +4,11 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
-
-import { readBitcoinReceiver, useReceiverWalletOptions } from './useReceiverWalletOptions'
+import {
+  readBitcoinReceiver,
+  useReceiverWalletOptions,
+} from 'components/SwapForm/CrossChain/hooks/useReceiverWalletOptions'
+import { NonEvmChain } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({ setupSelector: vi.fn(), adapters: [] as any[] }))
 vi.mock('@near-wallet-selector/core', () => ({ setupWalletSelector: mocks.setupSelector }))

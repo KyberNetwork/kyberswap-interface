@@ -1,10 +1,7 @@
 import type { BackendTransaction } from 'services/crossChainTransactions'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
-import { mergeTransactionHistory } from 'pages/Swap/crossChain/transactions/history'
-import { localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
-
+import { localTransactionToHistory, mergeTransactionHistory } from 'pages/Swap/transactions/history'
 import reducer, {
   addTransaction,
   enqueueTransactionSync,
@@ -12,7 +9,9 @@ import reducer, {
   patchProviderTransactions,
   saveTransactionSync,
   selectTransactionSyncs,
-} from './index'
+} from 'state/crossChainSwap/index'
+import { localTransactionKey } from 'state/crossChainSwap/model'
+import type { NormalizedTxResponse } from 'types/crossChain'
 
 vi.mock('state/hooks', () => ({ useAppSelector: vi.fn() }))
 
@@ -74,7 +73,11 @@ describe('persisted local settlement', () => {
     expect(selectTransactionSyncs({ crossChainSwap: state })).toEqual([])
     expect(JSON.stringify(state)).not.toContain('secret')
     const reloaded = JSON.parse(JSON.stringify(state))
-    const rows = mergeTransactionHistory({ server: [], local: reloaded.transactions, sender: transaction.sender })
+    const rows = mergeTransactionHistory({
+      server: [],
+      local: reloaded.transactions.map(localTransactionToHistory),
+      sender: transaction.sender,
+    })
     expect(rows).toHaveLength(1)
     expect(rows[0]).toMatchObject({
       status: status === 'success' ? 'Success' : status === 'failed' ? 'Failed' : 'Refunded',
@@ -130,10 +133,18 @@ describe('persisted local settlement', () => {
     state = reducer(state, saveTransactionSync({ ...entry, backend: canonical }))
     state = reducer(state, finishTransactionSync(entry.key))
     expect(
-      mergeTransactionHistory({ server: [], local: state.transactions, sender: transaction.sender })[0],
+      mergeTransactionHistory({
+        server: [],
+        local: state.transactions.map(localTransactionToHistory),
+        sender: transaction.sender,
+      })[0],
     ).toMatchObject({ targetToken: 'other-token', adapter: 'relay', targetTxHash: undefined })
     expect(
-      mergeTransactionHistory({ server: [canonical], local: state.transactions, sender: transaction.sender }),
+      mergeTransactionHistory({
+        server: [canonical],
+        local: state.transactions.map(localTransactionToHistory),
+        sender: transaction.sender,
+      }),
     ).toHaveLength(1)
   })
 })

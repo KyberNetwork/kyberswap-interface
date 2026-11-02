@@ -5,8 +5,8 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { RecipientInput } from './RecipientInput'
-import { useEvmRecipient } from './hooks/useEvmRecipient'
+import { RecipientInput } from 'components/SwapForm/RecipientInput'
+import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 
 let container: HTMLDivElement
 let root: ReturnType<typeof createRoot>

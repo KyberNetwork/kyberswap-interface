@@ -1,14 +1,13 @@
 import { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { addTransaction, enqueueTransactionSync } from 'state/crossChainSwap'
-import { useAppDispatch } from 'state/hooks'
-
 import {
   getMyNearWalletPendingTransaction,
   getNearTransferHash,
   removeMyNearWalletPendingTransaction,
-} from './pendingTransaction'
+} from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/pendingTransaction'
+import { addTransaction, enqueueTransactionSync } from 'state/crossChainSwap'
+import { useAppDispatch } from 'state/hooks'
 
 export const useRestoreMyNearWalletTransaction = () => {
   const dispatch = useAppDispatch()

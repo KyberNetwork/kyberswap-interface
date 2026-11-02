@@ -1,6 +1,5 @@
 import { z } from 'zod'
 
-import type { SwapStatus } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import {
   type SocketQuoteResult,
   SocketStatusCode,
@@ -8,6 +7,7 @@ import {
   type SocketTxRoute,
 } from 'pages/Swap/crossChain/adapters/BungeeAdapter/types'
 import { evmTransactionSchema } from 'pages/Swap/crossChain/quote/rawQuote'
+import type { SwapStatus } from 'types/crossChain'
 
 const socketRouteSchema = z
   .object({

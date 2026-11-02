@@ -3,18 +3,7 @@ import { WalletClient, formatUnits } from 'viem'
 import SocketLogo from 'assets/svg/socket_logo.svg'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import {
-  BaseSwapAdapter,
-  BitcoinToken,
-  Chain,
-  Currency,
-  EvmQuoteParams,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { getBungeeQuote, getBungeeStatus } from 'pages/Swap/crossChain/adapters/BungeeAdapter/api'
 import { type SocketQuoteParams } from 'pages/Swap/crossChain/adapters/BungeeAdapter/types'
 import {
@@ -25,6 +14,15 @@ import {
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, isWrappedToken } from 'pages/Swap/crossChain/utils'
+import {
+  BitcoinToken,
+  Chain,
+  Currency,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
+  NormalizedTxResponse,
+  SwapStatus,
+} from 'types/crossChain'
 
 export class BungeeAdapter extends BaseSwapAdapter {
   constructor() {

@@ -10,10 +10,10 @@ import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
-import { Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
-import { useUnifiedTransactionHistory } from 'pages/Swap/crossChain/transactions/useUnifiedTransactionHistory'
+import { useHistoryPagination } from 'pages/Swap/transactions/useHistoryPagination'
+import { Chain, NonEvmChain } from 'types/crossChain'
 
-const TransactionHistoryList = lazy(() => import('pages/Swap/crossChain/components/TransactionHistoryList'))
+const TransactionHistoryList = lazy(() => import('pages/Swap/transactions/TransactionHistoryList'))
 
 /** Controlled trigger composed into the form header; SwapPage owns visibility and panel mounting. */
 export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: () => void }) => (
@@ -33,7 +33,7 @@ export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: (
 
 // Remount only wallet-owned history state; keep the search input and focus stable.
 const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) => {
-  const history = useUnifiedTransactionHistory(sender)
+  const history = useHistoryPagination(sender)
   const { transactions } = history
 
   return (

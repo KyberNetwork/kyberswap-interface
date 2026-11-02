@@ -3,8 +3,8 @@ import { useConnection } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import { useQuery } from '@tanstack/react-query'
 
-import { Currency, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
+import { Currency, NonEvmChain } from 'types/crossChain'
 
 /** Read-only balance lookup; the receiver never borrows a sender's wallet balance or signing context. */
 export const useReceiverBalance = (chain: NonEvmChain, currency?: Currency, address?: string) => {

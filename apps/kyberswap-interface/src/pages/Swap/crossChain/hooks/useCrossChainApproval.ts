@@ -5,9 +5,9 @@ import { useReadContract, useWaitForTransactionReceipt } from 'wagmi'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, ApprovalStatus, useApproveCallback } from 'hooks/useApproveCallback'
-import { Chain, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { useHasPendingApproval } from 'state/transactions/hooks'
+import { Chain, isEvmChain } from 'types/crossChain'
 import { Address, Hash, parseAbi } from 'utils/viem'
 
 const ALLOWANCE_ABI = parseAbi(['function allowance(address owner, address spender) view returns (uint256)'])

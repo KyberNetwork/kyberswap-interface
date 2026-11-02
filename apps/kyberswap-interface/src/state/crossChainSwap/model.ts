@@ -1,6 +1,6 @@
 import type { BackendTransaction } from 'services/crossChainTransactions'
 
-import type { Chain, NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
+import type { Chain, NormalizedTxResponse } from 'types/crossChain'
 
 export type FeStatus = NonNullable<NormalizedTxResponse['status']>
 export type RecordingStatus = 'queued' | 'recorded' | 'retryable_error' | 'permanent_error'
@@ -87,6 +87,22 @@ export const backendToFeStatus: Record<BackendTransaction['status'], FeStatus> =
   failed: 'Failed',
   refunded: 'Refunded',
 }
+export const getLocalSettlement = (tx: LocalTransaction) =>
+  tx.settlement ?? (isBackendResolved(tx.sync?.backend) ? tx.sync?.backend : undefined)
+
+export const getLocalTransactionStatus = (tx: LocalTransaction) => {
+  const settlement = getLocalSettlement(tx)
+  return settlement ? backendToFeStatus[settlement.status] : tx.status
+}
+
+export const isTransactionForWallet = (
+  tx: Pick<NormalizedTxResponse, 'sourceChain' | 'targetChain' | 'sender' | 'recipient'>,
+  wallet: string,
+) =>
+  !!wallet &&
+  ((!!tx.sender && normalizeIdentity(tx.sourceChain, tx.sender) === normalizeIdentity(tx.sourceChain, wallet)) ||
+    (!!tx.recipient && normalizeIdentity(tx.targetChain, tx.recipient) === normalizeIdentity(tx.targetChain, wallet)))
+
 export const matchesBackendTransaction = (
   entry: OutboxEntry,
   backend: BackendTransaction,

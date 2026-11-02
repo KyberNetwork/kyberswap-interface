@@ -3,9 +3,8 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, expect, it, vi } from 'vitest'
 
+import { useSwapReviewData } from 'components/SwapForm/SwapModal/useSwapReviewData'
 import { NativeCurrencies } from 'constants/tokens'
-
-import { useSwapReviewData } from './useSwapReviewData'
 
 const mocks = vi.hoisted(() => ({ limit: vi.fn(), stop: vi.fn(), form: vi.fn(), balance: vi.fn() }))
 vi.mock('services/limitOrder', () => ({ useGetTotalActiveMakingAmountQuery: mocks.limit }))

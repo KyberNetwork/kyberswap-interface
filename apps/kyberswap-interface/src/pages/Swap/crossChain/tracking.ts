@@ -1,7 +1,7 @@
 import { ETHER_ADDRESS } from 'constants/index'
-import { Chain, Currency, NonEvmChain, NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
 import { isNearToken, isSolanaToken } from 'pages/Swap/crossChain/quote/utils'
 import { getChainName } from 'pages/Swap/crossChain/utils'
+import { Chain, Currency, NonEvmChain, NormalizedTxResponse } from 'types/crossChain'
 
 export const getTokenTrackingId = (chain: Chain, token: Currency) => {
   if (chain === NonEvmChain.Bitcoin) return token.symbol

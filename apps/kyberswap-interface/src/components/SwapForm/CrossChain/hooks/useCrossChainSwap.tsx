@@ -3,7 +3,7 @@ import { ReactNode, createContext, useContext } from 'react'
 import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
 import { useCrossChainQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
 import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
-import { Chain } from 'pages/Swap/crossChain/adapters/types'
+import { Chain } from 'types/crossChain'
 
 export type CrossChainSwapOptions = {
   fromChain: Chain

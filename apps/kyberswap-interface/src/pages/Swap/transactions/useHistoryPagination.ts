@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import walletTransactionsApi, { useGetTransactionsInfiniteQueryState } from 'services/walletTransactionsApi'
 
-import { useCrossChainTransactions } from 'state/crossChainSwap'
-import { useAppDispatch } from 'state/hooks'
-
-import { HISTORY_PAGE_SIZE, getLoadedHistory } from './history'
+import { HISTORY_PAGE_SIZE, getLoadedHistory } from 'pages/Swap/transactions/history'
+import { selectLocalSwapHistory } from 'pages/Swap/transactions/localTransactionSelectors'
+import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 // The page owns only cursor navigation. The page-level updater owns the cache
 // subscription and polling, so closing History does not stop KD refreshes.
-export const useUnifiedTransactionHistory = (sender: string) => {
+export const useHistoryPagination = (sender: string) => {
   const dispatch = useAppDispatch()
-  const local = useCrossChainTransactions()
+  const local = useAppSelector(selectLocalSwapHistory)
   const [page, setPage] = useState(1)
   const [loadingMore, setLoadingMore] = useState(false)
-  const mounted = useRef(false)
+  const navigation = useRef<symbol | undefined>(undefined)
+  const latestLocal = useRef(local)
+  latestLocal.current = local
 
   useEffect(() => {
-    mounted.current = true
     return () => {
-      mounted.current = false
+      navigation.current = undefined
     }
   }, [])
 
@@ -41,24 +41,37 @@ export const useUnifiedTransactionHistory = (sender: string) => {
   )
 
   const goNext = async () => {
-    if (!canGoNext || loadingMore || list.isFetching) return
+    if (!canGoNext || navigation.current || list.isFetching) return
+    const request = Symbol()
+    navigation.current = request
     setLoadingMore(true)
     try {
       let next = loaded
       const targetPage = loaded.transactions.length < end ? page : page + 1
       while (next.transactions.length < targetPage * HISTORY_PAGE_SIZE && next.hasMore) {
         const result = await fetchNextPage()
-        if (!mounted.current || result.error) return
-        next = getLoadedHistory(result.data?.pages ?? [], local, sender)
+        if (navigation.current !== request || result.error) return
+        next = getLoadedHistory(result.data?.pages ?? [], latestLocal.current, sender)
       }
       if (next.transactions.length > (targetPage - 1) * HISTORY_PAGE_SIZE)
         setPage(current => (current === page ? targetPage : current))
     } finally {
-      if (mounted.current) setLoadingMore(false)
+      if (navigation.current === request) {
+        navigation.current = undefined
+        setLoadingMore(false)
+      }
     }
   }
 
-  const goPrevious = () => setPage(current => Math.max(1, current - 1))
+  const cancelNavigation = () => {
+    navigation.current = undefined
+    setLoadingMore(false)
+  }
+
+  const goPrevious = () => {
+    cancelNavigation()
+    setPage(current => Math.max(1, current - 1))
+  }
 
   useEffect(() => {
     if (list.currentData && !loaded.hasMore) setPage(current => Math.min(current, lastPage))
@@ -81,6 +94,7 @@ export const useUnifiedTransactionHistory = (sender: string) => {
     goNext,
     refresh: () => {
       if (!sender) return
+      cancelNavigation()
       setPage(1)
       void dispatch(
         walletTransactionsApi.endpoints.getTransactions.initiate(sender, {

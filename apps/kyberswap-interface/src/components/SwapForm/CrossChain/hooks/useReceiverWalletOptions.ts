@@ -12,7 +12,7 @@ import { createUnisatProvider } from 'components/Web3Provider/BitcoinProvider/pr
 import { createXverseProvider } from 'components/Web3Provider/BitcoinProvider/providers/xverse'
 import { WalletInfo } from 'components/Web3Provider/BitcoinProvider/types'
 import { walletSelectorConfig } from 'components/Web3Provider/nearWalletConfig'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import { NonEvmChain } from 'types/crossChain'
 
 export type ReceiverWalletOption = {
   id: string

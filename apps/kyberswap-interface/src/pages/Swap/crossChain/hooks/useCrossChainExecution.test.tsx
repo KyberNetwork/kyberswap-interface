@@ -3,10 +3,9 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
+import { useCrossChainExecution } from 'pages/Swap/crossChain/hooks/useCrossChainExecution'
 import type { Quote } from 'pages/Swap/crossChain/registry'
-
-import { useCrossChainExecution } from './useCrossChainExecution'
+import type { NormalizedTxResponse } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({
   execute: vi.fn(),

@@ -3,9 +3,9 @@ import type { Connection } from '@solana/web3.js'
 import type { WalletClient } from 'viem'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { MayanAdapter } from 'pages/Swap/crossChain/adapters/MayanAdapter'
 import type { Quote } from 'pages/Swap/crossChain/registry'
+import { NonEvmChain } from 'types/crossChain'
 
 const { build, solanaSwap } = vi.hoisted(() => ({ build: vi.fn(), solanaSwap: vi.fn() }))
 vi.mock('@mayanfinance/swap-sdk', () => ({ swapFromSolana: solanaSwap }))

@@ -8,17 +8,19 @@ import type { IndexedTransaction } from 'services/walletTransactions'
 import api, { useGetTransactionsInfiniteQuerySubscription } from 'services/walletTransactionsApi'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
-
-import { getLoadedHistory } from './history'
-import type { LocalTransaction } from './model'
-import { useUnifiedTransactionHistory } from './useUnifiedTransactionHistory'
+import { getLoadedHistory } from 'pages/Swap/transactions/history'
+import { useHistoryPagination } from 'pages/Swap/transactions/useHistoryPagination'
+import type { LocalTransaction } from 'state/crossChainSwap/model'
+import { addTransaction, finalizeTransaction } from 'state/transactions/actions'
+import transactionsReducer from 'state/transactions/reducer'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import type { NormalizedTxResponse } from 'types/crossChain'
 
 let sender: string
-vi.mock('constants/env', () => ({
+vi.mock('constants/env', async importOriginal => ({
+  ...(await importOriginal<typeof import('constants/env')>()),
   CROSSCHAIN_AGGREGATOR_API: 'https://aggregator.test',
 }))
-vi.mock('state/crossChainSwap', () => ({ useCrossChainTransactions: () => local }))
 
 const timestamp = (n: number) => Date.UTC(2026, 9, 27, 0, 0, n)
 const localRow = (n: number): NormalizedTxResponse =>
@@ -95,10 +97,15 @@ const response = (rows: BackendTransaction[]) =>
   })
 let local: LocalTransaction[]
 let root: ReturnType<typeof createRoot>
-let history: ReturnType<typeof useUnifiedTransactionHistory>
+let history: ReturnType<typeof useHistoryPagination>
 const createStore = () =>
   configureStore({
-    reducer: { [api.reducerPath]: api.reducer, [detailApi.reducerPath]: detailApi.reducer },
+    reducer: {
+      crossChainSwap: (_state: { transactions: LocalTransaction[] } | undefined) => ({ transactions: local }),
+      transactions: transactionsReducer,
+      [api.reducerPath]: api.reducer,
+      [detailApi.reducerPath]: detailApi.reducer,
+    },
     middleware: getDefault => getDefault().concat(api.middleware, detailApi.middleware),
     enhancers: getDefault => getDefault({ autoBatch: { type: 'tick' } }),
   })
@@ -106,17 +113,18 @@ let store: ReturnType<typeof createStore>
 const fetcher = vi.fn()
 const Harness = ({ sender }: { sender: string }) => {
   useGetTransactionsInfiniteQuerySubscription(sender, { skip: !sender })
-  history = useUnifiedTransactionHistory(sender)
+  history = useHistoryPagination(sender)
   return null
 }
 const render = () =>
-  act(async () =>
+  act(async () => {
+    store.dispatch({ type: 'test/syncLocal' })
     root.render(
       <Provider store={store}>
         <Harness key={sender} sender={sender} />
       </Provider>,
-    ),
-  )
+    )
+  })
 const waitFor = (assertion: () => void) =>
   act(async () => {
     await vi.waitFor(assertion)
@@ -165,6 +173,12 @@ it('paginates 25 local rows when the API has no cursor', async () => {
   await render()
   expect(history.currentPage).toBe(1)
   expect(hashes()).toEqual(range(25, 16).map(n => `hash-${n}`))
+  sender = ''
+  fetcher.mockClear()
+  await render()
+  expect(history.transactions).toEqual([])
+  expect(history.canGoNext).toBe(false)
+  expect(fetcher).not.toHaveBeenCalled()
 })
 
 it('merges local and API rows before slicing, without duplicates or moving old local rows ahead of unloaded history', async () => {
@@ -243,15 +257,6 @@ it('ignores a next-page completion after switching wallets', async () => {
   expect(fetcher).toHaveBeenCalledTimes(3)
 })
 
-it('does not paginate or request history while disconnected', async () => {
-  sender = ''
-  local = range(25, 1).map(localRow)
-  await render()
-  expect(history.transactions).toEqual([])
-  expect(history.canGoNext).toBe(false)
-  expect(fetcher).not.toHaveBeenCalled()
-})
-
 it('holds timestamp ties until the cursor has covered them', () => {
   const row = serverRow(10)
   const page = { transactions: [row], nextCursor: 'next' }
@@ -302,20 +307,16 @@ it('ignores detail cache and keeps persisted local settlement until KD catches u
   await waitFor(() => expect(history.loadingMore).toBe(false))
   expect(history.transactions[0]).toMatchObject({ status: 'Success', outputAmount: '95' })
 
+  fetcher.mockImplementation(async () => response([{ ...serverRow(30), fromToken: '', toToken: '' }]))
+  await act(async () => history.refresh())
+  await waitFor(() => expect(history.loadingMore).toBe(false))
+  expect(history.transactions[0]).toMatchObject({ sourceToken: 'token', outputAmount: '95' })
+
   fetcher.mockImplementation(async () => response([serverRow(30)]))
   await act(async () => history.refresh())
   await waitFor(() => expect(history.loadingMore).toBe(false))
   expect(hashes()).toEqual(['hash-30'])
   expect(history.transactions[0].outputAmount).toBe('90')
-})
-
-it('keeps local settlement when indexed token data is incomplete', () => {
-  const settled = { ...serverRow(30), actualOutput: '95' }
-  const pendingIndex = { ...serverRow(30), fromToken: '', toToken: '' }
-  const page = { transactions: [pendingIndex], nextCursor: null }
-  expect(
-    getLoadedHistory([page], [{ ...localRow(30), settlement: settled }], '0xsender').transactions[0],
-  ).toMatchObject({ sourceToken: 'token', outputAmount: '95' })
 })
 
 it('keeps the current page on cursor failure and retries without skipping newly loaded rows', async () => {
@@ -338,4 +339,76 @@ it('keeps the current page on cursor failure and retries without skipping newly 
   await act(async () => history.goNext())
   expect(history.currentPage).toBe(2)
   expect(hashes()).toEqual(range(10, 1).map(n => `hash-${n}`))
+})
+
+it('shows a submitted same-chain swap before API indexing, updates its receipt, then dedupes the indexed result', async () => {
+  // An unavailable index must not prevent local history rendering.
+  fetcher.mockImplementation(async () => new Response('', { status: 503 }))
+  await render()
+  await waitFor(() => expect(history.error).toBe(true))
+  await act(async () => {
+    store.dispatch(
+      addTransaction({
+        chainId: 1,
+        hash: 'hash-33',
+        from: sender,
+        type: TRANSACTION_TYPE.SWAP,
+        extraInfo: {
+          tokenAddressIn: '0x0000000000000000000000000000000000000001',
+          tokenAddressOut: '0x0000000000000000000000000000000000000002',
+          tokenSymbolIn: 'USDC',
+          tokenSymbolOut: 'USDT',
+          tokenAmountIn: '1',
+          tokenAmountOut: '0.9',
+          swap: {
+            inputAmount: '1000001',
+            outputAmount: '900001',
+            inputDecimals: 6,
+            outputDecimals: 6,
+            recipient: sender,
+          },
+        },
+      }),
+    )
+  })
+  expect(hashes()).toEqual(['hash-33'])
+  expect(history.transactions[0]).toMatchObject({ status: 'Processing', inputAmount: '1000001' })
+  await act(async () => {
+    store.dispatch(finalizeTransaction({ chainId: 1, hash: 'hash-33', receipt: { status: 1, blockHash: 'block' } }))
+  })
+  expect(history.transactions[0].status).toBe('Success')
+  fetcher.mockImplementation(async () => response([{ ...serverRow(33), toChain: 'ethereum', actualOutput: '910001' }]))
+  await act(async () => history.refresh())
+  await waitFor(() => expect(history.transactions[0].fromBackend).toBe(true))
+  expect(hashes()).toEqual(['hash-33'])
+  expect(history.transactions[0].outputAmount).toBe('910001')
+  sender = '0xother'
+  await render()
+  await waitFor(() => expect(history.loadingMore).toBe(false))
+  expect(hashes()).toEqual([])
+})
+
+it('does not let a late next-page request undo refresh navigation', async () => {
+  local = [localRow(32), localRow(31)]
+  let release!: (value: Response) => void
+  fetcher.mockImplementation(async (request: Request) => {
+    if (new URL(request.url).searchParams.get('offset') === '0') return response(range(30, 21).map(serverRow))
+    return new Promise<Response>(resolve => {
+      release = resolve
+    })
+  })
+  await render()
+  await waitFor(() => expect(history.transactions).toHaveLength(10))
+  let next!: Promise<void>
+  await act(async () => {
+    next = history.goNext()
+  })
+  await waitFor(() => expect(release).toBeDefined())
+  await act(async () => history.refresh())
+  await act(async () => {
+    release(response(range(20, 11).map(serverRow)))
+    await next
+  })
+  expect(history.currentPage).toBe(1)
+  expect(hashes()).toEqual(range(32, 23).map(n => `hash-${n}`))
 })

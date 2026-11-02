@@ -8,14 +8,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { getAcrossDepositStatus } from 'pages/Swap/crossChain/adapters/AcrossAdapter/api'
 import { AcrossWalletClient } from 'pages/Swap/crossChain/adapters/AcrossAdapter/types'
 import { getAcrossFillTxHash, mapAcrossDepositStatus } from 'pages/Swap/crossChain/adapters/AcrossAdapter/utils'
-import {
-  BaseSwapAdapter,
-  Chain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  QuoteParams,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import {
   KYBERSWAP_INTEGRATOR_ID,
   chainIdToViemChain,
@@ -33,6 +26,7 @@ import {
   transformSwapAndDepositData,
 } from 'pages/Swap/crossChain/adapters/KyberAcrossAdapter/utils'
 import { Quote } from 'pages/Swap/crossChain/registry'
+import { Chain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 export class KyberAcrossAdapter extends BaseSwapAdapter {
   private acrossClient: AcrossClient

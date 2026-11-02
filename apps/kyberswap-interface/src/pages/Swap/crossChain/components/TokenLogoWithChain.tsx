@@ -1,9 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import Logo from 'components/Logo'
-import { Chain, Currency } from 'pages/Swap/crossChain/adapters'
-import { isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { getNetworkInfo } from 'pages/Swap/crossChain/utils'
+import { Chain, Currency, isEvmChain } from 'types/crossChain'
 import { isNativeAsset } from 'utils/nativeErc20'
 import { getNativeTokenLogo } from 'utils/tokenLogo'
 

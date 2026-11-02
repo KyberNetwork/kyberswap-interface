@@ -1,9 +1,9 @@
 import { useEffect, useEffectEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { type Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
 import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
+import { type Chain, NonEvmChain } from 'types/crossChain'
 
 /** Consume the explicit wallet-connect intent supplied by the header's non-EVM links. */
 export const useCrossChainWalletIntent = (chain: Chain, onConnectBitcoin: () => void) => {

@@ -16,11 +16,11 @@ import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCross
 import { ClickTooltip, MouseoverTooltip } from 'components/Tooltip'
 import { Z_INDEXS } from 'constants/styles'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { Currency } from 'pages/Swap/crossChain/adapters/types'
 import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
 import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
 import { Quote, getQuoteId } from 'pages/Swap/crossChain/registry'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
+import { Currency } from 'types/crossChain'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 

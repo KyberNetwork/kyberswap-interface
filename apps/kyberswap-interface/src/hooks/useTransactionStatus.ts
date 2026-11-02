@@ -1,32 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useAllTransactions } from 'state/transactions/hooks'
+import { isTransactionRecent } from 'state/transactions/selectors'
 
-import { isTransactionRecent, useAllTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/type'
-
-// we want the latest one to come first, so return negative if a is after b
-function newTransactionsFirst(a: TransactionDetails, b: TransactionDetails) {
-  return b.addedTime - a.addedTime
-}
-
+// Balance refresh follows only the current chain's local receipts.
 const useTransactionStatus = () => {
-  const [pendingTXStatus, setPendingTXStatus] = useState<any>(false)
-
-  // Determine if change in transactions, if so, run query again
-  const allTransactions = useAllTransactions()
-  const sortedRecentTransactions = useMemo(() => {
-    const txs: TransactionDetails[] = allTransactions
-      ? (Object.values(allTransactions)?.flat().filter(Boolean) as TransactionDetails[])
-      : []
-    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
-  }, [allTransactions])
-  const pending = sortedRecentTransactions.filter(tx => !tx.receipt).map(tx => tx.hash)
-  const hasPendingTransactions = !!pending.length
-
-  useEffect(() => {
-    setPendingTXStatus(hasPendingTransactions)
-  }, [hasPendingTransactions])
-
-  return pendingTXStatus
+  const transactions = useAllTransactions()
+  return Object.values(transactions ?? {}).some(group => group?.some(tx => !tx.receipt && isTransactionRecent(tx)))
 }
 
 export default useTransactionStatus

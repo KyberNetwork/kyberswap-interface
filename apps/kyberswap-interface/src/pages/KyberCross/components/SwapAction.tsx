@@ -15,8 +15,6 @@ import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRe
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ConfirmationPopup } from 'pages/KyberCross/components/ConfirmationPopup'
 import { useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters'
-import { isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
 import { useCrossChainApproval } from 'pages/Swap/crossChain/hooks/useCrossChainApproval'
 import { useNearBalances } from 'pages/Swap/crossChain/hooks/useNearBalances'
@@ -24,6 +22,7 @@ import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConn
 import { isQuoteExecutable } from 'pages/Swap/crossChain/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { NonEvmChain, isEvmChain } from 'types/crossChain'
 import { getTokenAddress } from 'utils/tokenInfo'
 
 export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {

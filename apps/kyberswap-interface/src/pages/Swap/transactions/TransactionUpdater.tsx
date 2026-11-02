@@ -6,8 +6,8 @@ import { useGetTransactionsInfiniteQuerySubscription } from 'services/walletTran
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import { useRestoreMyNearWalletTransaction } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/useRestoreMyNearWalletTransaction'
-import { useTransactionHistory } from 'pages/Swap/crossChain/hooks/useTransactionHistory'
 import { useBackendTransactionUpdater } from 'pages/Swap/crossChain/transactions/useBackendTransactionUpdater'
+import { useProviderTransactionUpdater } from 'pages/Swap/crossChain/transactions/useProviderTransactionUpdater'
 
 const WalletHistorySubscription = ({ sender }: { sender: string }) => {
   useGetTransactionsInfiniteQuerySubscription(sender, {
@@ -45,11 +45,11 @@ const WalletHistorySubscriptions = () => {
   )
 }
 
-const TransactionHistoryUpdater = () => {
+const TransactionUpdater = () => {
   useRestoreMyNearWalletTransaction()
-  useTransactionHistory()
+  useProviderTransactionUpdater()
   useBackendTransactionUpdater()
   return <WalletHistorySubscriptions />
 }
 
-export default TransactionHistoryUpdater
+export default TransactionUpdater

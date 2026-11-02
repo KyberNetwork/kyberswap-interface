@@ -5,9 +5,8 @@ import type { BackendTransaction } from 'services/crossChainTransactions'
 import type { IndexedTransaction } from 'services/walletTransactions'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { NonEvmChain, type NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
-
-import { useProcessingTransactions } from './useProcessingTransactions'
+import { useProcessingTransactions } from 'pages/Swap/transactions/useProcessingTransactions'
+import { NonEvmChain, type NormalizedTxResponse } from 'types/crossChain'
 
 let account: string | undefined
 let solana: string | undefined
