@@ -34,12 +34,13 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
   }, [supportedChains, chainVolumes])
 
+  const [allNetworks, setAllNetworks] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState(anchorChainId)
 
   // Returning from an other-chain import keeps browsing on that token's chain, as before.
   useEffect(() => {
-    if (importChainId !== undefined) setSelectedChainId(importChainId)
-  }, [importChainId])
+    if (importChainId !== undefined && !allNetworks) setSelectedChainId(importChainId)
+  }, [importChainId, allNetworks])
 
   const [activeTab, setActiveTab] = useState(() =>
     showDiscoveryTabs && !account && isTrendingSupportedChain(anchorChainId)
@@ -52,10 +53,12 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
 
   const visibleTabs = useMemo(
     () =>
-      TOKEN_SELECTOR_TAB_ORDER.filter(
-        item => item !== TokenSelectorTab.Trending || isTrendingSupportedChain(selectedChainId),
+      TOKEN_SELECTOR_TAB_ORDER.filter(item =>
+        allNetworks
+          ? item === TokenSelectorTab.All
+          : item !== TokenSelectorTab.Trending || isTrendingSupportedChain(selectedChainId),
       ),
-    [selectedChainId],
+    [selectedChainId, allNetworks],
   )
 
   // Preserve the existing tab/search transitions while keeping their state in one hook.
@@ -69,7 +72,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
       if (preSearchTabRef.current === null) preSearchTabRef.current = activeTab
       setActiveTab(TokenSelectorTab.All)
     } else if (preSearchTabRef.current !== null) {
-      setActiveTab(preSearchTabRef.current)
+      setActiveTab(visibleTabs.includes(preSearchTabRef.current) ? preSearchTabRef.current : TokenSelectorTab.All)
       preSearchTabRef.current = null
     }
     // Query-driven only; tab changes must not restart the search transition.
@@ -110,7 +113,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     setSort(null)
     pendingSortScrollReset.current = false
     resetScroll()
-  }, [activeTab, selectedChainId, resetScroll])
+  }, [activeTab, selectedChainId, allNetworks, resetScroll])
 
   const resetScrollAfterSort = useCallback(() => {
     if (!pendingSortScrollReset.current) return
@@ -125,26 +128,27 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
         source: trackingSource,
         tab: nextTab,
         previous_tab: activeTab,
-        chain: NETWORKS_INFO[selectedChainId].name,
-        chain_id: selectedChainId,
+        chain: allNetworks ? 'All Networks' : NETWORKS_INFO[selectedChainId].name,
+        chain_id: allNetworks ? 'all' : selectedChainId,
       })
     },
-    [activeTab, selectedChainId, trackingHandler, trackingSource],
+    [activeTab, selectedChainId, allNetworks, trackingHandler, trackingSource],
   )
 
   const handleChainChange = useCallback(
-    (chainId: ChainId) => {
-      setSelectedChainId(chainId)
+    (chainId: ChainId | 'all') => {
+      setAllNetworks(chainId === 'all')
+      if (chainId !== 'all') setSelectedChainId(chainId)
       trackingHandler(TRACKING_EVENT_TYPE.TS_CHAIN_SWITCHED, {
         source: trackingSource,
-        from_chain: NETWORKS_INFO[selectedChainId].name,
-        from_chain_id: selectedChainId,
-        to_chain: NETWORKS_INFO[chainId].name,
+        from_chain: allNetworks ? 'All Networks' : NETWORKS_INFO[selectedChainId].name,
+        from_chain_id: allNetworks ? 'all' : selectedChainId,
+        to_chain: chainId === 'all' ? 'All Networks' : NETWORKS_INFO[chainId].name,
         to_chain_id: chainId,
         tab: activeTab,
       })
     },
-    [activeTab, selectedChainId, trackingHandler, trackingSource],
+    [activeTab, selectedChainId, allNetworks, trackingHandler, trackingSource],
   )
 
   const handleInput = useCallback(
@@ -160,14 +164,15 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     trackingHandler(TRACKING_EVENT_TYPE.TS_SEARCHED, {
       source: trackingSource,
       search_query: trackingDebouncedQuery,
-      chain: NETWORKS_INFO[selectedChainId].name,
-      chain_id: selectedChainId,
+      chain: allNetworks ? 'All Networks' : NETWORKS_INFO[selectedChainId].name,
+      chain_id: allNetworks ? 'all' : selectedChainId,
       is_address: !!isAddress(selectedChainId, trackingDebouncedQuery),
     })
-  }, [trackingDebouncedQuery, trackingSource, selectedChainId, trackingHandler])
+  }, [trackingDebouncedQuery, trackingSource, selectedChainId, allNetworks, trackingHandler])
 
   return {
     activeTab,
+    allNetworks,
     visibleTabs,
     selectedChainId,
     rankedChains,

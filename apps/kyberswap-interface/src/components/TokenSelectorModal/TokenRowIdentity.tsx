@@ -9,6 +9,7 @@ import { HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { AddressCopy, formatAgeBadge } from 'components/TokenSelectorModal/components'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { NETWORKS_INFO } from 'constants/networks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { isTokenNative } from 'utils/tokenInfo'
@@ -24,6 +25,7 @@ type Props = {
   held?: boolean
   impersonator?: boolean
   showCopyAddress?: boolean
+  showNetwork?: boolean
   showAddress?: boolean
   onToggleFavorite?: (event: MouseEvent, currency: Currency) => void
   onShowTokenInfo?: (token: Token) => void
@@ -40,6 +42,7 @@ export const TokenRowIdentity = ({
   held,
   impersonator,
   showCopyAddress,
+  showNetwork,
   showAddress,
   onToggleFavorite,
   onShowTokenInfo,
@@ -62,8 +65,16 @@ export const TokenRowIdentity = ({
           <Star aria-hidden="true" className="invisible size-4 shrink-0" />
         ))}
 
-      <div className="shrink-0">
+      <div className="relative shrink-0">
         <CurrencyLogo currency={currency} size="24px" />
+        {showNetwork && (
+          <img
+            src={NETWORKS_INFO[currency.chainId]?.icon}
+            alt={NETWORKS_INFO[currency.chainId]?.name}
+            title={NETWORKS_INFO[currency.chainId]?.name}
+            className="absolute -bottom-1 -right-1 size-3 rounded-full ring-2 ring-background"
+          />
+        )}
       </div>
       <Stack className="min-w-0 gap-0.5">
         <HStack className="min-w-0 items-center gap-1">

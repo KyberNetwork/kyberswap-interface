@@ -24,14 +24,17 @@ import {
   SearchWrapper,
 } from 'components/TokenSelectorModal/components'
 import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
+import { useAllNetworksTokens } from 'components/TokenSelectorModal/hooks/useAllNetworksTokens'
 import { useTokenSelectorData } from 'components/TokenSelectorModal/hooks/useTokenSelectorData'
 import { useTokenSelectorView } from 'components/TokenSelectorModal/hooks/useTokenSelectorView'
-import { TokenSelectionContext, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
+import { TokenSelectionContext, TokenSelectorChain, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
 import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme'
-import { Chain, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
+import { NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
+
+const EMPTY_CURRENCIES: Currency[] = []
 
 const SearchLoading = () => (
   <Stack className="h-full items-center gap-3 p-5 pt-8" data-testid="token-search-loading">
@@ -103,6 +106,7 @@ export const TokenSelectorContent = ({
   const view = useTokenSelectorView({ anchorChainId, importChainId, showDiscoveryTabs, trackingSource })
   const {
     activeTab,
+    allNetworks,
     selectedChainId,
     debouncedQuery,
     searchQuery,
@@ -134,8 +138,8 @@ export const TokenSelectorContent = ({
       ]
     : rankedChains
 
-  const selectNetwork = (chain: Chain) => {
-    if (typeof chain === 'number') {
+  const selectNetwork = (chain: TokenSelectorChain) => {
+    if (chain === 'all' || typeof chain === 'number') {
       setNonEvmChain(undefined)
       handleChainChange(chain)
     } else {
@@ -143,8 +147,17 @@ export const TokenSelectorContent = ({
     }
   }
 
-  // EVM list data; non-EVM content owns its own data sources.
+  const unsupportedAggregateTab = allNetworks && activeTab !== TokenSelectorTab.All
+  const aggregateActive = allNetworks && !nonEvmChain && !unsupportedAggregateTab
+  const aggregate = useAllNetworksTokens({
+    active: aggregateActive,
+    networks,
+    query: debouncedQuery,
+    filterWrap,
+    otherSelectedCurrency,
+  })
   const data = useTokenSelectorData({
+    enabled: !allNetworks && !nonEvmChain,
     requireOracle,
     primaryChainId: selectedChainId,
     activeTab,
@@ -155,26 +168,35 @@ export const TokenSelectorContent = ({
     otherSelectedCurrency,
   })
   const {
-    visibleCurrencies,
+    visibleCurrencies: chainCurrencies,
     isListable,
     notice,
     emptyMessage,
     impersonators,
     quickSelectTokens,
-    isListLoading,
+    isListLoading: chainListLoading,
     waitingForBalances,
     removeImportedToken,
     handleClickFavorite,
-    handleLoadMore,
+    handleLoadMore: chainLoadMore,
     handleRowsRendered,
-    listHasMore,
+    listHasMore: chainHasMore,
     balances,
     nativeBalance,
-    listExtras,
+    listExtras: chainExtras,
     heldAddresses,
     otherChainTokens,
     isCheckingOtherChains,
   } = data
+  const visibleCurrencies = unsupportedAggregateTab
+    ? EMPTY_CURRENCIES
+    : allNetworks
+    ? aggregate.currencies
+    : chainCurrencies
+  const isListLoading = allNetworks ? aggregateActive && aggregate.loading : chainListLoading
+  const handleLoadMore = allNetworks ? aggregate.fetchMore : chainLoadMore
+  const listHasMore = allNetworks ? aggregateActive && aggregate.hasMore : chainHasMore
+  const listExtras = allNetworks ? undefined : chainExtras
 
   useEffect(() => {
     if (!isMobile) inputRef.current?.focus()
@@ -208,18 +230,22 @@ export const TokenSelectorContent = ({
 
       const query = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[selectedChainId]
-      if ((query === native.symbol?.toLowerCase() || query === native.name?.toLowerCase()) && isListable(native)) {
+      if (
+        !allNetworks &&
+        (query === native.symbol?.toLowerCase() || query === native.name?.toLowerCase()) &&
+        isListable(native)
+      ) {
         requestSelect(native)
         return
       }
 
       const candidate = visibleCurrencies[0]
       if (!candidate || (visibleCurrencies.length !== 1 && candidate.symbol?.toLowerCase() !== query)) return
-      if (candidate.isToken && impersonators.has(candidate.address)) return
+      if (!allNetworks && candidate.isToken && impersonators.has(candidate.address)) return
 
       requestSelect(candidate)
     },
-    [searchQuery, selectedChainId, visibleCurrencies, impersonators, requestSelect, isListable],
+    [searchQuery, selectedChainId, allNetworks, visibleCurrencies, impersonators, requestSelect, isListable],
   )
 
   // Display state for the active EVM tab.
@@ -254,7 +280,12 @@ export const TokenSelectorContent = ({
       </HStack>
       <HStack className="min-h-0 flex-1 gap-3">
         {showDiscoveryTabs && (
-          <NetworkSidebar chains={networks} selectedChainId={nonEvmChain ?? selectedChainId} onChange={selectNetwork} />
+          <NetworkSidebar
+            chains={networks}
+            showAllNetworks={!requireOracle}
+            selectedChainId={nonEvmChain ?? (allNetworks ? 'all' : selectedChainId)}
+            onChange={selectNetwork}
+          />
         )}
         {nonEvmChain ? (
           <NonEvmTokenSelectorContent
@@ -300,7 +331,8 @@ export const TokenSelectorContent = ({
                     <div className="sm:hidden">
                       <ChainSelector
                         chains={networks}
-                        selectedChainId={nonEvmChain ?? selectedChainId}
+                        showAllNetworks={!requireOracle}
+                        selectedChainId={nonEvmChain ?? (allNetworks ? 'all' : selectedChainId)}
                         onChange={selectNetwork}
                       />
                     </div>
@@ -316,7 +348,7 @@ export const TokenSelectorContent = ({
                     <span>{notice}</span>
                   </HStack>
                 )}
-                {showPinnedTokens && quickSelectTokens.length > 0 && (
+                {!allNetworks && showPinnedTokens && quickSelectTokens.length > 0 && (
                   <PinnedTokens
                     tokens={quickSelectTokens}
                     onToggleFavorite={handleClickFavorite}
@@ -346,12 +378,27 @@ export const TokenSelectorContent = ({
                 />
               )}
 
+              {aggregateActive && aggregate.error && (
+                <HStack className="items-center justify-between gap-2 px-2 text-xs text-subText" role="status">
+                  <Trans>Some tokens could not be loaded.</Trans>
+                  <button
+                    type="button"
+                    className="text-primary"
+                    onClick={() => {
+                      aggregate.retry()
+                    }}
+                  >
+                    <Trans>Retry</Trans>
+                  </button>
+                </HStack>
+              )}
               <div className="flex min-h-0 flex-1 flex-col">
                 {isListLoading ? (
                   <TokenListSkeleton activeTab={activeTab} />
                 ) : visibleCurrencies.length > 0 ? (
                   <TokenList
                     listTokenRef={listTokenRef}
+                    allNetworks={allNetworks}
                     customChainId={selectedChainId}
                     currencies={visibleCurrencies}
                     animateReorder={!searchQuery && !debouncedQuery}
@@ -366,7 +413,7 @@ export const TokenSelectorContent = ({
                     scaleERC8056Balances={scaleERC8056Balances}
                     loadMoreRows={handleLoadMore}
                     hasMore={listHasMore}
-                    onRowsRendered={handleRowsRendered}
+                    onRowsRendered={allNetworks ? undefined : handleRowsRendered}
                     onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
                     onToggleFavorite={handleClickFavorite}
                     onCurrencySelect={currency => requestSelect(currency)}
@@ -378,9 +425,13 @@ export const TokenSelectorContent = ({
                     metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
                     importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
                   />
+                ) : allNetworks && listHasMore ? (
+                  <button className="p-4 text-primary" onClick={() => void handleLoadMore()}>
+                    <Trans>Load more</Trans>
+                  </button>
                 ) : (
                   <Stack className="min-h-0 flex-1">
-                    {isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
+                    {!allNetworks && isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
                       <OtherChainTokens
                         tokens={otherChainTokens}
                         loading={isCheckingOtherChains}
