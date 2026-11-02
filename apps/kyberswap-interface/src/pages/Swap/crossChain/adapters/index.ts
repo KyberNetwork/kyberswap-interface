@@ -1,7 +1,6 @@
 export * from 'pages/Swap/crossChain/adapters/AcrossAdapter'
 export * from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 export * from 'pages/Swap/crossChain/adapters/DebridgeAdapter'
-export * from 'pages/Swap/crossChain/adapters/KyberAcrossAdapter'
 export * from 'pages/Swap/crossChain/adapters/KyberCrossAdapter'
 export * from 'pages/Swap/crossChain/adapters/KyberSwapAdapter'
 export * from 'pages/Swap/crossChain/adapters/LifiAdapter'
