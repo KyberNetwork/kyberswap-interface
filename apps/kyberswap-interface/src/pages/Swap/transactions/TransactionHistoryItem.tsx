@@ -6,7 +6,6 @@ import { ChevronRight } from 'react-feather'
 import { formatUnits } from 'viem'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
-import CopyHelper from 'components/Copy'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import { GasDropTransactionLine } from 'pages/Swap/crossChain/components/GasDropTransactionLine'
@@ -46,7 +45,7 @@ const matchesToken = (token: Currency | string, query: string) => {
 export const TransactionTableGrid = ({ children, className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'grid grid-cols-[minmax(160px,1fr)_minmax(80px,0.5fr)_minmax(80px,0.5fr)_minmax(180px,1fr)_minmax(160px,1fr)] items-center gap-3',
+      'grid grid-cols-[minmax(120px,1fr)_64px_88px_minmax(156px,1.3fr)_100px_minmax(160px,1fr)] items-center gap-3',
       className,
     )}
     {...rest}
@@ -107,38 +106,29 @@ const StatusBadge = ({ status }: { status?: TransactionStatus }) => {
   )
 }
 
-const TransactionTime = ({ tx }: { tx: HistoryTransaction }) => {
+const TransactionProvider = ({ tx }: { tx: HistoryTransaction }) => {
   const adapter = registry.getAdapter(tx.adapter)
   const normalizedAdapterName = normalizeAdapterName(tx.adapter)
   const adapterAlias = adapter?.getAliases?.().find(alias => normalizeAdapterName(alias.name) === normalizedAdapterName)
   const adapterName = adapterAlias?.name || adapter?.getName() || tx.adapter
   const adapterIcon = adapterAlias?.icon || adapter?.getIcon()
+  return (
+    <div className="flex min-w-0 items-center gap-1.5">
+      <img src={adapterIcon || UnknownToken} className="size-4 shrink-0 rounded-full" width={16} height={16} alt="" />
+      <span className="truncate text-sm font-medium text-text" title={adapterName}>
+        {adapterName}
+      </span>
+    </div>
+  )
+}
+
+const TransactionTime = ({ tx }: { tx: HistoryTransaction }) => {
   const txDate = new Date(tx.timestamp)
-  const senderLabel = tx.sender?.includes('.near') ? tx.sender : shortenHash(tx.sender)
 
   return (
-    <div className="flex min-w-0 flex-col gap-2">
-      <div className="flex items-center gap-2 whitespace-nowrap">
-        <div className="flex min-w-fit items-center gap-1">
-          <img
-            src={adapterIcon || UnknownToken}
-            className="size-4 rounded-full"
-            width={16}
-            height={16}
-            alt={adapterName}
-            title={adapterName}
-          />
-        </div>
-        <span className="text-sm font-medium text-text">{format(txDate, 'dd/MM/yyyy')}</span>
-        <span className="text-sm font-medium text-subText">{format(txDate, 'HH:mm:ss')}</span>
-      </div>
-      {tx.sender && (
-        <div className="flex min-w-0 items-center gap-1">
-          <span className="shrink-0 text-sm font-medium text-subText">{t`Sender:`}</span>
-          <span className="truncate text-sm font-medium text-blue">{senderLabel}</span>
-          <CopyHelper toCopy={tx.sender} />
-        </div>
-      )}
+    <div className="flex flex-col gap-1 whitespace-nowrap text-sm font-medium text-subText">
+      <span>{format(txDate, 'dd/MM/yyyy')}</span>
+      <span>{format(txDate, 'HH:mm:ss')}</span>
     </div>
   )
 }
@@ -212,7 +202,7 @@ const TokenAmountLine = ({ amount, chain, prefix, size = 'xs', token }: Transact
 }
 
 const TransactionAmount = ({ size = 'sm', tx }: { size?: TransactionAmountSize; tx: HistoryTransaction }) => (
-  <div className="flex min-w-0 flex-col gap-2">
+  <div className="flex min-w-0 flex-col gap-1">
     <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" size={size} token={tx.sourceToken} />
     <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" size={size} token={tx.targetToken} />
     {tx.gasDrop && <GasDropTransactionLine tx={tx} />}
@@ -251,9 +241,9 @@ const MobileDetailRow = ({ label, children }: { label: string; children: ReactNo
 )
 
 const TransactionCard = ({ tx }: { tx: HistoryTransaction }) => (
-  <div className="flex flex-col gap-2 rounded-lg border border-darkBorder p-3 hover:bg-background-60">
+  <div className="flex flex-col gap-3 py-3 hover:bg-background-60">
     <div className="flex items-start justify-between gap-3">
-      <TransactionTime tx={tx} />
+      <TransactionProvider tx={tx} />
       <StatusBadge status={tx.status} />
     </div>
 
@@ -262,7 +252,9 @@ const TransactionCard = ({ tx }: { tx: HistoryTransaction }) => (
       <TransactionAmount tx={tx} />
     </div>
 
-    <MobileDetailRow label={tx.sourceChain === tx.targetChain ? t`Transaction:` : t`Deposit:`}>
+    <TransactionTime tx={tx} />
+
+    <MobileDetailRow label={tx.sourceChain === tx.targetChain ? t`Tx Hash:` : t`Deposit:`}>
       <TransactionHashLink hash={tx.sourceTxHash} href={getSourceExplorerLink(tx)} />
     </MobileDetailRow>
     {tx.sourceChain !== tx.targetChain && (
@@ -273,21 +265,19 @@ const TransactionCard = ({ tx }: { tx: HistoryTransaction }) => (
   </div>
 )
 
-const TransactionRow = ({ showPagination, tx }: { showPagination: boolean; tx: HistoryTransaction }) => (
-  <TransactionTableGrid
-    className={cn(
-      'min-h-16 border-b border-border/20 px-4 py-3 hover:bg-background-60',
-      !showPagination && 'last:border-b-0',
-    )}
-  >
-    <TransactionTime tx={tx} />
-    <StatusBadge status={tx.status} />
+const TransactionRow = ({ tx }: { tx: HistoryTransaction }) => (
+  <TransactionTableGrid className="px-2 py-3 hover:bg-background-60">
+    <TransactionProvider tx={tx} />
     <ChainRoute tx={tx} />
+    <div className="flex justify-center">
+      <StatusBadge status={tx.status} />
+    </div>
     <TransactionAmount tx={tx} />
-    <div className="flex min-w-0 flex-col gap-2">
+    <TransactionTime tx={tx} />
+    <div className="flex min-w-0 flex-col gap-1 self-start">
       <div className="flex min-w-0 justify-end gap-2">
         <span className="shrink-0 text-sm font-medium text-text">
-          {tx.sourceChain === tx.targetChain ? t`Transaction:` : t`Deposit:`}
+          {tx.sourceChain === tx.targetChain ? t`Tx Hash:` : t`Deposit:`}
         </span>
         <TransactionHashLink hash={tx.sourceTxHash} href={getSourceExplorerLink(tx)} />
       </div>
@@ -309,7 +299,7 @@ type TransactionHistoryItemProps = {
   filter?: string
 }
 
-export const TransactionHistoryItem = ({ tx, mobile, showPagination, filter }: TransactionHistoryItemProps) => {
+export const TransactionHistoryItem = ({ tx, mobile, filter }: TransactionHistoryItemProps) => {
   const sourceToken = useHistoryToken(tx.sourceToken, tx.sourceChain)
   const targetToken = useHistoryToken(tx.targetToken, tx.targetChain)
   // Lookup must stay mounted while filtered out: a symbol search can start
@@ -317,5 +307,5 @@ export const TransactionHistoryItem = ({ tx, mobile, showPagination, filter }: T
   if (filter && ![tx.sourceToken, tx.targetToken, sourceToken, targetToken].some(token => matchesToken(token, filter)))
     return null
   const resolved = { ...tx, sourceToken, targetToken }
-  return mobile ? <TransactionCard tx={resolved} /> : <TransactionRow tx={resolved} showPagination={showPagination} />
+  return mobile ? <TransactionCard tx={resolved} /> : <TransactionRow tx={resolved} />
 }

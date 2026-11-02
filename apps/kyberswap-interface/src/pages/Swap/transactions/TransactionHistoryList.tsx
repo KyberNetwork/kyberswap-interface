@@ -1,10 +1,9 @@
 import { t } from '@lingui/macro'
-import { type ReactNode } from 'react'
 import { useMedia } from 'react-use'
 
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
 import HistoryPagination from 'components/HistoryPagination'
-import { TransactionHistoryItem, TransactionTableGrid } from 'pages/Swap/transactions/TransactionHistoryItem'
+import { TransactionHistoryItem } from 'pages/Swap/transactions/TransactionHistoryItem'
 import type { HistoryTransaction } from 'pages/Swap/transactions/history'
 import { localTransactionKey } from 'state/crossChainSwap/model'
 import { MEDIA_WIDTHS } from 'theme'
@@ -23,10 +22,6 @@ type Props = {
     onNext: () => void
   }
 }
-const HeaderCell = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <span className={cn('text-xs font-medium uppercase tracking-[0.04em] text-subText', className)}>{children}</span>
-)
-
 /** Unified Swap history list. Cursor state belongs to useHistoryPagination. */
 const TransactionHistoryList = ({
   transactions,
@@ -36,21 +31,8 @@ const TransactionHistoryList = ({
 }: Props) => {
   const mobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <div className="w-full overflow-hidden rounded-xl border border-darkBorder max-sm:rounded-lg">
-      {mobile ? (
-        <div className="cursor-default bg-background px-4 py-3">
-          <HeaderCell>{t`History`}</HeaderCell>
-        </div>
-      ) : (
-        <TransactionTableGrid className="cursor-default bg-background px-4 py-3">
-          <HeaderCell>{t`Created`}</HeaderCell>
-          <HeaderCell>{t`Status`}</HeaderCell>
-          <HeaderCell>{t`Route`}</HeaderCell>
-          <HeaderCell>{t`Amount`}</HeaderCell>
-          <HeaderCell className="text-right">{t`Actions`}</HeaderCell>
-        </TransactionTableGrid>
-      )}
-      <div className={cn('peer empty:hidden', mobile && 'flex flex-col gap-3 p-3')}>
+    <div className="w-full overflow-hidden">
+      <div className={cn('peer empty:hidden', mobile && 'flex flex-col')}>
         {transactions.map(tx => (
           <TransactionHistoryItem
             key={localTransactionKey(tx)}

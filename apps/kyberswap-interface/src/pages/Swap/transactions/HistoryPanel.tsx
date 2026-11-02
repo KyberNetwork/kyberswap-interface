@@ -103,7 +103,7 @@ const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () =>
           )}
         </HStack>
       </HStack>
-      <div className="min-w-0 px-4 pb-4 pt-0 max-sm:px-3 max-sm:pb-3">
+      <div className="min-w-0 px-4 pb-2 pt-0 max-sm:px-3">
         <div className="min-w-0 overflow-x-auto">
           <div className="min-w-[800px] max-sm:min-w-0">
             <WalletHistory key={sender} sender={sender} filter={query} />
