@@ -3567,6 +3567,11 @@ msgstr "Trigger price reached, but your {maxSlippage} max slippage is too tight 
 msgid "Best Return"
 msgstr "Best Return"
 
+#: src/components/SwapForm/CrossChain/Quote/CrossChainQuoteSelector.tsx
+#: src/pages/KyberCross/components/QuoteSelector.tsx
+msgid "Fastest"
+msgstr "Fastest"
+
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Low Volatility"
 msgstr "Low Volatility"
