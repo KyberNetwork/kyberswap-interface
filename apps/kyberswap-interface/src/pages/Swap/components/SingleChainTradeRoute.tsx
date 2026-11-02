@@ -31,7 +31,7 @@ const SingleChainTradeRoute = ({
   tradeComposition,
   currencyIn,
   currencyOut,
-  defaultCollapsed = false,
+  defaultCollapsed = true,
   loading = false,
   inputAmount: rawInputAmount,
   outputAmount: rawOutputAmount,
