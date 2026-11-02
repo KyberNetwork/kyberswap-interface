@@ -60,7 +60,8 @@ const StopMarketTableHeader = ({ isActiveTab }: { isActiveTab?: boolean }) => (
       <span>
         <Trans>Trigger Price</Trans>
       </span>
-      <span>
+      {/* A second line under the heading, so it reads as a sub-label rather than another column title. */}
+      <span className="normal-case">
         <Trans>Slippage</Trans>
       </span>
     </span>
