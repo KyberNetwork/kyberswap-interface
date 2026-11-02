@@ -45,7 +45,7 @@ const useBuildRoute = (args: Args) => {
   const [buildRoute] = routeApi.useBuildRouteMutation()
   const aggregatorDomain = useRouteApiDomain()
   const recipientLookup = useENS(recipient)
-  const to: string | null = (recipient === '' ? account : recipientLookup.address) ?? null
+  const to = recipientLookup.address
 
   const fetcher = useCallback(
     async (signal: AbortSignal): Promise<BuildRouteResult> => {
@@ -54,6 +54,8 @@ const useBuildRoute = (args: Args) => {
           error: t`Wallet is not connected`,
         }
       }
+
+      if (!to) return { error: t`Enter a recipient` }
 
       if (!routeSummary) {
         return {
@@ -93,7 +95,7 @@ const useBuildRoute = (args: Args) => {
         deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
         slippageTolerance: slippage,
         sender: account,
-        recipient: to || account,
+        recipient: to,
         source: clientId || 'kyberswap',
         skipSimulateTx: false,
         enableGasEstimation: true,

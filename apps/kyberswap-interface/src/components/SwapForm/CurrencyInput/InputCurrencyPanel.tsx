@@ -1,18 +1,19 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
 import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { getGasReservation } from 'utils/gasReserve'
-import { halfAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   amountInUsd?: string
   wrapType: WrapType
   typedValue: string
+  rawTypedValue: string
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
@@ -31,6 +32,7 @@ const InputCurrencyPanel = ({
   amountInUsd,
   wrapType,
   typedValue,
+  rawTypedValue,
   onRawAmountChange,
   onUserInput,
   currencyIn,
@@ -44,7 +46,7 @@ const InputCurrencyPanel = ({
   chainSelectionMode,
   onSelectNonEvmCurrency,
 }: Props) => {
-  const { networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const inputUsd = showWrap ? undefined : amountInUsd
@@ -62,10 +64,7 @@ const InputCurrencyPanel = ({
     onRawAmountChange(max || '')
   }
 
-  const handleHalfInput = () => {
-    const half = halfAmountSpend(balanceIn)?.toExact()
-    onRawAmountChange(half || '')
-  }
+  const amountShortcuts = useBalanceAmountShortcuts(balanceIn, rawTypedValue, onRawAmountChange, 'swap-amount')
 
   return (
     <CurrencyInputPanel
@@ -74,7 +73,10 @@ const InputCurrencyPanel = ({
       currency={currencyIn}
       onUserInput={onUserInput}
       onMax={handleMaxInput}
-      onHalf={handleHalfInput}
+      amountShortcuts={amountShortcuts.map((shortcut, index) =>
+        index === amountShortcuts.length - 1 ? { ...shortcut, onClick: handleMaxInput } : shortcut,
+      )}
+      balanceActionsEnabled={!!(account && currencyIn && balanceIn)}
       onCurrencySelect={onChangeCurrencyIn}
       otherCurrency={currencyOut}
       id="swap-currency-input"

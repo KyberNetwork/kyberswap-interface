@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import { Content, Header, Icon, OptionButton, Options, Section, Shell, Terms } from 'components/Header/web3/WalletModal'
@@ -12,13 +12,23 @@ import { useNotify } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 
-export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+export const BitcoinConnectModal = ({
+  isOpen,
+  onDismiss,
+  allowWalletSwitch = false,
+}: {
+  isOpen: boolean
+  onDismiss: () => void
+  allowWalletSwitch?: boolean
+}) => {
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
   const [showLedgerType, setShowLedgerType] = useState(false)
   const notify = useNotify()
 
   const { walletInfo, availableWallets, connectingWallet, setConnectingWallet } = useBitcoinWallet()
+  const initialWallet = useRef(walletInfo)
+  const connectionComplete = walletInfo.isConnected && (!allowWalletSwitch || walletInfo !== initialWallet.current)
 
   const handleDismiss = useCallback(() => {
     setConnectingWallet(null)
@@ -34,12 +44,12 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
   }, [handleDismiss, showLedgerType])
 
   useEffect(() => {
-    if (walletInfo.isConnected) {
+    if (isOpen && connectionComplete) {
       handleDismiss()
     }
-  }, [handleDismiss, walletInfo.isConnected])
+  }, [handleDismiss, connectionComplete, isOpen])
 
-  if (walletInfo.isConnected) return null
+  if (connectionComplete) return null
 
   const ledgerWallet = availableWallets.find(wallet => wallet.name === 'Ledger')
 

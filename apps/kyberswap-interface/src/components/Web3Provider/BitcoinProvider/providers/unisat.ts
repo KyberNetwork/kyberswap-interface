@@ -5,6 +5,7 @@ export const createUnisatProvider = ({
   setConnectingWallet,
   setWalletInfo,
   defaultInfo,
+  addressOnly = false,
 }: CreateProviderParams): BitcoinWalletBase => {
   // Function to handle account changes
   const handleAccountsChanged = async (accounts: string[]) => {
@@ -28,6 +29,7 @@ export const createUnisatProvider = ({
     }
   } // Set up event listener when wallet is available
   const setupEventListeners = () => {
+    if (addressOnly) return
     if (window.unisat_wallet) {
       // Listen for account changes
       window.unisat_wallet.on?.('accountsChanged', handleAccountsChanged)
@@ -73,9 +75,10 @@ export const createUnisatProvider = ({
       if (!!connectingWallet) {
         return
       }
-      setConnectingWallet('unisat')
+      setConnectingWallet?.('unisat')
       const currentNetwork = await window.unisat_wallet.getNetwork()
       if (currentNetwork !== 'livenet') {
+        if (addressOnly) throw new Error('Please switch your Bitcoin wallet to mainnet')
         await window.unisat_wallet.switchNetwork('livenet')
       }
       const [accounts, publicKey] = await Promise.all([
@@ -89,7 +92,7 @@ export const createUnisatProvider = ({
         publicKey,
         walletType: 'unisat',
       })
-      setConnectingWallet(null)
+      setConnectingWallet?.(null)
       setupEventListeners()
     },
     disconnect: async () => {

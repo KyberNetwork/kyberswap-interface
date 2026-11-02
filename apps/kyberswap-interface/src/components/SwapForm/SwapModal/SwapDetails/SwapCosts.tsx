@@ -135,11 +135,10 @@ export const SwapFeeAndRecipientDetails = ({
   isLoading: boolean
   buildData: BuildRouteData | undefined
 }) => {
-  const { chainId, networkInfo, account } = useActiveWeb3React()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const { routeSummary, recipient: recipientAddressOrName } = useSwapFormContext()
   const feeERC8056Info = useFeeERC8056Info()
-  const { address: recipientAddress } = useENS(recipientAddressOrName)
-  const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
+  const { address: recipient } = useENS(recipientAddressOrName)
   const feeCurrencyAmountFromGet = routeSummary?.fee?.currencyAmount
   const { currencyAmount: feeCurrencyAmountFromBuild = undefined, currency: currencyFromBuild = undefined } =
     calculateFeeFromBuildData(routeSummary, buildData)

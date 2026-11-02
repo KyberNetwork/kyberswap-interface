@@ -13,7 +13,16 @@ import {
 
 import useGetRoute from './useGetRoute'
 
-const mocks = vi.hoisted(() => ({ trigger: vi.fn(), fee: vi.fn(), dispatch: vi.fn(), sources: '', amount: '1' }))
+const mocks = vi.hoisted(() => ({
+  trigger: vi.fn(),
+  fee: vi.fn(),
+  dispatch: vi.fn(),
+  sources: '',
+  amount: '1',
+  account: '0xsender',
+  wrapType: 0,
+  build: vi.fn(),
+}))
 vi.mock('services/route', () => ({
   fetchRoute: (_dispatch: unknown, args: unknown) => mocks.trigger(args),
   AGGREGATOR_API_PATHS: { GET_ROUTE: '/routes' },
@@ -25,7 +34,7 @@ vi.mock('components/SwapForm/hooks/useSelectedDexes', () => ({ default: () => mo
 vi.mock('constants/env', () => ({ AGGREGATOR_API: 'https://example.test' }))
 vi.mock('constants/index', () => ({ INPUT_DEBOUNCE_TIME: 100 }))
 vi.mock('constants/networks', () => ({ MAINNET_NETWORKS: [1], NETWORKS_INFO: { 1: { aggregatorRoute: 'ethereum' } } }))
-vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ chainId: 1 }) }))
+vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ chainId: 1, account: mocks.account }) }))
 vi.mock('hooks/useKyberSwapConfig', () => ({ useKyberswapGlobalConfig: () => ({}) }))
 vi.mock('state/authen/hooks', () => ({ useSessionInfo: () => ({}) }))
 vi.mock('state/lists/wrappedTokenInfo', () => ({ WrappedTokenInfo: class {} }))
@@ -36,7 +45,12 @@ vi.mock('utils/nativeErc20', () => ({
 }))
 vi.mock('utils/safeApp', () => ({ isInSafeApp: false, SAFE_APP_CLIENT_ID: 'safe' }))
 
-vi.mock('components/SwapForm/hooks/useBuildRoute', () => ({ default: () => async () => ({}) }))
+vi.mock('components/SwapForm/hooks/useBuildRoute', () => ({
+  default: (args: unknown) => {
+    mocks.build(args)
+    return async () => ({})
+  },
+}))
 vi.mock('components/SwapForm/hooks/useSwapInputAmount', () => ({
   useSwapInputAmount: () => ({ typedValue: mocks.amount, onUserInput: vi.fn() }),
 }))
@@ -44,7 +58,7 @@ vi.mock('components/SwapForm/hooks/useParsedAmount', () => ({
   default: (currency: Token, amount: string) => CurrencyAmount.fromRawAmount(currency, amount),
 }))
 vi.mock('hooks/useWrapCallback', () => ({
-  default: () => ({ wrapType: 0 }),
+  default: () => ({ wrapType: mocks.wrapType }),
   WrapType: { NOT_APPLICABLE: 0 },
 }))
 vi.mock('services/route/utils', () => ({ parseGetRouteResponse: (data: unknown) => data }))
@@ -108,6 +122,9 @@ beforeEach(() => {
   mocks.fee.mockReset().mockResolvedValue(undefined)
   mocks.sources = ''
   mocks.amount = '1'
+  mocks.account = '0xsender'
+  mocks.wrapType = 0
+  mocks.build.mockClear()
   queryClient = new QueryClient()
   root = createRoot(document.createElement('div'))
 })
@@ -319,4 +336,61 @@ it('shares a single quote across panels, pauses for review and isolates input ch
   await renderPanels(false)
   await advance(10000)
   expect(mocks.trigger).toHaveBeenCalledTimes(4)
+})
+
+it('shares the effective recipient with build and review, preserving custom input across collapse and wallet changes', async () => {
+  let form!: ReturnType<typeof useSingleChainSwapContext>
+  const Form = () => {
+    form = useSingleChainSwapContext()
+    return null
+  }
+  const renderForm = (advanced = true) =>
+    act(async () =>
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>
+            <SingleChainSwapProvider
+              currencyIn={currencyIn}
+              currencyOut={currencyOut}
+              balanceIn={undefined}
+              balanceOut={undefined}
+              isDegenMode={advanced}
+              slippage={50}
+              transactionTimeout={1200}
+            >
+              <Form />
+            </SingleChainSwapProvider>
+          </MemoryRouter>
+        </QueryClientProvider>,
+      ),
+    )
+  await renderForm()
+  expect(form.recipient).toBe('0xsender')
+  await act(async () => form.toggleRecipient())
+  await act(async () => form.onRecipientChange('0xcustom'))
+  await act(async () => form.openReview(form.buildRoute))
+  expect(form.review.phase).toBe('review')
+  await act(async () => form.toggleRecipient())
+  expect(form.recipient).toBe('0xcustom')
+  expect(form.review.phase).toBe('review')
+  mocks.account = '0xchanged'
+  await renderForm()
+  expect(form.recipient).toBe('0xcustom')
+  expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '0xcustom' }))
+  expect(form.review.phase).toBe('closed')
+  await renderForm(false)
+  expect(form.recipient).toBe('0xchanged')
+  await renderForm()
+  expect(form.recipient).toBe('0xcustom')
+  mocks.wrapType = 1
+  await renderForm()
+  expect(form.recipient).toBe('0xchanged')
+  mocks.wrapType = 0
+  await renderForm()
+  expect(form.recipient).toBe('0xcustom')
+  await act(async () => form.onRecipientChange(''))
+  expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '' }))
+  await act(async () => form.selectWalletRecipient())
+  expect(form.recipient).toBe('0xchanged')
+  expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '0xchanged' }))
 })

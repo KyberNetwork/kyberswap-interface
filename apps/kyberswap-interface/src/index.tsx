@@ -16,6 +16,7 @@ import * as serviceWorkerRegistration from 'serviceWorkerRegistration'
 import 'tailwind.css'
 
 import DeferredFormoProvider from 'components/Analytics/DeferredFormoProvider'
+import { completeNearReceiverRedirect } from 'components/SwapForm/CrossChain/receiverWallet'
 import Web3Provider from 'components/Web3Provider'
 import { ENV_LEVEL, ENV_TYPE, GTM_ID } from 'constants/env'
 import { useAffiliate } from 'hooks/useAffiliate'
@@ -31,6 +32,8 @@ import UserUpdater from 'state/user/updater'
 import WalletInventoryUpdater from 'state/walletInventory/updater'
 import ThemeProvider from 'theme'
 import { preloadChainIcons, preloadStaticRouteChunks } from 'utils/prefetch'
+
+completeNearReceiverRedirect()
 
 dayjs.extend(utc)
 dayjs.extend(duration)

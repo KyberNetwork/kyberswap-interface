@@ -35,8 +35,9 @@ export interface WalletInfo {
 }
 
 export interface CreateProviderParams {
+  addressOnly?: boolean
   connectingWallet: string | null
-  setConnectingWallet: (wallet: WalletType | null) => void
+  setConnectingWallet?: (wallet: WalletType | null) => void
   setWalletInfo: (info: WalletInfo) => void
   defaultInfo: WalletInfo
 }

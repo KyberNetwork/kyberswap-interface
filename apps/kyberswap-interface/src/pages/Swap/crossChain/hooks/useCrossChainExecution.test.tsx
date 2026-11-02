@@ -184,3 +184,33 @@ it('keeps legacy popup execution local even when a streamed quote has backend id
   expect(mocks.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'legacy' }))
   expect(mocks.track).toHaveBeenCalledOnce()
 })
+
+it('executes and records the reviewed recipient instead of an adapter-returned address', async () => {
+  const original = makeQuote()
+  const quote = {
+    ...original,
+    quote: { ...original.quote, quoteParams: { ...original.quote.quoteParams, recipient: 'pasted-receiver' } },
+  }
+  mocks.execute.mockResolvedValue({
+    sourceTxHash: 'broadcast-hash',
+    sender: 'adapter-sender',
+    recipient: 'adapter-recipient',
+    sourceChain: 1,
+    targetChain: 8453,
+  })
+  await render(quote)
+  await act(async () => execution.handleSwap())
+  expect(mocks.execute.mock.calls[0][0].quote.quoteParams.recipient).toBe('pasted-receiver')
+  expect(mocks.enqueue).toHaveBeenCalledWith(
+    expect.objectContaining({
+      sender: 'sender',
+      transaction: expect.objectContaining({ sender: 'sender', recipient: 'pasted-receiver' }),
+    }),
+  )
+  expect(mocks.dispatch).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: 'legacy',
+      payload: expect.objectContaining({ sender: 'sender', recipient: 'pasted-receiver' }),
+    }),
+  )
+})

@@ -13,7 +13,7 @@ type SwapFormContextProps = {
   /** Scale input/output-token amounts for display when either token is ERC-8056. */
   inputERC8056Info: ERC8056TokenInfo
   outputERC8056Info: ERC8056TokenInfo
-  recipient: string | null
+  recipient: string
   isAdvancedMode: boolean
 }
 

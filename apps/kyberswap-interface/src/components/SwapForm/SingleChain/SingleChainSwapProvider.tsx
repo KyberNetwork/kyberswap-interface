@@ -1,10 +1,11 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactNode, createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, createContext, useContext, useLayoutEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
+import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
@@ -45,7 +46,16 @@ const useSingleChainSwap = ({
     !MAINNET_NETWORKS.includes(chainId) || chainId === ChainId.BLAST ? t`Swap not supported on this chain` : undefined
 
   const { typedValue, onUserInput } = useSwapInputAmount(chainSelectionMode !== 'form')
-  const [recipient, setRecipient] = useState<string | null>(null)
+  const evmRecipient = useEvmRecipient(account)
+
+  const parsedAmount = useParsedAmount(currencyIn, typedValue)
+  const {
+    wrapType,
+    inputError: wrapInputError,
+    execute: onWrap,
+  } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
+  const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
+  const recipient = isDegenMode && !isWrapOrUnwrap ? evmRecipient.recipient : account || ''
 
   const reviewIdentity = JSON.stringify([
     chainId,
@@ -64,14 +74,6 @@ const useSingleChainSwap = ({
   ])
   const { review, openReview, rebuildReview, confirmReview, dismissReview } = useSwapReviewSession(reviewIdentity)
   const isProcessingSwap = review.phase !== 'closed'
-
-  const parsedAmount = useParsedAmount(currencyIn, typedValue)
-  const {
-    wrapType,
-    inputError: wrapInputError,
-    execute: onWrap,
-  } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
-  const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
 
   const {
     refresh,
@@ -118,7 +120,7 @@ const useSingleChainSwap = ({
   }, [getRouteRawResponse?.data?.routeSummary?.extraFee, intendedFeeConfig])
 
   const buildRoute = useBuildRoute({
-    recipient: isDegenMode && recipient ? recipient : '',
+    recipient,
     routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
@@ -142,7 +144,11 @@ const useSingleChainSwap = ({
     typedValue,
     onUserInput,
     recipient,
-    onRecipientChange: setRecipient,
+    onRecipientChange: evmRecipient.setRecipient,
+    showRecipientInput: evmRecipient.expanded,
+    toggleRecipient: evmRecipient.toggleExpanded,
+    canUseMyWallet: evmRecipient.canUseMyWallet,
+    selectWalletRecipient: evmRecipient.useMyWallet,
     parsedAmount,
     wrapType,
     wrapInputError,

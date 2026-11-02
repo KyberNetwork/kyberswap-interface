@@ -65,11 +65,10 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
               onSelectNonEvmCurrencyIn={(chain, currency) => pair.selectNonEvmCurrency(Field.INPUT, chain, currency)}
               onSelectNonEvmCurrencyOut={(chain, currency) => pair.selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
               onReverse={pair.reversePair}
-              recipient={<CrossChainRecipientInput {...swap} />}
               details={
                 <Stack className="gap-3">
                   {swap.gasDropSupported && <GasDropPanel lowGas={lowGas} />}
-                  <KyberCrossQuoteDetails />
+                  <KyberCrossQuoteDetails recipient={<CrossChainRecipientInput {...swap} />} />
                 </Stack>
               }
               action={<SwapAction setShowBtcModal={setShowBitcoin} />}

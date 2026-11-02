@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { Stack } from 'components/Stack'
 import {
@@ -14,7 +16,7 @@ import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
 import { getQuoteId } from 'pages/Swap/crossChain/registry'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export const KyberCrossQuoteDetails = () => {
+export const KyberCrossQuoteDetails = ({ recipient }: { recipient?: ReactNode }) => {
   const swap = useKyberCrossSwap()
   const { selectedQuote, currencyIn, currencyOut, fromChainId, toChainId, warning, slippage, refresh } = swap
   const quote = selectedQuote?.quote
@@ -47,6 +49,7 @@ export const KyberCrossQuoteDetails = () => {
           )
         }
       />
+      {recipient}
       <Stack className="gap-2">
         <CrossChainQuoteSummaryRows
           loading={swap.loading && !quote}

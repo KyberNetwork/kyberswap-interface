@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from 'react'
 
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { Stack } from 'components/Stack'
+import { CrossChainReceiverWalletSelector } from 'components/SwapForm/CrossChain/CrossChainReceiverWalletSelector'
 import { CrossChainRecipient } from 'components/SwapForm/CrossChain/CrossChainRecipient'
 import { CrossChainSwapAction } from 'components/SwapForm/CrossChain/CrossChainSwapAction'
 import {
@@ -15,14 +16,26 @@ import { useCrossChainWalletIntent } from 'components/SwapForm/CrossChain/hooks/
 import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { NonEvmChain, isNonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
 
 type Props = CrossChainFormSelectionProps
 
 /** Connects the shared form to the single quote provider mounted by the consuming page. */
 const CrossChainSwap = (props: Props) => {
-  const { amount, onAmountChange, currencyIn, currencyOut, fromChainId, toChainId, selectedQuote, loading, warning } =
-    useCrossChainSwap()
+  const {
+    amount,
+    onAmountChange,
+    currencyIn,
+    currencyOut,
+    fromChainId,
+    toChainId,
+    selectedQuote,
+    loading,
+    warning,
+    recipient,
+    showNonEvmRecipient,
+  } = useCrossChainSwap()
   const { trackingHandler } = useTracking()
   const [showBitcoin, setShowBitcoin] = useState(false)
   const walletIntentModal = useCrossChainWalletIntent(fromChainId, () => setShowBitcoin(true))
@@ -64,10 +77,17 @@ const CrossChainSwap = (props: Props) => {
         toChainId={toChainId}
         selectedQuote={selectedQuote || undefined}
         loading={loading}
-        recipient={<CrossChainRecipient />}
+        receiver={
+          isNonEvmChain(toChainId) ? (
+            <CrossChainReceiverWalletSelector key={toChainId} chain={toChainId as NonEvmChain} />
+          ) : undefined
+        }
+        receiverAddress={recipient}
         details={
           <Stack className="gap-2">
-            <CrossChainQuoteDetails />
+            <CrossChainQuoteDetails
+              recipient={!isNonEvmChain(toChainId) || showNonEvmRecipient ? <CrossChainRecipient /> : undefined}
+            />
             <HoneypotWarning message={message} />
             <CrossChainPriceImpactWarning warning={warning} />
           </Stack>
