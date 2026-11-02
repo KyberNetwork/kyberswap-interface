@@ -66,12 +66,16 @@ export const BalanceRow = ({
   const showTopActions =
     (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && balanceActionsEnabled
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
+  const hasInlineLabel = !!label && positionLabel === 'in'
 
   return (
     <div className="flex min-h-5 items-center justify-end gap-2 text-xs">
-      {(label && positionLabel === 'in') || showTopActions ? (
+      {hasInlineLabel || showTopActions ? (
         <div className="flex flex-1 items-center gap-1">
-          {label && positionLabel === 'in' && label}
+          {hasInlineLabel && label}
+          {showTopActions && !hasInlineLabel && !!amountShortcuts?.length && (
+            <AmountShortcutChips shortcuts={amountShortcuts} />
+          )}
           {showTopActions && !amountShortcuts?.length && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
@@ -85,7 +89,9 @@ export const BalanceRow = ({
         </div>
       ) : null}
 
-      {showTopActions && !!amountShortcuts?.length && <AmountShortcutChips shortcuts={amountShortcuts} />}
+      {showTopActions && hasInlineLabel && !!amountShortcuts?.length && (
+        <AmountShortcutChips shortcuts={amountShortcuts} />
+      )}
       <div onClick={onMax} className={cn('group flex items-center gap-1', onMax && 'cursor-pointer')}>
         <Wallet className="text-subText group-hover:text-text" />
         <span className="font-medium text-subText group-hover:text-text" data-testid="balance">

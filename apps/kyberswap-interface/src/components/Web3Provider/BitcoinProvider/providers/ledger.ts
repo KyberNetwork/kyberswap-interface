@@ -21,10 +21,6 @@ function getFormat(derivationPath: string) {
     : 'legacy' // P2PKH
 }
 
-// Store transport globally to reuse
-let transport: TransportWebUSB | null = null
-let derivationPath: string | null = null
-
 export const DerivationPaths = {
   'Native SegWit': "m/84'/0'/0'/0/0",
   Taproot: "m/86'/0'/0'/0/0",
@@ -128,172 +124,183 @@ export const createLedgerProvider = ({
   setConnectingWallet,
   setWalletInfo,
   defaultInfo,
-}: CreateProviderParams): BitcoinWalletBase => ({
-  name: 'Ledger',
-  logo: 'https://storage.googleapis.com/ks-setting-1d682dca/d8d5850d-adf9-4ec3-904b-33830f6b25bd1748936729072.png',
-  type: 'ledger' as const,
-  isInstalled: () => false,
-  connect: async (path?: string) => {
-    try {
-      if (!path) throw new Error('Derivation path is required for Ledger connection')
-      if (!!connectingWallet) return
+  addressOnly = false,
+}: CreateProviderParams): BitcoinWalletBase => {
+  let transport: TransportWebUSB | null = null
+  let derivationPath: string | null = null
 
-      setConnectingWallet('ledger')
+  return {
+    name: 'Ledger',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/d8d5850d-adf9-4ec3-904b-33830f6b25bd1748936729072.png',
+    type: 'ledger' as const,
+    isInstalled: () => false,
+    connect: async (path?: string) => {
+      try {
+        if (!path) throw new Error('Derivation path is required for Ledger connection')
+        if (!!connectingWallet) return
 
+        setConnectingWallet?.('ledger')
+
+        if (transport) {
+          try {
+            await transport.close()
+          } catch (e) {
+            console.warn('Error closing transport:', e)
+          }
+          transport = null
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+
+        await TransportWebUSB.request()
+        transport = (await TransportWebUSB.create(undefined, 5_000)) as TransportWebUSB
+        transport.setExchangeTimeout(30000)
+        await transport.send(0xb0, 0x01, 0x00, 0x00)
+
+        const btcApp = new Btc({
+          transport: transport as unknown as Transport.default,
+          currency: 'bitcoin',
+        })
+        const result = await btcApp.getWalletPublicKey(path, {
+          format: getFormat(path),
+        })
+        const address = result.bitcoinAddress
+        const compressedPublicKey = result.publicKey
+        derivationPath = path
+
+        setWalletInfo({
+          isConnected: true,
+          address,
+          publicKey: compressedPublicKey,
+          walletType: 'ledger',
+        })
+        setConnectingWallet?.(null)
+      } catch (error) {
+        setConnectingWallet?.(null)
+        throw error
+      } finally {
+        if (addressOnly && transport) {
+          await transport.close()
+          transport = null
+        }
+      }
+    },
+    disconnect: async () => {
       if (transport) {
         try {
           await transport.close()
-        } catch (e) {
-          console.warn('Error closing transport:', e)
+        } catch (error) {
+          console.error('Error closing transport:', error)
         }
         transport = null
-        await new Promise(resolve => setTimeout(resolve, 1000))
       }
+      localStorage.removeItem('bitcoinWallet')
+      setWalletInfo(defaultInfo)
+      derivationPath = null
+    },
 
-      await TransportWebUSB.request()
-      transport = (await TransportWebUSB.create(undefined, 5_000)) as TransportWebUSB
-      transport.setExchangeTimeout(30000)
-      await transport.send(0xb0, 0x01, 0x00, 0x00)
-
-      const btcApp = new Btc({
-        transport: transport as unknown as Transport.default,
-        currency: 'bitcoin',
-      })
-      const result = await btcApp.getWalletPublicKey(path, {
-        format: getFormat(path),
-      })
-      const address = result.bitcoinAddress
-      const compressedPublicKey = result.publicKey
-      derivationPath = path
-
-      setWalletInfo({
-        isConnected: true,
-        address,
-        publicKey: compressedPublicKey,
-        walletType: 'ledger',
-      })
-      setConnectingWallet(null)
-    } catch (error) {
-      setConnectingWallet(null)
-      throw error
-    }
-  },
-  disconnect: async () => {
-    if (transport) {
+    sendBitcoin: async ({ sender, recipient, amount, options }: SendBitcoinParams) => {
       try {
-        await transport.close()
-      } catch (error) {
-        console.error('Error closing transport:', error)
-      }
-      transport = null
-    }
-    localStorage.removeItem('bitcoinWallet')
-    setWalletInfo(defaultInfo)
-    derivationPath = null
-  },
-
-  sendBitcoin: async ({ sender, recipient, amount, options }: SendBitcoinParams) => {
-    try {
-      if (!transport || !sender || !derivationPath) {
-        throw new Error('Ledger not connected. Please connect your device first.')
-      }
-      console.log(`Preparing to send ${amount} BTC from ${sender} to ${recipient}`)
-
-      // Initialize Btc app
-      const btcApp = new Btc({
-        transport: transport as unknown as Transport.default,
-        currency: 'bitcoin',
-      })
-      const utxos = await fetchUTXOs(sender)
-      if (utxos.length === 0) {
-        throw new Error('No UTXOs found for the sender address')
-      }
-
-      const feeRate = options?.feeRate || 5 // what should the default value be?
-      // Select UTXOs for the transaction
-      let totalInputValue = 0
-      const selectedUtxos: UTXO[] = []
-      // Simple UTXO selection: use UTXOs until we have enough to cover amount + fees
-      const estimatedSize = estimateTransactionSize(
-        utxos.length,
-        2,
-        getFormat(derivationPath || DerivationPaths['Native SegWit']),
-      )
-      const estimatedFee = Math.ceil(estimatedSize * feeRate)
-      const totalNeeded = Number(amount) + estimatedFee
-      for (const utxo of utxos) {
-        selectedUtxos.push(utxo)
-        totalInputValue += utxo.value
-
-        if (totalInputValue >= totalNeeded) {
-          break
+        if (!transport || !sender || !derivationPath) {
+          throw new Error('Ledger not connected. Please connect your device first.')
         }
-      }
+        console.log(`Preparing to send ${amount} BTC from ${sender} to ${recipient}`)
 
-      if (totalInputValue < totalNeeded) {
-        throw new Error(`Insufficient funds. Need ${totalNeeded} satoshis, but only have ${totalInputValue} satoshis`)
-      }
-
-      // Calculate actual fee and change
-      const actualSize = estimateTransactionSize(
-        selectedUtxos.length,
-        2,
-        getFormat(derivationPath || DerivationPaths['Native SegWit']),
-      )
-      const actualFee = Math.ceil(actualSize * feeRate)
-      const changeAmount = totalInputValue - Number(amount) - actualFee
-      console.log(`Transaction details:`)
-      console.log(`- Amount: ${amount} satoshis`)
-      console.log(`- Fee: ${actualFee} satoshis`)
-      console.log(`- Change: ${changeAmount} satoshis`)
-      console.log(`- Total inputs: ${totalInputValue} satoshis`)
-
-      const inputs: [Transaction, number, string | null | undefined, number | null | undefined][] = []
-
-      const associatedKeysets = []
-      const format = getFormat(derivationPath || DerivationPaths['Native SegWit'])
-
-      for (const utxo of selectedUtxos) {
-        const rawTx = await getTransactionData(utxo.txid)
-        const tx = btcApp.splitTransaction(rawTx, format !== 'legacy', false)
-        inputs.push([tx, utxo.vout, undefined, undefined])
-        associatedKeysets.push(derivationPath)
-      }
-
-      const { version } = await getAppAndVersion(transport)
-      const transaction = {
-        version: Buffer.from(version),
-        inputs: [],
-        outputs: [
-          {
-            amount: amountToBuffer(+amount),
-            script: bitcoin.address.toOutputScript(recipient, bitcoin.networks.bitcoin),
-          },
-        ],
-      }
-
-      if (changeAmount > 546) {
-        transaction.outputs.push({
-          amount: amountToBuffer(changeAmount),
-          script: bitcoin.address.toOutputScript(sender, bitcoin.networks.bitcoin),
+        // Initialize Btc app
+        const btcApp = new Btc({
+          transport: transport as unknown as Transport.default,
+          currency: 'bitcoin',
         })
+        const utxos = await fetchUTXOs(sender)
+        if (utxos.length === 0) {
+          throw new Error('No UTXOs found for the sender address')
+        }
+
+        const feeRate = options?.feeRate || 5 // what should the default value be?
+        // Select UTXOs for the transaction
+        let totalInputValue = 0
+        const selectedUtxos: UTXO[] = []
+        // Simple UTXO selection: use UTXOs until we have enough to cover amount + fees
+        const estimatedSize = estimateTransactionSize(
+          utxos.length,
+          2,
+          getFormat(derivationPath || DerivationPaths['Native SegWit']),
+        )
+        const estimatedFee = Math.ceil(estimatedSize * feeRate)
+        const totalNeeded = Number(amount) + estimatedFee
+        for (const utxo of utxos) {
+          selectedUtxos.push(utxo)
+          totalInputValue += utxo.value
+
+          if (totalInputValue >= totalNeeded) {
+            break
+          }
+        }
+
+        if (totalInputValue < totalNeeded) {
+          throw new Error(`Insufficient funds. Need ${totalNeeded} satoshis, but only have ${totalInputValue} satoshis`)
+        }
+
+        // Calculate actual fee and change
+        const actualSize = estimateTransactionSize(
+          selectedUtxos.length,
+          2,
+          getFormat(derivationPath || DerivationPaths['Native SegWit']),
+        )
+        const actualFee = Math.ceil(actualSize * feeRate)
+        const changeAmount = totalInputValue - Number(amount) - actualFee
+        console.log(`Transaction details:`)
+        console.log(`- Amount: ${amount} satoshis`)
+        console.log(`- Fee: ${actualFee} satoshis`)
+        console.log(`- Change: ${changeAmount} satoshis`)
+        console.log(`- Total inputs: ${totalInputValue} satoshis`)
+
+        const inputs: [Transaction, number, string | null | undefined, number | null | undefined][] = []
+
+        const associatedKeysets = []
+        const format = getFormat(derivationPath || DerivationPaths['Native SegWit'])
+
+        for (const utxo of selectedUtxos) {
+          const rawTx = await getTransactionData(utxo.txid)
+          const tx = btcApp.splitTransaction(rawTx, format !== 'legacy', false)
+          inputs.push([tx, utxo.vout, undefined, undefined])
+          associatedKeysets.push(derivationPath)
+        }
+
+        const { version } = await getAppAndVersion(transport)
+        const transaction = {
+          version: Buffer.from(version),
+          inputs: [],
+          outputs: [
+            {
+              amount: amountToBuffer(+amount),
+              script: bitcoin.address.toOutputScript(recipient, bitcoin.networks.bitcoin),
+            },
+          ],
+        }
+
+        if (changeAmount > 546) {
+          transaction.outputs.push({
+            amount: amountToBuffer(changeAmount),
+            script: bitcoin.address.toOutputScript(sender, bitcoin.networks.bitcoin),
+          })
+        }
+
+        const outputScriptHex = btcApp.serializeTransactionOutputs(transaction).toString('hex')
+
+        const signedTx = await btcApp.createPaymentTransaction({
+          inputs,
+          associatedKeysets,
+          outputScriptHex,
+          additionals: format === 'bech32' ? ['bech32'] : [],
+          segwit: format !== 'legacy',
+        })
+        // Broadcast the signed transaction
+        const txId = await broadcastTransaction(signedTx)
+        return txId
+      } catch (e) {
+        console.error('Error sending Bitcoin:', e)
+        throw e
       }
-
-      const outputScriptHex = btcApp.serializeTransactionOutputs(transaction).toString('hex')
-
-      const signedTx = await btcApp.createPaymentTransaction({
-        inputs,
-        associatedKeysets,
-        outputScriptHex,
-        additionals: format === 'bech32' ? ['bech32'] : [],
-        segwit: format !== 'legacy',
-      })
-      // Broadcast the signed transaction
-      const txId = await broadcastTransaction(signedTx)
-      return txId
-    } catch (e) {
-      console.error('Error sending Bitcoin:', e)
-      throw e
-    }
-  },
-})
+    },
+  }
+}

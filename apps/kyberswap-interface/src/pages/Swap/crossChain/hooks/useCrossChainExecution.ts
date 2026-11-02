@@ -150,8 +150,8 @@ export const useCrossChainExecution = (
       broadcastHash = transaction.sourceTxHash
 
       if (syncWithBackend && selectedQuote.quote.quoteId && selectedQuote.quote.quoteToken) {
-        // Fast BE settlement can remove the entry while an adapter is still
-        // waiting for confirmation. A late return must not recreate it.
+        // Fast BE settlement can clear sync while retaining the local transaction.
+        // A late adapter confirmation must not restart registration.
         if (alreadyCaptured && capturedOutboxKey && !selectTransactionSync(store.getState(), capturedOutboxKey)) return
 
         dispatch(

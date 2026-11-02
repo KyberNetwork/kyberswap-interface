@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 import { Stack } from 'components/Stack'
 import { CrossChainQuoteSelector } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSelector'
 import { CrossChainQuoteSummaryRows } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
@@ -8,7 +10,7 @@ import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export const CrossChainQuoteDetails = () => {
+export const CrossChainQuoteDetails = ({ recipient }: { recipient?: ReactNode }) => {
   const {
     selectedQuote,
     quotes,
@@ -49,6 +51,7 @@ export const CrossChainQuoteDetails = () => {
           />
         }
       />
+      {recipient}
       <Stack className="gap-2">
         <CrossChainQuoteSummaryRows
           loading={initialLoading}

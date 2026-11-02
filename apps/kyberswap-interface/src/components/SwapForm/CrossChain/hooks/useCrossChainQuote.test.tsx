@@ -45,8 +45,8 @@ const pair = {
 
 let state: ReturnType<typeof useCrossChainQuote>
 let root: ReturnType<typeof createRoot>
-const render = (amount: string) => {
-  root.render(<Harness pair={pair} amount={amount} sender="sender" receiver="recipient" isReadOnly={false} />)
+const render = (amount: string, receiver = 'recipient') => {
+  root.render(<Harness pair={pair} amount={amount} sender="sender" receiver={receiver} isReadOnly={false} />)
 }
 function Harness(props: Props) {
   state = useCrossChainQuote(props)
@@ -87,6 +87,22 @@ describe('unified quote session after aggregator integration', () => {
       quoteMode: 'stream',
       excludedSources: ['Relay'],
       params: { amount: '100000000', feeBps: 10, slippage: 50, sender: 'sender', recipient: 'recipient' },
+    })
+  })
+
+  it('invalidates the reviewed quote when receiver changes and requests the exact new recipient', async () => {
+    await act(async () => render('100', 'wallet-receiver'))
+    await act(async () => vi.advanceTimersByTimeAsync(800))
+    const previous = mocks.getQuotes.mock.calls[0][0] as QuoteRequest
+    await act(async () => render('100', 'pasted-receiver'))
+    expect(previous.signal.aborted).toBe(true)
+    expect(state.reviewQuote).toBeNull()
+    await act(async () => previous.onQuotes([{ adapter: { getName: () => 'Relay' } } as Quote]))
+    expect(state.quotes).toEqual([])
+    await act(async () => vi.advanceTimersByTimeAsync(800))
+    expect(mocks.getQuotes.mock.calls.at(-1)?.[0].params).toMatchObject({
+      sender: 'sender',
+      recipient: 'pasted-receiver',
     })
   })
 

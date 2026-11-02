@@ -11,7 +11,6 @@ type Props = {
   inputPanel: ReactNode
   outputPanel: ReactNode
   tokenInfo?: ReactNode
-  recipient?: ReactNode
   details: ReactNode
   action: ReactNode
   onReverse: () => void
@@ -23,7 +22,6 @@ export const SwapFormLayout = ({
   inputPanel,
   outputPanel,
   tokenInfo,
-  recipient,
   details,
   action,
   onReverse,
@@ -46,7 +44,6 @@ export const SwapFormLayout = ({
         {outputPanel}
       </Stack>
       {tokenInfo}
-      {recipient}
     </Stack>
     {details}
     {action}

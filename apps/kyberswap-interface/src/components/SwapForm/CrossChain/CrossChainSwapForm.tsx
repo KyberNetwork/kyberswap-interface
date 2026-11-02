@@ -40,7 +40,8 @@ type Props = CrossChainFormSelectionProps & {
   loading: boolean
   isInputCurrencyLoading?: boolean
   isOutputCurrencyLoading?: boolean
-  recipient?: ReactNode
+  receiver?: ReactNode
+  receiverAddress?: string
   details: ReactNode
   action: ReactNode
 }
@@ -56,7 +57,8 @@ export const CrossChainSwapForm = ({
   loading,
   isInputCurrencyLoading,
   isOutputCurrencyLoading,
-  recipient,
+  receiver,
+  receiverAddress,
   details,
   action,
   hidden,
@@ -126,6 +128,7 @@ export const CrossChainSwapForm = ({
             amountInUsd={quote?.inputUsd?.toString()}
             wrapType={WrapType.NOT_APPLICABLE}
             typedValue={displayTypedValue}
+            rawTypedValue={amount}
             onRawAmountChange={onRawValue}
             onUserInput={onDisplayInput}
             currencyIn={input}
@@ -145,6 +148,8 @@ export const CrossChainSwapForm = ({
         toChainId && typeof toChainId !== 'number' ? (
           <CrossChainCurrencyPanel
             output
+            receiver={receiver}
+            receiverAddress={receiverAddress}
             loading={loading}
             chain={toChainId}
             currency={currencyOut}
@@ -174,7 +179,6 @@ export const CrossChainSwapForm = ({
         )
       }
       tokenInfo={<ERC8056Info tokens={erc8056Info.tokens} />}
-      recipient={recipient}
       details={details}
       action={
         <Stack className="gap-2">

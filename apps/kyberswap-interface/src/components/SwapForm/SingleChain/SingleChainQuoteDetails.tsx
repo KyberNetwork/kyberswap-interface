@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { ReactNode } from 'react'
 
 import { ErrorWarning } from 'components/ErrorWarning'
 import { Stack } from 'components/Stack'
@@ -22,9 +23,10 @@ type Props = {
   slippage: number
   loading: boolean
   refresh: SwapQuoteRefresh
+  recipient?: ReactNode
   isFeeTampered?: boolean
 }
-const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampered, loading }: Props) => {
+const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampered, loading, recipient }: Props) => {
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const { inputERC8056Info, outputERC8056Info } = useSwapFormContext()
   const { parsedAmountOut, priceImpact } = routeSummary || {}
@@ -63,6 +65,7 @@ const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampere
         loading={initialLoading}
         refresh={refresh}
       />
+      {recipient}
       <Stack className="gap-2">
         <QuoteDetailRow
           loading={initialLoading}

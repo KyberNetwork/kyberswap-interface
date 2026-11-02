@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo } from 'react'
 
-import AddressInputPanel from 'components/AddressInputPanel'
 import FeeControlGroup from 'components/FeeControlGroup'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { NetworkSelector } from 'components/NetworkSelector'
@@ -9,6 +8,7 @@ import { Stack } from 'components/Stack'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/CurrencyInput/OutputCurrencyPanel'
+import { RecipientInput } from 'components/SwapForm/RecipientInput'
 import MEVProtection from 'components/SwapForm/Settings/MEVProtection'
 import SingleChainQuoteDetails from 'components/SwapForm/SingleChain/SingleChainQuoteDetails'
 import {
@@ -24,6 +24,7 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import useENS from 'hooks/useENS'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
@@ -99,6 +100,10 @@ export const SingleChainSwapContent = ({
     onUserInput,
     recipient,
     onRecipientChange,
+    showRecipientInput,
+    toggleRecipient,
+    canUseMyWallet,
+    selectWalletRecipient,
     parsedAmount,
     wrapType,
     wrapInputError,
@@ -116,6 +121,7 @@ export const SingleChainSwapContent = ({
     dismissReview,
   } = useSingleChainSwapContext()
 
+  const recipientLookup = useENS(recipient)
   const debouncedTypedValue = useDebounce(typedValue, 1000)
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
   const { displayTypedValue, onDisplayInput, onRawValue } = useERC8056TypedInput(
@@ -227,6 +233,7 @@ export const SingleChainSwapContent = ({
             amountInUsd={routeSummary?.amountInUsd}
             wrapType={wrapType}
             typedValue={displayTypedValue}
+            rawTypedValue={typedValue}
             onRawAmountChange={onRawValue}
             onUserInput={onDisplayInput}
             currencyIn={currencyIn}
@@ -259,11 +266,6 @@ export const SingleChainSwapContent = ({
           />
         }
         tokenInfo={<ERC8056Info tokens={erc8056Info.tokens} />}
-        recipient={
-          isDegenMode && !isWrapOrUnwrap ? (
-            <AddressInputPanel id="recipient" value={recipient} onChange={onRecipientChange} />
-          ) : undefined
-        }
         onReverse={handleReverse}
         details={
           <Stack className="gap-2">
@@ -271,6 +273,19 @@ export const SingleChainSwapContent = ({
 
             {!isWrapOrUnwrap && (
               <SingleChainQuoteDetails
+                recipient={
+                  isDegenMode ? (
+                    <RecipientInput
+                      mode="evm"
+                      value={recipient}
+                      expanded={showRecipientInput}
+                      error={!!recipient && !recipientLookup.loading && !recipientLookup.address}
+                      onChange={onRecipientChange}
+                      onToggle={toggleRecipient}
+                      onUseMyWallet={canUseMyWallet ? selectWalletRecipient : undefined}
+                    />
+                  ) : undefined
+                }
                 loading={routeLoading}
                 routeSummary={routeSummary}
                 slippage={slippage}
