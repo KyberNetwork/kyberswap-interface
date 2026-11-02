@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  hasAnnouncedIds,
   loadAnnouncedIds,
+  recordAsAnnounced,
   saveAnnouncedIds,
   selectUnannounced,
 } from 'components/Announcement/hooks/useOrderNotifications'
@@ -66,5 +68,23 @@ describe('announced ids storage', () => {
     localStorage.setItem('orderAnnouncedNotifications:staging:0xabc', '{oops')
 
     expect(loadAnnouncedIds('0xabc').size).toBe(0)
+  })
+
+  it('records a first-seen history silently, read notifications included, so none is picked later', () => {
+    const history = [notification(1, 100), notification(2, 200, true)]
+    expect(hasAnnouncedIds('0xabc')).toBe(false)
+
+    recordAsAnnounced('0xabc', history)
+
+    expect(hasAnnouncedIds('0xabc')).toBe(true)
+    expect(
+      selectUnannounced([...history, notification(3, 300)], loadAnnouncedIds('0xabc')).map(item => item.id),
+    ).toEqual([3])
+  })
+
+  it('marks a wallet without notifications as seen', () => {
+    recordAsAnnounced('0xabc', [])
+
+    expect(hasAnnouncedIds('0xabc')).toBe(true)
   })
 })

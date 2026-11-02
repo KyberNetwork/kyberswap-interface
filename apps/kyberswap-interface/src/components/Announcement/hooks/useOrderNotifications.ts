@@ -47,6 +47,26 @@ export const saveAnnouncedIds = (account: string, ids: Set<number>) => {
   }
 }
 
+/**
+ * Whether this device has announced for the wallet before. Unreadable storage counts as never, which keeps the
+ * wallet's history silent instead of announcing it on every load.
+ */
+export const hasAnnouncedIds = (account: string) => {
+  try {
+    return localStorage.getItem(announcedIdsKey(account)) !== null
+  } catch (error) {
+    console.error('Error reading announced order notifications:', error)
+    return false
+  }
+}
+
+/** Takes every notification as announced without telling the user, read ones included. */
+export const recordAsAnnounced = (account: string, notifications: PrivateAnnouncement[]) => {
+  const announcedIds = loadAnnouncedIds(account)
+  notifications.forEach(item => announcedIds.add(item.id))
+  saveAnnouncedIds(account, announcedIds)
+}
+
 /** The unread notifications not announced yet, each once, oldest first. */
 export const selectUnannounced = (notifications: PrivateAnnouncement[], announcedIds: Set<number>) => {
   const picked = new Map<number, PrivateAnnouncement>()
@@ -152,7 +172,8 @@ export const useOrderNotifications = () => {
 
   // A wallet holding more notifications than one poll returns has the rest read once per session, and again
   // whenever a poll's page holds nothing seen before, as a cancel-all or a run of expiries can outgrow one page.
-  // Polls are announced only after such a read, so toasts arrive oldest first.
+  // Polls are announced only after such a read, so toasts arrive oldest first. The first read for a wallet this
+  // device has never announced for is recorded silently: its history predates any visit that could have shown it.
   const backlogRef = useRef<{ account?: string; isDone: boolean }>({ isDone: false })
   useEffect(() => {
     if (!account || !currentData) return
@@ -162,11 +183,12 @@ export const useOrderNotifications = () => {
     if (backlog.account === account && !backlog.isDone) return
 
     const isFirstRead = backlog.account !== account
+    const settle = isFirstRead && !hasAnnouncedIds(account) ? recordAsAnnounced : announce
     const announcedIds = loadAnnouncedIds(account)
     const mayHideMore = isFirstRead || notifications.every(item => !item.isRead && !announcedIds.has(item.id))
     if (total <= notifications.length || !mayHideMore) {
       backlogRef.current = { account, isDone: true }
-      announce(account, notifications)
+      settle(account, notifications)
       return
     }
 
@@ -174,7 +196,7 @@ export const useOrderNotifications = () => {
     readBacklog(account, total).then(older => {
       if (backlogRef.current.account !== account) return
       backlogRef.current = { account, isDone: true }
-      announce(account, [...notifications, ...older])
+      settle(account, [...notifications, ...older])
     })
   }, [account, currentData, announce, readBacklog])
 }
