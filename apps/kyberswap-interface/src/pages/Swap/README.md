@@ -19,6 +19,12 @@ and right panel. `src/pages/Swap/LimitPage.tsx` shares the page shell in `src/pa
 ## State and operation owners
 
 Source paths use `src/...` relative to `apps/kyberswap-interface`.
+Use absolute imports from `src` throughout Swap, including lazy imports and test mocks.
+
+`src/types/crossChain.ts` owns shared chain, currency and transaction data contracts.
+`src/state/crossChainSwap/model.ts` owns local transaction identity, sync and settlement
+rules. Store/service consumers import these directly; adapter quote/execution contracts
+remain in `src/pages/Swap/crossChain/adapters/types.ts`.
 
 | Owner                                                                                                    | Responsibility                                                                       |
 | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
@@ -29,12 +35,25 @@ Source paths use `src/...` relative to `apps/kyberswap-interface`.
 | `src/components/SwapForm/CrossChain`                                                                     | Pair metadata, recipients, aggregator requests, route selection and review snapshots |
 | `src/pages/Swap/crossChain/adapters` / `src/pages/Swap/crossChain/quote`                                 | Provider payloads, quote normalization and execution contracts                       |
 | `src/pages/Swap/crossChain/hooks`                                                                        | Approval, wallet execution and local transaction tracking                            |
-| `src/pages/Swap/crossChain/transactions`                                                                 | Backend reconciliation, merged history and sender-scoped pagination                  |
+| `src/pages/Swap/crossChain/transactions`                                                                 | Backend reconciliation and provider status updates                                   |
 
-`src/pages/Swap/components/TransactionHistoryUpdater.tsx` runs independently
-of History visibility. Broadcast transactions are persisted before confirmation;
-backend reconciliation continues after review closes. History is cross-chain-only;
-same-chain transactions remain in `src/state/transactions`.
+`src/pages/Swap/transactions` owns the shared transaction read/display flow:
+
+- `localTransactionSelectors.ts` derives local swap history.
+- `history.ts` merges normalized local rows with indexed API rows by source chain/hash.
+- `useHistoryPagination.ts` owns wallet-scoped page navigation, independently of polling.
+- `HistoryPanel`, `TransactionHistoryList` and `TransactionHistoryItem` render history;
+  `ProcessingTransactions` renders ongoing cross-chain execution.
+- `TransactionUpdater.tsx` maintains API subscriptions and mounts the cross-chain
+  provider/backend updaters, independently of History visibility.
+
+Same-chain persistence and receipt updates remain in `src/state/transactions`;
+cross-chain persistence remains in `src/state/crossChainSwap`. Selectors project
+these stores without copying transactions. Complete settled API records supersede
+local rows; pending or incomplete index records preserve local execution data.
+The header pending count lives in `src/state/transactions/selectors.ts` and reads
+only local state. Provider polling and backend
+reconciliation remain in `src/pages/Swap/crossChain/transactions`.
 
 Keep related logic together, separate distinct steps with blank lines, and preserve
 hook order, dependencies and cleanup when reorganizing code.

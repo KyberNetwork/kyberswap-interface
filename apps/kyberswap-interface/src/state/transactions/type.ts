@@ -132,6 +132,14 @@ export type TransactionExtraInfo = (
   | EarnRemoveLiquidityExtraInfo
   | EarnMigrateLiquidityExtraInfo
 ) & {
+  /** Exact swap amounts in token units for display before the wallet index catches up. */
+  swap?: {
+    inputAmount: string
+    outputAmount: string
+    inputDecimals: number
+    outputDecimals: number
+    recipient: string
+  }
   actuallySuccess?: boolean
   needCheckSubgraph?: boolean
   arbitrary?: any // To store anything arbitrary, so it has any type

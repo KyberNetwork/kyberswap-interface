@@ -7,9 +7,9 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
-import { BitcoinToken } from 'pages/Swap/crossChain/adapters/types'
 import { useNotify } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
+import { BitcoinToken } from 'types/crossChain'
 import { cn } from 'utils/cn'
 
 export const BitcoinConnectModal = ({

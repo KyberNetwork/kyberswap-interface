@@ -1,7 +1,6 @@
 import { type Middleware, type PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit'
 import { save } from 'redux-localstorage-simple'
 
-import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
 import {
   type LocalTransaction,
   type OutboxEntry,
@@ -11,8 +10,9 @@ import {
   localTransactionKey,
   mergeOutboxTransaction,
   outboxKey,
-} from 'pages/Swap/crossChain/transactions/model'
+} from 'state/crossChainSwap/model'
 import { useAppSelector } from 'state/hooks'
+import type { NormalizedTxResponse } from 'types/crossChain'
 
 const MAX_CROSS_CHAIN_TRANSACTIONS = 120
 // Never evict a transaction still being polled or registered.

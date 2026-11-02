@@ -8,8 +8,8 @@ import { TextHelper } from 'components/Text'
 import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { MEDIA_WIDTHS } from 'theme'
+import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {

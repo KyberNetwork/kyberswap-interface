@@ -1,7 +1,8 @@
 import { parse } from 'lossless-json'
 
-import { NonEvmChain, type NormalizedQuote, type QuoteParams } from 'pages/Swap/crossChain/adapters/types'
+import { type NormalizedQuote, type QuoteParams } from 'pages/Swap/crossChain/adapters/types'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
+import { NonEvmChain } from 'types/crossChain'
 
 export type StreamQuoteResponse = {
   provider: string

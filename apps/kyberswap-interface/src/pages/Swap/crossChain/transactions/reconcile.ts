@@ -5,7 +5,6 @@ import crossChainTransactionsApi, {
 
 import type { AppDispatch, AppState } from 'state'
 import { saveTransactionSync, selectTransactionSync } from 'state/crossChainSwap'
-
 import {
   MAX_DETAIL_RECOVERY_ATTEMPTS,
   MAX_RECORD_ATTEMPTS,
@@ -15,7 +14,7 @@ import {
   isBackendResolved,
   normalizeTransactionHash,
   retryDelay,
-} from './model'
+} from 'state/crossChainSwap/model'
 
 const TRACKING_TTL = 24 * 60 * 60 * 1000
 const failRegistration = (

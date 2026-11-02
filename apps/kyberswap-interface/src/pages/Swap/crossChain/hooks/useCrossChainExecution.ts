@@ -13,14 +13,14 @@ import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { adaptRelaySolanaWallet } from 'pages/Swap/crossChain/adapters/RelayAdapter/relaySolanaWallet'
-import { NonEvmChain, type NormalizedTxResponse, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { type Quote } from 'pages/Swap/crossChain/registry'
 import { getSwapTrackingData } from 'pages/Swap/crossChain/tracking'
-import { outboxKey } from 'pages/Swap/crossChain/transactions/model'
 import { getChainName, isQuoteExecutable } from 'pages/Swap/crossChain/utils'
 import type { AppState } from 'state'
 import { addTransaction, enqueueTransactionSync, selectTransactionSync } from 'state/crossChainSwap'
+import { outboxKey } from 'state/crossChainSwap/model'
 import { useAppDispatch } from 'state/hooks'
+import { NonEvmChain, type NormalizedTxResponse, isEvmChain } from 'types/crossChain'
 
 /** Owns execution, wallet interaction, transaction persistence and execution analytics. */
 export const useCrossChainExecution = (

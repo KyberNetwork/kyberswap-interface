@@ -10,8 +10,7 @@ import {
   SingleChainSwapProvider,
   useSingleChainSwapContext,
 } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
-
-import useGetRoute from './useGetRoute'
+import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 
 const mocks = vi.hoisted(() => ({
   trigger: vi.fn(),

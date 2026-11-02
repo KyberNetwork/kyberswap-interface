@@ -27,7 +27,7 @@ import useDebounce from 'hooks/useDebounce'
 import useENS from 'hooks/useENS'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
+import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { DetailedRouteSummary } from 'types/route'
 
 /** Single-chain quote/execution flow. Receives resolved currencies and metadata-loading flags from its caller;

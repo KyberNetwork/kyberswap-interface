@@ -7,19 +7,12 @@ import { WalletClient, parseUnits } from 'viem'
 import { z } from 'zod'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import {
-  BaseSwapAdapter,
-  Chain,
-  EvmQuoteParams,
-  NonEvmChain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { buildEvmTransaction } from 'pages/Swap/crossChain/adapters/MayanAdapter/streamExecution'
 import { evmTransactionSchema, parseMayanQuote } from 'pages/Swap/crossChain/quote/rawQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/Swap/crossChain/utils'
+import { Chain, NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
 

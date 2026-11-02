@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import type { NearToken } from 'pages/Swap/crossChain/adapters/types'
+import type { NearToken } from 'types/crossChain'
 
 // Keep quote and balance effect dependencies stable while the query has no data.
 const EMPTY_NEAR_TOKENS: NearToken[] = []

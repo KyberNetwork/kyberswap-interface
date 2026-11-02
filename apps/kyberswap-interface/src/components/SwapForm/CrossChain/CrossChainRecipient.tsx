@@ -1,7 +1,7 @@
 import type { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { RecipientInput } from 'components/SwapForm/RecipientInput'
-import { Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import { Chain, NonEvmChain } from 'types/crossChain'
 
 export const CrossChainRecipient = () => <CrossChainRecipientInput {...useCrossChainSwap()} />
 

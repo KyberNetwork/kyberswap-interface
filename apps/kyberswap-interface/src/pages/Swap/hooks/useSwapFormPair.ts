@@ -3,10 +3,10 @@ import { useState } from 'react'
 import { type To, useNavigate, useSearchParams } from 'react-router-dom'
 
 import usePageLocation from 'hooks/usePageLocation'
-import { type Chain, type Currency, NonEvmChain, type NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
 import { useSwapCurrencyResolution } from 'state/swap/hooks'
+import { type Chain, type Currency, NonEvmChain, type NonEvmCurrency } from 'types/crossChain'
 import { currencyId } from 'utils/currencyId'
 import {
   SwapPair,

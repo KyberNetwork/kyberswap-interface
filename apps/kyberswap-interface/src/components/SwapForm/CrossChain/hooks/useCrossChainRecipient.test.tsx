@@ -5,7 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
 import { ReceiverWallet } from 'components/SwapForm/CrossChain/receiverWallet'
-import { Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
+import { Chain, NonEvmChain } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({ sender: 'sender-address', account: '0xsender' }))
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({ signedAccountId: mocks.sender }) }))

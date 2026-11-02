@@ -4,9 +4,8 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { BitcoinToken, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
-
-import { useReceiverBalance } from './useReceiverBalance'
+import { useReceiverBalance } from 'components/SwapForm/CrossChain/hooks/useReceiverBalance'
+import { BitcoinToken, NonEvmChain } from 'types/crossChain'
 
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
 vi.mock('@solana/wallet-adapter-react', () => ({ useConnection: () => ({}) }))

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { type Currency, NonEvmChain, type QuoteParams } from 'pages/Swap/crossChain/adapters/types'
+import { type QuoteParams } from 'pages/Swap/crossChain/adapters/types'
 import { normalizeStreamQuote, parseQuoteResponse } from 'pages/Swap/crossChain/quote/parseStreamQuote'
 import { getMinimumOutputAmount, sortQuotesByOutput } from 'pages/Swap/crossChain/quote/utils'
 import type { Quote } from 'pages/Swap/crossChain/registry'
+import { type Currency, NonEvmChain } from 'types/crossChain'
 
 const params: QuoteParams = {
   feeBps: 10,

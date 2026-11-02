@@ -2,9 +2,9 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import type { WalletClient } from 'viem'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { BitcoinToken, type Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { SymbiosisAdapter } from 'pages/Swap/crossChain/adapters/SymbiosisAdapter'
 import type { Quote } from 'pages/Swap/crossChain/registry'
+import { BitcoinToken, type Chain, NonEvmChain } from 'types/crossChain'
 
 const { post } = vi.hoisted(() => ({ post: vi.fn() }))
 vi.mock('axios', () => ({ default: { create: () => ({ post }) } }))

@@ -9,19 +9,12 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { AGGREGATOR_API } from 'constants/env'
 import { ETHER_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
-import {
-  BaseSwapAdapter,
-  Chain,
-  EvmQuoteParams,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { kyberSwapQuoteSchema } from 'pages/Swap/crossChain/quote/rawQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import store from 'state'
+import { Chain, NOT_SUPPORTED_CHAINS_PRICE_SERVICE, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 export class KyberSwapAdapter extends BaseSwapAdapter {
   constructor() {

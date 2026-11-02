@@ -3,8 +3,8 @@ import { useMemo } from 'react'
 
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useNearIntentsTokens } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/useNearIntentsTokens'
-import { BitcoinToken, Chain, NonEvmChain, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { useSolanaTokens } from 'pages/Swap/crossChain/hooks/useSolanaTokens'
+import { BitcoinToken, Chain, NonEvmChain, isEvmChain } from 'types/crossChain'
 
 type Props = {
   fromChainId: Chain

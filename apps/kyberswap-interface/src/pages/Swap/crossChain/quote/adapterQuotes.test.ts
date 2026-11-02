@@ -2,7 +2,7 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import type { WalletClient } from 'viem'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import type { Currency, NormalizedQuote, QuoteParams, SwapProvider } from 'pages/Swap/crossChain/adapters'
+import type { NormalizedQuote, QuoteParams, SwapProvider } from 'pages/Swap/crossChain/adapters'
 import { KyberCrossAdapter } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter'
 import { type RoutePlan, kyberCrossApi } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
 import * as kyberCrossExecution from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/service'
@@ -11,6 +11,7 @@ import { CrossChainSwapFactory } from 'pages/Swap/crossChain/factory'
 import { getFallbackQuotes, getQuotes } from 'pages/Swap/crossChain/quote/adapterQuotes'
 import { getSourceFilters } from 'pages/Swap/crossChain/quote/streamQuotes'
 import { CrossChainSwapAdapterRegistry, type Quote, getQuoteId } from 'pages/Swap/crossChain/registry'
+import type { Currency } from 'types/crossChain'
 
 vi.mock('@lifi/sdk', async importOriginal => ({
   ...(await importOriginal<typeof import('@lifi/sdk')>()),

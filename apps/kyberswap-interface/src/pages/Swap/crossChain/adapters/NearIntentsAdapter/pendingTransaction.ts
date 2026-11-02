@@ -1,4 +1,4 @@
-import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
+import type { NormalizedTxResponse } from 'types/crossChain'
 
 const MY_NEAR_WALLET_PENDING_TRANSACTION_KEY = 'cross-chain-swap-my-near-wallet-tx'
 

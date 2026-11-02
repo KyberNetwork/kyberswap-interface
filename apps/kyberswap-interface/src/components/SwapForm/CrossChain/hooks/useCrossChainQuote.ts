@@ -7,13 +7,13 @@ import {
   useCrossChainQuoteRequest,
 } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuoteRequest'
 import { QuoteLoadContext, useQuoteSession } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
-import { isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { registry } from 'pages/Swap/crossChain/factory'
 import { getQuotes } from 'pages/Swap/crossChain/quote/adapterQuotes'
 import { getPairInfo } from 'pages/Swap/crossChain/quote/getPairInfo'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { isEvmChain } from 'types/crossChain'
 
 const EMPTY_SOURCES: string[] = []
 const providerKey = (quote: Quote) => quote.adapter.getName()

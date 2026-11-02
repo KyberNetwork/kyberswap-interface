@@ -17,9 +17,9 @@ import { useReceiverBalance } from 'components/SwapForm/CrossChain/hooks/useRece
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
-import { Currency, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { useNearBalances } from 'pages/Swap/crossChain/hooks/useNearBalances'
 import { MEDIA_WIDTHS } from 'theme'
+import { Currency, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {

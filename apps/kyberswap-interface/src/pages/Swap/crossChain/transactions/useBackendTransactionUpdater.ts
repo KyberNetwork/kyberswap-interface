@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useStore } from 'react-redux'
 
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
-import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
 import { getSwapTrackingData } from 'pages/Swap/crossChain/tracking'
+import { reconcileTransaction } from 'pages/Swap/crossChain/transactions/reconcile'
 import type { AppState } from 'state'
 import {
   finishTransactionSync,
@@ -11,10 +11,9 @@ import {
   selectTransactionSync,
   selectTransactionSyncs,
 } from 'state/crossChainSwap'
+import { type OutboxEntry, isBackendResolved, mergeOutboxTransaction } from 'state/crossChainSwap/model'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-
-import { type OutboxEntry, isBackendResolved, mergeOutboxTransaction } from './model'
-import { reconcileTransaction } from './reconcile'
+import type { NormalizedTxResponse } from 'types/crossChain'
 
 const getBackendCompletionTrackingData = (entry: OutboxEntry, tx: NormalizedTxResponse) => {
   return {

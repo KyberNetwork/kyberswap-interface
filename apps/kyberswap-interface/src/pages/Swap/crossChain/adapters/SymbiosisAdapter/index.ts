@@ -6,20 +6,12 @@ import { z } from 'zod'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
-import {
-  Currency as AdapterCurrency,
-  BaseSwapAdapter,
-  Chain,
-  NonEvmChain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  QuoteParams,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { evmTransactionSchema } from 'pages/Swap/crossChain/quote/rawQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/Swap/crossChain/utils'
+import { Currency as AdapterCurrency, Chain, NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const symbiosisClient = axios.create({
   baseURL: 'https://api.symbiosis.finance/crosschain/v2',

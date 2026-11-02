@@ -1,15 +1,16 @@
 import type { BackendTransaction } from 'services/crossChainTransactions'
 import type { IndexedTransaction, IndexedTransactionPage } from 'services/walletTransactions'
 
-import type { Chain, Currency, NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
-
 import {
   type LocalTransaction,
   backendChainToChain,
   backendToFeStatus,
+  getLocalSettlement,
   isBackendResolved,
+  isTransactionForWallet,
   transactionIdentity,
-} from './model'
+} from 'state/crossChainSwap/model'
+import type { Currency, NormalizedTxResponse } from 'types/crossChain'
 
 export type HistoryTransaction = Omit<NormalizedTxResponse, 'sourceToken' | 'targetToken'> & {
   sourceToken: Currency | string
@@ -18,9 +19,6 @@ export type HistoryTransaction = Omit<NormalizedTxResponse, 'sourceToken' | 'tar
 }
 
 type HistoryRecord = BackendTransaction | IndexedTransaction
-
-const sameSender = (chain: Chain, left: string, right: string) =>
-  typeof chain === 'number' ? left.toLowerCase() === right.toLowerCase() : left === right
 
 const historyRecordToTransaction = (row: HistoryRecord): HistoryTransaction | undefined => {
   const sourceChain = backendChainToChain(row.fromChain)
@@ -52,7 +50,7 @@ const historyRecordToTransaction = (row: HistoryRecord): HistoryTransaction | un
  * It consumes the transaction domain's retained settlement and never reads API
  * detail caches, so both consumers show the same local row. */
 export const localTransactionToHistory = (tx: LocalTransaction): HistoryTransaction => {
-  const settlement = tx.settlement ?? (isBackendResolved(tx.sync?.backend) ? tx.sync?.backend : undefined)
+  const settlement = getLocalSettlement(tx)
   const settled = settlement ? historyRecordToTransaction(settlement) : undefined
   const { sync: _, settlement: __, ...broadcast } = tx
   return settled ? { ...broadcast, ...settled } : broadcast
@@ -64,13 +62,13 @@ export const mergeTransactionHistory = ({
   sender,
 }: {
   server: HistoryRecord[]
-  local: LocalTransaction[]
+  local: HistoryTransaction[]
   sender: string
 }): HistoryTransaction[] => {
   if (!sender) return []
   const rows = new Map<string, HistoryRecord>()
   const result = new Map<string, HistoryTransaction>()
-  const sourceKey = (chain: Chain, hash: string) => transactionIdentity(chain, hash, '')
+  const sourceKey = (tx: HistoryTransaction) => transactionIdentity(tx.sourceChain, tx.sourceTxHash, '')
 
   for (const row of server) {
     const tx = historyRecordToTransaction(row)
@@ -79,28 +77,20 @@ export const mergeTransactionHistory = ({
       (row.historyWallet?.startsWith('0x')
         ? row.historyWallet.toLowerCase() === sender.toLowerCase()
         : row.historyWallet === sender)
-    if (
-      !tx ||
-      (!indexedWalletMatches &&
-        !sameSender(tx.sourceChain, row.sender, sender) &&
-        !sameSender(tx.targetChain, row.recipient, sender))
-    )
-      continue
-    const key = sourceKey(tx.sourceChain, tx.sourceTxHash)
+    if (!tx || (!indexedWalletMatches && !isTransactionForWallet(tx, sender))) continue
+    const key = sourceKey(tx)
     if (isBackendResolved(rows.get(key)) && !isBackendResolved(row)) continue
     rows.set(key, row)
     result.set(key, tx)
   }
 
-  for (const transaction of local.map(localTransactionToHistory)) {
-    if (
-      !sameSender(transaction.sourceChain, transaction.sender || '', sender) &&
-      !sameSender(transaction.targetChain, transaction.recipient || '', sender)
-    )
-      continue
-    const key = sourceKey(transaction.sourceChain, transaction.sourceTxHash)
+  // Local input is ordered by execution ownership. Complete settled API rows
+  // supersede it; incomplete/pending index records never regress local execution.
+  for (const transaction of local) {
+    if (!isTransactionForWallet(transaction, sender)) continue
+    const key = sourceKey(transaction)
     const row = rows.get(key)
-    if (row && isBackendResolved(row) && 'fromToken' in row && row.fromToken && row.toToken) continue
+    if (row && isBackendResolved(row) && row.fromToken && row.toToken) continue
     result.set(key, transaction)
   }
   return [...result.values()].sort((left, right) => right.timestamp - left.timestamp)
@@ -108,7 +98,7 @@ export const mergeTransactionHistory = ({
 
 export const HISTORY_PAGE_SIZE = 10
 
-export const getLoadedHistory = (pages: IndexedTransactionPage[], local: LocalTransaction[], sender: string) => {
+export const getLoadedHistory = (pages: IndexedTransactionPage[], local: HistoryTransaction[], sender: string) => {
   const server = pages.flatMap(page => page.transactions)
   const hasMore = !!pages.at(-1)?.nextCursor
   const oldest = server.at(-1)

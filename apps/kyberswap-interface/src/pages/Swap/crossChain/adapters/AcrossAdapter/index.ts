@@ -32,20 +32,23 @@ import {
 import { getAcrossFillTxHash, mapAcrossDepositStatus } from 'pages/Swap/crossChain/adapters/AcrossAdapter/utils'
 import {
   BaseSwapAdapter,
-  Chain,
   EvmQuoteParams,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
   NormalizedQuote,
-  NormalizedTxResponse,
   QuoteParams,
-  SwapStatus,
 } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
-import { type SolanaToken, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { parseAcrossQuote } from 'pages/Swap/crossChain/quote/rawQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, isNativeToken, isWrappedToken } from 'pages/Swap/crossChain/utils'
+import {
+  Chain,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
+  NormalizedTxResponse,
+  type SolanaToken,
+  SwapStatus,
+  isEvmChain,
+} from 'types/crossChain'
 
 const API_URL = 'https://app.across.to/api/suggested-fees'
 

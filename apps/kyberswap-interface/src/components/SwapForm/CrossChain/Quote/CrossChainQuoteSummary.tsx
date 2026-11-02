@@ -6,10 +6,10 @@ import type { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQu
 import { QuoteDetailRow } from 'components/SwapForm/Quote/QuoteDetails'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { Currency } from 'pages/Swap/crossChain/adapters/types'
 import { getMinimumOutputAmount } from 'pages/Swap/crossChain/quote/utils'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { ExternalLink } from 'theme'
+import { Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const formatTime = (seconds: number) => {

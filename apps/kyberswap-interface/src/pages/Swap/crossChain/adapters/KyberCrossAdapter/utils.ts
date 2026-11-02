@@ -1,11 +1,10 @@
 import { z } from 'zod'
 
-import type { SwapStatus } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import type { BridgeProvider, RoutePlan, TrackingExecution } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
 import type { KyberCrossRawQuote } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/types'
-import type { GasDropQuote, GasDropStatus } from 'pages/Swap/crossChain/adapters/types'
 import { evmTransactionSchema } from 'pages/Swap/crossChain/quote/rawQuote'
 import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
+import { type GasDropQuote, type GasDropStatus, type SwapStatus } from 'types/crossChain'
 
 const routeSummarySchema = z
   .object({

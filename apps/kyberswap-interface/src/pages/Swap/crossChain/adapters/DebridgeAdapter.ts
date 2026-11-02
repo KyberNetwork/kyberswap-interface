@@ -9,21 +9,19 @@ import { WalletClient, formatUnits } from 'viem'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
-import {
-  BaseSwapAdapter,
-  Chain,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  QuoteParams,
-  SwapStatus,
-} from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
-import type { SolanaToken } from 'pages/Swap/crossChain/adapters/types'
+import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { debridgeQuoteSchema, evmTransactionSchema } from 'pages/Swap/crossChain/quote/rawQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/Swap/crossChain/utils'
+import {
+  Chain,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
+  NormalizedTxResponse,
+  type SolanaToken,
+  SwapStatus,
+} from 'types/crossChain'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 const DEBRIDGE_STATS_API = 'https://stats-api.dln.trade/api'

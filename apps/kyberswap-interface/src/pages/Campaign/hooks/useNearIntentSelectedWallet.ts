@@ -5,10 +5,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
-import { NonEvmChainInfo } from 'pages/Swap/crossChain/adapters/types'
 import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
 import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { NonEvmChainInfo } from 'types/crossChain'
 
 export const useNearIntentSelectedWallet = () => {
   const { account: evmWallet } = useActiveWeb3React()

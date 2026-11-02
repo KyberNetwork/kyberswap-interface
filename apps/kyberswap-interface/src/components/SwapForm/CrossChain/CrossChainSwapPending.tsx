@@ -14,8 +14,8 @@ import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCross
 import { QuoteDetails } from 'components/SwapForm/Quote/QuoteDetails'
 import { SwapRate } from 'components/SwapForm/Quote/SwapRate'
 import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
-import type { Chain } from 'pages/Swap/crossChain/adapters/types'
 import { useSlippageSettingByPage } from 'state/user/hooks'
+import type { Chain } from 'types/crossChain'
 
 const PendingQuoteDetails = ({ toChainId }: { toChainId: Chain }) => {
   const { rawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()

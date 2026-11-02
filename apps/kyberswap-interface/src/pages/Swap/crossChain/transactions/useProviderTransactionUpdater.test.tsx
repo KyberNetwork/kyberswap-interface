@@ -4,9 +4,9 @@ import { createRoot } from 'react-dom/client'
 import type { BackendTransaction } from 'services/crossChainTransactions'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import type { NormalizedTxResponse, SwapStatus } from 'pages/Swap/crossChain/adapters/types'
-import { useTransactionHistory } from 'pages/Swap/crossChain/hooks/useTransactionHistory'
-import { type LocalTransaction, localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
+import { useProviderTransactionUpdater } from 'pages/Swap/crossChain/transactions/useProviderTransactionUpdater'
+import { type LocalTransaction, localTransactionKey } from 'state/crossChainSwap/model'
+import type { NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({
   transactions: [] as LocalTransaction[],
@@ -54,7 +54,7 @@ vi.mock('pages/Swap/crossChain/utils', () => ({ getChainName: () => 'Ethereum' }
 
 let root: ReturnType<typeof createRoot>
 const Harness = () => {
-  useTransactionHistory()
+  useProviderTransactionUpdater()
   return null
 }
 const render = () => act(async () => root.render(<Harness />))

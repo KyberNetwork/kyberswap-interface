@@ -2,7 +2,7 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import type { WalletClient } from 'viem'
 import { expect, it, vi } from 'vitest'
 
-import { KyberSwapAdapter } from '.'
+import { KyberSwapAdapter } from 'pages/Swap/crossChain/adapters/KyberSwapAdapter'
 
 const { dispatch, getRoute, buildRoute } = vi.hoisted(() => ({
   dispatch: vi.fn(),

@@ -10,20 +10,20 @@ import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossCh
 import { KyberCrossAdapter } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter'
 import { kyberCrossApi } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
 import { mapRouteStateToSwapStatus } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/utils'
+import { registry } from 'pages/Swap/crossChain/factory'
+import { getSwapTrackingData } from 'pages/Swap/crossChain/tracking'
+import { getChainName } from 'pages/Swap/crossChain/utils'
+import type { AppState } from 'state'
+import { useNotify } from 'state/application/hooks'
+import { patchProviderTransactions, useCrossChainTransactions } from 'state/crossChainSwap'
+import { isBackendResolved, localTransactionKey } from 'state/crossChainSwap/model'
+import { useAppDispatch } from 'state/hooks'
 import {
   type NormalizedTxResponse,
   type SwapStatus,
   type TransactionStatus,
   isProcessingTransactionStatus,
-} from 'pages/Swap/crossChain/adapters/types'
-import { registry } from 'pages/Swap/crossChain/factory'
-import { getSwapTrackingData } from 'pages/Swap/crossChain/tracking'
-import { isBackendResolved, localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
-import { getChainName } from 'pages/Swap/crossChain/utils'
-import type { AppState } from 'state'
-import { useNotify } from 'state/application/hooks'
-import { patchProviderTransactions, useCrossChainTransactions } from 'state/crossChainSwap'
-import { useAppDispatch } from 'state/hooks'
+} from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const STATUS_CHECK_INTERVAL = 10_000
@@ -90,7 +90,7 @@ const getTransactionUpdate = (
   }
 }
 
-export const useTransactionHistory = () => {
+export const useProviderTransactionUpdater = () => {
   const store = useStore<AppState>()
   const notify = useNotify()
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()

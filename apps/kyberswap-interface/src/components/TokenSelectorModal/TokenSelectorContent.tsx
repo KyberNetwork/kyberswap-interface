@@ -30,8 +30,8 @@ import { TokenSelectionContext, TokenSelectorNetwork } from 'components/TokenSel
 import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
-import { Chain, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { CloseIcon } from 'theme'
+import { Chain, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
 
 const SearchLoading = () => (
   <Stack className="h-full items-center gap-3 p-5 pt-8" data-testid="token-search-loading">

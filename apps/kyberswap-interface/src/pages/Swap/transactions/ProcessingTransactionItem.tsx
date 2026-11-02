@@ -5,9 +5,9 @@ import { formatUnits } from 'viem'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Logo, { NetworkLogo } from 'components/Logo'
 import { HStack } from 'components/Stack'
-import type { Currency } from 'pages/Swap/crossChain/adapters/types'
-import type { HistoryTransaction } from 'pages/Swap/crossChain/transactions/history'
-import { useHistoryToken } from 'pages/Swap/crossChain/transactions/useHistoryToken'
+import type { HistoryTransaction } from 'pages/Swap/transactions/history'
+import { useHistoryToken } from 'pages/Swap/transactions/useHistoryToken'
+import type { Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const TokenAmount = ({ token, amount, prefix }: { token: Currency | string; amount: string; prefix: '-' | '+' }) => {

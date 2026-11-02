@@ -5,7 +5,7 @@ import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBala
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
+import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { getGasReservation } from 'utils/gasReserve'
 import { formatDisplayNumber } from 'utils/numbers'
 

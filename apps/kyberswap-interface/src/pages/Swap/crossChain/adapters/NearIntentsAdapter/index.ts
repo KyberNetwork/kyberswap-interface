@@ -15,26 +15,24 @@ import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.
 import { WalletClient } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import type { NearToken, SolanaToken } from 'pages/Swap/crossChain/adapters/types'
-import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
-import { parseNearQuote } from 'pages/Swap/crossChain/quote/rawQuote'
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
-
-import { Quote } from '../../registry'
-import {
-  BaseSwapAdapter,
-  Chain,
-  NearQuoteParams,
-  NonEvmChain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-} from '../BaseSwapAdapter'
+import { BaseSwapAdapter, NearQuoteParams, NormalizedQuote } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import {
   getNearTransferHash,
   removeMyNearWalletPendingTransaction,
   saveMyNearWalletPendingTransaction,
-} from './pendingTransaction'
+} from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/pendingTransaction'
+import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
+import { parseNearQuote } from 'pages/Swap/crossChain/quote/rawQuote'
+import { Quote } from 'pages/Swap/crossChain/registry'
+import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
+import {
+  Chain,
+  type NearToken,
+  NonEvmChain,
+  NormalizedTxResponse,
+  type SolanaToken,
+  SwapStatus,
+} from 'types/crossChain'
 
 export const MappingChainIdToBlockChain: Record<string, string> = {
   [NonEvmChain.Bitcoin]: 'btc',

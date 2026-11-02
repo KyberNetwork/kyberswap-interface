@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 
@@ -14,8 +13,8 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENSName from 'hooks/useENSName'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/hooks'
-import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
-import { TransactionDetails } from 'state/transactions/type'
+import { useAppSelector } from 'state/hooks'
+import { selectPendingTransactionCount } from 'state/transactions/selectors'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
@@ -45,16 +44,7 @@ function Web3StatusInner() {
   const uptoMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const { ENSName } = useENSName(account ?? undefined)
 
-  const allTransactions = useAllTransactions()
-
-  const sortedRecentTransactions = useMemo(() => {
-    const txs: TransactionDetails[] = allTransactions
-      ? (Object.values(allTransactions)?.flat().filter(Boolean) as TransactionDetails[])
-      : []
-    return txs.filter(isTransactionRecent).sort(newTransactionsFirst)
-  }, [allTransactions])
-
-  const pendingLength = sortedRecentTransactions.filter(tx => !tx.receipt).length
+  const pendingLength = useAppSelector(state => selectPendingTransactionCount(state, account, chainId))
 
   const hasPendingTransactions = !!pendingLength
   const toggleWalletModal = useWalletModalToggle()

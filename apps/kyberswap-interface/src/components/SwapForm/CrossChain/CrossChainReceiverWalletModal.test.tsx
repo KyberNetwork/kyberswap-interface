@@ -5,9 +5,8 @@ import { ReactNode, act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
-
-import { CrossChainReceiverWalletModal } from './CrossChainReceiverWalletModal'
+import { CrossChainReceiverWalletModal } from 'components/SwapForm/CrossChain/CrossChainReceiverWalletModal'
+import { NonEvmChain } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({ connect: vi.fn(), onSelect: vi.fn(), onDismiss: vi.fn() }))
 vi.mock('components/SwapForm/CrossChain/hooks/useReceiverWalletOptions', () => ({

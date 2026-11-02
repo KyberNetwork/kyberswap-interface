@@ -3,16 +3,10 @@ import { isAbstractStableToken } from 'services/crossChainTokens'
 import { parseUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import {
-  Chain,
-  Currency,
-  type NearToken,
-  NonEvmChain,
-  NormalizedQuote,
-  type SolanaToken,
-} from 'pages/Swap/crossChain/adapters/types'
+import { NormalizedQuote } from 'pages/Swap/crossChain/adapters/types'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS } from 'pages/Swap/crossChain/utils'
+import { Chain, Currency, type NearToken, NonEvmChain, type SolanaToken } from 'types/crossChain'
 
 export type PairCategory = 'stablePair' | 'commonPair' | 'highVolatilityPair' | 'exoticPair'
 

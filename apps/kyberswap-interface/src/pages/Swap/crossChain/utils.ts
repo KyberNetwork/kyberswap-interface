@@ -1,14 +1,8 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import {
-  type Chain,
-  type Currency,
-  NonEvmChain,
-  NonEvmChainInfo,
-  isEvmChain,
-} from 'pages/Swap/crossChain/adapters/types'
 import type { Quote } from 'pages/Swap/crossChain/registry'
+import { type Chain, type Currency, NonEvmChain, NonEvmChainInfo, isEvmChain } from 'types/crossChain'
 
 export const CROSS_CHAIN_FEE_RECEIVER = '0x1111115af63bfbcc151e5753e2ea1a29c79d2f01'
 export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = '3htqHCEhYzU9cs3hKpAs7fZLA8QNFJ2g9n7QPRPHnfRq'

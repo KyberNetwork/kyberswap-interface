@@ -3,8 +3,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { useCurrencyLookup } from 'hooks/useTokens'
 import { useNearIntentsTokens } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/useNearIntentsTokens'
-import { BitcoinToken, type Chain, type Currency, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { useSolanaTokens } from 'pages/Swap/crossChain/hooks/useSolanaTokens'
+import { BitcoinToken, type Chain, type Currency, NonEvmChain } from 'types/crossChain'
 
 const isEvmChainId = (chain: Chain): chain is ChainId => typeof chain === 'number'
 

@@ -9,11 +9,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import SwapRoute from 'pages/Swap/SwapRoute'
-import { NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
 import { TAB, Tabs } from 'pages/Swap/layout/Tabs'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
+import { NonEvmChain } from 'types/crossChain'
 import { getEmbeddedSwapPair, getTradeLocation } from 'utils/swapFlow'
 
 vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)

@@ -13,8 +13,8 @@ import {
 import { CurrencySelect, CurrencySelectContent } from 'components/CurrencyInputPanel/CurrencySelect'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useActiveWeb3React } from 'hooks'
-import type { NonEvmChain, NonEvmCurrency } from 'pages/Swap/crossChain/adapters/types'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 

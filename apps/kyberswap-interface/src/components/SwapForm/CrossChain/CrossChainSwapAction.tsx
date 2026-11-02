@@ -14,7 +14,6 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { NonEvmChain, isEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
 import { useCrossChainApproval } from 'pages/Swap/crossChain/hooks/useCrossChainApproval'
 import { useNearBalances } from 'pages/Swap/crossChain/hooks/useNearBalances'
@@ -23,6 +22,7 @@ import { isEvmCurrency, isNearToken, isSolanaToken } from 'pages/Swap/crossChain
 import { isQuoteExecutable } from 'pages/Swap/crossChain/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { NonEvmChain, isEvmChain } from 'types/crossChain'
 import { getTokenAddress } from 'utils/tokenInfo'
 
 export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: () => void }) => {

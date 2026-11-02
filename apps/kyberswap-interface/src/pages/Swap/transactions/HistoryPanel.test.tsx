@@ -3,9 +3,8 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
-
-import { useHistoryWallet } from './HistoryPanel'
+import { useHistoryWallet } from 'pages/Swap/transactions/HistoryPanel'
+import { Chain, NonEvmChain } from 'types/crossChain'
 
 const wallets = vi.hoisted(() => ({
   evm: '0xEVM',
@@ -19,8 +18,8 @@ vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({
 vi.mock('components/Web3Provider/BitcoinProvider', () => ({
   useBitcoinWallet: () => ({ walletInfo: { address: wallets.bitcoin } }),
 }))
-vi.mock('pages/Swap/crossChain/transactions/useUnifiedTransactionHistory', () => ({
-  useUnifiedTransactionHistory: vi.fn(),
+vi.mock('pages/Swap/transactions/useHistoryPagination', () => ({
+  useHistoryPagination: vi.fn(),
 }))
 let root: ReturnType<typeof createRoot>
 let selected: string

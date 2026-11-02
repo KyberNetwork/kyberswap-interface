@@ -4,20 +4,12 @@ import { WalletClient, formatUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ETHER_ADDRESS } from 'constants/index'
+import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'pages/Swap/crossChain/adapters/BaseSwapAdapter'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { xyQuoteSchema } from 'pages/Swap/crossChain/quote/rawQuote'
+import { Quote } from 'pages/Swap/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/Swap/crossChain/utils'
-
-import { Quote } from '../registry'
-import {
-  BaseSwapAdapter,
-  Chain,
-  EvmQuoteParams,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-} from './BaseSwapAdapter'
+import { Chain, NOT_SUPPORTED_CHAINS_PRICE_SERVICE, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const XY_FINANCE_API = 'https://aggregator-api.xy.finance/v1'
 

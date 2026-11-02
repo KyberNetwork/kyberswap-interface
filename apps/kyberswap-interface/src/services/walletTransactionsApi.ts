@@ -1,14 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { type BaseQueryFn, type FetchArgs, createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react'
-import { z } from 'zod'
-
-import { isBackendResolved, transactionIdentity } from 'pages/Swap/crossChain/transactions/model'
-
 import {
   type IndexedTransaction,
   type IndexedTransactionPage,
   indexedTransactionPageFromWalletRows,
-} from './walletTransactions'
+} from 'services/walletTransactions'
+import { z } from 'zod'
+
+import { isBackendResolved, transactionIdentity } from 'state/crossChainSwap/model'
 
 export type WalletTransactionApiError = { status: number | string; code?: number }
 

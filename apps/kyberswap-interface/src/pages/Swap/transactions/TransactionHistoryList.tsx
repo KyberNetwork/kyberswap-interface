@@ -4,9 +4,9 @@ import { useMedia } from 'react-use'
 
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
 import HistoryPagination from 'components/HistoryPagination'
-import { TransactionHistoryItem, TransactionTableGrid } from 'pages/Swap/crossChain/components/TransactionHistoryItem'
-import type { HistoryTransaction } from 'pages/Swap/crossChain/transactions/history'
-import { localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
+import { TransactionHistoryItem, TransactionTableGrid } from 'pages/Swap/transactions/TransactionHistoryItem'
+import type { HistoryTransaction } from 'pages/Swap/transactions/history'
+import { localTransactionKey } from 'state/crossChainSwap/model'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
@@ -27,7 +27,7 @@ const HeaderCell = ({ children, className }: { children: ReactNode; className?: 
   <span className={cn('text-xs font-medium uppercase tracking-[0.04em] text-subText', className)}>{children}</span>
 )
 
-/** Unified Swap history list. Cursor state belongs to useUnifiedTransactionHistory. */
+/** Unified Swap history list. Cursor state belongs to useHistoryPagination. */
 const TransactionHistoryList = ({
   transactions,
   filter,

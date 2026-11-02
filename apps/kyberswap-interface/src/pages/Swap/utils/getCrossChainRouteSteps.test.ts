@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Quote } from 'pages/Swap/crossChain/registry'
-
-import { getCrossChainRouteSteps } from './getCrossChainRouteSteps'
+import { getCrossChainRouteSteps } from 'pages/Swap/utils/getCrossChainRouteSteps'
 
 const usdc = { address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', symbol: 'USDC', decimals: 6, chainId: 8453 }
 const quote = (provider: string, rawQuote: unknown) =>

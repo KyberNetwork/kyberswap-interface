@@ -6,8 +6,8 @@ import { CrossChainQuoteSelectorView } from 'components/SwapForm/CrossChain/Quot
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
 import { getKyberCrossRoutePlan } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/utils'
-import { Currency } from 'pages/Swap/crossChain/adapters/types'
 import { Quote } from 'pages/Swap/crossChain/registry'
+import { Currency } from 'types/crossChain'
 
 const RouteTags = ({ quote }: { quote: Quote }) => {
   const tags = getKyberCrossRoutePlan(quote.quote.rawQuote)?.tags || []
