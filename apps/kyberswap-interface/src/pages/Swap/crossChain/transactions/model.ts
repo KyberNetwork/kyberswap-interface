@@ -31,6 +31,9 @@ export type OutboxEntry = {
 // of rows carrying BE sync state, not another stored transaction snapshot.
 export type LocalTransaction = NormalizedTxResponse & {
   sync?: Omit<OutboxEntry, 'transaction' | 'feStatus'>
+  /** Verified settlement retained with this row after sync metadata is removed.
+   * Also preserves canonical token/provider fields for conflicting registrations. */
+  settlement?: BackendTransaction
 }
 export const localTransactionKey = (tx: Pick<NormalizedTxResponse, 'sourceChain' | 'sourceTxHash' | 'sender'>) =>
   outboxKey(tx.sender || '', tx.sourceChain, tx.sourceTxHash, '')

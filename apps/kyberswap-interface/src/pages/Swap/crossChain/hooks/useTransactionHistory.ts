@@ -191,7 +191,7 @@ export const useTransactionHistory = () => {
           if (!txUpdate) return []
           // A BE updater may have already committed a canonical terminal result
           // while this provider request was in flight. Never regress it.
-          if (isBackendResolved(tx.sync?.backend)) return []
+          if (isBackendResolved(tx.sync?.backend) || isBackendResolved(tx.settlement)) return []
 
           if (txUpdate.status && txUpdate.status !== tx.status) {
             trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
@@ -286,7 +286,7 @@ export const useTransactionHistory = () => {
 
           const key = localTransactionKey(tx)
           const current = store.getState().crossChainSwap.transactions.find(row => localTransactionKey(row) === key)
-          if (!current || isBackendResolved(current.sync?.backend)) return
+          if (!current || isBackendResolved(current.sync?.backend) || isBackendResolved(current.settlement)) return
           const update = getTransactionUpdate(current, result)
           if (update) dispatch(patchProviderTransactions([{ key, update }]))
         })

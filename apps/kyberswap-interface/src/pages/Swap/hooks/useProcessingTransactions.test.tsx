@@ -2,6 +2,7 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { BackendTransaction } from 'services/crossChainTransactions'
+import type { IndexedTransaction } from 'services/walletTransactions'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { NonEvmChain, type NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
@@ -11,14 +12,14 @@ import { useProcessingTransactions } from './useProcessingTransactions'
 let account: string | undefined
 let solana: string | undefined
 let local: NormalizedTxResponse[]
-let server: BackendTransaction[]
+let server: Array<BackendTransaction & Partial<IndexedTransaction>>
 vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ account }) }))
 vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({ publicKey: solana }) }))
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
 vi.mock('components/Web3Provider/BitcoinProvider', () => ({ useBitcoinWallet: () => ({}) }))
 vi.mock('state/crossChainSwap', () => ({ useCrossChainTransactions: () => local }))
 vi.mock('state/hooks', () => ({ useAppSelector: () => server }))
-vi.mock('services/crossChainTransactions', () => ({ selectBackendTransactions: vi.fn() }))
+vi.mock('services/walletTransactionsApi', () => ({ selectIndexedTransactions: vi.fn() }))
 
 const row = (id: number, overrides: Partial<NormalizedTxResponse> = {}): NormalizedTxResponse => ({
   id: String(id),
@@ -123,7 +124,16 @@ it('deduplicates backend history and lets verified settlement remove a locally p
   ]
   await render()
   expect(transactions).toHaveLength(1)
+  solana = 'SolanaWallet'
+  local = [{ ...local[0], targetChain: NonEvmChain.Solana, recipient: solana }]
+  server = [{ ...server[0], toChain: 'solana', recipient: solana }]
+  await render()
+  expect(transactions).toHaveLength(1)
   server = [{ ...server[0], status: 'success', actualOutput: '91' }]
+  await render()
+  expect(transactions).toEqual([])
+  local = []
+  server = [{ ...server[0], status: 'in_progress', historyType: 'swap', fromChain: 'ethereum', toChain: 'ethereum' }]
   await render()
   expect(transactions).toEqual([])
 })

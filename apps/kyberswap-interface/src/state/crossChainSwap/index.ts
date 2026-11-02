@@ -9,6 +9,7 @@ import {
   canRemoveOutboxEntry,
   isBackendResolved,
   localTransactionKey,
+  mergeOutboxTransaction,
   outboxKey,
 } from 'pages/Swap/crossChain/transactions/model'
 import { useAppSelector } from 'state/hooks'
@@ -51,6 +52,7 @@ const slice = createSlice({
       const key = localTransactionKey(payload)
       const current = state.transactions.find(tx => localTransactionKey(tx) === key)
       if (current) {
+        if (isBackendResolved(current.settlement)) return
         // A late adapter confirmation may enrich routing fields, but cannot undo
         // the provider result already stored for this broadcast.
         const { status, outputAmount, targetTxHash, estimatedAmountOut, timestamp } = current
@@ -69,7 +71,7 @@ const slice = createSlice({
           state.transactions.unshift({ ...transaction, sender })
           current = state.transactions[0]
         }
-        if (current.sync?.key === key) return
+        if (current.sync?.key === key || isBackendResolved(current.settlement)) return
         current.sync = {
           key,
           sender,
@@ -89,16 +91,22 @@ const slice = createSlice({
     saveTransactionSync: (state, { payload }: { payload: OutboxEntry }) => {
       const { transaction, feStatus: _, ...sync } = payload
       const current = state.transactions.find(tx => localTransactionKey(tx) === localTransactionKey(transaction))
-      if (current) current.sync = sync
-      else state.transactions = [{ ...transaction, status: payload.feStatus, sync }, ...state.transactions]
+      // An async completion must not recreate sync after it has finished.
+      if (current?.sync?.key === sync.key) current.sync = sync
     },
     finishTransactionSync: (state, { payload: key }: { payload: string }) => {
       const index = state.transactions.findIndex(tx => tx.sync?.key === key)
       const tx = state.transactions[index]
       if (!tx?.sync || !canRemoveOutboxEntry({ ...tx.sync, transaction: tx, feStatus: tx.status || 'Processing' }))
         return
-      if (isBackendResolved(tx.sync.backend)) state.transactions.splice(index, 1)
-      else delete tx.sync // Registration expired/rejected: keep ordinary local history.
+      if (isBackendResolved(tx.sync.backend)) {
+        const entry = { ...tx.sync, transaction: tx, feStatus: tx.status || ('Processing' as const) }
+        Object.assign(tx, mergeOutboxTransaction(entry), { settlement: tx.sync.backend })
+      }
+      // Keep the persisted transaction across reloads and KD indexing lag.
+      // Failed registration only drops sync; it does not settle provider history.
+      delete tx.sync
+      state.transactions = trimHistory(state.transactions)
     },
     patchProviderTransactions: (
       state,
@@ -106,8 +114,7 @@ const slice = createSlice({
     ) => {
       for (const { key, update } of payload) {
         const current = state.transactions.find(tx => localTransactionKey(tx) === key)
-        // Missing means BE already handed it to server history. Never recreate it.
-        if (!current || isBackendResolved(current.sync?.backend)) continue
+        if (!current || isBackendResolved(current.sync?.backend) || isBackendResolved(current.settlement)) continue
         Object.assign(current, update)
       }
     },

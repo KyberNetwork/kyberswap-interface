@@ -10,6 +10,7 @@ import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
+import { Chain, NonEvmChain } from 'pages/Swap/crossChain/adapters/types'
 import { useUnifiedTransactionHistory } from 'pages/Swap/crossChain/transactions/useUnifiedTransactionHistory'
 
 const TransactionHistoryList = lazy(() => import('pages/Swap/crossChain/components/TransactionHistoryList'))
@@ -19,7 +20,7 @@ export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: (
   <IconButton
     variant="action"
     active={active}
-    aria-label="Cross-chain history"
+    aria-label="Swap history"
     aria-expanded={active}
     aria-controls="swap-right-panel"
     onClick={onClick}
@@ -52,15 +53,27 @@ const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) =
   )
 }
 
-/** Owns the search input; rows resolve token metadata and apply the filter.
- * Polling is mounted by SwapPage independently, so closing History must not stop status updates. */
-// TODO: Add transaction details and single-chain history as separate product work.
-const HistoryPanel = ({ onBack }: { onBack: () => void }) => {
+export const useHistoryWallet = (inputChain: Chain) => {
   const { account } = useActiveWeb3React()
   const { publicKey } = useWallet()
   const { walletInfo } = useBitcoinWallet()
   const { signedAccountId } = useWalletSelector()
-  const sender = account?.toLowerCase() || publicKey?.toString() || walletInfo?.address || signedAccountId || ''
+  const sender =
+    inputChain === NonEvmChain.Solana
+      ? publicKey?.toString()
+      : inputChain === NonEvmChain.Bitcoin
+      ? walletInfo?.address
+      : inputChain === NonEvmChain.Near
+      ? signedAccountId
+      : undefined
+  return sender || account?.toLowerCase() || ''
+}
+
+/** Owns the search input; rows resolve token metadata and apply the filter.
+ * Cross-chain status polling is mounted independently by SwapPage. */
+// TODO: Add transaction details as separate product work.
+const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () => void }) => {
+  const sender = useHistoryWallet(inputChain)
   const [search, setSearch] = useState('')
   // Filtering stays within the current merged page; it does not search unloaded API cursors.
   const query = search.trim().toLowerCase()

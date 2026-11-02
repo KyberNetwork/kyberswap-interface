@@ -11,11 +11,12 @@ import { GasDropPanel } from 'pages/KyberCross/components/GasDrop'
 import { GasDropFeatureSetting } from 'pages/KyberCross/components/GasDropFeatureSetting'
 import { KyberCrossQuoteDetails } from 'pages/KyberCross/components/KyberCrossQuoteDetails'
 import { SwapAction } from 'pages/KyberCross/components/SwapAction'
+import TransactionHistoryList from 'pages/KyberCross/components/TransactionHistoryList'
 import { useGasDrop } from 'pages/KyberCross/hooks/useGasDrop'
 import { KyberCrossProvider, useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
 import { CrossChainTradeRouteView } from 'pages/Swap/components/CrossChainTradeRoute'
 import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
-import TransactionHistoryList from 'pages/Swap/crossChain/components/TransactionHistoryList'
+import { localTransactionToHistory } from 'pages/Swap/crossChain/transactions/history'
 import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { Header } from 'pages/Swap/layout/Header'
@@ -34,7 +35,8 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
   const { lowGas } = useGasDrop()
   const [showBitcoin, setShowBitcoin] = useState(false)
   const walletIntentModal = useCrossChainWalletIntent(swap.fromChainId, () => setShowBitcoin(true))
-  const transactions = useCrossChainTransactions()
+  const localTransactions = useCrossChainTransactions()
+  const transactions = localTransactions.map(localTransactionToHistory)
   const { activeTab, onTabChange, onBackToMainTab } = controller
 
   return (
