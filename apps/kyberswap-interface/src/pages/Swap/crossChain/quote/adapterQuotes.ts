@@ -64,7 +64,6 @@ export const getSameChainQuote = async ({
   category,
   currencyIn,
   currencyOut,
-  excludedSources,
   registry,
   signal,
   isReadOnly,
@@ -72,11 +71,9 @@ export const getSameChainQuote = async ({
   onQuoteReady,
 }: QuoteRunnerParams) => {
   const kyberswapAdapter = registry.getAdapter('KyberSwap')
-  const isKyberSwapExcluded =
-    excludedSources.includes('KyberSwap') && excludedSources.length < registry.getAllAdapters().length
   const isKyberSwapSupported = kyberswapAdapter?.canSupport(category, currencyIn, currencyOut) ?? true
 
-  if (kyberswapAdapter && !isKyberSwapExcluded && isKyberSwapSupported) {
+  if (kyberswapAdapter && isKyberSwapSupported) {
     try {
       console.log('Using KyberSwap adapter for same-chain swap')
       if (signal.aborted) throw new Error('Cancelled')
@@ -94,7 +91,6 @@ export const getSameChainQuote = async ({
     }
   }
 
-  if (isKyberSwapExcluded) throw new Error('KyberSwap is excluded. Please enable it for same-chain swaps.')
   if (!isKyberSwapSupported) throw new Error('KyberSwap does not support this token pair category.')
   throw new Error('KyberSwap adapter not available')
 }

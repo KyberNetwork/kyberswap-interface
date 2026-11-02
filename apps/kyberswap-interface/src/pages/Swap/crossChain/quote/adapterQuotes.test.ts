@@ -289,8 +289,10 @@ describe('CrossChainSwapFactory', () => {
     expect(direct.selectableSources.map(source => source.getName())).not.toContain('KyberCross')
     expect(direct.excludedSourceNames).toContain('Relay')
     expect(stream.selectableSources.map(source => source.getName())).toContain('KyberCross')
+    expect(stream.selectableSources.map(source => source.getName())).not.toContain('KyberSwap')
     expect(stream.selectableSources.map(source => source.getName())).not.toContain('CCIP')
     expect(stream.excludedSourceNames).toContain('KyberCross')
+    expect(stream.excludedSourceNames).toContain('KyberSwap')
     expect(CrossChainSwapFactory.getClientQuoteAdapters('direct').map(adapter => adapter.getName())).toEqual([
       'KyberCross',
     ])

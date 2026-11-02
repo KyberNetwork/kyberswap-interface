@@ -68,7 +68,6 @@ export enum NormalizedProvider {
   Debridge = 'debridge',
   Lifi = 'lifi',
   Optimex = 'optimex',
-  KyberAcross = 'kyberacross',
   KyberCross = 'kybercross',
   CctpV2 = 'cctpv2',
   CctpV2Fast = 'cctpv2fast',

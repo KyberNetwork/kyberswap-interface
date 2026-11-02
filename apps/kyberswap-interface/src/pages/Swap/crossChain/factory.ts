@@ -2,7 +2,6 @@ import arbitrumIcon from 'assets/networks/arbitrum.svg'
 import {
   AcrossAdapter,
   DeBridgeAdapter,
-  KyberAcrossAdapter,
   KyberCrossAdapter,
   KyberSwapAdapter,
   LifiAdapter,
@@ -66,7 +65,6 @@ export class CrossChainSwapFactory {
     kyberswap: () => new KyberSwapAdapter(),
     orbiter: () => new OrbiterAdapter(),
     socket: () => new BungeeAdapter(),
-    kyberacross: () => new KyberAcrossAdapter(),
     kybercross: () => new KyberCrossAdapter(),
   }
 
@@ -122,7 +120,7 @@ export class CrossChainSwapFactory {
       return CrossChainSwapFactory.getKyberCrossBridgeSources()
     }
 
-    return CrossChainSwapFactory.getAllAdapters()
+    return CrossChainSwapFactory.getAllAdapters().filter(adapter => adapter.getName() !== 'KyberSwap')
   }
 
   // Direct client quote adapters. When stream is disabled, KyberCross owns quote routing.
@@ -149,7 +147,6 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOrCreateAdapter('kyberswap'),
       // CrossChainSwapFactory.getOrCreateAdapter('orbiter'),
       CrossChainSwapFactory.getOrCreateAdapter('socket'),
-      // CrossChainSwapFactory.getOrCreateAdapter('kyberacross'),
       CrossChainSwapFactory.getOrCreateAdapter('kybercross'),
     ]
   }

@@ -53,6 +53,9 @@ export const getSourceFilters = (
     )
     .map(adapter => adapter.getName())
 
+  // KyberSwap is reserved for same-chain routing and is not a cross-chain source.
+  if (quoteMode === 'stream') excludedSourceNames.push('KyberSwap')
+
   return { selectableSources, includedSourceNames, excludedSourceNames }
 }
 
@@ -192,6 +195,10 @@ export const streamQuotes = async ({
           }
 
           const adapter = registry.getAdapter(data.provider)
+          if (adapter?.getName() === 'KyberSwap') {
+            console.log('Skipping same-chain source from cross-chain stream:', adapter.getName())
+            continue
+          }
           if (
             adapter &&
             excludedSources.includes(adapter.getName()) &&
