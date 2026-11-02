@@ -69,7 +69,7 @@ export const HigherOraclePriceWarning = ({
       dataTestId="stop-market-higher-trigger-warning"
       title={
         <Trans>
-          To set a trigger at a higher price, use{' '}
+          This trigger is already met at the current Oracle price. To trade at a better price, use{' '}
           <Link to={limitOrderPath} className="text-primary" onClick={onNavigateToLimitOrder}>
             Limit Order
           </Link>
