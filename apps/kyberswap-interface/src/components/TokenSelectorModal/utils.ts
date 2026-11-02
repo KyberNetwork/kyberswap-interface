@@ -16,7 +16,7 @@ import { fetchListTokenByAddresses, fetchTokenInfoFromRpc, formatAndCacheToken }
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { isAddress } from 'utils/address'
+import { isAddress, isAddressString } from 'utils/address'
 import { filterTruthy } from 'utils/array'
 import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
@@ -83,6 +83,32 @@ const fetchTokenSearchPage = async (
   const { tokens = [] } = response.data.data
 
   return filterTruthy(tokens.map(formatAndCacheToken))
+}
+
+/** Aggregate browse/search uses the same KS Setting contract, with no chain filter. */
+export const fetchAllNetworkTokenPage = async (
+  search: string,
+  page: number,
+): Promise<{ tokens: WrappedTokenInfo[]; rawCount: number; totalItems?: number }> => {
+  const value = search.trim()
+  const params = {
+    ...(value ? (isAddressString(value) ? { addresses: value } : { query: value }) : { isWhitelisted: true }),
+    page,
+    pageSize: TOKEN_SEARCH_PAGE_SIZE,
+  }
+  const response = await axios.get(
+    `${KS_SETTING_API}/v1/tokens?${new URLSearchParams(
+      Object.entries(params).map(([key, item]) => [key, String(item)]),
+    ).toString()}`,
+  )
+  if (response.data?.code !== 0 || !response.data?.data) throw new Error('Token list request failed')
+  const data = response.data.data
+  const tokens = data.tokens ?? []
+  return {
+    tokens: filterTruthy(tokens.map(formatAndCacheToken)),
+    rawCount: tokens.length,
+    totalItems: data.pagination?.totalItems,
+  }
 }
 
 export const fetchTokens = async (

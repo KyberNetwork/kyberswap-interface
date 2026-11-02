@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { motion } from 'framer-motion'
-import React, { CSSProperties, memo } from 'react'
+import React, { CSSProperties, memo, useMemo } from 'react'
 import { ListChildComponentProps } from 'react-window'
 
 import Loader from 'components/Loader'
@@ -15,14 +15,21 @@ import {
 } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { getNeedsImport, isSameCurrency } from 'components/TokenSelectorModal/utils'
+import { useActiveWeb3React } from 'hooks'
+import { useBalanceWait } from 'hooks/useBalanceWait'
 import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
 import { restrictedTokenKey } from 'hooks/useRestrictedTokens'
-import { getTokenAddress } from 'utils/tokenInfo'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
+import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
+import { useInventoryTokenBalances, useWalletInventory } from 'state/walletInventory/hooks'
+import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
 // Data bag handed to every virtualized row through react-window's `itemData`. Delivering row data
 // as a prop (rather than closing over it in an inline render-prop) keeps the row's element type
 // stable, so background price/balance polls re-render rows cheaply instead of remounting them.
 export type VirtualRowData = {
+  allNetworks?: boolean
   currencies: Currency[]
   currencyBalances: (CurrencyAmount<Currency> | undefined)[]
   selectedCurrency?: Currency | null
@@ -62,7 +69,7 @@ const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balan
   return <Balance balance={displayBalance ?? balance} />
 }
 
-export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<VirtualRowData>) => {
+const TokenVirtualRow = memo(({ index, style, data }: ListChildComponentProps<VirtualRowData>) => {
   const currency = data.currencies[index]
   // The trailing slot (present while more pages can load) has no currency yet — show the loader.
   if (!currency) {
@@ -118,6 +125,7 @@ export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<
       transition={data.animateReorder ? { type: 'spring', stiffness: 400, damping: 40 } : { duration: 0 }}
     >
       <TokenRow
+        showNetwork={data.allNetworks}
         isFavorite={isFavorite}
         showLoading={!!data.account && !!data.waitingForBalances}
         balanceUnknown={!!data.account}
@@ -158,4 +166,71 @@ export const VirtualRow = memo(({ index, style, data }: ListChildComponentProps<
   )
 })
 
+TokenVirtualRow.displayName = 'TokenVirtualRow'
+
+const EMPTY_TOKENS: Token[] = []
+
+// Only mounted for visible aggregate rows. Existing inventory and RPC hooks share their caches by
+// chain/account, while the row keeps every balance and membership check on its own token's chain.
+const NetworkRowBalance = ({ index, style, data }: ListChildComponentProps<VirtualRowData>) => {
+  const currency = data.currencies[index]
+  const inventory = useWalletInventory(currency.chainId)
+  const tokens = useMemo(() => (isTokenNative(currency) ? EMPTY_TOKENS : [currency.wrapped]), [currency])
+  const rpcBalances = useTokenBalances(inventory.active ? EMPTY_TOKENS : tokens, currency.chainId)
+  const inventoryBalances = useInventoryTokenBalances(tokens, inventory)
+  const balances = inventory.active ? inventoryBalances : rpcBalances
+  const nativeBalance = useNativeBalance(currency.chainId)
+  const balance = isTokenNative(currency) ? nativeBalance : balances[currency.wrapped.address]
+  const { account } = useActiveWeb3React()
+  const waiting = useBalanceWait(balances, !!account)
+  const priceAddresses = useMemo(
+    () => (balance?.greaterThan('0') ? [currency.wrapped.address] : []),
+    [balance, currency],
+  )
+  const tokenPrices = useTokenPrices(priceAddresses, currency.chainId)
+  const rowData = useMemo(() => {
+    const currencyBalances: VirtualRowData['currencyBalances'] = []
+    currencyBalances[index] = balance
+    return { ...data, currencyBalances, tokenPrices, waitingForBalances: waiting }
+  }, [data, index, balance, tokenPrices, waiting])
+  return <TokenVirtualRow index={index} style={style} data={rowData} />
+}
+
+const NetworkRow = ({ index, style, data }: ListChildComponentProps<VirtualRowData>) => {
+  const currency = data.currencies[index]
+  const imports = useUserAddedTokens(currency.chainId)
+  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(currency.chainId)
+  const removeToken = useRemoveUserAddedToken()
+  const rowData: VirtualRowData = {
+    ...data,
+    importedAddressSet: new Set(imports.map(token => token.address)),
+    favoriteAddressSet: new Set(favoriteTokens),
+    impersonators: undefined,
+    heldAddresses: undefined,
+    onToggleFavorite: (event, token) => {
+      event.stopPropagation()
+      toggleFavoriteToken({ chainId: token.chainId, address: getTokenAddress(token) })
+    },
+    onRemoveImportedToken: data.onRemoveImportedToken
+      ? token => {
+          removeToken(token.chainId, token.address)
+          if (favoriteTokens?.includes(token.address.toLowerCase()))
+            toggleFavoriteToken({ chainId: token.chainId, address: token.address })
+        }
+      : undefined,
+  }
+  return data.metricColumn ? (
+    <TokenVirtualRow index={index} style={style} data={rowData} />
+  ) : (
+    <NetworkRowBalance index={index} style={style} data={rowData} />
+  )
+}
+
+export const VirtualRow = memo((props: ListChildComponentProps<VirtualRowData>) => {
+  return props.data.allNetworks && props.data.currencies[props.index] ? (
+    <NetworkRow {...props} />
+  ) : (
+    <TokenVirtualRow {...props} />
+  )
+})
 VirtualRow.displayName = 'VirtualTokenRow'

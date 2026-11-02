@@ -37,6 +37,7 @@ type TokenRowProps = {
   /** USD value shown in the metric column — 24h volume or FDV, per the list's active metric. */
   metricValue?: number
   addedAt?: number
+  showNetwork?: boolean
   showAddress?: boolean
   /** Show a copy-address icon next to the token name (tabs that have no room for the address text). */
   showCopyAddress?: boolean
@@ -97,6 +98,7 @@ export const TokenRow = ({
   priceChange24h,
   metricValue,
   addedAt,
+  showNetwork,
   showAddress,
   showCopyAddress,
   usdValueClassName = 'text-subText',
@@ -179,6 +181,7 @@ export const TokenRow = ({
           held={held}
           impersonator={impersonator}
           showCopyAddress={showCopyAddress}
+          showNetwork={showNetwork}
           showAddress={showAddress}
           onToggleFavorite={onToggleFavorite}
           onShowTokenInfo={onShowTokenInfo}

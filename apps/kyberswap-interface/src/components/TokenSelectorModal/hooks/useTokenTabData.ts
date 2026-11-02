@@ -15,6 +15,7 @@ const EMPTY_EXTRAS: TokenRowExtraMap = {}
 
 // Resolves lists and metrics for Trending, New, Imported, and Favorites; All is composed by the caller.
 type Props = {
+  enabled?: boolean
   searchFilters?: TokenSearchFilters
   primaryChainId: ChainId
   activeTab: TokenSelectorTab
@@ -25,6 +26,7 @@ type Props = {
 }
 
 export const useTokenTabData = ({
+  enabled = true,
   searchFilters,
   primaryChainId,
   activeTab,
@@ -34,10 +36,10 @@ export const useTokenTabData = ({
   favoriteCurrenciesBase,
 }: Props) => {
   const chainIdList = useMemo(() => [primaryChainId], [primaryChainId])
-  const isTrendingTab = activeTab === TokenSelectorTab.Trending
-  const isNewTab = activeTab === TokenSelectorTab.New
-  const isImportedTab = activeTab === TokenSelectorTab.Imported
-  const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
+  const isTrendingTab = enabled && activeTab === TokenSelectorTab.Trending
+  const isNewTab = enabled && activeTab === TokenSelectorTab.New
+  const isImportedTab = enabled && activeTab === TokenSelectorTab.Imported
+  const isFavoritesTab = enabled && activeTab === TokenSelectorTab.Favorites
 
   const {
     tokens: trendingTokens,

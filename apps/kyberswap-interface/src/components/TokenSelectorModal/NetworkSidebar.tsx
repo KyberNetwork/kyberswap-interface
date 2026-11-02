@@ -4,21 +4,23 @@ import { Check } from 'react-feather'
 
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { Stack } from 'components/Stack'
+import { NetworkIcon } from 'components/TokenSelectorModal/NetworkIcon'
 import { SearchInput, SearchWrapper } from 'components/TokenSelectorModal/components'
-import type { TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
-import type { Chain } from 'types/crossChain'
+import type { TokenSelectorChain, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
 import { cn } from 'utils/cn'
 
 type Props = {
+  showAllNetworks?: boolean
   chains: TokenSelectorNetwork[]
-  selectedChainId: Chain
-  onChange?: (chainId: Chain) => void
+  selectedChainId: TokenSelectorChain
+  onChange?: (chainId: TokenSelectorChain) => void
 }
 
-export const NetworkSidebar = ({ chains, selectedChainId, onChange }: Props) => {
+export const NetworkSidebar = ({ chains, selectedChainId, onChange, showAllNetworks = true }: Props) => {
   const [query, setQuery] = useState('')
   const search = query.trim().toLowerCase()
-  const matchingChains = chains.filter(chain => chain.name.toLowerCase().includes(search))
+  const options = showAllNetworks ? [{ chainId: 'all' as const, name: t`All Networks`, icon: '' }, ...chains] : chains
+  const matchingChains = options.filter(chain => chain.name.toLowerCase().includes(search))
 
   return (
     <Stack
@@ -56,7 +58,7 @@ export const NetworkSidebar = ({ chains, selectedChainId, onChange }: Props) => 
                 chain.chainId === selectedChainId ? 'bg-primary-10' : 'hover:bg-white-04',
               )}
             >
-              <img src={chain.icon} alt="" className="size-5 shrink-0 rounded" />
+              <NetworkIcon chainId={chain.chainId} icon={chain.icon} />
               <span className="min-w-0 flex-1 truncate font-medium">{chain.name}</span>
               {chain.chainId === selectedChainId && (
                 <Check size={16} className="shrink-0 text-primary" aria-hidden="true" />

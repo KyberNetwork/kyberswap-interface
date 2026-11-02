@@ -27,6 +27,7 @@ const EMPTY_CURRENCIES: Currency[] = []
 const EMPTY_TOKENS: Token[] = []
 
 type Props = {
+  enabled?: boolean
   requireOracle?: boolean
   primaryChainId: ChainId
   activeTab: TokenSelectorTab
@@ -38,6 +39,7 @@ type Props = {
 }
 
 export const useTokenSelectorData = ({
+  enabled = true,
   requireOracle = false,
   primaryChainId,
   activeTab,
@@ -49,11 +51,11 @@ export const useTokenSelectorData = ({
 }: Props) => {
   const { account } = useActiveWeb3React()
 
-  const isAllTab = activeTab === TokenSelectorTab.All
-  const isImportedTab = activeTab === TokenSelectorTab.Imported
-  const isTrendingTab = activeTab === TokenSelectorTab.Trending
-  const isNewTab = activeTab === TokenSelectorTab.New
-  const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
+  const isAllTab = enabled && activeTab === TokenSelectorTab.All
+  const isImportedTab = enabled && activeTab === TokenSelectorTab.Imported
+  const isTrendingTab = enabled && activeTab === TokenSelectorTab.Trending
+  const isNewTab = enabled && activeTab === TokenSelectorTab.New
+  const isFavoritesTab = enabled && activeTab === TokenSelectorTab.Favorites
 
   const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -84,7 +86,7 @@ export const useTokenSelectorData = ({
   // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
   // per-block balanceOf multicall over the whole visible set. Only one of the two paths is ever fed
   // tokens, so the unused one registers no work; chains without inventory keep the multicall.
-  const inventory = useWalletInventory(primaryChainId)
+  const inventory = useWalletInventory(primaryChainId, enabled)
 
   // Held tokens on no list. They sit in the All tab alongside everything else as dimmed rows that
   // import on click, and search matches them directly: someone typing a symbol they hold is looking
@@ -137,7 +139,7 @@ export const useTokenSelectorData = ({
   // it covers only the rows a tab actually shows — the Trending / New tabs render a metric column
   // instead of a balance, so they read nothing.
   const balanceTokens = useMemo<Token[]>(() => {
-    if (isTrendingTab || isNewTab) return EMPTY_TOKENS
+    if (!enabled || isTrendingTab || isNewTab) return EMPTY_TOKENS
     const tabTokensSource: (Currency | undefined)[] = isImportedTab
       ? tokenImports
       : isFavoritesTab
@@ -152,6 +154,7 @@ export const useTokenSelectorData = ({
         !!token && !isTokenNative(token) && token.chainId === primaryChainId && isListable(token),
     )
   }, [
+    enabled,
     isTrendingTab,
     isNewTab,
     isImportedTab,
@@ -281,6 +284,7 @@ export const useTokenSelectorData = ({
   )
 
   const tabData = useTokenTabData({
+    enabled,
     searchFilters,
     primaryChainId,
     activeTab,

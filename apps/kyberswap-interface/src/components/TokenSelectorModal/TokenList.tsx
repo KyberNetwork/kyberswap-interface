@@ -34,6 +34,7 @@ const itemKey = (index: number, data: VirtualRowData) => {
 }
 
 type Props = {
+  allNetworks?: boolean
   showFavoriteIcon?: boolean
   hasMore?: boolean
   currencies: Currency[]
@@ -82,6 +83,7 @@ type Props = {
 }
 
 const TokenList = ({
+  allNetworks = false,
   currencies,
   selectedCurrency,
   onCurrencySelect,
@@ -121,10 +123,10 @@ const TokenList = ({
   // a balance, so they read nothing.
   const currencyBalances = useMemo(
     () =>
-      metricColumn
+      metricColumn || allNetworks
         ? EMPTY_BALANCES
         : currencies.map(currency => (isTokenNative(currency) ? nativeBalance : balances?.[currency.wrapped.address])),
-    [metricColumn, currencies, balances, nativeBalance],
+    [allNetworks, metricColumn, currencies, balances, nativeBalance],
   )
 
   // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
@@ -187,6 +189,7 @@ const TokenList = ({
 
   const itemData = useMemo<VirtualRowData>(
     () => ({
+      allNetworks,
       currencies,
       currencyBalances,
       selectedCurrency,
@@ -218,6 +221,7 @@ const TokenList = ({
       animateReorder: shouldAnimateReorder,
     }),
     [
+      allNetworks,
       currencies,
       currencyBalances,
       selectedCurrency,
