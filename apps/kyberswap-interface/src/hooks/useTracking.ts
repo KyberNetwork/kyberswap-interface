@@ -160,21 +160,39 @@ export enum TRACKING_EVENT_TYPE {
   ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
 
   // Stop Market
-  SM_PAGE_VIEWED,
   SM_TOKEN_SELECTED,
+  SM_TRIGGER_PRICE_SET,
+  SM_SLIPPAGE_CHANGED,
+  SM_EXPIRY_CHANGED,
+  SM_TOKEN_PAIR_REVERSED,
+  SM_CLICK_PAIR_INVERT,
+  SM_AMOUNT_ENTERED,
+  SM_CLICK_RATE_PRESET,
+  SM_PLACE_ORDER_CLICK,
   SM_REVIEW_OPENED,
+  SM_CONSENT_ACCEPTED,
+  SM_CONFIRM_ORDER_CLICK,
+  SM_SIGNATURE_REQUESTED,
   SM_ORDER_PLACED,
-  SM_ORDER_CANCELLED,
+  SM_ORDER_FAILED,
+  SM_VIEW_ORDER_CLICK,
+  SM_ORDER_LIST_ACTIVE_LIMIT_CLICK,
+  SM_ORDER_LIST_ACTIVE_STOP_CLICK,
+  SM_ORDER_LIST_HISTORY_LIMIT_CLICK,
+  SM_ORDER_LIST_HISTORY_STOP_CLICK,
+  SM_EDIT_ORDER_CLICK,
+  SM_CANCEL_ORDER_CLICK,
+  SM_CANCEL_ALL_CLICK,
   SM_RECREATE_CLICKED,
-  SM_INELIGIBLE_TOKEN,
-  SM_EXIT_PRICE_ENTRY_CLICKED,
+  SM_ORDER_EXECUTED,
+  SM_ORDER_RETRYING,
 
   // Limit Order
   LO_PAGE_VIEWED,
   LO_CLICK_PLACE_ORDER,
   LO_PLACE_ORDER_SUCCESS,
   LO_ENTER_DETAIL,
-  LO_CLICK_CANCEL_ORDER,
+  LO_ACTIVE_ORDER_CANCEL_CLICK,
   LO_CANCEL_ORDER_SUBMITTED,
   LO_CLICK_REVIEW_PLACE_ORDER,
   LO_CLICK_CANCEL_TYPE,
@@ -1240,36 +1258,111 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Gas refund - KNC Utility source click', { source })
           break
         }
-        case TRACKING_EVENT_TYPE.SM_PAGE_VIEWED: {
-          formoTrack('Stop Market - Sub Tab Opened', payload)
-          break
-        }
         case TRACKING_EVENT_TYPE.SM_TOKEN_SELECTED: {
           formoTrack('Stop Market - Token Selected', payload)
           break
         }
+        case TRACKING_EVENT_TYPE.SM_TRIGGER_PRICE_SET: {
+          formoTrack('Stop Market - Trigger Price Set', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_SLIPPAGE_CHANGED: {
+          formoTrack('Stop Market - Slippage Changed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_EXPIRY_CHANGED: {
+          formoTrack('Stop Market - Expiry Changed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_TOKEN_PAIR_REVERSED: {
+          formoTrack('Stop Market - Token Pair Reversed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_CLICK_PAIR_INVERT: {
+          formoTrack('Stop Market - Click Pair Invert', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_AMOUNT_ENTERED: {
+          formoTrack('Stop Market - Amount Entered', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_CLICK_RATE_PRESET: {
+          formoTrack('Stop Market - Click Rate Preset', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_PLACE_ORDER_CLICK: {
+          formoTrack('Stop Market - Place Stop Market Order Click', payload)
+          break
+        }
+        // The review dialog, which the team's spec names after the button that opens it.
         case TRACKING_EVENT_TYPE.SM_REVIEW_OPENED: {
-          formoTrack('Stop Market - Review Opened', payload)
+          formoTrack('Stop Market - Place Stop Market Order opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_CONSENT_ACCEPTED: {
+          formoTrack('Stop Market - Consent Accepted', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_CONFIRM_ORDER_CLICK: {
+          formoTrack('Stop Market - Confirm Order Click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_SIGNATURE_REQUESTED: {
+          formoTrack('Stop Market - Signature Requested', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SM_ORDER_PLACED: {
           formoTrack('Stop Market - Order Placed', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SM_ORDER_CANCELLED: {
-          formoTrack('Stop Market - Order Cancelled', payload)
+        case TRACKING_EVENT_TYPE.SM_ORDER_FAILED: {
+          formoTrack('Stop Market - Order Failed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_VIEW_ORDER_CLICK: {
+          formoTrack('Stop Market - View Order Click', payload)
+          break
+        }
+        // The order list both products share: one event per kind of order shown under each status tab.
+        case TRACKING_EVENT_TYPE.SM_ORDER_LIST_ACTIVE_LIMIT_CLICK: {
+          formoTrack('Active Order - Limit Order click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_ORDER_LIST_ACTIVE_STOP_CLICK: {
+          formoTrack('Active Order - Stop Market click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_ORDER_LIST_HISTORY_LIMIT_CLICK: {
+          formoTrack('Order History - Limit Order click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_ORDER_LIST_HISTORY_STOP_CLICK: {
+          formoTrack('Order History - Stop Market click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_EDIT_ORDER_CLICK: {
+          formoTrack('Active Order - Edit Order Click (Stop Market)', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SM_CANCEL_ORDER_CLICK: {
+          formoTrack('Active Order - Cancel Order Click (Stop Market)', payload)
+          break
+        }
+        // Both lists' Cancel All buttons; `order_type` says which.
+        case TRACKING_EVENT_TYPE.SM_CANCEL_ALL_CLICK: {
+          formoTrack('Stop Market - Cancel All Click', payload)
           break
         }
         case TRACKING_EVENT_TYPE.SM_RECREATE_CLICKED: {
-          formoTrack('Stop Market - Recreate Clicked', payload)
+          formoTrack('Stop Market - Recreate Click', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SM_INELIGIBLE_TOKEN: {
-          formoTrack('Stop Market - Ineligible Token', payload)
+        case TRACKING_EVENT_TYPE.SM_ORDER_EXECUTED: {
+          formoTrack('Stop Market - Order Executed', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.SM_EXIT_PRICE_ENTRY_CLICKED: {
-          formoTrack('Exit Price Entry Clicked', payload)
+        case TRACKING_EVENT_TYPE.SM_ORDER_RETRYING: {
+          formoTrack('Stop Market - Order Retrying', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LO_PAGE_VIEWED: {
@@ -1288,8 +1381,8 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Limit Order - Enter Detail', { action: payload })
           break
         }
-        case TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER: {
-          formoTrack('Limit Order - Cancel Order Click', payload)
+        case TRACKING_EVENT_TYPE.LO_ACTIVE_ORDER_CANCEL_CLICK: {
+          formoTrack('Active Order - Cancel Order Click (Limit Order)', payload)
           break
         }
 

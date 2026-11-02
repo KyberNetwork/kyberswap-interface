@@ -163,7 +163,6 @@ const SwapModal: React.FC<Props> = props => {
             <SetExitPriceButton
               currency={currencyOut}
               amount={routeSummary?.parsedAmountOut}
-              source="post_swap"
               onNavigate={handleDismiss}
             />
           }

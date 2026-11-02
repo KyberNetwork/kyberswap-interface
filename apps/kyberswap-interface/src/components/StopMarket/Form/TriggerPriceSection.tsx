@@ -32,6 +32,10 @@ type Props = {
   onChangeTriggerPrice: (value: string) => void
   onChangeTriggerPercent: (percent: string) => void
   onSetMarketPrice: () => void
+  /** A preset chip was picked; fired after the price it sets. */
+  onPresetSelect?: (percent: number) => void
+  /** The price direction was flipped; `inverted` is the direction now shown. */
+  onInvert?: (inverted: boolean) => void
   className?: string
 }
 
@@ -139,6 +143,8 @@ const TriggerPriceSection = ({
   onChangeTriggerPrice,
   onChangeTriggerPercent,
   onSetMarketPrice,
+  onPresetSelect,
+  onInvert,
   className,
 }: Props) => {
   const { isStableCoin } = useStableCoins(sellCurrency?.chainId)
@@ -207,7 +213,10 @@ const TriggerPriceSection = ({
               aria-label={t`Invert price`}
               aria-pressed={showInvertedPrice}
               className="flex shrink-0 items-center justify-center text-subText transition hover:brightness-75"
-              onClick={() => setPriceDirection({ pairKey, inverted: !showInvertedPrice })}
+              onClick={() => {
+                setPriceDirection({ pairKey, inverted: !showInvertedPrice })
+                onInvert?.(!showInvertedPrice)
+              }}
             >
               <Repeat size={14} />
             </button>
@@ -225,7 +234,10 @@ const TriggerPriceSection = ({
         onChange={value => {
           if (value) onChangeTriggerPercent(value)
         }}
-        onPresetSelect={percent => onChangeTriggerPercent(String(percent))}
+        onPresetSelect={percent => {
+          onChangeTriggerPercent(String(percent))
+          onPresetSelect?.(percent)
+        }}
       />
 
       {marketPrice ? (
