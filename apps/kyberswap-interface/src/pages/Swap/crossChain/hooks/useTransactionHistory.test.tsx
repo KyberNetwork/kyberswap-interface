@@ -1,14 +1,15 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
+import type { BackendTransaction } from 'services/crossChainTransactions'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import type { NormalizedTxResponse, SwapStatus } from 'pages/Swap/crossChain/adapters/types'
 import { useTransactionHistory } from 'pages/Swap/crossChain/hooks/useTransactionHistory'
-import { localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
+import { type LocalTransaction, localTransactionKey } from 'pages/Swap/crossChain/transactions/model'
 
 const mocks = vi.hoisted(() => ({
-  transactions: [] as NormalizedTxResponse[],
+  transactions: [] as LocalTransaction[],
   dispatch: vi.fn(),
   poll: vi.fn(),
   scan: vi.fn(),
@@ -148,7 +149,7 @@ it('enriches newly completed transactions while retaining processing completion 
   expect(mocks.track).toHaveBeenCalledTimes(1)
 })
 
-it('ignores a provider reply after BE removes the local transaction', async () => {
+it('ignores a provider reply after BE settles the retained local transaction', async () => {
   let finish: (result: SwapStatus) => void = () => undefined
   mocks.transactions = [transaction('pending', 'Processing', 'Relay')]
   mocks.poll.mockImplementation(
@@ -158,9 +159,17 @@ it('ignores a provider reply after BE removes the local transaction', async () =
       }),
   )
   await render()
-  mocks.transactions = [] // BE finalized before React had to render again.
+  mocks.transactions = [
+    {
+      ...mocks.transactions[0],
+      status: 'Success',
+      outputAmount: '95',
+      targetTxHash: 'canonical-fill',
+      settlement: { status: 'success', verification: 'verified' } as BackendTransaction,
+    },
+  ] // BE finalized before React had to render again.
   await act(async () => finish({ status: 'Success', txHash: 'late-fill', amountOut: '90' }))
-  expect(mocks.transactions).toEqual([])
+  expect(mocks.transactions[0]).toMatchObject({ status: 'Success', outputAmount: '95', targetTxHash: 'canonical-fill' })
   expect(mocks.track).not.toHaveBeenCalled()
   expect(mocks.dispatch).not.toHaveBeenCalled()
 })

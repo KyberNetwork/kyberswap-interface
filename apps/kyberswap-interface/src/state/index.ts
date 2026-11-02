@@ -34,6 +34,7 @@ import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
 import tokenCatalogApi from 'services/tokenCatalog'
 import tokenChartApi from 'services/tokenChart'
+import walletTransactionsApi from 'services/walletTransactionsApi'
 import zapApi from 'services/zap'
 
 import application from 'state/application/reducer'
@@ -123,6 +124,7 @@ const rootReducer = combineReducers({
   [ksSettingApi.reducerPath]: ksSettingApi.reducer,
   [crosschainApi.reducerPath]: crosschainApi.reducer,
   [crossChainTransactionsApi.reducerPath]: crossChainTransactionsApi.reducer,
+  [walletTransactionsApi.reducerPath]: walletTransactionsApi.reducer,
   [priceAlertApi.reducerPath]: priceAlertApi.reducer,
   [socialApi.reducerPath]: socialApi.reducer,
   tutorial,
@@ -167,6 +169,7 @@ const apiMiddlewares: Middleware[] = [
   ksSettingApi,
   crosschainApi,
   crossChainTransactionsApi,
+  walletTransactionsApi,
   priceAlertApi,
   routeApi,
   socialApi,

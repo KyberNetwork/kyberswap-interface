@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useStore } from 'react-redux'
-import crossChainTransactionsApi, {
-  type BackendTransaction,
-  type TransactionApiError,
-  isPermanentTransactionError,
-  selectBackendTransactions,
-} from 'services/crossChainTransactions'
 
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import type { NormalizedTxResponse } from 'pages/Swap/crossChain/adapters/types'
@@ -19,7 +13,7 @@ import {
 } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
-import { type OutboxEntry, isBackendResolved, mergeOutboxTransaction, retryDelay } from './model'
+import { type OutboxEntry, isBackendResolved, mergeOutboxTransaction } from './model'
 import { reconcileTransaction } from './reconcile'
 
 const getBackendCompletionTrackingData = (entry: OutboxEntry, tx: NormalizedTxResponse) => {
@@ -56,13 +50,12 @@ const getBackendCompletionTrackingData = (entry: OutboxEntry, tx: NormalizedTxRe
 // Keep registration serialized across updater remounts as well as ordinary renders.
 const inFlight = new Set<string>()
 
-// Both local registration and server-only detail polling are owned here, outside
-// History visibility. RTK owns request deduplication and all BE response data.
+// Registration/detail polling belongs to local sync, independently of History.
+// Settlement is persisted on the local row; KD owns indexed history refreshes.
 export const useBackendTransactionUpdater = () => {
   const dispatch = useAppDispatch()
   const store = useStore<AppState>()
   const entries = useAppSelector(selectTransactionSyncs)
-  const server = useAppSelector(selectBackendTransactions)
 
   const { trackingHandler } = useTracking()
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
@@ -70,7 +63,6 @@ export const useBackendTransactionUpdater = () => {
   handlers.current = { trackingHandler, crossChainMixpanelHandler }
 
   const refreshed = useRef(new Set<string>())
-  const progress = useRef(new Map<string, { nextAt: number; attempts: number }>())
   const mounted = useRef(false)
 
   const settle = useCallback(
@@ -79,21 +71,6 @@ export const useBackendTransactionUpdater = () => {
       if (!entry) return
 
       if (entry.backend && isBackendResolved(entry.backend)) {
-        // Also restore a persisted terminal snapshot if reload interrupted the cache handoff.
-        dispatch(
-          crossChainTransactionsApi.util.upsertQueryEntries([
-            {
-              endpointName: 'getTransaction',
-              arg: {
-                sourceTxHash: entry.backend.sourceTxHash,
-                chain: entry.backend.fromChain,
-                quoteId: entry.backend.quoteId,
-              },
-              value: entry.backend,
-            },
-          ]),
-        )
-
         const tx = mergeOutboxTransaction(entry)
         if (
           !entry.completionNotified &&
@@ -141,60 +118,13 @@ export const useBackendTransactionUpdater = () => {
     [dispatch, settle],
   )
 
-  const checkServer = useCallback(
-    async (row: BackendTransaction) => {
-      const previous = progress.current.get(row.id)
-      if (isBackendResolved(row) || inFlight.has(row.id) || (previous && previous.nextAt > Date.now())) return
-
-      const stopped =
-        row.expiredAt ||
-        row.verification === 'mismatched' ||
-        row.verification === 'not_found' ||
-        Date.now() - Date.parse(row.createdAt) >= 24 * 60 * 60_000
-      if (previous && stopped) return
-
-      inFlight.add(row.id)
-
-      try {
-        await dispatch(
-          crossChainTransactionsApi.endpoints.getTransaction.initiate(
-            {
-              sourceTxHash: row.sourceTxHash,
-              chain: row.fromChain,
-              quoteId: row.quoteId,
-            },
-            { subscribe: false, forceRefetch: true },
-          ),
-        ).unwrap()
-        progress.current.set(row.id, { nextAt: Date.now() + 10_000, attempts: 0 })
-      } catch (reason) {
-        const attempts = (previous?.attempts ?? 0) + 1
-        progress.current.set(row.id, {
-          nextAt:
-            isPermanentTransactionError(reason as TransactionApiError) || attempts >= 8
-              ? Infinity
-              : Date.now() + retryDelay(attempts),
-          attempts,
-        })
-      } finally {
-        inFlight.delete(row.id)
-      }
-    },
-    [dispatch],
-  )
-
   const tick = useCallback(() => {
     if (!mounted.current || !navigator.onLine) return
 
     const state = store.getState()
     const entries = selectTransactionSyncs(state)
     entries.forEach(entry => void checkLocal(entry))
-
-    const managed = new Set(entries.map(entry => entry.backendId))
-    selectBackendTransactions(state).forEach(row => {
-      if (!managed.has(row.id)) void checkServer(row)
-    })
-  }, [store, checkLocal, checkServer])
+  }, [store, checkLocal])
 
   useEffect(() => {
     mounted.current = true
@@ -208,5 +138,5 @@ export const useBackendTransactionUpdater = () => {
     }
   }, [tick])
 
-  useEffect(tick, [tick, entries, server])
+  useEffect(tick, [tick, entries])
 }

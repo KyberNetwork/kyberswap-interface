@@ -86,6 +86,25 @@ it('keeps API token IDs in history and uses existing hooks to format EVM/Solana 
   expect(lookup.solana).toHaveBeenCalledWith('sol-token', false)
 })
 
+it('renders same-chain swaps with one chain and one transaction action', async () => {
+  await render(rows({ toChain: 'ethereum', toToken: address, destTxHash: 'source', actualOutput: '2500000' }))
+  expect(renderedRows().textContent).toContain('Transaction:')
+  expect(renderedRows().textContent).not.toContain('Deposit:')
+  expect(renderedRows().textContent).not.toContain('Fill:')
+  expect(renderedRows().textContent).toContain('-1.2345 USDC')
+  expect(renderedRows().textContent).toContain('+2.5 USDC')
+  expect(renderedRows().querySelectorAll('a')).toHaveLength(1)
+  expect(renderedRows().querySelectorAll('img[alt="Ethereum"]')).toHaveLength(1)
+})
+
+it('keeps incomplete indexed swaps visible without inventing token metadata', async () => {
+  await render(rows({ fromToken: '', toToken: '', fromAmount: '0', actualOutput: '0' }))
+  expect(renderedRows().children).toHaveLength(1)
+  expect(renderedRows().textContent).toContain('Unknown token')
+  expect(renderedRows().textContent).not.toContain('+0 SOL')
+  expect(lookup.solana).toHaveBeenCalledWith('', true)
+})
+
 it('keeps filtered rows mounted for lookup and shows a symbol match once metadata arrives', async () => {
   lookup.evm.mockReturnValue({ currency: undefined })
   await render(rows(), 'usdc')

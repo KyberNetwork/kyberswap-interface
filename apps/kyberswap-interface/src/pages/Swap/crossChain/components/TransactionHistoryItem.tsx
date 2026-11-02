@@ -158,8 +158,8 @@ const ChainRoute = ({ tx }: { tx: HistoryTransaction }) => {
           className="size-5 rounded-full"
         />
       )}
-      <ChevronRight size={14} className="shrink-0 text-subText" />
-      {targetChainLogo && (
+      {tx.sourceChain !== tx.targetChain && <ChevronRight size={14} className="shrink-0 text-subText" />}
+      {tx.sourceChain !== tx.targetChain && targetChainLogo && (
         <img
           src={targetChainLogo}
           alt={getChainName(tx.targetChain)}
@@ -185,7 +185,11 @@ type TransactionAmountSize = 'sm' | 'xs'
 const TokenAmountLine = ({ amount, chain, prefix, size = 'xs', token }: TransactionAmountLineProps) => {
   const currency = typeof token === 'string' ? undefined : token
   const symbol =
-    typeof token === 'string' ? (token.length > 14 ? `${token.slice(0, 6)}…${token.slice(-4)}` : token) : token.symbol
+    typeof token === 'string'
+      ? token.length > 14
+        ? `${token.slice(0, 6)}…${token.slice(-4)}`
+        : token || t`Unknown token`
+      : token.symbol
   const decimals = currency?.decimals
   const formattedAmount = useMemo(() => {
     if (decimals === undefined) return '--'
@@ -258,12 +262,14 @@ const TransactionCard = ({ tx }: { tx: HistoryTransaction }) => (
       <TransactionAmount tx={tx} />
     </div>
 
-    <MobileDetailRow label={t`Deposit:`}>
+    <MobileDetailRow label={tx.sourceChain === tx.targetChain ? t`Transaction:` : t`Deposit:`}>
       <TransactionHashLink hash={tx.sourceTxHash} href={getSourceExplorerLink(tx)} />
     </MobileDetailRow>
-    <MobileDetailRow label={t`Fill:`}>
-      <FillTransaction tx={tx} />
-    </MobileDetailRow>
+    {tx.sourceChain !== tx.targetChain && (
+      <MobileDetailRow label={t`Fill:`}>
+        <FillTransaction tx={tx} />
+      </MobileDetailRow>
+    )}
   </div>
 )
 
@@ -280,14 +286,18 @@ const TransactionRow = ({ showPagination, tx }: { showPagination: boolean; tx: H
     <TransactionAmount tx={tx} />
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex min-w-0 justify-end gap-2">
-        <span className="shrink-0 text-sm font-medium text-text">{t`Deposit:`}</span>
+        <span className="shrink-0 text-sm font-medium text-text">
+          {tx.sourceChain === tx.targetChain ? t`Transaction:` : t`Deposit:`}
+        </span>
         <TransactionHashLink hash={tx.sourceTxHash} href={getSourceExplorerLink(tx)} />
       </div>
 
-      <div className="flex min-w-0 items-center justify-end gap-2">
-        <span className="shrink-0 text-sm font-medium text-text">{t`Fill:`}</span>
-        <FillTransaction tx={tx} />
-      </div>
+      {tx.sourceChain !== tx.targetChain && (
+        <div className="flex min-w-0 items-center justify-end gap-2">
+          <span className="shrink-0 text-sm font-medium text-text">{t`Fill:`}</span>
+          <FillTransaction tx={tx} />
+        </div>
+      )}
     </div>
   </TransactionTableGrid>
 )

@@ -11,7 +11,7 @@ const isEvmChainId = (chain: Chain): chain is ChainId => typeof chain === 'numbe
 // Local rows already contain Currency objects. API rows contain identifiers;
 // resolve only those through the existing token hooks/cache, without a History cache.
 export const useHistoryToken = (token: Currency | string, chain: Chain): Currency | string => {
-  const id = typeof token === 'string' ? token : undefined
+  const id = typeof token === 'string' && token ? token : undefined
   const { currency } = useCurrencyLookup(
     isEvmChainId(chain) ? (id === ZERO_ADDRESS ? ETHER_ADDRESS : id) : undefined,
     isEvmChainId(chain) ? chain : ChainId.MAINNET,

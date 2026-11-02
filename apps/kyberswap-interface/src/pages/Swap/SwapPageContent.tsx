@@ -221,7 +221,7 @@ const SwapPageContent = ({
                 transition={{ duration: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Suspense fallback={<LocalLoader />}>
-                  <HistoryPanel onBack={() => onHistoryChange(false)} />
+                  <HistoryPanel inputChain={inputChain} onBack={() => onHistoryChange(false)} />
                 </Suspense>
               </motion.div>
             )}
