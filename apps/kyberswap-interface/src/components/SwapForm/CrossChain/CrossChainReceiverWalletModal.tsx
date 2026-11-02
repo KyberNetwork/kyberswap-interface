@@ -2,9 +2,15 @@ import { t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
-import { Content, Header, Icon, OptionButton, Options, Section, Shell, Terms } from 'components/Header/web3/WalletModal'
+import {
+  Icon,
+  OptionButton,
+  Options,
+  Terms,
+  WalletModalShell,
+  WalletOption,
+} from 'components/Header/web3/WalletModal/components'
 import Loader from 'components/Loader'
-import Modal from 'components/Modal'
 import {
   ReceiverWalletOption,
   useReceiverWalletOptions,
@@ -75,98 +81,73 @@ export const CrossChainReceiverWalletModal = ({
   )
 
   return (
-    <Modal
-      isOpen
-      onDismiss={dismiss}
-      minHeight={false}
-      maxHeight={90}
-      maxWidth={600}
-      bypassScrollLock
-      bypassFocusLock
-      zindex={99999}
-    >
-      <Shell>
-        <Section>
-          <Header title={hardware ? t`Select Derivation Path` : t`Connect your Wallet`} onClose={dismiss} />
-          <div className="flex flex-col gap-4">
-            <Terms checked={isAcceptedTerm} onChange={setIsAcceptedTerm} />
-            {loading && <Loader />}
-            {(error || loadError) && (
-              <div role="alert" className="text-sm text-red">
-                {error || loadError}
-              </div>
-            )}
-            <Content>
-              {accounts.length > 0 ? (
-                <Options>
-                  {accounts.map(account => (
-                    <OptionButton key={account.address} onClick={() => selectAccount(account)} connected={false}>
-                      <Icon>
-                        <img src={account.icon} alt="" />
-                      </Icon>
-                      <span className="truncate">{account.address}</span>
-                    </OptionButton>
-                  ))}
-                </Options>
-              ) : hardware ? (
-                chain === NonEvmChain.Bitcoin ? (
-                  <Options>
-                    {Object.entries(DerivationPaths).map(([name, value]) => (
-                      <OptionButton
-                        key={value}
-                        onClick={() => connect(hardware, value)}
-                        isDisabled={!!connecting}
-                        connected={false}
-                      >
-                        <span>{name}</span>
-                        <span className="text-xs text-subText">{value}</span>
-                      </OptionButton>
-                    ))}
-                  </Options>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <input
-                      aria-label={t`Derivation path`}
-                      value={path}
-                      onChange={event => setPath(event.target.value)}
-                      className="rounded-lg border border-border bg-buttonGray p-3 text-sm text-text outline-none"
-                    />
-                    <ButtonPrimary
-                      disabled={!!connecting || !path || !isAcceptedTerm}
-                      onClick={() => connect(hardware, path)}
-                    >
-                      {connecting ? <Loader /> : t`Continue`}
-                    </ButtonPrimary>
-                  </div>
-                )
-              ) : wallets.length ? (
-                <Options>
-                  {wallets.map(wallet => (
-                    <OptionButton
-                      key={wallet.id}
-                      onClick={() => chooseWallet(wallet)}
-                      connected={connecting === wallet.id}
-                      isDisabled={!isAcceptedTerm || !!connecting}
-                      className="justify-between"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon>
-                          <img src={wallet.icon} alt="" />
-                        </Icon>
-                        <span>{wallet.name}</span>
-                        {connecting === wallet.id && <Loader />}
-                      </div>
-                      {wallet.installed && <span className="text-xs text-subText">{t`Detected`}</span>}
-                    </OptionButton>
-                  ))}
-                </Options>
-              ) : !loading && !loadError ? (
-                <div className="text-sm text-subText">{t`No wallet detected`}</div>
-              ) : null}
-            </Content>
+    <WalletModalShell title={hardware ? t`Select Derivation Path` : t`Connect your Wallet`} isOpen onDismiss={dismiss}>
+      <Terms checked={isAcceptedTerm} onChange={setIsAcceptedTerm} />
+      {(error || loadError) && (
+        <div role="alert" className="text-sm text-red">
+          {error || loadError}
+        </div>
+      )}
+
+      {loading ? (
+        <Options loading />
+      ) : accounts.length > 0 ? (
+        <Options>
+          {accounts.map(account => (
+            <OptionButton key={account.address} onClick={() => selectAccount(account)} connected={false}>
+              <Icon>
+                <img src={account.icon} alt="" />
+              </Icon>
+              <span className="truncate">{account.address}</span>
+            </OptionButton>
+          ))}
+        </Options>
+      ) : hardware ? (
+        chain === NonEvmChain.Bitcoin ? (
+          <Options>
+            {Object.entries(DerivationPaths).map(([name, value]) => (
+              <OptionButton
+                key={value}
+                onClick={() => connect(hardware, value)}
+                isDisabled={!!connecting}
+                connected={false}
+              >
+                <span>{name}</span>
+                <span className="text-xs text-subText">{value}</span>
+              </OptionButton>
+            ))}
+          </Options>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <input
+              aria-label={t`Derivation path`}
+              value={path}
+              onChange={event => setPath(event.target.value)}
+              className="rounded-lg border border-border bg-buttonGray p-3 text-sm text-text outline-none"
+            />
+            <ButtonPrimary disabled={!!connecting || !path || !isAcceptedTerm} onClick={() => connect(hardware, path)}>
+              {connecting ? <Loader /> : t`Continue`}
+            </ButtonPrimary>
           </div>
-        </Section>
-      </Shell>
-    </Modal>
+        )
+      ) : wallets.length ? (
+        <Options>
+          {wallets.map(wallet => (
+            <WalletOption
+              key={wallet.id}
+              name={wallet.name}
+              icon={wallet.icon}
+              detected={wallet.installed}
+              connected={connecting === wallet.id}
+              connecting={connecting === wallet.id}
+              isDisabled={!isAcceptedTerm || !!connecting}
+              onClick={() => chooseWallet(wallet)}
+            />
+          ))}
+        </Options>
+      ) : !loadError ? (
+        <div className="text-sm text-subText">{t`No wallet detected`}</div>
+      ) : null}
+    </WalletModalShell>
   )
 }
