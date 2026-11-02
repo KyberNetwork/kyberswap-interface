@@ -3567,6 +3567,11 @@ msgstr ""
 msgid "Best Return"
 msgstr "最佳回报"
 
+#: src/components/SwapForm/CrossChain/Quote/CrossChainQuoteSelector.tsx
+#: src/pages/KyberCross/components/QuoteSelector.tsx
+msgid "Fastest"
+msgstr "最快"
+
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Low Volatility"
 msgstr "低波动"

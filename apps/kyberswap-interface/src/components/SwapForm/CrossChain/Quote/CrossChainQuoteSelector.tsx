@@ -71,6 +71,17 @@ const RouteOptionsContent = ({
 }: RouteOptionsContentProps) => {
   const prefersReducedMotion = useReducedMotion()
   const FeeTooltip = upToLarge ? ClickTooltip : MouseoverTooltip
+  const fastestQuoteIndex = quotes.reduce((fastestIndex, { quote }, index) => {
+    // Providers may use zero when no time estimate is available.
+    if (!Number.isFinite(quote.timeEstimate) || quote.timeEstimate <= 0) return fastestIndex
+    if (fastestIndex === -1) return index
+
+    const fastestQuote = quotes[fastestIndex].quote
+    return quote.timeEstimate < fastestQuote.timeEstimate ||
+      (quote.timeEstimate === fastestQuote.timeEstimate && quote.outputAmount > fastestQuote.outputAmount)
+      ? index
+      : fastestIndex
+  }, -1)
 
   return (
     <Stack className="size-full gap-3 text-text">
@@ -103,7 +114,7 @@ const RouteOptionsContent = ({
                   onClick={() => onSelect(quote)}
                 >
                   <Stack className="gap-2">
-                    <HStack className="items-center justify-between gap-2">
+                    <HStack className="flex-wrap items-center justify-between gap-2">
                       <HStack className="min-w-0 items-center gap-2">
                         <HStack className="items-center gap-1">
                           <TokenLogoWithChain
@@ -130,13 +141,22 @@ const RouteOptionsContent = ({
                         </span>
                       </HStack>
 
-                      {routeBadge
-                        ? routeBadge(quote, index)
-                        : index === 0 && (
+                      {routeBadge ? (
+                        routeBadge(quote, index)
+                      ) : (
+                        <HStack className="shrink-0 items-center gap-1">
+                          {index === 0 && (
                             <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
                               {t`Best Return`}
                             </div>
                           )}
+                          {index === fastestQuoteIndex && (
+                            <div className="shrink-0 rounded-full bg-blue px-2 py-1 text-xs font-medium text-white">
+                              {t`Fastest`}
+                            </div>
+                          )}
+                        </HStack>
+                      )}
                     </HStack>
                     <HStack className="items-center justify-between gap-2 text-sm text-subText">
                       <HStack className="min-w-0 items-center gap-3">
