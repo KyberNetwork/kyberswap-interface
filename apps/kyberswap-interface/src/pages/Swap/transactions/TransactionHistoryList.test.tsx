@@ -85,7 +85,7 @@ it('keeps API token IDs in history and uses existing hooks to format EVM/Solana 
 
 it('renders same-chain swaps with one chain and one transaction action', async () => {
   await render(rows({ toChain: 'ethereum', toToken: address, destTxHash: 'source', actualOutput: '2500000' }))
-  expect(renderedRows().textContent).toContain('Transaction:')
+  expect(renderedRows().textContent).toContain('Tx Hash:')
   expect(renderedRows().textContent).not.toContain('Deposit:')
   expect(renderedRows().textContent).not.toContain('Fill:')
   expect(renderedRows().textContent).toContain('-1.2345 USDC')
