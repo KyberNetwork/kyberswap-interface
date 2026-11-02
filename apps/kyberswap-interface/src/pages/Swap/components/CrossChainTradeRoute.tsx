@@ -6,7 +6,6 @@ import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCross
 import RouteGraphView from 'components/TradeRouting/RouteGraphView'
 import { buildSequentialRouteGraph } from 'components/TradeRouting/routeGraph'
 import { EmptyRoute, PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
-import { NETWORKS_INFO } from 'constants/networks'
 import TradeRoutePanel, { TradeRouteSkeleton } from 'pages/Swap/components/TradeRoutePanel'
 import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
 import { registry } from 'pages/Swap/crossChain/factory'
@@ -14,7 +13,6 @@ import type { Quote } from 'pages/Swap/crossChain/registry'
 import { type RouteStep, getCrossChainRouteSteps } from 'pages/Swap/utils/getCrossChainRouteSteps'
 import { type Chain, type Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
-import { getTokenLogoURL } from 'utils/tokenLogo'
 
 const stepLabel = (type: RouteStep['type']) => {
   switch (type) {
@@ -22,10 +20,6 @@ const stepLabel = (type: RouteStep['type']) => {
       return t`Swap`
     case 'bridge':
       return t`Bridge`
-    case 'wrap':
-      return t`Wrap`
-    case 'unwrap':
-      return t`Unwrap`
     default:
       return t`Route`
   }
@@ -35,22 +29,11 @@ const buildCrossChainGraph = (steps: RouteStep[]) =>
   buildSequentialRouteGraph(
     steps.map((step, index) => {
       const provider = registry.getAdapter(step.provider)
-      const token = step.tokenOut
-      const network = token && NETWORKS_INFO[token.chainId as keyof typeof NETWORKS_INFO]
-      const amount = token && step.amountOut ? formatUnits(BigInt(step.amountOut), token.decimals) : undefined
-      const id = `${index}:${step.type}:${step.provider}:${token?.chainId ?? ''}:${token?.address ?? ''}`
+      const id = `${index}:${step.type}:${step.provider}`
 
       return {
         id,
-        label: token
-          ? `${stepLabel(step.type)} → ${amount ? `${formatDisplayNumber(amount, { significantDigits: 6 })} ` : ''}${
-              token.symbol
-            }`
-          : stepLabel(step.type),
-        logoSources: token
-          ? [token.logoURI || token.icon || '', network ? getTokenLogoURL(token.address, token.chainId) : '']
-          : undefined,
-        chainBadge: network ? { src: network.icon, name: network.name } : undefined,
+        label: stepLabel(step.type),
         groups: [
           {
             id,
@@ -77,8 +60,7 @@ const RouteTokenLabel = ({ currency, chain, amount }: { currency?: Currency; cha
   )
 }
 
-/** Displays the selected quote using single-chain routing primitives.
- * Provider payload interpretation belongs to getCrossChainRouteSteps; this view must not invent intermediate legs or amounts. */
+/** Displays the selected provider, with route-plan steps for KyberCross. */
 const CrossChainTradeRoute = () => <CrossChainTradeRouteView {...useCrossChainSwap()} />
 
 type Props = {
