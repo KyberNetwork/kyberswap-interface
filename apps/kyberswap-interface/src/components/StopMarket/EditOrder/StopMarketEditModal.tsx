@@ -31,6 +31,7 @@ import { useStopMarketFeeEstimate } from 'components/StopMarket/hooks/useStopMar
 import { useStopMarketOraclePrice } from 'components/StopMarket/hooks/useStopMarketOraclePrice'
 import { useStopMarketSlippageOptions } from 'components/StopMarket/hooks/useStopMarketSlippageOptions'
 import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
+import { useTriggerPriceSetTracking } from 'components/StopMarket/hooks/useTriggerPriceSetTracking'
 import { StopMarket } from 'components/StopMarket/types'
 import {
   MAX_STOP_MARKET_DEADLINE,
@@ -169,8 +170,31 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
   const triggerPercent = marketPrice && hasTrigger ? getTriggerPercent(trigger, marketPrice) : undefined
   const isTriggerAboveOracle = (triggerPercent ?? 0) > 0
 
+  const pairContext = { currencyIn: sellCurrency, currencyOut: receiveCurrency, chainId: order.chainId, isEdit: true }
+  // Each way of setting the trigger marks itself; the price is reported once it settles.
+  const markTriggerInput = useTriggerPriceSetTracking({
+    triggerPrice,
+    resetKey: String(order.id),
+    onSet: inputMethod =>
+      tracking.trackTriggerPriceSet({ ...pairContext, triggerPrice, marketPrice, triggerPercent, inputMethod }),
+  })
+  const onChangeTriggerPrice = (value: string) => {
+    markTriggerInput('typed')
+    setTriggerPrice(value)
+  }
+  // Runs after the percent handler, so the preset's mark is the one that stands.
+  const onPresetSelect = (preset: number) => {
+    markTriggerInput('preset')
+    tracking.trackRatePresetClick({ ...pairContext, preset })
+  }
+  const onChangeSlippage = (value: number) => {
+    if (value !== slippage) tracking.trackSlippageChanged({ ...pairContext, previous: slippage, next: value })
+    setSlippage(value)
+  }
+
   /** The percent chip is the same value from the other side, so typing in it drives the price. */
   const onChangeTriggerPercent = (percent: string) => {
+    markTriggerInput('custom_percent')
     const parsed = Number(percent)
     if (!marketPrice || !Number.isFinite(parsed)) {
       setTriggerPrice('')
@@ -179,6 +203,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     setTriggerPrice(formatTriggerPriceValue(marketPrice * (1 + parsed / 100)))
   }
   const onSetMarketPrice = () => {
+    markTriggerInput('oracle')
     if (marketPrice) setTriggerPrice(formatTriggerPriceValue(marketPrice))
   }
 
@@ -258,24 +283,26 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     onClose: completed => (completed ? onDismiss() : setIsProcessing(false)),
   })
 
+  // The new terms as they stand, which the review events describe.
+  const orderContext = {
+    ...pairContext,
+    inputAmount,
+    amountUsd,
+    triggerPrice,
+    triggerPercent,
+    slippage,
+    expiredAt,
+    replacesOrderId: order.id,
+  }
+
   // The review shows the deadline as it stands; moving a preset's start here would re-key the fee estimate
   // and open the review on a skeleton for nothing.
   const openReview = () => {
     setStep('review')
-    tracking.trackReviewOpened({
-      currencyIn: sellCurrency,
-      currencyOut: receiveCurrency,
-      chainId: order.chainId,
-      inputAmount,
-      amountUsd,
-      triggerPrice,
-      triggerPercent,
-      slippage,
-      expiredAt,
-      replacesOrderId: order.id,
-    })
+    tracking.trackReviewOpened(orderContext)
   }
   const confirm = () => {
+    tracking.trackConfirmOrderClick(orderContext)
     start()
   }
 
@@ -296,6 +323,10 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
     : expiry.expire !== undefined
     ? formatTimeDuration(expiry.expire)
     : originalExpiryLabel
+  const onChangeExpiry = (value: Date | number) => {
+    tracking.trackExpiryChanged({ ...pairContext, previousExpiry: displayTime, next: value })
+    handleExpiryChange(value)
+  }
 
   const isMissingAmount = !parsedAmount || parsedAmount.equalTo(0)
   const disableAction =
@@ -405,16 +436,20 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
         triggerPercent={triggerPercent}
         marketPrice={marketPrice}
         isLoadingPrice={loadingMarketPrice}
-        onChangeTriggerPrice={setTriggerPrice}
+        onChangeTriggerPrice={onChangeTriggerPrice}
         onChangeTriggerPercent={onChangeTriggerPercent}
         onSetMarketPrice={onSetMarketPrice}
+        onPresetSelect={onPresetSelect}
+        onInvert={inverted =>
+          tracking.trackPairInvertClick({ ...pairContext, direction: inverted ? 'inverted' : 'native' })
+        }
       />
 
       <div className="-my-1 px-1">
         <SlippageSetting
           alwaysVisible
           tooltip={t`The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
-          slippage={{ value: slippage, onChange: setSlippage }}
+          slippage={{ value: slippage, onChange: onChangeSlippage }}
           slippageInfo={{
             default: defaultSlippage,
             presets: slippagePresets,
@@ -457,7 +492,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
           events={{
             onToggleExpanded: () => setExpiryExpanded(expanded => !expanded),
             onOpenDatePicker: () => setShowDatePicker(true),
-            onExpireChange: handleExpiryChange,
+            onExpireChange: onChangeExpiry,
           }}
           presetOptions={expiryPresets}
           tooltip={t`You can cancel anytime before expiry at no cost.`}
@@ -555,7 +590,7 @@ const StopMarketEditModal = ({ order, onDismiss }: Props) => {
         expire={expiry.expire ?? order.deadline * 1000}
         isOpen={showDatePicker}
         onDismiss={() => setShowDatePicker(false)}
-        onSetDate={handleExpiryChange}
+        onSetDate={onChangeExpiry}
       />
     </>
   )
