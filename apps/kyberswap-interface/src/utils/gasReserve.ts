@@ -22,6 +22,7 @@ const NATIVE_GAS_RESERVE: Partial<Record<ChainId, string | null>> = {
   [ChainId.RONIN]: '0.04',
   [ChainId.RISE]: '0.0002',
   [ChainId.HYPEREVM]: '0.01',
+  [ChainId.ELYSIUM]: '0.01',
   [ChainId.MONAD]: '1',
   [ChainId.PLASMA]: '1',
   [ChainId.ETHERLINK]: '0.5',

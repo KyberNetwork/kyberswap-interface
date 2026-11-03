@@ -7,6 +7,7 @@ import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import AboutBackground from 'assets/images/about_background.png'
 import KNCGraphic from 'assets/images/knc-graphic.png'
 import arcIcon from 'assets/networks/arc.svg'
+import elysiumIcon from 'assets/networks/elysium.png'
 import megaEthIcon from 'assets/networks/megaeth.svg'
 import monadIcon from 'assets/networks/monad.svg'
 import riseIcon from 'assets/networks/rise.svg'
@@ -344,6 +345,10 @@ function AboutKyberSwap() {
                 <HStack className="items-center justify-center gap-4">
                   <img src={arcIcon} alt="Arc" width="80px" />
                   <span>Arc</span>
+                </HStack>
+                <HStack className="items-center justify-center gap-4">
+                  <img src={elysiumIcon} alt="Elysium" width="80px" />
+                  <span>Elysium</span>
                 </HStack>
               </div>
             </Stack>

@@ -63,6 +63,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.RISE]: [],
   [ChainId.ARC]: [],
   [ChainId.ABSTRACT]: [],
+  [ChainId.ELYSIUM]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -132,6 +133,7 @@ export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
   // Arc's native asset is USDC, so the pair opens the other way round from every other chain:
   // the stablecoin is what the user arrives holding and the volatile asset is the quote.
   [ChainId.ARC]: new Token(ChainId.ARC, '0x128cC466B61f542da60c70e3aA11c10e19B84EDB', 18, 'WETH', 'Wrapped Ether'),
+  [ChainId.ELYSIUM]: new Token(ChainId.ELYSIUM, '0xb47c4C8F73F009CC0C0d3f92B388d13E293F0B65', 6, 'USDC', 'USDC'),
 }
 
 export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
