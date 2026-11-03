@@ -44,7 +44,7 @@ type Props = {
   onExpand?: () => void
 }
 
-const TradeRoutePanel = ({ heading, children, defaultCollapsed = true, scrollOnExpand = true, onExpand }: Props) => {
+const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, scrollOnExpand = true, onExpand }: Props) => {
   const panelRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
   useEffect(() => setIsExpanded(!defaultCollapsed), [defaultCollapsed])
