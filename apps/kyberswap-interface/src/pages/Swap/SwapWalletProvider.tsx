@@ -114,8 +114,16 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
       ? undefined
       : defaults[inputFamily]
   const output = connections.output?.family === outputFamily ? connections.output.connection : undefined
-  const inputAddress = useSyncExternalStore(input?.subscribe ?? noSubscription, input?.getAddress ?? emptyAddress)
-  const outputAddress = useSyncExternalStore(output?.subscribe ?? noSubscription, output?.getAddress ?? emptyAddress)
+  const inputAddress = useSyncExternalStore(
+    input?.subscribe ?? noSubscription,
+    input?.getAddress ?? emptyAddress,
+    input?.getAddress ?? emptyAddress,
+  )
+  const outputAddress = useSyncExternalStore(
+    output?.subscribe ?? noSubscription,
+    output?.getAddress ?? emptyAddress,
+    output?.getAddress ?? emptyAddress,
+  )
 
   const select = (side: Side, chain: Chain, connection?: SwapWalletConnection) => {
     revision.current++
