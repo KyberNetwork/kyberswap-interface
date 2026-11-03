@@ -41,7 +41,7 @@ export const SwapRate = ({
   const hasValue = Boolean(value && baseCurrency && quoteCurrency && baseChain && quoteChain)
 
   return (
-    <HStack className="min-h-5 min-w-0 items-center justify-between gap-2 text-xs">
+    <HStack className="min-h-6 min-w-0 items-center justify-between gap-2 text-xs">
       <HStack className="min-w-0 items-center gap-2">
         <span className="shrink-0 font-normal text-subText">
           <Trans>Rate</Trans>
