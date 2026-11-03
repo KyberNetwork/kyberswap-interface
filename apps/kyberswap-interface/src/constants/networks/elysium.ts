@@ -54,7 +54,7 @@ const elysiumInfo: NetworkInfo = {
     routers: '',
     farms: [],
   },
-  limitOrder: NOT_SUPPORT,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2,
   coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: NOT_SUPPORT,
