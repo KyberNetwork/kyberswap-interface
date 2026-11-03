@@ -84,8 +84,13 @@ const SwapPageContent = ({
 
   const singleChainId = !isCrossChain && typeof inputChain === 'number' ? inputChain : undefined
 
-  // Pair reversal and wallet-slot reversal are one user action. The same
-  // callback is passed to the pending and loaded cross-chain forms.
+  // Pending and loaded forms must reverse the pair and its signing slots together.
+  const handleReverse = (outputAmount?: string) => {
+    wallets?.reverseConnections()
+    reversePair()
+    if (outputAmount !== undefined) onAmountChange(outputAmount)
+  }
+
   const crossChainSelectionProps = {
     hidden: activeTab !== TAB.SWAP,
     onChangeCurrencyIn: (currency: Currency) => selectCurrency(Field.INPUT, currency),
@@ -94,11 +99,7 @@ const SwapPageContent = ({
       selectNonEvmCurrency(Field.INPUT, chain, currency),
     onSelectNonEvmCurrencyOut: (chain: NonEvmChain, currency: NonEvmCurrency) =>
       selectNonEvmCurrency(Field.OUTPUT, chain, currency),
-    onReverse: (outputAmount?: string) => {
-      wallets?.reverseConnections()
-      reversePair()
-      if (outputAmount !== undefined) onAmountChange(outputAmount)
-    },
+    onReverse: handleReverse,
   }
 
   const pendingFormProps = {

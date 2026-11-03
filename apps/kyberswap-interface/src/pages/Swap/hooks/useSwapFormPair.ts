@@ -25,6 +25,10 @@ const getSelectedTokenId = (currency: Currency) => {
 
 const getSwapLocation = (pair: SwapPair, params: URLSearchParams) => getTradeLocation('swap', pair, params)
 
+const matches = (currency: EvmCurrency | undefined, id: string, chain: Chain) =>
+  currency?.chainId === chain &&
+  [currencyId(currency, currency.chainId).toLowerCase(), currency.symbol?.toLowerCase()].includes(id.toLowerCase())
+
 /**
  * Owns pair selection/reversal and commits both sides in one navigation.
  * Selected metadata bridges the interval before URL lookup catches up, but is used only while ID/chain still match.
@@ -49,10 +53,6 @@ export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSea
   const [selected, setSelected] = useState<{ currencyIn?: EvmCurrency; currencyOut?: EvmCurrency }>({})
 
   const isCrossChain = isCrossChainPair(inputChain, outputChain)
-
-  const matches = (currency: EvmCurrency | undefined, id: string, chain: Chain) =>
-    currency?.chainId === chain &&
-    [currencyId(currency, currency.chainId).toLowerCase(), currency.symbol?.toLowerCase()].includes(id.toLowerCase())
 
   const currencyIn = matches(selected.currencyIn, fromCurrency, inputChain) ? selected.currencyIn : resolvedInput
   const selectedOutput = matches(selected.currencyOut, toCurrency, outputChain) ? selected.currencyOut : resolvedOutput
@@ -111,6 +111,7 @@ export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSea
       (typeof chain === 'number' ? id.toLowerCase() === oppositeId.toLowerCase() : id === oppositeId)
     const evmCurrency = 'isNative' in currency ? currency : undefined
 
+    // Selecting the opposite token swaps the existing sides instead of creating a duplicate pair.
     if (field === Field.INPUT) {
       commitPair(
         {

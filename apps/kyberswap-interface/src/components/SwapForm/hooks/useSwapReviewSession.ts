@@ -36,11 +36,6 @@ export const useSwapReviewSession = (identity: string) => {
     updateReview(closedReview)
   }, [invalidate, updateReview])
 
-  useLayoutEffect(() => {
-    dismissReview()
-    return invalidate
-  }, [identity, dismissReview, invalidate])
-
   const buildReview = useCallback(
     async (build: BuildReview, reopen = false) => {
       const phase = current.current.phase
@@ -100,6 +95,12 @@ export const useSwapReviewSession = (identity: string) => {
     },
     [updateReview],
   )
+
+  // Cancel builds and detach old review callbacks when its wallet/form identity changes.
+  useLayoutEffect(() => {
+    dismissReview()
+    return invalidate
+  }, [identity, dismissReview, invalidate])
 
   return { review, openReview, rebuildReview, confirmReview, dismissReview }
 }

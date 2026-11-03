@@ -90,19 +90,16 @@ const TokenSelectorModal = ({
   const lastOpen = useLast(isOpen)
   const { trackingHandler } = useTracking()
 
-  useEffect(() => {
-    if (isOpen && !lastOpen) {
-      trackingHandler(TRACKING_EVENT_TYPE.TS_OPENED, {
-        source: trackingSource,
-        chain: NETWORKS_INFO[anchorChainId].name,
-        chain_id: anchorChainId,
-      })
-    }
-  }, [isOpen, lastOpen, trackingHandler, trackingSource, anchorChainId])
-
   // Detail view stays mounted until slideOutRight finishes (onAnimationEnd below).
   const [tokenToShowInfo, setTokenToShowInfo] = useState<Token | null>(null)
   const [detailClosing, setDetailClosing] = useState(false)
+  const isDesktopWidth = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall + 1}px)`)
+
+  const dismissModal = () => {
+    setTokenToShowInfo(null)
+    setDetailClosing(false)
+    selection.dismiss()
+  }
 
   const closeTokenInfo = useCallback(() => {
     // With reduced motion the slide-out is suppressed and onAnimationEnd never fires, so unmount now.
@@ -114,17 +111,21 @@ const TokenSelectorModal = ({
     setDetailClosing(true)
   }, [])
 
-  const isDesktopWidth = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall + 1}px)`)
+  useEffect(() => {
+    if (isOpen && !lastOpen) {
+      trackingHandler(TRACKING_EVENT_TYPE.TS_OPENED, {
+        source: trackingSource,
+        chain: NETWORKS_INFO[anchorChainId].name,
+        chain_id: anchorChainId,
+      })
+    }
+  }, [isOpen, lastOpen, trackingHandler, trackingSource, anchorChainId])
 
   return (
     <>
       <Modal
         isOpen={isOpen}
-        onDismiss={() => {
-          setTokenToShowInfo(null)
-          setDetailClosing(false)
-          selection.dismiss()
-        }}
+        onDismiss={dismissModal}
         bgColor="var(--ks-background)"
         maxWidth={showDiscoveryTabs && isDesktopWidth && !tokenToShowInfo && !importToken ? '720px' : '480px'}
         width={showDiscoveryTabs && isDesktopWidth ? 'calc(100vw - 32px)' : undefined}

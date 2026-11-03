@@ -17,8 +17,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 
-// returns a function that will execute a swap, if the parameters are all valid
-// and the user has approved the slippage adjusted input amount for the trade
+// Sends the reviewed router payload and records its hash with the captured swap metadata.
 const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { connector, isSmartConnector } = useWeb3React()
@@ -131,6 +130,7 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
+
       const swapData = getSwapData()
       const value = swapTxValue(inputAmount)
 
@@ -149,6 +149,7 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
+
       addTransactionWithType({ ...swapData, hash: response.hash })
       return response?.hash
     },

@@ -32,6 +32,7 @@ const WalletModal = lazy(() =>
   })),
 )
 const emptyAddress = () => ''
+
 type Side = 'input' | 'output'
 type Slot = { family: WalletFamily; connection?: SwapWalletConnection }
 type Connections = { input?: Slot; output?: Slot }
@@ -48,11 +49,13 @@ const useDefaultConnections = () => {
 
   useEffect(() => {
     let cancelled = false
+
     near.walletSelector
       ?.then(value => {
         if (!cancelled) setSelector(value)
       })
       .catch(console.error)
+
     return () => {
       cancelled = true
     }
@@ -60,6 +63,7 @@ const useDefaultConnections = () => {
 
   return useMemo<Partial<Record<WalletFamily, SwapWalletConnection>>>(() => {
     const session = connector && config.state.connections.get(connector.uid)
+
     return {
       evm: account && connector && session ? evmConnection(connector, config, session) : undefined,
       solana: solana.wallet?.adapter ? solanaConnection(solana.wallet.adapter) : undefined,
@@ -115,6 +119,7 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
 
   const select = (side: Side, chain: Chain, connection?: SwapWalletConnection) => {
     revision.current++
+
     if (side === 'input' && walletFamily(chain) === 'evm') {
       if (connection?.family === 'evm') connection.selectAppConnection()
       else selectEvmAppConnection(config)
@@ -147,11 +152,14 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
   useEffect(() => {
     const retained = new Set([connections.input?.connection, connections.output?.connection])
     const unsubscribe = [...retained].map(connection => connection?.subscribe(() => undefined))
+
     for (const connection of ownedConnections.current) {
       if (connection === connections.input?.connection || connection === connections.output?.connection) continue
+
       ownedConnections.current.delete(connection)
       void connection.release?.().catch(console.error)
     }
+
     return () => unsubscribe.forEach(stop => stop?.())
   }, [connections])
 
@@ -160,6 +168,7 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
   // Release the remaining owned sessions when the provider unmounts.
   useEffect(() => {
     const owned = ownedConnections.current
+
     return () => {
       owned.forEach(connection => {
         void connection.release?.().catch(console.error)
@@ -178,8 +187,10 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
   useEffect(() => {
     const returned = getReturnedNearReceiver()
     if (!returned) return
+
     let cancelled = false
     const request = revision.current
+
     import('components/SwapForm/CrossChain/hooks/useReceiverWalletOptions')
       .then(async ({ createNearReceiverSelector }) => {
         const selector = await createNearReceiverSelector()
@@ -191,10 +202,12 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
           !accounts.some(account => account.accountId === returned.address)
         )
           return
+
         // Restore the SDK's account store too; receiver state never contains an address-only substitute.
         if (wallet.type !== 'browser') return
         await wallet.signIn({ contractId: '' })
         if (cancelled || request !== revision.current) return
+
         setConnections(previous => ({
           ...previous,
           [returned.side ?? 'output']: {
@@ -205,6 +218,7 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
         clearReturnedNearReceiver()
       })
       .catch(console.error)
+
     return () => {
       cancelled = true
     }

@@ -71,14 +71,6 @@ export const useTokenSelection = ({
     setStep({ kind: 'idle' })
   }, [])
 
-  useEffect(() => {
-    if (!isOpen) reset()
-
-    return () => {
-      generation.current += 1
-    }
-  }, [isOpen, reset])
-
   const dismiss = useCallback(() => {
     reset()
     onDismiss?.()
@@ -199,6 +191,15 @@ export const useTokenSelection = ({
       },
     )
   }, [step, changeNetwork, reset])
+
+  // Closing/unmounting invalidates wallet callbacks before a later modal session can commit.
+  useEffect(() => {
+    if (!isOpen) reset()
+
+    return () => {
+      generation.current += 1
+    }
+  }, [isOpen, reset])
 
   // Commit after the app's network-param sync has reset its default pair. A close/reopen or
   // cancelled request invalidates this timer, including when the wallet replies much later.

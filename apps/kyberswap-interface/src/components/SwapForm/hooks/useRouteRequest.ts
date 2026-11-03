@@ -70,7 +70,7 @@ const getFeeConfigParams = (
   }
 }
 
-// default use aggregator, utils the first time sign-in successfully (guest/sign in eth) => use meta
+// Use the public aggregator until authentication makes the configured domain available.
 export const useRouteApiDomain = () => {
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const { authenticationSuccess } = useSessionInfo()
@@ -99,7 +99,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
     const isCurrencyInStable = currencyIn instanceof WrappedTokenInfo && currencyIn.isStable
     const isCurrencyOutStable = currencyOut instanceof WrappedTokenInfo && currencyOut.isStable
 
-    // case 0: stable is highest priority
+    // A stable output takes precedence; when both are stable, compare their CMC ranks.
     if (isCurrencyOutStable) {
       if (isCurrencyInStable) {
         if (currencyIn.cmcRank && currencyOut.cmcRank) {
@@ -109,27 +109,20 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
       } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     } else if (currencyIn?.isNative) {
       chargeFeeBy = ChargeFeeBy.CURRENCY_IN
-    }
-    // Case 1: Output currency is native
-    else if (currencyOut?.isNative) {
+    } else if (currencyOut?.isNative) {
+      // A stable input takes precedence over a native output.
       if (isCurrencyInStable) {
         chargeFeeBy = ChargeFeeBy.CURRENCY_IN
       } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     } else if (currencyOut instanceof WrappedTokenInfo) {
-      // Case 2: Both are wrapped tokens
+      // For listed tokens, prefer whitelist status, then CMC rank, then CoinGecko rank.
       if (currencyIn instanceof WrappedTokenInfo) {
-        // Case 2.1: Whitelist check
         if (!currencyIn.isWhitelisted && currencyOut.isWhitelisted) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-        // Case 2.2: CMC rank comparison (highest priority)
         else if (currencyIn.cmcRank && currencyOut.cmcRank) {
           if (currencyOut.cmcRank < currencyIn.cmcRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-        }
-        // Case 2.3: CGK rank comparison (only if CMC rank isn't available for both)
-        else if (currencyIn.cgkRank && currencyOut.cgkRank) {
+        } else if (currencyIn.cgkRank && currencyOut.cgkRank) {
           if (currencyOut.cgkRank < currencyIn.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
-        }
-        // Case 2.4: Output has rank but input doesn't
-        else if (currencyOut.cmcRank || currencyOut.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
+        } else if (currencyOut.cmcRank || currencyOut.cgkRank) chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
       } else chargeFeeBy = ChargeFeeBy.CURRENCY_OUT
     }
 
@@ -184,6 +177,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
         const swapFeeConfig = await getSwapFeeConfig(chainId, tokenInAddress, tokenOutAddress)
         const feeConfigParams = feeOverride || getFeeConfigParams(swapFeeConfig, tokenInAddress, tokenOutAddress)
 
+        // Retain the sent fee values beside this response for the tamper check.
         const intendedFeeConfig: IntendedFeeConfig = {
           feeAmount: feeConfigParams.feeAmount || '',
           feeReceiver: feeConfigParams.feeReceiver || '',

@@ -187,14 +187,19 @@ const SwapActionButton = ({
     parsedAmountFromTypedValue?.toExact(),
   ])
 
-  useLayoutEffect(() => {
-    pendingApproval.current = null
-    setLoading(false)
+  const ApproveButton = permitState === PermitState.NOT_SIGNED ? ButtonLight : ButtonPrimary
 
-    return () => {
-      pendingApproval.current = null
-    }
-  }, [approvalIdentity, showApproveFlow])
+  const showSwapButton = !(
+    chainError ||
+    !account ||
+    (customChainId && customChainId !== chainId) ||
+    restrictedCurrency ||
+    wrapInputError ||
+    showWrap ||
+    (userHasSpecifiedInputOutput && noRouteFound) ||
+    swapInputError ||
+    showApproveFlow
+  )
 
   const requestApproval = async (request: () => Promise<unknown>) => {
     if (pendingApproval.current || approval === ApprovalState.PENDING) return
@@ -237,19 +242,15 @@ const SwapActionButton = ({
     })
   }
 
-  const ApproveButton = permitState === PermitState.NOT_SIGNED ? ButtonLight : ButtonPrimary
+  // Approval completions from the previous account, spender, or amount cannot update this button.
+  useLayoutEffect(() => {
+    pendingApproval.current = null
+    setLoading(false)
 
-  const showSwapButton = !(
-    chainError ||
-    !account ||
-    (customChainId && customChainId !== chainId) ||
-    restrictedCurrency ||
-    wrapInputError ||
-    showWrap ||
-    (userHasSpecifiedInputOutput && noRouteFound) ||
-    swapInputError ||
-    showApproveFlow
-  )
+    return () => {
+      pendingApproval.current = null
+    }
+  }, [approvalIdentity, showApproveFlow])
 
   return (
     <>

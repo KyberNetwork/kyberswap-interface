@@ -91,6 +91,7 @@ const getStreamingUrl = ({
     currencyIn,
     currencyOut,
   )
+
   if (includedSourceNames.length > 0 && includedSourceNames.length < selectableSources.length) {
     queryParams.append('includedSources', includedSourceNames.join(','))
   }
@@ -142,6 +143,7 @@ export const streamQuotes = async ({
     const reader = response.body?.getReader()
     if (!reader) throw new Error('No response body reader available')
 
+    // Retain partial lines between reads; a network chunk need not end at an SSE boundary.
     const decoder = new TextDecoder()
     let buffer = ''
     let currentEvent = ''
@@ -177,18 +179,22 @@ export const streamQuotes = async ({
             console.log('SSE connection initialized. Request ID:', data.requestID)
             continue
           }
+
           if (currentEvent === SSE_EVENT.COMPLETE) {
             console.log(`All quotes received from streaming API. Total quotes: ${quotes.length}`)
             continue
           }
+
           if (currentEvent === SSE_EVENT.PROVIDER_ERROR) {
             console.error('Provider error from streaming API:', data)
             continue
           }
+
           if (currentEvent === SSE_EVENT.ERROR) {
             console.error('Error from streaming API:', data)
             continue
           }
+
           if (currentEvent !== SSE_EVENT.QUOTE) {
             console.log('Skipping non-quote event:', currentEvent)
             continue
@@ -199,6 +205,7 @@ export const streamQuotes = async ({
             console.log('Skipping same-chain source from cross-chain stream:', adapter.getName())
             continue
           }
+
           if (
             adapter &&
             excludedSources.includes(adapter.getName()) &&
@@ -207,10 +214,12 @@ export const streamQuotes = async ({
             console.log('Skipping excluded source:', adapter.getName())
             continue
           }
+
           if (adapter && !adapter.canSupport(category, currencyIn, currencyOut)) {
             console.log('Skipping unsupported category for source:', adapter.getName(), category)
             continue
           }
+
           if (!adapter) {
             console.warn(`Adapter not found in registry: ${data.provider}`)
             console.log(

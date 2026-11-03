@@ -112,7 +112,6 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       }
     }
 
-    // Convert the parameters object to URL query string
     const queryParams = new URLSearchParams()
     for (const [key, value] of Object.entries(p)) {
       queryParams.append(key, String(value))
@@ -122,9 +121,6 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     if (!r.estimation) {
       throw new Error('No route found')
     }
-
-    //const inputUsd = r.estimation.srcChainTokenIn.approximateUsdValue
-    //const outputUsd = r.estimation.dstChainTokenOut.recommendedApproximateUsdValue
 
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
     const formattedOutputAmount = formatUnits(
@@ -142,8 +138,8 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const fixFee = r.fixFee
 
     const wrappedAddress = NativeCurrencies[params.fromChain as ChainId].wrapped.address
-    // The quote is still usable without a native price — it only costs the protocol-fee USD figure —
-    // so a price outage must not take the whole route down with it.
+
+    // A missing native price omits the protocol-fee USD estimate without blocking the route.
     const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] }).catch(() => null)
     const nativePrice = getMidPrice(priceRes?.data?.[params.fromChain]?.[wrappedAddress]) ?? 0
 
@@ -188,7 +184,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       if (!solanaConnection || !sendSolanaFn) throw new Error('Connection is not defined for Solana swap')
       const txBuffer = Buffer.from(rawQuote.tx.data.slice(2), 'hex')
 
-      // Try to deserialize as VersionedTransaction first
+      // deBridge may return either Solana transaction format.
       let transaction
       try {
         transaction = VersionedTransaction.deserialize(txBuffer as any)
@@ -205,7 +201,6 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
       console.log('Transaction parsed successfully:', transaction)
 
-      // Send through wallet adapter
       const signature = await sendSolanaFn(transaction, solanaConnection)
       onSourceTransaction?.(signature, { id: rawQuote.orderId })
       const waitForConfirmation = async (txId: string) => {
@@ -246,7 +241,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
       return {
         sender: quote.quoteParams.sender,
-        id: rawQuote.orderId, // specific id for debridge
+        id: rawQuote.orderId,
         sourceTxHash: signature,
         adapter: this.getName(),
         sourceChain: quote.quoteParams.fromChain,
@@ -276,7 +271,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     })
     return {
       sender: quote.quoteParams.sender,
-      id: rawQuote.orderId, // specific id for each provider
+      id: rawQuote.orderId,
       sourceTxHash: tx,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,
@@ -311,7 +306,6 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
     const r = await fetch(`${DEBRIDGE_STATS_API}/Orders/${p.id}`).then(res => res.json())
 
-    // Extract actual output amount from takeOfferWithMetadata if available
     const actualAmountOut = r?.takeOfferWithMetadata?.amount?.stringValue
 
     return {

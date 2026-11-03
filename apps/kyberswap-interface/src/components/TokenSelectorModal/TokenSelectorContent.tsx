@@ -138,15 +138,6 @@ export const TokenSelectorContent = ({
       ]
     : rankedChains
 
-  const selectNetwork = (chain: TokenSelectorChain) => {
-    if (chain === 'all' || typeof chain === 'number') {
-      setNonEvmChain(undefined)
-      handleChainChange(chain)
-    } else {
-      setNonEvmChain(chain)
-    }
-  }
-
   const unsupportedAggregateTab = allNetworks && activeTab !== TokenSelectorTab.All
   const aggregateActive = allNetworks && !nonEvmChain && !unsupportedAggregateTab
   const aggregate = useAllNetworksTokens({
@@ -194,17 +185,26 @@ export const TokenSelectorContent = ({
     ? aggregate.currencies
     : chainCurrencies
   const isListLoading = allNetworks ? aggregateActive && aggregate.loading : chainListLoading
-  const handleLoadMore = allNetworks ? aggregate.fetchMore : chainLoadMore
   const listHasMore = allNetworks ? aggregateActive && aggregate.hasMore : chainHasMore
   const listExtras = allNetworks ? undefined : chainExtras
 
-  useEffect(() => {
-    if (!isMobile) inputRef.current?.focus()
-  }, [inputRef])
+  const isAllTab = activeTab === TokenSelectorTab.All
+  const isImportedTab = activeTab === TokenSelectorTab.Imported
+  const isTrendingTab = activeTab === TokenSelectorTab.Trending
+  const isNewTab = activeTab === TokenSelectorTab.New
 
-  useEffect(() => {
-    resetScrollAfterSort()
-  }, [visibleCurrencies, resetScrollAfterSort])
+  const subtitle = getTabSubtitle(activeTab)
+
+  const handleLoadMore = allNetworks ? aggregate.fetchMore : chainLoadMore
+
+  const selectNetwork = (chain: TokenSelectorChain) => {
+    if (chain === 'all' || typeof chain === 'number') {
+      setNonEvmChain(undefined)
+      handleChainChange(chain)
+    } else {
+      setNonEvmChain(chain)
+    }
+  }
 
   // Every selection entry point carries the same browsing context.
   const requestSelect = useCallback(
@@ -248,13 +248,13 @@ export const TokenSelectorContent = ({
     [searchQuery, selectedChainId, allNetworks, visibleCurrencies, impersonators, requestSelect, isListable],
   )
 
-  // Display state for the active EVM tab.
-  const isAllTab = activeTab === TokenSelectorTab.All
-  const isImportedTab = activeTab === TokenSelectorTab.Imported
-  const isTrendingTab = activeTab === TokenSelectorTab.Trending
-  const isNewTab = activeTab === TokenSelectorTab.New
+  useEffect(() => {
+    if (!isMobile) inputRef.current?.focus()
+  }, [inputRef])
 
-  const subtitle = getTabSubtitle(activeTab)
+  useEffect(() => {
+    resetScrollAfterSort()
+  }, [visibleCurrencies, resetScrollAfterSort])
 
   return (
     <ContentWrapper className="min-h-0 gap-3 overflow-hidden p-4" data-testid="token-selector-modal">

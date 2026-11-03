@@ -15,11 +15,13 @@ import { useTokenBalance } from 'state/wallet/hooks'
 
 export const useSwapReviewData = (buildResult: BuildRouteResult | undefined) => {
   const form = useSwapFormContext()
-  const { routeSummary } = form
   const category = usePairCategory()
+  const { chainId, account } = useActiveWeb3React()
+
+  const { routeSummary } = form
   const currencyIn = routeSummary?.parsedAmountIn.currency
   const currencyOut = routeSummary?.parsedAmountOut.currency
-  const { chainId, account } = useActiveWeb3React()
+
   const { honeypot } = useHoneypotWarning({
     chainId,
     tokenAddress: currencyIn?.wrapped.address,
@@ -35,16 +37,16 @@ export const useSwapReviewData = (buildResult: BuildRouteResult | undefined) => 
     },
     { skip: !currencyIn || !currencyOut || !account || currencyIn.isNative },
   )
-  // Open stop market orders sell from the same balance; a native sell is out of their reach, like the limit one.
+
+  // Limit and stop orders reserve the same ERC-20 balance; neither can reserve native currency.
   const { data: stopActiveMakingAmount } = useGetStopMarketActiveMakingAmountQuery(
     { chainId, userWallet: account || '', tokenIn: currencyIn?.wrapped.address ?? '' },
     { skip: !currencyIn || !account || currencyIn.isNative || !isSupportStopMarket(chainId) },
   )
-  const limitReservedAmount = parseRawAmount(loActiveMakingAmount)
-  const stopReservedAmount = parseRawAmount(stopActiveMakingAmount)
-
   const balance = useTokenBalance(currencyIn?.wrapped)
 
+  const limitReservedAmount = parseRawAmount(loActiveMakingAmount)
+  const stopReservedAmount = parseRawAmount(stopActiveMakingAmount)
   const remainAmount = BigInt(balance?.quotient.toString() || 0) - BigInt(buildResult?.data?.amountIn || 0)
 
   const showReservedOrderNotice =

@@ -35,6 +35,8 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
   const { pairKey, isAmountPending } = request
 
   const { trackingHandler } = useTracking()
+  const runRef = useRef<(() => void) | null>(null)
+  const nextManualRefreshAt = useRef(0)
   const [state, setState] = useState({ ...EMPTY_QUOTE_STATE, request, loading: !disable })
 
   if (state.request !== request) {
@@ -62,8 +64,27 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
     [request],
   )
 
-  const runRef = useRef<(() => void) | null>(null)
-  const nextManualRefreshAt = useRef(0)
+  const onRefresh = useCallback(() => {
+    if (!runRef.current || Date.now() < nextManualRefreshAt.current) return
+
+    nextManualRefreshAt.current = Date.now() + 2000
+    runRef.current()
+  }, [])
+
+  const setSelectedKey = (selectedKey: string | null) => update({ selectedKey })
+
+  const openReview = (quote: Quote) => {
+    // Validate after the async allowance check, against the current request AND selected route.
+    setState(previous => {
+      const selected = previous.quotes.find(item => getQuoteKey(item) === previous.selectedKey) || previous.quotes[0]
+
+      return previous.request === request && !previous.loading && selected === quote
+        ? { ...previous, reviewQuote: { ...quote, category: previous.category } }
+        : previous
+    })
+  }
+
+  const closeReview = () => update({ reviewQuote: null, loading: !disable })
 
   const load = useEffectEvent(loadQuotes)
 
@@ -120,28 +141,6 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Effect Event reads the loader for this request.
   }, [request, showPreview, update, refreshSeconds])
-
-  const onRefresh = useCallback(() => {
-    if (!runRef.current || Date.now() < nextManualRefreshAt.current) return
-
-    nextManualRefreshAt.current = Date.now() + 2000
-    runRef.current()
-  }, [])
-
-  const setSelectedKey = (selectedKey: string | null) => update({ selectedKey })
-
-  const openReview = (quote: Quote) => {
-    // Validate after the async allowance check, against the current request AND selected route.
-    setState(previous => {
-      const selected = previous.quotes.find(item => getQuoteKey(item) === previous.selectedKey) || previous.quotes[0]
-
-      return previous.request === request && !previous.loading && selected === quote
-        ? { ...previous, reviewQuote: { ...quote, category: previous.category } }
-        : previous
-    })
-  }
-
-  const closeReview = () => update({ reviewQuote: null, loading: !disable })
 
   const trackReviewOpened = useEffectEvent((reviewedQuote: Quote) => {
     const { quote, adapter } = reviewedQuote

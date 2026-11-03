@@ -66,10 +66,12 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
     0,
   )
   const selectionContext = `${filteredTokens.map(getCurrencyKey).join(':')}:${defaultActiveTabIndex}`
+
   const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1d')
   const [selection, setSelection] = useState<{ context: string; index: number }>()
   const [isExpanded, setIsExpanded] = useState(!upToSmall)
-  // By marker group, as the canvas last counted them outside the visible price range.
+
+  // The canvas owns marker visibility; the header consumes its offscreen counts.
   const [offscreenCounts, setOffscreenCounts] = useState<Record<string, number>>({})
   const focusRequestNonceRef = useRef(0)
   const [focusMarkerRequest, setFocusMarkerRequest] = useState<{ groupKey: string; nonce: number }>()
@@ -95,6 +97,7 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
     shouldHideChartForNoActivity,
     shouldShowLowActivityWarning,
   } = useTokenPriceChartData(activeToken, timeFrame, quoteCurrency)
+
   const quoteSymbol = quoteToken?.symbol
   const formatValue = useMemo(
     () => (value?: number) =>
@@ -141,6 +144,7 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
               const isActive = index === resolvedActiveTabIndex
               const tokenQuote = quoteCurrency ?? PRICE_CHART_QUOTES[token.chainId]
               const isLast = index === filteredTokens.length - 1
+
               return (
                 <button
                   type="button"

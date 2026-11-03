@@ -18,16 +18,8 @@ export const EvmReceiverWalletModal = (props: {
   const config = useConfig()
   const metaMaskLink = useMetaMaskMobileLink()
   const active = useRef(true)
-  useEffect(() => {
-    active.current = true
-    setMetaMaskMobileLink(null)
-    void registerPortoConnector()
-    return () => {
-      active.current = false
-      setMetaMaskMobileLink(null)
-    }
-  }, [])
   const connectors = useOrderedConnections()
+
   const wallets = connectors.map(connector => ({
     id: connector.id,
     name: connector.name,
@@ -42,6 +34,18 @@ export const EvmReceiverWalletModal = (props: {
       }
     },
   }))
+
+  // Each modal session owns its mobile handoff; a late completion must not clear the next session's link.
+  useEffect(() => {
+    active.current = true
+    setMetaMaskMobileLink(null)
+    void registerPortoConnector()
+    return () => {
+      active.current = false
+      setMetaMaskMobileLink(null)
+    }
+  }, [])
+
   return (
     <ReceiverWalletModal
       {...props}

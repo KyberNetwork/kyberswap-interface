@@ -52,8 +52,10 @@ const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) =
 
 export const useHistoryWallet = (inputChain: Chain) => {
   const wallets = useSwapWallets()
+
   // History follows the current input signer after reverse; it never includes the receiver slot.
   const sender = wallets?.inputAddress || ''
+
   return typeof inputChain === 'number' ? sender.toLowerCase() : sender
 }
 
@@ -63,6 +65,7 @@ export const useHistoryWallet = (inputChain: Chain) => {
 const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () => void }) => {
   const sender = useHistoryWallet(inputChain)
   const [search, setSearch] = useState('')
+
   // Filtering stays within the current merged page; it does not search unloaded API cursors.
   const query = search.trim().toLowerCase()
 

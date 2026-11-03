@@ -21,16 +21,17 @@ const WalletHistorySubscription = ({ sender }: { sender: string }) => {
   return null
 }
 
-// The page-level owner keeps one live KD subscription per connected wallet. The
-// History panel only reads this cache and owns cursor navigation.
+// Unified Swap polls its input signer; legacy pages poll their connected wallets.
+// History consumes this cache, so closing it does not stop polling.
 const WalletHistorySubscriptions = () => {
   const swapWallets = useSwapWallets()
-  const inputAddress =
-    swapWallets?.inputConnection?.family === 'evm' ? swapWallets.inputAddress.toLowerCase() : swapWallets?.inputAddress
   const { account } = useActiveWeb3React()
   const { publicKey } = useWallet()
   const { walletInfo } = useBitcoinWallet()
   const { signedAccountId } = useWalletSelector()
+
+  const inputAddress =
+    swapWallets?.inputConnection?.family === 'evm' ? swapWallets.inputAddress.toLowerCase() : swapWallets?.inputAddress
   const fallbackSenders = useMemo(
     () =>
       [
@@ -40,7 +41,9 @@ const WalletHistorySubscriptions = () => {
       ] as string[],
     [account, publicKey, walletInfo?.address, signedAccountId],
   )
+
   const senders = swapWallets ? (inputAddress ? [inputAddress] : []) : fallbackSenders
+
   return (
     <>
       {senders.map(sender => (

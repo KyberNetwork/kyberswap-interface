@@ -16,12 +16,6 @@ export const useHistoryPagination = (sender: string) => {
   const latestLocal = useRef(local)
   latestLocal.current = local
 
-  useEffect(() => {
-    return () => {
-      navigation.current = undefined
-    }
-  }, [])
-
   const list = useGetTransactionsInfiniteQueryState(sender, { skip: !sender })
   const loaded = getLoadedHistory(list.currentData?.pages ?? [], local, sender)
   const lastPage = Math.max(1, Math.ceil(loaded.transactions.length / HISTORY_PAGE_SIZE))
@@ -42,17 +36,23 @@ export const useHistoryPagination = (sender: string) => {
 
   const goNext = async () => {
     if (!canGoNext || navigation.current || list.isFetching) return
+
     const request = Symbol()
     navigation.current = request
     setLoadingMore(true)
+
     try {
       let next = loaded
       const targetPage = loaded.transactions.length < end ? page : page + 1
+
+      // Deduplication can leave a display page short even after one API cursor advances.
       while (next.transactions.length < targetPage * HISTORY_PAGE_SIZE && next.hasMore) {
         const result = await fetchNextPage()
         if (navigation.current !== request || result.error) return
+
         next = getLoadedHistory(result.data?.pages ?? [], latestLocal.current, sender)
       }
+
       if (next.transactions.length > (targetPage - 1) * HISTORY_PAGE_SIZE)
         setPage(current => (current === page ? targetPage : current))
     } finally {
@@ -73,6 +73,26 @@ export const useHistoryPagination = (sender: string) => {
     setPage(current => Math.max(1, current - 1))
   }
 
+  const refresh = () => {
+    if (!sender) return
+
+    cancelNavigation()
+    setPage(1)
+
+    void dispatch(
+      walletTransactionsApi.endpoints.getTransactions.initiate(sender, {
+        subscribe: false,
+        forceRefetch: true,
+      }),
+    )
+  }
+
+  useEffect(() => {
+    return () => {
+      navigation.current = undefined
+    }
+  }, [])
+
   useEffect(() => {
     if (list.currentData && !loaded.hasMore) setPage(current => Math.min(current, lastPage))
   }, [list.currentData, loaded.hasMore, lastPage])
@@ -92,16 +112,6 @@ export const useHistoryPagination = (sender: string) => {
     canGoNext,
     goPrevious,
     goNext,
-    refresh: () => {
-      if (!sender) return
-      cancelNavigation()
-      setPage(1)
-      void dispatch(
-        walletTransactionsApi.endpoints.getTransactions.initiate(sender, {
-          subscribe: false,
-          forceRefetch: true,
-        }),
-      )
-    },
+    refresh,
   }
 }

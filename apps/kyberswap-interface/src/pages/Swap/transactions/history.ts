@@ -103,6 +103,9 @@ export const getLoadedHistory = (pages: IndexedTransactionPage[], local: History
   const hasMore = !!pages.at(-1)?.nextCursor
   const oldest = server.at(-1)
   const boundary = pages.at(-1)?.oldestTimestamp ?? (oldest ? Date.parse(oldest.createdAt) : Infinity)
+
+  // Keep local rows inside the loaded time window until the remaining API pages are known.
   const transactions = mergeTransactionHistory({ server, local, sender })
+
   return { transactions: hasMore ? transactions.filter(tx => tx.timestamp > boundary) : transactions, hasMore }
 }

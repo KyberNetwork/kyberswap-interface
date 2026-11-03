@@ -195,6 +195,7 @@ export class RelayAdapter extends BaseSwapAdapter {
   }
 
   async executeSwap(quote: Quote, walletClient: WalletClient | AdaptedWallet): Promise<NormalizedTxResponse> {
+    // Resolve after the source deposit; Relay's request ID owns destination-status lookup.
     return new Promise<NormalizedTxResponse>((resolve, reject) => {
       getClient()
         .actions.execute({
@@ -225,7 +226,7 @@ export class RelayAdapter extends BaseSwapAdapter {
             }
           },
         })
-        .catch(reject) // Make sure errors from execute are also caught
+        .catch(reject)
     })
   }
 
