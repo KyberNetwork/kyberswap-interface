@@ -111,8 +111,11 @@ export const SwapFee = ({ isFeeTampered, loading }: { isFeeTampered?: boolean; l
   const feeAmountWithSymbol = feeAmount && currency?.symbol ? `${feeAmount} ${currency.symbol}` : ''
   const feePercent = formatSwapFeePercent(routeSummary?.extraFee?.feeAmount)
   const feeValue = feePercent || feeAmountWithSymbol || '--'
+  const hasSwapFee = Number(routeSummary?.extraFee?.feeAmount) > 0
 
   if (isInSafeApp) {
+    if (!feeAmount) return null
+
     return (
       <QuoteDetailRow
         loading={loading && !routeSummary}
@@ -130,12 +133,12 @@ export const SwapFee = ({ isFeeTampered, loading }: { isFeeTampered?: boolean; l
           </span>
         }
       >
-        <span className={cn('text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>
-          {routeSummary ? '0.1%' : '--'}
-        </span>
+        <span className={cn('text-[12px] font-medium', isFeeTampered ? 'text-warning' : 'text-text')}>0.1%</span>
       </QuoteDetailRow>
     )
   }
+
+  if (!hasSwapFee) return null
 
   return (
     <QuoteDetailRow
