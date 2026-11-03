@@ -8,6 +8,7 @@ import type { Quote } from 'pages/Swap/crossChain/registry'
 import type { NormalizedTxResponse } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({
+  wallets: undefined as any,
   execute: vi.fn(),
   enqueue: vi.fn(),
   dispatch: vi.fn(),
@@ -15,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   mixpanel: vi.fn(),
   entries: [] as { key: string }[],
 }))
+vi.mock('pages/Swap/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
 vi.mock('constants/env', () => ({ CROSSCHAIN_AGGREGATOR_API: 'https://execution.test' }))
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
 vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({}), useConnection: () => ({ connection: {} }) }))
@@ -81,6 +83,7 @@ beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.resetAllMocks()
   mocks.entries = []
+  mocks.wallets = undefined
   mocks.enqueue.mockImplementation(() => {
     const entry = { key: 'captured' }
     mocks.entries = [entry]
@@ -212,4 +215,53 @@ it('executes and records the reviewed recipient instead of an adapter-returned a
       payload: expect.objectContaining({ sender: 'sender', recipient: 'pasted-receiver' }),
     }),
   )
+})
+
+it.each(['near', 'solana', 'bitcoin'] as const)(
+  'executes with the retained %s input session after reversal',
+  async family => {
+    const signer = {
+      signAndSendTransactions: vi.fn(),
+      publicKey: { toString: () => 'slot-sender' },
+      sendTransaction: vi.fn(),
+      signTransaction: vi.fn(function (this: unknown) {
+        return this
+      }),
+      sendBitcoin: vi.fn().mockResolvedValue('btc-hash'),
+    }
+    mocks.wallets = { inputAddress: 'slot-sender', inputConnection: { family, wallet: signer } }
+    const quote = makeQuote()
+    Object.assign(quote.quote.quoteParams, { fromChain: family, sender: 'slot-sender' })
+    mocks.execute.mockImplementation(async (...args) => {
+      if (family === 'near') {
+        expect(args[2].wallet).toBe(signer)
+        expect(args[2].signedAccountId).toBe('slot-sender')
+      } else if (family === 'solana') {
+        expect(args[1].signTransaction()).toBe(signer)
+      } else {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: async () => ({ fastestFee: 2 }) }))
+        await args[3]({ recipient: 'recipient', amount: '100' })
+        expect(signer.sendBitcoin).toHaveBeenCalledWith(
+          expect.objectContaining({ sender: 'slot-sender', amount: '100' }),
+        )
+      }
+      return { sourceTxHash: 'source-hash', sender: 'wrong-provider-sender', sourceChain: family }
+    })
+    await render(quote)
+    await act(async () => execution.handleSwap())
+    expect(mocks.execute).toHaveBeenCalledOnce()
+    expect(mocks.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sender: 'slot-sender',
+        transaction: expect.objectContaining({ sender: 'slot-sender' }),
+      }),
+    )
+  },
+)
+it('blocks execution when the input slot is empty even if a global wallet remains connected', async () => {
+  mocks.wallets = { inputAddress: '', inputConnection: undefined }
+  await render(makeQuote())
+  await act(async () => execution.handleSwap())
+  expect(mocks.execute).not.toHaveBeenCalled()
+  expect(execution.txError).toBeTruthy()
 })

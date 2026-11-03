@@ -9,6 +9,7 @@ import CrossChainSwapPending from 'components/SwapForm/CrossChain/CrossChainSwap
 import { SingleChainSwapContent } from 'components/SwapForm/SingleChain/SingleChainSwap'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import CrossChainRightPanel from 'pages/Swap/components/CrossChainRightPanel'
 import { SingleChainRightPanel } from 'pages/Swap/components/SingleChainRightPanel'
 import { Header } from 'pages/Swap/layout/Header'
@@ -79,9 +80,12 @@ const SwapPageContent = ({
   onHistoryChange,
 }: Props) => {
   const reduceMotion = useReducedMotion()
+  const wallets = useSwapWallets()
 
   const singleChainId = !isCrossChain && typeof inputChain === 'number' ? inputChain : undefined
 
+  // Pair reversal and wallet-slot reversal are one user action. The same
+  // callback is passed to the pending and loaded cross-chain forms.
   const crossChainSelectionProps = {
     hidden: activeTab !== TAB.SWAP,
     onChangeCurrencyIn: (currency: Currency) => selectCurrency(Field.INPUT, currency),
@@ -90,7 +94,11 @@ const SwapPageContent = ({
       selectNonEvmCurrency(Field.INPUT, chain, currency),
     onSelectNonEvmCurrencyOut: (chain: NonEvmChain, currency: NonEvmCurrency) =>
       selectNonEvmCurrency(Field.OUTPUT, chain, currency),
-    onReverse: reversePair,
+    onReverse: (outputAmount?: string) => {
+      wallets?.reverseConnections()
+      reversePair()
+      if (outputAmount !== undefined) onAmountChange(outputAmount)
+    },
   }
 
   const pendingFormProps = {

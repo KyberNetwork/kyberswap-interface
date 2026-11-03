@@ -1,17 +1,20 @@
 import { useEffect, useEffectEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
 import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
 import { type Chain, NonEvmChain } from 'types/crossChain'
 
 /** Consume the explicit wallet-connect intent supplied by the header's non-EVM links. */
 export const useCrossChainWalletIntent = (chain: Chain, onConnectBitcoin: () => void) => {
+  const wallets = useSwapWallets()
   const [params, setParams] = useSearchParams()
   const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
   const { setIsOpen } = useSolanaConnectModal()
   const connect = useEffectEvent(() => {
-    if (chain === NonEvmChain.Bitcoin) onConnectBitcoin()
+    if (wallets) wallets.connectInput()
+    else if (chain === NonEvmChain.Bitcoin) onConnectBitcoin()
     else if (chain === NonEvmChain.Near) onOpenWallet('near')
     else if (chain === NonEvmChain.Solana) setIsOpen(true)
   })

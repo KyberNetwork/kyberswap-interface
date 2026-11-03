@@ -2,6 +2,7 @@ import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useSyncExternalStore } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { useNativeBalance } from 'state/wallet/hooks'
 import {
   TokenMetadata,
@@ -31,7 +32,8 @@ export type { WalletInventory }
  * they register no traffic.
  */
 export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInventory => {
-  const { chainId: currentChain, account } = useActiveWeb3React()
+  const { chainId: currentChain } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const resolvedChain = chainId || currentChain
   const subscribed = enabled && isInventoryChain(resolvedChain) && !!account
 

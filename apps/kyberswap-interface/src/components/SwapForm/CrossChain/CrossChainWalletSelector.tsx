@@ -8,12 +8,12 @@ import Wallet from 'components/Icons/Wallet'
 import { Stack } from 'components/Stack'
 import type { ReceiverWallet } from 'components/SwapForm/CrossChain/receiverWallet'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { NonEvmChain } from 'types/crossChain'
+import { Chain, NonEvmChain } from 'types/crossChain'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 
 type Props = {
-  chain: NonEvmChain
+  chain: Chain
   wallet?: ReceiverWallet
   onConnect: () => void
   onDisconnect: () => void

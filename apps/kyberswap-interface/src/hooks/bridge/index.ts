@@ -6,38 +6,38 @@ import contractQuery from 'services/contractQuery'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
-import { useActiveWeb3React } from 'hooks'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { TokenAmountLoading } from 'state/wallet/hooks'
 import { nativeBalanceAmount } from 'utils/nativeErc20'
 import { Address } from 'utils/viem'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
-  const { account } = useActiveWeb3React()
-  const [balance, setBalance] = useState<CurrencyAmount<Currency>>()
+  const account = useEvmBalanceAccount()
+  const [result, setResult] = useState<{ account: string; chainId: ChainId; balance: CurrencyAmount<Currency> }>()
 
   useEffect(() => {
     const controller = new AbortController()
     async function getBalance() {
       try {
         if (!account || !chainId) {
-          setBalance(undefined)
+          setResult(undefined)
           return
         }
         const publicClient = getPublicClient(wagmiConfig, { chainId: chainId as number })
         if (!publicClient) {
-          setBalance(undefined)
+          setResult(undefined)
           return
         }
         const balance = await publicClient.getBalance({ address: account as Address })
         if (controller.signal.aborted) {
           return
         }
-        setBalance(nativeBalanceAmount(balance.toString(), chainId))
+        setResult({ account, chainId, balance: nativeBalanceAmount(balance.toString(), chainId) })
       } catch (error) {
         if (controller.signal.aborted) {
           return
         }
-        setBalance(undefined)
+        setResult(undefined)
       }
     }
     getBalance()
@@ -50,7 +50,7 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
     }
   }, [chainId, account])
 
-  return balance
+  return result?.account === account && result?.chainId === chainId ? result?.balance : undefined
 }
 
 export type FetchBalancesArg = {
@@ -86,9 +86,9 @@ export const useTokensBalanceOfAnotherChain = (
   chainId: ChainId | undefined,
   tokens: Currency[],
 ): [TokenAmountLoading[], boolean] => {
-  const { account } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
 
-  const { data: balances = [], isLoading } = contractQuery.useFetchBalancesQuery(
+  const { currentData: balances = [], isLoading } = contractQuery.useFetchBalancesQuery(
     {
       account,
       tokens,

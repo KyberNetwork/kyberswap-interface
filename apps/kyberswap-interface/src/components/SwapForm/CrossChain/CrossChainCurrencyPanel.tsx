@@ -10,13 +10,15 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Aligner, CurrencySelect, StyledTokenName } from 'components/CurrencyInputPanel/CurrencySelect'
+import { getBalanceAmountShares } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
 import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
 import { CrossChainSenderWalletSelector } from 'components/SwapForm/CrossChain/CrossChainSenderWalletSelector'
-import { useReceiverBalance } from 'components/SwapForm/CrossChain/hooks/useReceiverBalance'
+import { useCrossChainBalance } from 'components/SwapForm/CrossChain/hooks/useCrossChainBalance'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import { useNearBalances } from 'pages/Swap/crossChain/hooks/useNearBalances'
 import { MEDIA_WIDTHS } from 'theme'
 import { Currency, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
@@ -52,14 +54,18 @@ export const CrossChainCurrencyPanel = ({
   onSelectNonEvmCurrency,
 }: Props) => {
   const [open, setOpen] = useState(false)
-  const { balances } = useNearBalances(!output && chain === NonEvmChain.Near)
+  const wallets = useSwapWallets()
+  const { balances } = useNearBalances(!wallets && !output && chain === NonEvmChain.Near)
   const solanaBalances = useSolanaTokenBalances()
   const { balance: btcBalance, walletInfo } = useBitcoinWallet()
   const { publicKey } = useWallet()
   const { signedAccountId } = useWalletSelector()
-  const receiverBalance = useReceiverBalance(chain, currency, output ? receiverAddress : undefined)
+  const selectedAddress = output ? receiverAddress : wallets?.inputAddress
+  const selectedBalance = useCrossChainBalance(chain, currency, selectedAddress)
   const connected = output
     ? !!receiverAddress
+    : wallets
+    ? !!wallets.inputAddress
     : chain === NonEvmChain.Solana
     ? !!publicKey
     : chain === NonEvmChain.Near
@@ -67,20 +73,22 @@ export const CrossChainCurrencyPanel = ({
     : !!walletInfo?.address
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const rawBalance = output
-    ? receiverBalance
-    : chain === NonEvmChain.Bitcoin
-    ? btcBalance
-    : currency && 'assetId' in currency
-    ? balances[currency.assetId]
-    : currency && 'id' in currency
-    ? solanaBalances[currency.id]?.rawAmount
-    : undefined
+  const rawBalance =
+    output || wallets
+      ? selectedBalance
+      : chain === NonEvmChain.Bitcoin
+      ? btcBalance
+      : currency && 'assetId' in currency
+      ? balances[currency.assetId]
+      : currency && 'id' in currency
+      ? solanaBalances[currency.id]?.rawAmount
+      : undefined
   const balance =
     connected && rawBalance !== undefined && currency ? formatUnits(BigInt(rawBalance), currency.decimals) : ''
+  const walletSelector = output ? undefined : <CrossChainSenderWalletSelector key={chain} chain={chain} />
   const amountShortcuts =
     !output && connected && rawBalance !== undefined && currency
-      ? [50, 100].map(percent => {
+      ? getBalanceAmountShares(!!walletSelector).map(percent => {
           const exact = formatUnits((BigInt(rawBalance) * BigInt(percent)) / 100n, currency.decimals)
           return {
             label: percent === 100 ? t`Max` : `${percent}%`,
@@ -109,13 +117,7 @@ export const CrossChainCurrencyPanel = ({
           balanceActionsEnabled={connected && !!currency}
           positionMax="top"
           positionLabel="in"
-          label={
-            output ? (
-              receiver ?? <Trans>Est. Output</Trans>
-            ) : (
-              <CrossChainSenderWalletSelector key={chain} chain={chain} />
-            )
-          }
+          label={output ? receiver ?? <Trans>Est. Output</Trans> : walletSelector}
           customBalanceText={balance || '--'}
           estimatedUsd={
             !loading && amountUsd

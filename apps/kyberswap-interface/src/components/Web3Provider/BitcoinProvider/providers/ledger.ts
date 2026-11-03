@@ -129,6 +129,13 @@ export const createLedgerProvider = ({
   let transport: TransportWebUSB | null = null
   let derivationPath: string | null = null
 
+  const dispose = async () => {
+    const retained = transport
+    transport = null
+    derivationPath = null
+    await retained?.close()
+  }
+
   return {
     name: 'Ledger',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/d8d5850d-adf9-4ec3-904b-33830f6b25bd1748936729072.png',
@@ -172,6 +179,7 @@ export const createLedgerProvider = ({
           address,
           publicKey: compressedPublicKey,
           walletType: 'ledger',
+          derivationPath: path,
         })
         setConnectingWallet?.(null)
       } catch (error) {
@@ -184,6 +192,7 @@ export const createLedgerProvider = ({
         }
       }
     },
+    dispose,
     disconnect: async () => {
       if (transport) {
         try {

@@ -1,6 +1,4 @@
 import { t } from '@lingui/macro'
-import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { lazy, useState } from 'react'
 import { ChevronLeft, Clock, Search, X } from 'react-feather'
 
@@ -8,10 +6,9 @@ import IconButton from 'components/Button/IconButton'
 import Input from 'components/Input'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
-import { useActiveWeb3React } from 'hooks'
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import { useHistoryPagination } from 'pages/Swap/transactions/useHistoryPagination'
-import { Chain, NonEvmChain } from 'types/crossChain'
+import { Chain } from 'types/crossChain'
 
 const TransactionHistoryList = lazy(() => import('pages/Swap/transactions/TransactionHistoryList'))
 
@@ -54,19 +51,10 @@ const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) =
 }
 
 export const useHistoryWallet = (inputChain: Chain) => {
-  const { account } = useActiveWeb3React()
-  const { publicKey } = useWallet()
-  const { walletInfo } = useBitcoinWallet()
-  const { signedAccountId } = useWalletSelector()
-  const sender =
-    inputChain === NonEvmChain.Solana
-      ? publicKey?.toString()
-      : inputChain === NonEvmChain.Bitcoin
-      ? walletInfo?.address
-      : inputChain === NonEvmChain.Near
-      ? signedAccountId
-      : undefined
-  return sender || account?.toLowerCase() || ''
+  const wallets = useSwapWallets()
+  // History follows the current input signer after reverse; it never includes the receiver slot.
+  const sender = wallets?.inputAddress || ''
+  return typeof inputChain === 'number' ? sender.toLowerCase() : sender
 }
 
 /** Owns the search input; rows resolve token metadata and apply the filter.

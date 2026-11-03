@@ -5,6 +5,7 @@ import { SingleChainSwapFormProvider } from 'components/SwapForm/SingleChain/Sin
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import SwapPageContent from 'pages/Swap/SwapPageContent'
+import { SwapWalletProvider } from 'pages/Swap/SwapWalletProvider'
 import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
 import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
@@ -39,31 +40,33 @@ const SwapPage = () => {
 
   return (
     <NonEvmProviders>
-      <Suspense fallback={null}>
-        <TransactionUpdater />
-      </Suspense>
-      {pair.isCrossChain ? (
-        <Suspense fallback={<SwapPageContent {...contentProps} isProviderLoading />}>
-          <CrossChainSwapProvider
-            amount={typedValue}
-            onAmountChange={onUserInput}
-            tokenIn={pair.inputId}
-            tokenOut={pair.outputId}
-            fromChain={pair.inputChain}
-            toChain={pair.outputChain}
+      <SwapWalletProvider inputChain={pair.inputChain} outputChain={pair.outputChain}>
+        <Suspense fallback={null}>
+          <TransactionUpdater />
+        </Suspense>
+        {pair.isCrossChain ? (
+          <Suspense fallback={<SwapPageContent {...contentProps} isProviderLoading />}>
+            <CrossChainSwapProvider
+              amount={typedValue}
+              onAmountChange={onUserInput}
+              tokenIn={pair.inputId}
+              tokenOut={pair.outputId}
+              fromChain={pair.inputChain}
+              toChain={pair.outputChain}
+            >
+              <SwapPageContent {...contentProps} />
+            </CrossChainSwapProvider>
+          </Suspense>
+        ) : (
+          <SingleChainSwapFormProvider
+            chainId={pair.inputChain as ChainId}
+            currencyIn={pair.currencyIn}
+            currencyOut={pair.currencyOut}
           >
             <SwapPageContent {...contentProps} />
-          </CrossChainSwapProvider>
-        </Suspense>
-      ) : (
-        <SingleChainSwapFormProvider
-          chainId={pair.inputChain as ChainId}
-          currencyIn={pair.currencyIn}
-          currencyOut={pair.currencyOut}
-        >
-          <SwapPageContent {...contentProps} />
-        </SingleChainSwapFormProvider>
-      )}
+          </SingleChainSwapFormProvider>
+        )}
+      </SwapWalletProvider>
     </NonEvmProviders>
   )
 }

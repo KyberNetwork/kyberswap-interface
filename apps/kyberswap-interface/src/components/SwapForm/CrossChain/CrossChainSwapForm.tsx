@@ -4,6 +4,8 @@ import type { ReactNode } from 'react'
 
 import { Stack } from 'components/Stack'
 import { CrossChainCurrencyPanel } from 'components/SwapForm/CrossChain/CrossChainCurrencyPanel'
+import { CrossChainEvmSenderWalletSelector } from 'components/SwapForm/CrossChain/CrossChainEvmSenderWalletSelector'
+import { useCrossChainBalance } from 'components/SwapForm/CrossChain/hooks/useCrossChainBalance'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/CurrencyInput/OutputCurrencyPanel'
@@ -13,7 +15,9 @@ import { useActiveWeb3React } from 'hooks'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import type { Quote } from 'pages/Swap/crossChain/registry'
+import { WalletBalanceContext } from 'state/wallet/WalletBalanceContext'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import type { Chain, Currency, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 
@@ -26,7 +30,7 @@ export type CrossChainFormSelectionProps = {
   onChangeCurrencyOut: (currency: EvmCurrency) => void
   onSelectNonEvmCurrencyIn: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   onSelectNonEvmCurrencyOut: (chain: NonEvmChain, currency: NonEvmCurrency) => void
-  onReverse: () => void
+  onReverse: (outputAmount?: string) => void
 }
 
 type Props = CrossChainFormSelectionProps & {
@@ -69,17 +73,32 @@ export const CrossChainSwapForm = ({
   onReverse,
 }: Props) => {
   const { chainId } = useActiveWeb3React()
+  const wallets = useSwapWallets()
+  const { trackingHandler } = useTracking()
+
+  const independentWallets = wallets && (typeof fromChainId !== 'number' || typeof toChainId !== 'number')
   const input = evmCurrency(currencyIn)
   const output = evmCurrency(currencyOut)
+  const independentEvmReceiver = typeof fromChainId !== 'number' && typeof toChainId === 'number'
+
+  // EVM input is the app connection; SwapWalletProvider promotes the receiver
+  // there on reverse. Independent output reads must instead use receiverAddress.
   const balanceIn = useCurrencyBalance(input, input?.chainId)
-  const balanceOut = useCurrencyBalance(output, output?.chainId)
+  const appBalanceOut = useCurrencyBalance(output, output?.chainId)
+  const receiverBalance = useCrossChainBalance(toChainId, output, independentEvmReceiver ? receiverAddress : undefined)
+  const balanceOut = independentEvmReceiver
+    ? output && receiverBalance !== undefined
+      ? CurrencyAmount.fromRawAmount(output, receiverBalance)
+      : undefined
+    : appBalanceOut
+
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn: input, currencyOut: output, balanceIn, balanceOut })
   const { displayTypedValue, onDisplayInput, onRawValue } = useERC8056TypedInput(
     erc8056Info.inputInfo,
     amount,
     onAmountChange,
   )
-  const { trackingHandler } = useTracking()
+
   const quote = selectedQuote?.quote
   const parsedAmountOut =
     output && quote ? CurrencyAmount.fromRawAmount(output, quote.outputAmount.toString()) : undefined
@@ -97,86 +116,103 @@ export const CrossChainSwapForm = ({
     else onChangeCurrencyOut(currency)
   }
 
+  const handleReverse = () => {
+    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      new_from_token: currencyOut?.symbol,
+      new_to_token: currencyIn?.symbol,
+      chain: typeof fromChainId === 'number' ? NETWORKS_INFO[fromChainId].name : fromChainId,
+    })
+    onReverse(quote?.formattedOutputAmount)
+  }
+
   return (
     <SwapFormLayout
       hidden={hidden}
-      onReverse={() => {
-        trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
-          from_token: currencyIn?.symbol,
-          to_token: currencyOut?.symbol,
-          new_from_token: currencyOut?.symbol,
-          new_to_token: currencyIn?.symbol,
-          chain: typeof fromChainId === 'number' ? NETWORKS_INFO[fromChainId].name : fromChainId,
-        })
-        onReverse()
-        if (quote) onAmountChange(quote.formattedOutputAmount)
-      }}
+      onReverse={handleReverse}
       inputPanel={
-        typeof fromChainId !== 'number' ? (
-          <CrossChainCurrencyPanel
-            chain={fromChainId}
-            currency={currencyIn}
-            currencyLoading={isInputCurrencyLoading}
-            value={amount}
-            amountUsd={quote?.inputUsd}
-            onUserInput={onAmountChange}
-            onCurrencySelect={onChangeCurrencyIn}
-            onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
-          />
-        ) : (
-          <InputCurrencyPanel
-            amountInUsd={quote?.inputUsd?.toString()}
-            wrapType={WrapType.NOT_APPLICABLE}
-            typedValue={displayTypedValue}
-            rawTypedValue={amount}
-            onRawAmountChange={onRawValue}
-            onUserInput={onDisplayInput}
-            currencyIn={input}
-            currencyLoading={isInputCurrencyLoading}
-            currencyOut={output}
-            balanceIn={balanceIn}
-            balanceText={erc8056Info.input.balanceText}
-            highlightToken={erc8056Info.input.isScaled}
-            onChangeCurrencyIn={currency => selectEvmCurrency(currency, 'input')}
-            onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
-            customChainId={fromChainId}
-            chainSelectionMode="form"
-          />
-        )
+        <WalletBalanceContext.Provider
+          value={independentWallets ? { chain: fromChainId, address: wallets.inputAddress } : undefined}
+        >
+          {typeof fromChainId !== 'number' ? (
+            <CrossChainCurrencyPanel
+              chain={fromChainId}
+              currency={currencyIn}
+              currencyLoading={isInputCurrencyLoading}
+              value={amount}
+              amountUsd={quote?.inputUsd}
+              onUserInput={onAmountChange}
+              onCurrencySelect={onChangeCurrencyIn}
+              onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
+            />
+          ) : (
+            <InputCurrencyPanel
+              walletSelector={
+                typeof toChainId !== 'number' ? <CrossChainEvmSenderWalletSelector chain={fromChainId} /> : undefined
+              }
+              amountInUsd={quote?.inputUsd?.toString()}
+              wrapType={WrapType.NOT_APPLICABLE}
+              typedValue={displayTypedValue}
+              rawTypedValue={amount}
+              onRawAmountChange={onRawValue}
+              onUserInput={onDisplayInput}
+              currencyIn={input}
+              currencyLoading={isInputCurrencyLoading}
+              currencyOut={output}
+              balanceIn={balanceIn}
+              balanceText={erc8056Info.input.balanceText}
+              highlightToken={erc8056Info.input.isScaled}
+              onChangeCurrencyIn={currency => selectEvmCurrency(currency, 'input')}
+              onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
+              customChainId={fromChainId}
+              chainSelectionMode="form"
+            />
+          )}
+        </WalletBalanceContext.Provider>
       }
       outputPanel={
-        toChainId && typeof toChainId !== 'number' ? (
-          <CrossChainCurrencyPanel
-            output
-            receiver={receiver}
-            receiverAddress={receiverAddress}
-            loading={loading}
-            chain={toChainId}
-            currency={currencyOut}
-            currencyLoading={isOutputCurrencyLoading}
-            value={quote?.formattedOutputAmount || ''}
-            amountUsd={quote?.outputUsd}
-            onCurrencySelect={onChangeCurrencyOut}
-            onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
-          />
-        ) : (
-          <OutputCurrencyPanel
-            wrapType={WrapType.NOT_APPLICABLE}
-            parsedAmountIn={undefined}
-            parsedAmountOut={displayAmountOut}
-            currencyIn={input}
-            currencyOut={output}
-            currencyLoading={isOutputCurrencyLoading}
-            amountOutUsd={quote?.outputUsd?.toString()}
-            balanceText={erc8056Info.output.balanceText}
-            highlightToken={erc8056Info.output.isScaled}
-            onChangeCurrencyOut={currency => selectEvmCurrency(currency, 'output')}
-            onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
-            customChainId={toChainId}
-            chainSelectionMode="form"
-            routeLoading={loading}
-          />
-        )
+        <WalletBalanceContext.Provider
+          value={independentWallets ? { chain: toChainId, address: receiverAddress || '' } : undefined}
+        >
+          {toChainId && typeof toChainId !== 'number' ? (
+            <CrossChainCurrencyPanel
+              output
+              receiver={receiver}
+              receiverAddress={receiverAddress}
+              loading={loading}
+              chain={toChainId}
+              currency={currencyOut}
+              currencyLoading={isOutputCurrencyLoading}
+              value={quote?.formattedOutputAmount || ''}
+              amountUsd={quote?.outputUsd}
+              onCurrencySelect={onChangeCurrencyOut}
+              onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
+            />
+          ) : (
+            <OutputCurrencyPanel
+              label={receiver}
+              wrapType={WrapType.NOT_APPLICABLE}
+              parsedAmountIn={undefined}
+              parsedAmountOut={displayAmountOut}
+              currencyIn={input}
+              currencyOut={output}
+              currencyLoading={isOutputCurrencyLoading}
+              amountOutUsd={quote?.outputUsd?.toString()}
+              balanceText={
+                erc8056Info.output.balanceText ??
+                (independentEvmReceiver ? balanceOut?.toSignificant(10) ?? '--' : undefined)
+              }
+              balanceActionsEnabled={independentEvmReceiver ? !!(receiverAddress && output) : undefined}
+              highlightToken={erc8056Info.output.isScaled}
+              onChangeCurrencyOut={currency => selectEvmCurrency(currency, 'output')}
+              onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
+              customChainId={toChainId}
+              chainSelectionMode="form"
+              routeLoading={loading}
+            />
+          )}
+        </WalletBalanceContext.Provider>
       }
       tokenInfo={<ERC8056Info tokens={erc8056Info.tokens} />}
       details={details}

@@ -1,4 +1,5 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import type { ReactNode } from 'react'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
@@ -10,6 +11,7 @@ import { getGasReservation } from 'utils/gasReserve'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
+  walletSelector?: ReactNode
   amountInUsd?: string
   wrapType: WrapType
   typedValue: string
@@ -29,6 +31,7 @@ type Props = {
 }
 /** Adapts form input/balance actions to the shared field. Token loading is supplied by the pair resolver. */
 const InputCurrencyPanel = ({
+  walletSelector,
   amountInUsd,
   wrapType,
   typedValue,
@@ -64,10 +67,18 @@ const InputCurrencyPanel = ({
     onRawAmountChange(max || '')
   }
 
-  const amountShortcuts = useBalanceAmountShortcuts(balanceIn, rawTypedValue, onRawAmountChange, 'swap-amount')
+  const amountShortcuts = useBalanceAmountShortcuts(
+    balanceIn,
+    rawTypedValue,
+    onRawAmountChange,
+    'swap-amount',
+    !!walletSelector,
+  )
 
   return (
     <CurrencyInputPanel
+      label={walletSelector}
+      positionLabel="in"
       value={typedValue}
       positionMax="top"
       currency={currencyIn}

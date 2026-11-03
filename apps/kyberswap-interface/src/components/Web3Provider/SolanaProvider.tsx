@@ -2,11 +2,15 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react'
 // import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 // import { clusterApiUrl } from '@solana/web3.js'
-import { ComponentProps, FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { PublicKey } from '@solana/web3.js'
+import { useQuery } from '@tanstack/react-query'
+import { ComponentProps, FC, ReactNode } from 'react'
 
 import { SOLANA_RPC } from 'constants/env'
 import { SolanaConnectModalProvider } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
 import { SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
+import { useWalletBalanceAddress } from 'state/wallet/WalletBalanceContext'
+import { NonEvmChain } from 'types/crossChain'
 
 interface SolanaProviderProps {
   children: ReactNode
@@ -33,9 +37,7 @@ export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   return (
     <ConnectionProvider endpoint={SOLANA_RPC} config={SOLANA_CONNECTION_CONFIG}>
       <WalletProvider wallets={SOLANA_WALLETS} autoConnect={SOLANA_AUTO_CONNECT}>
-        <SolanaConnectModalProvider>
-          <SolanaTokenBalances>{children}</SolanaTokenBalances>
-        </SolanaConnectModalProvider>
+        <SolanaConnectModalProvider>{children}</SolanaConnectModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   )
@@ -48,54 +50,47 @@ interface SolanaTokenBalance {
   rawAmount: string
 }
 
-const SolanaTokenBalanceContext = createContext<Record<string, SolanaTokenBalance> | null>(null)
+const EMPTY_BALANCES: Record<string, SolanaTokenBalance> = {}
 
-const SolanaTokenBalances: FC<SolanaProviderProps> = ({ children }) => {
-  const [balances, setBalances] = useState<Record<string, SolanaTokenBalance>>({})
-  const { publicKey: solanaAddress } = useWallet()
-  const connection = useConnection()
-
-  useEffect(() => {
-    if (!solanaAddress) return
-    const fetchBalance = async () => {
-      const nativeBalance = await connection.connection.getBalance(solanaAddress)
-      const tokenAccounts = await connection.connection.getParsedTokenAccountsByOwner(solanaAddress, {
-        programId: TOKEN_PROGRAM_ID,
-      })
-      const b = tokenAccounts.value
-        .map(account => {
-          const info = account.account.data.parsed.info
-          return {
-            mint: info.mint,
-            balance: info.tokenAmount.uiAmount,
-            decimals: info.tokenAmount.decimals,
-            rawAmount: info.tokenAmount.amount,
-          }
-        })
-        .reduce((acc, curr) => ({ ...acc, [curr.mint]: curr }), {} as Record<string, SolanaTokenBalance>)
-      setBalances({
+/** All consumers share one address-keyed poll, including an independently selected swap wallet. */
+export const useSolanaTokenBalances = () => {
+  const { publicKey } = useWallet()
+  const address = useWalletBalanceAddress(NonEvmChain.Solana, publicKey?.toString())
+  const { connection } = useConnection()
+  const { data } = useQuery({
+    queryKey: ['solana-token-balances', connection.rpcEndpoint, address],
+    enabled: !!address,
+    staleTime: 10_000,
+    refetchInterval: 10_000,
+    retry: false,
+    queryFn: async () => {
+      if (!address) return EMPTY_BALANCES
+      const owner = new PublicKey(address)
+      const [nativeBalance, tokenAccounts] = await Promise.all([
+        connection.getBalance(owner),
+        connection.getParsedTokenAccountsByOwner(owner, { programId: TOKEN_PROGRAM_ID }),
+      ])
+      const balances: Record<string, SolanaTokenBalance> = {}
+      for (const account of tokenAccounts.value) {
+        const { mint, tokenAmount } = account.account.data.parsed.info
+        const rawAmount = (BigInt(balances[mint]?.rawAmount || '0') + BigInt(tokenAmount.amount)).toString()
+        balances[mint] = {
+          mint,
+          rawAmount,
+          decimals: tokenAmount.decimals,
+          balance: Number(rawAmount) / 10 ** tokenAmount.decimals,
+        }
+      }
+      return {
+        ...balances,
         [SOLANA_NATIVE]: {
           mint: SOLANA_NATIVE,
-          balance: nativeBalance / 1e9, // Convert lamports to SOL
+          rawAmount: String(nativeBalance),
           decimals: 9,
-          rawAmount: nativeBalance.toString(),
+          balance: nativeBalance / 1e9,
         },
-        ...b,
-      })
-    }
-
-    fetchBalance()
-    const interval = setInterval(fetchBalance, 10000) // Update every 20 seconds
-    return () => clearInterval(interval)
-  }, [solanaAddress, connection])
-
-  return <SolanaTokenBalanceContext.Provider value={balances}>{children}</SolanaTokenBalanceContext.Provider>
-}
-
-export const useSolanaTokenBalances = () => {
-  const context = useContext(SolanaTokenBalanceContext)
-  if (!context) {
-    throw new Error('useSolanaTokenBalances must be used within a SolanaTokenBalances provider')
-  }
-  return context
+      }
+    },
+  })
+  return address ? data ?? EMPTY_BALANCES : EMPTY_BALANCES
 }

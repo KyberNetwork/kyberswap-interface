@@ -78,6 +78,7 @@ export const createFordefiProvider = ({
       setConnectingWallet?.(null)
       setupEventListeners()
     },
+    dispose: removeEventListeners,
     disconnect: async () => {
       removeEventListeners()
       localStorage.removeItem('bitcoinWallet')

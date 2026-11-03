@@ -8,11 +8,13 @@ import type { getQuotes } from 'pages/Swap/crossChain/quote/adapterQuotes'
 import type { Quote } from 'pages/Swap/crossChain/registry'
 
 const mocks = vi.hoisted(() => ({
+  wallets: undefined as any,
   connection: {},
   checkSameAsset: vi.fn(),
   getQuotes: vi.fn(),
   state: { crossChainSwap: { excludedSources: ['Relay'], quoteMode: 'direct' } },
 }))
+vi.mock('pages/Swap/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
 vi.mock('@solana/wallet-adapter-react', () => ({
   useConnection: () => ({ connection: mocks.connection }),
   useWallet: () => ({}),
@@ -56,6 +58,7 @@ function Harness(props: Props) {
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.useFakeTimers()
+  mocks.wallets = undefined
   mocks.getQuotes.mockReset().mockImplementation(() => new Promise(() => undefined))
   root = createRoot(document.createElement('div'))
 })
@@ -120,4 +123,24 @@ describe('unified quote session after aggregator integration', () => {
     expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
     expect(mocks.getQuotes.mock.calls[1][0].params.amount).toBe('200000000')
   })
+})
+
+it('takes Bitcoin public key from the input signing session after reversal', async () => {
+  mocks.wallets = {
+    inputAddress: 'btc-sender',
+    inputConnection: { family: 'bitcoin', getPublicKey: () => 'ledger-key' },
+  }
+  await act(async () =>
+    root.render(
+      <Harness
+        pair={{ ...pair, fromChainId: 'bitcoin' as any }}
+        amount="1"
+        sender="btc-sender"
+        receiver="recipient"
+        isReadOnly={false}
+      />,
+    ),
+  )
+  await act(async () => vi.advanceTimersByTimeAsync(800))
+  expect(mocks.getQuotes.mock.calls[0][0].params).toMatchObject({ sender: 'btc-sender', publicKey: 'ledger-key' })
 })

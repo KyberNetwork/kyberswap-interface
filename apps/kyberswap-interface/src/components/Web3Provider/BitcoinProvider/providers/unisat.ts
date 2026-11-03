@@ -28,6 +28,10 @@ export const createUnisatProvider = ({
       }
     }
   } // Set up event listener when wallet is available
+  const handleDisconnect = () => {
+    setWalletInfo(defaultInfo)
+    localStorage.removeItem('bitcoinWallet')
+  }
   const setupEventListeners = () => {
     if (addressOnly) return
     if (window.unisat_wallet) {
@@ -35,10 +39,7 @@ export const createUnisatProvider = ({
       window.unisat_wallet.on?.('accountsChanged', handleAccountsChanged)
 
       // Listen for disconnect events (if available)
-      window.unisat_wallet.on?.('disconnect', () => {
-        setWalletInfo(defaultInfo)
-        localStorage.removeItem('bitcoinWallet')
-      })
+      window.unisat_wallet.on?.('disconnect', handleDisconnect)
     }
   }
 
@@ -46,7 +47,7 @@ export const createUnisatProvider = ({
   const removeEventListeners = () => {
     if (window.unisat_wallet) {
       window.unisat_wallet.removeListener?.('accountsChanged', handleAccountsChanged)
-      window.unisat_wallet.removeListener?.('disconnect', () => {})
+      window.unisat_wallet.removeListener?.('disconnect', handleDisconnect)
     }
   }
   return {
@@ -95,6 +96,7 @@ export const createUnisatProvider = ({
       setConnectingWallet?.(null)
       setupEventListeners()
     },
+    dispose: removeEventListeners,
     disconnect: async () => {
       removeEventListeners()
       localStorage.removeItem('bitcoinWallet')

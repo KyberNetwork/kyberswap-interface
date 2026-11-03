@@ -148,8 +148,8 @@ const ChainRoute = ({ tx }: { tx: HistoryTransaction }) => {
           className="size-5 rounded-full"
         />
       )}
-      {tx.sourceChain !== tx.targetChain && <ChevronRight size={14} className="shrink-0 text-subText" />}
-      {tx.sourceChain !== tx.targetChain && targetChainLogo && (
+      <ChevronRight size={14} className="shrink-0 text-subText" />
+      {targetChainLogo && (
         <img
           src={targetChainLogo}
           alt={getChainName(tx.targetChain)}

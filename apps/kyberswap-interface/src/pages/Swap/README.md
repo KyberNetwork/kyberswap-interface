@@ -1,95 +1,95 @@
 # Unified Swap
 
-Same-chain EVM and cross-chain swaps (EVM, Solana, Bitcoin and NEAR), with shared
-pair selection, settings, review, charts and routes. This folder also hosts Limit Order.
+Unified Swap combines same-chain EVM swaps and cross-chain swaps across EVM,
+Solana, Bitcoin and NEAR, with shared token selection, settings, review, charts
+and transaction history. Limit Order shares the page shell.
 
 ## Entry points
 
-| Page             | URL                                      |
+| Feature          | URL                                      |
 | ---------------- | ---------------------------------------- |
 | Same-chain swap  | `/swap/{network}/{pair}`                 |
 | Cross-chain swap | `/swap?from=…&to=…&tokenIn=…&tokenOut=…` |
 | Limit Order      | `/limit/{network}/{pair}`                |
 | Embedded swap    | `/partner-swap` or `/user-swap/{tipsId}` |
 
-`src/pages/Swap/SwapRoute.tsx` normalizes public URLs. `src/pages/Swap/SwapPage.tsx`
-selects the quote provider; `src/pages/Swap/SwapPageContent.tsx` renders the form
-and right panel. `src/pages/Swap/LimitPage.tsx` shares the page shell in `src/pages/Swap/layout`.
+## Quotes and routes
 
-## State and operation owners
+- Same-chain EVM swaps use KyberSwap routing. Unified cross-chain swaps use
+  aggregator stream quotes; stream errors do not fall back to direct quotes.
+- Kyber Across is removed. KyberSwap remains a same-chain source and is excluded
+  from cross-chain source settings and results.
+- Route options show **Best Return** and one **Fastest** badge. Fastest uses the
+  lowest valid positive time estimate, then higher output to break ties.
+- Cross-chain routes show one provider step, except KyberCross routes with a valid
+  route plan, which show their swap/bridge steps. Same-chain routes show pool splits.
+- Routes start collapsed when a supported pricing chart is enabled, and expanded
+  otherwise. Chart and route visibility are separate settings.
+- Pair changes clear cross-chain route selection and review. Same-pair refreshes
+  retain the selected provider; opening review pauses quote refresh.
+- The normal same-chain fee/tip row is hidden when no positive fee applies.
+  Safe App retains its separate Platform Fee display.
 
-Source paths use `src/...` relative to `apps/kyberswap-interface`.
-Use absolute imports from `src` throughout Swap, including lazy imports and test mocks.
+## Wallets and tokens
 
-`src/types/crossChain.ts` owns shared chain, currency and transaction data contracts.
-`src/state/crossChainSwap/model.ts` owns local transaction identity, sync and settlement
-rules. Store/service consumers import these directly; adapter quote/execution contracts
-remain in `src/pages/Swap/crossChain/adapters/types.ts`.
+Routes involving non-EVM chains have separate sender and receiver connections.
+The EVM sender follows the app wallet; connecting an EVM receiver does not activate
+it as the app wallet. EVM-to-EVM swaps keep the app-wallet behavior.
 
-| Owner                                                                                                    | Responsibility                                                                       |
-| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `src/pages/Swap/hooks/useSwapFormPair.ts`                                                                | Token selection, reversal and one URL update for both sides                          |
-| `src/pages/Swap/hooks/useTradeController.ts`                                                             | Tabs, settings navigation and URL actions                                            |
-| `src/components/SwapForm/SingleChain`                                                                    | Shared quote, recipient, wrap and review state for form and panel                    |
-| `src/components/SwapForm/hooks/useGetRoute.ts` / `src/components/SwapForm/hooks/useSwapReviewSession.ts` | Query refresh and cancellation-safe build/review/submit lifecycle                    |
-| `src/components/SwapForm/CrossChain`                                                                     | Pair metadata, recipients, aggregator requests, route selection and review snapshots |
-| `src/pages/Swap/crossChain/adapters` / `src/pages/Swap/crossChain/quote`                                 | Provider payloads, quote normalization and execution contracts                       |
-| `src/pages/Swap/crossChain/hooks`                                                                        | Approval, wallet execution and local transaction tracking                            |
-| `src/pages/Swap/crossChain/transactions`                                                                 | Backend reconciliation and provider status updates                                   |
+Reverse swaps the retained connections along with the pair, preserving signing
+sessions and Ledger paths. An EVM receiver becomes the app wallet when reversed
+into the input. Pasted recipient text stays unchanged. Wallet slots live for the
+page session; the paste draft resets when the cross-chain form unmounts.
 
-`src/pages/Swap/transactions` owns the shared transaction read/display flow:
+Each side reads balances for its own address, including a pasted recipient.
+Browsing a different wallet family shows unknown balances without changing the
+signer. Cross-chain token selection updates the pair without switching the wallet
+network.
 
-- `localTransactionSelectors.ts` derives local swap history.
-- `history.ts` merges normalized local rows with indexed API rows by source chain/hash.
-- `useHistoryPagination.ts` owns wallet-scoped page navigation, independently of polling.
-- `HistoryPanel`, `TransactionHistoryList` and `TransactionHistoryItem` render history;
-  `ProcessingTransactions` renders ongoing cross-chain execution.
-- `TransactionUpdater.tsx` maintains API subscriptions and mounts the cross-chain
-  provider/backend updaters, independently of History visibility.
+**All Networks** browses/searches EVM tokens through `KS_SETTING_API/v1/tokens`,
+with API pagination and filtering to supported networks. Empty search lists
+whitelisted tokens. Only the All tab is available; local imports, favorites and
+non-EVM catalogs are not merged into this list. API errors offer retry. Solana,
+Bitcoin and NEAR tokens remain available in their individual network views.
 
-Same-chain persistence and receipt updates remain in `src/state/transactions`;
-cross-chain persistence remains in `src/state/crossChainSwap`. Selectors project
-these stores without copying transactions. Complete settled API records supersede
-local rows; pending or incomplete index records preserve local execution data.
-The header pending count lives in `src/state/transactions/selectors.ts` and reads
-only local state. Provider polling and backend
-reconciliation remain in `src/pages/Swap/crossChain/transactions`.
+## History
 
-Keep related logic together, separate distinct steps with blank lines, and preserve
-hook order, dependencies and cleanup when reorganizing code.
+History follows the current input wallet and merges local same-chain/cross-chain
+swaps with indexed KD API records, deduplicated by source chain and transaction
+hash. Complete settled API records supersede local rows; pending or incomplete
+records preserve local execution data.
 
-## Embedded pages and KyberCross
+The History button opens history in the chart/route area. Pages contain up to
+10 merged rows; token/name/address search filters the current page. Same-chain
+rows show **Tx Hash**; cross-chain rows show **Deposit** and **Fill**. The processing
+list shows ongoing cross-chain transactions for the input wallet.
 
-Partner/User Swap reuse `SwapPage`; their wrapper owns attribution, fee validation
-and tip-link hydration. Embedded URLs use `chainId`, optional `toChain`,
-`inputCurrency` and `outputCurrency`. Missing `toChain` means same-chain; empty token
-fields use defaults. Pair writes remove public `from/to/tokenIn/tokenOut` fields.
-Limit Order uses `chainId` for both sides and clears `toChain`.
+History polling runs every 10 seconds while the swap page is mounted, independently
+of History visibility. Provider/backend reconciliation also runs independently.
 
-`features=swap,limit` controls available tabs. `tab` selects the main tab or an
-Info/Settings/source panel; returning from a panel restores its main tab.
+## Related pages and code
 
-`src/pages/KyberCross` consumes shared swap modules for direct quotes and Gas Drop,
-with separate source preferences. Shared modules must not import that page.
-`/kybercross` requires the testing flag `KYBERCROSS`, including in Safe App; keep it
-disabled for release. The retired `/cross-chain` route falls back to home.
+Partner/User Swap reuse this feature with attribution, fee/tip configuration and
+embedded pair parameters (`chainId`, `toChain`, `inputCurrency`, `outputCurrency`).
+`features=swap,limit` controls tabs. KyberCross reuses shared modules but owns direct
+quotes, Gas Drop and separate source preferences; `/kybercross` requires the
+`KYBERCROSS` testing flag. The retired `/cross-chain` route falls back to home.
 
-## Verification
+Main owners: `SwapRoute` handles URLs, `SwapPage` selects the form provider,
+`SwapPageContent` renders the layout, and `SwapWalletProvider` owns wallet slots.
+Shared form logic lives in `src/components/SwapForm`, provider integrations in
+`src/pages/Swap/crossChain`, and history in `src/pages/Swap/transactions`.
 
-Run from the repository root; see the `apps/kyberswap-interface/README.md` for setup.
+## Development
+
+The current `.env` defaults to production same-chain/cross-chain aggregator,
+KS Setting and KD APIs. Deployment environment variables can override these.
+See `apps/kyberswap-interface/README.md` for setup; run checks from the repository root:
 
 ```sh
-pnpm --filter @kyberswap/interface exec vitest run src/pages/Swap src/components/SwapForm
+pnpm --filter @kyberswap/interface exec vitest run src/pages/Swap src/components/SwapForm src/components/TokenSelectorModal
 pnpm --filter @kyberswap/interface exec tsc --noEmit
 ```
 
-Keep tests for observable contracts: URL/pair preservation, stale quote/review
-isolation, exact amounts and provider minimums, wallet execution, and history
-reconciliation/pagination. Use table-driven cases for distinct provider variants.
-Avoid duplicate scenarios, markup/class assertions, cosmetic timer checks and
-tests of third-party SDK behavior without exercising our code.
-
-Shared changes also need the affected consumer tests in `src/pages/KyberCross` and
-`src/pages/PartnerSwap`. API/store changes should exercise the history and execution
-suites against their updated contracts.
-Unit tests do not verify browser layout, live providers or wallet E2E flows.
+Shared changes also need affected KyberCross/PartnerSwap tests. Unit tests do not
+verify browser layout, live provider responses or wallet E2E flows.

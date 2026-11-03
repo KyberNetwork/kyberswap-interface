@@ -7,17 +7,13 @@ import { useHistoryWallet } from 'pages/Swap/transactions/HistoryPanel'
 import { Chain, NonEvmChain } from 'types/crossChain'
 
 const wallets = vi.hoisted(() => ({
+  selected: undefined as any,
   evm: '0xEVM',
   solana: 'SolanaSender',
   bitcoin: 'BitcoinSender',
   near: 'sender.near',
 }))
-vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ account: wallets.evm }) }))
-vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({ publicKey: wallets.solana }) }))
-vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({ signedAccountId: wallets.near }) }))
-vi.mock('components/Web3Provider/BitcoinProvider', () => ({
-  useBitcoinWallet: () => ({ walletInfo: { address: wallets.bitcoin } }),
-}))
+vi.mock('pages/Swap/SwapWalletContext', () => ({ useSwapWallets: () => wallets.selected }))
 vi.mock('pages/Swap/transactions/useHistoryPagination', () => ({
   useHistoryPagination: vi.fn(),
 }))
@@ -30,6 +26,7 @@ const Harness = ({ chain }: { chain: Chain }) => {
 const render = (chain: Chain) => act(async () => root.render(<Harness chain={chain} />))
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  wallets.selected = undefined
   Object.assign(wallets, { evm: '0xEVM', solana: 'SolanaSender', bitcoin: 'BitcoinSender', near: 'sender.near' })
   root = createRoot(document.createElement('div'))
 })
@@ -38,32 +35,13 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 
-it('defaults to EVM even when unrelated non-EVM wallets are connected', async () => {
-  await render(1)
-  expect(selected).toBe('0xevm')
-  await render(8453)
-  expect(selected).toBe('0xevm')
-  wallets.evm = ''
-  await render(1)
-  expect(selected).toBe('')
-})
-
-it.each([
-  [NonEvmChain.Solana, 'solana', 'SolanaSender'],
-  [NonEvmChain.Bitcoin, 'bitcoin', 'BitcoinSender'],
-  [NonEvmChain.Near, 'near', 'sender.near'],
-] as const)(
-  'prefers the connected input sender for %s and falls back to EVM on disconnect',
-  async (chain, family, address) => {
+it.each([1, NonEvmChain.Near, NonEvmChain.Solana, NonEvmChain.Bitcoin])(
+  'uses only the input slot for history on %s and stays empty after disconnect',
+  async chain => {
+    wallets.selected = { inputAddress: 'SelectedSender' }
     await render(chain)
-    expect(selected).toBe(address)
-    wallets[family] = 'NewSender'
-    await render(chain)
-    expect(selected).toBe('NewSender')
-    wallets[family] = ''
-    await render(chain)
-    expect(selected).toBe('0xevm')
-    wallets.evm = ''
+    expect(selected).toBe(typeof chain === 'number' ? 'selectedsender' : 'SelectedSender')
+    wallets.selected.inputAddress = ''
     await render(chain)
     expect(selected).toBe('')
   },

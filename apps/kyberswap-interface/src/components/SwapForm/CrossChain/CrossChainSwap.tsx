@@ -17,7 +17,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
-import { NonEvmChain, isNonEvmChain } from 'types/crossChain'
+import { isNonEvmChain } from 'types/crossChain'
 
 type Props = CrossChainFormSelectionProps
 
@@ -34,13 +34,14 @@ const CrossChainSwap = (props: Props) => {
     loading,
     warning,
     recipient,
-    showNonEvmRecipient,
+    isPastedRecipient,
   } = useCrossChainSwap()
   const { trackingHandler } = useTracking()
   const [showBitcoin, setShowBitcoin] = useState(false)
   const walletIntentModal = useCrossChainWalletIntent(fromChainId, () => setShowBitcoin(true))
   const debouncedAmount = useDebounce(amount, 1000)
 
+  const hasNonEvmChain = isNonEvmChain(fromChainId) || isNonEvmChain(toChainId)
   const input = currencyIn && 'isNative' in currencyIn ? currencyIn : undefined
   const output = currencyOut && 'isNative' in currencyOut ? currencyOut : undefined
   const { message } = useHoneypotWarning({
@@ -77,22 +78,18 @@ const CrossChainSwap = (props: Props) => {
         toChainId={toChainId}
         selectedQuote={selectedQuote || undefined}
         loading={loading}
-        receiver={
-          isNonEvmChain(toChainId) ? (
-            <CrossChainReceiverWalletSelector key={toChainId} chain={toChainId as NonEvmChain} />
-          ) : undefined
-        }
+        receiver={hasNonEvmChain ? <CrossChainReceiverWalletSelector key={toChainId} chain={toChainId} /> : undefined}
         receiverAddress={recipient}
         details={
           <Stack className="gap-2">
             <CrossChainQuoteDetails
-              recipient={!isNonEvmChain(toChainId) || showNonEvmRecipient ? <CrossChainRecipient /> : undefined}
+              recipient={!hasNonEvmChain || isPastedRecipient ? <CrossChainRecipient /> : undefined}
             />
             <HoneypotWarning message={message} />
             <CrossChainPriceImpactWarning warning={warning} />
           </Stack>
         }
-        action={<CrossChainSwapAction onConnectBitcoin={() => setShowBitcoin(true)} />}
+        action={<CrossChainSwapAction />}
       />
       <BitcoinConnectModal isOpen={showBitcoin} onDismiss={() => setShowBitcoin(false)} />
     </>

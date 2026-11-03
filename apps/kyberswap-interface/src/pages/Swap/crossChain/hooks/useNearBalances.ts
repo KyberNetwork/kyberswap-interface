@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { useNearIntentsTokens } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/useNearIntentsTokens'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
+import { useWalletBalanceAddress } from 'state/wallet/WalletBalanceContext'
+import { NonEvmChain } from 'types/crossChain'
 
 const EMPTY_BALANCES: Record<string, string> = {}
 
@@ -53,7 +55,8 @@ export const useNearBalances = (enabled = true) => {
     [nearTokens],
   )
 
-  const { signedAccountId, getBalance } = useWalletSelector()
+  const { signedAccountId: globalAccountId, getBalance } = useWalletSelector()
+  const signedAccountId = useWalletBalanceAddress(NonEvmChain.Near, globalAccountId)
 
   const active = enabled && !!signedAccountId && tokenOnNears.length > 0
   const { data, refetch } = useQuery({

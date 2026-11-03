@@ -5,12 +5,13 @@ import { useState } from 'react'
 import { CrossChainWalletSelector } from 'components/SwapForm/CrossChain/CrossChainWalletSelector'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
 import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
 import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
 import { NonEvmChain } from 'types/crossChain'
 
-export const CrossChainSenderWalletSelector = ({ chain }: { chain: NonEvmChain }) => {
+const LegacySenderWalletSelector = ({ chain }: { chain: NonEvmChain }) => {
   const { publicKey, wallet: solanaWallet, disconnect: disconnectSolana } = useWallet()
   const { signedAccountId, wallet: nearWallet, signOut } = useWalletSelector()
   const { walletInfo, availableWallets } = useBitcoinWallet()
@@ -65,5 +66,23 @@ export const CrossChainSenderWalletSelector = ({ chain }: { chain: NonEvmChain }
       {termAndPolicyModal}
       {showBitcoin && <BitcoinConnectModal isOpen allowWalletSwitch onDismiss={() => setShowBitcoin(false)} />}
     </>
+  )
+}
+
+export const CrossChainSenderWalletSelector = ({ chain }: { chain: NonEvmChain }) => {
+  const wallets = useSwapWallets()
+  if (!wallets) return <LegacySenderWalletSelector chain={chain} />
+  return (
+    <CrossChainWalletSelector
+      role="sender"
+      chain={chain}
+      wallet={
+        wallets.inputConnection && wallets.inputAddress
+          ? { ...wallets.inputConnection, address: wallets.inputAddress }
+          : undefined
+      }
+      onConnect={wallets.connectInput}
+      onDisconnect={wallets.disconnectInput}
+    />
   )
 }
