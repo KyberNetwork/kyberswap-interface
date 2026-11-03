@@ -22,16 +22,17 @@ type Props = {
 export const SingleChainRightPanel = ({ currencyIn, currencyOut, isTokenLoading }: Props) => {
   const { routeSummary, routeLoading } = useSingleChainSwapContext()
   const { chainId: walletChainId } = useActiveWeb3React()
-  const chainId = currencyIn?.chainId ?? walletChainId
-  const networkInfo = NETWORKS_INFO[chainId]
-  const isSameChain = !currencyIn || !currencyOut || currencyIn.chainId === currencyOut.chainId
   const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[chainId])
   const { trackingHandler } = useTracking({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
   })
+
+  const chainId = currencyIn?.chainId ?? walletChainId
+  const networkInfo = NETWORKS_INFO[chainId]
+  const isSameChain = !currencyIn || !currencyOut || currencyIn.chainId === currencyOut.chainId
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[chainId])
 
   const tradeRouteComposition = useTradeComposition({
     chainId,

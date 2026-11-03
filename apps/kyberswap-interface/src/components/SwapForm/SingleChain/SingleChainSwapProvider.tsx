@@ -57,6 +57,7 @@ const useSingleChainSwap = ({
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
   const recipient = isDegenMode && !isWrapOrUnwrap ? evmRecipient.recipient : account || ''
 
+  // Invalidate a built review on wallet/form changes; slippage is rebuilt separately below.
   const reviewIdentity = JSON.stringify([
     chainId,
     walletChainId,
@@ -102,7 +103,7 @@ const useSingleChainSwap = ({
 
   const routeSummary = getRouteResponse?.routeSummary
 
-  // Detect if a browser extension tampered with the fee params in the API request
+  // Compare the response with the exact fee intent captured by the request, not current settings.
   const isFeeTampered = useMemo(() => {
     const responseExtraFee = getRouteRawResponse?.data?.routeSummary?.extraFee
     if (!responseExtraFee) return false
@@ -111,9 +112,7 @@ const useSingleChainSwap = ({
     const responseFeeReceiver = responseExtraFee.feeReceiver?.toLowerCase() || ''
     const intendedFeeReceiver = intended.feeReceiver?.toLowerCase() || ''
 
-    // If API returned a feeReceiver that UI never intended to send
     if (responseFeeReceiver && responseFeeReceiver !== intendedFeeReceiver) return true
-    // If API returned a feeAmount that UI never intended to send
     if (responseExtraFee.feeAmount && responseExtraFee.feeAmount !== intended.feeAmount) return true
 
     return false
@@ -131,6 +130,7 @@ const useSingleChainSwap = ({
 
   const previousSlippage = useRef(slippage)
 
+  // Rebuild an open review before paint so Confirm cannot submit the previous slippage.
   useLayoutEffect(() => {
     const changed = previousSlippage.current !== slippage
     previousSlippage.current = slippage

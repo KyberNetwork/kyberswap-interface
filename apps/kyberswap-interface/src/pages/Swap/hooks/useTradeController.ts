@@ -26,9 +26,9 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
   const { pathname, isEmbeddedSwap } = usePageLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const productPath = getTradeProductPath(pathname)
   const [localTab, setLocalTab] = useState<TAB>(mainTab)
 
+  const productPath = getTradeProductPath(pathname)
   const tabFromUrl = searchParams.get('tab') as TAB | null
   const activeTab = isEmbeddedSwap
     ? tabFromUrl && (tabFromUrl === TAB.SWAP || tabFromUrl === TAB.LIMIT || isSettingTab(tabFromUrl))
@@ -52,6 +52,9 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
     [isEmbeddedSwap, setSearchParams],
   )
 
+  const onBackToMainTab = useCallback(() => onTabChange(mainTab), [mainTab, onTabChange])
+
+  // Migrate legacy EVM query parameters into the public network/pair path.
   useEffect(() => {
     const inputCurrency = searchParams.get('inputCurrency')
     const outputCurrency = searchParams.get('outputCurrency')
@@ -70,6 +73,7 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
     setLocalTab(mainTab)
   }, [mainTab, productPath])
 
+  // Public URLs consume a tab intent once; embedded URLs retain it as navigation state.
   useEffect(() => {
     if (!isEmbeddedSwap && (tabFromUrl === TAB.SETTINGS || tabFromUrl === mainTab)) {
       setLocalTab(tabFromUrl)
@@ -79,8 +83,6 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
       setSearchParams(next, { replace: true })
     }
   }, [isEmbeddedSwap, tabFromUrl, mainTab, searchParams, setSearchParams])
-
-  const onBackToMainTab = useCallback(() => onTabChange(mainTab), [mainTab, onTabChange])
 
   return {
     activeMainTab,

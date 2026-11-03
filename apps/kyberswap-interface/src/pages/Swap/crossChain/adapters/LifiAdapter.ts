@@ -45,7 +45,7 @@ export class LifiAdapter extends BaseSwapAdapter {
 
   async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
     const r = await getQuote({
-      fromChain: params.fromChain === 'solana' ? 'SOL' : +params.fromChain, // Arbitrum
+      fromChain: params.fromChain === 'solana' ? 'SOL' : +params.fromChain,
       fromToken:
         params.fromChain === 'solana'
           ? (params.fromToken as SolanaToken).id
@@ -66,8 +66,6 @@ export class LifiAdapter extends BaseSwapAdapter {
       fee: params.feeBps / 10_000,
     })
 
-    //const inputUsd = Number(r.estimate.fromAmountUSD || '0')
-    //const outputUsd = Number(r.estimate.toAmountUSD || '0')
     const outputAmount = toBigIntSafe(r.estimate.toAmount)
     const inputAmount = toBigIntSafe(params.amount)
 
@@ -114,7 +112,7 @@ export class LifiAdapter extends BaseSwapAdapter {
       if (!connection || !sendTransaction) throw new Error('Connection is not defined for Solana swap')
       const txBuffer = Buffer.from(rawQuote.transactionRequest.data, 'base64')
 
-      // Try to deserialize as VersionedTransaction first
+      // LI.FI may return either Solana transaction format.
       let transaction
       try {
         transaction = VersionedTransaction.deserialize(txBuffer as any)
@@ -131,7 +129,6 @@ export class LifiAdapter extends BaseSwapAdapter {
 
       console.log('Transaction parsed successfully:', transaction)
 
-      // Send through wallet adapter
       const signature = await sendTransaction(transaction, connection)
       onSourceTransaction?.(signature)
 
@@ -166,6 +163,7 @@ export class LifiAdapter extends BaseSwapAdapter {
           throw new Error(`Transaction was not confirmed: ${confirmError.message}`)
         }
       }
+
       return {
         sender: quote.quoteParams.sender,
         id: signature,
@@ -187,6 +185,7 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
+
     const transaction = evmTransactionSchema.parse(rawQuote.transactionRequest)
     const tx = await walletClient.sendTransaction({
       chain: undefined,
@@ -198,7 +197,7 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     return {
       sender: quote.quoteParams.sender,
-      id: tx, // specific id for each provider
+      id: tx,
       sourceTxHash: tx,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,
@@ -222,8 +221,7 @@ export class LifiAdapter extends BaseSwapAdapter {
       txHash: p.sourceTxHash,
     })
 
-    // Extract actual output amount from receiving data if available
-    // Prefer value (actual received after gas), fallback to amount if value is 0
+    // Prefer the received value after gas; fall back to amount when value is absent or zero.
     const receivingData = (res as any)?.receiving
     const actualAmountOut =
       receivingData?.value && receivingData.value !== '0' ? receivingData.value : receivingData?.amount

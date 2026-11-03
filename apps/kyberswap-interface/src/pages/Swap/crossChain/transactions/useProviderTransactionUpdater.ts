@@ -99,9 +99,11 @@ export const useProviderTransactionUpdater = () => {
   const dispatch = useAppDispatch()
 
   const ongoingCallsRef = useRef<Set<string>>(new Set())
+
   // Terminal enrichment is attempted once per updater mount, including failed requests.
   // Remounting the updater retries it; opening or paginating History does not.
   const terminalCheckedRef = useRef<Set<string>>(new Set())
+
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const transactionsRef = useRef(transactions)
   transactionsRef.current = transactions
@@ -189,6 +191,7 @@ export const useProviderTransactionUpdater = () => {
         const updates = store.getState().crossChainSwap.transactions.flatMap(tx => {
           const txUpdate = txUpdateMap.get(localTransactionKey(tx))
           if (!txUpdate) return []
+
           // A BE updater may have already committed a canonical terminal result
           // while this provider request was in flight. Never regress it.
           if (isBackendResolved(tx.sync?.backend) || isBackendResolved(tx.settlement)) return []
@@ -212,6 +215,7 @@ export const useProviderTransactionUpdater = () => {
                     })} ${native.symbol} gas`
                   : ''
               const chain = getChainName(tx.targetChain)
+
               notify({
                 title: t`Swap completed`,
                 summary: t`Swapped ${input} for ${output}${gasText} on ${chain}`,
@@ -287,6 +291,7 @@ export const useProviderTransactionUpdater = () => {
           const key = localTransactionKey(tx)
           const current = store.getState().crossChainSwap.transactions.find(row => localTransactionKey(row) === key)
           if (!current || isBackendResolved(current.sync?.backend) || isBackendResolved(current.settlement)) return
+
           const update = getTransactionUpdate(current, result)
           if (update) dispatch(patchProviderTransactions([{ key, update }]))
         })

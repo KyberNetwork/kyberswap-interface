@@ -51,7 +51,6 @@ const SwapOnlyButton = ({
   onDismissReview,
   buildRoute,
 }: SwapOnlyButtonProps) => {
-  const isProcessingSwap = review.phase !== 'closed'
   const { trackingHandler } = useTracking({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
@@ -59,6 +58,8 @@ const SwapOnlyButton = ({
   const { networkInfo } = useActiveWeb3React()
   const [slippage] = useUserSlippageTolerance()
   const [transactionTimeout] = useUserTransactionTTL()
+
+  const isProcessingSwap = review.phase !== 'closed'
   const { buildResult } = review
   const isBuildingRoute = review.phase === 'building'
   const { priceImpact } = routeSummary || {}
@@ -133,6 +134,7 @@ const SwapOnlyButton = ({
     })
   }
 
+  // Submit only the payload/router built for this review; the displayed quote may already have refreshed.
   const handleSubmit: SubmitReview = onRequestSignature => {
     if (!buildResult?.data?.data || !buildResult.data.routerAddress) throw new Error('Missing built route')
 

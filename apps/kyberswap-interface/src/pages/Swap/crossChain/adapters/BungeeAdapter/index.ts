@@ -37,7 +37,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
   }
   getAliases() {
     return [
-      // Bungee is now part of Socket, so we can use Socket's name and icon
+      // Older quotes/history may identify this provider as Bungee.
       { name: 'Bungee', icon: 'https://www.bungee.exchange/favicon.ico' },
     ]
   }

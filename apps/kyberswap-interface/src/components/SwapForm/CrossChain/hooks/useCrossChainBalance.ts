@@ -13,6 +13,7 @@ export const useCrossChainBalance = (chain: Chain, currency?: Currency, address?
   const publicClient = usePublicClient({ chainId: typeof chain === 'number' ? chain : undefined })
   const { connection } = useConnection()
   const { getBalance, viewFunction } = useWalletSelector()
+
   const token =
     currency && 'isNative' in currency
       ? currency.isNative
@@ -32,8 +33,10 @@ export const useCrossChainBalance = (chain: Chain, currency?: Currency, address?
     retry: false,
     queryFn: async ({ signal }) => {
       if (!address) return undefined
+
       if (typeof chain === 'number') {
         if (!publicClient || !isAddress(address)) return undefined
+
         return String(
           token === 'native'
             ? await publicClient.getBalance({ address })
@@ -45,26 +48,32 @@ export const useCrossChainBalance = (chain: Chain, currency?: Currency, address?
               }),
         )
       }
+
       if (chain === NonEvmChain.Bitcoin) {
         const response = await fetch(`https://api.blockchain.info/haskoin-store/btc/address/${address}/balance`, {
           signal,
         })
         if (!response.ok) throw new Error('Could not load wallet balance')
+
         return String((await response.json()).confirmed || 0)
       }
+
       if (chain === NonEvmChain.Near) {
         // These selector helpers are read-only RPC calls with an explicit owner;
         // the selector's signed-in account does not choose the balance address.
         if (!token) return (await getBalance(address)).toString()
         return String(await viewFunction({ contractId: token, method: 'ft_balance_of', args: { account_id: address } }))
       }
+
       const owner = new PublicKey(address)
       if (token === SOLANA_NATIVE) return String(await connection.getBalance(owner))
+
       const accounts = await connection.getParsedTokenAccountsByOwner(owner, { mint: new PublicKey(token) })
       return accounts.value
         .reduce((total, account) => total + BigInt(account.account.data.parsed.info.tokenAmount.amount), 0n)
         .toString()
     },
   })
+
   return data
 }

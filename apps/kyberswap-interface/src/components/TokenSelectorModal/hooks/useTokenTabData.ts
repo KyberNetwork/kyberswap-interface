@@ -68,9 +68,7 @@ export const useTokenTabData = ({
     : EMPTY_CURRENCIES
   const metricsExtras = useTokensMetrics(metricsSource, primaryChainId)
 
-  // Imported and Favorites take their price from the live prices endpoint (buy/sell mid — the same
-  // source the All tab and the wallet-value sort use, so a token reads the same on every tab), while
-  // 24h change / volume / FDV stay from the tokens-list metrics.
+  // Local tabs share live prices with All and wallet-value sorting; catalog data supplies other metrics.
   const localPriceAddresses = useMemo(
     () => (metricsSource.length ? metricsSource.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
     [metricsSource],
@@ -103,13 +101,12 @@ export const useTokenTabData = ({
     return EMPTY_EXTRAS
   }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtrasWithPrice, newExtrasWithPrice, localExtras])
 
-  // In-memory metric sort for the Imported / Favorites tabs, whose only sortable column is "Price &
-  // 24h change" (Trending and New sort server-side). Rows are tiered so those missing the sorted
-  // metric always sink to the very bottom regardless of direction; for 24h change, priced-but-no-change
-  // rows sit above no-price rows.
+  // Local metric sorts put missing values last in both directions.
+  // For 24h change, a priced token without change data still precedes a token without a price.
   const sortByMetric = useCallback(
     (list: Currency[]): Currency[] => {
       if (!sort) return list
+
       const field = sort.field
       const dir = sort.dir === 'asc' ? 1 : -1
       const extraOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
@@ -120,11 +117,13 @@ export const useTokenTabData = ({
         if (extra?.price) return 1
         return 2
       }
+
       return [...list].sort((a, b) => {
         const ra = rankOf(a)
         const rb = rankOf(b)
         if (ra !== rb) return ra - rb
         if (ra !== 0) return 0
+
         const va = extraOf(a)?.[field] ?? 0
         const vb = extraOf(b)?.[field] ?? 0
         return (va - vb) * dir
@@ -137,12 +136,14 @@ export const useTokenTabData = ({
   const sortByFdv = useCallback(
     (list: Currency[]): Currency[] => {
       const fdvOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.fdv
+
       return [...list].sort((a, b) => {
         const ca = fdvOf(a)
         const cb = fdvOf(b)
         if (ca === undefined && cb === undefined) return 0
         if (ca === undefined) return 1
         if (cb === undefined) return -1
+
         return cb - ca
       })
     },

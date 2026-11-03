@@ -37,11 +37,6 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
   const [allNetworks, setAllNetworks] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState(anchorChainId)
 
-  // Returning from an other-chain import keeps browsing on that token's chain, as before.
-  useEffect(() => {
-    if (importChainId !== undefined && !allNetworks) setSelectedChainId(importChainId)
-  }, [importChainId, allNetworks])
-
   const [activeTab, setActiveTab] = useState(() =>
     showDiscoveryTabs && !account && isTrendingSupportedChain(anchorChainId)
       ? TokenSelectorTab.Trending
@@ -50,6 +45,14 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const listTokenRef = useRef<HTMLDivElement>(null)
+  const [sort, setSort] = useState<TokenSort | null>(null)
+  const [metricColumn, setMetricColumn] = useState<TokenMetricColumn>('volume24h')
+  const pendingSortScrollReset = useRef(false)
+
+  const preSearchTabRef = useRef<TokenSelectorTab | null>(null)
 
   const visibleTabs = useMemo(
     () =>
@@ -60,30 +63,6 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
       ),
     [selectedChainId, allNetworks],
   )
-
-  // Preserve the existing tab/search transitions while keeping their state in one hook.
-  useEffect(() => {
-    if (!visibleTabs.includes(activeTab)) setActiveTab(TokenSelectorTab.All)
-  }, [visibleTabs, activeTab])
-
-  const preSearchTabRef = useRef<TokenSelectorTab | null>(null)
-  useEffect(() => {
-    if (debouncedQuery) {
-      if (preSearchTabRef.current === null) preSearchTabRef.current = activeTab
-      setActiveTab(TokenSelectorTab.All)
-    } else if (preSearchTabRef.current !== null) {
-      setActiveTab(visibleTabs.includes(preSearchTabRef.current) ? preSearchTabRef.current : TokenSelectorTab.All)
-      preSearchTabRef.current = null
-    }
-    // Query-driven only; tab changes must not restart the search transition.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery])
-
-  const inputRef = useRef<HTMLInputElement>(null)
-  const listTokenRef = useRef<HTMLDivElement>(null)
-  const [sort, setSort] = useState<TokenSort | null>(null)
-  const [metricColumn, setMetricColumn] = useState<TokenMetricColumn>('volume24h')
-  const pendingSortScrollReset = useRef(false)
 
   const cycleSort = useCallback((field: TokenSortField) => {
     pendingSortScrollReset.current = true
@@ -108,12 +87,6 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
   const resetScroll = useCallback(() => {
     if (listTokenRef.current) listTokenRef.current.scrollTop = 0
   }, [])
-
-  useEffect(() => {
-    setSort(null)
-    pendingSortScrollReset.current = false
-    resetScroll()
-  }, [activeTab, selectedChainId, allNetworks, resetScroll])
 
   const resetScrollAfterSort = useCallback(() => {
     if (!pendingSortScrollReset.current) return
@@ -158,6 +131,34 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     },
     [selectedChainId, resetScroll],
   )
+
+  // Returning from an other-chain import keeps browsing on that token's chain, as before.
+  useEffect(() => {
+    if (importChainId !== undefined && !allNetworks) setSelectedChainId(importChainId)
+  }, [importChainId, allNetworks])
+
+  // All Networks and unsupported chains may hide the currently selected tab.
+  useEffect(() => {
+    if (!visibleTabs.includes(activeTab)) setActiveTab(TokenSelectorTab.All)
+  }, [visibleTabs, activeTab])
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      if (preSearchTabRef.current === null) preSearchTabRef.current = activeTab
+      setActiveTab(TokenSelectorTab.All)
+    } else if (preSearchTabRef.current !== null) {
+      setActiveTab(visibleTabs.includes(preSearchTabRef.current) ? preSearchTabRef.current : TokenSelectorTab.All)
+      preSearchTabRef.current = null
+    }
+    // Query-driven only; tab changes must not restart the search transition.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery])
+
+  useEffect(() => {
+    setSort(null)
+    pendingSortScrollReset.current = false
+    resetScroll()
+  }, [activeTab, selectedChainId, allNetworks, resetScroll])
 
   useEffect(() => {
     if (!trackingDebouncedQuery || !trackingSource) return

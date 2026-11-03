@@ -70,6 +70,7 @@ export const useTokenPriceChartData = (
       const lastPagePeriodStartMs = lastPage.summary?.periodStartMs
       if (!lastPagePeriodStartMs) return undefined
 
+      // Exclude the previous page boundary so pagination cannot request the same candle twice.
       const toBucketMs = lastPagePeriodStartMs - TOKEN_CHART_CANDLE_INTERVAL_MS[timeFrame]
 
       return {
@@ -88,11 +89,6 @@ export const useTokenPriceChartData = (
     },
     { skip: !activeTokenAddress || !stableAddress || !quoteAddress },
   )
-
-  const handleLoadMore = async () => {
-    if (!hasNextPage || isFetchingNextPage) return
-    await fetchNextPage()
-  }
 
   const accumulatedCandles = useMemo(
     () => mergeTokenChartCandles(infiniteData?.pages.flatMap(page => page?.candles ?? []) ?? []),
@@ -116,6 +112,11 @@ export const useTokenPriceChartData = (
   const shouldUseActivityState = activityCandles.length > 0
   const shouldHideChartForNoActivity = shouldUseActivityState && countRecentTransactions(activityCandles, 24 * 7) < 1
   const shouldShowLowActivityWarning = shouldUseActivityState && countRecentTransactions(activityCandles, 24) < 5
+
+  const handleLoadMore = async () => {
+    if (!hasNextPage || isFetchingNextPage) return
+    await fetchNextPage()
+  }
 
   return {
     stableToken,

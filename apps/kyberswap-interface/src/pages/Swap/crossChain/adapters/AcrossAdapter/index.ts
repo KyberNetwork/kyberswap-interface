@@ -201,7 +201,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         timeEstimate = swapQuote.expectedFillTime
       }
 
-      // across only have bridge then we can treat token in and out price usd are the same in case price service is not supported
+      // For matching symbols, reuse the other side's price when this chain lacks price-service coverage.
       const isSameToken = params.fromToken.symbol === params.toToken.symbol
       const tokenInUsd =
         isSameToken && NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain) && params.tokenOutUsd
@@ -247,7 +247,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     const normalizedQuote = quote.quote
     const quoteParams = normalizedQuote.quoteParams
 
-    // For EVM chains, use the original implementation
+    // Resolve on the source swap hash; destination settlement is tracked separately.
     return new Promise<NormalizedTxResponse>((resolve, reject) => {
       this.acrossClient
         .executeSwapQuote({

@@ -47,7 +47,6 @@ type Props = {
 const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, scrollOnExpand = true, onExpand }: Props) => {
   const panelRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
-  useEffect(() => setIsExpanded(!defaultCollapsed), [defaultCollapsed])
 
   const handleToggle = () => {
     const nextExpanded = !isExpanded
@@ -59,12 +58,15 @@ const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, scrollOn
 
     if (!scrollOnExpand) return
 
+    // Wait for the expanded content to lay out before scrolling it into view.
     globalThis.requestAnimationFrame(() => {
       globalThis.requestAnimationFrame(() => {
         panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       })
     })
   }
+
+  useEffect(() => setIsExpanded(!defaultCollapsed), [defaultCollapsed])
 
   return (
     <div ref={panelRef} className="overflow-hidden rounded-xl border border-darkBorder">

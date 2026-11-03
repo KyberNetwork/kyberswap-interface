@@ -43,22 +43,6 @@ export const useCrossChainExecution = (
 
   const activeSubmission = useRef<symbol | null>(null)
 
-  const resetExecution = useCallback(() => {
-    // Closing a review detaches its UI; an in-flight transaction still records its result in history.
-    activeSubmission.current = null
-    setTxHash('')
-    setTxError('')
-    setSubmittingTx(false)
-  }, [])
-
-  useEffect(() => {
-    resetExecution()
-
-    return () => {
-      activeSubmission.current = null
-    }
-  }, [reviewedQuote, resetExecution])
-
   const dispatch = useAppDispatch()
   const store = useStore<AppState>()
 
@@ -66,10 +50,11 @@ export const useCrossChainExecution = (
   const solanaWallet = useWallet()
   const { walletInfo, availableWallets } = useBitcoinWallet()
   const swapWallets = useSwapWallets()
+  const [checkBlackjack] = useLazyCheckBlackjackQuery()
+  const { connection } = useConnection()
+
   const inputConnection = swapWallets?.inputConnection
   const inputAddress = swapWallets?.inputAddress
-
-  const [checkBlackjack] = useLazyCheckBlackjackQuery()
 
   const solanaAdapter = inputConnection?.family === NonEvmChain.Solana ? inputConnection.wallet : undefined
   const solanaSigner = solanaAdapter as Partial<SignerWalletAdapter> | undefined
@@ -90,7 +75,6 @@ export const useCrossChainExecution = (
       ? { ...nearWallet, wallet: inputConnection.wallet, signedAccountId: inputAddress || null }
       : nearWallet
   const activeBitcoinWallet = inputConnection?.family === NonEvmChain.Bitcoin ? inputConnection.wallet : undefined
-  const { connection } = useConnection()
 
   const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
     const feeRate = await fetch('https://mempool.space/api/v1/fees/recommended').then(res => res.json())
@@ -128,6 +112,7 @@ export const useCrossChainExecution = (
       return
     }
 
+    // Check the live signer against the immutable reviewed quote before opening the wallet.
     const executionSender = swapWallets
       ? inputAddress || undefined
       : isEvmChain(fromChainId)
@@ -155,7 +140,6 @@ export const useCrossChainExecution = (
       connection,
       async (transaction, options) => {
         try {
-          // Ensure transaction is properly formatted
           if (transaction instanceof VersionedTransaction || transaction instanceof Transaction) {
             const signature = await sendTransaction(transaction, connection, options)
             return { signature }
@@ -179,6 +163,7 @@ export const useCrossChainExecution = (
     let broadcastHash = ''
     let capturedOutboxKey: string | undefined
 
+    // Broadcast persistence survives review dismissal; only UI updates depend on this submission still being current.
     const persistBroadcast = (transaction: NormalizedTxResponse) => {
       const alreadyCaptured = broadcastHash === transaction.sourceTxHash
       broadcastHash = transaction.sourceTxHash
@@ -305,7 +290,6 @@ export const useCrossChainExecution = (
       }
 
       if (res) {
-        // enrich tx with usd/fee/recipient for later use
         const enriched = {
           ...res,
           // Bind reconciliation to the signer that actually broadcast the tx;
@@ -350,6 +334,22 @@ export const useCrossChainExecution = (
       }
     }
   }
+
+  const resetExecution = useCallback(() => {
+    // Closing a review detaches its UI; an in-flight transaction still records its result in history.
+    activeSubmission.current = null
+    setTxHash('')
+    setTxError('')
+    setSubmittingTx(false)
+  }, [])
+
+  useEffect(() => {
+    resetExecution()
+
+    return () => {
+      activeSubmission.current = null
+    }
+  }, [reviewedQuote, resetExecution])
 
   return { submittingTx, txHash, txError, handleSwap, resetExecution }
 }

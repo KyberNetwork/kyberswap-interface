@@ -31,10 +31,6 @@ import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { Chain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
-// ============================================
-// KyberCrossAdapter
-// ============================================
-
 const getKyberCrossChainName = (chainId: Chain): QuoteRequest['from_chain'] => {
   const chainName = chainIdToKyberCrossChainName[chainId as ChainId]
   if (!chainName) throw new Error(`Unsupported KyberCross chain: ${chainId}`)
@@ -96,6 +92,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
   private normalizeQuote(params: QuoteParams, rawQuote: KyberCrossRawQuote): NormalizedQuote {
     const data = rawQuote.data
     if (!data || !('route_plans' in data) || !data.route_plans[0]) throw new Error('No KyberCross route plans found')
+
     const routePlan = data.route_plans[0]
 
     const gasDrop = getGasDropQuote(routePlan)

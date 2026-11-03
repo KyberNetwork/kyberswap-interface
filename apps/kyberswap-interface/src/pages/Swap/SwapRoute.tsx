@@ -8,6 +8,7 @@ import { getDefaultSwapTokenId, getTradeLocation, isCrossChainPair } from 'utils
 
 const NetworkSyncedSwap = () => {
   useSyncNetworkParamWithStore()
+
   return <SwapPage />
 }
 
@@ -17,7 +18,9 @@ const SwapRoute = () => {
   const { network } = useParams()
   const [params] = useSearchParams()
   const { inputChain, outputChain, fromCurrency, toCurrency } = useCurrencyFromUrl()
+
   const isCrossChain = isCrossChainPair(inputChain, outputChain)
+
   if (isCrossChain || ['from', 'to', 'tokenIn', 'tokenOut'].some(key => params.has(key))) {
     const target = getTradeLocation(
       'swap',
@@ -29,12 +32,15 @@ const SwapRoute = () => {
       },
       params,
     )
+
     if (location.pathname !== target.pathname || location.search !== target.search) {
       return <Navigate to={{ ...target, hash: location.hash }} replace />
     }
   }
+
   if (isCrossChain) return <SwapPage />
   if (!network) return <RedirectPathToTradeNetwork />
+
   return <NetworkSyncedSwap key={network} />
 }
 

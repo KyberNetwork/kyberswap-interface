@@ -83,14 +83,10 @@ export const useTokenSelectorData = ({
     [primaryChainId, otherSelectedCurrency, filterWrap, isListable],
   )
 
-  // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
-  // per-block balanceOf multicall over the whole visible set. Only one of the two paths is ever fed
-  // tokens, so the unused one registers no work; chains without inventory keep the multicall.
+  // Inventory replaces per-block balance reads on supported chains; the inactive source receives no tokens.
   const inventory = useWalletInventory(primaryChainId, enabled)
 
-  // Held tokens on no list. They sit in the All tab alongside everything else as dimmed rows that
-  // import on click, and search matches them directly: someone typing a symbol they hold is looking
-  // for it.
+  // Unlisted holdings remain searchable and require import when selected.
   const { tokens: discoveryTokens, impersonators } = useInventoryDiscoveries(
     inventory,
     defaultTokens,
@@ -110,9 +106,8 @@ export const useTokenSelectorData = ({
         : EMPTY_CURRENCIES,
     [isAllTab, debouncedQuery, discoveryTokens, primaryChainId],
   )
-  // Imported tokens live only in local state, and the catalog answers a symbol query with its
-  // whitelisted entries alone. Matching them here keeps a token the empty-box list shows from
-  // vanishing the moment its own symbol is typed.
+
+  // Catalog search omits local imports, so merge their matches to keep imported symbols searchable.
   const searchImportMatches = useMemo<Currency[]>(
     () =>
       isAllTab && debouncedQuery && tokenImports.length
@@ -133,13 +128,11 @@ export const useTokenSelectorData = ({
     [isAllTab, debouncedQuery, inventory],
   )
 
-  // One balanceOf multicall for the whole modal: the sort-by-wallet-value comparator and the list's
-  // balance column need the same tokens, and registering them apart doubles the RPC traffic. The set
-  // comes from each tab's *unsorted* source so it stays put while the rows re-sort on top of it, and
-  // it covers only the rows a tab actually shows — the Trending / New tabs render a metric column
-  // instead of a balance, so they read nothing.
+  // Sorting and balance cells share one read set built from unsorted tab data.
+  // Trending/New display metrics instead of balances and must not register these reads.
   const balanceTokens = useMemo<Token[]>(() => {
     if (!enabled || isTrendingTab || isNewTab) return EMPTY_TOKENS
+
     const tabTokensSource: (Currency | undefined)[] = isImportedTab
       ? tokenImports
       : isFavoritesTab
@@ -147,8 +140,8 @@ export const useTokenSelectorData = ({
       : debouncedQuery
       ? [...tokenSearchResults, currentChainRpcToken, ...searchDiscoveryMatches, ...searchImportMatches]
       : Object.values(defaultTokens)
-    // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
-    // search hit) have no balance to show here either.
+
+    // Native balances use their own read; search hits from another chain are excluded.
     return tabTokensSource.filter(
       (token): token is Token =>
         !!token && !isTokenNative(token) && token.chainId === primaryChainId && isListable(token),
@@ -176,15 +169,13 @@ export const useTokenSelectorData = ({
     [showDiscoveries, balanceTokens, discoveryTokens],
   )
 
-  // The multicall answers until the inventory can. Its cost is one sweep per open, ended the moment a
-  // walk lands; what the inventory saves is the per-block repeat of that sweep, which is the expensive
-  // part. A wallet is walked page by page, and no screen waits on that to show a balance.
+  // Stop RPC reads once inventory becomes active; both sorting and display switch together.
   const multicallTokens = inventory.active ? EMPTY_TOKENS : balanceTokensWithDiscoveries
   const multicallBalances = useTokenBalances(multicallTokens, primaryChainId)
   const inventoryBalances = useInventoryTokenBalances(balanceTokensWithDiscoveries, inventory)
   const balances = inventory.active ? inventoryBalances : multicallBalances
-  // Whichever source answers, a balance it never delivers stops reading as "loading": every new map
-  // restarts the wait, so a source still working keeps its rows on a loader and a stalled one does not.
+
+  // Bound loading for missing balances; each updated map restarts the wait.
   const waitingForBalances = useBalanceWait(balances, !!account)
   const nativeBalance = useNativeBalance(primaryChainId)
 
@@ -200,11 +191,11 @@ export const useTokenSelectorData = ({
     isAllTab ? unlistedAddresses : undefined,
   )
 
-  // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
-  // tokens. Only computed for the All tab — the other tabs never read it, so skip the whole-whitelist
-  // sort there. Object.values already returns a fresh array, so sort it in place.
+  // All combines search/RPC/local matches, or sorts the default list when search is empty.
+  // Other tabs skip this work and retain their own ordering.
   const allTabTokens: Currency[] = useMemo(() => {
     if (!isAllTab) return EMPTY_CURRENCIES
+
     if (debouncedQuery) {
       return mergeHeldSearchResults(
         concatUnseenTokens(
@@ -216,6 +207,7 @@ export const useTokenSelectorData = ({
         impersonators,
       ).filter(filterWrapFunc)
     }
+
     return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
   }, [
     isAllTab,
@@ -251,36 +243,23 @@ export const useTokenSelectorData = ({
     [localFilter, pinnedTokens, primaryChainId],
   )
 
-  // Quick-select pills: always lead with the chain's native token, then fill the rest from config /
-  // favorites (dropping any native duplicate). Capped at 5 (4 on mobile) when the Favorites tab exists
-  // to hold the overflow; uncapped otherwise (see the discovery-off note below). The native lead is
-  // only hidden by a non-matching text search — never by the wrap filter — so it's always present.
+  // Native leads the pills unless search excludes it; the wrap filter does not hide that shortcut.
+  // Cap only when the Favorites tab can expose the overflow.
   const quickSelectTokens = useMemo(() => {
     const native = NativeCurrencies[primaryChainId] as Currency | undefined
     const nativeMatchesSearch =
       !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
+
     const nativeLead = nativeMatchesSearch && native && isListable(native) ? [native] : []
     const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
     const list = [...nativeLead, ...rest]
+
     return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
   }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, isListable])
 
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
     [localFilter, tokenImports, tokenComparator],
-  )
-  // Catalog metadata (name, logo) for the unlisted holdings being looked at, and only those: a
-  // spam-heavy wallet can hold hundreds, and the modal should not spend its opening on them. Before
-  // the chain's list lands every held token classifies as unlisted, so the ask waits for it.
-  const handleRowsRendered = useCallback(
-    (rows: Currency[]) => {
-      if (!unlistedAddresses?.size || !isTokenListReady(defaultTokens, tokenImports)) return
-      const addresses = rows.flatMap(currency =>
-        currency.isToken && unlistedAddresses.has(currency.address) ? [currency.address] : [],
-      )
-      if (addresses.length) void ensureTokenMetadata(primaryChainId, addresses)
-    },
-    [unlistedAddresses, defaultTokens, tokenImports, primaryChainId],
   )
 
   const tabData = useTokenTabData({
@@ -296,6 +275,20 @@ export const useTokenSelectorData = ({
 
   const { hasMore: tabHasMore, fetchMore: fetchMoreTab } = tabData
   const { fetchMore: fetchMoreSearch } = search
+
+  // Enrich only visible unlisted holdings after the chain list is ready; avoid scanning a spam-heavy wallet.
+  const handleRowsRendered = useCallback(
+    (rows: Currency[]) => {
+      if (!unlistedAddresses?.size || !isTokenListReady(defaultTokens, tokenImports)) return
+
+      const addresses = rows.flatMap(currency =>
+        currency.isToken && unlistedAddresses.has(currency.address) ? [currency.address] : [],
+      )
+
+      if (addresses.length) void ensureTokenMetadata(primaryChainId, addresses)
+    },
+    [unlistedAddresses, defaultTokens, tokenImports, primaryChainId],
+  )
 
   const handleLoadMore = useCallback(async () => {
     if (isTrendingTab && tabHasMore) fetchMoreTab()

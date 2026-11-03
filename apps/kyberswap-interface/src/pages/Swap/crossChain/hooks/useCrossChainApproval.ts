@@ -155,6 +155,14 @@ export const useCrossChainApproval = ({ amount, fromChainId, spender }: UseCross
     }
   }, [allowanceScope, amount, approveCallback, clearApprovalInProgress, getLatestAllowance, requiredAllowance])
 
+  // Fail closed when the latest allowance cannot be read before Review.
+  const revalidateAllowance = useCallback(async () => {
+    if (!canReadAllowance || requiredAllowance === undefined) return true
+
+    const allowance = await getLatestAllowance()
+    return allowance !== undefined && requiredAllowance <= allowance
+  }, [canReadAllowance, getLatestAllowance, requiredAllowance])
+
   // Keep Approving visible until the approval receipt has refreshed the allowance.
   useEffect(() => {
     const wasPendingApproval = previousPendingApproval.current
@@ -190,14 +198,6 @@ export const useCrossChainApproval = ({ amount, fromChainId, spender }: UseCross
       setApprovalInProgressScope(undefined)
     }
   }, [allowanceScope, approvalInProgressScope, needsApproval, onChainAllowance, pendingApproval])
-
-  // Fail closed when the latest allowance cannot be read before Review.
-  const revalidateAllowance = useCallback(async () => {
-    if (!canReadAllowance || requiredAllowance === undefined) return true
-
-    const allowance = await getLatestAllowance()
-    return allowance !== undefined && requiredAllowance <= allowance
-  }, [canReadAllowance, getLatestAllowance, requiredAllowance])
 
   return {
     approvalState,

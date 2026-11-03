@@ -192,7 +192,7 @@ export const SingleChainSwapContent = ({
     routeSummary && onRawValue(routeSummary.parsedAmountOut.toExact())
   }
 
-  // Amount Entered tracking (debounced)
+  // Track edits only; quote refreshes and wallet/context rerenders must not emit another event.
   useEffect(() => {
     if (debouncedTypedValue && Number(debouncedTypedValue) > 0 && currencyIn) {
       trackingHandler(TRACKING_EVENT_TYPE.AMOUNT_ENTERED, {

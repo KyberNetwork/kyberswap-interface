@@ -60,6 +60,8 @@ export const CrossChainCurrencyPanel = ({
   const { balance: btcBalance, walletInfo } = useBitcoinWallet()
   const { publicKey } = useWallet()
   const { signedAccountId } = useWalletSelector()
+
+  // Both selected slots read by address; global balances are only for legacy callers.
   const selectedAddress = output ? receiverAddress : wallets?.inputAddress
   const selectedBalance = useCrossChainBalance(chain, currency, selectedAddress)
   const connected = output
@@ -85,10 +87,9 @@ export const CrossChainCurrencyPanel = ({
       : undefined
   const balance =
     connected && rawBalance !== undefined && currency ? formatUnits(BigInt(rawBalance), currency.decimals) : ''
-  const walletSelector = output ? undefined : <CrossChainSenderWalletSelector key={chain} chain={chain} />
   const amountShortcuts =
     !output && connected && rawBalance !== undefined && currency
-      ? getBalanceAmountShares(!!walletSelector).map(percent => {
+      ? getBalanceAmountShares(!output).map(percent => {
           const exact = formatUnits((BigInt(rawBalance) * BigInt(percent)) / 100n, currency.decimals)
           return {
             label: percent === 100 ? t`Max` : `${percent}%`,
@@ -117,7 +118,13 @@ export const CrossChainCurrencyPanel = ({
           balanceActionsEnabled={connected && !!currency}
           positionMax="top"
           positionLabel="in"
-          label={output ? receiver ?? <Trans>Est. Output</Trans> : walletSelector}
+          label={
+            output ? (
+              receiver ?? <Trans>Est. Output</Trans>
+            ) : (
+              <CrossChainSenderWalletSelector key={chain} chain={chain} />
+            )
+          }
           customBalanceText={balance || '--'}
           estimatedUsd={
             !loading && amountUsd

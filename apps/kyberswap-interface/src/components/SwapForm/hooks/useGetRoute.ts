@@ -45,6 +45,17 @@ const useGetRoute = (args: ArgsGetRoute) => {
     refetchIntervalInBackground: true,
   })
 
+  const settledAt = Math.max(query.dataUpdatedAt, query.errorUpdatedAt)
+  const [now, setNow] = useState(Date.now)
+
+  const countdown =
+    canFetch && autoRefresh && !query.isFetching && settledAt
+      ? Math.max(0, REFRESH_SECONDS * 1000 - Math.max(0, now - settledAt))
+      : 0
+
+  const isLoading = Boolean(enabled && !isProcessingSwap && request && (inputPending || query.isFetching))
+  const data = enabled && !inputPending ? query.data : undefined
+
   const { refetch } = query
   const fetcher = useCallback(() => {
     if (canFetch) void refetch({ cancelRefetch: false })
@@ -58,9 +69,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
     fetcher()
   }, [canFetch, query.isFetching, fetcher])
 
-  const settledAt = Math.max(query.dataUpdatedAt, query.errorUpdatedAt)
-  const [now, setNow] = useState(Date.now)
-
   useEffect(() => {
     if (!canFetch || !autoRefresh || query.isFetching || !settledAt) return
 
@@ -69,14 +77,6 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
     return () => clearInterval(ticker)
   }, [canFetch, autoRefresh, query.isFetching, settledAt])
-
-  const countdown =
-    canFetch && autoRefresh && !query.isFetching && settledAt
-      ? Math.max(0, REFRESH_SECONDS * 1000 - Math.max(0, now - settledAt))
-      : 0
-
-  const isLoading = Boolean(enabled && !isProcessingSwap && request && (inputPending || query.isFetching))
-  const data = enabled && !inputPending ? query.data : undefined
 
   return {
     fetcher,
