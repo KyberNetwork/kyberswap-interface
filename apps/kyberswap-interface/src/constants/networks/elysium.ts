@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import elysiumIcon from 'assets/networks/elysium.png'
+import elysiumIcon from 'assets/networks/elysium.svg'
 import hyperevmIcon from 'assets/networks/hyperevm.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
