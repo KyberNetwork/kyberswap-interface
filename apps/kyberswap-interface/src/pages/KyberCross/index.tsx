@@ -64,7 +64,10 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
               onChangeCurrencyOut={currency => pair.selectCurrency(Field.OUTPUT, currency)}
               onSelectNonEvmCurrencyIn={(chain, currency) => pair.selectNonEvmCurrency(Field.INPUT, chain, currency)}
               onSelectNonEvmCurrencyOut={(chain, currency) => pair.selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
-              onReverse={pair.reversePair}
+              onReverse={outputAmount => {
+                pair.reversePair()
+                if (outputAmount !== undefined) swap.onAmountChange(outputAmount)
+              }}
               details={
                 <Stack className="gap-3">
                   {swap.gasDropSupported && <GasDropPanel lowGas={lowGas} />}

@@ -83,7 +83,7 @@ it('keeps API token IDs in history and uses existing hooks to format EVM/Solana 
   expect(renderedRows().textContent).toContain('+2.5 SOL')
 })
 
-it('renders same-chain swaps with one chain and one transaction action', async () => {
+it('renders same-chain swaps with both chain endpoints and one transaction action', async () => {
   await render(rows({ toChain: 'ethereum', toToken: address, destTxHash: 'source', actualOutput: '2500000' }))
   expect(renderedRows().textContent).toContain('Tx Hash:')
   expect(renderedRows().textContent).not.toContain('Deposit:')
@@ -91,6 +91,10 @@ it('renders same-chain swaps with one chain and one transaction action', async (
   expect(renderedRows().textContent).toContain('-1.2345 USDC')
   expect(renderedRows().textContent).toContain('+2.5 USDC')
   expect(renderedRows().querySelectorAll('a')).toHaveLength(1)
+  const chainLogos = renderedRows().querySelectorAll('img[alt="Ethereum"]')
+  expect(chainLogos).toHaveLength(2)
+  expect(chainLogos[0].nextElementSibling?.tagName.toLowerCase()).toBe('svg')
+  expect(chainLogos[0].nextElementSibling?.nextElementSibling).toBe(chainLogos[1])
 })
 
 it('keeps incomplete indexed swaps visible without inventing token metadata', async () => {

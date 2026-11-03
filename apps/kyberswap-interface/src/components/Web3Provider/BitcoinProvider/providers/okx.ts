@@ -34,6 +34,10 @@ export const createOkxProvider = ({
     }
   }
 
+  const handleDisconnect = () => {
+    setWalletInfo(defaultInfo)
+    localStorage.removeItem('bitcoinWallet')
+  }
   // Set up event listener when wallet is available
   const setupEventListeners = () => {
     if (addressOnly) return
@@ -42,10 +46,7 @@ export const createOkxProvider = ({
       window.okxwallet.bitcoin.on?.('accountsChanged', handleAccountsChanged)
 
       // Listen for disconnect events (if available)
-      window.okxwallet.bitcoin.on?.('disconnect', () => {
-        setWalletInfo(defaultInfo)
-        localStorage.removeItem('bitcoinWallet')
-      })
+      window.okxwallet.bitcoin.on?.('disconnect', handleDisconnect)
     }
   }
 
@@ -53,7 +54,7 @@ export const createOkxProvider = ({
   const removeEventListeners = () => {
     if (isOkxInstalled() && window.okxwallet.bitcoin) {
       window.okxwallet.bitcoin.removeListener?.('accountsChanged', handleAccountsChanged)
-      window.okxwallet.bitcoin.removeListener?.('disconnect', () => {})
+      window.okxwallet.bitcoin.removeListener?.('disconnect', handleDisconnect)
     }
   }
   return {
@@ -94,6 +95,7 @@ export const createOkxProvider = ({
         if (addressOnly) throw e
       }
     },
+    dispose: removeEventListeners,
     disconnect: async () => {
       removeEventListeners()
       await window.okxwallet.bitcoin.disconnect?.()

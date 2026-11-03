@@ -125,6 +125,7 @@ export const createXverseProvider = ({
 
       setupEventListeners()
     },
+    dispose: removeEventListeners,
     disconnect: async () => {
       removeEventListeners()
       localStorage.removeItem('bitcoinWallet')

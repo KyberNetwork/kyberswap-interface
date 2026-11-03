@@ -9,10 +9,10 @@ import {
 import { useChainsVolume } from 'components/TokenSelectorModal/hooks/useChainsVolume'
 import { TokenMetricColumn, TokenSort, TokenSortField } from 'components/TokenSelectorModal/types'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { isAddress } from 'utils/address'
 
 /** Browsing state belongs to the search view and survives an import/detail round-trip. */
@@ -24,7 +24,7 @@ type Props = {
 }
 
 export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscoveryTabs, trackingSource }: Props) => {
-  const { account } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const { supportedChains } = useChainsConfig()
   const { trackingHandler } = useTracking()
 

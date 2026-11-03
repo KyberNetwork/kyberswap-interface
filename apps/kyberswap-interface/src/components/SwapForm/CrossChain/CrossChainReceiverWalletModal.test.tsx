@@ -8,7 +8,8 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { CrossChainReceiverWalletModal } from 'components/SwapForm/CrossChain/CrossChainReceiverWalletModal'
-import { NonEvmChain } from 'types/crossChain'
+import { setMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
+import { Chain, NonEvmChain } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({
   connect: vi.fn(),
@@ -16,6 +17,7 @@ const mocks = vi.hoisted(() => ({
   onDismiss: vi.fn(),
   loading: false,
   accepted: true,
+  connectors: [] as any[],
 }))
 vi.mock('components/SwapForm/CrossChain/hooks/useReceiverWalletOptions', () => ({
   useReceiverWalletOptions: () => ({
@@ -23,6 +25,16 @@ vi.mock('components/SwapForm/CrossChain/hooks/useReceiverWalletOptions', () => (
     loading: mocks.loading,
   }),
 }))
+vi.mock('components/Header/web3/WalletModal/useConnections', () => ({ useOrderedConnections: () => mocks.connectors }))
+vi.mock('wagmi', async importOriginal => ({
+  ...(await importOriginal<typeof import('wagmi')>()),
+  useConfig: () => ({}),
+}))
+vi.mock('components/Web3Provider', async importOriginal => ({
+  ...(await importOriginal<typeof import('components/Web3Provider')>()),
+  registerPortoConnector: vi.fn(),
+}))
+vi.mock('components/SwapForm/CrossChain/readEvmReceiver', () => ({ readEvmReceiver: mocks.connect }))
 vi.mock('hooks/useTheme', () => ({ default: () => ({}) }))
 vi.mock('state/user/hooks', () => ({ useIsAcceptedTerm: () => [mocks.accepted, vi.fn()] }))
 vi.mock('components/Web3Provider/BitcoinProvider/providers/ledger', () => ({ DerivationPaths: {} }))
@@ -30,7 +42,7 @@ vi.mock('components/Modal', () => ({ default: ({ children }: { children: ReactNo
 let root: ReturnType<typeof createRoot>
 let container: HTMLDivElement
 const wallet = { id: 'wallet', name: 'Receiver Wallet', icon: '/wallet.svg', address: 'receiver-address' }
-const render = (chain = NonEvmChain.Near) =>
+const render = (chain: Chain = NonEvmChain.Near) =>
   act(async () =>
     root.render(
       <I18nProvider i18n={i18n}>
@@ -55,6 +67,8 @@ beforeEach(() => {
   vi.clearAllMocks()
   mocks.loading = false
   mocks.accepted = true
+  mocks.connectors = []
+  setMetaMaskMobileLink(null)
   dayjs.extend(utc)
   i18n.load('en', {})
   i18n.activate('en')
@@ -140,4 +154,62 @@ it('only enables wallet selection after loading and accepting terms', async () =
   expect(mocks.connect).toHaveBeenCalledOnce()
   expect(mocks.onSelect).toHaveBeenCalledWith(wallet)
   expect(mocks.onDismiss).toHaveBeenCalledOnce()
+})
+
+it('releases a newly created session when its connect result arrives after dismissal', async () => {
+  const release = vi.fn().mockResolvedValue(undefined)
+  let resolve: (value: unknown) => void = () => undefined
+  mocks.connect.mockImplementation(
+    () =>
+      new Promise(done => {
+        resolve = done
+      }),
+  )
+  await render()
+  await click('Receiver Wallet')
+  await click('Close')
+  await act(async () => resolve([{ ...wallet, release }]))
+  expect(release).toHaveBeenCalledOnce()
+  expect(mocks.onSelect).not.toHaveBeenCalled()
+})
+
+it('shows the MetaMask mobile handoff and clears it after a rejected receiver connection', async () => {
+  let reject!: (reason: Error) => void
+  mocks.connectors = [{ id: 'metamask', name: 'MetaMask', icon: '/metamask.svg' }]
+  mocks.connect.mockImplementation(
+    () =>
+      new Promise((_, fail) => {
+        reject = fail
+      }),
+  )
+  await render(1)
+  await click('MetaMask')
+  await act(async () => setMetaMaskMobileLink('metamask://connect/mwp?channelId=receiver'))
+  expect(container.querySelector('a[href^="metamask:"]')?.getAttribute('href')).toBe(
+    'metamask://connect/mwp?channelId=receiver',
+  )
+  expect(container.textContent).toContain('Open MetaMask')
+  await act(async () => reject(new Error('User rejected')))
+  expect(container.querySelector('[role="alert"]')?.textContent).toContain('User rejected')
+  expect(container.textContent).not.toContain('Open MetaMask')
+  expect(mocks.onSelect).not.toHaveBeenCalled()
+})
+
+it('does not show a previous mobile link or select a late result after closing the EVM modal', async () => {
+  let resolve!: (value: (typeof wallet)[]) => void
+  mocks.connectors = [{ id: 'metamask', name: 'MetaMask', icon: '/metamask.svg' }]
+  mocks.connect.mockImplementation(
+    () =>
+      new Promise(done => {
+        resolve = done
+      }),
+  )
+  await render(1)
+  await click('MetaMask')
+  await act(async () => setMetaMaskMobileLink('metamask://connect/mwp?channelId=old'))
+  await render(NonEvmChain.Near)
+  await act(async () => resolve([wallet]))
+  await render(1)
+  expect(container.textContent).not.toContain('Open MetaMask')
+  expect(mocks.onSelect).not.toHaveBeenCalled()
 })

@@ -12,10 +12,12 @@ let account: string | undefined
 let solana: string | undefined
 let local: NormalizedTxResponse[]
 let server: Array<BackendTransaction & Partial<IndexedTransaction>>
-vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ account }) }))
-vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({ publicKey: solana }) }))
-vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
-vi.mock('components/Web3Provider/BitcoinProvider', () => ({ useBitcoinWallet: () => ({}) }))
+vi.mock('pages/Swap/SwapWalletContext', () => ({
+  useSwapWallets: () => ({
+    inputAddress: account || '',
+    inputConnection: { family: account?.startsWith('0x') ? 'evm' : 'solana' },
+  }),
+}))
 vi.mock('state/crossChainSwap', () => ({ useCrossChainTransactions: () => local }))
 vi.mock('state/hooks', () => ({ useAppSelector: () => server }))
 vi.mock('services/walletTransactionsApi', () => ({ selectIndexedTransactions: vi.fn() }))
@@ -74,7 +76,7 @@ it('keeps all processing rows newest first, including legacy pending rows, witho
   expect(transactions.map(tx => tx.id)).toEqual(['4', '3', '2', '1'])
 })
 
-it('removes completed rows as history updates and scopes rows to connected wallets', async () => {
+it('follows the input slot on reverse and never includes unrelated wallets', async () => {
   solana = 'SolanaWallet'
   local = [
     row(1),
@@ -82,7 +84,10 @@ it('removes completed rows as history updates and scopes rows to connected walle
     row(3, { sender: 'solanawallet', sourceChain: NonEvmChain.Solana }),
   ]
   await render()
-  expect(transactions.map(tx => tx.id)).toEqual(['2', '1'])
+  expect(transactions.map(tx => tx.id)).toEqual(['1'])
+  account = 'SolanaWallet'
+  await render()
+  expect(transactions.map(tx => tx.id)).toEqual(['2'])
   local = [row(1, { status: 'Success' }), local[1]]
   await render()
   expect(transactions.map(tx => tx.id)).toEqual(['2'])

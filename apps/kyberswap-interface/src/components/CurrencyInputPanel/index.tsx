@@ -21,7 +21,7 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 const InputPanel = ({ hideInput, className, ...props }: ComponentPropsWithRef<'div'> & { hideInput?: boolean }) => (
   <div
     className={cn(
-      'relative z-10 flex w-full flex-col flex-nowrap',
+      'relative z-10 flex w-full flex-col flex-nowrap has-[[data-wallet-menu]]:z-30',
       hideInput ? 'rounded-lg bg-transparent' : 'rounded-[20px] bg-bg2',
       className,
     )}

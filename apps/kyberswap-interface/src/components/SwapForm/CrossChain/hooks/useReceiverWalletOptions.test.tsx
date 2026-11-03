@@ -17,7 +17,9 @@ vi.mock('components/Web3Provider/nearWalletConfig', () => ({
 }))
 vi.mock('components/Web3Provider/BitcoinProvider', () => ({ useBitcoinWallet: () => ({ availableWallets: [] }) }))
 vi.mock('components/Web3Provider/BitcoinProvider/providers/ledger', () => ({ createLedgerProvider: vi.fn() }))
-vi.mock('@solana/wallet-standard-wallet-adapter-react', () => ({ useStandardWalletAdapters: () => mocks.adapters }))
+vi.mock('@solana/wallet-adapter-react', () => ({
+  useWallet: () => ({ wallets: mocks.adapters.map(adapter => ({ adapter })) }),
+}))
 
 let root: ReturnType<typeof createRoot>
 let result: ReturnType<typeof useReceiverWalletOptions>
@@ -38,7 +40,7 @@ afterEach(async () => {
   localStorage.clear()
 })
 
-it('reads a Bitcoin address without writing sender state, subscribing to account changes, or revoking access', async () => {
+it('creates an independent Bitcoin connection without changing the selected sender', async () => {
   const provider = {
     getNetwork: vi.fn().mockResolvedValue('livenet'),
     requestAccounts: vi.fn().mockResolvedValue(['receiver-btc']),
@@ -52,24 +54,13 @@ it('reads a Bitcoin address without writing sender state, subscribing to account
   const receiver = await readBitcoinReceiver('unisat')
   expect(receiver.address).toBe('receiver-btc')
   expect(localStorage.getItem('bitcoinWallet')).toBe('xverse')
-  expect(provider.on).not.toHaveBeenCalled()
+  expect(receiver.family).toBe(NonEvmChain.Bitcoin)
+  expect(receiver.family === NonEvmChain.Bitcoin && receiver.getPublicKey()).toBe('public-key')
   expect(provider.disconnect).not.toHaveBeenCalled()
   expect(provider.switchNetwork).not.toHaveBeenCalled()
 })
 
-it('does not change the sender network or globally disconnect OKX to recover a failed receiver read', async () => {
-  const disconnect = vi.fn()
-  vi.stubGlobal('okxwallet', { bitcoin: { connect: vi.fn().mockResolvedValue(null), disconnect } })
-  await expect(readBitcoinReceiver('okx')).rejects.toThrow('Could not read the wallet address')
-  expect(disconnect).not.toHaveBeenCalled()
-
-  const switchNetwork = vi.fn()
-  vi.stubGlobal('unisat_wallet', { getNetwork: vi.fn().mockResolvedValue('testnet'), switchNetwork })
-  await expect(readBitcoinReceiver('unisat')).rejects.toThrow('mainnet')
-  expect(switchNetwork).not.toHaveBeenCalled()
-})
-
-it('captures a Solana address once without selecting a sender adapter or calling disconnect', async () => {
+it('retains a live Solana signer without selecting the global adapter or disconnecting', async () => {
   const adapter = {
     name: 'Phantom',
     icon: '/phantom.svg',
@@ -83,7 +74,8 @@ it('captures a Solana address once without selecting a sender adapter or calling
   const [receiver] = await result.wallets[0].connect()
   adapter.publicKey = { toString: () => 'changed-in-extension' }
   await act(async () => root.render(<Harness chain={NonEvmChain.Solana} />))
-  expect(receiver.address).toBe('receiver-sol')
+  expect(receiver.getAddress()).toBe('changed-in-extension')
+  expect(receiver.family === NonEvmChain.Solana && receiver.wallet).toBe(adapter)
   expect(adapter.connect).toHaveBeenCalledOnce()
   expect(adapter.disconnect).not.toHaveBeenCalled()
 })
@@ -99,7 +91,13 @@ it('uses a separate NEAR selector with private storage and returns accounts with
             id: 'meteor',
             type: 'injected',
             metadata: { name: 'Meteor', iconUrl: '/meteor.svg', available: true },
-            wallet: async () => ({ type: 'injected', signIn, signOut }),
+            wallet: async () => ({
+              id: 'meteor',
+              metadata: { name: 'Meteor', iconUrl: '/meteor.svg' },
+              type: 'injected',
+              signIn,
+              signOut,
+            }),
           },
         ],
       }),
@@ -111,8 +109,8 @@ it('uses a separate NEAR selector with private storage and returns accounts with
   expect(config.allowMultipleSelectors).toBe(true)
   await config.storage.setItem('near-wallet-selector:selectedWalletId', 'receiver')
   expect(localStorage.getItem('near-wallet-selector:selectedWalletId')).toBe('sender')
-  expect(await result.wallets[0].connect()).toEqual([
-    { id: 'meteor', name: 'Meteor', icon: '/meteor.svg', address: 'receiver.near' },
-  ])
+  const [receiver] = await result.wallets[0].connect()
+  expect(receiver).toMatchObject({ id: 'meteor', address: 'receiver.near', family: NonEvmChain.Near })
+  expect(receiver.family === NonEvmChain.Near && receiver.wallet.signIn).toBe(signIn)
   expect(signOut).not.toHaveBeenCalled()
 })

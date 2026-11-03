@@ -13,10 +13,10 @@ import {
   ROWS_RENDERED_MARGIN,
 } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
-import { useActiveWeb3React } from 'hooks'
 import { restrictedTokenKey, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
 // Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
@@ -113,7 +113,7 @@ const TokenList = ({
   waitingForBalances,
   animateReorder = false,
 }: Props) => {
-  const { account } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const prefersReducedMotion = useReducedMotion()
   const shouldAnimateReorder = animateReorder && !prefersReducedMotion
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)

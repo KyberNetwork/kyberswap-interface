@@ -8,8 +8,8 @@ import { HStack, Stack } from 'components/Stack'
 import { TokenBalance } from 'components/TokenSelectorModal/TokenBalance'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
-import { useActiveWeb3React } from 'hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 
@@ -35,7 +35,7 @@ export const OtherChainTokens = ({
   anchorChainId,
   onSelect,
 }: OtherChainTokensProps) => {
-  const { account } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
 
   // Only the rows on the app's own chain show a balance, and they all share that chain, so one lookup
   // serves them — balances for the rows still behind a network switch would be noise anyway.

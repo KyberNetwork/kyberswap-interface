@@ -11,6 +11,7 @@ import { useAllTokens } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { isAddress } from 'utils/address'
 import { nativeBalanceAmount } from 'utils/nativeErc20'
 import { isTokenNative } from 'utils/tokenInfo'
@@ -30,7 +31,8 @@ export function useNativeBalance(customChain?: ChainId): CurrencyAmount<Currency
 }
 
 function useETHBalance(): CurrencyAmount<Currency> | undefined {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const multicallContract = useMulticallContract()
 
   const addressParam: (string | undefined)[] = useMemo(
@@ -61,7 +63,7 @@ function useTokensBalance(tokens?: Token[]): TokenAmountLoading[] {
 }
 
 function useTokensBalanceEVM(tokens?: Token[]): TokenAmountLoading[] {
-  const { account } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
 
   const validatedTokenAddresses = useMemo(() => tokens?.map(token => token?.address) ?? [], [tokens])
   const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_ABI, 'balanceOf', [account])
@@ -84,7 +86,8 @@ export function useTokenBalancesWithLoadingIndicator(
   tokenParams?: Token[],
   customChain?: ChainId,
 ): [{ [tokenAddress: string]: TokenAmount | undefined }, boolean] {
-  const { account, chainId: currentChain } = useActiveWeb3React()
+  const { chainId: currentChain } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const chainId = customChain || currentChain
 
   // Issue the calls in address order, de-duplicated: wagmi keys the multicall query on the contracts
@@ -164,7 +167,8 @@ export function useCurrencyBalances(
   currencies?: (Currency | undefined)[],
   customChain?: ChainId,
 ): CurrencyAmount<Currency>[] {
-  const { account, chainId: currentChain } = useActiveWeb3React()
+  const { chainId: currentChain } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const chainId = customChain || currentChain
 
   const tokens: Token[] = useMemo(() => {

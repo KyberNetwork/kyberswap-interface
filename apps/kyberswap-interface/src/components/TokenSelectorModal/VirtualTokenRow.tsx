@@ -15,12 +15,12 @@ import {
 } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { getNeedsImport, isSameCurrency } from 'components/TokenSelectorModal/utils'
-import { useActiveWeb3React } from 'hooks'
 import { useBalanceWait } from 'hooks/useBalanceWait'
 import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
 import { restrictedTokenKey } from 'hooks/useRestrictedTokens'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 import { useInventoryTokenBalances, useWalletInventory } from 'state/walletInventory/hooks'
 import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
@@ -181,7 +181,7 @@ const NetworkRowBalance = ({ index, style, data }: ListChildComponentProps<Virtu
   const balances = inventory.active ? inventoryBalances : rpcBalances
   const nativeBalance = useNativeBalance(currency.chainId)
   const balance = isTokenNative(currency) ? nativeBalance : balances[currency.wrapped.address]
-  const { account } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const waiting = useBalanceWait(balances, !!account)
   const priceAddresses = useMemo(
     () => (balance?.greaterThan('0') ? [currency.wrapped.address] : []),

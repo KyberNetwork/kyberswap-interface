@@ -24,21 +24,27 @@ const cross = {
   timestamp: now,
 } as LocalTransaction
 
-it('counts cross-chain local execution across chains and dedupes a source transaction', () => {
-  expect(countPendingTransactions([local], [cross], '0xWALLET', 1)).toBe(1)
-  expect(countPendingTransactions([local], [cross, { ...cross, sourceChain: 8453 }], '0xwallet', 1)).toBe(2)
+it('excludes cross-chain execution and matching source transactions from the header count', () => {
+  expect(countPendingTransactions([local], [cross], '0xWALLET', 1)).toBe(0)
+  expect(countPendingTransactions([local], [cross, { ...cross, sourceChain: 8453 }], '0xwallet', 1)).toBe(0)
   expect(
     countPendingTransactions([{ ...local, receipt: { status: 1, blockHash: 'block' } }], [cross], '0xwallet', 1),
-  ).toBe(1)
+  ).toBe(0)
   expect(countPendingTransactions([local], [{ ...cross, status: 'Success' }], '0xwallet', 1)).toBe(0)
+  expect(countPendingTransactions([local, { ...local, hash: 'same-chain' }], [cross], '0xwallet', 1)).toBe(1)
 })
 
-it('scopes to the header wallet including incoming cross-chain transfers, with no API input', () => {
-  expect(countPendingTransactions([local], [cross], '0xrecipient', 1)).toBe(1)
+it('counts only recent pending transactions for the active wallet and chain', () => {
+  expect(countPendingTransactions([local], [], '0xWALLET', 1)).toBe(1)
+  expect(countPendingTransactions([local], [{ ...cross, targetChain: 1 }], '0xwallet', 1)).toBe(1)
+  expect(countPendingTransactions([local], [cross], '0xrecipient', 1)).toBe(0)
   expect(countPendingTransactions([local], [cross], '0xother', 1)).toBe(0)
   expect(countPendingTransactions([local], [cross], undefined, 1)).toBe(0)
   expect(countPendingTransactions([local], [], '0xwallet', 8453)).toBe(0)
   expect(countPendingTransactions([{ ...local, addedTime: now - 86_400_001 }], [], '0xwallet', 1, now)).toBe(0)
+  expect(countPendingTransactions([{ ...local, receipt: { status: 1, blockHash: 'block' } }], [], '0xwallet', 1)).toBe(
+    0,
+  )
 })
 
 it('stops counting retained settlements and every terminal provider status', () => {

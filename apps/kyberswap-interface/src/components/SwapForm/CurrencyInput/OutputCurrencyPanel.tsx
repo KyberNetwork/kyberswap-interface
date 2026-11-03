@@ -1,5 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import type { ReactNode } from 'react'
 import { useMedia } from 'react-use'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -13,6 +14,8 @@ import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
+  label?: ReactNode
+  balanceActionsEnabled?: boolean
   wrapType: WrapType
   parsedAmountIn: CurrencyAmount<Currency> | undefined
   parsedAmountOut: CurrencyAmount<Currency> | undefined
@@ -31,6 +34,8 @@ type Props = {
 
 /** Keeps token metadata loading separate from routeLoading, which affects the estimated amount only. */
 const OutputCurrencyPanel = ({
+  label,
+  balanceActionsEnabled,
   wrapType,
   parsedAmountIn,
   parsedAmountOut,
@@ -71,13 +76,14 @@ const OutputCurrencyPanel = ({
   }
 
   return (
-    <div className="relative">
+    <div className="relative has-[[data-wallet-menu]]:z-30">
       {routeLoading && (
         <div className="absolute bottom-[18px] left-3 z-10 flex">
           <Skeleton height={24} width={upToSmall ? 120 : 160} />
         </div>
       )}
       <CurrencyInputPanel
+        balanceActionsEnabled={balanceActionsEnabled}
         disabledInput
         value={routeLoading ? ' ' : getFormattedAmount()}
         currency={currencyOut}
@@ -91,33 +97,35 @@ const OutputCurrencyPanel = ({
         highlightCurrencySelect={highlightToken}
         estimatedUsd={routeLoading ? '' : getEstimatedUsd()}
         label={
-          <TextHelper
-            placement="right"
-            tooltipWidth="200px"
-            tooltip={
-              <span className="text-xs">
-                {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
-                  <Trans>
-                    This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
-                    actual output amount at the confirmation stage.
-                  </Trans>
-                ) : (
-                  <Trans>
-                    This is the estimated output amount. Do review the actual output amount at the confirmation stage.
-                  </Trans>
-                )}
-              </span>
-            }
-            fontSize={12}
-            fontWeight={500}
-            className="text-subText"
-          >
-            {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
-              <Trans>Est. Output (incl. fee)</Trans>
-            ) : (
-              <Trans>Est. Output</Trans>
-            )}
-          </TextHelper>
+          label ?? (
+            <TextHelper
+              placement="right"
+              tooltipWidth="200px"
+              tooltip={
+                <span className="text-xs">
+                  {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+                    <Trans>
+                      This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
+                      actual output amount at the confirmation stage.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      This is the estimated output amount. Do review the actual output amount at the confirmation stage.
+                    </Trans>
+                  )}
+                </span>
+              }
+              fontSize={12}
+              fontWeight={500}
+              className="text-subText"
+            >
+              {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+                <Trans>Est. Output (incl. fee)</Trans>
+              ) : (
+                <Trans>Est. Output</Trans>
+              )}
+            </TextHelper>
+          )
         }
         positionLabel="in"
         customChainId={customChainId}

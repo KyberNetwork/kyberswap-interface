@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import type { SignerWalletAdapter } from '@solana/wallet-adapter-base'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -12,6 +13,7 @@ import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import { adaptRelaySolanaWallet } from 'pages/Swap/crossChain/adapters/RelayAdapter/relaySolanaWallet'
 import { type Quote } from 'pages/Swap/crossChain/registry'
 import { getSwapTrackingData } from 'pages/Swap/crossChain/tracking'
@@ -22,7 +24,10 @@ import { outboxKey } from 'state/crossChainSwap/model'
 import { useAppDispatch } from 'state/hooks'
 import { NonEvmChain, type NormalizedTxResponse, isEvmChain } from 'types/crossChain'
 
-/** Owns execution, wallet interaction, transaction persistence and execution analytics. */
+/**
+ * Owns execution and persistence. Unified Swap supplies the current input
+ * connection; legacy callers keep the existing global-wallet fallback.
+ */
 export const useCrossChainExecution = (
   reviewedQuote: Quote | null,
   { syncWithBackend = true }: { syncWithBackend?: boolean } = {},
@@ -60,21 +65,42 @@ export const useCrossChainExecution = (
   const nearWallet = useWalletSelector()
   const solanaWallet = useWallet()
   const { walletInfo, availableWallets } = useBitcoinWallet()
+  const swapWallets = useSwapWallets()
+  const inputConnection = swapWallets?.inputConnection
+  const inputAddress = swapWallets?.inputAddress
 
   const [checkBlackjack] = useLazyCheckBlackjackQuery()
 
-  const { publicKey: solanaAddress, sendTransaction } = solanaWallet
+  const solanaAdapter = inputConnection?.family === NonEvmChain.Solana ? inputConnection.wallet : undefined
+  const solanaSigner = solanaAdapter as Partial<SignerWalletAdapter> | undefined
+  const activeSolanaWallet = solanaAdapter
+    ? {
+        publicKey: solanaAdapter.publicKey,
+        signTransaction: solanaSigner?.signTransaction?.bind(solanaAdapter),
+        signAllTransactions: solanaSigner?.signAllTransactions?.bind(solanaAdapter),
+      }
+    : solanaWallet
+  const solanaAddress = solanaAdapter ? solanaAdapter.publicKey : solanaWallet.publicKey
+  const sendTransaction =
+    inputConnection?.family === NonEvmChain.Solana
+      ? inputConnection.wallet.sendTransaction.bind(inputConnection.wallet)
+      : solanaWallet.sendTransaction
+  const activeNearWallet =
+    inputConnection?.family === NonEvmChain.Near
+      ? { ...nearWallet, wallet: inputConnection.wallet, signedAccountId: inputAddress || null }
+      : nearWallet
+  const activeBitcoinWallet = inputConnection?.family === NonEvmChain.Bitcoin ? inputConnection.wallet : undefined
   const { connection } = useConnection()
 
   const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
     const feeRate = await fetch('https://mempool.space/api/v1/fees/recommended').then(res => res.json())
 
-    const selectedWallet = availableWallets.find(item => item.type === walletInfo.walletType)
+    const selectedWallet = activeBitcoinWallet || availableWallets.find(item => item.type === walletInfo.walletType)
     if (!selectedWallet) throw new Error('Not connected wallet')
 
     return selectedWallet.sendBitcoin({
       ...params,
-      sender: walletInfo?.address || undefined,
+      sender: inputConnection?.family === NonEvmChain.Bitcoin ? inputAddress : walletInfo?.address || undefined,
       ...(feeRate?.fastestFee
         ? {
             options: { feeRate: feeRate.fastestFee * 1.2 },
@@ -102,15 +128,23 @@ export const useCrossChainExecution = (
       return
     }
 
-    const executionSender = isEvmChain(fromChainId)
+    const executionSender = swapWallets
+      ? inputAddress || undefined
+      : isEvmChain(fromChainId)
       ? walletClient?.account.address
       : fromChainId === NonEvmChain.Near
-      ? nearWallet.signedAccountId || undefined
+      ? activeNearWallet.signedAccountId || undefined
       : fromChainId === NonEvmChain.Solana
       ? solanaAddress?.toString()
+      : inputConnection?.family === NonEvmChain.Bitcoin
+      ? inputAddress
       : walletInfo.address || undefined
 
-    if (!isQuoteExecutable(selectedQuote, executionSender, receiver)) {
+    if (
+      (isEvmChain(fromChainId) && walletClient?.account.address.toLowerCase() !== executionSender?.toLowerCase()) ||
+      !executionSender ||
+      !isQuoteExecutable(selectedQuote, executionSender, receiver)
+    ) {
       setTxError(t`The route is outdated. Please refresh and try again.`)
       return
     }
@@ -229,9 +263,9 @@ export const useCrossChainExecution = (
         fromChainId === 'solana'
           ? selectedQuote.adapter.getName() === 'Relay' // for backward compatibility
             ? adaptedWallet
-            : (solanaWallet as any)
+            : (activeSolanaWallet as any)
           : (walletClient as any),
-        nearWallet,
+        activeNearWallet,
         sendBtcFn,
         sendTransaction,
         connection,

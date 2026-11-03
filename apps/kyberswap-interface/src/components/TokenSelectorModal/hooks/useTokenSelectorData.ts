@@ -11,9 +11,9 @@ import { useTokenTabData } from 'components/TokenSelectorModal/hooks/useTokenTab
 import { TokenSort } from 'components/TokenSelectorModal/types'
 import { concatUnseenTokens, mergeHeldSearchResults, useTokenComparator } from 'components/TokenSelectorModal/utils'
 import { NativeCurrencies } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks'
 import { useBalanceWait } from 'hooks/useBalanceWait'
 import { useUserAddedTokens } from 'state/user/hooks'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 import { isTokenListReady } from 'state/walletInventory/assets'
 import { useInventoryTokenBalances, useWalletInventory } from 'state/walletInventory/hooks'
@@ -49,7 +49,7 @@ export const useTokenSelectorData = ({
   filterWrap,
   otherSelectedCurrency,
 }: Props) => {
-  const { account } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
 
   const isAllTab = enabled && activeTab === TokenSelectorTab.All
   const isImportedTab = enabled && activeTab === TokenSelectorTab.Imported

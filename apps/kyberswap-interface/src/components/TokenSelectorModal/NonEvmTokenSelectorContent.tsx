@@ -1,10 +1,10 @@
 import { Trans, t } from '@lingui/macro'
-import { useWallet } from '@solana/wallet-adapter-react'
 import { ReactNode, useMemo, useRef, useState } from 'react'
 import { formatUnits } from 'viem'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { HStack, Stack } from 'components/Stack'
+import { useCrossChainBalance } from 'components/SwapForm/CrossChain/hooks/useCrossChainBalance'
 import { TabBar } from 'components/TokenSelectorModal/TabBar'
 import { TokenListHeader } from 'components/TokenSelectorModal/TokenListHeader'
 import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenListSkeleton'
@@ -21,6 +21,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useNearIntentsTokens } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/useNearIntentsTokens'
 import { useNearBalances } from 'pages/Swap/crossChain/hooks/useNearBalances'
 import { useSolanaTokens } from 'pages/Swap/crossChain/hooks/useSolanaTokens'
+import { useWalletBalanceAddress } from 'state/wallet/WalletBalanceContext'
 import { BitcoinToken, Currency, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
@@ -43,8 +44,9 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
   // Wallet balances and token catalogs for the selected network.
   const { balances: nearBalances } = useNearBalances(chain === NonEvmChain.Near)
   const solanaBalances = useSolanaTokenBalances()
-  const { publicKey: solanaAddress } = useWallet()
-  const { balance: bitcoinBalance, walletInfo: bitcoinWallet } = useBitcoinWallet()
+  const { walletInfo: bitcoinWallet } = useBitcoinWallet()
+  const bitcoinAddress = useWalletBalanceAddress(NonEvmChain.Bitcoin, bitcoinWallet.address)
+  const bitcoinBalance = useCrossChainBalance(NonEvmChain.Bitcoin, BitcoinToken, isBitcoin ? bitcoinAddress : undefined)
 
   const { nearTokens, isLoadingNearTokens } = useNearIntentsTokens(chain !== NonEvmChain.Near)
   const { solanaTokens, isLoadingSolanaTokens } = useSolanaTokens(debouncedQuery, !isSolana)
@@ -74,8 +76,8 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
   }, [isBitcoin, isSolana, solanaTokens, solanaBalances, nearTokens, query])
 
   const getRawBalance = (id: string) => {
-    if (isBitcoin) return bitcoinWallet.address ? bitcoinBalance : undefined
-    if (isSolana) return solanaAddress ? solanaBalances[id]?.rawAmount : undefined
+    if (isBitcoin) return bitcoinBalance
+    if (isSolana) return solanaBalances[id]?.rawAmount
     return nearBalances[id]
   }
 

@@ -1,6 +1,14 @@
 import { Trans } from '@lingui/macro'
 
-import { Content, Header, Icon, OptionButton, Options, Section, Shell } from 'components/Header/web3/WalletModal/components'
+import {
+  Content,
+  Header,
+  Icon,
+  OptionButton,
+  Options,
+  Section,
+  Shell,
+} from 'components/Header/web3/WalletModal/components'
 import Modal from 'components/Modal'
 
 export const SelectChainModal = ({

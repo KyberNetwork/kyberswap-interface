@@ -8,8 +8,9 @@ import { buildSequentialRouteGraph } from 'components/TradeRouting/routeGraph'
 import { EmptyRoute, PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
 import TradeRoutePanel, { TradeRouteSkeleton } from 'pages/Swap/components/TradeRoutePanel'
 import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
-import { registry } from 'pages/Swap/crossChain/factory'
+import { CrossChainSwapFactory, registry } from 'pages/Swap/crossChain/factory'
 import type { Quote } from 'pages/Swap/crossChain/registry'
+import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
 import { type RouteStep, getCrossChainRouteSteps } from 'pages/Swap/utils/getCrossChainRouteSteps'
 import { type Chain, type Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -28,7 +29,11 @@ const stepLabel = (type: RouteStep['type']) => {
 const buildCrossChainGraph = (steps: RouteStep[]) =>
   buildSequentialRouteGraph(
     steps.map((step, index) => {
-      const provider = registry.getAdapter(step.provider)
+      const provider =
+        registry.getAdapter(step.provider) ||
+        CrossChainSwapFactory.getKyberCrossBridgeSources().find(
+          source => normalizeAdapterName(source.getName()) === normalizeAdapterName(step.provider),
+        )
       const id = `${index}:${step.type}:${step.provider}`
 
       return {
@@ -38,7 +43,11 @@ const buildCrossChainGraph = (steps: RouteStep[]) =>
           {
             id,
             pools: [
-              { id: step.provider, name: provider?.getName() || step.provider, logo: step.logo || provider?.getIcon() },
+              {
+                id: step.provider,
+                name: provider?.getName() || step.provider,
+                logo: step.logo || provider?.getIcon?.(),
+              },
             ],
           },
         ],

@@ -1,31 +1,25 @@
 import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { useWallet } from '@solana/wallet-adapter-react'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { CrossChainSwapConfirmation } from 'components/SwapForm/CrossChain/CrossChainSwapConfirmation'
+import { useCrossChainBalance } from 'components/SwapForm/CrossChain/hooks/useCrossChainBalance'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
-import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
-import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
+import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import { useCrossChainApproval } from 'pages/Swap/crossChain/hooks/useCrossChainApproval'
-import { useNearBalances } from 'pages/Swap/crossChain/hooks/useNearBalances'
-import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
-import { isEvmCurrency, isNearToken, isSolanaToken } from 'pages/Swap/crossChain/quote/utils'
+import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
 import { isQuoteExecutable } from 'pages/Swap/crossChain/utils'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { NonEvmChain, isEvmChain } from 'types/crossChain'
 import { getTokenAddress } from 'utils/tokenInfo'
 
-export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: () => void }) => {
+export const CrossChainSwapAction = () => {
   const {
     showPreview,
     reviewQuote,
@@ -44,7 +38,11 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
     receiver,
   } = useCrossChainSwap()
 
-  const { account, chainId } = useActiveWeb3React()
+  const wallets = useSwapWallets()
+  const { chainId } = useActiveWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+  const isAddressRestricted = useIsTokenAddressRestricted()
+
   const isFromEvm = isEvmChain(fromChainId)
   const isFromNear = fromChainId === NonEvmChain.Near
   const isFromSol = fromChainId === NonEvmChain.Solana
@@ -54,19 +52,7 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
   const inputAmount = evmCurrencyIn ? CurrencyAmount.fromRawAmount(evmCurrencyIn, amountInWei || '0') : undefined
 
   const balance = useCurrencyBalance(evmCurrencyIn, isFromEvm ? (fromChainId as ChainId) : undefined)
-  const { balances: nearBalances } = useNearBalances()
-  const solanaBalances = useSolanaTokenBalances()
-  const { walletInfo, balance: btcBalance } = useBitcoinWallet()
-  const btcAddress = walletInfo?.address
-
-  const { signedAccountId } = useWalletSelector()
-  const { publicKey: solanaAddress } = useWallet()
-
-  const toggleWalletModal = useWalletModalToggle()
-  const { changeNetwork } = useChangeNetwork()
-  const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
-  const { setIsOpen } = useSolanaConnectModal()
-  const isAddressRestricted = useIsTokenAddressRestricted()
+  const nonEvmBalance = useCrossChainBalance(fromChainId, currencyIn, isFromEvm ? undefined : wallets?.inputAddress)
 
   const { approvalState, approve, isApproving, isChecking, isRevalidating, revalidateAllowance } =
     useCrossChainApproval({
@@ -89,6 +75,14 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
       ? currencyOut
       : undefined
 
+  const connectWalletLabel = isFromBitcoin
+    ? t`Connect Bitcoin Wallet`
+    : isFromNear
+    ? t`Connect NEAR Wallet`
+    : isFromSol
+    ? t`Connect Solana Wallet`
+    : t`Connect Wallet`
+
   const checkAllowanceAndOpenPreview = async () => {
     if (!selectedQuote || !isSelectedQuoteExecutable) return
 
@@ -98,6 +92,7 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
     openReview(selectedQuote)
   }
 
+  // The first unmet prerequisite determines the action; keep this priority order.
   const {
     label,
     disabled = false,
@@ -149,67 +144,15 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
       }
     }
 
-    if (isFromBitcoin && !btcAddress) {
-      return {
-        label: t`Connect Bitcoin Wallet`,
-        onClick: () => {
-          onConnectBitcoin()
-        },
-      }
-    }
+    if (!wallets?.inputAddress) return { label: connectWalletLabel, onClick: wallets?.connectInput }
 
-    if (isFromEvm && !account) {
-      return {
-        label: t`Connect Wallet`,
-        onClick: () => {
-          toggleWalletModal()
-        },
-      }
-    }
+    if (!selectedQuote) return { label: t`No route found`, disabled: true }
 
-    if (isFromNear && !signedAccountId) {
-      return {
-        label: t`Connect NEAR Wallet`,
-        onClick: () => {
-          onOpenWallet('near')
-        },
-      }
-    }
+    const hasInsufficientBalance = isFromEvm
+      ? !balance || inputAmount?.greaterThan(balance)
+      : nonEvmBalance === undefined || BigInt(nonEvmBalance) < BigInt(amountInWei)
 
-    if (isFromSol && !solanaAddress) {
-      return {
-        label: t`Connect Solana Wallet`,
-        onClick: () => {
-          setIsOpen(true)
-        },
-      }
-    }
-
-    if (!selectedQuote)
-      return {
-        label: t`No route found`,
-        disabled: true,
-      }
-
-    let insufficientBalance = false
-    if (isFromEvm && (!balance || inputAmount?.greaterThan(balance))) insufficientBalance = true
-
-    if (
-      isFromNear &&
-      BigInt((isNearToken(currencyIn) ? nearBalances[currencyIn.assetId] : undefined) || 0) < BigInt(amountInWei)
-    )
-      insufficientBalance = true
-
-    if (isFromBitcoin && BigInt(btcBalance || 0) < BigInt(amountInWei)) insufficientBalance = true
-
-    if (
-      isFromSol &&
-      BigInt((isSolanaToken(currencyIn) ? solanaBalances[currencyIn.id]?.rawAmount : undefined) || '0') <
-        BigInt(amountInWei)
-    )
-      insufficientBalance = true
-
-    if (insufficientBalance) {
+    if (hasInsufficientBalance) {
       return {
         label: t`Insufficient Balance`,
         disabled: true,
@@ -219,9 +162,7 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
     if (isFromEvm && chainId !== fromChainId) {
       return {
         label: t`Switch Network`,
-        onClick: () => {
-          if (isFromEvm) changeNetwork(fromChainId as ChainId)
-        },
+        onClick: () => changeNetwork(fromChainId as ChainId),
       }
     }
 
@@ -255,17 +196,15 @@ export const CrossChainSwapAction = ({ onConnectBitcoin }: { onConnectBitcoin: (
     }
   })()
 
+  const handleButtonClick = () => {
+    if (loading) return
+    onClick?.()
+  }
+
   return (
     <>
-      {termAndPolicyModal}
       <CrossChainSwapConfirmation quote={reviewQuote} isOpen={showPreview} onDismiss={closeReview} />
-      <ButtonPrimary
-        disabled={disabled}
-        onClick={() => {
-          if (loading) return
-          onClick?.()
-        }}
-      >
+      <ButtonPrimary disabled={disabled} onClick={handleButtonClick}>
         {busy ? <Dots>{label}</Dots> : label}
       </ButtonPrimary>
     </>

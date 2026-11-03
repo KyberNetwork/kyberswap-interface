@@ -16,11 +16,14 @@ const ReverseTokenSelectionButton = ({ className, onClick }: Props) => {
   }
 
   return (
-    <ArrowRotate
-      rotate={rotated}
+    <button
+      type="button"
+      aria-label="Reverse input and output"
       onClick={handleClick}
-      className={cn('size-7 bg-background p-1 hover:bg-buttonGray', className)}
-    />
+      className={cn('flex rounded-full border-0 bg-transparent p-0', className)}
+    >
+      <ArrowRotate rotate={rotated} className="size-7 bg-background p-1 hover:bg-buttonGray" />
+    </button>
   )
 }
 
