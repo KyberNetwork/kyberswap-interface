@@ -28,7 +28,7 @@ const elysiumInfo: NetworkInfo = {
     logo: hyperevmIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://rpc-live.elysp.com',
+  defaultRpcUrl: 'https://elysium-rpc.kyberswap.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
