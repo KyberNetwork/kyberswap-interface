@@ -61,7 +61,9 @@ const RouteTokenLabel = ({ currency, chain, amount }: { currency?: Currency; cha
 }
 
 /** Displays the selected provider, with route-plan steps for KyberCross. */
-const CrossChainTradeRoute = () => <CrossChainTradeRouteView {...useCrossChainSwap()} />
+const CrossChainTradeRoute = ({ defaultCollapsed }: { defaultCollapsed?: boolean }) => (
+  <CrossChainTradeRouteView {...useCrossChainSwap()} defaultCollapsed={defaultCollapsed} />
+)
 
 type Props = {
   currencyIn?: Currency
@@ -70,6 +72,7 @@ type Props = {
   toChainId?: Chain
   selectedQuote: Quote | null
   loading: boolean
+  defaultCollapsed?: boolean
 }
 
 export const CrossChainTradeRouteView = ({
@@ -79,6 +82,7 @@ export const CrossChainTradeRouteView = ({
   toChainId,
   selectedQuote,
   loading,
+  defaultCollapsed,
 }: Props) => {
   const steps = useMemo(() => (selectedQuote ? getCrossChainRouteSteps(selectedQuote) : []), [selectedQuote])
   const graph = useMemo(() => buildCrossChainGraph(steps), [steps])
@@ -89,6 +93,7 @@ export const CrossChainTradeRouteView = ({
 
   return (
     <TradeRoutePanel
+      defaultCollapsed={defaultCollapsed}
       heading={
         <div className="flex flex-wrap items-center gap-2 text-base font-medium text-subText max-sm:text-sm">
           <span className="text-lg font-medium text-blue max-sm:hidden">Route:</span>

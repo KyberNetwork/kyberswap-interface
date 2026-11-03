@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import TokenPriceChart from 'components/TokenPriceChart'
 import { NETWORKS_INFO } from 'constants/networks'
+import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SingleChainTradeRoute from 'pages/Swap/components/SingleChainTradeRoute'
@@ -26,6 +27,7 @@ export const SingleChainRightPanel = ({ currencyIn, currencyOut, isTokenLoading 
   const isSameChain = !currencyIn || !currencyOut || currencyIn.chainId === currencyOut.chainId
   const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[chainId])
   const { trackingHandler } = useTracking({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
@@ -64,6 +66,7 @@ export const SingleChainRightPanel = ({ currencyIn, currencyOut, isTokenLoading 
           loading={routeLoading || isTokenLoading}
           currencyIn={currencyIn}
           currencyOut={currencyOut}
+          defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
           inputAmount={routeSummary?.parsedAmountIn}
           outputAmount={routeSummary?.parsedAmountOut}
           isSmartSettlement={routeSummary?.isSmartSettlement}
