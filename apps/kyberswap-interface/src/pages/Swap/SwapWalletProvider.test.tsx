@@ -120,6 +120,8 @@ it('swaps retained sessions synchronously and preserves Ledger signer/path acros
     wallets.reverseConnections()
   })
   await render(NonEvmChain.Bitcoin, 1)
+  expect(mocks.account).toBe('0xapp')
+  expect(mocks.config.state.current).toBe('app')
   expect(wallets.inputConnection).toBe(btc.connection)
   expect(wallets.inputAddress).toBe('ledger-address')
   expect(wallets.outputConnection).toBe(evm)
@@ -127,6 +129,8 @@ it('swaps retained sessions synchronously and preserves Ledger signer/path acros
     wallets.reverseConnections()
   })
   await render(1, NonEvmChain.Bitcoin)
+  expect(mocks.account).toBe('0xapp')
+  expect(wallets.inputAddress).toBe('0xapp')
   expect(wallets.outputConnection).toBe(btc.connection)
   expect(wallets.outputConnection?.derivationPath).toBe("m/84'/0'/1'/0/0")
   expect(btc.wallet.connect).not.toHaveBeenCalled()
@@ -150,7 +154,7 @@ it('does not borrow a global default when reversing an empty output into input',
   expect(wallets.inputAddress).toBe('')
   expect(wallets.outputAddress).toBe('0xapp')
 })
-it('activates the independently chosen EVM receiver only when it becomes input', async () => {
+it('keeps the header wallet when an independently chosen EVM receiver becomes input', async () => {
   const receiverConnector = connector('receiver')
   const { evmConnection } = await import('components/SwapForm/CrossChain/readEvmReceiver')
   const receiver = evmConnection(receiverConnector as any, mocks.config, {
@@ -163,11 +167,40 @@ it('activates the independently chosen EVM receiver only when it becomes input',
   expect(mocks.account).toBe('0xapp')
   await act(async () => wallets.reverseConnections())
   await render(1, NonEvmChain.Near)
-  expect(mocks.account).toBe('0xreceiver')
-  expect(wallets.inputAddress).toBe('0xreceiver')
+  expect(mocks.account).toBe('0xapp')
+  expect(mocks.config.state.current).toBe('app')
+  expect(wallets.inputAddress).toBe('0xapp')
   await act(async () => wallets.disconnectInput())
   expect(wallets.inputAddress).toBe('')
   expect(mocks.config.state.current).toBe(null)
+})
+it('keeps the header wallet when reversing an empty EVM output into input', async () => {
+  await render(NonEvmChain.Near, 1)
+  expect(wallets.outputAddress).toBe('')
+  await act(async () => wallets.reverseConnections())
+  await render(1, NonEvmChain.Near)
+  expect(mocks.account).toBe('0xapp')
+  expect(mocks.config.state.current).toBe('app')
+  expect(wallets.inputAddress).toBe('0xapp')
+})
+it('uses the current header wallet after it changes while input is non-EVM', async () => {
+  await render(1, NonEvmChain.Near)
+  await act(async () => wallets.reverseConnections())
+  await render(NonEvmChain.Near, 1)
+  const nextConnector = connector('next')
+  const { selectEvmAppConnection } = await import('components/SwapForm/CrossChain/readEvmReceiver')
+  selectEvmAppConnection(mocks.config, {
+    connector: nextConnector,
+    accounts: ['0xnext'],
+    chainId: 1,
+  } as any)
+  await render(NonEvmChain.Near, 1)
+  expect(wallets.outputAddress).toBe('0xapp')
+  await act(async () => wallets.reverseConnections())
+  await render(1, NonEvmChain.Near)
+  expect(mocks.account).toBe('0xnext')
+  expect(mocks.config.state.current).toBe('next')
+  expect(wallets.inputAddress).toBe('0xnext')
 })
 it('follows a new app EVM account while preserving the independently connected output', async () => {
   const near = session(NonEvmChain.Near, 'receiver.near')
@@ -178,6 +211,31 @@ it('follows a new app EVM account while preserving the independently connected o
   mocks.config.state.connections.set('app', { ...current, accounts: ['0xchanged'] })
   await render(1, NonEvmChain.Near)
   expect(wallets.inputAddress).toBe('0xchanged')
+  expect(wallets.outputConnection).toBe(near.connection)
+})
+it('opens the input connection picker with an active EVM wallet and syncs the selection to the header', async () => {
+  const near = session(NonEvmChain.Near, 'receiver.near')
+  const nextConnector = connector('next')
+  const { evmConnection } = await import('components/SwapForm/CrossChain/readEvmReceiver')
+  const next = evmConnection(nextConnector as any, mocks.config, {
+    connector: nextConnector,
+    accounts: ['0xnext'],
+    chainId: 1,
+  } as any)
+  await render(1, NonEvmChain.Near)
+  await choose('output', near.connection)
+  mocks.openApp.mockClear()
+  await act(async () => wallets.connectInput())
+  expect(mocks.modal.side).toBe('input')
+  expect(mocks.modal.chain).toBe(1)
+  expect(mocks.openApp).not.toHaveBeenCalled()
+  expect(mocks.account).toBe('0xapp')
+  await act(async () => {
+    mocks.modal.onSelect(next)
+    mocks.modal.onDismiss()
+  })
+  expect(mocks.account).toBe('0xnext')
+  expect(wallets.inputAddress).toBe('0xnext')
   expect(wallets.outputConnection).toBe(near.connection)
 })
 it('tracks live changes and disconnect without falling back to another wallet', async () => {

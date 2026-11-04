@@ -1,5 +1,6 @@
 import { CrossChainWalletSelector } from 'components/SwapForm/CrossChain/CrossChainWalletSelector'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
+import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import { Chain, NonEvmChain } from 'types/crossChain'
@@ -28,7 +29,14 @@ export const CrossChainReceiverWalletSelector = ({ chain }: { chain: Chain }) =>
     <CrossChainWalletSelector
       role="receiver"
       chain={chain}
-      wallet={receiverWallet}
+      wallet={
+        receiverWallet && typeof chain === 'number'
+          ? {
+              ...receiverWallet,
+              icon: CONNECTOR_ICON_OVERRIDE_MAP[receiverWallet.id] ?? receiverWallet.icon,
+            }
+          : receiverWallet
+      }
       recipient={recipient}
       pastedRecipient={pastedRecipient}
       isPastedRecipient={isPastedRecipient}

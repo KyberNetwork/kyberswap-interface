@@ -21,7 +21,6 @@ import {
 } from 'components/SwapForm/CrossChain/walletConnection'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { Chain, NonEvmChain } from 'types/crossChain'
 
 import { SwapWalletContext } from './SwapWalletContext'
@@ -94,7 +93,6 @@ type Props = { inputChain: Chain; outputChain: Chain; children: ReactNode }
 export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props) => {
   const defaults = useDefaultConnections()
   const config = useConfig()
-  const openAppWallet = useWalletModalToggle()
   const [connections, setConnections] = useState<Connections>({})
   const [connecting, setConnecting] = useState<{ side: Side; chain: Chain; onConnected?: () => void }>()
   const revision = useRef(0)
@@ -103,7 +101,7 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
   const inputFamily = walletFamily(inputChain)
   const outputFamily = walletFamily(outputChain)
 
-  // EVM input always follows the app; reverse promotes the retained EVM receiver there.
+  // EVM input always follows the app; only an explicit input selection changes the app wallet.
   // Non-EVM slots override defaults, including explicitly disconnected/empty slots.
   const input =
     inputFamily === 'evm'
@@ -143,13 +141,8 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
 
     // EVM-to-EVM routes have no independent receiver panel, even across chains.
     if (inputFamily === 'evm' && outputFamily === 'evm') return
-    if (outputFamily === 'evm') {
-      if (output?.family === 'evm') output.selectAppConnection()
-      else selectEvmAppConnection(config)
-    }
-
-    // Keep the provider/session object with its slot. This preserves Ledger
-    // transport and derivation path across repeated reversals.
+    // Reverse never changes the header wallet. EVM input resolves from the app;
+    // other slots retain their sessions, including Ledger transport and derivation path.
     setConnections({
       input: { family: outputFamily, connection: output },
       output: { family: inputFamily, connection: input },
@@ -239,8 +232,7 @@ export const SwapWalletProvider = ({ inputChain, outputChain, children }: Props)
         outputConnection: output,
         inputAddress,
         outputAddress,
-        connectInput: () =>
-          inputFamily === 'evm' ? openAppWallet() : setConnecting({ side: 'input', chain: inputChain }),
+        connectInput: () => setConnecting({ side: 'input', chain: inputChain }),
         connectOutput: onConnected => setConnecting({ side: 'output', chain: outputChain, onConnected }),
         disconnectInput: () => select('input', inputChain),
         disconnectOutput: () => select('output', outputChain),
