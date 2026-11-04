@@ -22,9 +22,13 @@ const PendingQuoteDetails = ({ toChainId }: { toChainId: Chain }) => {
 
   return (
     <QuoteDetails className="gap-3">
-      <SlippageSetting isCrossChain />
+      {(isSlippageControlPinned || typeof toChainId === 'number') && (
+        <Stack className="gap-2">
+          <SlippageSetting isCrossChain />
+          {typeof toChainId === 'number' && <Skeleton width="100%" height={20} />}
+        </Stack>
+      )}
       <SwapRate loading routes={<CrossChainRoutesButton disabled />} />
-      {typeof toChainId === 'number' && <Skeleton width="100%" height={20} />}
       <Stack className="gap-2">
         <CrossChainQuoteSummaryRows loading slippage={rawSlippage} showSlippage={!isSlippageControlPinned} />
       </Stack>

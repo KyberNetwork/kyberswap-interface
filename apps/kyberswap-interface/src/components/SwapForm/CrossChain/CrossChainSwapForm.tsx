@@ -180,7 +180,7 @@ export const CrossChainSwapForm = ({
               output
               receiver={receiver}
               receiverAddress={receiverAddress}
-              loading={loading}
+              loading={loading && !quote}
               chain={toChainId}
               currency={currencyOut}
               currencyLoading={isOutputCurrencyLoading}
@@ -209,7 +209,7 @@ export const CrossChainSwapForm = ({
               onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
               customChainId={toChainId}
               chainSelectionMode="form"
-              routeLoading={loading}
+              routeLoading={loading && !quote}
             />
           )}
         </WalletBalanceContext.Provider>
@@ -219,7 +219,7 @@ export const CrossChainSwapForm = ({
       action={
         <Stack className="gap-2">
           {action}
-          {selectedQuote && (
+          {!loading && selectedQuote && (
             <span className="text-center text-xs font-medium text-gray">
               <Trans>Routed via</Trans> {selectedQuote.adapter.getName()}
             </span>

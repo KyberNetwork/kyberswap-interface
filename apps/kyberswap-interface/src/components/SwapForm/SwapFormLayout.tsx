@@ -32,7 +32,10 @@ export const SwapFormLayout = ({
       hidden && 'hidden',
     )}
   >
-    <Stack id={TutorialIds.SWAP_FORM_CONTENT} className="relative z-[1] gap-3 bg-background">
+    <Stack
+      id={TutorialIds.SWAP_FORM_CONTENT}
+      className="relative z-[1] gap-3 bg-background has-[[data-wallet-menu]]:z-30"
+    >
       {networkSelector}
       <Stack className="gap-3">
         <div className="relative">
