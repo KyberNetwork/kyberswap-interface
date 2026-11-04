@@ -3,7 +3,7 @@ import { KeyboardEvent, memo, useCallback, useEffect, useRef, useState } from 'r
 import { ChevronDown, ChevronUp, Globe } from 'react-feather'
 
 import { ScrollIndicator } from 'components/DropdownMenu/styles'
-import { NetworkIcon } from 'components/TokenSelectorModal/NetworkIcon'
+import { NetworkIcon } from 'components/TokenSelectorModal/NetworkSelector/NetworkIcon'
 import type { TokenSelectorChain, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { cn } from 'utils/cn'
@@ -19,6 +19,7 @@ export const ChainSelector = memo(
   ({ chains, selectedChainId, onChange, showAllNetworks = true }: ChainSelectorProps) => {
     const [open, setOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
+
     // The whole selector modal lives inside a reach-portal, so keep portal clicks in scope: a click
     // inside the modal but outside this dropdown must still close it.
     useOnClickOutside(ref, () => setOpen(false), { ignoreReachPortal: false })

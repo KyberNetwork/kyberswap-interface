@@ -6,10 +6,12 @@ import { type ComponentProps, act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, expect, it, vi } from 'vitest'
 
-import { TokenRow } from 'components/TokenSelectorModal/TokenRow'
+import { TokenRow } from 'components/TokenSelectorModal/TokenList/TokenRow'
 
 vi.mock('components/CurrencyLogo', () => ({ default: () => null }))
-vi.mock('components/TokenSelectorModal/PinnedTokens', () => ({ getDisplayTokenInfo: (currency: Token) => currency }))
+vi.mock('components/TokenSelectorModal/TokenList/PinnedTokens', () => ({
+  getDisplayTokenInfo: (currency: Token) => currency,
+}))
 vi.mock('utils/dmm', () => ({ useCurrencyConvertedToNative: (currency: Token) => currency }))
 vi.mock('hooks/useRestrictedTokens', () => ({ restrictedTokenMessage: () => 'Unavailable' }))
 

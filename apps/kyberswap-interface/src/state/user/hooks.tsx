@@ -20,13 +20,11 @@ import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import {
   SerializedToken,
-  ToggleFavoriteTokenPayload,
   addSerializedPair,
   addSerializedToken,
   changeViewMode,
   pinSlippageControl,
   removeSerializedToken,
-  toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   toggleOpenLimitOrders,
   togglePricingChart,
@@ -42,11 +40,10 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
+import { getFavoriteTokenAddresses, useFavoriteTokenActions } from 'state/user/favorites'
 import { VIEW_MODE } from 'state/user/reducer'
 import { setLocaleCookie } from 'utils/localeCookie'
 import { isChristmasTime } from 'utils/time'
-
-const MAX_FAVORITE_LIMIT = 12
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
@@ -363,40 +360,20 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 export const useUserFavoriteTokens = (customChain?: ChainId) => {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const dispatch = useDispatch<AppDispatch>()
+  const { toggleFavoriteToken } = useFavoriteTokenActions()
   const { favoriteTokensByChainIdv2: favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
   // The global updater only fetches the connected chain's config, so `commonTokens` for a different
   // chain (e.g. one picked in the token-selector chain dropdown) would be empty. Fetch it for the
   // requested chain here; RTK Query dedupes the connected chain and caches the rest.
-  useGetKyberswapConfigurationQuery(chainId, { skip: !chainId })
+  const { isLoading } = useGetKyberswapConfigurationQuery(chainId, { skip: !chainId })
   const { commonTokens } = useKyberSwapConfig(chainId)
 
   const favoriteTokens = useMemo(() => {
     if (!chainId) return undefined
-    const favoritedTokens = favoriteTokensByChainId?.[chainId] || {}
-    const favoritedTokenAddresses = (commonTokens || [])
-      .filter(address => favoritedTokens[address.toLowerCase()] !== false)
-      .concat(Object.keys(favoritedTokens).filter(address => favoritedTokens[address]))
-
-    return [...new Set(favoritedTokenAddresses.map(a => a.toLowerCase()))]
+    return getFavoriteTokenAddresses(favoriteTokensByChainId?.[chainId], commonTokens)
   }, [chainId, favoriteTokensByChainId, commonTokens])
 
-  const toggleFavoriteToken = useCallback(
-    (payload: ToggleFavoriteTokenPayload) => {
-      if (!favoriteTokens) return
-      const address = payload.address.toLowerCase()
-      // Is adding favorite and reached max limit
-      if (favoriteTokens.indexOf(address) < 0 && favoriteTokens.length >= MAX_FAVORITE_LIMIT) {
-        return
-      }
-      const newValue = favoriteTokens.indexOf(address) < 0
-
-      dispatch(toggleFavoriteTokenAction({ ...payload, newValue }))
-    },
-    [dispatch, favoriteTokens],
-  )
-
-  return { favoriteTokens, toggleFavoriteToken }
+  return { favoriteTokens, toggleFavoriteToken, isLoading }
 }
 
 export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {

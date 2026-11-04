@@ -5,7 +5,7 @@ import { Trash2 } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
-import { TokenBalance } from 'components/TokenSelectorModal/TokenBalance'
+import { TokenBalance } from 'components/TokenSelectorModal/TokenList/TokenBalance'
 import { cn } from 'utils/cn'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -56,10 +56,12 @@ export const TokenRowValues = ({
   onRemoveImportedToken,
 }: Props) => {
   const isImport = rightColumn === 'import'
+
   const onClickRemove = (event: MouseEvent) => {
     event.stopPropagation()
     onRemoveImportedToken?.(currency as Token)
   }
+
   return (
     <HStack className="shrink-0 items-center gap-3 justify-self-end">
       {showPriceColumn && (

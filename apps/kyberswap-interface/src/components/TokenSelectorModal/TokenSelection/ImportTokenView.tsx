@@ -51,6 +51,7 @@ export const ImportTokenView = ({
         onClickImport()
       }
     }
+
     window.addEventListener('keydown', onKeydown)
     return () => {
       window.removeEventListener('keydown', onKeydown)

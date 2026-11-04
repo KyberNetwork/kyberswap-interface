@@ -7,15 +7,19 @@ import { Info } from 'react-feather'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
-import { ChainSelector } from 'components/TokenSelectorModal/ChainSelector'
-import { NetworkSidebar } from 'components/TokenSelectorModal/NetworkSidebar'
-import NonEvmTokenSelectorContent from 'components/TokenSelectorModal/NonEvmTokenSelectorContent'
-import { OtherChainTokens } from 'components/TokenSelectorModal/OtherChainTokens'
-import { PinnedTokens } from 'components/TokenSelectorModal/PinnedTokens'
-import { TabBar, getTabSubtitle } from 'components/TokenSelectorModal/TabBar'
-import TokenList from 'components/TokenSelectorModal/TokenList'
-import { TokenListHeader } from 'components/TokenSelectorModal/TokenListHeader'
-import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenListSkeleton'
+import { CatalogPrices } from 'components/TokenSelectorModal/AllNetworks/CatalogPrices'
+import { ChainTokens } from 'components/TokenSelectorModal/AllNetworks/ChainTokens'
+import { useAggregateTokens } from 'components/TokenSelectorModal/AllNetworks/useAggregateTokens'
+import { ChainSelector } from 'components/TokenSelectorModal/NetworkSelector/ChainSelector'
+import { NetworkSidebar } from 'components/TokenSelectorModal/NetworkSelector/NetworkSidebar'
+import NonEvmTokenSelectorContent from 'components/TokenSelectorModal/NetworkSelector/NonEvmTokenSelectorContent'
+import { OtherChainTokens } from 'components/TokenSelectorModal/TokenList/OtherChainTokens'
+import { PinnedTokens } from 'components/TokenSelectorModal/TokenList/PinnedTokens'
+import TokenList from 'components/TokenSelectorModal/TokenList/TokenList'
+import { TokenListHeader } from 'components/TokenSelectorModal/TokenList/TokenListHeader'
+import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenList/TokenListSkeleton'
+import { TabBar, getTabSubtitle } from 'components/TokenSelectorModal/TokenSelectorContent/TabBar'
+import { useTokenSelectorView } from 'components/TokenSelectorModal/TokenSelectorContent/useTokenSelectorView'
 import {
   ContentWrapper,
   NoResult,
@@ -24,17 +28,20 @@ import {
   SearchWrapper,
 } from 'components/TokenSelectorModal/components'
 import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
-import { useAllNetworksTokens } from 'components/TokenSelectorModal/hooks/useAllNetworksTokens'
+import { useTokenFavoriteActions } from 'components/TokenSelectorModal/hooks/useTokenFavorites'
 import { useTokenSelectorData } from 'components/TokenSelectorModal/hooks/useTokenSelectorData'
-import { useTokenSelectorView } from 'components/TokenSelectorModal/hooks/useTokenSelectorView'
-import { TokenSelectionContext, TokenSelectorChain, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
+import {
+  TokenSelectionContext,
+  TokenSelectorChain,
+  TokenSelectorNetwork,
+  tokenRowKey,
+} from 'components/TokenSelectorModal/types'
 import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme'
 import { NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
-
-const EMPTY_CURRENCIES: Currency[] = []
+import { getTokenAddress } from 'utils/tokenInfo'
 
 const SearchLoading = () => (
   <Stack className="h-full items-center gap-3 p-5 pt-8" data-testid="token-search-loading">
@@ -138,15 +145,17 @@ export const TokenSelectorContent = ({
       ]
     : rankedChains
 
-  const unsupportedAggregateTab = allNetworks && activeTab !== TokenSelectorTab.All
-  const aggregateActive = allNetworks && !nonEvmChain && !unsupportedAggregateTab
-  const aggregate = useAllNetworksTokens({
+  const aggregateActive = allNetworks && !nonEvmChain
+  const aggregate = useAggregateTokens({
     active: aggregateActive,
     networks,
+    activeTab,
     query: debouncedQuery,
+    sort,
     filterWrap,
     otherSelectedCurrency,
   })
+
   const data = useTokenSelectorData({
     enabled: !allNetworks && !nonEvmChain,
     requireOracle,
@@ -159,34 +168,30 @@ export const TokenSelectorContent = ({
     otherSelectedCurrency,
   })
   const {
-    visibleCurrencies: chainCurrencies,
     isListable,
     notice,
     emptyMessage,
     impersonators,
     quickSelectTokens,
-    isListLoading: chainListLoading,
     waitingForBalances,
-    removeImportedToken,
-    handleClickFavorite,
-    handleLoadMore: chainLoadMore,
-    handleRowsRendered,
-    listHasMore: chainHasMore,
     balances,
     nativeBalance,
-    listExtras: chainExtras,
-    heldAddresses,
     otherChainTokens,
     isCheckingOtherChains,
   } = data
-  const visibleCurrencies = unsupportedAggregateTab
-    ? EMPTY_CURRENCIES
-    : allNetworks
-    ? aggregate.currencies
-    : chainCurrencies
-  const isListLoading = allNetworks ? aggregateActive && aggregate.loading : chainListLoading
-  const listHasMore = allNetworks ? aggregateActive && aggregate.hasMore : chainHasMore
-  const listExtras = allNetworks ? undefined : chainExtras
+
+  const { removeImportedToken, handleClickFavorite } = useTokenFavoriteActions()
+
+  // Both controllers expose the same list contract; the view chooses its source once.
+  const {
+    visibleCurrencies,
+    isListLoading,
+    listHasMore,
+    listExtras,
+    heldAddresses,
+    handleLoadMore,
+    handleRowsRendered,
+  } = allNetworks ? aggregate : data
 
   const isAllTab = activeTab === TokenSelectorTab.All
   const isImportedTab = activeTab === TokenSelectorTab.Imported
@@ -194,8 +199,6 @@ export const TokenSelectorContent = ({
   const isNewTab = activeTab === TokenSelectorTab.New
 
   const subtitle = getTabSubtitle(activeTab)
-
-  const handleLoadMore = allNetworks ? aggregate.fetchMore : chainLoadMore
 
   const selectNetwork = (chain: TokenSelectorChain) => {
     if (chain === 'all' || typeof chain === 'number') {
@@ -241,11 +244,25 @@ export const TokenSelectorContent = ({
 
       const candidate = visibleCurrencies[0]
       if (!candidate || (visibleCurrencies.length !== 1 && candidate.symbol?.toLowerCase() !== query)) return
-      if (!allNetworks && candidate.isToken && impersonators.has(candidate.address)) return
+      if (
+        allNetworks
+          ? aggregate.balances[tokenRowKey(candidate.chainId, getTokenAddress(candidate))]?.impersonator
+          : candidate.isToken && impersonators.has(candidate.address)
+      )
+        return
 
       requestSelect(candidate)
     },
-    [searchQuery, selectedChainId, allNetworks, visibleCurrencies, impersonators, requestSelect, isListable],
+    [
+      searchQuery,
+      selectedChainId,
+      allNetworks,
+      visibleCurrencies,
+      impersonators,
+      aggregate.balances,
+      requestSelect,
+      isListable,
+    ],
   )
 
   useEffect(() => {
@@ -258,6 +275,27 @@ export const TokenSelectorContent = ({
 
   return (
     <ContentWrapper className="min-h-0 gap-3 overflow-hidden p-4" data-testid="token-selector-modal">
+      {aggregate.groups.map(group =>
+        aggregate.needsChainSources ? (
+          <ChainTokens
+            key={`${aggregate.session}:${group.chainId}`}
+            chainId={group.chainId}
+            activeTab={activeTab}
+            session={aggregate.session}
+            catalogTokens={group.currencies}
+            onSnapshot={aggregate.onSnapshot}
+          />
+        ) : aggregate.needsCatalogPrices ? (
+          <CatalogPrices
+            key={`${aggregate.session}:${group.chainId}`}
+            chainId={group.chainId}
+            session={aggregate.session}
+            currencies={group.currencies}
+            extras={aggregate.catalogExtras}
+            onSnapshot={aggregate.onSnapshot}
+          />
+        ) : null,
+      )}
       <HStack className="shrink-0 items-center justify-between gap-3">
         <HStack className="min-w-0 items-center gap-1 text-xl font-medium">
           {title || <Trans>Select a token</Trans>}
@@ -378,27 +416,14 @@ export const TokenSelectorContent = ({
                 />
               )}
 
-              {aggregateActive && aggregate.error && (
-                <HStack className="items-center justify-between gap-2 px-2 text-xs text-subText" role="status">
-                  <Trans>Some tokens could not be loaded.</Trans>
-                  <button
-                    type="button"
-                    className="text-primary"
-                    onClick={() => {
-                      aggregate.retry()
-                    }}
-                  >
-                    <Trans>Retry</Trans>
-                  </button>
-                </HStack>
-              )}
               <div className="flex min-h-0 flex-1 flex-col">
-                {isListLoading ? (
+                {!allNetworks && isListLoading ? (
                   <TokenListSkeleton activeTab={activeTab} />
-                ) : visibleCurrencies.length > 0 ? (
+                ) : visibleCurrencies.length > 0 || (allNetworks && (isListLoading || listHasMore)) ? (
                   <TokenList
                     listTokenRef={listTokenRef}
                     allNetworks={allNetworks}
+                    aggregateBalances={aggregateActive && aggregate.needsChainSources ? aggregate.balances : undefined}
                     customChainId={selectedChainId}
                     currencies={visibleCurrencies}
                     animateReorder={!searchQuery && !debouncedQuery}
@@ -413,7 +438,8 @@ export const TokenSelectorContent = ({
                     scaleERC8056Balances={scaleERC8056Balances}
                     loadMoreRows={handleLoadMore}
                     hasMore={listHasMore}
-                    onRowsRendered={allNetworks ? undefined : handleRowsRendered}
+                    loadingMore={allNetworks && isListLoading}
+                    onRowsRendered={handleRowsRendered}
                     onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
                     onToggleFavorite={handleClickFavorite}
                     onCurrencySelect={currency => requestSelect(currency)}
@@ -425,10 +451,6 @@ export const TokenSelectorContent = ({
                     metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
                     importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
                   />
-                ) : allNetworks && listHasMore ? (
-                  <button className="p-4 text-primary" onClick={() => void handleLoadMore()}>
-                    <Trans>Load more</Trans>
-                  </button>
                 ) : (
                   <Stack className="min-h-0 flex-1">
                     {!allNetworks && isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (

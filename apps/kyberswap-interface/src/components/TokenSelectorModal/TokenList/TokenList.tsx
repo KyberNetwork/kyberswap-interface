@@ -5,7 +5,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 
-import { VirtualRow, VirtualRowData } from 'components/TokenSelectorModal/VirtualTokenRow'
+import { VirtualRow, VirtualRowData } from 'components/TokenSelectorModal/TokenList/VirtualTokenRow'
 import {
   NORMAL_ITEM_SIZE,
   RESTRICTED_ITEM_SIZE,
@@ -34,9 +34,11 @@ const itemKey = (index: number, data: VirtualRowData) => {
 }
 
 type Props = {
+  aggregateBalances?: VirtualRowData['aggregateBalances']
   allNetworks?: boolean
   showFavoriteIcon?: boolean
   hasMore?: boolean
+  loadingMore?: boolean
   currencies: Currency[]
   selectedCurrency?: Currency | null
   onCurrencySelect?: (currency: Currency) => void
@@ -74,7 +76,7 @@ type Props = {
   importAsRow?: boolean
   /** Addresses to flag as borrowing a whitelisted token's symbol; see `TokenRowProps.impersonator`. */
   impersonators?: Set<string>
-  /** Addresses the wallet holds; only passed while searching, see `TokenRowProps.held`. */
+  /** Held search matches: addresses for one chain, chain/address keys for All Networks. */
   heldAddresses?: Set<string>
   /** Whether a balance still missing is worth showing as loading; see `useBalanceWait`. */
   waitingForBalances?: boolean
@@ -84,6 +86,7 @@ type Props = {
 
 const TokenList = ({
   allNetworks = false,
+  aggregateBalances,
   currencies,
   selectedCurrency,
   onCurrencySelect,
@@ -95,6 +98,7 @@ const TokenList = ({
   loadMoreRows,
   onRowsRendered,
   hasMore,
+  loadingMore,
   listTokenRef,
   showFavoriteIcon,
   itemStyle = EMPTY_ITEM_STYLE,
@@ -183,6 +187,7 @@ const TokenList = ({
     () => currencies.map((_, index) => getItemSize(index)).join(','),
     [currencies, getItemSize],
   )
+
   useLayoutEffect(() => {
     listRef.current?.resetAfterIndex(0)
   }, [rowSizesSignature])
@@ -190,6 +195,7 @@ const TokenList = ({
   const itemData = useMemo<VirtualRowData>(
     () => ({
       allNetworks,
+      aggregateBalances,
       currencies,
       currencyBalances,
       selectedCurrency,
@@ -222,6 +228,7 @@ const TokenList = ({
     }),
     [
       allNetworks,
+      aggregateBalances,
       currencies,
       currencyBalances,
       selectedCurrency,
@@ -255,10 +262,11 @@ const TokenList = ({
   )
 
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])
-  const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
+  const itemCount = hasMore || loadingMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
 
   const rowsRenderedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
   const handleItemsRendered = useCallback(
     (range: { visibleStartIndex: number; visibleStopIndex: number }) => {
       if (!onRowsRendered) return
@@ -270,6 +278,7 @@ const TokenList = ({
     },
     [onRowsRendered, currencies],
   )
+
   useEffect(() => () => clearTimeout(rowsRenderedTimer.current), [])
 
   return (

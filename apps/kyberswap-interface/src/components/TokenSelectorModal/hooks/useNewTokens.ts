@@ -18,31 +18,32 @@ const toSortParam = (sort: TokenSort | null): string | undefined => (sort ? `${s
  * come from each token's `metrics`.
  */
 export const useNewTokens = (
-  chainIds: ChainId[],
+  chainIds: ChainId[] | undefined,
   sort: TokenSort | null = null,
   active = true,
   filters?: TokenSearchFilters,
-): { tokens: WrappedTokenInfo[]; extras: TokenRowExtraMap; loading: boolean } => {
-  const chainIdsParam = chainIds.join(',')
+): { tokens: WrappedTokenInfo[]; extras: TokenRowExtraMap; loading: boolean; error: boolean; retry: () => void } => {
+  const chainIdsParam = chainIds?.join(',')
+  const pageSize = chainIds === undefined ? 50 : NEW_TOKEN_MAX_DISPLAY
   const sortParam = toSortParam(sort)
   const oracleTokenFilter = filters?.oracleTokenFilter
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['token-selector-new-tokens', chainIdsParam, sortParam ?? 'default', oracleTokenFilter],
-    enabled: active && chainIds.length > 0,
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['token-selector-new-tokens', chainIdsParam ?? 'all', sortParam ?? 'default', oracleTokenFilter],
+    enabled: active && (chainIds === undefined || chainIds.length > 0),
     queryFn: () =>
       fetchTokenCatalogTokens({
-        chainIds: chainIdsParam,
+        ...(chainIdsParam ? { chainIds: chainIdsParam } : {}),
         tag: 'new',
         page: 1,
-        pageSize: NEW_TOKEN_MAX_DISPLAY,
+        pageSize,
         sort: sortParam,
         ...(oracleTokenFilter && { [oracleTokenFilter]: true }),
       }),
     // Changing the sort starts a new query; keep the current rows on screen while the new order loads
     // (same chain only) so the list re-sorts in place instead of flashing the skeleton.
     placeholderData: (previousData, previousQuery) =>
-      previousQuery?.queryKey?.[1] === chainIdsParam ? previousData : undefined,
+      previousQuery?.queryKey?.[1] === (chainIdsParam ?? 'all') ? previousData : undefined,
     staleTime: 60_000,
     retry: false,
   })
@@ -52,6 +53,14 @@ export const useNewTokens = (
       ...catalogMetricsToExtra(raw),
       addedAt: raw.whitelistedAt ?? raw.createdAt,
     }))
-    return { tokens, extras, loading: isLoading }
-  }, [data, isLoading])
+    return {
+      tokens,
+      extras,
+      loading: isLoading,
+      error: isError,
+      retry: () => {
+        void refetch()
+      },
+    }
+  }, [data, isLoading, isError, refetch])
 }

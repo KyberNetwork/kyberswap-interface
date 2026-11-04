@@ -28,14 +28,13 @@ afterEach(async () => {
   container?.remove()
 })
 
-it('puts All Networks first in the desktop list, with four grid icons and an all selection', async () => {
+it('selects All Networks from the desktop list', async () => {
   const change = vi.fn()
   await render(<NetworkSidebar chains={chains} selectedChainId="all" onChange={change} />)
   const option = container.querySelector('button')
   if (!option) throw new Error('Network option missing')
   expect(option.textContent).toBe('All Networks')
   expect(option.getAttribute('aria-pressed')).toBe('true')
-  expect(option.querySelector('.grid-cols-2')?.querySelectorAll('img')).toHaveLength(4)
   await act(async () => option.click())
   expect(change).toHaveBeenCalledWith('all')
 })

@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { memo } from 'react'
 
 import Loader from 'components/Loader'
-import { TokenRow } from 'components/TokenSelectorModal/TokenRow'
+import { TokenRow } from 'components/TokenSelectorModal/TokenList/TokenRow'
 import { useNativeBalance } from 'state/wallet/hooks'
 
 function CurrencyList({

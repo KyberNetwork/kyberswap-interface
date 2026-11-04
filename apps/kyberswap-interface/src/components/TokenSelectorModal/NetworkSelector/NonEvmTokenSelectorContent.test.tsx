@@ -6,7 +6,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import NonEvmTokenSelectorContent from 'components/TokenSelectorModal/NonEvmTokenSelectorContent'
+import NonEvmTokenSelectorContent from 'components/TokenSelectorModal/NetworkSelector/NonEvmTokenSelectorContent'
 import { WalletBalanceContext, WalletBalanceScope } from 'state/wallet/WalletBalanceContext'
 import { NonEvmChain } from 'types/crossChain'
 
@@ -54,9 +54,9 @@ vi.mock('components/TokenSelectorModal/components', () => ({
   SearchInput: 'input',
   SearchWrapper: 'div',
 }))
-vi.mock('components/TokenSelectorModal/TabBar', () => ({ TabBar: () => null }))
-vi.mock('components/TokenSelectorModal/TokenListHeader', () => ({ TokenListHeader: () => null }))
-vi.mock('components/TokenSelectorModal/TokenListSkeleton', () => ({ TokenListSkeleton: () => null }))
+vi.mock('components/TokenSelectorModal/TokenSelectorContent/TabBar', () => ({ TabBar: () => null }))
+vi.mock('components/TokenSelectorModal/TokenList/TokenListHeader', () => ({ TokenListHeader: () => null }))
+vi.mock('components/TokenSelectorModal/TokenList/TokenListSkeleton', () => ({ TokenListSkeleton: () => null }))
 let root: ReturnType<typeof createRoot>
 let container: HTMLDivElement
 let client: QueryClient

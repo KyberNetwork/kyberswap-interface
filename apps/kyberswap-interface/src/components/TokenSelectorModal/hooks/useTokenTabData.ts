@@ -2,15 +2,14 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 
 import { TRENDING_PRICE_FALLBACK_ENABLED, TokenSelectorTab } from 'components/TokenSelectorModal/constants'
+import { sortTokenMetrics } from 'components/TokenSelectorModal/hooks/metricSort'
 import { useCatalogPriceFallback } from 'components/TokenSelectorModal/hooks/useCatalogPriceFallback'
+import { useLocalTokenMetrics } from 'components/TokenSelectorModal/hooks/useLocalTokenMetrics'
 import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
-import { useTokensMetrics } from 'components/TokenSelectorModal/hooks/useTokensMetrics'
 import { useTrendingTokens } from 'components/TokenSelectorModal/hooks/useTrendingTokens'
-import { TokenRowExtraMap, TokenSearchFilters, TokenSort, tokenRowKey } from 'components/TokenSelectorModal/types'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { TokenRowExtraMap, TokenSearchFilters, TokenSort } from 'components/TokenSelectorModal/types'
 
 const EMPTY_CURRENCIES: Currency[] = []
-const EMPTY_ADDRESSES: string[] = []
 const EMPTY_EXTRAS: TokenRowExtraMap = {}
 
 // Resolves lists and metrics for Trending, New, Imported, and Favorites; All is composed by the caller.
@@ -66,23 +65,7 @@ export const useTokenTabData = ({
     : isFavoritesTab
     ? favoriteCurrenciesBase
     : EMPTY_CURRENCIES
-  const metricsExtras = useTokensMetrics(metricsSource, primaryChainId)
-
-  // Local tabs share live prices with All and wallet-value sorting; catalog data supplies other metrics.
-  const localPriceAddresses = useMemo(
-    () => (metricsSource.length ? metricsSource.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
-    [metricsSource],
-  )
-  const localPrices = useTokenPrices(localPriceAddresses, primaryChainId)
-  const localExtras = useMemo<TokenRowExtraMap>(() => {
-    const result: TokenRowExtraMap = {}
-    metricsSource.forEach(currency => {
-      const key = tokenRowKey(currency.chainId, currency.wrapped.address)
-      const livePrice = localPrices[currency.wrapped.address.toLowerCase()]
-      result[key] = { ...metricsExtras[key], price: livePrice || metricsExtras[key]?.price }
-    })
-    return result
-  }, [metricsSource, localPrices, metricsExtras])
+  const localExtras = useLocalTokenMetrics(metricsSource, primaryChainId)
 
   // Both catalog-sourced tabs can come back short of `metrics.price` (Robinhood especially), so top
   // their rows up from the live prices endpoint — on Trending only while TRENDING_PRICE_FALLBACK_ENABLED.
@@ -101,52 +84,9 @@ export const useTokenTabData = ({
     return EMPTY_EXTRAS
   }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtrasWithPrice, newExtrasWithPrice, localExtras])
 
-  // Local metric sorts put missing values last in both directions.
-  // For 24h change, a priced token without change data still precedes a token without a price.
-  const sortByMetric = useCallback(
-    (list: Currency[]): Currency[] => {
-      if (!sort) return list
-
-      const field = sort.field
-      const dir = sort.dir === 'asc' ? 1 : -1
-      const extraOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
-      const rankOf = (currency: Currency): number => {
-        const extra = extraOf(currency)
-        if (field !== 'priceChange24h') return extra?.[field] !== undefined ? 0 : 1
-        if (extra?.priceChange24h !== undefined) return 0
-        if (extra?.price) return 1
-        return 2
-      }
-
-      return [...list].sort((a, b) => {
-        const ra = rankOf(a)
-        const rb = rankOf(b)
-        if (ra !== rb) return ra - rb
-        if (ra !== 0) return 0
-
-        const va = extraOf(a)?.[field] ?? 0
-        const vb = extraOf(b)?.[field] ?? 0
-        return (va - vb) * dir
-      })
-    },
-    [sort, listExtras],
-  )
-
-  // The Favorites tab's natural order is descending FDV; tokens with no FDV sink to the bottom.
+  const sortByMetric = useCallback((list: Currency[]) => sortTokenMetrics(list, listExtras, sort), [listExtras, sort])
   const sortByFdv = useCallback(
-    (list: Currency[]): Currency[] => {
-      const fdvOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.fdv
-
-      return [...list].sort((a, b) => {
-        const ca = fdvOf(a)
-        const cb = fdvOf(b)
-        if (ca === undefined && cb === undefined) return 0
-        if (ca === undefined) return 1
-        if (cb === undefined) return -1
-
-        return cb - ca
-      })
-    },
+    (list: Currency[]) => sortTokenMetrics(list, listExtras, { field: 'fdv', dir: 'desc' }),
     [listExtras],
   )
 
