@@ -1,9 +1,9 @@
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { type CSSProperties, type ReactNode } from 'react'
 
-import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
-import { TokenRowIdentity } from 'components/TokenSelectorModal/TokenRowIdentity'
-import { TokenRowValues } from 'components/TokenSelectorModal/TokenRowValues'
+import { getDisplayTokenInfo } from 'components/TokenSelectorModal/TokenList/PinnedTokens'
+import { TokenRowIdentity } from 'components/TokenSelectorModal/TokenList/TokenRowIdentity'
+import { TokenRowValues } from 'components/TokenSelectorModal/TokenList/TokenRowValues'
 import { restrictedTokenMessage } from 'hooks/useRestrictedTokens'
 import { cn } from 'utils/cn'
 
@@ -127,6 +127,7 @@ export const TokenRow = ({
     }
     onSelect?.(currency)
   }
+
   return (
     <div
       data-testid="token-item"

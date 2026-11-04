@@ -97,6 +97,7 @@ export const formatAgeBadge = (addedAt?: number): string | null => {
 export const AddressCopy = ({ chainId, address }: { chainId: ChainId; address: string }) => {
   const [copied, setCopied] = useCopyClipboard(1500)
   const short = shortenAddress(chainId, address, 4, false)
+
   return (
     <span
       role="button"

@@ -5,9 +5,9 @@ import { formatUnits } from 'viem'
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { HStack, Stack } from 'components/Stack'
 import { useCrossChainBalance } from 'components/SwapForm/CrossChain/hooks/useCrossChainBalance'
-import { TabBar } from 'components/TokenSelectorModal/TabBar'
-import { TokenListHeader } from 'components/TokenSelectorModal/TokenListHeader'
-import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenListSkeleton'
+import { TokenListHeader } from 'components/TokenSelectorModal/TokenList/TokenListHeader'
+import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenList/TokenListSkeleton'
+import { TabBar } from 'components/TokenSelectorModal/TokenSelectorContent/TabBar'
 import { Balance, NoResult, SearchControl, SearchInput, SearchWrapper } from 'components/TokenSelectorModal/components'
 import {
   BALANCE_COLUMN_CLASS,

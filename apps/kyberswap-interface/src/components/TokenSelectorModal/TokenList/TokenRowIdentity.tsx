@@ -6,7 +6,7 @@ import { AlertTriangle, Info, Star } from 'react-feather'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
-import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
+import { getDisplayTokenInfo } from 'components/TokenSelectorModal/TokenList/PinnedTokens'
 import { AddressCopy, formatAgeBadge } from 'components/TokenSelectorModal/components'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -50,6 +50,7 @@ export const TokenRowIdentity = ({
   const nativeCurrency = useCurrencyConvertedToNative(currency)
   const { symbol } = getDisplayTokenInfo(currency)
   const ageBadge = formatAgeBadge(addedAt)
+
   return (
     <HStack className={cn('min-w-0 flex-1 items-center gap-2', isImport && 'opacity-50')}>
       {showFavoriteIcon &&

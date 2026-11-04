@@ -4,10 +4,10 @@ import { useMedia } from 'react-use'
 
 import Modal from 'components/Modal'
 import TokenInfo from 'components/TokenInfo'
-import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
-import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
-import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
-import { useTokenSelection } from 'components/TokenSelectorModal/hooks/useTokenSelection'
+import { ImportTokenView } from 'components/TokenSelectorModal/TokenSelection/ImportTokenView'
+import { SwitchChainModal } from 'components/TokenSelectorModal/TokenSelection/SwitchChainModal'
+import { useTokenSelection } from 'components/TokenSelectorModal/TokenSelection/useTokenSelection'
+import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent/TokenSelectorContent'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
@@ -84,6 +84,7 @@ const TokenSelectorModal = ({
     onDismiss,
   })
   const { importToken } = selection
+
   const supportsNonEvm = !requireOracle && selection.chainSelectionMode === 'form' && !!onSelectNonEvmCurrency
 
   // Track each modal session independently of the selected view.

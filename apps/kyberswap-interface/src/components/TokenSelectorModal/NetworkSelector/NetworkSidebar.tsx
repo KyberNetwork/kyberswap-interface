@@ -4,7 +4,7 @@ import { Check } from 'react-feather'
 
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { Stack } from 'components/Stack'
-import { NetworkIcon } from 'components/TokenSelectorModal/NetworkIcon'
+import { NetworkIcon } from 'components/TokenSelectorModal/NetworkSelector/NetworkIcon'
 import { SearchInput, SearchWrapper } from 'components/TokenSelectorModal/components'
 import type { TokenSelectorChain, TokenSelectorNetwork } from 'components/TokenSelectorModal/types'
 import { cn } from 'utils/cn'
@@ -18,6 +18,7 @@ type Props = {
 
 export const NetworkSidebar = ({ chains, selectedChainId, onChange, showAllNetworks = true }: Props) => {
   const [query, setQuery] = useState('')
+
   const search = query.trim().toLowerCase()
   const options = showAllNetworks ? [{ chainId: 'all' as const, name: t`All Networks`, icon: '' }, ...chains] : chains
   const matchingChains = options.filter(chain => chain.name.toLowerCase().includes(search))

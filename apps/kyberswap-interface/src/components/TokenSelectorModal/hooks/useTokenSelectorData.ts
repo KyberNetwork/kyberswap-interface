@@ -122,6 +122,7 @@ export const useTokenSelectorData = ({
         : EMPTY_TOKENS,
     [isAllTab, debouncedQuery, primaryChainId, defaultTokens],
   )
+
   // Every address the wallet holds; only set while searching, to lead with held matches and badge them.
   const heldAddresses = useMemo(
     () => (isAllTab && debouncedQuery && inventory.active ? new Set(Object.keys(inventory.rows)) : undefined),
@@ -315,7 +316,5 @@ export const useTokenSelectorData = ({
     heldAddresses,
     otherChainTokens: search.otherChainTokens,
     isCheckingOtherChains: search.isCheckingOtherChains,
-    handleClickFavorite: favorites.handleClickFavorite,
-    removeImportedToken: favorites.removeImportedToken,
   }
 }

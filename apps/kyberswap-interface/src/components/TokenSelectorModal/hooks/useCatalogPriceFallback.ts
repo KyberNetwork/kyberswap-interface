@@ -31,6 +31,7 @@ export const useCatalogPriceFallback = (
 
   return useMemo(() => {
     if (!missingPriceAddresses.length) return extras
+
     const result: TokenRowExtraMap = { ...extras }
     currencies.forEach(currency => {
       const key = tokenRowKey(currency.chainId, currency.wrapped.address)

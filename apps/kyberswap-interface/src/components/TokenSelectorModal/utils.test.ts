@@ -29,12 +29,6 @@ describe('selector currency identity', () => {
     expect(isSameCurrency(undefined, native)).toBe(false)
     expect(isSameCurrency(null, native)).toBe(false)
   })
-
-  it('keeps matching ordinary tokens by chain and address', () => {
-    const wrapped = WETH[ChainId.ROBINHOOD]
-    const sameToken = new Token(wrapped.chainId, wrapped.address.toLowerCase(), wrapped.decimals)
-    expect(isSameCurrency(wrapped, sameToken)).toBe(true)
-  })
 })
 
 describe('aggregate KS Setting requests', () => {

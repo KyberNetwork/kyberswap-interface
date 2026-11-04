@@ -31,7 +31,7 @@ export type { WalletInventory }
  * Pass `enabled: false` for surfaces that are mounted but not showing balances (a closed modal), so
  * they register no traffic.
  */
-export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInventory => {
+export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInventory & { loading: boolean } => {
   const { chainId: currentChain } = useActiveWeb3React()
   const account = useEvmBalanceAccount()
   const resolvedChain = chainId || currentChain
@@ -55,7 +55,13 @@ export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInv
   // keyed on the value to avoid rebuilding rows for a balance that did not move.
   const nativeRawBalance = useNativeBalance(resolvedChain)?.quotient.toString()
 
-  return useMemo(() => resolveInventory(entry, subscribed, nativeRawBalance), [entry, subscribed, nativeRawBalance])
+  return useMemo(
+    () => ({
+      ...resolveInventory(entry, subscribed, nativeRawBalance),
+      loading: subscribed && (!entry || entry.status === 'loading'),
+    }),
+    [entry, subscribed, nativeRawBalance],
+  )
 }
 
 /**

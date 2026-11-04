@@ -1,12 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useChainsVolume } from 'components/TokenSelectorModal/NetworkSelector/useChainsVolume'
 import {
   TOKEN_SELECTOR_TAB_ORDER,
   TokenSelectorTab,
   isTrendingSupportedChain,
 } from 'components/TokenSelectorModal/constants'
-import { useChainsVolume } from 'components/TokenSelectorModal/hooks/useChainsVolume'
 import { TokenMetricColumn, TokenSort, TokenSortField } from 'components/TokenSelectorModal/types'
 import { NETWORKS_INFO } from 'constants/networks'
 import useChainsConfig from 'hooks/useChainsConfig'
@@ -42,12 +42,14 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
       ? TokenSelectorTab.Trending
       : TokenSelectorTab.All,
   )
+
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const listTokenRef = useRef<HTMLDivElement>(null)
+
   const [sort, setSort] = useState<TokenSort | null>(null)
   const [metricColumn, setMetricColumn] = useState<TokenMetricColumn>('volume24h')
   const pendingSortScrollReset = useRef(false)
@@ -56,10 +58,8 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
 
   const visibleTabs = useMemo(
     () =>
-      TOKEN_SELECTOR_TAB_ORDER.filter(item =>
-        allNetworks
-          ? item === TokenSelectorTab.All
-          : item !== TokenSelectorTab.Trending || isTrendingSupportedChain(selectedChainId),
+      TOKEN_SELECTOR_TAB_ORDER.filter(
+        item => allNetworks || item !== TokenSelectorTab.Trending || isTrendingSupportedChain(selectedChainId),
       ),
     [selectedChainId, allNetworks],
   )
@@ -137,7 +137,7 @@ export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscove
     if (importChainId !== undefined && !allNetworks) setSelectedChainId(importChainId)
   }, [importChainId, allNetworks])
 
-  // All Networks and unsupported chains may hide the currently selected tab.
+  // Unsupported chains may hide the currently selected tab.
   useEffect(() => {
     if (!visibleTabs.includes(activeTab)) setActiveTab(TokenSelectorTab.All)
   }, [visibleTabs, activeTab])
