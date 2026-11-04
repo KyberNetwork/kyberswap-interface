@@ -268,7 +268,7 @@ Priority: deferred P1, ownership clarity.
 
 Motivation: notifications and analytics are external side effects with their own account, chain and remount lifetimes. If a presentation component owns a subscription or a flow emits tracking from several layers, remounts can duplicate events or acknowledge the wrong order. Keeping subscriptions, acknowledgement, tracking and navigation at explicit seams makes the behavior auditable without coupling shared UI to product-specific event schemas.
 
-Sources: [`useLimitOrderTracking`](hooks/useLimitOrderTracking.ts), [`useStopMarketTracking`](../StopMarket/hooks/useStopMarketTracking.ts), [`useNotificationLimitOrder`](hooks/useNotificationLimitOrder.tsx), [`useStopMarketExecutedNotifications`](../StopMarket/hooks/useStopMarketExecutedNotifications.tsx), [`useMyOrdersNotifications`](MyOrders/useMyOrdersNotifications.ts).
+Sources: [`useLimitOrderTracking`](hooks/useLimitOrderTracking.ts), [`useStopMarketTracking`](../StopMarket/hooks/useStopMarketTracking.ts), [`useOrderNotifications`](../Announcement/hooks/useOrderNotifications.ts).
 
 - [ ] Keep page-view and form interaction tracking at the shared form owner, guarded against ordinary rerenders. Define whether a Settings/Info remount is a new page view or the same page session before changing the current mount-local guard.
 - [ ] Keep operation success/failure tracking with the operation session, and list refresh/notification acknowledgement with the notification owner.

@@ -2,16 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import type { Firestore, collection, doc, onSnapshot, query } from 'firebase/firestore'
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
-import { LimitOrder } from 'components/LimitOrder/types'
 import { ENV_KEY, ENV_LEVEL, ENV_TYPE, FIREBASE } from 'constants/env'
 
 const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } = FIREBASE[ENV_KEY]
 
 const COLLECTIONS = {
   LO_CANCELLING_ORDERS: 'cancellingOrders',
-  LO_CANCELLED_ORDERS: 'cancelledEventsByContract',
-  LO_EXPIRED_ORDERS: 'expiredEvents',
-  LO_FILLED_ORDERS: 'filledEvents',
 
   ANNOUNCEMENT: 'wallets',
   IDENTITY: 'identities',
@@ -120,39 +116,6 @@ function subscribeListDocument(
   })
 }
 
-type AllItem = { isSuccessful: boolean; id: string; txHash: string }
-type ListOrderResponse = {
-  orders: LimitOrder[]
-  all: AllItem[]
-}
-
-function subscribeListLimitOrder(
-  collectionName: string,
-  account: string,
-  chainId: ChainId,
-  callback: (data: ListOrderResponse) => void,
-): Unsubscribe {
-  return subscribeListDocument(
-    ctx => ctx.dbLimitOrder,
-    collectionName,
-    [account.toLowerCase(), chainId.toString()],
-    data => {
-      const result: ListOrderResponse = {
-        orders: [],
-        all: [],
-      }
-      data.forEach((e: any) => {
-        if (e.id.includes('nonce')) {
-          result.all.push(e as AllItem)
-        } else {
-          result.orders.push({ ...e, id: Number(e.id) } as LimitOrder)
-        }
-      })
-      callback(result)
-    },
-  )
-}
-
 export type OrderNonces = { [key: string]: number[] }
 export function subscribeCancellingOrders(
   account: string,
@@ -165,30 +128,6 @@ export function subscribeCancellingOrders(
     [`${account.toLowerCase()}:${chainId}`],
     callback,
   )
-}
-
-export function subscribeNotificationOrderCancelled(
-  account: string,
-  chainId: ChainId,
-  callback: (data: ListOrderResponse) => void,
-) {
-  return subscribeListLimitOrder(COLLECTIONS.LO_CANCELLED_ORDERS, account, chainId, callback)
-}
-
-export function subscribeNotificationOrderFilled(
-  account: string,
-  chainId: ChainId,
-  callback: (data: ListOrderResponse) => void,
-) {
-  return subscribeListLimitOrder(COLLECTIONS.LO_FILLED_ORDERS, account, chainId, callback)
-}
-
-export function subscribeNotificationOrderExpired(
-  account: string,
-  chainId: ChainId,
-  callback: (data: ListOrderResponse) => void,
-) {
-  return subscribeListLimitOrder(COLLECTIONS.LO_EXPIRED_ORDERS, account, chainId, callback)
 }
 
 export function subscribePrivateAnnouncement(

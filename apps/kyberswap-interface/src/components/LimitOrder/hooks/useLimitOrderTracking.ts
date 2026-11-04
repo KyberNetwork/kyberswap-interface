@@ -1,6 +1,7 @@
 import type { Currency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
+import type { LimitOrderNotice } from 'components/Announcement/orderNotificationToasts'
 import {
   CancelOrderType,
   type LimitOrder,
@@ -17,6 +18,7 @@ import {
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { formatDisplayNumber, parseFraction } from 'utils/numbers'
 
 type CreateOrderEstimateUSD = {
   rawInput?: number
@@ -167,6 +169,28 @@ const getOrderLifecycleBasePayload = (order: LimitOrder, chainName: string) => (
   amount_in: formatAmountOrder(order.makingAmount, order.makerAssetDecimals),
   chain: chainName,
 })
+
+/** An order from its notification. Amounts arrive in token units, so the rate is making / taking as for API orders. */
+const getNoticeLifecycleBasePayload = (order: LimitOrderNotice) => {
+  const { orderId, makerAssetSymbol, takerAssetSymbol, makingAmount, takingAmount, chainId } = order
+  const taking = parseFraction(takingAmount)
+  const rate =
+    makingAmount && takingAmount && !taking.equalTo(0) ? parseFraction(makingAmount).divide(taking) : undefined
+  const limitPrice = rate
+    ? formatDisplayNumber(rate, { fractionDigits: rate.lessThan(parseFraction('0.00000001')) ? 16 : 8 })
+    : undefined
+  const numericOrderId = Number(orderId)
+  return {
+    order_id: orderId && Number.isSafeInteger(numericOrderId) ? numericOrderId : orderId,
+    side: 'sell',
+    from_token: makerAssetSymbol,
+    to_token: takerAssetSymbol,
+    pair: `${makerAssetSymbol}/${takerAssetSymbol}`,
+    limit_price: limitPrice,
+    amount_in: makingAmount ? formatDisplayNumber(makingAmount, { fractionDigits: 10 }) : undefined,
+    chain: chainId ? NETWORKS_INFO[chainId]?.name : undefined,
+  }
+}
 
 export const getOrderTrackingPayload = (
   order: LimitOrder,
@@ -324,20 +348,22 @@ export const useLimitOrderTracking = () => {
       trackMyOrderCancelClick: (order: LimitOrder, networkName: string) => {
         trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getOrderTrackingPayload(order, networkName))
       },
-      trackMyOrderCancelled: (order: LimitOrder, networkName: string) => {
+      trackMyOrderCancelled: (order: LimitOrderNotice) => {
         trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, {
-          ...getOrderLifecycleBasePayload(order, networkName),
-          time_active_minutes: Math.round((Date.now() / 1000 - order.createdAt) / 60),
+          ...getNoticeLifecycleBasePayload(order),
+          time_active_minutes: order.createdAt ? Math.round((Date.now() / 1000 - order.createdAt) / 60) : undefined,
         })
       },
-      trackMyOrderFilled: (order: LimitOrder, networkName: string) => {
-        const lastTx = order.transactions?.[order.transactions.length - 1]
-
+      trackMyOrderFilled: (order: LimitOrderNotice) => {
+        const basePayload = getNoticeLifecycleBasePayload(order)
         trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FILLED, {
-          ...getOrderLifecycleBasePayload(order, networkName),
-          fill_price: formatRateLimitOrder(order, false),
-          amount_out_actual: formatAmountOrder(order.filledTakingAmount, order.takerAssetDecimals),
-          tx_hash: lastTx?.txHash,
+          ...basePayload,
+          fill_price: basePayload.limit_price,
+          amount_out_actual: order.filledTakingAmount
+            ? formatDisplayNumber(order.filledTakingAmount, { fractionDigits: 10 })
+            : undefined,
+          // The fill notification carries no transaction.
+          tx_hash: undefined,
         })
       },
       trackOrderBookClickPairInvert: ({ makerCurrency, takerCurrency, direction }: OrderBookClickPairInvertParams) => {

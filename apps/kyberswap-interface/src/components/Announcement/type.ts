@@ -53,6 +53,8 @@ export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTem
 export type AnnouncementCTA = { name: string; url: string }
 
 type LimitOrderAnnouncement = {
+  /** The order id. */
+  id: string
   walletAddress: string
   makingAmount: string
   makerAssetSymbol: string
