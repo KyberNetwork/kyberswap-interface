@@ -1,19 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import {
+  hasAnnouncedIds,
+  loadAnnouncedIds,
+  recordAsAnnounced,
+  saveAnnouncedIds,
+  selectUnannounced,
+} from 'components/Announcement/hooks/useOrderNotifications'
 import { PrivateAnnouncement } from 'components/Announcement/type'
-
-import { loadAnnouncedIds, saveAnnouncedIds, selectUnannounced } from './useStopMarketExecutedNotifications'
 
 const notification = (id: number, sentAt: number, isRead = false) => ({ id, sentAt, isRead } as PrivateAnnouncement)
 
 describe('selectUnannounced', () => {
-  it('picks every unread execution when nothing was announced, oldest first', () => {
+  it('picks every unread notification when nothing was announced, oldest first', () => {
     const picked = selectUnannounced([notification(3, 300), notification(1, 100), notification(2, 200)], new Set())
 
     expect(picked.map(item => item.id)).toEqual([1, 2, 3])
   })
 
-  it('skips read and already announced executions', () => {
+  it('skips read and already announced notifications', () => {
     const picked = selectUnannounced(
       [notification(1, 100, true), notification(2, 200), notification(3, 300)],
       new Set([2]),
@@ -22,7 +27,7 @@ describe('selectUnannounced', () => {
     expect(picked.map(item => item.id)).toEqual([3])
   })
 
-  it('picks an execution listed twice once', () => {
+  it('picks a notification listed twice once', () => {
     const picked = selectUnannounced([notification(1, 100), notification(1, 100)], new Set())
 
     expect(picked.map(item => item.id)).toEqual([1])
@@ -59,9 +64,27 @@ describe('announced ids storage', () => {
 
   it('reads nothing from a corrupt entry', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    localStorage.setItem('stopMarketAnnouncedExecutions:production:0xabc', '{oops')
-    localStorage.setItem('stopMarketAnnouncedExecutions:staging:0xabc', '{oops')
+    localStorage.setItem('orderAnnouncedNotifications:production:0xabc', '{oops')
+    localStorage.setItem('orderAnnouncedNotifications:staging:0xabc', '{oops')
 
     expect(loadAnnouncedIds('0xabc').size).toBe(0)
+  })
+
+  it('records a first-seen history silently, read notifications included, so none is picked later', () => {
+    const history = [notification(1, 100), notification(2, 200, true)]
+    expect(hasAnnouncedIds('0xabc')).toBe(false)
+
+    recordAsAnnounced('0xabc', history)
+
+    expect(hasAnnouncedIds('0xabc')).toBe(true)
+    expect(
+      selectUnannounced([...history, notification(3, 300)], loadAnnouncedIds('0xabc')).map(item => item.id),
+    ).toEqual([3])
+  })
+
+  it('marks a wallet without notifications as seen', () => {
+    recordAsAnnounced('0xabc', [])
+
+    expect(hasAnnouncedIds('0xabc')).toBe(true)
   })
 })

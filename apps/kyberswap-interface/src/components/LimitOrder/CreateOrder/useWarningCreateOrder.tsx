@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import JSBI from 'jsbi'
-import { PropsWithChildren, ReactNode, useEffect, useMemo } from 'react'
+import { PropsWithChildren, ReactNode, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
@@ -10,7 +10,6 @@ import { getOrderListPath } from 'components/LimitOrder/hooks/useOrderListNaviga
 import { DeltaRateLimitOrder, LimitOrderStatus, OrderKind } from 'components/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { subscribeNotificationOrderExpired } from 'utils/firebase'
 
 const AprHighlight = ({ children }: PropsWithChildren) => <span className="font-medium text-apr">{children}</span>
 
@@ -88,16 +87,15 @@ export const useWarningCreateOrder = ({
     )
   }, [currencyIn, currencyOut])
 
-  const { data: pairActiveOrderMakingAmount = '', refetch: getPairActiveMakingAmount } =
-    useGetTotalActiveMakingAmountQuery(
-      {
-        chainId,
-        makerAsset: currencyIn?.wrapped.address,
-        takerAsset: currencyOut?.wrapped.address,
-        account,
-      },
-      { skip: !currencyIn || !currencyOut || !account },
-    )
+  const { data: pairActiveOrderMakingAmount = '' } = useGetTotalActiveMakingAmountQuery(
+    {
+      chainId,
+      makerAsset: currencyIn?.wrapped.address,
+      takerAsset: currencyOut?.wrapped.address,
+      account,
+    },
+    { skip: !currencyIn || !currencyOut || !account },
+  )
 
   const parsedPairActiveOrderMakingAmount = useMemo(() => {
     try {
@@ -119,18 +117,6 @@ export const useWarningCreateOrder = ({
       : JSBI.subtract(reservedBalance.quotient, parsedInputAmount.quotient)
     return JSBI.lessThan(remainingBalance, parsedPairActiveOrderMakingAmount.quotient)
   }, [currencyIn, inputBalance, parsedInputAmount, parsedPairActiveOrderMakingAmount, wrappedNativeBalance])
-
-  useEffect(() => {
-    if (!account || !currencyIn || !currencyOut) return
-    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, () => {
-      try {
-        getPairActiveMakingAmount()
-      } catch (error) {}
-    })
-    return () => {
-      unsubscribeExpired?.()
-    }
-  }, [account, chainId, currencyIn, currencyOut, getPairActiveMakingAmount])
 
   const warning = useMemo(() => {
     const warnings: CreateOrderWarning[] = []
