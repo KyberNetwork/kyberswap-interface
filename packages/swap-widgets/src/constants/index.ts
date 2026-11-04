@@ -560,7 +560,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   4153: 'https://rpc.risechain.com',
   4663: 'https://rpc.mainnet.chain.robinhood.com',
   5042: 'https://rpc.mainnet.arc.io',
-  99901: 'https://elysium-rpc.kyberswap.com',
+  99901: 'https://rpc-live.elysp.com',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

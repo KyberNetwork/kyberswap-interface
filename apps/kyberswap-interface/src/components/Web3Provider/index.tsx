@@ -397,7 +397,7 @@ export const elysium = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://elysium-rpc.kyberswap.com'],
+      http: ['https://rpc-live.elysp.com'],
     },
   },
   blockExplorers: {
