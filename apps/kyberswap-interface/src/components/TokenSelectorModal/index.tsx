@@ -132,7 +132,7 @@ const TokenSelectorModal = ({
         width={showDiscoveryTabs && isDesktopWidth ? 'calc(100vw - 32px)' : undefined}
         className={tokenToShowInfo || importToken ? undefined : '!overflow-hidden'}
         maxHeight="calc(100dvh - 32px)"
-        height={importToken && !tokenToShowInfo ? undefined : 'min(800px, 75dvh)'}
+        height={importToken && !tokenToShowInfo ? undefined : 'min(800px, 85dvh)'}
       >
         {/* Kept mounted (only hidden) behind the token-info / import overlays so the search view's
             selected chain, tab, query and scroll survive those round-trips — unmounting it resets them. */}
