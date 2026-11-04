@@ -3,6 +3,7 @@ import limitOrderApi from 'services/limitOrder'
 import notificationApi, { useGetNotificationsQuery } from 'services/notification'
 import stopMarketApi from 'services/stopMarket'
 
+import { getStopMarketExecution } from 'components/Announcement/helpers'
 import {
   OrderNotificationKind,
   buildOrderNotificationToasts,
@@ -10,6 +11,7 @@ import {
 } from 'components/Announcement/orderNotificationToasts'
 import { PopupType, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
+import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { NOTI_ENV, getAnnouncementsTemplateIds, isStopMarketExecutedTemplate } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -91,6 +93,7 @@ export const useOrderNotifications = () => {
   const refreshPrivateAnnouncements = useRefreshPrivateAnnouncements()
   const dispatch = useAppDispatch()
   const limitOrderTracking = useLimitOrderTracking()
+  const stopMarketTracking = useStopMarketTracking()
   // Covers the stop market executed template too.
   const templateIds = getAnnouncementsTemplateIds(PrivateAnnouncementType.LIMIT_ORDER)
 
@@ -134,6 +137,11 @@ export const useOrderNotifications = () => {
       }
       refreshPrivateAnnouncements()
 
+      fresh.forEach(item => {
+        if (isStopMarketExecutedTemplate(item.templateId)) {
+          stopMarketTracking.trackOrderExecuted(getStopMarketExecution(item), item.id)
+        }
+      })
       const groups = groupOrderNotifications(fresh)
       groups.forEach(group => {
         if (group.kind === OrderNotificationKind.FILLED) {
@@ -148,7 +156,7 @@ export const useOrderNotifications = () => {
         addPopup({ content, popupType: PopupType.SIMPLE, key, removeAfterMs: TOAST_DURATION_MS })
       })
     },
-    [addPopup, dispatch, limitOrderTracking, refreshPrivateAnnouncements],
+    [addPopup, dispatch, limitOrderTracking, refreshPrivateAnnouncements, stopMarketTracking],
   )
 
   /** Every notification up to MAX_BACKLOG; pages that fail to load are left out. */

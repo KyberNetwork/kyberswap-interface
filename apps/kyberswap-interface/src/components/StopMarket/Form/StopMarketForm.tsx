@@ -1,7 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { ReactNode, memo, useEffect, useMemo, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { useBalanceAmountShortcuts } from 'components/CurrencyInputPanel/useBalanceAmountShortcuts'
@@ -21,10 +20,12 @@ import { StopMarketNotice } from 'components/StopMarket/StopMarketNotice'
 import { getStopMarketExpiryPresets } from 'components/StopMarket/constants'
 import { useStopMarketFeeEstimate } from 'components/StopMarket/hooks/useStopMarketFeeEstimate'
 import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
+import { useTriggerPriceSetTracking } from 'components/StopMarket/hooks/useTriggerPriceSetTracking'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import useDebounce from 'hooks/useDebounce'
 import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
@@ -77,17 +78,6 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const currencyOut = currencyOutProp || limitState.currencyOut
 
   const tracking = useStopMarketTracking()
-  const trackedPageView = useRef(false)
-  const location = useLocation()
-  // Entry buttons hand their origin over through router state; a link carrying a pair in the query is a deep link.
-  const pageSource = useMemo(() => {
-    const stateSource = (location.state as { source?: string } | null)?.source
-    if (stateSource) return stateSource
-    const params = new URLSearchParams(location.search)
-    return params.has('inputCurrency') || params.has('outputCurrency') ? 'deep_link' : 'nav'
-    // Read once at landing; later navigation inside the page does not change where the user came from.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   const form = useStopMarketFormState({ currencyIn, currencyOut })
   const isTriggerAboveOracle = (form.triggerPercent ?? 0) > 0
@@ -139,22 +129,6 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     pollingInterval: 30_000,
   })
 
-  useEffect(() => {
-    if (trackedPageView.current) return
-    trackedPageView.current = true
-    tracking.trackPageViewed(form.chainId, pageSource)
-  }, [tracking, form.chainId, pageSource])
-
-  // Fires once per token the user lands on without a feed, not on every re-render of that state.
-  const trackedIneligibleToken = useRef<string | undefined>(undefined)
-  useEffect(() => {
-    if (!currencyIn || !validation.hasIneligibleToken) return
-    const key = currencyIn.wrapped.address
-    if (trackedIneligibleToken.current === key) return
-    trackedIneligibleToken.current = key
-    tracking.trackIneligibleToken(currencyIn)
-  }, [currencyIn, validation.hasIneligibleToken, tracking])
-
   // Stable identity per locale: DateTimePicker keys an effect off this list, so a fresh array every
   // render would re-seed its date every render. The labels are read from the active catalogue when
   // the helper runs, which the linter cannot see — hence the explicit locale dependency.
@@ -162,14 +136,82 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const expiryPresets = useMemo(() => getStopMarketExpiryPresets(), [locale])
 
+  const pairContext = { currencyIn, currencyOut, chainId: form.chainId }
+
   // Both sides report to the same funnel event the tracking spec defines.
   const onSelectSellToken = (currency: Currency) => {
-    tracking.trackTokenSelected(currency)
+    tracking.trackTokenSelected(currency, 'sell', currencyOut)
     form.onSelectCurrencyIn(currency)
   }
   const onSelectReceiveToken = (currency: Currency) => {
-    tracking.trackTokenSelected(currency)
+    tracking.trackTokenSelected(currency, 'receive', currencyIn)
     form.onSelectCurrencyOut(currency)
+  }
+
+  // Reported once typing pauses, as the Swap form reports its amount. The draft a visit opens on is
+  // not news, and neither is the amount the pair switch carries over.
+  const settledInputAmount = useDebounce(form.inputAmount, 500)
+  const reportedInputAmount = useRef(form.inputAmount)
+  useEffect(() => {
+    if (settledInputAmount === reportedInputAmount.current) return
+    reportedInputAmount.current = settledInputAmount
+    if (Number(settledInputAmount) > 0) {
+      tracking.trackAmountEntered({
+        currencyIn,
+        currencyOut,
+        chainId: form.chainId,
+        amount: settledInputAmount,
+        amountUsd,
+      })
+    }
+  }, [settledInputAmount, currencyIn, currencyOut, form.chainId, amountUsd, tracking])
+
+  // Each way of setting the trigger marks itself; the price is reported once it settles.
+  const markTriggerInput = useTriggerPriceSetTracking({
+    triggerPrice: form.triggerPrice,
+    resetKey: form.pairKey,
+    onSet: inputMethod =>
+      tracking.trackTriggerPriceSet({
+        ...pairContext,
+        triggerPrice: form.triggerPrice,
+        marketPrice: form.marketPrice,
+        triggerPercent: form.triggerPercent,
+        inputMethod,
+      }),
+  })
+  const onChangeTriggerPrice = (value: string) => {
+    markTriggerInput('typed')
+    form.onChangeTriggerPrice(value)
+  }
+  const onChangeTriggerPercent = (percent: string) => {
+    markTriggerInput('custom_percent')
+    form.onChangeTriggerPercent(percent)
+  }
+  // Runs after the percent handler, so the preset's mark is the one that stands.
+  const onPresetSelect = (preset: number) => {
+    markTriggerInput('preset')
+    tracking.trackRatePresetClick({ ...pairContext, preset })
+  }
+  const onSetMarketPrice = () => {
+    markTriggerInput('oracle')
+    form.onSetMarketPrice()
+  }
+  const onChangeOutput = (output: string) => {
+    markTriggerInput('amount_out')
+    form.onChangeOutput(output)
+  }
+  const onChangeSlippage = (value: number) => {
+    if (value !== form.slippage) tracking.trackSlippageChanged({ ...pairContext, previous: form.slippage, next: value })
+    form.setSlippage(value)
+  }
+  const onChangeExpire = (value: Date | number) => {
+    tracking.trackExpiryChanged({ ...pairContext, previousExpiry: form.displayTime, next: value })
+    form.onChangeExpire(value)
+  }
+  const onSwitchPair = () => {
+    tracking.trackTokenPairReversed(pairContext)
+    reportedInputAmount.current = form.outputAmount
+    form.onSwitchPair()
   }
 
   const isMissingAmount = !form.inputAmount || Number(form.inputAmount) === 0
@@ -191,6 +233,16 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const handleReview = () => {
     if (!account || disableAction || !feeEstimate.fee) return
+    tracking.trackPlaceOrderClick({
+      ...pairContext,
+      inputAmount: form.inputAmount,
+      amountUsd,
+      triggerPrice: form.triggerPrice,
+      triggerPercent: form.triggerPercent,
+      slippage: form.slippage,
+      expiredAt: form.expiredAt,
+    })
+    // The review reports its own opening, once it is on screen.
     openReview({
       currencyIn,
       currencyOut,
@@ -206,17 +258,6 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
       fee: feeEstimate.fee,
       warnings: validation.reviewWarnings,
       needsWrap,
-    })
-    tracking.trackReviewOpened({
-      currencyIn,
-      currencyOut,
-      chainId: form.chainId,
-      inputAmount: form.inputAmount,
-      amountUsd,
-      triggerPrice: form.triggerPrice,
-      triggerPercent: form.triggerPercent,
-      slippage: form.slippage,
-      expiredAt: form.expiredAt,
     })
   }
 
@@ -262,6 +303,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             selectClassName={validation.sellTokenWarning ? UNUSABLE_TOKEN_SELECT_CLASS : undefined}
             // The trigger is evaluated against the chain's oracle, so a token it has no feed for cannot be monitored.
             requireOracle
+            trackingSource="stop_market"
           />
 
           <Stack className="gap-2">
@@ -272,9 +314,13 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               triggerPercent={form.triggerPercent}
               marketPrice={form.marketPrice}
               isLoadingPrice={form.loadingMarketPrice}
-              onChangeTriggerPrice={form.onChangeTriggerPrice}
-              onChangeTriggerPercent={form.onChangeTriggerPercent}
-              onSetMarketPrice={form.onSetMarketPrice}
+              onChangeTriggerPrice={onChangeTriggerPrice}
+              onChangeTriggerPercent={onChangeTriggerPercent}
+              onSetMarketPrice={onSetMarketPrice}
+              onPresetSelect={onPresetSelect}
+              onInvert={inverted =>
+                tracking.trackPairInvertClick({ ...pairContext, direction: inverted ? 'inverted' : 'native' })
+              }
             />
 
             {/* Between the trigger and what it yields, with the switch at its end as the design lays it out. */}
@@ -283,7 +329,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               // The default copy describes a swap the user sends themselves; a stop market order is settled by
               // an operator, so there is no transaction of theirs to revert.
               tooltip={t`The most your fill may fall below the Oracle price when the order executes, after fees. Too tight and the order may not fill at all.`}
-              slippage={{ value: form.slippage, onChange: form.setSlippage }}
+              slippage={{ value: form.slippage, onChange: onChangeSlippage }}
               // Stop Market's own settings and wording: slippage is measured against the oracle at execution.
               slippageInfo={{
                 default: form.defaultSlippage,
@@ -299,7 +345,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               }}
               rightComponent={
                 <div data-testid="stop-market-switch-pair">
-                  <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.onSwitchPair} />
+                  <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={onSwitchPair} />
                 </div>
               }
             />
@@ -309,7 +355,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               receiveCurrency={currencyOut}
               outputAmount={form.outputAmount}
               estimatedUsd={estimateUsd.output}
-              onChangeOutput={form.onChangeOutput}
+              onChangeOutput={onChangeOutput}
               onSelectCurrency={onSelectReceiveToken}
               warning={
                 validation.receiveTokenWarning
@@ -338,7 +384,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               events={{
                 onToggleExpanded: () => form.setExpiryExpanded(expanded => !expanded),
                 onOpenDatePicker: form.toggleDatePicker,
-                onExpireChange: form.onChangeExpire,
+                onExpireChange: onChangeExpire,
               }}
               presetOptions={expiryPresets}
               tooltip={t`You can cancel anytime before expiry at no cost.`}
@@ -406,7 +452,7 @@ const StopMarketForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         expire={form.expire}
         isOpen={form.showDatePicker}
         onDismiss={form.toggleDatePicker}
-        onSetDate={form.onChangeExpire}
+        onSetDate={onChangeExpire}
       />
     </>
   )

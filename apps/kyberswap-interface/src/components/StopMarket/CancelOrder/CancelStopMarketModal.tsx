@@ -14,7 +14,6 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { ChainFilter } from 'components/LimitOrder/CancelOrder/components'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
-import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { StopMarket, StopMarketStatus } from 'components/StopMarket/types'
 import { stripEmptyEip712Salt } from 'components/StopMarket/utils'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -61,7 +60,6 @@ const GaslessCancelNote = ({ isCancelAll }: { isCancelAll: boolean }) => (
 const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: Props) => {
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const notify = useNotify()
-  const tracking = useStopMarketTracking()
   const { changeNetwork } = useChangeNetwork()
 
   const [getCancelSignMessage] = useGetStopMarketCancelSignMessageMutation()
@@ -193,7 +191,6 @@ const CancelStopMarketModal = ({ orders, isCancelAll, onDismiss, onCancelled }: 
         },
         10000,
       )
-      selectedOrders.forEach(tracking.trackOrderCancelled)
       // Submitted cancellations still invalidate cache and report success for their original orders.
       // Only callbacks into the current UI are suppressed after dismissal or a wallet change.
       if (signal.aborted) return

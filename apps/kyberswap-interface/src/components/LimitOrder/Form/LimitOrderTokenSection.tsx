@@ -21,6 +21,8 @@ export type LimitOrderTokenPanelProps = {
   requireOracle?: boolean
   /** Quick amounts in place of Max and Half. */
   amountShortcuts?: AmountShortcut[]
+  /** Which form the token selector reports its events for. */
+  trackingSource?: string
 }
 
 type TokenSectionTokens = {
@@ -56,6 +58,7 @@ export const LimitOrderInputTokenPanel = ({
   selectClassName,
   requireOracle,
   amountShortcuts,
+  trackingSource = 'limit_order',
 }: LimitOrderTokenPanelProps) => {
   const { currencyIn, currencyOut, inputAmount = '' } = tokens
 
@@ -86,7 +89,7 @@ export const LimitOrderInputTokenPanel = ({
       }
       positionLabel="in"
       customChainId={chainId}
-      trackingSource="limit_order"
+      trackingSource={trackingSource}
     />
   )
 }

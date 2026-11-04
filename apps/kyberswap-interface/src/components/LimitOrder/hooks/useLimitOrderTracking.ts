@@ -346,7 +346,7 @@ export const useLimitOrderTracking = () => {
         })
       },
       trackMyOrderCancelClick: (order: LimitOrder, networkName: string) => {
-        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getOrderTrackingPayload(order, networkName))
+        trackingHandler(TRACKING_EVENT_TYPE.LO_ACTIVE_ORDER_CANCEL_CLICK, getOrderTrackingPayload(order, networkName))
       },
       trackMyOrderCancelled: (order: LimitOrderNotice) => {
         trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, {

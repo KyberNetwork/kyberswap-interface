@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { ButtonOutlined } from 'components/Button'
 import { useIsStopMarketEligibleToken } from 'components/StopMarket/hooks/useStopMarketSupportedTokens'
-import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
 import { NativeCurrencies, STABLE_TOKENS } from 'constants/tokens'
@@ -16,7 +15,6 @@ type Props = {
   /** The token the user now holds and might want to protect. */
   currency?: Currency
   amount?: CurrencyAmount<Currency>
-  source: 'post_swap' | 'portfolio'
   className?: string
   onNavigate?: () => void
 }
@@ -25,10 +23,9 @@ type Props = {
  * Sends the user to a stop market order pre-filled with what they hold. The amount rides along through the
  * shared swap state rather than the URL, which only carries the pair.
  */
-const SetExitPriceButton = ({ currency, amount, source, className, onNavigate }: Props) => {
+const SetExitPriceButton = ({ currency, amount, className, onNavigate }: Props) => {
   const navigate = useNavigate()
   const { setInputValue } = useLimitActionHandlers()
-  const { trackExitPriceEntryClicked } = useStopMarketTracking()
   const { isEligible } = useIsStopMarketEligibleToken(currency)
 
   const chainId = currency?.chainId
@@ -41,14 +38,12 @@ const SetExitPriceButton = ({ currency, amount, source, className, onNavigate }:
   if (!counter) return null
 
   const onClick = () => {
-    trackExitPriceEntryClicked({ currency, source })
     if (amount) setInputValue(amount.toExact())
     navigate(
       `${APP_PATHS.STOP_MARKET}/${NETWORKS_INFO[chainId].route}/${currencyId(currency, chainId)}-to-${currencyId(
         counter,
         chainId,
       )}`,
-      { state: { source } },
     )
     onNavigate?.()
   }

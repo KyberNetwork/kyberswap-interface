@@ -53,7 +53,8 @@ type Props = {
   /** Position on the page, which staggers the rows' entrance. */
   rowIndex?: number
   onCancel: (order: StopMarket) => void
-  onEdit: (order: StopMarket) => void
+  /** `source` is the control that opened the edit: the row's button, or the link under a retrying order. */
+  onEdit: (order: StopMarket, source: 'row' | 'retry') => void
   onSelectPair: (order: StopMarket) => void
   /** `sellAmount` is exact, not the rounded display figure — it goes straight back into the form. */
   onRecreate: (order: StopMarket, sellAmount: string) => void
@@ -329,7 +330,7 @@ const StopMarketRow = ({
               <MouseoverTooltip text={t`Edit order`} placement="top" width="fit-content">
                 <IconButton
                   disabled={isCancelling}
-                  onClick={() => onEdit(order)}
+                  onClick={() => onEdit(order, 'row')}
                   data-testid="stop-market-order-edit-button"
                   className="p-0 text-subText hover:bg-white/10 hover:text-text disabled:text-subText-40 disabled:opacity-100"
                 >
@@ -383,7 +384,7 @@ const StopMarketRow = ({
             <button
               type="button"
               className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border-0 bg-transparent px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary-10"
-              onClick={() => onEdit(order)}
+              onClick={() => onEdit(order, 'retry')}
               data-testid="stop-market-order-retry-edit"
             >
               <Edit2 size={12} />

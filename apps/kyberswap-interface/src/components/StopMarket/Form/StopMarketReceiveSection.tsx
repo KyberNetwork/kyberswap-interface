@@ -53,6 +53,7 @@ const StopMarketReceiveSection = ({
       maxCurrencySymbolLength={6}
       // The trigger prices the sell token in this one, so the receive side needs an oracle feed too.
       requireOracle
+      trackingSource="stop_market"
       label={
         <div className="text-xs font-medium text-subText">
           <Trans>Amount Out</Trans>

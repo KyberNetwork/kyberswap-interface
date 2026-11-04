@@ -37,6 +37,7 @@ import {
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
+import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { useActiveWeb3React } from 'hooks'
 
 const ALL_CHAINS_VALUE = 'all'
@@ -59,6 +60,8 @@ type MyOrdersProps = {
 const MyOrders = ({ isActiveTab: isTabActive, toolbarActionsContainer, onSelectPair }: MyOrdersProps) => {
   const { account } = useActiveWeb3React()
   const limitOrderTracking = useLimitOrderTracking()
+  // The order list's own events belong to the Stop Market spec, which covers both kinds of order.
+  const orderListTracking = useStopMarketTracking()
   const { chainId, networkName } = useLimitOrderContext()
   const { options: supportedLimitOrderChainOptions, chainIds: supportedLimitOrderChains } =
     useSupportedLimitOrderChains()
@@ -249,6 +252,7 @@ const MyOrders = ({ isActiveTab: isTabActive, toolbarActionsContainer, onSelectP
   const onCancelAllOrder = () => {
     if (disabledCancelAll) return
 
+    orderListTracking.trackCancelAllClick({ orderType: 'limit_order', count: cancelableCancelAllOrders.length })
     openCancelModal()
     setIsCancelAll(true)
   }

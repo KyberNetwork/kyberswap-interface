@@ -18,6 +18,7 @@ import StopMarketConfirmModal, {
   StopMarketReviewSnapshot,
 } from 'components/StopMarket/CreateOrder/StopMarketConfirmModal'
 import { useCreateStopMarket } from 'components/StopMarket/CreateOrder/useCreateStopMarket'
+import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { getStopMarketServiceErrorMessage } from 'components/StopMarket/utils'
 import { useActiveWeb3React } from 'hooks'
 import { friendlyError } from 'utils/errorMessage'
@@ -72,6 +73,7 @@ export const useStopMarketProcessing = ({
   onClose,
 }: ProcessingParams) => {
   const navigateToOrders = useOrderListNavigation()
+  const tracking = useStopMarketTracking()
   const processingState = useProcessingState<ProcessingOrderStep>()
   // The modal shows it only while a step is marked failed, so a retry hides it and a new failure replaces it.
   const [stepError, setStepError] = useState<string | undefined>()
@@ -114,6 +116,7 @@ export const useStopMarketProcessing = ({
   // Keeps the pair in the path, as Limit Order's "My Orders" does: a bare chain route falls back to
   // the chain's default pair and would swap out the tokens the user just placed an order on.
   const viewOrders = () => {
+    tracking.trackViewOrderClick({ chainId, currencyIn, currencyOut, isEdit })
     navigateToOrders({
       kind: OrderKind.STOP,
       status: LimitOrderStatus.ACTIVE,
@@ -143,6 +146,8 @@ export const useStopMarketProcessing = ({
 
 /** One review and its processing run. Only this session subscribes to the execution hooks. */
 const StopMarketFlow = ({ review, onDismiss, onOrderCreated }: Props) => {
+  const { chainId } = useActiveWeb3React()
+  const tracking = useStopMarketTracking()
   const [isReviewOpen, setIsReviewOpen] = useState(true)
   const activeSession = useRef(true)
   useEffect(() => {
@@ -171,14 +176,40 @@ const StopMarketFlow = ({ review, onDismiss, onOrderCreated }: Props) => {
     onComplete: () => setHasAcceptedTerms(true),
   })
 
+  // The order as reviewed, which the funnel's review events all describe.
+  const getOrderContext = () => ({
+    currencyIn: review.currencyIn,
+    currencyOut: review.currencyOut,
+    chainId,
+    inputAmount: review.inputAmount,
+    amountUsd: review.amountUsd,
+    triggerPrice: review.triggerPrice,
+    triggerPercent: review.triggerPercent,
+    slippage: review.slippage,
+    expiredAt: review.expiredAt,
+  })
+  const getOrderContextRef = useRef(getOrderContext)
+  getOrderContextRef.current = getOrderContext
+  // Once per review, when it comes on screen; the tracker's identity can change while it is open.
+  const hasReportedOpen = useRef(false)
+  useEffect(() => {
+    if (hasReportedOpen.current) return
+    hasReportedOpen.current = true
+    tracking.trackReviewOpened(getOrderContextRef.current())
+  }, [tracking])
+
   return (
     <>
       <StopMarketConfirmModal
         {...review}
         isOpen={isReviewOpen}
         requiresTermsAcceptance={!hasAcceptedTerms}
+        onTermsAccepted={() => tracking.trackConsentAccepted(getOrderContext())}
         onDismiss={onDismiss}
-        onSubmit={start}
+        onSubmit={() => {
+          tracking.trackConfirmOrderClick(getOrderContext())
+          start()
+        }}
       />
 
       {processingModal}
