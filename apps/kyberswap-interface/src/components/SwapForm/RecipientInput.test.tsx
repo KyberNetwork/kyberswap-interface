@@ -5,7 +5,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { RecipientInput } from 'components/SwapForm/RecipientInput'
+import { RecipientInput, RecipientToggle } from 'components/SwapForm/RecipientInput'
 import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 
 let container: HTMLDivElement
@@ -14,14 +14,18 @@ let state: ReturnType<typeof useEvmRecipient>
 const Harness = () => {
   state = useEvmRecipient('connected-wallet')
   return (
-    <RecipientInput
-      mode="evm"
-      value={state.recipient}
-      expanded={state.expanded}
-      onChange={state.setRecipient}
-      onToggle={state.toggleExpanded}
-      onUseMyWallet={state.canUseMyWallet ? state.useMyWallet : undefined}
-    />
+    <>
+      <RecipientToggle expanded={state.expanded} onToggle={state.toggleExpanded} />
+      <RecipientInput
+        hideLabel
+        mode="evm"
+        value={state.recipient}
+        expanded={state.expanded}
+        onChange={state.setRecipient}
+        onToggle={state.toggleExpanded}
+        onUseMyWallet={state.canUseMyWallet ? state.useMyWallet : undefined}
+      />
+    </>
   )
 }
 const click = async (label: string) => {
@@ -51,16 +55,27 @@ it('clears explicitly, preserves custom recipient on collapse, and restores the 
       </I18nProvider>,
     ),
   )
-  await click('Recipient (EVM address)')
+  const input = container.querySelector('input')
+  expect(input?.disabled).toBe(true)
+  expect(input?.closest('[inert]')?.getAttribute('aria-hidden')).toBe('true')
+  await click('Recipient')
+  expect(container.querySelector('button')?.getAttribute('aria-expanded')).toBe('true')
+  expect(input?.disabled).toBe(false)
+  expect(input?.closest('[inert]')).toBeNull()
+  expect(container.textContent).not.toContain('Recipient (EVM address)')
+  expect(container.querySelector('input')?.placeholder).toBe('Recipient (EVM address)')
   expect(container.querySelector('input')?.value).toBe('connected-wallet')
   await click('Clear address')
   expect(state.recipient).toBe('')
   expect(container.textContent).toContain('Use my wallet')
   await act(async () => state.setRecipient('custom-wallet'))
-  await click('Recipient (EVM address)')
-  expect(container.querySelector('input')?.disabled).toBe(true)
+  await click('Recipient')
+  expect(container.querySelector('button')?.getAttribute('aria-expanded')).toBe('false')
+  expect(container.querySelector('input')).toBe(input)
+  expect(input?.disabled).toBe(true)
+  expect(input?.closest('[inert]')?.getAttribute('aria-hidden')).toBe('true')
   expect(state.recipient).toBe('custom-wallet')
-  await click('Recipient (EVM address)')
+  await click('Recipient')
   await click('Use my wallet')
   expect(container.querySelector('input')?.value).toBe('connected-wallet')
   expect(container.textContent).not.toContain('Use my wallet')

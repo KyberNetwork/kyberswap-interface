@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, LogIn, LogOut, X } from 'react-feather'
 
-import { ReactComponent as PasteIcon } from 'assets/svg/copy.svg'
+import { ReactComponent as PasteIcon } from 'assets/svg/ic_paste.svg'
 import { ButtonLight } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import { Stack } from 'components/Stack'
@@ -102,11 +102,7 @@ export const CrossChainWalletSelector = (props: Props) => {
         >
           {selectedAddress &&
             (showPasteIcon ? (
-              <PasteIcon
-                className="shrink-0 text-text [&_path]:stroke-current"
-                strokeWidth={1}
-                aria-label={t`Pasted receiver address`}
-              />
+              <PasteIcon className="size-4 shrink-0 text-text" aria-label={t`Pasted receiver address`} />
             ) : walletIcon ? (
               <img src={walletIcon} alt={walletName || ''} className="size-4 shrink-0" />
             ) : (
@@ -174,18 +170,18 @@ export const CrossChainWalletSelector = (props: Props) => {
                     className="flex w-full items-center gap-2 rounded border-0 bg-transparent p-2 text-left text-subText hover:bg-subText-20 hover:text-text"
                     onClick={pasteAddress}
                   >
-                    <PasteIcon className="shrink-0 text-text [&_path]:stroke-current" strokeWidth={1} />
-                    <Trans>Paste receiver address</Trans>
+                    <PasteIcon className="size-4 shrink-0" />
+                    <Trans>Paste recipient address</Trans>
                   </button>
-                  <div className="p-1 pt-0">
-                    <div className="flex h-8 items-center gap-2 rounded-lg bg-buttonGray px-3 py-1">
+                  <div className="p-1 pt-0.5">
+                    <div className="flex h-8 items-center gap-2 rounded-lg bg-background px-3 py-1">
                       <input
                         ref={inputRef}
-                        aria-label={t`Receiver address`}
-                        placeholder={t`Receiver address`}
+                        aria-label={t`Recipient address`}
+                        placeholder={t`Recipient address`}
                         autoComplete="off"
                         spellCheck={false}
-                        className="min-w-0 flex-1 border-0 bg-transparent p-0 text-xs text-text outline-none placeholder:text-subText"
+                        className="min-w-0 flex-1 border-0 bg-transparent p-0 text-xs text-text outline-none placeholder:text-subText/60"
                         value={draftAddress}
                         onChange={event => {
                           pasteRequest.current++

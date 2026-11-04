@@ -66,7 +66,7 @@ describe('SSR render smoke', () => {
     expect(inputPanel).toContain('title="Ethereum"')
     expect(outputPanel).toContain('title="Base"')
     expect(html).toMatch(/<button\b[^>]*>(?:(?!<\/button>)[\s\S])*Routes<\/button>/)
-    expect(html).toContain('Estimated Processing Time')
+    expect(html).toContain('Est. Time')
     expect(html).toContain('<aside')
     expect(html).not.toContain('data-testid="cross-chain-tab"')
     expect(html).not.toContain('<!--$?-->')

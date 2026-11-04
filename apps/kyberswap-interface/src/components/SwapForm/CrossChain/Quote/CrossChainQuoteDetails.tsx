@@ -6,6 +6,7 @@ import { CrossChainQuoteSummaryRows } from 'components/SwapForm/CrossChain/Quote
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { QuoteDetails } from 'components/SwapForm/Quote/QuoteDetails'
 import { SwapRate } from 'components/SwapForm/Quote/SwapRate'
+import { RecipientToggle } from 'components/SwapForm/RecipientInput'
 import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -25,14 +26,29 @@ export const CrossChainQuoteDetails = ({ recipient }: { recipient?: ReactNode })
     loading,
     allLoading,
     disable,
+    showRecipientInput,
+    toggleRecipient,
   } = useCrossChainSwap()
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const quote = selectedQuote?.quote
   const initialLoading = !disable && !quote && (loading || allLoading)
 
+  const recipientToggle = recipient ? (
+    <RecipientToggle expanded={showRecipientInput} onToggle={toggleRecipient} />
+  ) : undefined
+
   return (
     <QuoteDetails className="gap-3">
-      <SlippageSetting isCrossChain slippageInfo={warning?.slippageInfo} />
+      {(isSlippageControlPinned || recipientToggle) && (
+        <Stack>
+          {isSlippageControlPinned ? (
+            <SlippageSetting isCrossChain slippageInfo={warning?.slippageInfo} rightComponent={recipientToggle} />
+          ) : (
+            recipientToggle && <div className="flex justify-end">{recipientToggle}</div>
+          )}
+          {recipient}
+        </Stack>
+      )}
       <SwapRate
         currencyIn={currencyIn}
         currencyOut={currencyOut}
@@ -51,7 +67,6 @@ export const CrossChainQuoteDetails = ({ recipient }: { recipient?: ReactNode })
           />
         }
       />
-      {recipient}
       <Stack className="gap-2">
         <CrossChainQuoteSummaryRows
           loading={initialLoading}

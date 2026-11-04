@@ -24,9 +24,18 @@ type Props = {
   loading: boolean
   refresh: SwapQuoteRefresh
   recipient?: ReactNode
+  recipientToggle?: ReactNode
   isFeeTampered?: boolean
 }
-const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampered, loading, recipient }: Props) => {
+const SingleChainQuoteDetails = ({
+  routeSummary,
+  slippage,
+  refresh,
+  isFeeTampered,
+  loading,
+  recipient,
+  recipientToggle,
+}: Props) => {
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const { inputERC8056Info, outputERC8056Info } = useSwapFormContext()
   const { parsedAmountOut, priceImpact } = routeSummary || {}
@@ -50,7 +59,16 @@ const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampere
 
   return (
     <QuoteDetails className="gap-3">
-      {isSlippageControlPinned && <SlippageSetting />}
+      {(isSlippageControlPinned || recipientToggle) && (
+        <Stack>
+          {isSlippageControlPinned ? (
+            <SlippageSetting rightComponent={recipientToggle} />
+          ) : (
+            recipientToggle && <div className="flex justify-end">{recipientToggle}</div>
+          )}
+          {recipient}
+        </Stack>
+      )}
       <SwapRate
         currencyIn={rateCurrencyIn}
         currencyOut={rateCurrencyOut}
@@ -65,7 +83,6 @@ const SingleChainQuoteDetails = ({ routeSummary, slippage, refresh, isFeeTampere
         loading={initialLoading}
         refresh={refresh}
       />
-      {recipient}
       <Stack className="gap-2">
         <QuoteDetailRow
           loading={initialLoading}

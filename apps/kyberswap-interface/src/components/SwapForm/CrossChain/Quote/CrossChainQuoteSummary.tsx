@@ -6,7 +6,7 @@ import type { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQu
 import { QuoteDetailRow } from 'components/SwapForm/Quote/QuoteDetails'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { getMinimumOutputAmount } from 'pages/Swap/crossChain/quote/utils'
+import { getMinimumOutputAmount, isStableCurrency } from 'pages/Swap/crossChain/quote/utils'
 import { Quote } from 'pages/Swap/crossChain/registry'
 import { ExternalLink } from 'theme'
 import { Currency } from 'types/crossChain'
@@ -40,6 +40,12 @@ export const CrossChainQuoteSummaryRows = ({
   loading = false,
 }: CrossChainQuoteSummaryProps) => {
   const currencyIn = quote?.quote.quoteParams.fromToken
+  const inverted =
+    isStableCurrency(currencyIn, quote?.quote.quoteParams.fromChain) &&
+    !isStableCurrency(tokenOut, quote?.quote.quoteParams.toChain)
+  const baseCurrency = inverted ? tokenOut : currencyIn
+  const quoteCurrency = inverted ? currencyIn : tokenOut
+  const rate = quote ? (inverted ? 1 / quote.quote.rate : quote.quote.rate) : undefined
   const initialLoading = loading && !quote
 
   const theme = useTheme()
@@ -48,8 +54,8 @@ export const CrossChainQuoteSummaryRows = ({
   return (
     <>
       {full && (
-        <QuoteDetailRow label={t`Current price`}>
-          1 {currencyIn?.symbol} = {formatDisplayNumber(quote?.quote.rate, { significantDigits: 8 })} {tokenOut?.symbol}
+        <QuoteDetailRow label={t`Current Price`}>
+          1 {baseCurrency?.symbol} = {formatDisplayNumber(rate, { significantDigits: 8 })} {quoteCurrency?.symbol}
         </QuoteDetailRow>
       )}
 
@@ -64,7 +70,7 @@ export const CrossChainQuoteSummaryRows = ({
       </QuoteDetailRow>
       <QuoteDetailRow
         loading={initialLoading}
-        label={t`Estimated Processing Time`}
+        label={t`Est. Time`}
         tooltip={t`Estimated processing time for your transaction.`}
       >
         {quote ? `~${formatTime(quote.quote.timeEstimate)}` : '--'}

@@ -3,7 +3,7 @@ import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCross
 import { RecipientInput } from 'components/SwapForm/RecipientInput'
 import { Chain, NonEvmChain } from 'types/crossChain'
 
-export const CrossChainRecipient = () => <CrossChainRecipientInput {...useCrossChainSwap()} />
+export const CrossChainRecipient = () => <CrossChainRecipientInput {...useCrossChainSwap()} hideLabel />
 
 type Props = Pick<
   ReturnType<typeof useCrossChainRecipient>,
@@ -14,10 +14,11 @@ type Props = Pick<
   | 'showRecipientInput'
   | 'canUseMyWallet'
   | 'toggleRecipient'
-> & { toChainId?: Chain }
+> & { toChainId?: Chain; hideLabel?: boolean }
 
 export const CrossChainRecipientInput = ({
   toChainId,
+  hideLabel,
   recipient,
   recipientMode,
   setRecipient,
@@ -34,6 +35,7 @@ export const CrossChainRecipientInput = ({
           networkName:
             toChainId === NonEvmChain.Near ? 'NEAR' : toChainId === NonEvmChain.Bitcoin ? 'Bitcoin' : 'Solana',
         })}
+    hideLabel={hideLabel}
     value={recipient}
     expanded={showRecipientInput}
     onChange={setRecipient}

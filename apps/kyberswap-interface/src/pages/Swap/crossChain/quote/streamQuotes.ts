@@ -15,7 +15,7 @@ const SSE_EVENT = {
   ERROR: 'error',
 } as const
 
-const SOFT_TIMEOUT_MS = 4000
+const SOFT_TIMEOUT_MS = 3000
 
 type StreamQuotesParams = {
   params: QuoteParams | NearQuoteParams

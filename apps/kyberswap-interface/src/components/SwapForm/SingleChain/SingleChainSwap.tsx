@@ -8,7 +8,7 @@ import { Stack } from 'components/Stack'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/CurrencyInput/OutputCurrencyPanel'
-import { RecipientInput } from 'components/SwapForm/RecipientInput'
+import { RecipientInput, RecipientToggle } from 'components/SwapForm/RecipientInput'
 import MEVProtection from 'components/SwapForm/Settings/MEVProtection'
 import SingleChainQuoteDetails from 'components/SwapForm/SingleChain/SingleChainQuoteDetails'
 import {
@@ -273,9 +273,13 @@ export const SingleChainSwapContent = ({
 
             {!isWrapOrUnwrap && (
               <SingleChainQuoteDetails
+                recipientToggle={
+                  isDegenMode ? <RecipientToggle expanded={showRecipientInput} onToggle={toggleRecipient} /> : undefined
+                }
                 recipient={
                   isDegenMode ? (
                     <RecipientInput
+                      hideLabel
                       mode="evm"
                       value={recipient}
                       expanded={showRecipientInput}
