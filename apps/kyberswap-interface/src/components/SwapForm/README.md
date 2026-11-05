@@ -174,6 +174,15 @@ display do not own the selected provider or execution state.
 ### Gas Drop
 
 `useCrossChainQuote` owns eligibility and the selected mode.
+Gas Drop requires different source and destination chains and a non-native EVM
+output token. The `+ Gas` button becomes available when the current ordinary
+request (`gasDrop: false`) returns at least one KyberCross route with a finite
+`outputUsd` strictly above `GAS_DROP_MIN_OUTPUT_USD` ($2.2), regardless of the
+selected provider. Each ordinary request reevaluates eligibility from its results;
+changes to request inputs reset the selected mode. While Gas Drop is enabled,
+eligibility retains the ordinary request's result, including when the output
+after gas allocation falls below the threshold.
+
 `useGasDropPrefetch` owns on-demand requests and buffered results.
 `GasDropOption` handles presentation and confirmation; it does not own quote state.
 

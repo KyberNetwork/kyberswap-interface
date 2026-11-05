@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   checkSameAsset: vi.fn(),
   getQuotes: vi.fn(),
   tokenInUsd: 1,
+  outputUsd: 100,
   state: { crossChainSwap: { excludedSources: ['Relay'], quoteMode: 'direct' } },
 }))
 vi.mock('pages/Swap/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
@@ -66,6 +67,7 @@ const makeQuote = (request: QuoteRequest, provider = 'KyberCross', includeGas = 
       quoteToken: `token-${request.params.gasDrop}`,
       gasDrop: includeGas ? { amount: '100', minAmount: '90', inputToken: '0xgas' } : undefined,
       priceImpact: 0,
+      outputUsd: mocks.outputUsd,
     },
   } as Quote)
 
@@ -79,16 +81,39 @@ const enableGas = async () => {
 
 describe('Gas Drop route selection', () => {
   it.each([
-    { amount: '2.2', price: 1, available: false },
-    { amount: '2.200001', price: 1, available: true },
-    { amount: '10', price: 0.1, available: false },
-    { amount: '100', price: 0, available: false },
-  ])('only offers Gas Drop above $2.2: $amount tokens at $price USD', async ({ amount, price, available }) => {
-    mocks.tokenInUsd = price
-    await act(async () => render(amount))
+    { provider: 'KyberCross', outputUsd: 2.2, available: false },
+    { provider: 'KyberCross', outputUsd: 2.200001, available: true },
+    { provider: 'KyberCross', outputUsd: 0, available: false },
+    { provider: 'KyberCross', outputUsd: NaN, available: false },
+    { provider: 'KyberCross', outputUsd: Infinity, available: false },
+    { provider: 'Relay', outputUsd: 100, available: false },
+  ])(
+    'offers Gas Drop for $provider with outputUsd=$outputUsd: $available',
+    async ({ provider, outputUsd, available }) => {
+      mocks.outputUsd = outputUsd
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
+        request.onQuotes([makeQuote(request, provider)]),
+      )
+      await act(async () => render('100'))
+      await flushQuotes()
+      expect(requests().map(request => request.params.gasDrop)).toEqual([false])
+      expect(state.gasDropAvailable).toBe(available)
+    },
+  )
+
+  it('waits for an eligible KyberCross route even when another provider is selected', async () => {
+    await act(async () => render('100'))
     await flushQuotes()
-    expect(requests().map(request => request.params.gasDrop)).toEqual([false])
-    expect(state.gasDropAvailable).toBe(available)
+    const ordinary = requests()[0]
+    expect(state.gasDropAvailable).toBe(false)
+    const relay = makeQuote(ordinary, 'Relay')
+    await act(async () => ordinary.onQuotes([relay]))
+    expect(state.gasDropAvailable).toBe(false)
+    await act(async () => ordinary.onQuotes([relay, makeQuote(ordinary)]))
+    expect(state.selectedQuote).toBe(relay)
+    expect(state.gasDropAvailable).toBe(true)
+    await act(async () => ordinary.onQuotes([]))
+    expect(state.gasDropAvailable).toBe(false)
   })
 
   it('requests Gas Drop on demand, clears the old quote and rejects stale review callbacks', async () => {
@@ -294,24 +319,33 @@ describe('Gas Drop route selection', () => {
     expect(mocks.getQuotes).toHaveBeenCalledTimes(4)
   })
 
-  it('returns to ordinary mode when the refreshed input value falls below the threshold', async () => {
+  it('updates eligibility from refreshed ordinary output values', async () => {
     mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
     await act(async () => render('10'))
     await flushQuotes()
-    await enableGas()
-    mocks.tokenInUsd = 0.2
+    expect(state.gasDropAvailable).toBe(true)
+    mocks.outputUsd = 2.2
     await act(async () => state.refresh.onRefresh())
-    await flushQuotes()
-    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false])
-    expect(state.gasDropEnabled).toBe(false)
     expect(state.gasDropAvailable).toBe(false)
-    expect(state.gasDropUnsupported).toBe(false)
-    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
-    mocks.tokenInUsd = 1
+    mocks.outputUsd = 2.3
     await act(async () => vi.advanceTimersByTimeAsync(60_000))
     expect(state.gasDropAvailable).toBe(true)
-    expect(state.gasDropEnabled).toBe(false)
-    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, false])
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, false, false])
+  })
+
+  it('keeps Gas Drop enabled based on the ordinary route when input price or gas output drops', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    mocks.tokenInUsd = 0
+    mocks.outputUsd = 2.3
+    await act(async () => render('10'))
+    await flushQuotes()
+    expect(state.gasDropAvailable).toBe(true)
+    mocks.outputUsd = 0.3
+    await enableGas()
+    await act(async () => state.refresh.onRefresh())
+    expect(state.gasDropAvailable).toBe(true)
+    expect(state.gasDropEnabled).toBe(true)
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true])
   })
 
   it('does not offer Gas Drop for native output', async () => {
@@ -337,6 +371,7 @@ beforeEach(() => {
   vi.useFakeTimers()
   mocks.wallets = undefined
   mocks.tokenInUsd = 1
+  mocks.outputUsd = 100
   mocks.getQuotes.mockReset().mockImplementation(() => new Promise(() => undefined))
   root = createRoot(document.createElement('div'))
 })
