@@ -3,12 +3,13 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import InfoHelper from 'components/InfoHelper'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
+import ConfirmOutputChangeModal from 'components/SwapForm/SwapModal/ConfirmOutputChangeModal'
 import SwapDetails from 'components/SwapForm/SwapModal/SwapDetails'
-import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSure'
-import SwapReviewAmounts from 'components/SwapForm/SwapModal/SwapReviewAmounts'
-import SwapReviewWarnings from 'components/SwapForm/SwapModal/SwapReviewWarnings'
+import SwapReviewActions from 'components/SwapForm/SwapModal/SwapReviewActions'
+import { SwapReviewHeader } from 'components/SwapForm/SwapModal/SwapReviewLayout'
+import SwapReviewSummary from 'components/SwapForm/SwapModal/SwapReviewSummary'
 import { SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD } from 'components/SwapForm/SwapModal/reviewData'
 import { useSwapReviewData } from 'components/SwapForm/SwapModal/useSwapReviewData'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
@@ -16,17 +17,22 @@ import { TransactionErrorContent } from 'components/TransactionConfirmationModal
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDefaultSlippageByPair } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
-import { CloseIcon } from 'theme/components'
 
-type Props = {
+type SwapReviewContentProps = {
   buildResult: BuildRouteResult | undefined
   isBuildingRoute: boolean
-  errorWhileBuildRoute: string | undefined
-  onDismiss: () => void
-  onSwap: () => void
+  buildError: string | undefined
+  onDismiss?: () => void
+  onConfirm?: () => void
 }
 
-const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuildRoute, onDismiss, onSwap }: Props) => {
+const SwapReviewContent = ({
+  buildResult,
+  isBuildingRoute,
+  buildError,
+  onDismiss,
+  onConfirm,
+}: SwapReviewContentProps) => {
   const { slippage, isAdvancedMode } = useSwapFormContext()
   const review = useSwapReviewData(buildResult)
   const {
@@ -43,7 +49,7 @@ const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuild
   const [showInverted, setShowInverted] = useState(false)
   const [isDegenMode] = useDegenModeManager()
   const { setRawSlippage } = useSlippageSettingByPage()
-  const defaultSlp = useDefaultSlippageByPair()
+  const defaultSlippage = useDefaultSlippageByPair()
   const [searchParams, setSearchParams] = useSearchParams()
   const { trackingHandler } = useTracking()
 
@@ -52,7 +58,7 @@ const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuild
   const handleOpenSlippage = () => {
     searchParams.set('action', 'open-slippage-panel')
     setSearchParams(searchParams)
-    onDismiss()
+    onDismiss?.()
   }
 
   const handleSuggestedSlippage = () => {
@@ -69,7 +75,7 @@ const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuild
       searchParams.set('tab', 'settings')
       setSearchParams(searchParams)
     }
-    onDismiss()
+    onDismiss?.()
   }
 
   const handleAcceptConfirmedAmount = () => {
@@ -87,15 +93,15 @@ const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuild
     setShowAreYouSureModal(true)
   }
 
-  if (errorWhileBuildRoute && dynamicSuggestedSlippage) {
+  if (buildError && dynamicSuggestedSlippage) {
     return (
       <TransactionErrorContent
-        onDismiss={onDismiss}
+        onDismiss={() => onDismiss?.()}
         confirmAction={handleSuggestedSlippage}
         confirmText={canUseSuggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
         message={
           canUseSuggestedSlippage
-            ? errorWhileBuildRoute
+            ? buildError
             : t`This route may currently be too volatile to execute. Try to custom your own slippage to continue.`
         }
         confirmBtnStyle={{ flex: 2 }}
@@ -121,7 +127,7 @@ const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuild
 
   return (
     <>
-      <SwapModalAreYouSure
+      <ConfirmOutputChangeModal
         show={showAreYouSureModal}
         onDismiss={() => setShowAreYouSureModal(false)}
         onAccept={handleAcceptConfirmedAmount}
@@ -130,46 +136,37 @@ const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuild
         formattedOutputChangePercent={formattedOutputChangePercent}
       />
 
-      <Stack className="w-full gap-4 p-5">
-        <Stack className="gap-3">
-          <Stack className="gap-1">
-            <HStack className="w-full items-center justify-between">
-              <span className="text-xl font-medium">
-                <Trans>Confirm Swap Details</Trans>
-              </span>
-              <CloseIcon onClick={onDismiss} />
-            </HStack>
+      <Stack className="w-full gap-4 p-4 sm:p-5">
+        <SwapReviewHeader
+          title={<Trans>Confirm Swap Details</Trans>}
+          subtitle={<Trans>Please review the details of your swap</Trans>}
+          onDismiss={onDismiss}
+        />
 
-            <div className="text-xs text-subText">
-              <Trans>Please review the details of your swap:</Trans>
-            </div>
-          </Stack>
-
-          <SwapReviewAmounts
-            review={review}
-            isBuildingRoute={isBuildingRoute}
-            hasAcceptedNewAmount={hasAcceptedNewAmount}
-            showInverted={showInverted}
-            onInvertRate={() => setShowInverted(value => !value)}
-          />
-        </Stack>
+        <SwapReviewSummary
+          review={review}
+          isBuildingRoute={isBuildingRoute}
+          hasAcceptedNewAmount={hasAcceptedNewAmount}
+          showInverted={showInverted}
+          onInvertRate={() => setShowInverted(value => !value)}
+        />
 
         <SwapDetails {...review.details} isLoading={isBuildingRoute} />
 
-        <SwapReviewWarnings
+        <SwapReviewActions
           review={review}
           slippage={slippage}
-          defaultSlp={defaultSlp}
+          defaultSlippage={defaultSlippage}
           isAdvancedMode={isAdvancedMode}
           isDegenMode={isDegenMode}
           isBuildingRoute={isBuildingRoute}
-          errorWhileBuildRoute={errorWhileBuildRoute}
+          buildError={buildError}
           hasAcceptedNewAmount={hasAcceptedNewAmount}
           onDismiss={onDismiss}
-          onSwap={onSwap}
-          onUseDefaultSlippage={() => setRawSlippage(defaultSlp)}
+          onConfirm={onConfirm}
+          onUseDefaultSlippage={() => setRawSlippage(defaultSlippage)}
           onOpenSlippage={handleOpenSlippage}
-          onBuildErrorDismiss={handleBuildErrorDismiss}
+          onDismissBuildError={handleBuildErrorDismiss}
           onAcceptNewAmount={handleClickAcceptNewAmount}
         />
       </Stack>
@@ -177,4 +174,4 @@ const ConfirmSwapModalContent = ({ buildResult, isBuildingRoute, errorWhileBuild
   )
 }
 
-export default ConfirmSwapModalContent
+export default SwapReviewContent

@@ -7,7 +7,7 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import Select from 'components/Select'
 import { HStack, Stack } from 'components/Stack'
-import SwapOnlyButton from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
+import SingleChainSwapReview from 'components/SwapForm/SingleChain/SingleChainSwapReview'
 import type { BuildReview, SubmitReview, SwapReviewState } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -85,10 +85,10 @@ type Props = {
   wrapType: WrapType
 
   review: SwapReviewState
-  onOpenReview: (build: BuildReview) => Promise<void>
-  onConfirmReview: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
-  onDismissReview: () => void
-  onWrap: (() => Promise<string | undefined>) | undefined
+  openReviewSession: (build: BuildReview) => Promise<void>
+  confirmReviewSession: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
+  dismissReviewSession: () => void
+  onWrap?: () => Promise<string | undefined>
   buildRoute: BuildReview
   customChainId?: ChainId
   chainError?: string
@@ -110,9 +110,9 @@ const SwapActionButton = ({
   wrapType,
 
   review,
-  onOpenReview,
-  onConfirmReview,
-  onDismissReview,
+  openReviewSession,
+  confirmReviewSession,
+  dismissReviewSession,
   onWrap,
   buildRoute,
   customChainId,
@@ -378,7 +378,7 @@ const SwapActionButton = ({
         </Stack>
       ) : null}
       {(showSwapButton || isProcessingSwap) && (
-        <SwapOnlyButton
+        <SingleChainSwapReview
           showButton={showSwapButton}
           routeSummary={routeSummary}
           isGettingRoute={isGettingRoute}
@@ -390,9 +390,9 @@ const SwapActionButton = ({
           isPermitSwap={permitState === PermitState.SIGNED}
           isApproved={approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED}
           review={review}
-          onOpenReview={onOpenReview}
-          onConfirmReview={onConfirmReview}
-          onDismissReview={onDismissReview}
+          openReviewSession={openReviewSession}
+          confirmReviewSession={confirmReviewSession}
+          dismissReviewSession={dismissReviewSession}
           buildRoute={buildRoute}
         />
       )}

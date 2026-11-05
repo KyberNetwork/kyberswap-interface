@@ -51,7 +51,7 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
             <CrossChainSwapForm
               hidden={activeTab !== TAB.KYBER_CROSS}
               amount={swap.amount}
-              onAmountChange={swap.onAmountChange}
+              onAmountChange={swap.setAmount}
               currencyIn={swap.currencyIn}
               currencyOut={swap.currencyOut}
               fromChainId={swap.fromChainId}
@@ -66,7 +66,7 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
               onSelectNonEvmCurrencyOut={(chain, currency) => pair.selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
               onReverse={outputAmount => {
                 pair.reversePair()
-                if (outputAmount !== undefined) swap.onAmountChange(outputAmount)
+                if (outputAmount !== undefined) swap.setAmount(outputAmount)
               }}
               details={
                 <Stack className="gap-3">
@@ -118,7 +118,7 @@ const KyberCrossPage = () => {
         tokenIn={pair.inputId}
         tokenOut={pair.outputId}
         amount={typedValue}
-        onAmountChange={onUserInput}
+        setAmount={onUserInput}
       >
         <KyberCrossContent pair={pair} />
       </KyberCrossProvider>

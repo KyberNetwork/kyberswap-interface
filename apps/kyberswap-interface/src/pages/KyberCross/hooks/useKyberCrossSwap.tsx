@@ -17,7 +17,7 @@ const useKyberCrossController = ({
   tokenIn,
   tokenOut,
   amount,
-  onAmountChange,
+  setAmount,
 }: CrossChainSwapOptions) => {
   const pair = useCrossChainPair({ fromChainId: fromChain, toChainId: toChain, tokenIn, tokenOut })
   const recipient = useCrossChainRecipient(fromChain, toChain)
@@ -59,7 +59,7 @@ const useKyberCrossController = ({
     ...recipient,
     ...quote,
     amount,
-    onAmountChange,
+    setAmount,
     gasDropEnabled,
     gasDropSupported,
     setGasDropEnabled,

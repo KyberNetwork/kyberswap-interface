@@ -37,7 +37,7 @@ export const useCrossChainExecution = (
   const { data: walletClient } = useGatedWalletClient()
 
   const [searchParams] = useSearchParams()
-  const [submittingTx, setSubmittingTx] = useState(false)
+  const [isSubmitting, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
 
@@ -93,7 +93,7 @@ export const useCrossChainExecution = (
     })
   }
 
-  const handleSwap = async (selectedQuote = reviewedQuote) => {
+  const submitSwap = async (selectedQuote = reviewedQuote) => {
     if (!selectedQuote || activeSubmission.current) return
 
     const {
@@ -335,7 +335,7 @@ export const useCrossChainExecution = (
     }
   }
 
-  const resetExecution = useCallback(() => {
+  const resetSubmission = useCallback(() => {
     // Closing a review detaches its UI; an in-flight transaction still records its result in history.
     activeSubmission.current = null
     setTxHash('')
@@ -344,12 +344,12 @@ export const useCrossChainExecution = (
   }, [])
 
   useEffect(() => {
-    resetExecution()
+    resetSubmission()
 
     return () => {
       activeSubmission.current = null
     }
-  }, [reviewedQuote, resetExecution])
+  }, [reviewedQuote, resetSubmission])
 
-  return { submittingTx, txHash, txError, handleSwap, resetExecution }
+  return { isSubmitting, txHash, txError, submitSwap, resetSubmission }
 }
