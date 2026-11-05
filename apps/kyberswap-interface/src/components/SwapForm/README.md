@@ -169,9 +169,12 @@ Stream errors do not fall back to direct provider quotes.
   The snapshot remains separate from live quote refresh state.
 
 `loading` controls whether a quote is ready for use; `allLoading` can remain true
-while more provider results arrive. Ordinary route options show Best Return and Fastest;
-Fastest uses a valid positive time estimate, breaking ties by output. Ranking and
-display do not own the selected provider or execution state.
+while more provider results arrive. With Gas Drop enabled, Route Options includes
+both modes, with Gas Drop routes first and each group sorted by net output.
+Best Return follows the highest net output across the list, independently of row
+position. Fastest uses a valid positive time estimate, breaking ties by output.
+Row identity includes the mode; selection updates the provider and mode through
+`useCrossChainQuote`.
 
 ### Gas Drop
 
@@ -225,7 +228,9 @@ belongs to the page-level transaction updater, not the confirmation modal.
   normalization. UI summaries alone are insufficient to execute or reconcile.
 - Wallet connections belong to `SwapWalletProvider`; pasted recipient state
   belongs to `useCrossChainRecipient`. Pair reversal coordinates through the page
-  and leaves the app/header wallet unchanged.
+  and leaves the app/header wallet unchanged. Unified cross-chain EVM recipient
+  input shows only the user-entered value; the effective receiver defaults to the
+  connected wallet until a custom recipient is entered.
 - Form loading should preserve interactive inputs and settings. Refresh indicators
   display controller state; they do not schedule requests.
 - Shared hooks also serve embedded swaps and `pages/KyberCross`. Keep caller

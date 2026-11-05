@@ -17,17 +17,12 @@ import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import type { Chain } from 'types/crossChain'
 
-const PendingQuoteDetails = ({ toChainId }: { toChainId: Chain }) => {
+const PendingQuoteDetails = () => {
   const { rawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
   return (
     <QuoteDetails className="gap-3">
-      {(isSlippageControlPinned || typeof toChainId === 'number') && (
-        <Stack className="gap-2">
-          <SlippageSetting isCrossChain />
-          {typeof toChainId === 'number' && <Skeleton width="100%" height={20} />}
-        </Stack>
-      )}
+      {isSlippageControlPinned && <SlippageSetting isCrossChain />}
       <SwapRate loading routes={<CrossChainRoutesButton disabled />} />
       <Stack className="gap-2">
         <CrossChainQuoteSummaryRows loading slippage={rawSlippage} showSlippage={!isSlippageControlPinned} />
@@ -77,7 +72,7 @@ const CrossChainSwapPending = ({
       isOutputCurrencyLoading={isOutputCurrencyLoading || (!output && !!tokenOut)}
       loading
       receiver={<Skeleton width={160} height={16} />}
-      details={<PendingQuoteDetails toChainId={toChainId} />}
+      details={<PendingQuoteDetails />}
       action={
         <ButtonPrimary disabled>
           <Trans>Swap</Trans>

@@ -7,6 +7,7 @@ export const useEvmRecipient = (account?: string) => {
 
   return {
     recipient: customRecipient ?? account ?? '',
+    inputValue: customRecipient ?? '',
     expanded,
     canUseMyWallet: !!account && customRecipient !== null,
     setRecipient: (value: string) => setCustomRecipient(value),

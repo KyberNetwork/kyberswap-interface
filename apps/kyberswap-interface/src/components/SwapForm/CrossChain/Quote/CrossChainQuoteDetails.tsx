@@ -14,8 +14,8 @@ import { formatDisplayNumber } from 'utils/numbers'
 export const CrossChainQuoteDetails = ({ recipient }: { recipient?: ReactNode }) => {
   const {
     selectedQuote,
-    quotes,
-    setSelectedAdapter,
+    routeOptions,
+    selectRoute,
     currencyIn,
     currencyOut,
     warning,
@@ -60,10 +60,10 @@ export const CrossChainQuoteDetails = ({ recipient }: { recipient?: ReactNode })
         refresh={refresh}
         routes={
           <CrossChainQuoteSelector
-            quotes={quotes}
+            quotes={routeOptions}
             selectedQuote={selectedQuote}
             tokenOut={currencyOut}
-            onChange={quote => setSelectedAdapter(quote.adapter.getName())}
+            onChange={selectRoute}
           />
         }
       />

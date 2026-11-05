@@ -86,6 +86,7 @@ export const useCrossChainRecipient = (fromChainId: Chain, toChainId?: Chain) =>
 
   return {
     recipient,
+    recipientInputValue: hasIndependentReceiver ? recipientInput.pastedAddress : evm.inputValue,
     receiverWallet,
     pastedRecipient: hasIndependentReceiver ? recipientInput.pastedAddress : '',
     isPastedRecipient,
