@@ -4,7 +4,7 @@ import Logo from 'components/Logo'
 import { getNetworkInfo } from 'pages/Swap/crossChain/utils'
 import { Chain, Currency, isEvmChain } from 'types/crossChain'
 import { isNativeAsset } from 'utils/nativeErc20'
-import { getNativeTokenLogo } from 'utils/tokenLogo'
+import { getNativeTokenLogo, getTokenLogoURL } from 'utils/tokenLogo'
 
 export const TokenLogoWithChain = ({
   currency,
@@ -17,11 +17,16 @@ export const TokenLogoWithChain = ({
   size?: number
   chainLogoStyle?: React.CSSProperties
 }) => {
+  const tokenLogo =
+    isEvmChain(chainId) && currency && !isNativeAsset(currency)
+      ? currency.logoURI || ('address' in currency ? getTokenLogoURL(currency.address, chainId as ChainId) : '')
+      : ''
+
   return (
     <div className="relative mr-1 flex">
       {isEvmChain(chainId) ? (
         <Logo
-          srcs={[isNativeAsset(currency) ? getNativeTokenLogo(chainId as ChainId) : currency?.logoURI || '']}
+          srcs={[isNativeAsset(currency) ? getNativeTokenLogo(chainId as ChainId) : tokenLogo]}
           width={size}
           height={size}
           className="rounded-full"

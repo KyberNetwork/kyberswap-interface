@@ -97,7 +97,7 @@ const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () =>
       <div className="min-w-0 px-4 pb-2 pt-0 max-sm:px-3">
         <div className="min-w-0 overflow-x-auto">
           <div className="min-w-[800px] max-sm:min-w-0">
-            <WalletHistory key={sender} sender={sender} filter={query} />
+            <WalletHistory key={`${sender}:${query}`} sender={sender} filter={query} />
           </div>
         </div>
       </div>
