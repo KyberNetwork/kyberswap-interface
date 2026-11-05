@@ -227,7 +227,9 @@ const FillTransaction = ({ tx }: { tx: HistoryTransaction }) => {
     )
   }
 
-  return <span className="text-sm font-medium text-subText">··· ···</span>
+  const label = tx.status === 'Failed' ? t`Failed` : tx.status === 'Refunded' ? t`Refunded` : t`Not available`
+
+  return <span className="text-sm font-medium text-subText">{label}</span>
 }
 
 const MobileDetailRow = ({ label, children }: { label: string; children: ReactNode }) => (
