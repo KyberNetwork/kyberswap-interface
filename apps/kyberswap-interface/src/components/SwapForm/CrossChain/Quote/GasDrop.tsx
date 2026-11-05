@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useGasDropValue } from 'pages/Swap/crossChain/hooks/useGasDropValue'
@@ -17,12 +18,34 @@ type GasDropOptionProps = {
   outputSymbol?: string
   gasDrop?: GasDropQuote
   enabled: boolean
+  loading?: boolean
+  unsupported?: boolean
+  onRequest: () => void
   onChange: (enabled: boolean) => void
 }
 
-export const GasDropOption = ({ chain, provider, outputSymbol, gasDrop, enabled, onChange }: GasDropOptionProps) => {
+export const GasDropOption = ({
+  chain,
+  provider,
+  outputSymbol,
+  gasDrop,
+  enabled,
+  loading,
+  unsupported,
+  onRequest,
+  onChange,
+}: GasDropOptionProps) => {
   const { amountUsd, symbol } = useGasDropValue(gasDrop, chain)
   const usd = amountUsd != null ? formatDisplayNumber(amountUsd, { style: 'currency', fractionDigits: 2 }) : '--'
+
+  if (unsupported)
+    return (
+      <HStack className="min-h-6 items-center text-sm font-medium text-subText">
+        <Trans>No Gas Drop route found</Trans>
+      </HStack>
+    )
+
+  if (loading) return <Skeleton width={64} height={24} borderRadius={8} />
 
   return enabled ? (
     <HStack className="min-h-6 items-center gap-1 text-sm text-subText">
@@ -52,6 +75,7 @@ export const GasDropOption = ({ chain, provider, outputSymbol, gasDrop, enabled,
       provider={provider}
       symbol={symbol}
       outputSymbol={outputSymbol}
+      onRequest={onRequest}
       onAddGas={() => onChange(true)}
     />
   )
@@ -62,15 +86,17 @@ type AddGasButtonProps = {
   provider?: string
   symbol?: string
   outputSymbol?: string
+  onRequest: () => void
   onAddGas: () => void
 }
 
 // Confirmation belongs to the current provider; changing it resets only this pending action.
-const AddGasButton = ({ chain, provider, symbol, outputSymbol, onAddGas }: AddGasButtonProps) => {
+const AddGasButton = ({ chain, provider, symbol, outputSymbol, onRequest, onAddGas }: AddGasButtonProps) => {
   const [showConfirmation, setShowConfirmation] = useState(false)
   const chainName = getChainName(chain)
 
   const handleAddGas = () => {
+    onRequest()
     if (provider && provider !== 'KyberCross') {
       setShowConfirmation(true)
       return

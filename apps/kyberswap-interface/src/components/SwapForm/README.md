@@ -147,9 +147,8 @@ wallet request data. Amount requests debounce for 500 ms, while raw input remain
 part of request identity so old quotes stop being actionable immediately.
 
 `useCrossChainQuote` obtains pair category, USD prices and platform-fee policy
-from `getPairInfo`, then invokes `getQuotesWithGasDrop`. That helper requests
-ordinary quotes and, for eligible input, Gas Drop quotes concurrently through
-`getQuotes` with `quoteMode: 'stream'`. Source
+from `getPairInfo`, then invokes `getQuotesForMode`. That helper requests
+only the requested mode through `getQuotes` with `quoteMode: 'stream'`. Source
 preferences come from `state.crossChainSwap.excludedSources`. Transport, parsing
 and adapter association live in [`pages/Swap/crossChain/quote`](../../pages/Swap/crossChain/quote/).
 Stream errors do not fall back to direct provider quotes.
@@ -174,23 +173,9 @@ display do not own the selected provider or execution state.
 
 ### Gas Drop
 
-Gas Drop discovery runs automatically for different-chain pairs with an EVM
-non-native output and a known, finite input USD value greater than $2. Ineligible
-inputs request ordinary quotes only.
-
-[`gasDropQuotes.ts`](../../pages/Swap/crossChain/quote/gasDropQuotes.ts) collects
-ordinary and Gas Drop quotes concurrently under one cancellation boundary. Gas
-Drop results must contain an actual allocation. Failure in one mode preserves
-usable results from the other. `useCrossChainQuote` owns the selected mode;
-toggling uses collected quotes without another request. Request changes reset
-the mode, and a completed refresh without Gas Drop routes returns to ordinary mode.
-
-The option appears when a valid Gas Drop quote is available. Enabling it limits
-selection to supported KyberCross routes and requires confirmation when switching
-from another provider. The control owns pending confirmation; the quote controller
-owns the committed selection. Review displays the allocation from its quote
-snapshot. Shared value formatting uses API pricing or destination native-token
-pricing without modifying the quoted output amount.
+`useCrossChainQuote` owns eligibility and the selected mode.
+`useGasDropPrefetch` owns on-demand requests and buffered results.
+`GasDropOption` handles presentation and confirmation; it does not own quote state.
 
 ### Approval, review and submission
 
@@ -245,7 +230,8 @@ belongs to the page-level transaction updater, not the confirmation modal.
 | Same-chain review state or submission | `hooks/useSwapReviewSession.ts`, `SingleChain/useSingleChainSwapReview.ts`, `SingleChain/useSingleChainSwapExecution.ts` |
 | Review amounts, output acceptance or warnings | `SwapModal/useSwapReviewData.ts`, `SwapModal/reviewData.ts`, `SwapModal/SwapReviewActions.tsx` |
 | Cross-chain request inputs, selection or refresh | `CrossChain/hooks/useCrossChainQuoteRequest.ts`, `CrossChain/hooks/useCrossChainQuote.ts`, `CrossChain/hooks/useQuoteSession.ts` |
-| Gas Drop eligibility, paired requests or selection | `pages/Swap/crossChain/quote/gasDropQuotes.ts`, `CrossChain/hooks/useCrossChainQuote.ts` |
+| Gas Drop eligibility or mode selection | `CrossChain/hooks/useCrossChainQuote.ts` |
+| Gas Drop request and buffered results | `CrossChain/hooks/useGasDropPrefetch.ts`, `pages/Swap/crossChain/quote/getQuotesForMode.ts` |
 | Gas Drop presentation | `CrossChain/Quote/GasDrop.tsx`, `pages/Swap/crossChain/components/GasDropQuoteLine.tsx` |
 | Cross-chain action prerequisites or allowance | `CrossChain/CrossChainSwapAction.tsx`, `pages/Swap/crossChain/hooks/useCrossChainApproval.ts` |
 | Cross-chain confirmation content | `CrossChain/CrossChainSwapConfirmation.tsx`, `CrossChain/Quote/` |

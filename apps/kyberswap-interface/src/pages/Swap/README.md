@@ -119,13 +119,9 @@ provider, not the route visualization.
 
 ## Cross-chain integration boundary
 
-The form calls `crossChain/quote/gasDropQuotes.ts`, which requests ordinary quotes
-and, when eligible, Gas Drop quotes concurrently through
-`crossChain/quote/adapterQuotes.ts` with `quoteMode: 'stream'`. The form controller
-owns which collected set is visible; the page and route visualization do not
-start another request when Gas Drop is toggled. See
-[Gas Drop in SwapForm](../../components/SwapForm/README.md#gas-drop) for eligibility,
-selection and confirmation rules.
+The form requests quotes through `crossChain/quote/getQuotesForMode.ts` with
+`quoteMode: 'stream'`. Quote requests and mode selection belong to the form
+controller. See [SwapForm](../../components/SwapForm/README.md#gas-drop) for ownership.
 
 `streamQuotes.ts` receives aggregator results; parsing/normalization converts them
 to the shared `Quote` model and associates them with registered adapters. Stream

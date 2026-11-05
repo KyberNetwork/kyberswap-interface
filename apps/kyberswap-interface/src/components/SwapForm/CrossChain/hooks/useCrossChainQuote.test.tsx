@@ -71,168 +71,250 @@ const makeQuote = (request: QuoteRequest, provider = 'KyberCross', includeGas = 
 
 const requests = () => mocks.getQuotes.mock.calls.map(([request]) => request as QuoteRequest)
 
+const flushQuotes = () => act(async () => vi.advanceTimersByTimeAsync(800))
+const enableGas = async () => {
+  await act(async () => state.setGasDropEnabled(true))
+  await flushQuotes()
+}
+
 describe('Gas Drop route selection', () => {
-  it('preserves selection on rerender but starts fresh after recipient A -> B -> A', async () => {
+  it.each([
+    { amount: '2.2', price: 1, available: false },
+    { amount: '2.200001', price: 1, available: true },
+    { amount: '10', price: 0.1, available: false },
+    { amount: '100', price: 0, available: false },
+  ])('only offers Gas Drop above $2.2: $amount tokens at $price USD', async ({ amount, price, available }) => {
+    mocks.tokenInUsd = price
+    await act(async () => render(amount))
+    await flushQuotes()
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false])
+    expect(state.gasDropAvailable).toBe(available)
+  })
+
+  it('requests Gas Drop on demand, clears the old quote and rejects stale review callbacks', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    expect(state.gasDropAvailable).toBe(true)
+    expect(state.gasDropEnabled).toBe(false)
+    const ordinary = requests()[0]
+    const oldQuote = state.selectedQuote as Quote
+    const openOldReview = state.openReview
+
+    mocks.getQuotes.mockImplementation(() => new Promise(() => undefined))
+    await act(async () => state.setGasDropEnabled(true))
+    expect(state.loading).toBe(true)
+    expect(state.selectedQuote).toBeNull()
+    expect(ordinary.signal.aborted).toBe(true)
+    await act(async () => openOldReview(oldQuote))
+    expect(state.reviewQuote).toBeNull()
+    await flushQuotes()
+    const gas = requests()[1]
+    expect(gas.params).toEqual({ ...ordinary.params, gasDrop: true })
+    await act(async () => {
+      gas.onQuotes([makeQuote(gas)])
+      gas.onQuoteReady()
+    })
+    expect(state.loading).toBe(false)
+    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(true)
+    await act(async () => state.openReview(state.selectedQuote as Quote))
+    expect(state.reviewQuote?.quote.quoteParams.gasDrop).toBe(true)
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+  })
+
+  it('starts Gas Drop before confirmation and reuses its completed result on OK', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    const ordinary = state.selectedQuote
+    await act(async () => state.prepareGasDrop())
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true])
+    expect(state.gasDropEnabled).toBe(false)
+    expect(state.selectedQuote).toBe(ordinary)
+    expect(state.loading).toBe(false)
+    await enableGas()
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(true)
+  })
+
+  it('adopts the pending Gas Drop stream on OK without issuing another request', async () => {
+    mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+      if (request.params.gasDrop) return new Promise(() => undefined)
+      request.onQuotes([makeQuote(request)])
+      return Promise.resolve()
+    })
+    await act(async () => render('100'))
+    await flushQuotes()
+    await act(async () => state.prepareGasDrop())
+    const gas = requests()[1]
+    await enableGas()
+    expect(state.loading).toBe(true)
+    expect(state.selectedQuote).toBeNull()
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    await act(async () => {
+      gas.onQuotes([makeQuote(gas)])
+      gas.onQuoteReady()
+    })
+    expect(state.loading).toBe(false)
+    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(true)
+  })
+
+  it.each([false, true])(
+    'ignores an older Gas Drop response after the newer result is selected (empty: %s)',
+    async empty => {
+      const finishGas: Array<() => void> = []
+      mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+        if (request.params.gasDrop) return new Promise<void>(resolve => finishGas.push(resolve))
+        request.onQuotes([makeQuote(request)])
+        return Promise.resolve()
+      })
+      await act(async () => render('100'))
+      await flushQuotes()
+      await act(async () => state.prepareGasDrop())
+      const oldGas = requests()[1]
+      // Cancel only closes the popup. A new click starts a separate request.
+      await act(async () => state.prepareGasDrop())
+      const newGas = requests()[2]
+      await enableGas()
+      await act(async () => {
+        newGas.onQuotes([makeQuote(newGas)])
+        finishGas[1]()
+      })
+      const selected = state.selectedQuote
+      await act(async () => {
+        oldGas.onQuotes(empty ? [] : [makeQuote(oldGas)])
+        finishGas[0]()
+      })
+      expect(oldGas.signal.aborted).toBe(false)
+      expect(state.selectedQuote).toBe(selected)
+      expect(state.gasDropEnabled).toBe(true)
+      expect(state.gasDropUnsupported).toBe(false)
+      expect(mocks.getQuotes).toHaveBeenCalledTimes(3)
+    },
+  )
+
+  it.each([false, true])(
+    'keeps the new input result when a previous Gas Drop request finishes (confirmed: %s)',
+    async confirmed => {
+      let finishGas!: () => void
+      mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+        if (request.params.gasDrop)
+          return new Promise<void>(resolve => {
+            finishGas = resolve
+          })
+        request.onQuotes([makeQuote(request)])
+        return Promise.resolve()
+      })
+      await act(async () => render('100'))
+      await flushQuotes()
+      await act(async () => state.prepareGasDrop())
+      const gas = requests()[1]
+      if (confirmed) await enableGas()
+      await act(async () => render('200'))
+      await act(async () => vi.advanceTimersByTimeAsync(500))
+      await act(async () => vi.advanceTimersByTimeAsync(300))
+      const selected = state.selectedQuote
+      expect(selected?.quote.quoteParams.amount).toBe('200000000')
+      await act(async () => {
+        gas.onQuotes([makeQuote(gas)])
+        finishGas()
+      })
+      expect(gas.signal.aborted).toBe(false)
+      expect(state.selectedQuote).toBe(selected)
+      expect(state.gasDropAvailable).toBe(true)
+      expect(state.gasDropEnabled).toBe(false)
+      expect(state.gasDropUnsupported).toBe(false)
+    },
+  )
+
+  it('requests only the selected mode on refresh and requests ordinary quotes when disabled', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    await act(async () => state.refresh.onRefresh())
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true])
+    await act(async () => state.setGasDropEnabled(false))
+    expect(state.loading).toBe(true)
+    expect(state.selectedQuote).toBeNull()
+    await flushQuotes()
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true, false])
+    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
+  })
+
+  it.each(['empty', 'no allocation', 'error'])(
+    'marks Gas Drop unsupported and returns to ordinary mode on %s',
+    async failure => {
+      const log = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => {
+        if (!request.params.gasDrop) return request.onQuotes([makeQuote(request)])
+        if (failure === 'error') throw new Error('No Gas Drop route')
+        request.onQuotes(failure === 'empty' ? [] : [makeQuote(request, 'KyberCross', false)])
+      })
+      await act(async () => render('100'))
+      await flushQuotes()
+      await enableGas()
+      expect(state.gasDropEnabled).toBe(false)
+      expect(state.gasDropAvailable).toBe(true)
+      expect(state.gasDropUnsupported).toBe(true)
+      await flushQuotes()
+      expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false])
+      expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
+      expect(state.gasDropUnsupported).toBe(true)
+      await act(async () => render('200'))
+      expect(state.gasDropUnsupported).toBe(false)
+      log.mockRestore()
+    },
+  )
+
+  it('preserves mode on rerender, resets it on recipient changes, and ignores late responses', async () => {
     mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
     await act(async () => render('10', 'recipient-a'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
+    await flushQuotes()
+    await enableGas()
     const originalGas = requests()[1]
-    await act(async () => state.setGasDropEnabled(true))
     const selected = state.selectedQuote
-
     await act(async () => render('10', 'recipient-a'))
-    expect(state.gasDropEnabled).toBe(true)
     expect(state.selectedQuote).toBe(selected)
+    expect(state.gasDropEnabled).toBe(true)
     expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
-
     await act(async () => render('10', 'recipient-b'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
+    await flushQuotes()
     await act(async () => render('10', 'recipient-a'))
     expect(state.gasDropEnabled).toBe(false)
     expect(state.quotes).toEqual([])
+    expect(originalGas.signal.aborted).toBe(false)
     await act(async () => {
       originalGas.onQuotes([makeQuote(originalGas)])
       originalGas.onQuoteReady()
     })
     expect(state.quotes).toEqual([])
-    await act(async () => vi.advanceTimersByTimeAsync(800))
+    await flushQuotes()
     expect(state.selectedQuote?.quote.quoteParams).toMatchObject({ recipient: 'recipient-a', gasDrop: false })
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(6)
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(4)
   })
 
-  it('drops the selected Gas Drop mode when refreshed input value falls to $2', async () => {
+  it('returns to ordinary mode when the refreshed input value falls below the threshold', async () => {
     mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
     await act(async () => render('10'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    await act(async () => state.setGasDropEnabled(true))
+    await flushQuotes()
+    await enableGas()
     mocks.tokenInUsd = 0.2
     await act(async () => state.refresh.onRefresh())
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(3)
-    expect(requests()[2].params).toMatchObject({ gasDrop: false, tokenInUsd: 0.2 })
+    await flushQuotes()
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false])
     expect(state.gasDropEnabled).toBe(false)
     expect(state.gasDropAvailable).toBe(false)
+    expect(state.gasDropUnsupported).toBe(false)
     expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
-  })
-
-  it.each([
-    { amount: '1.99', price: 1, modes: [false] },
-    { amount: '2', price: 1, modes: [false] },
-    { amount: '2.000001', price: 1, modes: [false, true] },
-    { amount: '10', price: 0.1, modes: [false] },
-    { amount: '1', price: 3, modes: [false, true] },
-    { amount: '100', price: 0, modes: [false] },
-  ])('requests Gas Drop only above $2: $amount tokens at $price USD', async ({ amount, price, modes }) => {
-    mocks.tokenInUsd = price
-    await act(async () => render(amount))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    expect(requests().map(request => request.params.gasDrop)).toEqual(modes)
-  })
-
-  it('loads both modes with the same request snapshot and switches cached routes without another API call', async () => {
-    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    const [ordinary, gas] = requests()
-    expect(ordinary.params.gasDrop).toBe(false)
-    expect(gas.params).toEqual({ ...ordinary.params, gasDrop: true })
-    expect(gas.signal).toBe(ordinary.signal)
+    mocks.tokenInUsd = 1
+    await act(async () => vi.advanceTimersByTimeAsync(60_000))
     expect(state.gasDropAvailable).toBe(true)
     expect(state.gasDropEnabled).toBe(false)
-    expect(state.quotes.map(item => item.quote.quoteId)).toEqual(['KyberCross-false'])
-
-    const openOldReview = state.openReview
-    const oldQuote = state.selectedQuote as Quote
-    await act(async () => state.setGasDropEnabled(true))
-    expect(state.quotes.map(item => item.quote.quoteId)).toEqual(['KyberCross-true'])
-    await act(async () => openOldReview(oldQuote))
-    expect(state.reviewQuote).toBeNull()
-    await act(async () => state.openReview(state.selectedQuote as Quote))
-    expect(state.reviewQuote?.quote).toMatchObject({ quoteId: 'KyberCross-true', quoteToken: 'token-true' })
-    expect(state.reviewQuote?.quote.quoteParams.gasDrop).toBe(true)
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, false])
   })
 
-  it('restores ordinary routes on toggle off, keeping providers with the same name separate', async () => {
-    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    const ordinary = state.selectedQuote
-    await act(async () => state.setGasDropEnabled(true))
-    expect(state.selectedQuote).not.toBe(ordinary)
-    await act(async () => state.setGasDropEnabled(false))
-    expect(state.selectedQuote).toBe(ordinary)
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
-  })
-
-  it('does not offer Gas Drop when its response has no allocation', async () => {
-    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
-      request.onQuotes([makeQuote(request, 'Relay', false)]),
-    )
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    expect(state.gasDropAvailable).toBe(false)
-    expect(state.quotes).toHaveLength(1)
-    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
-  })
-
-  it('keeps ordinary routes usable while Gas Drop is pending and after it fails', async () => {
-    let rejectGas!: (error: Error) => void
-    const log = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
-      if (request.params.gasDrop)
-        return new Promise((_, reject) => {
-          rejectGas = reject
-        })
-      request.onQuotes([makeQuote(request)])
-      return Promise.resolve()
-    })
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    expect(state.loading).toBe(false)
-    expect(state.allLoading).toBe(true)
-    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
-    await act(async () => rejectGas(new Error('No Gas Drop route')))
-    expect(state.allLoading).toBe(false)
-    expect(state.gasDropAvailable).toBe(false)
-    expect(state.quotes).toHaveLength(1)
-    log.mockRestore()
-  })
-
-  it('can select Gas Drop when the ordinary mode has no routes', async () => {
-    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => {
-      request.onQuotes(request.params.gasDrop ? [makeQuote(request)] : [])
-    })
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    expect(state.selectedQuote).toBeNull()
-    expect(state.gasDropAvailable).toBe(true)
-    await act(async () => state.setGasDropEnabled(true))
-    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(true)
-  })
-
-  it('clears both modes and ignores late Gas Drop responses when the recipient changes', async () => {
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    const [ordinary, gas] = requests()
-    await act(async () => {
-      ordinary.onQuotes([makeQuote(ordinary)])
-      gas.onQuotes([makeQuote(gas)])
-      state.setGasDropEnabled(true)
-    })
-    await act(async () => render('100', 'new-recipient'))
-    expect(ordinary.signal.aborted).toBe(true)
-    expect(gas.signal.aborted).toBe(true)
-    await act(async () => gas.onQuotes([makeQuote(gas)]))
-    expect(state.quotes).toEqual([])
-    expect(state.gasDropAvailable).toBe(false)
-    expect(state.gasDropEnabled).toBe(false)
-  })
-
-  it('only requests ordinary quotes for native output and invalidates the previous Gas Drop selection', async () => {
-    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    await act(async () => state.setGasDropEnabled(true))
+  it('does not offer Gas Drop for native output', async () => {
     await act(async () =>
       root.render(
         <Harness
@@ -244,34 +326,9 @@ describe('Gas Drop route selection', () => {
         />,
       ),
     )
+    await flushQuotes()
     expect(state.gasDropAvailable).toBe(false)
-    expect(state.gasDropEnabled).toBe(false)
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(3)
-    expect(requests()[2].params.gasDrop).toBe(false)
-  })
-
-  it('falls back only after the selected Gas Drop mode finishes without routes on refresh', async () => {
-    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
-    await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
-    await act(async () => state.setGasDropEnabled(true))
-    let finishGas!: () => void
-    mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
-      if (request.params.gasDrop)
-        return new Promise<void>(resolve => {
-          finishGas = resolve
-        })
-      request.onQuotes([makeQuote(request)])
-      return Promise.resolve()
-    })
-    await act(async () => state.refresh.onRefresh())
-    expect(state.gasDropEnabled).toBe(true)
-    expect(state.selectedQuote).toBeNull()
-    await act(async () => finishGas())
-    expect(state.gasDropAvailable).toBe(false)
-    expect(state.gasDropEnabled).toBe(false)
-    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false])
   })
 })
 
@@ -294,19 +351,19 @@ describe('unified quote session after aggregator integration', () => {
     mocks.getQuotes.mockResolvedValue(undefined)
     await act(async () => render('100'))
     await act(async () => vi.advanceTimersByTimeAsync(800))
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(1)
     await act(async () => state.refresh.onRefresh())
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(4)
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
     await act(async () => vi.advanceTimersByTimeAsync(59_999))
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(4)
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
     await act(async () => vi.advanceTimersByTimeAsync(1))
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(6)
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(3)
   })
 
   it('requests stream quotes with pair fees even when the legacy setting is direct', async () => {
     await act(async () => render('100'))
     await act(async () => vi.advanceTimersByTimeAsync(800))
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(1)
     expect(mocks.getQuotes.mock.calls[0][0]).toMatchObject({
       quoteMode: 'stream',
       excludedSources: ['Relay'],
@@ -341,8 +398,8 @@ describe('unified quote session after aggregator integration', () => {
     // Flush the debounced render before advancing the next request's startup delay.
     await act(async () => vi.advanceTimersByTimeAsync(500))
     await act(async () => vi.advanceTimersByTimeAsync(300))
-    expect(mocks.getQuotes).toHaveBeenCalledTimes(4)
-    expect(mocks.getQuotes.mock.calls[2][0].params.amount).toBe('200000000')
+    expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
+    expect(mocks.getQuotes.mock.calls[1][0].params.amount).toBe('200000000')
   })
 })
 
