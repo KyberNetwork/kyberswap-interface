@@ -23,6 +23,7 @@ import {
   getGasDropQuote,
   getKyberCrossBridgeProviders,
   getKyberCrossRoutePlan,
+  getKyberCrossRouteSnapshot,
   mapRouteStateToSwapStatus,
   normalizeProvider,
   parseKyberCrossQuote,
@@ -149,6 +150,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       throw new Error('Missing KyberCross route plan')
     }
 
+    const kyberCrossRoute = getKyberCrossRouteSnapshot(routePlan)
     const normalizedRouteProvider = normalizeProvider(routePlan.bridge.provider)
     const build =
       'route_plans' in quoteData ? (await kyberCrossApi.build(quoteData.route_plans[0])).data : quoteData.build
@@ -179,6 +181,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     })
 
     return {
+      kyberCrossRoute,
       sender: quoteParams.sender,
       sourceTxHash: txHash,
       adapter: this.getName(),

@@ -8,13 +8,31 @@ import type { IndexedTransaction } from 'services/walletTransactions'
 import api, { useGetTransactionsInfiniteQuerySubscription } from 'services/walletTransactionsApi'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { getLoadedHistory } from 'pages/Swap/transactions/history'
+import TransactionUpdater from 'pages/Swap/transactions/TransactionUpdater'
+import { getLoadedHistory, localTransactionToHistory } from 'pages/Swap/transactions/history'
 import { useHistoryPagination } from 'pages/Swap/transactions/useHistoryPagination'
 import type { LocalTransaction } from 'state/crossChainSwap/model'
 import { addTransaction, finalizeTransaction } from 'state/transactions/actions'
 import transactionsReducer from 'state/transactions/reducer'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import type { NormalizedTxResponse } from 'types/crossChain'
+
+vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
+vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({}) }))
+vi.mock('components/Web3Provider/BitcoinProvider', () => ({ useBitcoinWallet: () => ({}) }))
+vi.mock('hooks', () => ({ useActiveWeb3React: () => ({}) }))
+vi.mock('pages/Swap/SwapWalletContext', () => ({
+  useSwapWallets: () => ({ inputAddress: sender, inputConnection: { family: 'evm' } }),
+}))
+vi.mock('pages/Swap/crossChain/adapters/NearIntentsAdapter/useRestoreMyNearWalletTransaction', () => ({
+  useRestoreMyNearWalletTransaction: () => undefined,
+}))
+vi.mock('pages/Swap/crossChain/transactions/useBackendTransactionUpdater', () => ({
+  useBackendTransactionUpdater: () => undefined,
+}))
+vi.mock('pages/Swap/crossChain/transactions/useProviderTransactionUpdater', () => ({
+  useProviderTransactionUpdater: () => undefined,
+}))
 
 let sender: string
 vi.mock('constants/env', async importOriginal => ({
@@ -95,6 +113,7 @@ const response = (rows: BackendTransaction[]) =>
   new Response(JSON.stringify({ code: 0, data: rows.map(walletRow) }), {
     headers: { 'Content-Type': 'application/json' },
   })
+let autoPoll = false
 let local: LocalTransaction[]
 let root: ReturnType<typeof createRoot>
 let history: ReturnType<typeof useHistoryPagination>
@@ -114,7 +133,7 @@ const fetcher = vi.fn()
 const Harness = ({ sender }: { sender: string }) => {
   useGetTransactionsInfiniteQuerySubscription(sender, { skip: !sender })
   history = useHistoryPagination(sender)
-  return null
+  return autoPoll ? <TransactionUpdater /> : null
 }
 const render = () =>
   act(async () => {
@@ -138,6 +157,7 @@ beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   sender = '0xsender'
   local = []
+  autoPoll = false
   store = createStore()
   root = createRoot(document.createElement('div'))
   fetcher.mockReset().mockImplementation(async () => response([]))
@@ -146,6 +166,7 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount())
   store.dispatch(api.util.resetApiState())
+  vi.useRealTimers()
   vi.unstubAllGlobals()
   vi.unstubAllEnvs()
 })
@@ -283,10 +304,9 @@ it('ignores a next-page completion after switching wallets', async () => {
 it('holds timestamp ties until the cursor has covered them', () => {
   const row = serverRow(10)
   const page = { transactions: [row], nextCursor: 'next' }
-  expect(getLoadedHistory([page], [localRow(10), localRow(9)], '0xsender').transactions).toEqual([])
-  expect(
-    getLoadedHistory([{ ...page, nextCursor: null }], [localRow(10), localRow(9)], '0xsender').transactions,
-  ).toHaveLength(2)
+  const local = [localRow(10), localRow(9)].map(localTransactionToHistory)
+  expect(getLoadedHistory([page], local, '0xsender').transactions).toEqual([])
+  expect(getLoadedHistory([{ ...page, nextCursor: null }], local, '0xsender').transactions).toHaveLength(2)
 })
 
 it('ignores detail cache and keeps persisted local settlement until KD catches up', async () => {
@@ -295,7 +315,7 @@ it('ignores detail cache and keeps persisted local settlement until KD catches u
   await render()
   await waitFor(() => expect(history.loadingMore).toBe(false))
   expect(hashes()).toEqual(['hash-30'])
-  expect(history.transactions[0]).toMatchObject({ status: 'Success', outputAmount: '95', fromBackend: true })
+  expect(history.transactions[0]).toMatchObject({ status: 'Success', outputAmount: '95', usesBackendData: true })
 
   await act(async () => {
     store.dispatch(
@@ -410,7 +430,7 @@ it('shows a submitted same-chain swap before API indexing, updates its receipt, 
   await act(async () => {
     await refetchHistory()
   })
-  await waitFor(() => expect(history.transactions[0].fromBackend).toBe(true))
+  await waitFor(() => expect(history.transactions[0].usesBackendData).toBe(true))
   expect(hashes()).toEqual(['hash-33'])
   expect(history.transactions[0].outputAmount).toBe('910001')
   sender = '0xother'
@@ -442,4 +462,23 @@ it('does not let a late next-page request undo previous-page navigation', async 
   })
   expect(history.currentPage).toBe(1)
   expect(hashes()).toEqual(range(32, 23).map(n => `hash-${n}`))
+})
+
+it('refreshes a locally processing row through the mounted updater without manual refetch or remount', async () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] })
+  autoPoll = true
+  local = [{ ...localRow(1), status: 'Processing' }]
+  let settled = false
+  fetcher.mockImplementation(async () => response([{ ...serverRow(1), status: settled ? 'success' : 'in_progress' }]))
+  await render()
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(100)
+  })
+  expect(history.transactions[0].status).toBe('Processing')
+  settled = true
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(10_100)
+  })
+  expect(fetcher.mock.calls.length).toBeGreaterThan(1)
+  expect(history.transactions[0]).toMatchObject({ status: 'Success', usesBackendData: true })
 })

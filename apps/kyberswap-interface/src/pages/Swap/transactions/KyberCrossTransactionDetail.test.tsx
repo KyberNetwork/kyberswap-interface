@@ -1,0 +1,163 @@
+// @vitest-environment happy-dom
+import { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+
+import type { TrackingExecution } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
+import KyberCrossTransactionDetail from 'pages/Swap/transactions/KyberCrossTransactionDetail'
+import type { HistoryTransaction } from 'pages/Swap/transactions/history'
+import ThemeProvider from 'theme'
+
+const mocks = vi.hoisted(() => ({ query: vi.fn() }))
+vi.mock('pages/Swap/transactions/useKyberCrossDetail', () => ({ useKyberCrossDetail: mocks.query }))
+vi.mock('pages/Swap/crossChain/factory', () => ({
+  CrossChainSwapFactory: { getKyberCrossBridgeSources: () => [] },
+}))
+vi.mock('pages/Swap/crossChain/utils', () => ({
+  getChainName: (chain: number) => String(chain),
+  normalizeAdapterName: (name: string) => name.toLowerCase(),
+}))
+vi.mock('pages/Swap/crossChain/components/TokenLogoWithChain', () => ({ TokenLogoWithChain: () => null }))
+vi.mock('pages/Swap/transactions/useHistoryTokens', () => ({
+  useHistoryTokens: () => ({ resolve: (token: unknown) => token, loading: false }),
+}))
+
+const tx = {
+  timestamp: 1000,
+  id: 'local-route',
+  sourceTxHash: '0xsource',
+  sourceChain: 1,
+  targetChain: 8453,
+  sender: '0xsender',
+  recipient: '0xrecipient',
+  adapter: 'KyberCross',
+  status: 'Processing',
+  sourceToken: { symbol: 'IN', decimals: 0, address: '0xinput' },
+  targetToken: { symbol: 'OUT', decimals: 0, address: '0xoutput' },
+  inputAmount: '100',
+  outputAmount: '90',
+  amountInUsd: 100,
+  amountOutUsd: 90,
+  usesBackendData: false,
+} as HistoryTransaction
+
+const execution: TrackingExecution = {
+  route_plan_id: 'api-route',
+  source_tx_hash: '0xsource',
+  source_chain: 'ethereum',
+  dest_chain: 'base',
+  from_address: '0xsender',
+  to_address: '0xrecipient',
+  token_in: '0xinput',
+  token_out: '0xoutput',
+  bridge_provider: 'relay',
+  flow_type: 'bridge_only',
+  route_state: 'BRIDGE_PENDING',
+  data: {},
+}
+
+let root: ReturnType<typeof createRoot>
+let container: HTMLDivElement
+
+const render = (selected = tx) =>
+  act(async () =>
+    root.render(
+      <ThemeProvider>
+        <KyberCrossTransactionDetail tx={selected} />
+      </ThemeProvider>,
+    ),
+  )
+const showExecution = async (data: TrackingExecution) => {
+  mocks.query.mockReturnValue({ data, isError: false, isPending: false })
+  await render()
+}
+
+const transactionLinks = () => [...container.querySelectorAll('a[href]')].map(link => link.getAttribute('href'))
+
+beforeEach(() => {
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  mocks.query.mockReturnValue({ isError: true, isPending: false, errorUpdatedAt: 1 })
+  container = document.createElement('div')
+  root = createRoot(container)
+})
+
+afterEach(async () => {
+  await act(async () => root.unmount())
+  vi.unstubAllGlobals()
+})
+
+it('shows processing during initial loading and non-final execution states', async () => {
+  mocks.query.mockReturnValue({ isPending: true, isError: false, errorUpdatedAt: 0 })
+  await render()
+  expect(container.querySelector('[role="status"]')?.textContent).toContain('Processing')
+
+  for (const route_state of ['BRIDGE_PENDING', 'BRIDGE_FAILED', 'SWAP_REFUND_PENDING'] as const) {
+    await showExecution({ ...execution, route_state })
+    expect(container.querySelector('[role="status"]')?.textContent).toBe('Processing')
+  }
+})
+
+it.each([
+  ['SUCCESS', 'Success', 'Completed'],
+  ['FAILED', 'Failed', 'Failed'],
+  ['REFUNDED', 'Refunded', 'Refunded'],
+] as const)(
+  'shows %s from execution or the selected fallback, including during refresh',
+  async (route_state, status, label) => {
+    mocks.query.mockReturnValue({
+      data: { ...execution, route_state },
+      isPending: false,
+      isFetching: true,
+      isError: false,
+    })
+    await render()
+    expect(container.querySelector('[role="status"]')?.textContent).toBe(label)
+
+    mocks.query.mockReturnValue({ isPending: false, isError: true, errorUpdatedAt: 1 })
+    await render({ ...tx, status })
+    expect(container.querySelector('[role="status"]')?.textContent).toBe(label)
+  },
+)
+
+it('uses the selected transaction on failure and switches to execution details after recovery', async () => {
+  await render()
+  expect(container.textContent).toContain('90 OUT')
+
+  await showExecution({ ...execution, dest_tx_hash: '0xapi-fill' })
+  expect(transactionLinks()).toContain('https://basescan.org/tx/0xapi-fill')
+})
+
+it('falls back to FE data when refreshing a cached execution fails', async () => {
+  mocks.query.mockReturnValue({
+    data: { ...execution, dest_tx_hash: '0xstale' },
+    isError: true,
+    isPending: false,
+    errorUpdatedAt: 1,
+  })
+  await render({ ...tx, targetTxHash: '0xselected' })
+  expect(container.textContent).toContain('90 OUT')
+  expect(transactionLinks()).toContain('https://basescan.org/tx/0xselected')
+  expect(transactionLinks()).not.toContain('https://basescan.org/tx/0xstale')
+})
+
+it('links distinct destination transactions without duplicating a shared receipt hash', async () => {
+  const completed: TrackingExecution = {
+    ...execution,
+    route_state: 'SUCCESS',
+    dest_tx_hash: '0xfinal',
+    data: {
+      bridge: {
+        source: { tx_hash: '0xdeposit', token: '0xtoken', amount: '99' },
+        dest: { tx_hash: '0xreceive', token: '0xtoken', amount: '99' },
+      },
+    },
+  }
+  await showExecution(completed)
+  expect(transactionLinks()).toEqual(
+    expect.arrayContaining(['https://basescan.org/tx/0xreceive', 'https://basescan.org/tx/0xfinal']),
+  )
+
+  await showExecution({ ...completed, dest_tx_hash: '0xreceive' })
+  expect(transactionLinks().filter(href => href === 'https://basescan.org/tx/0xreceive')).toHaveLength(1)
+  expect(transactionLinks()).not.toContain('https://basescan.org/tx/0xfinal')
+})

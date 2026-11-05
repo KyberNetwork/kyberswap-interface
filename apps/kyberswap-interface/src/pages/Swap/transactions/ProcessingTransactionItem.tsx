@@ -8,6 +8,7 @@ import Logo, { NetworkLogo } from 'components/Logo'
 import { HStack } from 'components/Stack'
 import { registry } from 'pages/Swap/crossChain/factory'
 import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
+import { useTransactionDetailTrigger } from 'pages/Swap/transactions/TransactionDetailProvider'
 import type { HistoryTransaction } from 'pages/Swap/transactions/history'
 import { useHistoryToken } from 'pages/Swap/transactions/useHistoryToken'
 import type { Currency } from 'types/crossChain'
@@ -74,9 +75,13 @@ const StatusBadge = ({ status }: { status: HistoryTransaction['status'] }) => (
 const ProcessingTransactionItem = ({ tx }: { tx: HistoryTransaction }) => {
   const sourceToken = useHistoryToken(tx.sourceToken, tx.sourceChain)
   const targetToken = useHistoryToken(tx.targetToken, tx.targetChain)
+  const trigger = useTransactionDetailTrigger({ ...tx, sourceToken, targetToken })
 
   return (
-    <li className="grid h-7 grid-cols-[minmax(120px,1fr)_64px_88px_minmax(156px,1.3fr)_132px] items-center gap-3 py-1 text-sm leading-5 text-subText max-sm:grid-cols-[48px_minmax(0,1fr)_80px] max-sm:gap-2">
+    <li
+      {...trigger}
+      className="grid h-7 grid-cols-[minmax(120px,1fr)_64px_88px_minmax(156px,1.3fr)_132px] items-center gap-3 py-1 text-sm leading-5 text-subText max-sm:grid-cols-[48px_minmax(0,1fr)_80px] max-sm:gap-2 [&[role=button]]:cursor-pointer [&[role=button]]:rounded [&[role=button]]:hover:bg-tableHeader [&[role=button]]:focus-visible:ring-1 [&[role=button]]:focus-visible:ring-primary"
+    >
       <TransactionProvider tx={tx} />
       <HStack className="items-center">
         <NetworkLogo chainId={tx.sourceChain} style={{ width: 16, height: 16, borderRadius: '50%' }} />

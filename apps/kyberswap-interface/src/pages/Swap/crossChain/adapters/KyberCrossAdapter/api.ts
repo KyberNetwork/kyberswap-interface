@@ -256,6 +256,13 @@ type RouteExecutionData = {
   withdraw?: WithdrawData
   refund?: { chain: ChainName; token: Address; amount: UIntString }
   dest_withdraw?: WithdrawData
+  fees?: {
+    fee_type: 'partner_fee' | 'protocol_fee'
+    chain: ChainName
+    token: Address
+    amount: UIntString
+    recipient: Address
+  }[]
 }
 
 export type TrackingExecution = {
@@ -360,6 +367,7 @@ const scanTxStatus = (txHash: Hash): Promise<ScanTxStatusResponse> =>
     method: 'GET',
     url: '/api/v1/executions',
     params: { source_tx_hash: txHash },
+    timeout: 15_000,
   })
 
 export const kyberCrossApi = {

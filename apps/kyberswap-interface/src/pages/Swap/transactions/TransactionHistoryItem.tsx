@@ -8,10 +8,10 @@ import { formatUnits } from 'viem'
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
-import { GasDropTransactionLine } from 'pages/Swap/crossChain/components/GasDropTransactionLine'
 import { TokenLogoWithChain } from 'pages/Swap/crossChain/components/TokenLogoWithChain'
 import { registry } from 'pages/Swap/crossChain/factory'
 import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
+import { TransactionDetailButton } from 'pages/Swap/transactions/TransactionDetailProvider'
 import type { HistoryTransaction } from 'pages/Swap/transactions/history'
 import { useHistoryToken } from 'pages/Swap/transactions/useHistoryToken'
 import { ExternalLinkIcon } from 'theme'
@@ -44,7 +44,7 @@ export const TransactionTableGrid = ({ children, className, ...rest }: HTMLAttri
 
 const getSourceExplorerLink = (tx: HistoryTransaction) => {
   if (tx.sourceChain === NonEvmChain.Near)
-    return tx.fromBackend || tx.depositAddress
+    return tx.usesBackendData || tx.depositAddress
       ? `https://nearblocks.io/txns/${tx.sourceTxHash}`
       : `https://nearblocks.io/address/${tx.id}`
   if (tx.sourceChain === NonEvmChain.Bitcoin) return `https://mempool.space/tx/${tx.sourceTxHash}`
@@ -55,7 +55,7 @@ const getSourceExplorerLink = (tx: HistoryTransaction) => {
 
 const getTargetExplorerLink = (tx: HistoryTransaction) => {
   if (!tx.targetTxHash) return ''
-  if (!tx.fromBackend && tx.adapter.toLowerCase() === 'debridge')
+  if (!tx.usesBackendData && tx.adapter.toLowerCase() === 'debridge')
     return `https://app.debridge.finance/order?orderId=${tx.targetTxHash}`
   if (tx.targetChain === NonEvmChain.Near) return `https://nearblocks.io/txns/${tx.targetTxHash}`
   if (tx.targetChain === NonEvmChain.Bitcoin) return `https://mempool.space/tx/${tx.targetTxHash}`
@@ -106,6 +106,7 @@ const TransactionProvider = ({ tx }: { tx: HistoryTransaction }) => {
       <span className="truncate text-sm font-medium text-text" title={adapterName}>
         {adapterName}
       </span>
+      <TransactionDetailButton tx={tx} />
     </div>
   )
 }
@@ -190,7 +191,6 @@ const TransactionAmount = ({ tx }: { tx: HistoryTransaction }) => (
   <div className="flex min-w-0 flex-col gap-1">
     <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" token={tx.sourceToken} />
     <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" token={tx.targetToken} />
-    {tx.gasDrop && <GasDropTransactionLine tx={tx} />}
   </div>
 )
 

@@ -12,16 +12,18 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 export const GasDropTransactionLine = ({
   tx,
+  showSeparator = true,
 }: {
   tx: Pick<NormalizedTxResponse, 'targetChain' | 'gasDrop' | 'gasDropStatus' | 'status' | 'targetTxHash'>
+  showSeparator?: boolean
 }) => {
   const native = NativeCurrencies[tx.targetChain as ChainId]
   const bridgeToken = useCurrencyV2(tx.gasDrop?.inputToken, tx.targetChain as ChainId)
-  if (!tx.gasDrop || !native || tx.gasDropStatus?.status === 'NotExecuted') return null
+  if ((!tx.gasDrop && !tx.gasDropStatus) || !native || tx.gasDropStatus?.status === 'NotExecuted') return null
   const status = tx.gasDropStatus?.status || 'Pending'
   const amount = tx.gasDropStatus?.amount
   const token = bridgeToken?.symbol || t`bridged token`
-  const usd = tx.gasDrop.inputAmountUsd
+  const usd = tx.gasDrop?.inputAmountUsd
   const formattedUsd = usd ? formatDisplayNumber(usd, { style: 'currency', fractionDigits: 2 }) : ''
   const text =
     status === 'Delivered' && amount
@@ -36,13 +38,19 @@ export const GasDropTransactionLine = ({
         : t`Gas allocation returned as ${token}`
       : t`Pending`
   return (
-    <div className={cn('text-xs', status === 'Failed' ? 'text-warning' : 'text-subText')}>
-      {t`Gas Drop`} · {text}
+    <div
+      className={cn(
+        'flex flex-wrap items-baseline gap-x-1 text-xs',
+        status === 'Failed' ? 'text-warning' : 'text-subText',
+      )}
+    >
+      <span>
+        {t`Gas Drop`}
+        {showSeparator ? ' • ' : ' '}
+        {text}
+      </span>
       {status === 'Delivered' && tx.targetTxHash && (
-        <ExternalLink
-          className="ml-1"
-          href={getEtherscanLink(tx.targetChain as ChainId, tx.targetTxHash, 'transaction')}
-        >
+        <ExternalLink href={getEtherscanLink(tx.targetChain as ChainId, tx.targetTxHash, 'transaction')}>
           ↗
         </ExternalLink>
       )}

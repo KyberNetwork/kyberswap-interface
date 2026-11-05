@@ -92,7 +92,7 @@ it('dedupes API/local by canonical chain and hash, preserves local until settled
   }
   const merge = (server = [row], sender = '0xSENDER') => mergeTransactionHistory({ server, local: [local], sender })
   expect(merge()).toHaveLength(1)
-  expect(merge()[0]).toMatchObject({ fromBackend: true, outputAmount: '910000' })
+  expect(merge()[0]).toMatchObject({ usesBackendData: true, outputAmount: '910000' })
   expect(merge([{ ...row, status: 'in_progress', verification: 'pending' }])).toEqual([local])
   expect(merge([{ ...row, fromToken: '' }])).toEqual([local])
   expect(merge([{ ...row, fromChain: 'base', toChain: 'base' }])).toHaveLength(2)

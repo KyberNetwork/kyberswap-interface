@@ -162,73 +162,58 @@ export const useProviderTransactionUpdater = () => {
         ongoingCallsRef.current.add(localTransactionKey(tx))
       })
 
-      const checkedTxs = await Promise.allSettled(
-        txsToCheck.map(async tx => {
+      // Commit each result as it arrives; a slow provider must not hold back
+      // completed transactions from another request in the same polling cycle.
+      await Promise.allSettled(
+        txsToCheck.map(async snapshot => {
+          const key = localTransactionKey(snapshot)
           try {
-            const adapter = registry.getAdapter(tx.adapter)
-            if (!adapter) return null
+            const adapter = registry.getAdapter(snapshot.adapter)
+            if (!adapter) return
 
-            const result = await adapter.getTransactionStatus(tx)
+            const result = await adapter.getTransactionStatus(snapshot)
+            const tx = store.getState().crossChainSwap.transactions.find(row => localTransactionKey(row) === key)
+            // The BE may have settled this row while the provider request was in flight.
+            if (!tx || isBackendResolved(tx.sync?.backend) || isBackendResolved(tx.settlement)) return
             const txUpdate = getTransactionUpdate(tx, result)
-            if (!txUpdate) return null
+            if (!txUpdate) return
 
-            return { tx, update: txUpdate }
+            if (txUpdate.status && txUpdate.status !== tx.status) {
+              trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
+              if (tx.gasDrop && txUpdate.status === 'Success') {
+                const native = NativeCurrencies[tx.targetChain as ChainId]
+                const gas = txUpdate.gasDropStatus || tx.gasDropStatus
+                const input = `${formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
+                  significantDigits: 6,
+                })} ${tx.sourceToken.symbol}`
+                const output = `${formatDisplayNumber(
+                  formatUnits(BigInt(txUpdate.outputAmount || tx.outputAmount), tx.targetToken.decimals),
+                  { significantDigits: 6 },
+                )} ${tx.targetToken.symbol}`
+                const gasText =
+                  gas?.status === 'Delivered' && gas.amount && native
+                    ? ` + ${formatDisplayNumber(formatUnits(BigInt(gas.amount), native.decimals), {
+                        significantDigits: 6,
+                      })} ${native.symbol} gas`
+                    : ''
+                const chain = getChainName(tx.targetChain)
+
+                notify({
+                  title: t`Swap completed`,
+                  summary: t`Swapped ${input} for ${output}${gasText} on ${chain}`,
+                  type: NotificationType.SUCCESS,
+                })
+              }
+            }
+
+            dispatch(patchProviderTransactions([{ key, update: txUpdate }]))
+          } catch (reason) {
+            console.error(`Failed to check status for transaction ${snapshot.id}:`, reason)
           } finally {
-            ongoingCallsRef.current.delete(localTransactionKey(tx))
+            ongoingCallsRef.current.delete(key)
           }
         }),
       )
-
-      const txUpdates = checkedTxs.flatMap((result, index) => {
-        if (result.status === 'fulfilled') return result.value ? [result.value] : []
-
-        console.error(`Failed to check status for transaction ${txsToCheck[index].id}:`, result.reason)
-        return []
-      })
-
-      if (txUpdates.length > 0) {
-        const txUpdateMap = new Map(txUpdates.map(({ tx, update }) => [localTransactionKey(tx), update]))
-        const updates = store.getState().crossChainSwap.transactions.flatMap(tx => {
-          const txUpdate = txUpdateMap.get(localTransactionKey(tx))
-          if (!txUpdate) return []
-
-          // A BE updater may have already committed a canonical terminal result
-          // while this provider request was in flight. Never regress it.
-          if (isBackendResolved(tx.sync?.backend) || isBackendResolved(tx.settlement)) return []
-
-          if (txUpdate.status && txUpdate.status !== tx.status) {
-            trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
-            if (tx.gasDrop && txUpdate.status === 'Success') {
-              const native = NativeCurrencies[tx.targetChain as ChainId]
-              const gas = txUpdate.gasDropStatus || tx.gasDropStatus
-              const input = `${formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
-                significantDigits: 6,
-              })} ${tx.sourceToken.symbol}`
-              const output = `${formatDisplayNumber(
-                formatUnits(BigInt(txUpdate.outputAmount || tx.outputAmount), tx.targetToken.decimals),
-                { significantDigits: 6 },
-              )} ${tx.targetToken.symbol}`
-              const gasText =
-                gas?.status === 'Delivered' && gas.amount && native
-                  ? ` + ${formatDisplayNumber(formatUnits(BigInt(gas.amount), native.decimals), {
-                      significantDigits: 6,
-                    })} ${native.symbol} gas`
-                  : ''
-              const chain = getChainName(tx.targetChain)
-
-              notify({
-                title: t`Swap completed`,
-                summary: t`Swapped ${input} for ${output}${gasText} on ${chain}`,
-                type: NotificationType.SUCCESS,
-              })
-            }
-          }
-
-          return [{ key: localTransactionKey(tx), update: txUpdate }]
-        })
-
-        if (updates.length) dispatch(patchProviderTransactions(updates))
-      }
     },
     [dispatch, trackStatusChange, notify, store],
   )

@@ -64,6 +64,19 @@ const initial = () =>
 const entryOf = (state: ReturnType<typeof initial>) => selectTransactionSyncs({ crossChainSwap: state })[0]
 
 describe('persisted local settlement', () => {
+  it('keeps local data provenance after registration while backend execution is still pending', () => {
+    let state = initial()
+    const pending = { ...backend, status: 'in_progress' as const }
+    state = reducer(state, saveTransactionSync({ ...entryOf(state), recordingStatus: 'recorded', backend: pending }))
+    const rows = mergeTransactionHistory({
+      server: [pending],
+      local: state.transactions.map(localTransactionToHistory),
+      sender: transaction.sender,
+    })
+    expect(rows[0]).toMatchObject({ usesBackendData: false, targetTxHash: 'provider-order-id', outputAmount: '90' })
+    expect(state.transactions[0]).not.toHaveProperty('usesBackendData')
+  })
+
   it.each(['success', 'failed', 'refunded'] as const)('retains %s after sync cleanup and JSON reload', status => {
     let state = initial()
     const entry = entryOf(state)
@@ -83,7 +96,7 @@ describe('persisted local settlement', () => {
       status: status === 'success' ? 'Success' : status === 'failed' ? 'Failed' : 'Refunded',
       outputAmount: '95',
       targetTxHash: '0xfill',
-      fromBackend: true,
+      usesBackendData: true,
     })
     expect(state.transactions[0]).toMatchObject({ outputAmount: '95', targetTxHash: '0xfill' })
   })
@@ -147,4 +160,23 @@ describe('persisted local settlement', () => {
       }),
     ).toHaveLength(1)
   })
+})
+
+it('retains the planned route for backend history without attaching it to a conflicting provider', () => {
+  const planned = { id: 'route', bridgeProvider: 'relay' }
+  const local = localTransactionToHistory({
+    ...transaction,
+    adapter: 'KyberCross',
+    kyberCrossRoute: planned,
+    sourceToken: { ...transaction.sourceToken, address: 'input' } as NormalizedTxResponse['sourceToken'],
+    targetToken: { ...transaction.targetToken, address: 'output' } as NormalizedTxResponse['targetToken'],
+  })
+  const merge = (provider: string) =>
+    mergeTransactionHistory({
+      server: [{ ...backend, provider }],
+      local: [local],
+      sender: transaction.sender,
+    })[0]
+  expect(merge('KyberCross')).toMatchObject({ usesBackendData: true, kyberCrossRoute: planned })
+  expect(merge('Relay').kyberCrossRoute).toBeUndefined()
 })

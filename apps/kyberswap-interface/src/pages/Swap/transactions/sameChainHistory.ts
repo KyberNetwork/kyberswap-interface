@@ -30,6 +30,7 @@ export const sameChainTransactionToHistory = (tx: TransactionDetails): HistoryTr
     const targetToken = token(info.tokenAddressOut, outputDecimals, info.tokenSymbolOut)
     if (!sourceToken || !targetToken) return undefined
     return {
+      usesBackendData: false,
       id: tx.hash,
       sourceTxHash: tx.hash,
       targetTxHash: tx.receipt ? tx.hash : undefined,

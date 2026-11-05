@@ -5,6 +5,7 @@ import type { TrackingExecution } from 'pages/Swap/crossChain/adapters/KyberCros
 import {
   getGasDropQuote,
   getKyberCrossBridgeProviders,
+  getKyberCrossRouteSnapshot,
   mapRouteStateToSwapStatus,
   normalizeProvider,
 } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/utils'
@@ -237,4 +238,46 @@ describe('Gas Drop quote normalization', () => {
   it('treats an absent gas_drop_swap as not included', () => {
     expect(getGasDropQuote({})).toBeUndefined()
   })
+})
+
+it('keeps planned amounts and fees in a serializable snapshot without build metadata', () => {
+  const plannedSwap = {
+    token_in: ADDRESS,
+    token_out: ADDRESS,
+    input_amount: '100',
+    expected_output_amount: '99',
+    min_output_amount: '98',
+    metadata: { route_id: 'swap-route', route_summary: { opaque: 'not-for-history' } },
+  }
+  const snapshot = getKyberCrossRouteSnapshot({
+    id: 'planned-route',
+    bridge: { provider: 'relay' },
+    flow_type: 'swap_bridge_swap',
+    source_swap: plannedSwap,
+    dest_swap: plannedSwap,
+    gas_drop_swap: plannedSwap,
+    fees: [
+      {
+        type: 'partner_fee',
+        chain: 'ethereum',
+        token: ADDRESS,
+        recipient: ADDRESS,
+        rate_bps: 10,
+        charged_on: 'bridge_input',
+        expected_amount: '1',
+      },
+    ],
+  })
+  const restored = JSON.parse(JSON.stringify(snapshot))
+  expect(restored).toMatchObject({
+    id: 'planned-route',
+    bridgeProvider: 'relay',
+    flowType: 'swap_bridge_swap',
+    sourceSwap: { tokenIn: ADDRESS, tokenOut: ADDRESS, inputAmount: '100', outputAmount: '99' },
+    fees: [{ type: 'partner_fee', chain: 'ethereum', token: ADDRESS, amount: '1' }],
+  })
+  expect(restored.destinationSwap).toEqual(restored.sourceSwap)
+  expect(restored.gasDropSwap).toEqual(restored.sourceSwap)
+  expect(JSON.stringify(restored)).not.toContain('metadata')
+  expect(JSON.stringify(restored)).not.toContain('not-for-history')
 })
