@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from 'react'
 
+import { BitcoinConnectModal } from 'components/Header/web3/WalletModal/BitcoinConnectModal'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { Stack } from 'components/Stack'
 import { CrossChainReceiverWalletSelector } from 'components/SwapForm/CrossChain/CrossChainReceiverWalletSelector'
@@ -13,11 +14,10 @@ import { CrossChainQuoteDetails } from 'components/SwapForm/CrossChain/Quote/Cro
 import { CrossChainPriceImpactWarning } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
 import { GasDropOption } from 'components/SwapForm/CrossChain/Quote/GasDrop'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
-import { useCrossChainWalletIntent } from 'components/SwapForm/CrossChain/hooks/useCrossChainWalletIntent'
+import { useCrossChainWalletIntent } from 'components/SwapWallets/useCrossChainWalletIntent'
 import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
 import { isNonEvmChain } from 'types/crossChain'
 
 type Props = CrossChainFormSelectionProps

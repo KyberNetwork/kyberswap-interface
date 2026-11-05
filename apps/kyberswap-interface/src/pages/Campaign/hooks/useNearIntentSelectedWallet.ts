@@ -2,11 +2,11 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useMemo, useState } from 'react'
 
+import useAcceptTermAndPolicy from 'components/Header/web3/WalletModal/useAcceptTermAndPolicy'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { useSolanaConnectModal } from 'components/Web3Provider/SolanaConnectModalProvider'
 import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
-import useAcceptTermAndPolicy from 'pages/Swap/crossChain/hooks/useAcceptTermAndPolicy'
-import { useSolanaConnectModal } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { NonEvmChainInfo } from 'types/crossChain'
 

@@ -7,23 +7,23 @@ import LocalLoader from 'components/LocalLoader'
 import { Center, HStack, Stack } from 'components/Stack'
 import CrossChainSwapPending from 'components/SwapForm/CrossChain/CrossChainSwapPending'
 import { SingleChainSwapContent } from 'components/SwapForm/SingleChain/SingleChainSwap'
+import HistoryPanel, { HistoryButton } from 'components/SwapTransactions/History/HistoryPanel'
+import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
+import { Header } from 'components/TradeLayout/Header'
+import { TAB } from 'components/TradeLayout/Tabs'
+import { LiquiditySourcesPanel, SwapSettingsPanel, TokenInfo } from 'components/TradeLayout/lazyPanels'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import CrossChainRightPanel from 'pages/Swap/components/CrossChainRightPanel'
 import { SingleChainRightPanel } from 'pages/Swap/components/SingleChainRightPanel'
-import { Header } from 'pages/Swap/layout/Header'
-import { TAB } from 'pages/Swap/layout/Tabs'
-import { LiquiditySourcesPanel, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
-import HistoryPanel, { HistoryButton } from 'pages/Swap/transactions/HistoryPanel'
 import { Field } from 'state/swap/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import type { Chain, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { cn } from 'utils/cn'
 
 const CrossChainSwap = lazy(() => import('components/SwapForm/CrossChain/CrossChainSwap'))
-const ProcessingTransactions = lazy(() => import('pages/Swap/transactions/ProcessingTransactions'))
-const CrossChainSwapSources = lazy(() => import('pages/Swap/crossChain/components/CrossChainSwapSources'))
+const ProcessingTransactions = lazy(() => import('components/SwapTransactions/Processing/ProcessingTransactions'))
+const CrossChainSwapSources = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel/CrossChainSwapSources'))
 
 const SwapFormLoader = () => (
   <Center className="h-40">

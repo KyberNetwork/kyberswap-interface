@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useEffectEvent, useRef, useState } from 'react'
+import { PairCategory } from 'services/crossChain/quote/utils'
+import { Quote } from 'services/crossChain/registry'
 
 import type { useCrossChainQuoteRequest } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuoteRequest'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { PairCategory } from 'pages/Swap/crossChain/quote/utils'
-import { Quote } from 'pages/Swap/crossChain/registry'
 
 export type ReviewedQuote = Quote & { category: PairCategory }
 

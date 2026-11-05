@@ -1,9 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { ChevronRight } from 'react-feather'
+import { CrossChainSwapFactory } from 'services/crossChain/factory'
 
 import { SettingsAction, SettingsLabel, SettingsRow } from 'components/TransactionSettings/components'
-import { CrossChainSwapFactory } from 'pages/Swap/crossChain/factory'
 import { type CrossChainQuoteMode } from 'state/crossChainSwap'
 import { useAppSelector } from 'state/hooks'
 

@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
+import type { getFallbackQuotes } from 'services/crossChain/quote/adapterQuotes'
+import type { Quote } from 'services/crossChain/registry'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useKyberCrossQuote } from 'pages/KyberCross/hooks/useKyberCrossQuote'
-import type { getFallbackQuotes } from 'pages/Swap/crossChain/quote/adapterQuotes'
-import type { Quote } from 'pages/Swap/crossChain/registry'
 
 const mocks = vi.hoisted(() => ({
   connection: {},
@@ -26,10 +26,10 @@ vi.mock('state/hooks', () => ({
   useAppSelector: (select: (state: typeof mocks.state) => unknown) => select(mocks.state),
 }))
 vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [50] }))
-vi.mock('pages/Swap/crossChain/factory', () => ({ registry: {} }))
-vi.mock('pages/Swap/crossChain/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
-vi.mock('pages/Swap/crossChain/quote/adapterQuotes', () => ({ getFallbackQuotes: mocks.getFallbackQuotes }))
-vi.mock('pages/Swap/crossChain/quote/getPairInfo', () => ({
+vi.mock('services/crossChain/factory', () => ({ registry: {} }))
+vi.mock('services/crossChain/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
+vi.mock('services/crossChain/quote/adapterQuotes', () => ({ getFallbackQuotes: mocks.getFallbackQuotes }))
+vi.mock('services/crossChain/quote/getPairInfo', () => ({
   getPairInfo: async () => ({ category: 'stablePair', feeBps: 10, tokenInUsd: 1, tokenOutUsd: 1 }),
 }))
 

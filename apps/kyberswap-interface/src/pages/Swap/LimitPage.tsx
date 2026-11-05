@@ -6,11 +6,11 @@ import OrderListSkeleton from 'components/LimitOrder/OrderList/OrderListSkeleton
 import Loader from 'components/Loader'
 import { Center, Stack } from 'components/Stack'
 import OrderTypeSubTabs from 'components/StopMarket/OrderTypeSubTabs'
-import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
-import { useTradeController } from 'pages/Swap/hooks/useTradeController'
+import { TAB } from 'components/TradeLayout/Tabs'
+import { OrderList, SwapSettingsPanel, TokenInfo } from 'components/TradeLayout/lazyPanels'
+import { useCurrenciesByPage } from 'components/TradeLayout/useCurrenciesByPage'
+import { useTradeController } from 'components/TradeLayout/useTradeController'
 import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
-import { TAB } from 'pages/Swap/layout/Tabs'
-import { OrderList, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
 
 const StopMarketForm = lazy(() => import('components/StopMarket/Form/StopMarketForm'))
 

@@ -1,14 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { kyberCrossSupportedChains } from 'services/crossChain/adapters/KyberCrossAdapter/types'
+import { getPriceImpactInfo } from 'services/crossChain/quote/priceImpact'
+import { isEvmCurrency } from 'services/crossChain/quote/utils'
+import type { Quote } from 'services/crossChain/registry'
 
 import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
 import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
 import type { CrossChainSwapOptions } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { useKyberCrossQuote } from 'pages/KyberCross/hooks/useKyberCrossQuote'
-import { kyberCrossSupportedChains } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/types'
-import { getPriceImpactInfo } from 'pages/Swap/crossChain/quote/priceImpact'
-import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
-import type { Quote } from 'pages/Swap/crossChain/registry'
 
 const useKyberCrossController = ({
   fromChain,

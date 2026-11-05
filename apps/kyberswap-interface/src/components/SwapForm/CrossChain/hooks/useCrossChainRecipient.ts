@@ -1,17 +1,17 @@
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useState } from 'react'
-
-import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
-import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
-import { ZERO_ADDRESS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import {
   BTC_DEFAULT_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
-} from 'pages/Swap/crossChain/utils'
+} from 'services/crossChain/utils'
+
+import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
+import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { ZERO_ADDRESS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { Chain, NonEvmChain, isNonEvmChain } from 'types/crossChain'
 
 type RecipientInput = { mode: 'wallet' | 'paste'; pastedAddress: string; expanded: boolean }

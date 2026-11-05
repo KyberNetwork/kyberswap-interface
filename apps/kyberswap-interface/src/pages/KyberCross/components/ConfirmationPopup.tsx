@@ -2,25 +2,25 @@ import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { ArrowDown } from 'react-feather'
+import type { Quote } from 'services/crossChain/registry'
+import { isQuoteExecutable } from 'services/crossChain/utils'
 import { formatUnits } from 'viem'
 
 import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { GasDropAmount } from 'components/GasDrop/GasDropAmount'
 import { Stack } from 'components/Stack'
 import { CrossChainQuoteSummaryRows } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
+import { QuoteProviderName } from 'components/SwapForm/CrossChain/Quote/QuoteProviderName'
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
+import { useCrossChainExecution } from 'components/SwapForm/CrossChain/hooks/useCrossChainExecution'
+import { GasDropTransactionLine } from 'components/SwapTransactions/TransactionDetail/GasDropTransactionLine'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { PiWarning } from 'pages/KyberCross/components/PiWarning'
 import { useGasDropReview } from 'pages/KyberCross/hooks/useGasDropReview'
 import { useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
-import { GasDropQuoteLine } from 'pages/Swap/crossChain/components/GasDropQuoteLine'
-import { GasDropTransactionLine } from 'pages/Swap/crossChain/components/GasDropTransactionLine'
-import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
-import { useCrossChainExecution } from 'pages/Swap/crossChain/hooks/useCrossChainExecution'
-import type { Quote } from 'pages/Swap/crossChain/registry'
-import { isQuoteExecutable } from 'pages/Swap/crossChain/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { CloseIcon, ExternalLink } from 'theme'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo, isEvmChain } from 'types/crossChain'
@@ -244,7 +244,7 @@ export const ConfirmationPopup = ({ quote: initialQuote, isOpen, onDismiss }: Co
                   slippage: selectedQuote.quote.quoteParams.slippage,
                 })}
               />
-              <GasDropQuoteLine gasDrop={selectedQuote.quote.gasDrop} chain={toChainId} loading={review.refreshing} />
+              <GasDropAmount gasDrop={selectedQuote.quote.gasDrop} chain={toChainId} loading={review.refreshing} />
             </Stack>
 
             {priceImpactInfo?.message && <div className="mt-4" />}

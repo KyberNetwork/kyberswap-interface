@@ -3,10 +3,10 @@ import { Suspense, lazy } from 'react'
 
 import TokenPriceChart from 'components/TokenPriceChart'
 import { getChartTokens } from 'components/TokenPriceChart/tokens'
-import TradeRoutePanel, { TradeRouteSkeleton } from 'pages/Swap/components/TradeRoutePanel'
+import TradeRoutePanel, { TradeRouteSkeleton } from 'components/TradeRouting/TradeRoutePanel'
 import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 
-const CrossChainTradeRoute = lazy(() => import('pages/Swap/components/CrossChainTradeRoute'))
+const CrossChainTradeRoute = lazy(() => import('components/TradeRouting/CrossChainTradeRoute'))
 
 const PendingTradeRoute = ({ defaultCollapsed }: { defaultCollapsed: boolean }) => (
   <TradeRoutePanel

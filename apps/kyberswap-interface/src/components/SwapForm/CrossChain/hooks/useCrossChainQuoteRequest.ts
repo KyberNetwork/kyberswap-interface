@@ -1,13 +1,13 @@
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { useMemo } from 'react'
+import { adaptRelaySolanaWallet } from 'services/crossChain/adapters/RelayAdapter/relaySolanaWallet'
+import { CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'services/crossChain/utils'
 import { parseUnits } from 'viem'
 
 import { CrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
+import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import useDebounce from 'hooks/useDebounce'
-import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
-import { adaptRelaySolanaWallet } from 'pages/Swap/crossChain/adapters/RelayAdapter/relaySolanaWallet'
-import { CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/Swap/crossChain/utils'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { NonEvmChain } from 'types/crossChain'
 

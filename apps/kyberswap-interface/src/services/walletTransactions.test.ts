@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { mergeTransactionHistory } from 'pages/Swap/transactions/history'
+import { mergeTransactionHistory } from 'components/SwapTransactions/history'
 
 import { indexedTransactionPageFromWalletRows, walletTransactionToIndexed } from './walletTransactions'
 

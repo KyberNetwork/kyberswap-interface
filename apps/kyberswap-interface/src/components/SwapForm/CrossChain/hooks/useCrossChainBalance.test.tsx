@@ -12,7 +12,7 @@ vi.mock('wagmi', () => ({ usePublicClient: () => evmClient }))
 
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
 vi.mock('@solana/wallet-adapter-react', () => ({ useConnection: () => ({}) }))
-vi.mock('pages/Swap/crossChain/utils', () => ({ SOLANA_NATIVE: 'native-sol' }))
+vi.mock('services/crossChain/utils', () => ({ SOLANA_NATIVE: 'native-sol' }))
 
 let root: ReturnType<typeof createRoot>
 let client: QueryClient

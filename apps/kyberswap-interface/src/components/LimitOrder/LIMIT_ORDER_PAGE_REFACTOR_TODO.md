@@ -37,7 +37,7 @@ These motivations describe the value of the work; they do not authorize a busine
 The page boundary is the shared trade surface, not only the `components/LimitOrder` folder:
 
 - `/limit/:network/:currency?` and `/stop-market/:network/:currency?`, both rendered by [`LimitPage`](../../pages/Swap/LimitPage.tsx).
-- The shared shell, navigation and settings/info panels in [`SwapLayout`](../../pages/Swap/layout/SwapLayout.tsx), [`LimitOrderContext`](LimitOrderContext.tsx) and [`useTradeController`](../../pages/Swap/hooks/useTradeController.ts). `SwapLayout` and `PartnerSwapLayout` retain the Limit Order provider around the form and right panel; moving that boundary is deferred.
+- The shared shell, navigation and settings/info panels in [`SwapLayout`](../../pages/Swap/layout/SwapLayout.tsx), [`LimitOrderContext`](LimitOrderContext.tsx) and [`useTradeController`](../../components/TradeLayout/useTradeController.ts). `SwapLayout` and `PartnerSwapLayout` retain the Limit Order provider around the form and right panel; moving that boundary is deferred.
 - The left-side Limit Order and Stop Market forms, pair/amount state, validation, warnings, review, wrapping, approval, signing and processing.
 - The right-side chart, price markers, Order Book, take-order flow, Active/History lists, order-kind tabs, filters, pagination, Cancel All, cancellation, editing and recreation.
 - URL/query/deep-link behavior, custom-chain embedded usage in [`PartnerSwap`](../../pages/PartnerSwap/index.tsx), tracking, notifications, RTK Query data and loading fallbacks.
@@ -157,7 +157,7 @@ Priority: deferred P0 prerequisite, lifetime/reset contract; structural extracti
 
 Motivation: the shared shell, conditional form, right panel and embedded Partner Swap do not have the same lifetime. Treating them as one render tree makes it easy to reset a draft when only a view changed, or to keep an operation alive after its account or chain is no longer valid. Establishing identities first gives later changes a safe boundary and prevents a broad provider move from becoming a substitute for a real lifecycle decision.
 
-Sources: [`LimitPage`](../../pages/Swap/LimitPage.tsx), [`SwapLayout`](../../pages/Swap/layout/SwapLayout.tsx), [`useTradeController`](../../pages/Swap/hooks/useTradeController.ts), [`PartnerSwap`](../../pages/PartnerSwap/index.tsx), [`OrderTypeSubTabs`](../StopMarket/OrderTypeSubTabs.tsx).
+Sources: [`LimitPage`](../../pages/Swap/LimitPage.tsx), [`SwapLayout`](../../pages/Swap/layout/SwapLayout.tsx), [`useTradeController`](../../components/TradeLayout/useTradeController.ts), [`PartnerSwap`](../../pages/PartnerSwap/index.tsx), [`OrderTypeSubTabs`](../StopMarket/OrderTypeSubTabs.tsx).
 
 - [ ] Complete the lifetime/reset matrix above; define separate identities for shell navigation, product drafts, list queries and operations.
 - [ ] Provider relocation is deferred. Preserve the existing layout-owned provider/right-panel lifetime; moving the provider is not a prerequisite for draft or operation fixes.

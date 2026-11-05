@@ -2,17 +2,17 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Suspense, lazy, useState } from 'react'
 
 import { SingleChainSwapFormProvider } from 'components/SwapForm/SingleChain/SingleChainSwapFormProvider'
+import { useSwapFormPair } from 'components/SwapForm/hooks/useSwapFormPair'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
+import { TransactionDetailProvider } from 'components/SwapTransactions/TransactionDetail/TransactionDetailProvider'
+import { SwapWalletProvider } from 'components/SwapWallets/SwapWalletProvider'
+import { TAB } from 'components/TradeLayout/Tabs'
+import { useTradeController } from 'components/TradeLayout/useTradeController'
+import { useTradeLayoutPrefetch } from 'components/TradeLayout/useTradeLayoutPrefetch'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import SwapPageContent from 'pages/Swap/SwapPageContent'
-import { SwapWalletProvider } from 'pages/Swap/SwapWalletProvider'
-import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
-import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
-import { useTradeController } from 'pages/Swap/hooks/useTradeController'
-import { TAB } from 'pages/Swap/layout/Tabs'
-import { TransactionDetailProvider } from 'pages/Swap/transactions/TransactionDetailProvider'
 
-const TransactionUpdater = lazy(() => import('pages/Swap/transactions/TransactionUpdater'))
+const TransactionUpdater = lazy(() => import('components/SwapTransactions/TransactionUpdater'))
 const CrossChainSwapProvider = lazy(() => import('components/SwapForm/CrossChain/hooks/useCrossChainSwap'))
 
 /** Owns shared page state and the active quote provider for both panels.
@@ -24,7 +24,7 @@ const SwapPage = () => {
   const controller = useTradeController(TAB.SWAP)
   const { typedValue, onUserInput } = useSwapInputAmount()
 
-  useSwapLayoutPrefetch()
+  useTradeLayoutPrefetch()
 
   const contentProps = {
     ...pair,

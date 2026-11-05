@@ -16,7 +16,7 @@ import * as serviceWorkerRegistration from 'serviceWorkerRegistration'
 import 'tailwind.css'
 
 import DeferredFormoProvider from 'components/Analytics/DeferredFormoProvider'
-import { completeNearReceiverRedirect } from 'components/SwapForm/CrossChain/receiverWallet'
+import { completeNearReceiverRedirect } from 'components/SwapWallets/receiverWallet'
 import Web3Provider from 'components/Web3Provider'
 import { ENV_LEVEL, ENV_TYPE, GTM_ID } from 'constants/env'
 import { useAffiliate } from 'hooks/useAffiliate'

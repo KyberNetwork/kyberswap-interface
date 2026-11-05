@@ -1,9 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
+import { useNearIntentsTokens } from 'hooks/useNearIntentsTokens'
+import { useSolanaTokens } from 'hooks/useSolanaTokens'
 import { useCurrencyV2 } from 'hooks/useTokens'
-import { useNearIntentsTokens } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter/useNearIntentsTokens'
-import { useSolanaTokens } from 'pages/Swap/crossChain/hooks/useSolanaTokens'
 import { BitcoinToken, Chain, NonEvmChain, isEvmChain } from 'types/crossChain'
 
 type Props = {

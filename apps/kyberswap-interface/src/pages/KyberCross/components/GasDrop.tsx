@@ -1,10 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { getChainName } from 'services/crossChain/utils'
 
 import GasStation from 'components/Icons/GasStation'
 import { NativeCurrencies } from 'constants/tokens'
 import { useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
-import { getChainName } from 'pages/Swap/crossChain/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const GasDropPanel = ({ lowGas }: { lowGas: boolean }) => {

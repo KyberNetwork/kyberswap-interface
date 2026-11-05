@@ -5,10 +5,10 @@ import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@s
 import { PublicKey } from '@solana/web3.js'
 import { useQuery } from '@tanstack/react-query'
 import { ComponentProps, FC, ReactNode } from 'react'
+import { SOLANA_NATIVE } from 'services/crossChain/utils'
 
+import { SolanaConnectModalProvider } from 'components/Web3Provider/SolanaConnectModalProvider'
 import { SOLANA_RPC } from 'constants/env'
-import { SolanaConnectModalProvider } from 'pages/Swap/crossChain/provider/SolanaConnectModalProvider'
-import { SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
 import { useWalletBalanceAddress } from 'state/wallet/WalletBalanceContext'
 import { NonEvmChain } from 'types/crossChain'
 
