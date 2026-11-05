@@ -6,7 +6,6 @@ import {
   CancelOrderResponse,
   LimitOrder,
   LimitOrderFromTokenPair,
-  LimitOrderStatus,
   limitOrderFromTokenPairSchema,
 } from 'components/LimitOrder/types'
 import { LIMIT_ORDER_API } from 'constants/env'
@@ -16,12 +15,6 @@ import { isSupportedChainId } from 'constants/networks'
 const LIMIT_ORDER_API_READ = `${LIMIT_ORDER_API}/read-ks/api`
 const LIMIT_ORDER_API_WRITE = `${LIMIT_ORDER_API}/write/api`
 const LIMIT_ORDER_API_READ_PARTNER = `${LIMIT_ORDER_API}/read-partner/api`
-
-const mapPath: Partial<Record<LimitOrderStatus, string>> = {
-  [LimitOrderStatus.CANCELLED]: 'cancelled',
-  [LimitOrderStatus.EXPIRED]: 'expired',
-  [LimitOrderStatus.FILLED]: 'filled',
-}
 
 type ApiEnvelope<T> = {
   code: number
@@ -328,17 +321,6 @@ const limitOrderApi = createApi({
       }),
       transformResponse,
     }),
-    ackNotificationOrder: builder.mutation<
-      unknown,
-      { docIds: string[]; maker: string; chainId: ChainId; type: LimitOrderStatus }
-    >({
-      query: ({ maker, chainId, type, docIds }) => ({
-        url: `${LIMIT_ORDER_API_WRITE}/v1/events/${mapPath[type]}`,
-        body: { maker, chainId: chainId + '', [type === LimitOrderStatus.FILLED ? 'uuids' : 'docIds']: docIds },
-        method: 'DELETE',
-      }),
-      transformResponse,
-    }),
     getTotalActiveMakingAmount: builder.query<
       string,
       { chainId: ChainId; makerAsset?: string; takerAsset?: string; account?: string }
@@ -414,7 +396,6 @@ export const {
   useCreateOrderSignatureMutation,
   useGetEncodeDataMutation,
   useGetTotalActiveMakingAmountQuery,
-  useAckNotificationOrderMutation,
   useCreateCancelOrderSignatureMutation,
   useCancelOrdersMutation,
   useLazyGetOperatorSignatureQuery,

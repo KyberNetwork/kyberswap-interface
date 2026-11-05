@@ -1,7 +1,7 @@
 import { TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -21,7 +21,6 @@ import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { getCookieValue } from 'utils/cookie'
-import { subscribeNotificationOrderExpired } from 'utils/firebase'
 
 type UseCreateLimitOrderProps = {
   order: LimitOrderCreateContext
@@ -81,7 +80,7 @@ export const useCreateLimitOrder = ({
     return TokenAmount.fromRawAmount(approvalCurrency, parsedInputAmount.quotient)
   }, [approvalCurrency, parsedInputAmount])
 
-  const { data: activeOrderMakingAmount = '', refetch: getActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
+  const { data: activeOrderMakingAmount = '' } = useGetTotalActiveMakingAmountQuery(
     {
       chainId,
       makerAsset: currencyIn?.wrapped.address,
@@ -232,18 +231,6 @@ export const useCreateLimitOrder = ({
     limitOrderTracking.trackCreateTipLinkTrade({ order, estimateUSD, orderId, searchParams })
     return orderId
   }
-
-  useEffect(() => {
-    if (!account || !currencyIn) return
-    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, () => {
-      try {
-        getActiveMakingAmount()
-      } catch (error) {}
-    })
-    return () => {
-      unsubscribeExpired?.()
-    }
-  }, [account, chainId, currencyIn, getActiveMakingAmount])
 
   return {
     estimateUSD,
