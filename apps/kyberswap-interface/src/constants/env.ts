@@ -172,7 +172,9 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   },
   [EnvKeys.PROD]: {
     [PrivateAnnouncementType.PRICE_ALERT]: '',
-    [PrivateAnnouncementType.LIMIT_ORDER]: `31,34,35,36,${STOP_MARKET_EXECUTED_TEMPLATE_IDS[EnvKeys.PROD]}`,
+    // 12 filled, 13 partially filled, 14 expired after a partial fill, 15 expired unfilled, 31 reverted by a reorg,
+    // 34 created, 35 cancelled.
+    [PrivateAnnouncementType.LIMIT_ORDER]: `12,13,14,15,31,34,35,${STOP_MARKET_EXECUTED_TEMPLATE_IDS[EnvKeys.PROD]}`,
     [PrivateAnnouncementType.SMART_EXIT]: '39,40,41,42,43',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '',

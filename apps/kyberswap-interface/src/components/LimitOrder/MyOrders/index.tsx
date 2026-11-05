@@ -22,7 +22,6 @@ import {
   goToNumberedPage,
   goToPreviousHistoryPage,
 } from 'components/LimitOrder/MyOrders/historyPager'
-import { useMyOrdersNotifications } from 'components/LimitOrder/MyOrders/useMyOrdersNotifications'
 import {
   getCloseOrderOptions,
   getOrdersApiSearchKeyword,
@@ -39,9 +38,7 @@ import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
 import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
-import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 
 const ALL_CHAINS_VALUE = 'all'
 const EMPTY_LIMIT_ORDERS: LimitOrder[] = []
@@ -70,7 +67,6 @@ const MyOrders = ({ isActiveTab: isTabActive, toolbarActionsContainer, onSelectP
     useSupportedLimitOrderChains()
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const invalidateTag = useInvalidateTagLimitOrder()
 
   const [pager, setPager] = useState(INITIAL_HISTORY_PAGER_STATE)
   const [closedOrderType, setClosedOrderType] = useState(LimitOrderStatus.CLOSED)
@@ -193,19 +189,6 @@ const MyOrders = ({ isActiveTab: isTabActive, toolbarActionsContainer, onSelectP
   const onReset = useCallback(() => {
     setPager(INITIAL_HISTORY_PAGER_STATE)
   }, [])
-
-  const refetchOrders = useCallback(() => {
-    invalidateTag(RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST)
-  }, [invalidateTag])
-
-  const refreshListOrder = useCallback(() => {
-    try {
-      onReset()
-      refetchOrders()
-    } catch (error) {}
-  }, [onReset, refetchOrders])
-
-  useMyOrdersNotifications({ account, chainId, limitOrderTracking, networkName, refreshListOrder })
 
   const setKeyword = useCallback(
     (val: string) => {
