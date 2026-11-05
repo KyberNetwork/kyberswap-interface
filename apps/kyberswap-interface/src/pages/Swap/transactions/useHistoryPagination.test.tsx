@@ -198,6 +198,11 @@ it('merges local and API rows before slicing, without duplicates or moving old l
   })
   await render()
   await waitFor(() => expect(hashes()).toEqual(range(32, 23).map(n => `hash-${n}`)))
+  expect(history.searchTransactions.map(tx => tx.sourceTxHash)).toEqual([
+    ...range(32, 21).map(n => `hash-${n}`),
+    'hash-5',
+  ])
+  expect(history.hasMore).toBe(true)
   expect(fetcher).toHaveBeenCalledOnce()
   await act(async () => history.goNext())
   expect(hashes()).toEqual(range(22, 13).map(n => `hash-${n}`))
@@ -215,6 +220,21 @@ it('merges local and API rows before slicing, without duplicates or moving old l
     '20',
     '30',
   ])
+})
+
+it('loads another search cursor without moving the normal history page', async () => {
+  local = [localRow(21)]
+  fetcher.mockImplementation(async (request: Request) =>
+    response((new URL(request.url).searchParams.get('offset') === '10' ? range(10, 1) : range(20, 11)).map(serverRow)),
+  )
+  await render()
+  await waitFor(() => expect(history.searchTransactions).toHaveLength(11))
+  await act(async () => {
+    await history.loadMore()
+  })
+  expect(history.searchTransactions).toHaveLength(21)
+  expect(history.currentPage).toBe(1)
+  expect(history.searchTransactions[20].sourceTxHash).toBe('hash-1')
 })
 
 it('clamps after local rows disappear', async () => {

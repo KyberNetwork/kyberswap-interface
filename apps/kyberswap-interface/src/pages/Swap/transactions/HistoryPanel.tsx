@@ -1,9 +1,10 @@
 import { t } from '@lingui/macro'
-import { lazy, useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { ChevronLeft, Clock, Search, X } from 'react-feather'
 
 import IconButton from 'components/Button/IconButton'
 import Input from 'components/Input'
+import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
@@ -11,6 +12,9 @@ import { useHistoryPagination } from 'pages/Swap/transactions/useHistoryPaginati
 import { Chain } from 'types/crossChain'
 
 const TransactionHistoryList = lazy(() => import('pages/Swap/transactions/TransactionHistoryList'))
+const HistorySearchResults = lazy(() =>
+  import('pages/Swap/transactions/HistorySearchResults').then(module => ({ default: module.HistorySearchResults })),
+)
 
 /** Controlled trigger composed into the form header; SwapPage owns visibility and panel mounting. */
 export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: () => void }) => (
@@ -33,10 +37,24 @@ const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) =
   const history = useHistoryPagination(sender)
   const { transactions } = history
 
+  if (filter)
+    return (
+      <HistorySearchResults
+        key={filter}
+        transactions={history.searchTransactions}
+        query={filter}
+        hasMore={history.hasMore}
+        loadingMore={history.loadingMore}
+        isError={history.isError}
+        onLoadMore={history.loadMore}
+        onRetry={history.retryHistory}
+      />
+    )
+
   return (
     <TransactionHistoryList
       transactions={transactions}
-      filter={filter}
+      emptyMessage={history.loadingMore ? t`Loading` : t`No transactions found`}
       cursorPagination={{
         currentPage: history.currentPage,
         canGoPrevious: history.canGoPrevious,
@@ -45,7 +63,6 @@ const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) =
         onPrevious: history.goPrevious,
         onNext: history.goNext,
       }}
-      emptyMessage={filter && transactions.length ? t`No transactions match this token.` : undefined}
     />
   )
 }
@@ -59,14 +76,14 @@ export const useHistoryWallet = (inputChain: Chain) => {
   return typeof inputChain === 'number' ? sender.toLowerCase() : sender
 }
 
-/** Owns the search input; rows resolve token metadata and apply the filter.
+/** Owns the search input; search results resolve metadata before pagination.
  * Cross-chain status polling is mounted independently by SwapPage. */
 // TODO: Add transaction details as separate product work.
 const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () => void }) => {
   const sender = useHistoryWallet(inputChain)
   const [search, setSearch] = useState('')
 
-  // Filtering stays within the current merged page; it does not search unloaded API cursors.
+  // Search has its own result pages and can explicitly extend the loaded API history.
   const query = search.trim().toLowerCase()
 
   return (
@@ -97,7 +114,15 @@ const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () =>
       <div className="min-w-0 px-4 pb-2 pt-0 max-sm:px-3">
         <div className="min-w-0 overflow-x-auto">
           <div className="min-w-[800px] max-sm:min-w-0">
-            <WalletHistory key={`${sender}:${query}`} sender={sender} filter={query} />
+            <Suspense
+              fallback={
+                <div className="flex min-h-[220px] items-center justify-center" role="status">
+                  <Loader />
+                </div>
+              }
+            >
+              <WalletHistory key={sender} sender={sender} filter={query} />
+            </Suspense>
           </div>
         </div>
       </div>

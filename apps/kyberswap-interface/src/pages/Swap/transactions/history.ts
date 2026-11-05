@@ -1,6 +1,7 @@
 import type { BackendTransaction } from 'services/crossChainTransactions'
 import type { IndexedTransaction, IndexedTransactionPage } from 'services/walletTransactions'
 
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import {
   type LocalTransaction,
   backendChainToChain,
@@ -10,7 +11,7 @@ import {
   isTransactionForWallet,
   transactionIdentity,
 } from 'state/crossChainSwap/model'
-import type { Currency, NormalizedTxResponse } from 'types/crossChain'
+import { type Chain, type Currency, NonEvmChain, type NormalizedTxResponse } from 'types/crossChain'
 
 export type HistoryTransaction = Omit<NormalizedTxResponse, 'sourceToken' | 'targetToken'> & {
   sourceToken: Currency | string
@@ -19,6 +20,36 @@ export type HistoryTransaction = Omit<NormalizedTxResponse, 'sourceToken' | 'tar
 }
 
 type HistoryRecord = BackendTransaction | IndexedTransaction
+
+// A canonical API row owns execution fields. Retain local display metadata only
+// when its chain and token identity still match that row.
+const retainTokenMetadata = (
+  token: Currency | string,
+  chain: Chain,
+  localToken: Currency | string,
+  localChain: Chain,
+): Currency | string => {
+  if (chain !== localChain || typeof token !== 'string' || !token || typeof localToken === 'string') return token
+  if (typeof chain === 'number') {
+    const id = token.toLowerCase()
+    if ('isNative' in localToken && localToken.isNative && [ETHER_ADDRESS.toLowerCase(), ZERO_ADDRESS].includes(id))
+      return localToken
+    return 'address' in localToken && localToken.address.toLowerCase() === id ? localToken : token
+  }
+  if (chain === NonEvmChain.Bitcoin && localToken.symbol === 'BTC') return localToken
+  const ids = [
+    'id' in localToken ? localToken.id : undefined,
+    'assetId' in localToken ? localToken.assetId : undefined,
+    'contractAddress' in localToken ? localToken.contractAddress : undefined,
+  ]
+  return ids.includes(token) ? localToken : token
+}
+
+const retainHistoryMetadata = (canonical: HistoryTransaction, local: HistoryTransaction): HistoryTransaction => ({
+  ...canonical,
+  sourceToken: retainTokenMetadata(canonical.sourceToken, canonical.sourceChain, local.sourceToken, local.sourceChain),
+  targetToken: retainTokenMetadata(canonical.targetToken, canonical.targetChain, local.targetToken, local.targetChain),
+})
 
 const historyRecordToTransaction = (row: HistoryRecord): HistoryTransaction | undefined => {
   const sourceChain = backendChainToChain(row.fromChain)
@@ -53,7 +84,7 @@ export const localTransactionToHistory = (tx: LocalTransaction): HistoryTransact
   const settlement = getLocalSettlement(tx)
   const settled = settlement ? historyRecordToTransaction(settlement) : undefined
   const { sync: _, settlement: __, ...broadcast } = tx
-  return settled ? { ...broadcast, ...settled } : broadcast
+  return settled ? retainHistoryMetadata({ ...broadcast, ...settled }, broadcast) : broadcast
 }
 
 export const mergeTransactionHistory = ({
@@ -90,7 +121,11 @@ export const mergeTransactionHistory = ({
     if (!isTransactionForWallet(transaction, sender)) continue
     const key = sourceKey(transaction)
     const row = rows.get(key)
-    if (row && isBackendResolved(row) && row.fromToken && row.toToken) continue
+    if (row && isBackendResolved(row) && row.fromToken && row.toToken) {
+      const canonical = result.get(key)
+      if (canonical) result.set(key, retainHistoryMetadata(canonical, transaction))
+      continue
+    }
     result.set(key, transaction)
   }
   return [...result.values()].sort((left, right) => right.timestamp - left.timestamp)

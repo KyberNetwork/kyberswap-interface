@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import walletTransactionsApi, { useGetTransactionsInfiniteQueryState } from 'services/walletTransactionsApi'
 
-import { HISTORY_PAGE_SIZE, getLoadedHistory } from 'pages/Swap/transactions/history'
+import { HISTORY_PAGE_SIZE, getLoadedHistory, mergeTransactionHistory } from 'pages/Swap/transactions/history'
 import { selectLocalSwapHistory } from 'pages/Swap/transactions/localTransactionSelectors'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
@@ -33,6 +33,20 @@ export const useHistoryPagination = (sender: string) => {
       ),
     [dispatch, sender],
   )
+
+  // A failed next page retries its cursor; an initial/refetch failure must
+  // refresh the existing pages, even when there is no next cursor.
+  const retryHistory = () =>
+    dispatch((dispatch, getState) => {
+      const current = walletTransactionsApi.endpoints.getTransactions.select(sender)(getState())
+      if (current.isLoading || !sender) return
+      return dispatch(
+        walletTransactionsApi.endpoints.getTransactions.initiate(sender, {
+          subscribe: false,
+          ...(current.isFetchNextPageError ? { direction: 'forward' as const } : { forceRefetch: true }),
+        }),
+      )
+    })
 
   const goNext = async () => {
     if (!canGoNext || navigation.current || list.isFetching) return
@@ -86,6 +100,15 @@ export const useHistoryPagination = (sender: string) => {
 
   return {
     transactions: loaded.transactions.slice((page - 1) * HISTORY_PAGE_SIZE, end),
+    searchTransactions: mergeTransactionHistory({
+      server: list.currentData?.pages.flatMap(page => page.transactions) ?? [],
+      local,
+      sender,
+    }),
+    hasMore: loaded.hasMore,
+    loadMore: fetchNextPage,
+    retryHistory,
+    isError: list.isError,
     loadingMore: !!sender && (loadingMore || list.isFetching),
     currentPage: page,
     canGoPrevious,

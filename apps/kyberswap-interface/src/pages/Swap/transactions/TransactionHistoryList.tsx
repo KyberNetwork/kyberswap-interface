@@ -11,7 +11,6 @@ import { cn } from 'utils/cn'
 
 type Props = {
   transactions: HistoryTransaction[]
-  filter?: string
   emptyMessage?: string
   cursorPagination?: {
     currentPage: number
@@ -23,26 +22,20 @@ type Props = {
   }
 }
 /** Unified Swap history list. Cursor state belongs to useHistoryPagination. */
-const TransactionHistoryList = ({
-  transactions,
-  filter,
-  emptyMessage = t`No historical data available.`,
-  cursorPagination,
-}: Props) => {
+const TransactionHistoryList = ({ transactions, emptyMessage = t`No transactions found`, cursorPagination }: Props) => {
   const mobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
     <div className="w-full overflow-hidden">
       <div className={cn('peer empty:hidden', mobile && 'flex flex-col')}>
         {transactions.map(tx => (
-          <TransactionHistoryItem key={localTransactionKey(tx)} tx={tx} mobile={mobile} filter={filter} />
+          <TransactionHistoryItem key={localTransactionKey(tx)} tx={tx} mobile={mobile} />
         ))}
       </div>
       <div className="hidden min-h-[220px] flex-col items-center justify-center gap-2 px-4 py-6 peer-empty:flex">
         <NoTransactionIcon className="size-20" />
         <span className="text-center text-sm font-medium text-subText">{emptyMessage}</span>
       </div>
-      {/* Search filters the currently loaded window, so its result count must not expose the unfiltered cursor. */}
-      {cursorPagination && !filter && (cursorPagination.canGoPrevious || cursorPagination.canGoNext) && (
+      {cursorPagination && (cursorPagination.canGoPrevious || cursorPagination.canGoNext) && (
         <div className="flex justify-center bg-background px-4 py-3">
           <HistoryPagination
             currentPage={cursorPagination.currentPage}

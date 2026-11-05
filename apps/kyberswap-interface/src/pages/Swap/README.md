@@ -149,10 +149,18 @@ Transaction history has its own lifecycle:
    closed.
 3. `history.ts`, `sameChainHistory.ts` and `localTransactionSelectors.ts` merge
    local swaps with indexed records, deduplicating by source chain and transaction
-   hash. Complete settled server records supersede local rows; pending or
-   incomplete records retain useful local execution data.
+   hash. Complete settled server records own execution fields; matching local
+   token metadata is retained only when chain and token identity agree. Pending
+   or incomplete records retain useful local execution data.
 4. `useHistoryPagination` fills display pages from the merged data and API cursors.
-   A page contains up to 10 rows; token/name/address search applies to that page.
+   A page contains up to 10 rows. `useHistorySearch` searches all local records and
+   loaded API records by token symbol, name or address. `useHistoryTokens` owns
+   metadata resolution for both search and display through the existing caches.
+   Search filters before pagination and passes the resolved tokens to display.
+   `HistorySearchResults` paginates matches separately and lets users search older API transactions one
+   cursor at a time; unavailable metadata or history is shown as incomplete results.
+   Metadata loading does not block loading older history. Failed cursor requests
+   retry that cursor; initial-load or refresh failures refetch the cached history.
    Same-chain rows show Tx Hash; cross-chain rows show Deposit and Fill.
 
 `useProcessingTransactions` shows ongoing cross-chain transactions for the input

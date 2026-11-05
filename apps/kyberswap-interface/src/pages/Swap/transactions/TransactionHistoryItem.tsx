@@ -30,18 +30,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const isEvmChainId = (chain: Chain): chain is ChainId => typeof chain === 'number'
 
-const matchesToken = (token: Currency | string, query: string) => {
-  if (typeof token === 'string') return token.toLowerCase().includes(query)
-  return [
-    token.symbol,
-    'name' in token ? token.name : undefined,
-    'address' in token ? token.address : undefined,
-    'id' in token ? token.id : undefined,
-    'assetId' in token ? token.assetId : undefined,
-    'contractAddress' in token ? token.contractAddress : undefined,
-  ].some(value => value?.toLowerCase().includes(query))
-}
-
 export const TransactionTableGrid = ({ children, className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
@@ -294,16 +282,11 @@ const TransactionRow = ({ tx }: { tx: HistoryTransaction }) => (
 type TransactionHistoryItemProps = {
   tx: HistoryTransaction
   mobile: boolean
-  filter?: string
 }
 
-export const TransactionHistoryItem = ({ tx, mobile, filter }: TransactionHistoryItemProps) => {
+export const TransactionHistoryItem = ({ tx, mobile }: TransactionHistoryItemProps) => {
   const sourceToken = useHistoryToken(tx.sourceToken, tx.sourceChain)
   const targetToken = useHistoryToken(tx.targetToken, tx.targetChain)
-  // Lookup must stay mounted while filtered out: a symbol search can start
-  // before metadata arrives. Match raw IDs too (including native sentinels).
-  if (filter && ![tx.sourceToken, tx.targetToken, sourceToken, targetToken].some(token => matchesToken(token, filter)))
-    return null
   const resolved = { ...tx, sourceToken, targetToken }
   return mobile ? <TransactionCard tx={resolved} /> : <TransactionRow tx={resolved} />
 }
