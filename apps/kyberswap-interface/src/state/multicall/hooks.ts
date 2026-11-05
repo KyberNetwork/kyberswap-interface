@@ -87,6 +87,15 @@ function staleTimeFrom(options?: ListenerOptions): number | undefined {
   return options?.blocksPerFetch === Infinity ? Infinity : undefined
 }
 
+// The chain a contract read goes to: the contract's own chain when it names one, else the chain the app
+// is on. Always pinned explicitly — left off, wagmi falls back to the chain the *wallet* is connected to
+// (mainnet when none is), while the block height that keys the read comes from the app's chain, so the
+// call lands on a chain that has neither the contract nor that block.
+function useReadChainId(contract: ContractRef | null | undefined): number {
+  const { chainId } = useActiveWeb3React()
+  return contract?.chainId ?? chainId
+}
+
 export function useSingleCallResult(
   contract: ContractRef | null | undefined,
   methodName: string,
@@ -104,7 +113,8 @@ export function useSingleCallResult(
   // for every query regardless of chain. Skip when the call opts into
   // `NEVER_RELOAD` (Infinity staleTime) — static reads (token name/symbol,
   // ENS resolution, etc.) shouldn't be invalidated every block.
-  const blockNumber = useBlockNumberFor(contract?.chainId)
+  const chainId = useReadChainId(contract)
+  const blockNumber = useBlockNumberFor(chainId)
   const blockNumberArg = staleTime === Infinity || blockNumber === undefined ? undefined : BigInt(blockNumber)
 
   const { data, isError } = useReadContract({
@@ -112,7 +122,7 @@ export function useSingleCallResult(
     abi: abi ?? [],
     functionName: methodName,
     args: (argsValid ? (inputs as readonly unknown[] | undefined) : undefined) as readonly unknown[] | undefined,
-    ...(contract?.chainId !== undefined ? { chainId: contract.chainId as number } : {}),
+    chainId,
     ...(blockNumberArg !== undefined ? { blockNumber: blockNumberArg } : {}),
     query: {
       enabled,
@@ -137,7 +147,8 @@ export function useSingleContractMultipleData(
   const abi = contract?.abi
   const fnItem = useMemo(() => findFunctionItem(abi, methodName), [abi, methodName])
   const staleTime = staleTimeFrom(options)
-  const blockNumber = useBlockNumberFor(contract?.chainId)
+  const chainId = useReadChainId(contract)
+  const blockNumber = useBlockNumberFor(chainId)
   const blockNumberArg = staleTime === Infinity || blockNumber === undefined ? undefined : BigInt(blockNumber)
 
   // Per-input validity; wagmi cannot mark individual entries as disabled, so we filter to valid
@@ -158,9 +169,9 @@ export function useSingleContractMultipleData(
       abi,
       functionName: methodName,
       args: ((args ?? []) as readonly unknown[]) || [],
-      ...(contract.chainId !== undefined ? { chainId: contract.chainId as number } : {}),
+      chainId,
     }))
-  }, [contract, abi, fnItem, methodName, validInputs])
+  }, [contract, abi, fnItem, methodName, validInputs, chainId])
 
   const { data } = useReadContracts({
     contracts: contractCalls,
