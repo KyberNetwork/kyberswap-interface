@@ -5,7 +5,6 @@ import { parseUnits } from 'viem'
 import { CrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import useDebounce from 'hooks/useDebounce'
-import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import { useSwapWallets } from 'pages/Swap/SwapWalletContext'
 import { adaptRelaySolanaWallet } from 'pages/Swap/crossChain/adapters/RelayAdapter/relaySolanaWallet'
 import { CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/Swap/crossChain/utils'
@@ -25,7 +24,6 @@ export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isRe
   const { pairKey, fromChainId, toChainId, currencyIn, currencyOut, nearTokens } = pair
 
   const debouncedAmount = useDebounce(amount, 500)
-  const walletClient = useGatedWalletClient()
   const { publicKey } = useWallet()
   const wallets = useSwapWallets()
   const { connection } = useConnection()
@@ -58,12 +56,14 @@ export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isRe
             recipient: receiver,
             nearTokens,
             publicKey: btcPublicKey,
+            // EVM quotes use sender/recipient; execution resolves the live wallet client separately.
+            // Keeping that client here would invalidate quotes whenever the wallet switches chains.
             walletClient:
               fromChainId === NonEvmChain.Solana
                 ? adaptRelaySolanaWallet(solanaAddress, 792703809, connection, async (transaction, options) => ({
                     signature: await (connection.sendTransaction as any)(transaction, options),
                   }))
-                : walletClient?.data,
+                : undefined,
           }
         : null
 
@@ -84,7 +84,6 @@ export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isRe
     btcPublicKey,
     solanaAddress,
     connection,
-    walletClient?.data,
     isReadOnly,
   ])
 
