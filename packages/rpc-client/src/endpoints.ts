@@ -187,7 +187,14 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   ],
   [ROBINHOOD]: ['https://rpc.mainnet.chain.robinhood.com'],
   [ARC]: ['https://rpc.mainnet.arc.io', 'https://arc.drpc.org'],
-  [ELYSIUM]: ['https://elysium-rpc.kyberswap.com'],
+  [ELYSIUM]: [
+    'https://elysium-rpc.kyberswap.com',
+    'https://rpc.agoradex.app',
+    'https://rpc-live.elysp.com',
+    'https://rpc.thekleos.pro',
+    'https://rpc.stockium.fun',
+    'https://rpc.betweenquotes.xyz',
+  ],
 };
 
 export const KYBER_RPC_ENDPOINTS: Record<number, string> = {
