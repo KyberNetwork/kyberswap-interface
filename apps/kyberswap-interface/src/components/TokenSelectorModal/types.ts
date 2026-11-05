@@ -50,4 +50,6 @@ export type TokenSearchFilters = {
 }
 export type TokenSelectorNetwork = { chainId: Chain; name: string; icon: string }
 
+export type NetworkSortBy = 'priority' | 'api'
+
 export type TokenSelectorChain = Chain | 'all'

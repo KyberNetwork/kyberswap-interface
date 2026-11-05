@@ -7,7 +7,7 @@ import {
   TokenSelectorTab,
   isTrendingSupportedChain,
 } from 'components/TokenSelectorModal/constants'
-import { TokenMetricColumn, TokenSort, TokenSortField } from 'components/TokenSelectorModal/types'
+import { NetworkSortBy, TokenMetricColumn, TokenSort, TokenSortField } from 'components/TokenSelectorModal/types'
 import { NETWORKS_INFO } from 'constants/networks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
@@ -20,19 +20,27 @@ type Props = {
   anchorChainId: ChainId
   importChainId?: ChainId
   showDiscoveryTabs: boolean
+  networkSortBy?: NetworkSortBy
   trackingSource?: string
 }
 
-export const useTokenSelectorView = ({ anchorChainId, importChainId, showDiscoveryTabs, trackingSource }: Props) => {
+export const useTokenSelectorView = ({
+  anchorChainId,
+  importChainId,
+  showDiscoveryTabs,
+  networkSortBy = 'priority',
+  trackingSource,
+}: Props) => {
   const account = useEvmBalanceAccount()
   const { supportedChains } = useChainsConfig()
   const { trackingHandler } = useTracking()
 
-  const chainVolumes = useChainsVolume(showDiscoveryTabs)
+  const chainVolumes = useChainsVolume(networkSortBy === 'api' && showDiscoveryTabs)
   const rankedChains = useMemo(() => {
+    if (networkSortBy !== 'api') return supportedChains
     if (!Object.keys(chainVolumes).length) return supportedChains
     return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
-  }, [supportedChains, chainVolumes])
+  }, [supportedChains, chainVolumes, networkSortBy])
 
   const [allNetworks, setAllNetworks] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState(anchorChainId)

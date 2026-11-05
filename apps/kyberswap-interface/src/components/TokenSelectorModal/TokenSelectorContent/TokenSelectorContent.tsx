@@ -31,6 +31,7 @@ import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { useTokenFavoriteActions } from 'components/TokenSelectorModal/hooks/useTokenFavorites'
 import { useTokenSelectorData } from 'components/TokenSelectorModal/hooks/useTokenSelectorData'
 import {
+  NetworkSortBy,
   TokenSelectionContext,
   TokenSelectorChain,
   TokenSelectorNetwork,
@@ -42,6 +43,35 @@ import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme'
 import { NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
 import { getTokenAddress } from 'utils/tokenInfo'
+
+const PRIORITY_CHAINS: TokenSelectorNetwork['chainId'][] = [
+  ChainId.MAINNET,
+  ChainId.BASE,
+  ChainId.ROBINHOOD,
+  ChainId.BSCMAINNET,
+  ChainId.HYPEREVM,
+  NonEvmChain.Bitcoin,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
+  ChainId.AVAXMAINNET,
+]
+
+const sortNetworksByPriority = (networks: TokenSelectorNetwork[]): TokenSelectorNetwork[] =>
+  [...networks].sort((a, b) => {
+    const aPriority = PRIORITY_CHAINS.indexOf(a.chainId)
+    const bPriority = PRIORITY_CHAINS.indexOf(b.chainId)
+    if (aPriority !== -1 || bPriority !== -1) {
+      return (
+        (aPriority === -1 ? PRIORITY_CHAINS.length : aPriority) -
+        (bPriority === -1 ? PRIORITY_CHAINS.length : bPriority)
+      )
+    }
+
+    if (typeof a.chainId === 'number' && typeof b.chainId === 'number') return a.chainId - b.chainId
+    if (typeof a.chainId === 'number') return -1
+    if (typeof b.chainId === 'number') return 1
+    return 0
+  })
 
 const SearchLoading = () => (
   <Stack className="h-full items-center gap-3 p-5 pt-8" data-testid="token-search-loading">
@@ -79,6 +109,7 @@ type Props = {
   scaleERC8056Balances?: boolean
   showPinnedTokens?: boolean
   showDiscoveryTabs?: boolean
+  networkSortBy?: NetworkSortBy
   filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
@@ -101,6 +132,7 @@ export const TokenSelectorContent = ({
   scaleERC8056Balances,
   showPinnedTokens,
   showDiscoveryTabs = true,
+  networkSortBy = 'priority',
   filterWrap = false,
   title,
   tooltip,
@@ -110,7 +142,7 @@ export const TokenSelectorContent = ({
   onShowTokenInfo,
 }: Props) => {
   const [nonEvmChain, setNonEvmChain] = useState<NonEvmChain | undefined>(initialNonEvmChain)
-  const view = useTokenSelectorView({ anchorChainId, importChainId, showDiscoveryTabs, trackingSource })
+  const view = useTokenSelectorView({ anchorChainId, importChainId, showDiscoveryTabs, networkSortBy, trackingSource })
   const {
     activeTab,
     allNetworks,
@@ -133,7 +165,7 @@ export const TokenSelectorContent = ({
   } = view
 
   // Networks available to this caller and the temporary browsing chain.
-  const networks: TokenSelectorNetwork[] = requireOracle
+  const availableNetworks: TokenSelectorNetwork[] = requireOracle
     ? rankedChains.filter(chain => isSupportStopMarket(chain.chainId))
     : onSelectNonEvmCurrency
     ? [
@@ -144,6 +176,7 @@ export const TokenSelectorContent = ({
         ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] })),
       ]
     : rankedChains
+  const networks = networkSortBy === 'priority' ? sortNetworksByPriority(availableNetworks) : availableNetworks
 
   const aggregateActive = allNetworks && !nonEvmChain
   const aggregate = useAggregateTokens({
