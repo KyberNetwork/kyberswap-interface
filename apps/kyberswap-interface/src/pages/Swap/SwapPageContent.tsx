@@ -179,11 +179,6 @@ const SwapPageContent = ({
               )}
             </Suspense>
           </div>
-          {activeTab === TAB.SWAP && (
-            <Suspense fallback={null}>
-              <ProcessingTransactions onOpenHistory={() => onHistoryChange(true)} />
-            </Suspense>
-          )}
         </Stack>
 
         {/* Keep the right panel below the form's Route Options flyout. */}
@@ -231,6 +226,11 @@ const SwapPageContent = ({
               </motion.div>
             )}
           </AnimatePresence>
+          {activeTab === TAB.SWAP && !showHistory && (
+            <Suspense fallback={null}>
+              <ProcessingTransactions onOpenHistory={() => onHistoryChange(true)} />
+            </Suspense>
+          )}
         </Stack>
       </HStack>
       <SwitchLocaleLink centered />

@@ -18,7 +18,7 @@ const ProcessingTransactions = ({ onOpenHistory }: { onOpenHistory: () => void }
     <Stack
       as="section"
       aria-label="Your processing orders"
-      className="w-full gap-1 rounded-xl border border-white/[0.04] p-3"
+      className="w-full gap-1 rounded-xl border border-darkBorder bg-background p-3"
     >
       <HStack className="items-center justify-between gap-2">
         <HStack className="items-center gap-2">
@@ -41,7 +41,7 @@ const ProcessingTransactions = ({ onOpenHistory }: { onOpenHistory: () => void }
         <ScrollableWithSignal
           data-open="true"
           showArrow
-          showBackground
+          showBackground={false}
           className="max-h-[92px] overflow-x-hidden"
           tabIndex={0}
           role="region"
