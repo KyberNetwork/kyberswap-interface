@@ -16,7 +16,8 @@ import { type Chain, type Currency, NonEvmChain, type NormalizedTxResponse } fro
 export type HistoryTransaction = Omit<NormalizedTxResponse, 'sourceToken' | 'targetToken'> & {
   sourceToken: Currency | string
   targetToken: Currency | string
-  fromBackend?: boolean
+  /** Source of the displayed execution fields, independent of registration/sync status. */
+  usesBackendData: boolean
 }
 
 type HistoryRecord = BackendTransaction | IndexedTransaction
@@ -45,11 +46,34 @@ const retainTokenMetadata = (
   return ids.includes(token) ? localToken : token
 }
 
-const retainHistoryMetadata = (canonical: HistoryTransaction, local: HistoryTransaction): HistoryTransaction => ({
-  ...canonical,
-  sourceToken: retainTokenMetadata(canonical.sourceToken, canonical.sourceChain, local.sourceToken, local.sourceChain),
-  targetToken: retainTokenMetadata(canonical.targetToken, canonical.targetChain, local.targetToken, local.targetChain),
-})
+const retainHistoryMetadata = (canonical: HistoryTransaction, local: HistoryTransaction): HistoryTransaction => {
+  const sourceToken = retainTokenMetadata(
+    canonical.sourceToken,
+    canonical.sourceChain,
+    local.sourceToken,
+    local.sourceChain,
+  )
+  const targetToken = retainTokenMetadata(
+    canonical.targetToken,
+    canonical.targetChain,
+    local.targetToken,
+    local.targetChain,
+  )
+  const sameRoute =
+    canonical.sourceChain === local.sourceChain &&
+    canonical.targetChain === local.targetChain &&
+    sourceToken === local.sourceToken &&
+    targetToken === local.targetToken &&
+    canonical.adapter.toLowerCase() === local.adapter.toLowerCase() &&
+    canonical.inputAmount === local.inputAmount
+  return {
+    ...canonical,
+    sourceToken,
+    targetToken,
+    // Retain quote-time detail only when the canonical route still matches the local broadcast.
+    kyberCrossRoute: sameRoute ? local.kyberCrossRoute : undefined,
+  }
+}
 
 const historyRecordToTransaction = (row: HistoryRecord): HistoryTransaction | undefined => {
   const sourceChain = backendChainToChain(row.fromChain)
@@ -73,7 +97,7 @@ const historyRecordToTransaction = (row: HistoryRecord): HistoryTransaction | un
     amountOutUsd: row.outputUsd ?? 0,
     platformFeePercent: 0,
     recipient: row.recipient,
-    fromBackend: true,
+    usesBackendData: true,
   }
 }
 
@@ -84,7 +108,8 @@ export const localTransactionToHistory = (tx: LocalTransaction): HistoryTransact
   const settlement = getLocalSettlement(tx)
   const settled = settlement ? historyRecordToTransaction(settlement) : undefined
   const { sync: _, settlement: __, ...broadcast } = tx
-  return settled ? retainHistoryMetadata({ ...broadcast, ...settled }, broadcast) : broadcast
+  const local: HistoryTransaction = { ...broadcast, usesBackendData: false }
+  return settled ? retainHistoryMetadata({ ...local, ...settled }, local) : local
 }
 
 export const mergeTransactionHistory = ({

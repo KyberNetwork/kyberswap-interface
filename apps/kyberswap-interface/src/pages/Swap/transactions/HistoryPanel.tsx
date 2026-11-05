@@ -78,7 +78,6 @@ export const useHistoryWallet = (inputChain: Chain) => {
 
 /** Owns the search input; search results resolve metadata before pagination.
  * Cross-chain status polling is mounted independently by SwapPage. */
-// TODO: Add transaction details as separate product work.
 const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () => void }) => {
   const sender = useHistoryWallet(inputChain)
   const [search, setSearch] = useState('')

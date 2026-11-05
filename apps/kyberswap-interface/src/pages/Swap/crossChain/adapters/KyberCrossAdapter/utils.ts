@@ -1,10 +1,16 @@
 import { z } from 'zod'
 
-import type { BridgeProvider, TrackingExecution } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
+import type { BridgeProvider, RoutePlan, TrackingExecution } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
 import type { GasDropPlan, KyberCrossRawQuote } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/types'
 import { evmTransactionSchema } from 'pages/Swap/crossChain/quote/rawQuote'
 import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
-import { type GasDropQuote, type GasDropStatus, type SwapStatus } from 'types/crossChain'
+import {
+  type GasDropQuote,
+  type GasDropStatus,
+  type KyberCrossPlannedSwap,
+  type KyberCrossRouteSnapshot,
+  type SwapStatus,
+} from 'types/crossChain'
 
 const routeSummarySchema = z
   .object({
@@ -54,8 +60,44 @@ export const parseKyberCrossQuote = (value: unknown): KyberCrossRawQuote => {
 export const getKyberCrossRoutePlan = (rawQuote: unknown) => {
   const result = rawQuoteSchema.safeParse(rawQuote)
   if (!result.success) return undefined
+
   const data = (rawQuote as KyberCrossRawQuote).data
   return data && ('route_plans' in data ? data.route_plans[0] : data.route_plan)
+}
+
+// Persist only display fields, not build calldata, intents or opaque quote metadata.
+export const getKyberCrossRouteSnapshot = (
+  plan: NonNullable<ReturnType<typeof getKyberCrossRoutePlan>>,
+): KyberCrossRouteSnapshot => {
+  const snapshotSwap = (
+    value?: Pick<
+      NonNullable<RoutePlan['source_swap']>,
+      'token_in' | 'token_out' | 'input_amount' | 'expected_output_amount'
+    >,
+  ): KyberCrossPlannedSwap | undefined => {
+    if (!value) return undefined
+
+    return {
+      tokenIn: value.token_in,
+      tokenOut: value.token_out,
+      inputAmount: value.input_amount,
+      outputAmount: value.expected_output_amount,
+    }
+  }
+
+  return {
+    id: plan.id,
+    bridgeProvider: plan.bridge.provider,
+    flowType: plan.flow_type,
+    sourceSwap: snapshotSwap(plan.source_swap),
+    destinationSwap: snapshotSwap(plan.dest_swap),
+    gasDropSwap: snapshotSwap(plan.gas_drop_swap),
+    fees: plan.fees?.flatMap(fee => {
+      if (fee.expected_amount === undefined) return []
+
+      return [{ type: fee.type, chain: fee.chain, token: fee.token, amount: fee.expected_amount }]
+    }),
+  }
 }
 
 export enum NormalizedProvider {

@@ -38,11 +38,12 @@ export type GasDropPlan = Omit<NonNullable<RoutePlan['gas_drop_swap']>, 'metadat
 
 // The aggregator supplies a route summary and a built transaction, not a rebuildable route plan.
 export type KyberCrossStreamQuoteData = {
-  route_plan: Pick<RoutePlan, 'id' | 'tags' | 'estimated_duration_sec'> & {
-    gas_drop_swap?: GasDropPlan
-    expires_at?: string
-    bridge: Pick<RoutePlan['bridge'], 'provider'> & Partial<Pick<RoutePlan['bridge'], 'metadata'>>
-  }
+  route_plan: Pick<RoutePlan, 'id' | 'tags' | 'estimated_duration_sec'> &
+    Partial<Pick<RoutePlan, 'flow_type' | 'source_swap' | 'dest_swap' | 'fees'>> & {
+      gas_drop_swap?: GasDropPlan
+      expires_at?: string
+      bridge: Pick<RoutePlan['bridge'], 'provider'> & Partial<Pick<RoutePlan['bridge'], 'metadata'>>
+    }
   build: BuildResult
 }
 

@@ -189,3 +189,25 @@ it('enriches separate broadcasts with the same provider id without updating the 
   expect(mocks.transactions.map(tx => tx.targetTxHash)).toEqual(['fill-0xshared-id', 'fill-second-broadcast'])
   expect(mocks.track).not.toHaveBeenCalled()
 })
+
+it('persists a completed transaction without waiting for another provider request', async () => {
+  let finishSlow: (result: SwapStatus) => void = () => undefined
+  mocks.transactions = [transaction('slow', 'Processing', 'Relay'), transaction('fast', 'Processing')]
+  mocks.poll.mockImplementation((tx: NormalizedTxResponse) =>
+    tx.id === 'slow'
+      ? new Promise<SwapStatus>(resolve => {
+          finishSlow = resolve
+        })
+      : Promise.resolve({ status: 'Success', txHash: '0xfast-fill', amountOut: '95' }),
+  )
+  await render()
+  expect(mocks.transactions[1]).toMatchObject({ status: 'Success', targetTxHash: '0xfast-fill', outputAmount: '95' })
+  expect(mocks.transactions[0].status).toBe('Processing')
+  await render()
+  await act(async () => vi.advanceTimersByTimeAsync(20_000))
+  expect(mocks.poll).toHaveBeenCalledTimes(2)
+  expect(mocks.track).toHaveBeenCalledTimes(1)
+  await act(async () => finishSlow({ status: 'Success', txHash: '0xslow-fill' }))
+  expect(mocks.transactions[0].status).toBe('Success')
+  expect(mocks.track).toHaveBeenCalledTimes(2)
+})

@@ -5,7 +5,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { Chain, GasDropQuote } from 'types/crossChain'
 
-export const useGasDropValue = (gasDrop: GasDropQuote | undefined, chain: Chain) => {
+export const useGasDropValue = (gasDrop: Pick<GasDropQuote, 'amount' | 'amountUsd'> | undefined, chain: Chain) => {
   const native = NativeCurrencies[chain as ChainId]
   const priceAddress = native?.wrapped.address.toLowerCase()
   const prices = useTokenPrices(

@@ -195,7 +195,7 @@ export const CrossChainSwapConfirmation = ({
 
             <CrossChainPriceImpactWarning warning={warning} />
 
-            <span className="flex items-center gap-1 text-xs italic text-gray">
+            <span className="flex items-center gap-1 text-xs font-medium text-gray">
               <span>
                 <Trans>Routed via</Trans>
               </span>

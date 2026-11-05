@@ -10,7 +10,7 @@ import { Chain, GasDropQuote } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type GasDropQuoteLineProps = {
-  gasDrop?: GasDropQuote
+  gasDrop?: Pick<GasDropQuote, 'amount' | 'amountUsd'>
   chain: Chain
   loading?: boolean
 }

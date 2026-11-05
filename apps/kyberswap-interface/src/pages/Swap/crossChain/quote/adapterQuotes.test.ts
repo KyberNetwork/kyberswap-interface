@@ -476,6 +476,7 @@ describe('KyberCross route options', () => {
     const result = await adapter.executeSwap({ ...selected, isReadOnly: false }, {} as WalletClient)
 
     expect(build).toHaveBeenCalledWith(routes[1])
+    expect(result.kyberCrossRoute).toMatchObject({ id: 'second', bridgeProvider: 'relay', flowType: 'bridge_only' })
     expect(result).toMatchObject({ outputAmount: '99000000', sourceTxHash: txHash })
     expect(routes).toHaveLength(2)
   })
@@ -560,6 +561,7 @@ describe('KyberCross route options', () => {
       expect(quote.quote.minimumOutputAmount).toBe(98500000n)
       const result = await adapter.executeSwap(quote, {} as WalletClient)
       expect(build).not.toHaveBeenCalled()
+      expect(result.kyberCrossRoute).toMatchObject({ id: 'stream-route', bridgeProvider: 'across' })
       expect(execute).toHaveBeenCalledWith(expect.objectContaining({ buildTx, inputAmount: BigInt(params.amount) }))
       expect(result).toMatchObject({ outputAmount: '99000000', sourceTxHash: txHash })
     },

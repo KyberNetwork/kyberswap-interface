@@ -87,7 +87,26 @@ export type GasDropStatus = {
 export type TransactionStatus = NonNullable<NormalizedTxResponse['status']>
 export const isProcessingTransactionStatus = (status?: TransactionStatus) => !status || status === 'Processing'
 
+/** Quote-time display data only; execution progress remains provider-owned. */
+export type KyberCrossPlannedSwap = {
+  tokenIn: string
+  tokenOut: string
+  inputAmount?: string
+  outputAmount?: string
+}
+
+export type KyberCrossRouteSnapshot = {
+  id: string
+  bridgeProvider: string
+  flowType?: 'bridge_only' | 'swap_then_bridge' | 'bridge_then_swap' | 'swap_bridge_swap'
+  sourceSwap?: KyberCrossPlannedSwap
+  destinationSwap?: KyberCrossPlannedSwap
+  gasDropSwap?: KyberCrossPlannedSwap
+  fees?: { type: 'partner_fee' | 'protocol_fee'; chain: string; token: string; amount: string }[]
+}
+
 export interface NormalizedTxResponse {
+  kyberCrossRoute?: KyberCrossRouteSnapshot
   gasDrop?: GasDropQuote
   gasDropStatus?: GasDropStatus
   id: string // specific id for each provider
