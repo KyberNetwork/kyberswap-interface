@@ -3,6 +3,7 @@ import { AnimatePresence, type HTMLMotionProps, motion, useReducedMotion } from 
 import { type ReactNode, useState } from 'react'
 import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
+import { sortQuotesByNetOutput } from 'services/crossChain/quote/utils'
 import { Quote, getQuoteId } from 'services/crossChain/registry'
 
 import { ReactComponent as FeeIcon } from 'assets/svg/earn/ic_earn_claim_fees.svg'
@@ -26,6 +27,7 @@ import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const MotionScrollableWithSignal = motion.create(ScrollableWithSignal)
+const routeKey = (quote: Quote) => `${getQuoteId(quote)}:${!!quote.quote.quoteParams.gasDrop}`
 
 const QuoteRow = ({
   selected,
@@ -50,7 +52,6 @@ const QuoteRow = ({
 )
 
 type RouteOptionsContentProps = {
-  gasDropEnabled: boolean
   quotes: Quote[]
   selectedQuote: Quote | null
   tokenOut?: Currency
@@ -62,7 +63,6 @@ type RouteOptionsContentProps = {
 }
 
 const RouteOptionsContent = ({
-  gasDropEnabled,
   quotes,
   selectedQuote,
   tokenOut,
@@ -74,6 +74,7 @@ const RouteOptionsContent = ({
 }: RouteOptionsContentProps) => {
   const prefersReducedMotion = useReducedMotion()
   const FeeTooltip = upToLarge ? ClickTooltip : MouseoverTooltip
+  const bestReturnQuote = sortQuotesByNetOutput(quotes)[0]
   const fastestQuoteIndex = quotes.reduce((fastestIndex, { quote }, index) => {
     // Providers may use zero when no time estimate is available.
     if (!Number.isFinite(quote.timeEstimate) || quote.timeEstimate <= 0) return fastestIndex
@@ -93,16 +94,6 @@ const RouteOptionsContent = ({
           <span className="font-medium">{t`Choose your Route`}</span>
           {upToLarge && <CloseIcon onClick={onDismiss} />}
         </HStack>
-        {gasDropEnabled && (
-          <HStack className="min-w-0 items-center gap-2 whitespace-nowrap rounded-2xl bg-primary-10 px-3 py-2 text-sm">
-            <span className="flex shrink-0 text-primary">
-              <GasStation size={16} />
-            </span>
-            <span className="font-medium text-subText">
-              <Trans>Gas Drop is on • showing KyberCross routes only</Trans>
-            </span>
-          </HStack>
-        )}
       </Stack>
       <Stack className="min-h-0 flex-1 overflow-y-scroll">
         <MotionScrollableWithSignal
@@ -120,11 +111,11 @@ const RouteOptionsContent = ({
 
               return (
                 <QuoteRow
-                  key={getQuoteId(quote)}
+                  key={routeKey(quote)}
                   layout={prefersReducedMotion ? false : 'position'}
                   initial={prefersReducedMotion ? false : { opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  selected={(selectedQuote ? getQuoteId(selectedQuote) : null) === getQuoteId(quote)}
+                  selected={(selectedQuote ? routeKey(selectedQuote) : null) === routeKey(quote)}
                   role="button"
                   onClick={() => onSelect(quote)}
                 >
@@ -160,7 +151,7 @@ const RouteOptionsContent = ({
                         routeBadge(quote, index)
                       ) : (
                         <HStack className="shrink-0 items-center gap-1">
-                          {index === 0 && (
+                          {quote === bestReturnQuote && (
                             <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
                               {t`Best Return`}
                             </div>
@@ -242,11 +233,6 @@ const RouteOptionsContent = ({
           )}
         </MotionScrollableWithSignal>
       </Stack>
-      {gasDropEnabled && (
-        <span className="shrink-0 text-center text-xs font-medium text-gray">
-          <Trans>Remove Gas Drop to see routes from other providers</Trans>
-        </span>
-      )}
     </Stack>
   )
 }
@@ -259,25 +245,17 @@ type CrossChainQuoteSelectorProps = {
 }
 
 export const CrossChainQuoteSelector = (props: CrossChainQuoteSelectorProps) => {
-  const { loading, allLoading, disable, gasDropEnabled } = useCrossChainSwap()
-  return (
-    <CrossChainQuoteSelectorView
-      {...props}
-      gasDropEnabled={gasDropEnabled}
-      isLoading={!disable && (loading || allLoading)}
-    />
-  )
+  const { loading, allLoading, disable } = useCrossChainSwap()
+  return <CrossChainQuoteSelectorView {...props} isLoading={!disable && (loading || allLoading)} />
 }
 
 type ViewProps = CrossChainQuoteSelectorProps & {
-  gasDropEnabled?: boolean
   isLoading: boolean
   routeBadge?: (quote: Quote, index: number) => ReactNode
 }
 
 /** Owns route visibility and commits selection before closing the panel. */
 export const CrossChainQuoteSelectorView = ({
-  gasDropEnabled = false,
   quotes,
   selectedQuote,
   tokenOut,
@@ -293,7 +271,7 @@ export const CrossChainQuoteSelectorView = ({
   const handleSelect = (quote: Quote) => {
     onChange(quote)
     setShow(false)
-    if (getQuoteId(quote) !== (selectedQuote ? getQuoteId(selectedQuote) : null)) {
+    if (routeKey(quote) !== (selectedQuote ? routeKey(selectedQuote) : null)) {
       trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTE_VIEWED, {
         routing_source: quote.adapter.getName(),
         amount_out: quote.quote.formattedOutputAmount,
@@ -306,7 +284,6 @@ export const CrossChainQuoteSelectorView = ({
   }
 
   const contentProps = {
-    gasDropEnabled,
     quotes,
     selectedQuote,
     tokenOut,

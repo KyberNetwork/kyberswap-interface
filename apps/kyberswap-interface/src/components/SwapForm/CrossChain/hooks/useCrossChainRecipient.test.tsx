@@ -105,3 +105,26 @@ it('preserves legacy EVM recipient behavior outside the wallet controller', asyn
   await act(async () => result.selectWalletRecipient())
   expect(result.recipient).toBe('0xnew')
 })
+
+it('keeps the EVM input empty until edited while defaulting the receiver to the connected wallet', async () => {
+  await render(1, 56)
+  expect(result.recipientInputValue).toBe('')
+  expect(result.showRecipientInput).toBe(false)
+  expect(result.receiver).toBe('0xapp')
+  expect(result.isReadOnly).toBe(false)
+
+  await act(async () => result.toggleRecipient())
+  expect(result.recipientInputValue).toBe('')
+  expect(result.receiver).toBe('0xapp')
+  await act(async () => result.setRecipient('0xpasted'))
+  expect(result.recipientInputValue).toBe('0xpasted')
+  expect(result.receiver).toBe('0xpasted')
+
+  mocks.account = '0xnew'
+  await render(1, 56)
+  expect(result.recipientInputValue).toBe('0xpasted')
+  expect(result.receiver).toBe('0xpasted')
+  await act(async () => result.selectWalletRecipient())
+  expect(result.recipientInputValue).toBe('')
+  expect(result.receiver).toBe('0xnew')
+})

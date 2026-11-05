@@ -123,7 +123,7 @@ const AddGasButton = ({ chain, provider, symbol, outputSymbol, onRequest, onAddG
                 </Trans>
               </div>
               <div>
-                <Trans>Only KyberCross routes support Gas Drop. Turning it on shows KyberCross routes only.</Trans>
+                <Trans>Only KyberCross routes support Gas Drop.</Trans>
               </div>
               <div>
                 <Trans>

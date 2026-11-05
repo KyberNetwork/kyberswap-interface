@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { registry } from 'services/crossChain/factory'
 import { getPairInfo } from 'services/crossChain/quote/getPairInfo'
-import { isEvmCurrency } from 'services/crossChain/quote/utils'
+import { isEvmCurrency, sortQuotesByNetOutput } from 'services/crossChain/quote/utils'
 import { Quote } from 'services/crossChain/registry'
 import { useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
 
@@ -34,7 +34,11 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
   const { currencyOut, fromChainId, toChainId } = input.pair
   const gasDropSupported = fromChainId !== toChainId && isEvmCurrency(currencyOut) && !isNativeAsset(currencyOut)
   // Only the route mode resets with this request; keep the form and its focus mounted.
-  const [eligibility, setEligibility] = useState({ request: selectionRequest, available: false })
+  const [eligibility, setEligibility] = useState({
+    request: selectionRequest,
+    available: false,
+    quotes: [] as Quote[],
+  })
   const gasDropAvailable = gasDropSupported && eligibility.request === selectionRequest && eligibility.available
   const [gasDropSelection, setGasDropSelection] = useState({ request: selectionRequest, enabled: false })
   const gasDropEnabled = gasDropAvailable && gasDropSelection.request === selectionRequest && gasDropSelection.enabled
@@ -53,7 +57,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     if (!params || (gasDrop && !gasDropAvailable)) return { available: false, hasQuotes: false }
 
     let available = gasDropAvailable
-    if (!gasDrop) setEligibility({ request: selectionRequest, available: false })
+    if (!gasDrop) setEligibility({ request: selectionRequest, available: false, quotes: [] })
 
     const pairInfo = await getPairInfo({
       gasDrop,
@@ -97,7 +101,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
                 Number.isFinite(quote.outputUsd) &&
                 quote.outputUsd > GAS_DROP_MIN_OUTPUT_USD,
             )
-          setEligibility({ request: selectionRequest, available })
+          setEligibility({ request: selectionRequest, available, quotes })
         }
         publish({ quotes })
       },
@@ -110,7 +114,9 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
   const loadQuotes = async (context: QuoteLoadContext) => {
     const result = gasDropEnabled ? await gasDropPrefetch.load(context) : await loadQuoteMode(context, false)
     if (gasDropEnabled && !context.signal.aborted) {
-      setEligibility({ request: selectionRequest, available: result.available })
+      setEligibility(previous =>
+        previous.request === selectionRequest ? { ...previous, available: result.available } : previous,
+      )
       if (!result.hasQuotes) {
         if (result.available) setUnsupportedRequest(selectionRequest)
         setGasDropSelection({ request: selectionRequest, enabled: false })
@@ -134,6 +140,9 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
 
   return {
     ...session,
+    routeOptions: gasDropEnabled
+      ? [...sortQuotesByNetOutput(session.quotes), ...sortQuotesByNetOutput(eligibility.quotes)]
+      : session.quotes,
     amountInWei: request.params?.amount,
     slippage,
     warning,
@@ -142,6 +151,12 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     gasDropEnabled,
     prepareGasDrop: gasDropPrefetch.prepare,
     setGasDropEnabled: (enabled: boolean) => setGasDropSelection({ request: selectionRequest, enabled }),
-    setSelectedAdapter: session.setSelectedKey,
+    selectRoute: (quote: Quote) => {
+      session.setSelectedKey(providerKey(quote))
+      setGasDropSelection({
+        request: selectionRequest,
+        enabled: !!quote.quote.quoteParams.gasDrop,
+      })
+    },
   }
 }

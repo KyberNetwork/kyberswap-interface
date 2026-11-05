@@ -3,7 +3,10 @@ import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCross
 import { RecipientInput } from 'components/SwapForm/RecipientInput'
 import { Chain, NonEvmChain } from 'types/crossChain'
 
-export const CrossChainRecipient = () => <CrossChainRecipientInput {...useCrossChainSwap()} hideLabel />
+export const CrossChainRecipient = () => {
+  const swap = useCrossChainSwap()
+  return <CrossChainRecipientInput {...swap} recipient={swap.recipientInputValue} hideLabel />
+}
 
 type Props = Pick<
   ReturnType<typeof useCrossChainRecipient>,

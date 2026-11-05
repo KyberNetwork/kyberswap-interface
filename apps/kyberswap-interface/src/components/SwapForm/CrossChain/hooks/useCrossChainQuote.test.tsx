@@ -67,6 +67,7 @@ const makeQuote = (request: QuoteRequest, provider = 'KyberCross', includeGas = 
       quoteToken: `token-${request.params.gasDrop}`,
       gasDrop: includeGas ? { amount: '100', minAmount: '90', inputToken: '0xgas' } : undefined,
       priceImpact: 0,
+      outputAmount: request.params.gasDrop ? 98n : 100n,
       outputUsd: mocks.outputUsd,
     },
   } as Quote)
@@ -80,6 +81,29 @@ const enableGas = async () => {
 }
 
 describe('Gas Drop route selection', () => {
+  it.each(['KyberCross', 'Relay'])('shows both modes and selects an ordinary %s route', async provider => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
+      request.onQuotes(
+        request.params.gasDrop ? [makeQuote(request)] : [makeQuote(request), makeQuote(request, 'Relay')],
+      ),
+    )
+    await act(async () => render('100'))
+    await flushQuotes()
+    const ordinary = state.quotes.find(quote => quote.adapter.getName() === provider) as Quote
+    await enableGas()
+    expect(state.routeOptions).toHaveLength(3)
+    expect(state.routeOptions).toContain(ordinary)
+    expect(state.routeOptions[0]).toBe(state.selectedQuote)
+    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(true)
+
+    await act(async () => state.selectRoute(ordinary))
+    expect(state.gasDropEnabled).toBe(false)
+    await flushQuotes()
+    expect(state.selectedQuote?.adapter.getName()).toBe(provider)
+    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
+    expect(state.routeOptions).toEqual(state.quotes)
+  })
+
   it.each([
     { provider: 'KyberCross', outputUsd: 2.2, available: false },
     { provider: 'KyberCross', outputUsd: 2.200001, available: true },
