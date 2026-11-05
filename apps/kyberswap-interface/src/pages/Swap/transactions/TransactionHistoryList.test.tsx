@@ -59,8 +59,16 @@ const rows = (patch: Partial<BackendTransaction> = {}) =>
   })
 let root: ReturnType<typeof createRoot>
 let container: HTMLDivElement
-const render = (transactions = rows(), filter = '') =>
-  act(async () => root.render(<TransactionHistoryList transactions={transactions} filter={filter} />))
+const render = (
+  transactions = rows(),
+  filter = '',
+  cursorPagination?: React.ComponentProps<typeof TransactionHistoryList>['cursorPagination'],
+) =>
+  act(async () =>
+    root.render(
+      <TransactionHistoryList transactions={transactions} filter={filter} cursorPagination={cursorPagination} />,
+    ),
+  )
 const renderedText = () => container.textContent || ''
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
@@ -99,6 +107,19 @@ it('keeps filtered rows mounted for lookup and shows a symbol match once metadat
   expect(renderedText()).not.toContain('-1.2345 USDC')
   await render(rows(), address)
   expect(renderedText()).toContain('USDC')
+})
+
+it('does not show cursor pagination while filtering the loaded history', async () => {
+  await render(rows(), 'usdc', {
+    currentPage: 1,
+    canGoPrevious: false,
+    canGoNext: true,
+    loading: false,
+    onPrevious: vi.fn(),
+    onNext: vi.fn(),
+  })
+
+  expect(container.querySelector('[aria-label="History pages"]')).toBeNull()
 })
 
 it('preserves local Currency objects and never formats unresolved IDs with invented decimals', async () => {

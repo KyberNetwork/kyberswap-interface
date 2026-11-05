@@ -41,7 +41,8 @@ const TransactionHistoryList = ({
         <NoTransactionIcon className="size-20" />
         <span className="text-center text-sm font-medium text-subText">{emptyMessage}</span>
       </div>
-      {cursorPagination && (cursorPagination.canGoPrevious || cursorPagination.canGoNext) && (
+      {/* Search filters the currently loaded window, so its result count must not expose the unfiltered cursor. */}
+      {cursorPagination && !filter && (cursorPagination.canGoPrevious || cursorPagination.canGoNext) && (
         <div className="flex justify-center bg-background px-4 py-3">
           <HistoryPagination
             currentPage={cursorPagination.currentPage}
