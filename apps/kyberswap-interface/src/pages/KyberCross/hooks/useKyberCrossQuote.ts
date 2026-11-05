@@ -1,5 +1,9 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
+import { registry } from 'services/crossChain/factory'
+import { getFallbackQuotes } from 'services/crossChain/quote/adapterQuotes'
+import { getPairInfo } from 'services/crossChain/quote/getPairInfo'
+import { getQuoteId } from 'services/crossChain/registry'
 import { useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
 
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
@@ -8,10 +12,6 @@ import {
   useCrossChainQuoteRequest,
 } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuoteRequest'
 import { QuoteLoadContext, useQuoteSession } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
-import { registry } from 'pages/Swap/crossChain/factory'
-import { getFallbackQuotes } from 'pages/Swap/crossChain/quote/adapterQuotes'
-import { getPairInfo } from 'pages/Swap/crossChain/quote/getPairInfo'
-import { getQuoteId } from 'pages/Swap/crossChain/registry'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain } from 'types/crossChain'

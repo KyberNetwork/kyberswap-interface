@@ -7,10 +7,10 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import { GasDropOption } from 'components/SwapForm/CrossChain/Quote/GasDrop'
 
-vi.mock('pages/Swap/crossChain/hooks/useGasDropValue', () => ({
+vi.mock('components/GasDrop/useGasDropValue', () => ({
   useGasDropValue: () => ({ symbol: 'ETH', amountUsd: 2 }),
 }))
-vi.mock('pages/Swap/crossChain/utils', () => ({ getChainName: () => 'Base' }))
+vi.mock('services/crossChain/utils', () => ({ getChainName: () => 'Base' }))
 vi.mock('components/Modal', () => ({
   default: ({ isOpen, children }: { isOpen: boolean; children: ReactNode }) =>
     isOpen ? <div role="dialog">{children}</div> : null,

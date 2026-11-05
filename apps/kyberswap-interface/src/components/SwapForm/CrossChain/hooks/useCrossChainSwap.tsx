@@ -1,9 +1,9 @@
 import { ReactNode, createContext, useContext } from 'react'
 
+import { useCrossChainExecution } from 'components/SwapForm/CrossChain/hooks/useCrossChainExecution'
 import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
 import { useCrossChainQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
 import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
-import { useCrossChainExecution } from 'pages/Swap/crossChain/hooks/useCrossChainExecution'
 import { Chain } from 'types/crossChain'
 
 export type CrossChainSwapOptions = {

@@ -1,4 +1,6 @@
 import { Trans, t } from '@lingui/macro'
+import { getMinimumOutputAmount, isStableCurrency } from 'services/crossChain/quote/utils'
+import { Quote } from 'services/crossChain/registry'
 import { formatUnits } from 'viem'
 
 import { ErrorWarning } from 'components/ErrorWarning'
@@ -6,8 +8,6 @@ import type { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQu
 import { QuoteDetailRow } from 'components/SwapForm/Quote/QuoteDetails'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { getMinimumOutputAmount, isStableCurrency } from 'pages/Swap/crossChain/quote/utils'
-import { Quote } from 'pages/Swap/crossChain/registry'
 import { ExternalLink } from 'theme'
 import { Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'

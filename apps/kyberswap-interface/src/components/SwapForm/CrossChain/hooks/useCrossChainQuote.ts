@@ -1,22 +1,22 @@
 import { useMemo, useState } from 'react'
+import { registry } from 'services/crossChain/factory'
+import { getPairInfo } from 'services/crossChain/quote/getPairInfo'
+import { isEvmCurrency } from 'services/crossChain/quote/utils'
+import { Quote } from 'services/crossChain/registry'
 import { useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
 
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
+import {
+  getQuotesForMode,
+  selectGasDropQuotes,
+  selectOrdinaryQuotes,
+} from 'components/SwapForm/CrossChain/hooks/getQuotesForMode'
 import {
   CrossChainQuoteInput,
   useCrossChainQuoteRequest,
 } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuoteRequest'
 import { useGasDropPrefetch } from 'components/SwapForm/CrossChain/hooks/useGasDropPrefetch'
 import { QuoteLoadContext, useQuoteSession } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
-import { registry } from 'pages/Swap/crossChain/factory'
-import { getPairInfo } from 'pages/Swap/crossChain/quote/getPairInfo'
-import {
-  getQuotesForMode,
-  selectGasDropQuotes,
-  selectOrdinaryQuotes,
-} from 'pages/Swap/crossChain/quote/getQuotesForMode'
-import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
-import { Quote } from 'pages/Swap/crossChain/registry'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain } from 'types/crossChain'

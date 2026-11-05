@@ -1,6 +1,7 @@
+import type { Quote } from 'services/crossChain/registry'
+
 import { ErrorWarning } from 'components/ErrorWarning'
 import { useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
-import type { Quote } from 'pages/Swap/crossChain/registry'
 
 export const PiWarning = ({ quote }: { quote?: Quote | null }) => {
   const { selectedQuote, getQuotePriceImpactInfo } = useKyberCrossSwap()

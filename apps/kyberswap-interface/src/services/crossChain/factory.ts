@@ -1,0 +1,148 @@
+import {
+  AcrossAdapter,
+  DeBridgeAdapter,
+  KyberCrossAdapter,
+  KyberSwapAdapter,
+  LifiAdapter,
+  MayanAdapter,
+  RelayAdapter,
+  SwapProvider,
+  SymbiosisAdapter,
+} from 'services/crossChain/adapters'
+import { BungeeAdapter } from 'services/crossChain/adapters/BungeeAdapter'
+import { NearIntentsAdapter } from 'services/crossChain/adapters/NearIntentsAdapter'
+import { CrossChainSwapAdapterRegistry } from 'services/crossChain/registry'
+import { normalizeAdapterName } from 'services/crossChain/utils'
+
+import arbitrumIcon from 'assets/networks/arbitrum.svg'
+import type { CrossChainQuoteMode } from 'state/crossChainSwap'
+
+export type CrossChainSource = Pick<SwapProvider, 'getName'> & Partial<Pick<SwapProvider, 'getIcon' | 'canSupport'>>
+
+const CCTP_ICON = 'https://cdn.prod.website-files.com/668c08d1b8a9330bd1d786ad/669a20df8ac2810a6dd50e67_favicon-256.svg'
+const CCIP_ICON = 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png'
+const ECO_ICON = 'https://cdn.prod.website-files.com/67af51ad91d062ee8ef52137/68ecc9d27b7aab7d9650a0f9_Favicon.svg'
+
+const cctpV2Source: CrossChainSource = {
+  getName: () => 'CCTP V2',
+  getIcon: () => CCTP_ICON,
+}
+
+const cctpV2FastSource: CrossChainSource = {
+  getName: () => 'CCTP V2 Fast',
+  getIcon: () => CCTP_ICON,
+}
+
+const ccipSource: CrossChainSource = {
+  getName: () => 'CCIP',
+  getIcon: () => CCIP_ICON,
+}
+
+const ecoSource: CrossChainSource = {
+  getName: () => 'Eco',
+  getIcon: () => ECO_ICON,
+}
+
+const arbitrumBridgeSource: CrossChainSource = {
+  getName: () => 'Arbitrum Bridge',
+  getIcon: () => arbitrumIcon,
+}
+
+// Factory for creating swap provider instances
+export class CrossChainSwapFactory {
+  private static adapterCreators = {
+    across: () => new AcrossAdapter(),
+    relay: () => new RelayAdapter(),
+    nearintents: () => new NearIntentsAdapter(),
+    mayan: () => new MayanAdapter(),
+    symbiosis: () => new SymbiosisAdapter(),
+    debridge: () => new DeBridgeAdapter(),
+    lifi: () => new LifiAdapter(),
+    kyberswap: () => new KyberSwapAdapter(),
+    socket: () => new BungeeAdapter(),
+    kybercross: () => new KyberCrossAdapter(),
+  }
+
+  private static adapters = new Map<string, SwapProvider>()
+
+  private static getAdapterKey(name?: string): string {
+    const key = normalizeAdapterName(name)
+    return key === 'bungee' ? 'socket' : key
+  }
+
+  private static getAdapterCreator(name?: string): (() => SwapProvider) | undefined {
+    const key = CrossChainSwapFactory.getAdapterKey(name)
+
+    if (!Object.prototype.hasOwnProperty.call(CrossChainSwapFactory.adapterCreators, key)) return undefined
+
+    return CrossChainSwapFactory.adapterCreators[key as keyof typeof CrossChainSwapFactory.adapterCreators]
+  }
+
+  private static getOrCreateAdapter(name: string): SwapProvider {
+    const key = CrossChainSwapFactory.getAdapterKey(name)
+    const createAdapter = CrossChainSwapFactory.getAdapterCreator(key)
+
+    if (!createAdapter) {
+      throw new Error(`Unsupported cross-chain adapter: ${name}`)
+    }
+
+    let adapter = CrossChainSwapFactory.adapters.get(key)
+
+    if (!adapter) {
+      adapter = createAdapter()
+      CrossChainSwapFactory.adapters.set(key, adapter)
+    }
+
+    return adapter
+  }
+
+  static getKyberCrossBridgeSources(): CrossChainSource[] {
+    return [
+      CrossChainSwapFactory.getOrCreateAdapter('across'),
+      CrossChainSwapFactory.getOrCreateAdapter('relay'),
+      CrossChainSwapFactory.getOrCreateAdapter('nearintents'),
+      CrossChainSwapFactory.getOrCreateAdapter('mayan'),
+      cctpV2Source,
+      cctpV2FastSource,
+      ccipSource,
+      ecoSource,
+      arbitrumBridgeSource,
+    ]
+  }
+
+  static getSelectableSources(quoteMode: CrossChainQuoteMode): CrossChainSource[] {
+    if (quoteMode === 'direct') {
+      return CrossChainSwapFactory.getKyberCrossBridgeSources()
+    }
+
+    return CrossChainSwapFactory.getAllAdapters().filter(adapter => adapter.getName() !== 'KyberSwap')
+  }
+
+  // Direct client quote adapters. When stream is disabled, KyberCross owns quote routing.
+  static getClientQuoteAdapters(quoteMode: CrossChainQuoteMode): SwapProvider[] {
+    if (quoteMode === 'direct') {
+      return [CrossChainSwapFactory.getOrCreateAdapter('kybercross')]
+    }
+
+    return CrossChainSwapFactory.getAllAdapters()
+  }
+
+  // Registry/status lookup needs every active adapter, even when quotes only use KyberCross.
+  static getAllAdapters(): SwapProvider[] {
+    return [
+      CrossChainSwapFactory.getOrCreateAdapter('across'),
+      CrossChainSwapFactory.getOrCreateAdapter('relay'),
+      CrossChainSwapFactory.getOrCreateAdapter('nearintents'),
+      CrossChainSwapFactory.getOrCreateAdapter('mayan'),
+      CrossChainSwapFactory.getOrCreateAdapter('symbiosis'),
+      CrossChainSwapFactory.getOrCreateAdapter('debridge'),
+      CrossChainSwapFactory.getOrCreateAdapter('lifi'),
+      CrossChainSwapFactory.getOrCreateAdapter('kyberswap'),
+      CrossChainSwapFactory.getOrCreateAdapter('socket'),
+      CrossChainSwapFactory.getOrCreateAdapter('kybercross'),
+    ]
+  }
+}
+
+export const registry = new CrossChainSwapAdapterRegistry()
+CrossChainSwapFactory.getAllAdapters().forEach(adapter => registry.registerAdapter(adapter))

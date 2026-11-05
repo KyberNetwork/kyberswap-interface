@@ -26,13 +26,13 @@ vi.mock('@solana/wallet-adapter-react', () => ({
 vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ account: 'app-evm', chainId: 1 }) }))
 vi.mock('hooks/useDebounce', () => ({ default: (value: string) => value }))
 vi.mock('constants/env', () => ({ SOLANA_RPC: 'test-rpc' }))
-vi.mock('pages/Swap/crossChain/provider/SolanaConnectModalProvider', () => ({ SolanaConnectModalProvider: () => null }))
-vi.mock('pages/Swap/crossChain/utils', () => ({ SOLANA_NATIVE: 'native-sol' }))
-vi.mock('pages/Swap/crossChain/hooks/useNearBalances', () => ({ useNearBalances: () => ({ balances: {} }) }))
-vi.mock('pages/Swap/crossChain/adapters/NearIntentsAdapter/useNearIntentsTokens', () => ({
+vi.mock('components/Web3Provider/SolanaConnectModalProvider', () => ({ SolanaConnectModalProvider: () => null }))
+vi.mock('services/crossChain/utils', () => ({ SOLANA_NATIVE: 'native-sol' }))
+vi.mock('hooks/useNearBalances', () => ({ useNearBalances: () => ({ balances: {} }) }))
+vi.mock('hooks/useNearIntentsTokens', () => ({
   useNearIntentsTokens: () => ({ nearTokens: [], isLoadingNearTokens: false }),
 }))
-vi.mock('pages/Swap/crossChain/hooks/useSolanaTokens', () => ({
+vi.mock('hooks/useSolanaTokens', () => ({
   useSolanaTokens: () => ({
     solanaTokens: [
       { id: 'mint-a', symbol: 'AAA', name: 'A', decimals: 2 },

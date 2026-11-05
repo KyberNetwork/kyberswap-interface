@@ -4,9 +4,9 @@ import { createRoot } from 'react-dom/client'
 import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom'
 import { afterEach, expect, it, vi } from 'vitest'
 
+import { type MainTab, TAB } from 'components/TradeLayout/Tabs'
+import { useTradeController } from 'components/TradeLayout/useTradeController'
 import PartnerSwap from 'pages/PartnerSwap'
-import { useTradeController } from 'pages/Swap/hooks/useTradeController'
-import { type MainTab, TAB } from 'pages/Swap/layout/Tabs'
 
 vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
 vi.mock('hooks', () => ({
@@ -22,7 +22,7 @@ vi.mock('components/TipLinkGeneratorModal/shared', () => ({
   TIP_LINK_CLIENT_ID: 'tip',
   isCreatorNameValid: () => true,
 }))
-vi.mock('pages/Swap/layout/Tabs', () => ({
+vi.mock('components/TradeLayout/Tabs', () => ({
   TAB: {
     SWAP: 'swap',
     LIMIT: 'limit',

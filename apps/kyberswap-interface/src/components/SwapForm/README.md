@@ -5,24 +5,26 @@ It has two entry components: `SingleChainSwapContent` for same-chain EVM swaps a
 `CrossChainSwap` for different-chain or non-EVM pairs. Shared layout, amount rows,
 settings and review visuals live alongside the mode-specific code.
 
-The [Swap page](../../pages/Swap/README.md) owns pair URLs, mode selection, wallet
-slots, chart/route composition and transaction history. The form consumes that
-pair and reports selection changes through callbacks.
+The [Swap page](../../pages/Swap/README.md) composes the active form, wallet provider,
+chart/routes and transaction views. Pair URL handling lives in `hooks/useSwapFormPair`;
+signing slots and wallet controls live in `components/SwapWallets/`. Forms report selection intent
+through callbacks.
 
 ## Structure and owners
 
-| Module | Responsibility |
-| --- | --- |
-| [`SwapFormLayout.tsx`](SwapFormLayout.tsx) | Compose input/output panels, reverse control, details and action slots. |
-| [`SingleChain/`](SingleChain/) | EVM form/provider, quote-to-review coordination and transaction submission. |
-| [`CrossChain/`](CrossChain/) | Cross-chain form, wallet/recipient controls, route options and confirmation. |
-| [`hooks/`](hooks/) | Same-chain request/build logic, input amount, recipient and review session. |
-| [`CurrencyInput/`](CurrencyInput/) | EVM input/output fields and ERC-8056 display information. |
-| [`Quote/`](Quote/) | Rate, fee and quote detail presentation. |
-| [`SwapActionButton/`](SwapActionButton/) | Same-chain prerequisites, approval/permit, wrap/unwrap and review entry. |
-| [`SwapModal/`](SwapModal/) | Same-chain review data and content, plus layout primitives shared with cross-chain review. |
-| [`Settings/`](Settings/) and [`Warnings/`](Warnings/) | Slippage, sources, MEV, Degen Mode and risk presentation. |
-| [`SwapFormContext.tsx`](SwapFormContext.tsx) | Same-chain display context: route, raw/display amounts, recipient, slippage and ERC-8056 metadata. |
+| Module                                                | Responsibility                                                                                     |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| [`SwapFormLayout.tsx`](SwapFormLayout.tsx)            | Compose input/output panels, reverse control, details and action slots.                            |
+| [`SingleChain/`](SingleChain/)                        | EVM form/provider, quote-to-review coordination and transaction submission.                        |
+| [`CrossChain/`](CrossChain/)                          | Cross-chain form, recipient controls, route options and confirmation.                              |
+| [`hooks/`](hooks/)                                    | Pair URL selection, same-chain request/build logic, input amount, recipient and review session.    |
+| [`SwapWallets`](../SwapWallets/)                      | Signing slots, connection models and wallet selection controls.                                    |
+| [`CurrencyInput/`](CurrencyInput/)                    | EVM input/output fields and ERC-8056 display information.                                          |
+| [`Quote/`](Quote/)                                    | Rate, fee and quote detail presentation.                                                           |
+| [`SwapActionButton/`](SwapActionButton/)              | Same-chain prerequisites, approval/permit, wrap/unwrap and review entry.                           |
+| [`SwapModal/`](SwapModal/)                            | Same-chain review data and content, plus layout primitives shared with cross-chain review.         |
+| [`Settings/`](Settings/) and [`Warnings/`](Warnings/) | Slippage, sources, MEV, Degen Mode and risk presentation.                                          |
+| [`SwapFormContext.tsx`](SwapFormContext.tsx)          | Same-chain display context: route, raw/display amounts, recipient, slippage and ERC-8056 metadata. |
 
 `SwapFormContext` is not the cross-chain state owner. `SingleChainSwapProvider`
 and `CrossChainSwapProvider` own their respective quote lifecycles. Their scope
@@ -150,7 +152,7 @@ part of request identity so old quotes stop being actionable immediately.
 from `getPairInfo`, then invokes `getQuotesForMode`. That helper requests
 only the requested mode through `getQuotes` with `quoteMode: 'stream'`. Source
 preferences come from `state.crossChainSwap.excludedSources`. Transport, parsing
-and adapter association live in [`pages/Swap/crossChain/quote`](../../pages/Swap/crossChain/quote/).
+and adapter association live in [`src/services/crossChain/quote`](../../services/crossChain/quote/).
 Stream errors do not fall back to direct provider quotes.
 
 [`useQuoteSession`](CrossChain/hooks/useQuoteSession.ts) owns:
@@ -231,21 +233,21 @@ belongs to the page-level transaction updater, not the confirmation modal.
 
 ## Where to make changes
 
-| Change | Start here |
-| --- | --- |
-| Form layout, amount fields or reverse control | `SwapFormLayout.tsx`, `CurrencyInput/`, `CrossChain/CrossChainSwapForm.tsx` |
-| Same-chain request parameters, fees or refresh | `hooks/useRouteRequest.ts`, `hooks/useGetRoute.ts`, fee hooks, `SingleChain/SingleChainSwapProvider.tsx` |
-| Same-chain approve/permit/wrap behavior | `SwapActionButton/index.tsx` and the corresponding shared hooks |
-| Same-chain review state or submission | `hooks/useSwapReviewSession.ts`, `SingleChain/useSingleChainSwapReview.ts`, `SingleChain/useSingleChainSwapExecution.ts` |
-| Review amounts, output acceptance or warnings | `SwapModal/useSwapReviewData.ts`, `SwapModal/reviewData.ts`, `SwapModal/SwapReviewActions.tsx` |
+| Change                                           | Start here                                                                                                                       |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Form layout, amount fields or reverse control    | `SwapFormLayout.tsx`, `CurrencyInput/`, `CrossChain/CrossChainSwapForm.tsx`                                                      |
+| Same-chain request parameters, fees or refresh   | `hooks/useRouteRequest.ts`, `hooks/useGetRoute.ts`, fee hooks, `SingleChain/SingleChainSwapProvider.tsx`                         |
+| Same-chain approve/permit/wrap behavior          | `SwapActionButton/index.tsx` and the corresponding shared hooks                                                                  |
+| Same-chain review state or submission            | `hooks/useSwapReviewSession.ts`, `SingleChain/useSingleChainSwapReview.ts`, `SingleChain/useSingleChainSwapExecution.ts`         |
+| Review amounts, output acceptance or warnings    | `SwapModal/useSwapReviewData.ts`, `SwapModal/reviewData.ts`, `SwapModal/SwapReviewActions.tsx`                                   |
 | Cross-chain request inputs, selection or refresh | `CrossChain/hooks/useCrossChainQuoteRequest.ts`, `CrossChain/hooks/useCrossChainQuote.ts`, `CrossChain/hooks/useQuoteSession.ts` |
-| Gas Drop eligibility or mode selection | `CrossChain/hooks/useCrossChainQuote.ts` |
-| Gas Drop request and buffered results | `CrossChain/hooks/useGasDropPrefetch.ts`, `pages/Swap/crossChain/quote/getQuotesForMode.ts` |
-| Gas Drop presentation | `CrossChain/Quote/GasDrop.tsx`, `pages/Swap/crossChain/components/GasDropQuoteLine.tsx` |
-| Cross-chain action prerequisites or allowance | `CrossChain/CrossChainSwapAction.tsx`, `pages/Swap/crossChain/hooks/useCrossChainApproval.ts` |
-| Cross-chain confirmation content | `CrossChain/CrossChainSwapConfirmation.tsx`, `CrossChain/Quote/` |
-| Provider-specific execution or settlement | `pages/Swap/crossChain/hooks/useCrossChainExecution.ts`, `pages/Swap/crossChain/adapters/`, `pages/Swap/crossChain/transactions/` |
+| Gas Drop eligibility or mode selection           | `CrossChain/hooks/useCrossChainQuote.ts`                                                                                         |
+| Gas Drop request and buffered results            | `CrossChain/hooks/useGasDropPrefetch.ts`, `CrossChain/hooks/getQuotesForMode.ts`                                                 |
+| Gas Drop presentation                            | `CrossChain/Quote/GasDrop.tsx`, `components/GasDrop/GasDropAmount.tsx`                                                           |
+| Cross-chain action prerequisites or allowance    | `CrossChain/CrossChainSwapAction.tsx`, `CrossChain/hooks/useCrossChainApproval.ts`                                               |
+| Cross-chain confirmation content                 | `CrossChain/CrossChainSwapConfirmation.tsx`, `CrossChain/Quote/`                                                                 |
+| Provider-specific execution or settlement        | `CrossChain/hooks/useCrossChainExecution.ts`, `src/services/crossChain/adapters/`, `src/state/crossChainSwap/`                   |
 
 Paths in the last table are relative to this directory unless prefixed with
-`pages/`. For page composition, URLs, wallet lifecycle and history ownership,
+`src/`. For page composition and integration boundaries,
 continue with the [Swap page README](../../pages/Swap/README.md).

@@ -1,8 +1,7 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
-
-import { getKyberCrossRoutePlan } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/utils'
-import { Quote } from 'pages/Swap/crossChain/registry'
+import { getKyberCrossRoutePlan } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
+import { Quote } from 'services/crossChain/registry'
 
 // Keep the quote shown in Review stable until the user accepts a changed output.
 export const useGasDropReview = (initialQuote: Quote | null, active: boolean) => {

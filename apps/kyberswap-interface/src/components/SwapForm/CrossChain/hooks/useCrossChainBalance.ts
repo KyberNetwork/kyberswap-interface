@@ -2,10 +2,10 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useConnection } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import { useQuery } from '@tanstack/react-query'
+import { SOLANA_NATIVE } from 'services/crossChain/utils'
 import { erc20Abi, isAddress } from 'viem'
 import { usePublicClient } from 'wagmi'
 
-import { SOLANA_NATIVE } from 'pages/Swap/crossChain/utils'
 import { Chain, Currency, NonEvmChain } from 'types/crossChain'
 
 /** Read-only balance lookup; both panels read by address without borrowing global wallet balances. */

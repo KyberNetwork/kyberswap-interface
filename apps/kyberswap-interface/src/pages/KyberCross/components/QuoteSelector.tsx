@@ -1,12 +1,12 @@
 import { t } from '@lingui/macro'
 import { DollarSign, Star, Zap } from 'react-feather'
+import { getKyberCrossRoutePlan } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
+import { Quote } from 'services/crossChain/registry'
 
 import { HStack } from 'components/Stack'
 import { CrossChainQuoteSelectorView } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSelector'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
-import { getKyberCrossRoutePlan } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/utils'
-import { Quote } from 'pages/Swap/crossChain/registry'
 import { Currency } from 'types/crossChain'
 
 const RouteTags = ({ quote }: { quote: Quote }) => {

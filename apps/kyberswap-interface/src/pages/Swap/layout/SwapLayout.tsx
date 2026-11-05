@@ -7,11 +7,11 @@ import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
+import { Header } from 'components/TradeLayout/Header'
+import { TAB } from 'components/TradeLayout/Tabs'
+import type { TradeController } from 'components/TradeLayout/useTradeController'
+import { useTradeLayoutPrefetch } from 'components/TradeLayout/useTradeLayoutPrefetch'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
-import type { TradeController } from 'pages/Swap/hooks/useTradeController'
-import { Header } from 'pages/Swap/layout/Header'
-import { TAB } from 'pages/Swap/layout/Tabs'
 import {
   BannerWrapper,
   Container,
@@ -41,7 +41,7 @@ export const SwapLayout = ({
   customChainId,
 }: SwapLayoutProps) => {
   const { activeMainTab, activeTab, shouldHighlightSwapBox, onTabChange } = controller
-  useSwapLayoutPrefetch()
+  useTradeLayoutPrefetch()
 
   return (
     <PageWrapper>

@@ -8,13 +8,13 @@ import { Chain, NonEvmChain } from 'types/crossChain'
 import { useCrossChainRecipient } from './useCrossChainRecipient'
 
 const mocks = vi.hoisted(() => ({ account: '0xapp', wallets: undefined as any }))
-vi.mock('pages/Swap/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
+vi.mock('components/SwapWallets/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({ signedAccountId: 'global.near' }) }))
 vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({}) }))
 vi.mock('components/Web3Provider/BitcoinProvider', () => ({ useBitcoinWallet: () => ({ walletInfo: {} }) }))
 vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ account: mocks.account }) }))
 vi.mock('constants/index', () => ({ ZERO_ADDRESS: '0xzero' }))
-vi.mock('pages/Swap/crossChain/utils', () => ({
+vi.mock('services/crossChain/utils', () => ({
   BTC_DEFAULT_RECEIVER: 'btc-preview',
   CROSS_CHAIN_FEE_RECEIVER: 'evm-preview',
   CROSS_CHAIN_FEE_RECEIVER_SOLANA: 'sol-preview',

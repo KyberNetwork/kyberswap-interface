@@ -1,22 +1,22 @@
 import { Trans, t } from '@lingui/macro'
+import { isEvmCurrency } from 'services/crossChain/quote/utils'
+import { getNetworkInfo } from 'services/crossChain/utils'
 import { formatUnits } from 'viem'
 
 import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { GasDropAmount } from 'components/GasDrop/GasDropAmount'
 import { HStack, Stack } from 'components/Stack'
 import {
   CrossChainPriceImpactWarning,
   CrossChainQuoteSummaryRows,
 } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
+import { QuoteProviderName } from 'components/SwapForm/CrossChain/Quote/QuoteProviderName'
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
 import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
 import { SwapReviewAmountCard, SwapReviewHeader } from 'components/SwapForm/SwapModal/SwapReviewLayout'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { GasDropQuoteLine } from 'pages/Swap/crossChain/components/GasDropQuoteLine'
-import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
-import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
-import { getNetworkInfo } from 'pages/Swap/crossChain/utils'
 import { ExternalLink } from 'theme'
 import { Chain, Currency, GasDropQuote, NonEvmChain, isEvmChain } from 'types/crossChain'
 import { shortenHash } from 'utils/address'
@@ -48,7 +48,7 @@ const CrossChainReviewAmount = ({
     <SwapReviewAmountCard
       label={label}
       isOutput={isOutput}
-      footer={gasDrop && <GasDropQuoteLine gasDrop={gasDrop} chain={chainId} />}
+      footer={gasDrop && <GasDropAmount gasDrop={gasDrop} chain={chainId} />}
       headerAside={
         <HStack className="items-center gap-1">
           <img src={icon} alt={chainId.toString()} width={16} height={16} className="shrink-0 rounded-full" />

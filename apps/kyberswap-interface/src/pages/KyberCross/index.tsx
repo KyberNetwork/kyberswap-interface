@@ -1,11 +1,18 @@
 import { Suspense, lazy, useState } from 'react'
 
+import { BitcoinConnectModal } from 'components/Header/web3/WalletModal/BitcoinConnectModal'
 import LocalLoader from 'components/LocalLoader'
 import { HStack, Stack } from 'components/Stack'
 import { CrossChainRecipientInput } from 'components/SwapForm/CrossChain/CrossChainRecipient'
 import { CrossChainSwapForm } from 'components/SwapForm/CrossChain/CrossChainSwapForm'
-import { useCrossChainWalletIntent } from 'components/SwapForm/CrossChain/hooks/useCrossChainWalletIntent'
+import { useSwapFormPair } from 'components/SwapForm/hooks/useSwapFormPair'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
+import { localTransactionToHistory } from 'components/SwapTransactions/history'
+import { useCrossChainWalletIntent } from 'components/SwapWallets/useCrossChainWalletIntent'
+import { Header } from 'components/TradeLayout/Header'
+import { TAB } from 'components/TradeLayout/Tabs'
+import { useTradeController } from 'components/TradeLayout/useTradeController'
+import { CrossChainTradeRouteView } from 'components/TradeRouting/CrossChainTradeRoute'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { GasDropPanel } from 'pages/KyberCross/components/GasDrop'
 import { KyberCrossQuoteDetails } from 'pages/KyberCross/components/KyberCrossQuoteDetails'
@@ -13,20 +20,13 @@ import { SwapAction } from 'pages/KyberCross/components/SwapAction'
 import TransactionHistoryList from 'pages/KyberCross/components/TransactionHistoryList'
 import { useGasDrop } from 'pages/KyberCross/hooks/useGasDrop'
 import { KyberCrossProvider, useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
-import { CrossChainTradeRouteView } from 'pages/Swap/components/CrossChainTradeRoute'
-import { BitcoinConnectModal } from 'pages/Swap/crossChain/components/BitcoinConnectModal'
-import { useSwapFormPair } from 'pages/Swap/hooks/useSwapFormPair'
-import { useTradeController } from 'pages/Swap/hooks/useTradeController'
-import { Header } from 'pages/Swap/layout/Header'
-import { TAB } from 'pages/Swap/layout/Tabs'
-import { localTransactionToHistory } from 'pages/Swap/transactions/history'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { Field } from 'state/swap/actions'
 import { SwapPair, getTradeLocation } from 'utils/swapFlow'
 
 const Settings = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel'))
-const Sources = lazy(() => import('pages/Swap/crossChain/components/CrossChainSwapSources'))
-const HistoryUpdater = lazy(() => import('pages/Swap/transactions/TransactionUpdater'))
+const Sources = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel/CrossChainSwapSources'))
+const HistoryUpdater = lazy(() => import('components/SwapTransactions/TransactionUpdater'))
 
 const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> }) => {
   const controller = useTradeController(TAB.KYBER_CROSS)

@@ -1,7 +1,7 @@
 import type { BackendTransaction } from 'services/crossChainTransactions'
 import { describe, expect, it, vi } from 'vitest'
 
-import { localTransactionToHistory, mergeTransactionHistory } from 'pages/Swap/transactions/history'
+import { localTransactionToHistory, mergeTransactionHistory } from 'components/SwapTransactions/history'
 import reducer, {
   addTransaction,
   enqueueTransactionSync,
