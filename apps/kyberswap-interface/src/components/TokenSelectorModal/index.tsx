@@ -8,6 +8,7 @@ import { ImportTokenView } from 'components/TokenSelectorModal/TokenSelection/Im
 import { SwitchChainModal } from 'components/TokenSelectorModal/TokenSelection/SwitchChainModal'
 import { useTokenSelection } from 'components/TokenSelectorModal/TokenSelection/useTokenSelection'
 import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent/TokenSelectorContent'
+import type { NetworkSortBy } from 'components/TokenSelectorModal/types'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
@@ -34,6 +35,8 @@ type Props = {
   showPinnedTokens?: boolean
   /** Presentation only; hiding discovery does not change the selection mode. */
   showDiscoveryTabs?: boolean
+  /** Defaults to fixed network priority; API volume ordering is retained for opt-in use. */
+  networkSortBy?: NetworkSortBy
   filterWrap?: boolean
   title?: string
   tooltip?: ReactNode
@@ -63,6 +66,7 @@ const TokenSelectorModal = ({
   customChainId,
   trackingSource,
   showDiscoveryTabs = true,
+  networkSortBy = 'priority',
   chainSelectionMode,
   onSelectNonEvmCurrency,
   initialNonEvmChain,
@@ -163,6 +167,7 @@ const TokenSelectorModal = ({
             tooltip={tooltip}
             trackingSource={trackingSource}
             showDiscoveryTabs={showDiscoveryTabs}
+            networkSortBy={networkSortBy}
             onShowTokenInfo={setTokenToShowInfo}
           />
         </div>
