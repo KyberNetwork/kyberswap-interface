@@ -15,9 +15,10 @@ import StopMarketRow from 'components/StopMarket/MyOrders/StopMarketRow'
 import StopMarketTableHeader from 'components/StopMarket/MyOrders/TableHeader'
 import { StopMarketRowsSkeleton } from 'components/StopMarket/MyOrders/components'
 import { useConfirmedFundingShortfalls } from 'components/StopMarket/hooks/useConfirmedFundingShortfalls'
+import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { useStopMarketsFunding } from 'components/StopMarket/hooks/useStopMarketsFunding'
 import { StopMarket, StopMarketStatus } from 'components/StopMarket/types'
-import { getStopMarketFundingKey } from 'components/StopMarket/utils'
+import { getStopMarketFundingKey, getStopMarketRetry } from 'components/StopMarket/utils'
 import { isSupportStopMarket } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
@@ -65,6 +66,7 @@ const StopMarkets = ({
   const { pathname } = useLocation()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
+  const tracking = useStopMarketTracking()
 
   const [closedFilter, setClosedFilter] = useState<string>(ALL_CLOSED_VALUE)
   // Starts on All Chains, like the limit-order list, so it covers every order the tab badge counts.
@@ -74,6 +76,9 @@ const StopMarkets = ({
   const [isCancelAll, setIsCancelAll] = useState(false)
   const [cancellingIds, setCancellingIds] = useState<number[]>([])
   const [editingOrder, setEditingOrder] = useState<StopMarket>()
+
+  // Orders already reported as retrying, so a row is reported once however often the list refreshes.
+  const reportedRetryingIds = useRef(new Set<number>())
 
   const accountKey = account?.toLowerCase() || ''
   const [selectionAccount, setSelectionAccount] = useState(accountKey)
@@ -85,6 +90,7 @@ const StopMarkets = ({
     setCancellingIds([])
     setEditingOrder(undefined)
     setCurPage(1)
+    reportedRetryingIds.current = new Set()
   }
 
   // An external order link changes the kind/status, but these filters belong to this list and would
@@ -180,6 +186,17 @@ const StopMarkets = ({
     if (currentData && curPage > pageCount) setCurPage(pageCount)
   }, [currentData, curPage, pageCount])
 
+  // Judged as the row judges it, so what is reported is what the user sees marked Retrying.
+  useEffect(() => {
+    if (!isActiveTab) return
+    orders.forEach(order => {
+      const retry = getStopMarketRetry(order)
+      if (!retry || reportedRetryingIds.current.has(order.id)) return
+      reportedRetryingIds.current.add(order.id)
+      tracking.trackOrderRetrying(order, retry.cause)
+    })
+  }, [isActiveTab, orders, tracking])
+
   // Only open orders can still fail for want of funds, so History reads nothing.
   const funding = useStopMarketsFunding(orders, isActiveTab)
   // An order leaving the Active list has executed, been cancelled or expired, and the inbox may now hold news of
@@ -249,13 +266,21 @@ const StopMarkets = ({
   }
 
   // The replacement is signed on the order's own chain, so an order from another one switches the wallet first.
-  const onEdit = (order: StopMarket) => {
+  const onEdit = (order: StopMarket, source: 'row' | 'retry') => {
+    tracking.trackEditOrderClick(order, source)
     if (order.chainId === chainId) setEditingOrder(order)
     else changeNetwork(order.chainId, () => setEditingOrder(order))
   }
 
+  const onCancel = (order: StopMarket) => {
+    tracking.trackCancelOrderClick(order)
+    setIsCancelAll(false)
+    setCancelTargets([order])
+  }
+
   const onCancelAll = () => {
     if (isLoadingCancelAllOrders || !cancellableOrders.length) return
+    tracking.trackCancelAllClick({ orderType: 'stop_market', count: cancellableOrders.length })
     setIsCancelAll(true)
     setCancelTargets(cancellableOrders)
   }
@@ -325,10 +350,7 @@ const StopMarkets = ({
             isCancelling={isActiveTab && cancellingIds.includes(order.id)}
             funding={funding[getStopMarketFundingKey(order.chainId, order.tokenIn)]}
             showFundingWarnings={confirmedShortfallIds.has(order.id)}
-            onCancel={target => {
-              setIsCancelAll(false)
-              setCancelTargets([target])
-            }}
+            onCancel={onCancel}
             onEdit={onEdit}
             onSelectPair={onSelectPair}
             onRecreate={onRecreate}

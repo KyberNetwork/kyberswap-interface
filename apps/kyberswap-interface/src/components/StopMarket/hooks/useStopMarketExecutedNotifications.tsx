@@ -6,6 +6,7 @@ import stopMarketApi from 'services/stopMarket'
 
 import { StopMarketExecution, getStopMarketExecution } from 'components/Announcement/helpers'
 import { NotificationType } from 'components/Announcement/type'
+import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { getStopMarketExecutedTemplateIds } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -54,6 +55,7 @@ export const useStopMarketExecutedNotifications = () => {
   const notify = useNotify()
   const refreshPrivateAnnouncements = useRefreshPrivateAnnouncements()
   const dispatch = useDispatch()
+  const tracking = useStopMarketTracking()
   const templateIds = getStopMarketExecutedTemplateIds()
 
   const { currentData, refetch } = useGetNotificationsQuery(
@@ -95,14 +97,16 @@ export const useStopMarketExecutedNotifications = () => {
     refreshPrivateAnnouncements()
     // Announced even when the body cannot be read: the execution happened, only its details are missing.
     fresh.forEach(item => {
+      const execution = getStopMarketExecution(item)
+      tracking.trackOrderExecuted(execution, item.id)
       notify(
         {
           type: NotificationType.SUCCESS,
           title: t`Stop Market order executed`,
-          summary: <ExecutedSummary execution={getStopMarketExecution(item)} />,
+          summary: <ExecutedSummary execution={execution} />,
         },
         10_000,
       )
     })
-  }, [account, currentData, dispatch, notify, refreshPrivateAnnouncements])
+  }, [account, currentData, dispatch, notify, refreshPrivateAnnouncements, tracking])
 }

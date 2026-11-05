@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import {
   useCreateStopMarketMutation,
   useEstimateStopMarketFeeMutation,
@@ -15,11 +15,14 @@ import { NotificationType } from 'components/Announcement/type'
 import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/steps'
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { DEFAULT_MAX_FEES_PERCENTAGE, DEFAULT_MAX_GAS_PERCENTAGE } from 'components/StopMarket/constants'
-import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
+import {
+  STOP_MARKET_APPROVAL_TRACKING_PAYLOAD,
+  useStopMarketTracking,
+} from 'components/StopMarket/hooks/useStopMarketTracking'
 import { StopMarket, StopMarketFee } from 'components/StopMarket/types'
 import { buildStopMarketPayload, parseRawAmount, stripEmptyEip712Salt } from 'components/StopMarket/utils'
 import { useActiveWeb3React } from 'hooks'
-import { useApproveCallback } from 'hooks/useApproveCallback'
+import { ApprovalStatus, useApproveCallback } from 'hooks/useApproveCallback'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
@@ -96,11 +99,31 @@ export const useCreateStopMarket = ({
     return CurrencyAmount.fromRawAmount(approvalCurrency, parsedInputAmount.quotient)
   }, [approvalCurrency, parsedInputAmount])
 
+  // Why the last approval failed, for its tracking event. A refusal in the wallet leaves none.
+  const approvalErrorRef = useRef<string | undefined>(undefined)
   const [approval, approveCallback] = useApproveCallback({
     amount: parsedApprovalAmount,
     spender: smartIntentAddress || undefined,
     forceApprove: true,
+    onApprovalError: error => {
+      approvalErrorRef.current = error.message
+    },
+    trackingPayload: STOP_MARKET_APPROVAL_TRACKING_PAYLOAD,
   })
+  const approvalContext = useMemo(
+    () => ({ currency: approvalCurrency, spender: smartIntentAddress || undefined, chainId }),
+    [approvalCurrency, smartIntentAddress, chainId],
+  )
+  // Only a submitted approval counts; anything else, the wallet's refusal included, failed the step.
+  const trackedApproveCallback = useCallback(async () => {
+    approvalErrorRef.current = undefined
+    tracking.trackApprovalInitiated(approvalContext)
+    const status = await approveCallback()
+    if (status !== ApprovalStatus.SUBMITTED) {
+      tracking.trackApprovalFailed({ ...approvalContext, status, errorMessage: approvalErrorRef.current })
+    }
+    return status
+  }, [approveCallback, approvalContext, tracking])
 
   /**
    * The wallet's open stop market orders on this token already lay claim to part of the smartIntent
@@ -191,31 +214,7 @@ export const useCreateStopMarket = ({
   const submit = useCallback(async () => {
     if (!account || !currencyIn || !currencyOut) return false
 
-    // Re-estimated rather than taken from the review, and never signed without: a failure throws, so
-    // the processing modal reports why instead of the order carrying a cap set against no fee at all.
-    const latestFee = await estimateLatestFee()
-    if (!latestFee) return false
-    const protocolPercentage = latestFee.protocol?.percentage ?? 0
-    // Keep the cap at or above the live fee, whichever is larger.
-    const maxFeesPercentage = DEFAULT_MAX_FEES_PERCENTAGE.map(value => Math.max(value, protocolPercentage))
-
-    const payload = buildPayload(maxFeesPercentage)
-    if (!payload) return false
-
-    const typedData = replacing
-      ? await getReplaceSignMessage({ ...payload, orderId: replacing.id }).unwrap()
-      : await getSignMessage(payload).unwrap()
-    const rawSignature = await signTypedDataRaw({
-      chainId,
-      account: account as Address,
-      typedData: stripEmptyEip712Salt(typedData),
-    })
-    const signature = formatSignature(rawSignature)
-
-    if (replacing) await submitReplacement({ ...payload, orderId: replacing.id, signature }).unwrap()
-    else await submitOrder({ ...payload, signature }).unwrap()
-
-    tracking.trackOrderPlaced({
+    const context = {
       currencyIn,
       currencyOut,
       chainId,
@@ -226,7 +225,40 @@ export const useCreateStopMarket = ({
       slippage,
       expiredAt,
       replacesOrderId: replacing?.id,
-    })
+    }
+
+    try {
+      // Re-estimated rather than taken from the review, and never signed without: a failure throws, so
+      // the processing modal reports why instead of the order carrying a cap set against no fee at all.
+      const latestFee = await estimateLatestFee()
+      if (!latestFee) return false
+      const protocolPercentage = latestFee.protocol?.percentage ?? 0
+      // Keep the cap at or above the live fee, whichever is larger.
+      const maxFeesPercentage = DEFAULT_MAX_FEES_PERCENTAGE.map(value => Math.max(value, protocolPercentage))
+
+      const payload = buildPayload(maxFeesPercentage)
+      if (!payload) return false
+
+      const typedData = replacing
+        ? await getReplaceSignMessage({ ...payload, orderId: replacing.id }).unwrap()
+        : await getSignMessage(payload).unwrap()
+      tracking.trackSignatureRequested(context)
+      const rawSignature = await signTypedDataRaw({
+        chainId,
+        account: account as Address,
+        typedData: stripEmptyEip712Salt(typedData),
+      })
+      const signature = formatSignature(rawSignature)
+
+      if (replacing) await submitReplacement({ ...payload, orderId: replacing.id, signature }).unwrap()
+      else await submitOrder({ ...payload, signature }).unwrap()
+
+      tracking.trackOrderPlaced(context)
+    } catch (error) {
+      // The processing modal reports the failure; this only records it.
+      tracking.trackOrderFailed(context, error)
+      throw error
+    }
 
     const sellSymbol = currencyIn.symbol
     const receiveSymbol = currencyOut.symbol
@@ -269,7 +301,7 @@ export const useCreateStopMarket = ({
     processing: {
       chainId,
       approval,
-      approveCallback,
+      approveCallback: trackedApproveCallback,
       checkApprovalManually,
       onWrap,
       onFinalStep: submit,

@@ -22,6 +22,7 @@ import { LimitOrderStatus, LimitOrderTab, OrderKind, ShowOrdersState } from 'com
 import { Stack } from 'components/Stack'
 import StopMarkets from 'components/StopMarket/MyOrders'
 import { useStopMarketOrderWarning } from 'components/StopMarket/hooks/useStopMarketOrderWarning'
+import { useStopMarketTracking } from 'components/StopMarket/hooks/useStopMarketTracking'
 import { APP_PATHS } from 'constants/index'
 import { isSupportStopMarket } from 'constants/networks'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
@@ -112,6 +113,7 @@ const OrderList = () => {
   const stopMarketWarning = useStopMarketOrderWarning(showStopMarkets && isActiveTab)
   const kind = showStopMarkets ? chosenKind : OrderKind.LIMIT
   const { onSelectLimitPair, onSelectStopPair, onRecreateStopOrder } = useOrderListActions()
+  const tracking = useStopMarketTracking()
 
   const requestedKind = (locationState as ShowOrdersState | null)?.showOrders
   const requestedTab = (locationState as ShowOrdersState | null)?.orderTab
@@ -160,6 +162,13 @@ const OrderList = () => {
   }
 
   const selectOrdersTab = (tab: OrdersTab) => {
+    if (tab !== LimitOrderTab.ORDER_BOOK) {
+      tracking.trackOrderListClick({
+        status: tab === LimitOrderStatus.ACTIVE ? 'active' : 'history',
+        kind,
+        source: 'status_tab',
+      })
+    }
     if (tab === LimitOrderTab.ORDER_BOOK) {
       selectMarketTab(tab)
     } else if (hasChart) {
@@ -317,7 +326,14 @@ const OrderList = () => {
               counts={isActiveTab ? counts : undefined}
               insufficientFundOrders={insufficientFundOrders}
               stopMarketWarning={stopMarketWarning}
-              onChange={setChosenKind}
+              onChange={nextKind => {
+                tracking.trackOrderListClick({
+                  status: isActiveTab ? 'active' : 'history',
+                  kind: nextKind,
+                  source: 'kind_tab',
+                })
+                setChosenKind(nextKind)
+              }}
             />
             <div ref={setToolbarActionsContainer} className="flex flex-1 justify-end empty:hidden" />
           </OrderListToolbar>

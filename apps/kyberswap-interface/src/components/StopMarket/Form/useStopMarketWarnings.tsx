@@ -184,7 +184,6 @@ export const useStopMarketWarnings = ({
       receiveTokenWarning,
       unavailableToken,
       shouldDisableAction,
-      hasIneligibleToken: !!currencyIn && !loadingEligibility && !isEligible && hasEligibleTokens,
     }
   }, [
     chainId,

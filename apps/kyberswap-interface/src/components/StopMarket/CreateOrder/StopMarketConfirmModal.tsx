@@ -85,6 +85,8 @@ type Props = StopMarketReviewSnapshot & {
   isOpen: boolean
   /** The user has not placed a stop market order on this device yet, so must accept the terms first. */
   requiresTermsAcceptance?: boolean
+  /** The terms checkbox was ticked. */
+  onTermsAccepted?: () => void
   onDismiss?: () => void
   onSubmit?: () => void
 }
@@ -308,6 +310,7 @@ const StopMarketConfirmModal = ({
   isOpen,
   needsWrap,
   requiresTermsAcceptance,
+  onTermsAccepted,
   onDismiss,
   onSubmit,
   ...review
@@ -347,7 +350,10 @@ const StopMarketConfirmModal = ({
               borderStyle
               className="mt-px size-3.5 min-w-3.5 cursor-pointer rounded-[3px] border-subText before:size-2.5"
               checked={hasAcceptedTerms}
-              onChange={event => setHasAcceptedTerms(event.target.checked)}
+              onChange={event => {
+                setHasAcceptedTerms(event.target.checked)
+                if (event.target.checked) onTermsAccepted?.()
+              }}
               data-testid="stop-market-confirm-terms-checkbox"
             />
             <span>

@@ -263,6 +263,7 @@ export const useStopMarketFormState = ({ currencyIn, currencyOut }: UseStopMarke
 
   return {
     chainId,
+    pairKey,
     inputAmount,
     triggerPrice,
     triggerPercent,
