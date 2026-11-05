@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
-import { formatUnits } from 'viem'
 
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
 import {
@@ -24,6 +23,7 @@ import { isEvmChain } from 'types/crossChain'
 import { isNativeAsset } from 'utils/nativeErc20'
 
 const EMPTY_SOURCES: string[] = []
+const GAS_DROP_MIN_OUTPUT_USD = 2.2
 const providerKey = (quote: Quote) => quote.adapter.getName()
 
 /** Unified Swap always requests aggregator quotes; branch flags and settings cannot change this. */
@@ -50,7 +50,10 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
 
   const loadQuoteMode = async ({ signal, publish }: QuoteLoadContext, gasDrop: boolean) => {
     const params = selectionRequest.params
-    if (!params) return { available: false, hasQuotes: false }
+    if (!params || (gasDrop && !gasDropAvailable)) return { available: false, hasQuotes: false }
+
+    let available = gasDropAvailable
+    if (!gasDrop) setEligibility({ request: selectionRequest, available: false })
 
     const pairInfo = await getPairInfo({
       gasDrop,
@@ -63,11 +66,6 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     })
 
     if (!pairInfo || signal.aborted) return { available: false, hasQuotes: false }
-
-    const inputUsd = Number(formatUnits(BigInt(params.amount), params.fromToken.decimals)) * pairInfo.tokenInUsd
-    const available = gasDropSupported && Number.isFinite(inputUsd) && inputUsd > 2.2
-    if (!gasDrop) setEligibility({ request: selectionRequest, available })
-    if (gasDrop && !available) return { available, hasQuotes: false }
 
     publish({ category: pairInfo.category })
 
@@ -90,6 +88,17 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
       isReadOnly: request.isReadOnly,
       onQuotes: quotes => {
         hasQuotes = quotes.length > 0
+        if (!gasDrop) {
+          available =
+            gasDropSupported &&
+            quotes.some(
+              ({ adapter, quote }) =>
+                adapter.getName() === 'KyberCross' &&
+                Number.isFinite(quote.outputUsd) &&
+                quote.outputUsd > GAS_DROP_MIN_OUTPUT_USD,
+            )
+          setEligibility({ request: selectionRequest, available })
+        }
         publish({ quotes })
       },
       onQuoteReady: () => publish({ loading: false }),
