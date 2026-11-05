@@ -1,5 +1,7 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { formatUnits } from 'viem'
 
+import { NativeCurrencies } from 'constants/tokens'
 import type { NormalizedQuote } from 'pages/Swap/crossChain/adapters/types'
 
 type QuoteInput = Omit<NormalizedQuote, 'formattedOutputAmount' | 'rate' | 'priceImpact'>
@@ -8,7 +10,22 @@ export const normalizeQuote = (quote: QuoteInput): NormalizedQuote => {
   const { quoteParams: params, outputAmount, inputUsd, outputUsd, gasDrop } = quote
   const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
   const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-  const hasPrices = Number.isFinite(inputUsd) && inputUsd > 0 && Number.isFinite(outputUsd) && outputUsd > 0
+  const gasDropToken = NativeCurrencies[params.toChain as ChainId]
+  const gasDropUsd = gasDrop
+    ? gasDrop.amountUsd ??
+      (gasDropToken && params.gasDropTokenUsd && params.gasDropTokenUsd > 0
+        ? Number(formatUnits(BigInt(gasDrop.amount), gasDropToken.decimals)) * params.gasDropTokenUsd
+        : NaN)
+    : 0
+  // Include native gas received only in price impact; outputUsd still describes the output token.
+  const totalOutputUsd = outputUsd + gasDropUsd
+  const hasPrices =
+    Number.isFinite(inputUsd) &&
+    inputUsd > 0 &&
+    Number.isFinite(outputUsd) &&
+    outputUsd > 0 &&
+    Number.isFinite(gasDropUsd) &&
+    gasDropUsd >= 0
 
   return {
     ...quote,
@@ -20,6 +37,6 @@ export const normalizeQuote = (quote: QuoteInput): NormalizedQuote => {
     }),
     formattedOutputAmount,
     rate: Number(formattedOutputAmount) / Number(formattedInputAmount),
-    priceImpact: hasPrices ? ((inputUsd - outputUsd - (gasDrop?.amountUsd || 0)) * 100) / inputUsd : null,
+    priceImpact: hasPrices ? ((inputUsd - totalOutputUsd) * 100) / inputUsd : null,
   }
 }

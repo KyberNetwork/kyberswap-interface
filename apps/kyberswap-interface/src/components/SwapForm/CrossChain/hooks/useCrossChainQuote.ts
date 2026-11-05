@@ -53,6 +53,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     if (!params) return { available: false, hasQuotes: false }
 
     const pairInfo = await getPairInfo({
+      gasDrop,
       currencyIn: params.fromToken,
       currencyOut: params.toToken,
       fromChainId: params.fromChain,
@@ -78,6 +79,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
         feeBps: pairInfo.feeBps,
         tokenInUsd: pairInfo.tokenInUsd,
         tokenOutUsd: pairInfo.tokenOutUsd,
+        gasDropTokenUsd: pairInfo.gasDropTokenUsd,
       },
       category: pairInfo.category,
       currencyIn: params.fromToken,

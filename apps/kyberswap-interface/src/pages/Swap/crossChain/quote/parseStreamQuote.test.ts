@@ -79,6 +79,13 @@ describe('aggregator quote response', () => {
     expect(quote.outputAmount).toBe(7926549n)
     expect(quote.rawQuote).toEqual(rawQuote)
     expect(quote.quoteId).toBe('aggregator-quote-123')
+
+    const pricedQuote = normalizeStreamQuote(
+      { ...data, inputUsd: 10, outputUsd: 7.926549 },
+      { ...params, gasDrop: true, gasDropTokenUsd: 2400 },
+    )
+    expect(pricedQuote.priceImpact).toBeCloseTo(0.869694471942544, 10)
+    expect(pricedQuote.outputUsd).toBe(7.926549)
   })
 
   it('keeps the API Gas Drop allocation on the normalized quote', () => {
@@ -87,6 +94,28 @@ describe('aggregator quote response', () => {
 
     expect(quote.gasDrop).toEqual(gasDrop)
     expect(quote.quoteParams.gasDrop).toBe(true)
+    expect(quote.priceImpact).toBeCloseTo(0.9)
+    expect(quote.outputUsd).toBe(99)
+  })
+
+  it.each([undefined, 0, NaN, Infinity])('keeps impact unknown when Gas Drop USD has no valid price: %s', price => {
+    const gasDrop = { amount: '1000000000000000', minAmount: '900000000000000', inputToken: '0xgas' }
+    const quote = normalizeStreamQuote(
+      { ...parseQuoteResponse(event), gasDrop },
+      { ...params, gasDrop: true, gasDropTokenUsd: price },
+    )
+    expect(quote.priceImpact).toBeNull()
+    expect(quote.outputUsd).toBe(99)
+  })
+
+  it.each([0, 1])('uses API Gas Drop USD once instead of adding its native-price fallback: %s', amountUsd => {
+    const gasDrop = { amount: '1000000000000000', minAmount: '900000000000000', inputToken: '0xgas', amountUsd }
+    const quote = normalizeStreamQuote(
+      { ...parseQuoteResponse(event), gasDrop },
+      { ...params, gasDrop: true, gasDropTokenUsd: 2000 },
+    )
+    expect(quote.priceImpact).toBe(1 - amountUsd)
+    expect(quote.outputUsd).toBe(99)
   })
 
   it('keeps an independent request snapshot when the caller changes its amount or sources', () => {

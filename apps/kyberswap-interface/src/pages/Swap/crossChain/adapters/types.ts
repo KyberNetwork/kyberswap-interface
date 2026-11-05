@@ -20,6 +20,7 @@ export interface QuoteParams {
   walletClient?: AdaptedWallet | WalletClient
   tokenInUsd: number
   tokenOutUsd: number
+  gasDropTokenUsd?: number
   sender: string
   recipient: string
   publicKey?: string
