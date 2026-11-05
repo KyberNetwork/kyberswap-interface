@@ -1,5 +1,5 @@
-import { ReactComponent as PinIcon } from 'assets/svg/pin_icon.svg'
-import { ReactComponent as PinSolidIcon } from 'assets/svg/pin_solid_icon.svg'
+import { ReactComponent as PinIcon } from 'assets/svg/ic_pin.svg'
+import IconButton from 'components/Button/IconButton'
 
 type Props = {
   isActive: boolean
@@ -7,9 +7,15 @@ type Props = {
 }
 const PinButton: React.FC<Props> = ({ isActive, onClick }) => {
   return (
-    <div className="flex size-4 cursor-pointer items-center justify-center" role="button" onClick={onClick}>
-      {isActive ? <PinSolidIcon className="text-text" /> : <PinIcon className="text-subText" />}
-    </div>
+    <IconButton
+      size={16}
+      className="p-0"
+      aria-label={isActive ? 'Unpin wallet' : 'Pin wallet'}
+      aria-pressed={isActive}
+      onClick={onClick}
+    >
+      <PinIcon width="16px" height="16px" className={isActive ? 'text-primary' : 'text-subText'} aria-hidden="true" />
+    </IconButton>
   )
 }
 
