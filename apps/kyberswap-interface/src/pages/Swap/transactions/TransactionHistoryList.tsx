@@ -34,13 +34,7 @@ const TransactionHistoryList = ({
     <div className="w-full overflow-hidden">
       <div className={cn('peer empty:hidden', mobile && 'flex flex-col')}>
         {transactions.map(tx => (
-          <TransactionHistoryItem
-            key={localTransactionKey(tx)}
-            tx={tx}
-            mobile={mobile}
-            showPagination={false}
-            filter={filter}
-          />
+          <TransactionHistoryItem key={localTransactionKey(tx)} tx={tx} mobile={mobile} filter={filter} />
         ))}
       </div>
       <div className="hidden min-h-[220px] flex-col items-center justify-center gap-2 px-4 py-6 peer-empty:flex">

@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
@@ -63,10 +63,6 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       ChainId.MONAD,
       // NonEvmChain.Solana,
     ]
-  }
-
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
   }
 
   async getQuote(params: QuoteParams): Promise<NormalizedQuote> {

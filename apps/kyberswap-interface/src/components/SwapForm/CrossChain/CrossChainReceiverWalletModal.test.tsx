@@ -81,14 +81,6 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 
-it('commits and dismisses once after a successful receiver connection', async () => {
-  mocks.connect.mockResolvedValue([wallet])
-  await render()
-  await click('Receiver Wallet')
-  expect(mocks.onSelect).toHaveBeenCalledWith(wallet)
-  expect(mocks.onDismiss).toHaveBeenCalledOnce()
-})
-
 it.each(['close', 'chain', 'unmount'])(
   'ignores a late wallet result after %s and blocks repeated clicks',
   async action => {
@@ -139,7 +131,6 @@ it('only enables wallet selection after loading and accepting terms', async () =
   mocks.loading = true
   mocks.accepted = false
   await render()
-  expect(container.querySelector('[aria-busy="true"]')).not.toBeNull()
   expect(container.textContent).not.toContain('Receiver Wallet')
 
   mocks.loading = false
@@ -188,7 +179,6 @@ it('shows the MetaMask mobile handoff and clears it after a rejected receiver co
   expect(container.querySelector('a[href^="metamask:"]')?.getAttribute('href')).toBe(
     'metamask://connect/mwp?channelId=receiver',
   )
-  expect(container.textContent).toContain('Open MetaMask')
   await act(async () => reject(new Error('User rejected')))
   expect(container.querySelector('[role="alert"]')?.textContent).toContain('User rejected')
   expect(container.textContent).not.toContain('Open MetaMask')

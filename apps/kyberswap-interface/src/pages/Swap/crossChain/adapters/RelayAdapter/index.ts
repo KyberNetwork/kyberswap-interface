@@ -129,10 +129,6 @@ export class RelayAdapter extends BaseSwapAdapter {
     ]
   }
 
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
-  }
-
   async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
     const evmFromToken = params.fromToken as Currency
     const evmToToken = params.toToken as Currency

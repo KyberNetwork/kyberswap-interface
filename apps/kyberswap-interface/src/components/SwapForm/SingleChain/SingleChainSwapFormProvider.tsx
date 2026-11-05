@@ -9,7 +9,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 
 /** Connects pair data to balances, preferences and permit state for the single-chain form.
  * Token resolution/loading stays with the pair owner, rather than being inferred from missing balances. */
-export type SingleChainSwapFormProviderProps = {
+type SingleChainSwapFormProviderProps = {
   chainId: ChainId
   currencyIn?: Currency
   currencyOut?: Currency
@@ -44,7 +44,6 @@ export const SingleChainSwapFormProvider = ({
       transactionTimeout={ttl}
       permit={permitData?.rawSignature}
       customChainId={chainId}
-      chainSelectionMode="form"
     >
       {children}
     </SingleChainSwapProvider>

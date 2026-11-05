@@ -38,12 +38,7 @@ const TransactionHistoryList = ({ transactions }: { transactions: HistoryTransac
       )}
       <div className={cn('peer empty:hidden', mobile && 'flex flex-col gap-3 p-3')}>
         {rows.map(tx => (
-          <TransactionHistoryItem
-            key={localTransactionKey(tx)}
-            tx={tx}
-            mobile={mobile}
-            showPagination={transactions.length > PAGE_SIZE}
-          />
+          <TransactionHistoryItem key={localTransactionKey(tx)} tx={tx} mobile={mobile} />
         ))}
       </div>
       <div className="hidden min-h-[220px] flex-col items-center justify-center gap-2 px-4 py-6 peer-empty:flex">

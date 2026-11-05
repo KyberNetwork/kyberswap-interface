@@ -63,28 +63,10 @@ export const useHistoryPagination = (sender: string) => {
     }
   }
 
-  const cancelNavigation = () => {
+  const goPrevious = () => {
     navigation.current = undefined
     setLoadingMore(false)
-  }
-
-  const goPrevious = () => {
-    cancelNavigation()
     setPage(current => Math.max(1, current - 1))
-  }
-
-  const refresh = () => {
-    if (!sender) return
-
-    cancelNavigation()
-    setPage(1)
-
-    void dispatch(
-      walletTransactionsApi.endpoints.getTransactions.initiate(sender, {
-        subscribe: false,
-        forceRefetch: true,
-      }),
-    )
   }
 
   useEffect(() => {
@@ -104,14 +86,11 @@ export const useHistoryPagination = (sender: string) => {
 
   return {
     transactions: loaded.transactions.slice((page - 1) * HISTORY_PAGE_SIZE, end),
-    loading: !!sender && list.isLoading,
     loadingMore: !!sender && (loadingMore || list.isFetching),
-    error: !!sender && list.isError,
     currentPage: page,
     canGoPrevious,
     canGoNext,
     goPrevious,
     goNext,
-    refresh,
   }
 }

@@ -1,4 +1,3 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { createConfig, getQuote, getStatus } from '@lifi/sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
@@ -37,10 +36,6 @@ export class LifiAdapter extends BaseSwapAdapter {
   }
   getSupportedChains(): Chain[] {
     return [NonEvmChain.Solana, ...MAINNET_NETWORKS, ...CROSS_CHAIN_ONLY_NETWORKS]
-  }
-
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
   }
 
   async getQuote(params: QuoteParams): Promise<NormalizedQuote> {

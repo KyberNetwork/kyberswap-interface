@@ -17,7 +17,6 @@ export abstract class BaseSwapAdapter implements SwapProvider {
   abstract getName(): string
   abstract getIcon(): string
   abstract getSupportedChains(): Chain[]
-  abstract getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
   /**
    * @deprecated Use the aggregator stream API for cross-chain quotes. Retained for same-chain KyberSwap quotes.
    */
@@ -32,10 +31,5 @@ export abstract class BaseSwapAdapter implements SwapProvider {
   canSupport(_category: string, _tokenIn?: Currency, _tokenOut?: Currency): boolean {
     // Default implementation - support all cases
     return true
-  }
-
-  protected handleError(error: any): never {
-    console.error(`[${this.getName()}] Error:`, error)
-    throw new Error(`${this.getName()} provider error: ${error.message || 'Unknown error'}`)
   }
 }

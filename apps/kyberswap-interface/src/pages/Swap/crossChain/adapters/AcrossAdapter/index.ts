@@ -149,10 +149,6 @@ export class AcrossAdapter extends BaseSwapAdapter {
     ]
   }
 
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
-  }
-
   async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
     try {
       const isFromSol = params.fromChain === NonEvmChain.Solana

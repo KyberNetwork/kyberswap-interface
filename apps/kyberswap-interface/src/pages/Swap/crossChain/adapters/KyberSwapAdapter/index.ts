@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
 import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
 import type { RouteSummary } from 'services/route/types/getRoute'
@@ -29,10 +29,6 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
   }
   getSupportedChains(): Chain[] {
     return [...MAINNET_NETWORKS].filter(item => !NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(item))
-  }
-
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
   }
 
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {

@@ -44,7 +44,7 @@ type DisplaySettingRowProps = {
   toggle: () => void
 }
 
-export const DisplaySettingRow = ({ label, tooltip, isActive, toggle }: DisplaySettingRowProps) => (
+const DisplaySettingRow = ({ label, tooltip, isActive, toggle }: DisplaySettingRowProps) => (
   <SettingsRow>
     <SettingsLabel tooltip={tooltip}>{label}</SettingsLabel>
     <SettingsToggle isActive={isActive} toggle={toggle} />
@@ -53,18 +53,11 @@ export const DisplaySettingRow = ({ label, tooltip, isActive, toggle }: DisplayS
 
 type SwapSettingsPanelProps = {
   chainId?: ChainId
-  additionalSettings?: ReactNode
   mode: 'single-chain' | 'cross-chain' | 'limit' | 'stop-market'
   /** Independent of quote mode: unified cross-chain also supports chart/route display preferences. */
   showDisplaySettings?: boolean
   crossChainQuoteMode?: CrossChainQuoteMode
   highlightDegenMode?: boolean
-  displaySettings?: {
-    isShowPricingChart?: boolean
-    isShowTradeRoutes?: boolean
-    togglePricingChart?: () => void
-    toggleTradeRoutes?: () => void
-  }
   onBack: () => void
   onClickLiquiditySources: () => void
   onClickCrossChainSources: () => void
@@ -72,7 +65,6 @@ type SwapSettingsPanelProps = {
 
 const SwapSettingsPanel = ({
   chainId,
-  additionalSettings,
   mode,
   showDisplaySettings = mode === 'single-chain',
   crossChainQuoteMode,
@@ -80,22 +72,17 @@ const SwapSettingsPanel = ({
   onBack,
   onClickLiquiditySources,
   onClickCrossChainSources,
-  displaySettings,
 }: SwapSettingsPanelProps) => {
   const { trackingHandler } = useTracking()
   const [slippage] = useUserSlippageTolerance()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const globalShowPricingChart = useShowPricingChart()
-  const globalShowTradeRoutes = useShowTradeRoutes()
+  const isShowPricingChart = useShowPricingChart()
+  const isShowTradeRoutes = useShowTradeRoutes()
   const isSuccessSoundEnabled = useSuccessSoundEnabled()
-  const globalTogglePricingChart = useTogglePricingChart()
-  const globalToggleTradeRoutes = useToggleTradeRoutes()
+  const togglePricingChart = useTogglePricingChart()
+  const toggleTradeRoutes = useToggleTradeRoutes()
   const toggleSuccessSound = useToggleSuccessSound()
-  const isShowPricingChart = displaySettings?.isShowPricingChart ?? globalShowPricingChart
-  const isShowTradeRoutes = displaySettings?.isShowTradeRoutes ?? globalShowTradeRoutes
-  const togglePricingChart = displaySettings?.togglePricingChart ?? globalTogglePricingChart
-  const toggleTradeRoutes = displaySettings?.toggleTradeRoutes ?? globalToggleTradeRoutes
 
   const handleBack = () => {
     if (mode === 'cross-chain') {
@@ -126,7 +113,6 @@ const SwapSettingsPanel = ({
               highlight={highlightDegenMode}
             />
             {mode === 'single-chain' && <LiquiditySourcesSetting chainId={chainId} onClick={onClickLiquiditySources} />}
-            {additionalSettings}
             {mode === 'cross-chain' && (
               <Suspense fallback={null}>
                 <CrossChainSourceSetting onClick={onClickCrossChainSources} quoteMode={crossChainQuoteMode} />

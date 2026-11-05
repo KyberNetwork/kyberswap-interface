@@ -76,7 +76,6 @@ export interface SwapProvider {
   getIcon(): string
   getAliases?(): SwapProviderAlias[]
   getSupportedChains(): Chain[]
-  getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
   getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote>
   // Redirect wallets return no result; their callback restores the transaction.
   executeSwap(

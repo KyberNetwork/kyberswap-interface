@@ -25,7 +25,6 @@ type SingleChainSwapConfig = {
   transactionTimeout: number
   permit?: string
   customChainId?: ChainId
-  chainSelectionMode?: 'wallet' | 'form'
 }
 
 const useSingleChainSwap = ({
@@ -36,7 +35,6 @@ const useSingleChainSwap = ({
   transactionTimeout,
   permit,
   customChainId,
-  chainSelectionMode,
 }: SingleChainSwapConfig) => {
   const [searchParams] = useSearchParams()
   const { chainId: walletChainId, account, walletKey } = useActiveWeb3React()
@@ -45,7 +43,8 @@ const useSingleChainSwap = ({
   const chainError =
     !MAINNET_NETWORKS.includes(chainId) || chainId === ChainId.BLAST ? t`Swap not supported on this chain` : undefined
 
-  const { typedValue, onUserInput } = useSwapInputAmount(chainSelectionMode !== 'form')
+  // SwapPage owns URL amount prefill across both swap engines.
+  const { typedValue, onUserInput } = useSwapInputAmount(false)
   const evmRecipient = useEvmRecipient(account)
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)

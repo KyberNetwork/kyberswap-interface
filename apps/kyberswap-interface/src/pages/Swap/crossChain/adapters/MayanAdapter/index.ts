@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ChainName, type SolanaTransactionSigner, swapFromSolana } from '@mayanfinance/swap-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
@@ -47,10 +47,6 @@ export class MayanAdapter extends BaseSwapAdapter {
   }
   getSupportedChains(): Chain[] {
     return [...Object.keys(mappingChain).map(Number), NonEvmChain.Solana]
-  }
-
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
   }
 
   async getQuote(_params: EvmQuoteParams): Promise<NormalizedQuote> {

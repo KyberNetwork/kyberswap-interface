@@ -1,9 +1,8 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import FeeControlGroup from 'components/FeeControlGroup'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
-import { NetworkSelector } from 'components/NetworkSelector'
 import { Stack } from 'components/Stack'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
@@ -11,10 +10,7 @@ import OutputCurrencyPanel from 'components/SwapForm/CurrencyInput/OutputCurrenc
 import { RecipientInput, RecipientToggle } from 'components/SwapForm/RecipientInput'
 import MEVProtection from 'components/SwapForm/Settings/MEVProtection'
 import SingleChainQuoteDetails from 'components/SwapForm/SingleChain/SingleChainQuoteDetails'
-import {
-  SingleChainSwapProvider,
-  useSingleChainSwapContext,
-} from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
+import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import SwapActionButton from 'components/SwapForm/SwapActionButton'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
 import { SwapFormLayout } from 'components/SwapForm/SwapFormLayout'
@@ -28,60 +24,27 @@ import useENS from 'hooks/useENS'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
-import { DetailedRouteSummary } from 'types/route'
 
-/** Single-chain quote/execution flow. Receives resolved currencies and metadata-loading flags from its caller;
- * route loading and transaction processing remain independent of token resolution. */
-export type SingleChainSwapProps = {
+/** Reads currencies and quote/execution state from the page provider.
+ * The pair owner supplies metadata-loading flags independently of route loading. */
+type SingleChainSwapContentProps = {
   hidden: boolean
-
-  currencyIn: Currency | undefined
-  currencyOut: Currency | undefined
   isInputCurrencyLoading?: boolean
   isOutputCurrencyLoading?: boolean
-
-  balanceIn: CurrencyAmount<Currency> | undefined
-  balanceOut: CurrencyAmount<Currency> | undefined
-
-  onRouteChange?: (route: DetailedRouteSummary | undefined) => void
-
-  isDegenMode: boolean
-  slippage: number
-  transactionTimeout: number
-  permit?: string
-
   onChangeCurrencyIn: (c: Currency) => void
   onChangeCurrencyOut: (c: Currency) => void
   onSelectNonEvmCurrencyIn?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
   onSelectNonEvmCurrencyOut?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
-  chainSelectionMode?: 'wallet' | 'form'
-  customChainId?: ChainId
-  omniView?: boolean
 }
-
-type SingleChainSwapContentProps = Pick<
-  SingleChainSwapProps,
-  | 'hidden'
-  | 'isInputCurrencyLoading'
-  | 'isOutputCurrencyLoading'
-  | 'onRouteChange'
-  | 'onChangeCurrencyIn'
-  | 'onChangeCurrencyOut'
-  | 'onSelectNonEvmCurrencyIn'
-  | 'onSelectNonEvmCurrencyOut'
-  | 'omniView'
->
 
 export const SingleChainSwapContent = ({
   hidden,
   isInputCurrencyLoading,
   isOutputCurrencyLoading,
-  onRouteChange,
   onChangeCurrencyIn,
   onChangeCurrencyOut,
   onSelectNonEvmCurrencyIn,
   onSelectNonEvmCurrencyOut,
-  omniView,
 }: SingleChainSwapContentProps) => {
   const { networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
@@ -93,7 +56,6 @@ export const SingleChainSwapContent = ({
     isDegenMode,
     slippage,
     customChainId,
-    chainSelectionMode,
     chainId,
     chainError,
     typedValue,
@@ -207,12 +169,6 @@ export const SingleChainSwapContent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedTypedValue])
 
-  useEffect(() => {
-    onRouteChange?.(routeSummary)
-
-    return () => onRouteChange?.(undefined)
-  }, [routeSummary, onRouteChange])
-
   return (
     <SwapFormContextProvider
       slippage={slippage}
@@ -226,7 +182,6 @@ export const SingleChainSwapContent = ({
     >
       <SwapFormLayout
         hidden={hidden}
-        networkSelector={omniView ? <NetworkSelector chainId={chainId} /> : undefined}
         inputPanel={
           <InputCurrencyPanel
             currencyLoading={isInputCurrencyLoading}
@@ -244,7 +199,7 @@ export const SingleChainSwapContent = ({
             onChangeCurrencyIn={handleChangeCurrencyIn}
             onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
             customChainId={currencyIn?.chainId ?? customChainId}
-            chainSelectionMode={chainSelectionMode}
+            chainSelectionMode="form"
           />
         }
         outputPanel={
@@ -261,7 +216,7 @@ export const SingleChainSwapContent = ({
             onChangeCurrencyOut={handleChangeCurrencyOut}
             onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
             customChainId={currencyOut?.chainId ?? customChainId}
-            chainSelectionMode={chainSelectionMode}
+            chainSelectionMode="form"
             routeLoading={routeLoading}
           />
         }
@@ -331,12 +286,3 @@ export const SingleChainSwapContent = ({
     </SwapFormContextProvider>
   )
 }
-
-/** Standalone/partner callers retain a form-scoped lifecycle. Unified Swap supplies the shared provider. */
-const SingleChainSwap = (props: SingleChainSwapProps) => (
-  <SingleChainSwapProvider {...props}>
-    <SingleChainSwapContent {...props} />
-  </SingleChainSwapProvider>
-)
-
-export default SingleChainSwap

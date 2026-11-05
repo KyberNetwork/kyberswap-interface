@@ -27,50 +27,6 @@ export const lifiQuoteSchema = z
   })
   .passthrough()
 
-export const orbiterQuoteSchema = z
-  .object({
-    steps: z
-      .array(
-        z
-          .object({
-            action: z.string(),
-            tx: z.object({ data: z.string().min(1) }).passthrough(),
-          })
-          .passthrough(),
-      )
-      .min(1),
-  })
-  .passthrough()
-
-export const optimexQuoteSchema = z
-  .object({
-    session_id: z.string().min(1),
-    txData: z
-      .object({
-        deposit_address: z.string().min(1),
-        payload: z.string().optional(),
-        trade_id: z.string().min(1),
-      })
-      .passthrough()
-      .nullish(),
-  })
-  .passthrough()
-
-export const xyQuoteSchema = z
-  .object({
-    bridgeDescription: z
-      .object({
-        provider: z.string(),
-        srcBridgeTokenAddress: z.string(),
-        dstBridgeTokenAddress: z.string(),
-      })
-      .passthrough(),
-    srcSwapDescription: z.object({ provider: z.string() }).passthrough().nullish(),
-    dstSwapDescription: z.object({ provider: z.string() }).passthrough().nullish(),
-    minReceiveAmount: amount,
-  })
-  .passthrough()
-
 export const kyberSwapQuoteSchema = z
   .object({
     tokenIn: z.string(),

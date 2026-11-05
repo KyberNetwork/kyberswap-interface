@@ -54,10 +54,6 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     return kyberCrossSupportedChains
   }
 
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
-  }
-
   async getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote> {
     // KyberCross internal testing uses zero UI fees.
     params = { ...params, feeBps: 0 }

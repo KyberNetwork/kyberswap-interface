@@ -8,12 +8,9 @@ import {
   RelayAdapter,
   SwapProvider,
   SymbiosisAdapter,
-  XYFinanceAdapter,
 } from 'pages/Swap/crossChain/adapters'
 import { BungeeAdapter } from 'pages/Swap/crossChain/adapters/BungeeAdapter'
 import { NearIntentsAdapter } from 'pages/Swap/crossChain/adapters/NearIntentsAdapter'
-import { OptimexAdapter } from 'pages/Swap/crossChain/adapters/OptimexAdapter'
-import { OrbiterAdapter } from 'pages/Swap/crossChain/adapters/OrbiterAdapter'
 import { CrossChainSwapAdapterRegistry } from 'pages/Swap/crossChain/registry'
 import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
 import type { CrossChainQuoteMode } from 'state/crossChainSwap'
@@ -49,15 +46,12 @@ export class CrossChainSwapFactory {
   private static adapterCreators = {
     across: () => new AcrossAdapter(),
     relay: () => new RelayAdapter(),
-    xyfinance: () => new XYFinanceAdapter(),
     nearintents: () => new NearIntentsAdapter(),
     mayan: () => new MayanAdapter(),
     symbiosis: () => new SymbiosisAdapter(),
     debridge: () => new DeBridgeAdapter(),
     lifi: () => new LifiAdapter(),
-    optimex: () => new OptimexAdapter(),
     kyberswap: () => new KyberSwapAdapter(),
-    orbiter: () => new OrbiterAdapter(),
     socket: () => new BungeeAdapter(),
     kybercross: () => new KyberCrossAdapter(),
   }
@@ -130,15 +124,12 @@ export class CrossChainSwapFactory {
     return [
       CrossChainSwapFactory.getOrCreateAdapter('across'),
       CrossChainSwapFactory.getOrCreateAdapter('relay'),
-      // CrossChainSwapFactory.getOrCreateAdapter('xyfinance'),
       CrossChainSwapFactory.getOrCreateAdapter('nearintents'),
       CrossChainSwapFactory.getOrCreateAdapter('mayan'),
       CrossChainSwapFactory.getOrCreateAdapter('symbiosis'),
       CrossChainSwapFactory.getOrCreateAdapter('debridge'),
       CrossChainSwapFactory.getOrCreateAdapter('lifi'),
-      // CrossChainSwapFactory.getOrCreateAdapter('optimex'),
       CrossChainSwapFactory.getOrCreateAdapter('kyberswap'),
-      // CrossChainSwapFactory.getOrCreateAdapter('orbiter'),
       CrossChainSwapFactory.getOrCreateAdapter('socket'),
       CrossChainSwapFactory.getOrCreateAdapter('kybercross'),
     ]
