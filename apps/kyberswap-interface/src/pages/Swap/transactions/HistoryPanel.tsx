@@ -87,8 +87,11 @@ const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () =>
   const query = search.trim().toLowerCase()
 
   return (
-    <Stack className="min-w-0 rounded-xl bg-background shadow-[0_8px_24px_rgba(0,0,0,0.10)]">
-      <HStack as="header" className="flex-wrap items-center gap-4 px-4 py-2 max-sm:gap-2 max-sm:px-3">
+    <Stack className="min-w-0 rounded-xl bg-background shadow-[0_8px_24px_rgba(0,0,0,0.10)] max-sm:gap-2 max-sm:bg-transparent max-sm:shadow-none">
+      <HStack
+        as="header"
+        className="flex-wrap items-center gap-4 px-4 py-2 max-sm:gap-2 max-sm:rounded-xl max-sm:bg-background max-sm:p-3"
+      >
         <HStack className="shrink-0 items-center gap-1">
           <IconButton aria-label="Back to chart and route" onClick={onBack}>
             <ChevronLeft size={26} className="text-subText" aria-hidden />
@@ -111,12 +114,15 @@ const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () =>
           )}
         </HStack>
       </HStack>
-      <div className="min-w-0 px-4 pb-2 pt-0 max-sm:px-3">
+      <div className="min-w-0 px-4 pb-2 pt-0 max-sm:p-0">
         <div className="min-w-0 overflow-x-auto">
           <div className="min-w-[800px] max-sm:min-w-0">
             <Suspense
               fallback={
-                <div className="flex min-h-[220px] items-center justify-center" role="status">
+                <div
+                  className="flex min-h-[220px] items-center justify-center max-sm:rounded-lg max-sm:bg-background"
+                  role="status"
+                >
                   <Loader />
                 </div>
               }

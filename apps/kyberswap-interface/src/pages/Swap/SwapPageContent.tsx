@@ -1,6 +1,6 @@
 import type { Currency } from '@kyberswap/ks-sdk-core'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useRef } from 'react'
 
 import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
@@ -17,6 +17,7 @@ import { TAB } from 'pages/Swap/layout/Tabs'
 import { LiquiditySourcesPanel, SwapSettingsPanel, TokenInfo } from 'pages/Swap/layout/lazyPanels'
 import HistoryPanel, { HistoryButton } from 'pages/Swap/transactions/HistoryPanel'
 import { Field } from 'state/swap/actions'
+import { MEDIA_WIDTHS } from 'theme'
 import type { Chain, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { cn } from 'utils/cn'
 
@@ -81,6 +82,19 @@ const SwapPageContent = ({
 }: Props) => {
   const reduceMotion = useReducedMotion()
   const wallets = useSwapWallets()
+  const rightPanelRef = useRef<HTMLElement>(null)
+
+  const handleHistoryChange = (visible: boolean) => {
+    onHistoryChange(visible)
+    if (!visible || !window.matchMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`).matches) return
+
+    // Use the persistent panel after React commits the new layout, independent of its entry animation.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        rightPanelRef.current?.scrollIntoView({ behavior: reduceMotion ? 'instant' : 'smooth', block: 'start' })
+      })
+    })
+  }
 
   const singleChainId = !isCrossChain && typeof inputChain === 'number' ? inputChain : undefined
 
@@ -128,7 +142,7 @@ const SwapPageContent = ({
             activeMainTab={TAB.SWAP}
             onTabChange={onTabChange}
             isCrossChainMode={isCrossChain}
-            historyButton={<HistoryButton active={showHistory} onClick={() => onHistoryChange(!showHistory)} />}
+            historyButton={<HistoryButton active={showHistory} onClick={() => handleHistoryChange(!showHistory)} />}
           />
           <div
             id={TutorialIds.SWAP_FORM}
@@ -184,8 +198,9 @@ const SwapPageContent = ({
         {/* Keep the right panel below the form's Route Options flyout. */}
         <Stack
           as="aside"
+          ref={rightPanelRef}
           id="swap-right-panel"
-          className="relative z-0 min-w-0 max-w-[920px] flex-1 gap-5 max-lg:w-full max-lg:flex-none"
+          className="relative z-0 min-w-0 max-w-[920px] flex-1 scroll-mt-4 gap-5 max-lg:w-full max-lg:flex-none"
         >
           <motion.div
             initial={false}
@@ -221,14 +236,14 @@ const SwapPageContent = ({
                 transition={{ duration: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Suspense fallback={<LocalLoader />}>
-                  <HistoryPanel inputChain={inputChain} onBack={() => onHistoryChange(false)} />
+                  <HistoryPanel inputChain={inputChain} onBack={() => handleHistoryChange(false)} />
                 </Suspense>
               </motion.div>
             )}
           </AnimatePresence>
           {activeTab === TAB.SWAP && !showHistory && (
             <Suspense fallback={null}>
-              <ProcessingTransactions onOpenHistory={() => onHistoryChange(true)} />
+              <ProcessingTransactions onOpenHistory={() => handleHistoryChange(true)} />
             </Suspense>
           )}
         </Stack>
