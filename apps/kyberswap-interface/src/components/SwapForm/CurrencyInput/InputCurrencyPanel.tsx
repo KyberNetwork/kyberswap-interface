@@ -80,7 +80,6 @@ const InputCurrencyPanel = ({
       label={walletSelector}
       positionLabel="in"
       value={typedValue}
-      positionMax="top"
       currency={currencyIn}
       onUserInput={onUserInput}
       onMax={handleMaxInput}

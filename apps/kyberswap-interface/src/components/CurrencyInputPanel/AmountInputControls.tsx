@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { type ComponentPropsWithRef, type ReactNode } from 'react'
 
-import { ReactComponent as Lock } from 'assets/svg/ic_lock.svg'
 import Wallet from 'components/Icons/Wallet'
 import NumericalInput from 'components/NumericalInput'
 import { cn } from 'utils/cn'
@@ -48,7 +47,6 @@ type BalanceRowProps = {
   onHalf?: () => void
   onMax?: () => void
   positionLabel: 'in' | 'out'
-  positionMax: 'inline' | 'top'
   selectedCurrencyBalance?: { toSignificant: (digits: number) => string }
 }
 
@@ -60,11 +58,9 @@ export const BalanceRow = ({
   onHalf,
   onMax,
   positionLabel,
-  positionMax,
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
-  const showTopActions =
-    (onMax || onHalf || !!amountShortcuts?.length) && positionMax === 'top' && balanceActionsEnabled
+  const showTopActions = (onMax || onHalf || !!amountShortcuts?.length) && balanceActionsEnabled
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
   const hasInlineLabel = !!label && positionLabel === 'in'
 
@@ -103,36 +99,24 @@ export const BalanceRow = ({
 }
 
 type AmountInputControlsProps = {
-  balanceActionsEnabled: boolean
-  readOnlyInput?: boolean
   disabledInput?: boolean
   error?: boolean
   estimatedUsd?: string
-  lockIcon?: boolean
   maxLength?: number
   onFocus?: () => void
-  onMax?: () => void
   onUserInput?: (value: string) => void
-  positionMax: 'inline' | 'top'
   value: string
 }
 
 export const AmountInputControls = ({
-  balanceActionsEnabled,
-  readOnlyInput,
   disabledInput,
   error,
   estimatedUsd,
-  lockIcon,
   maxLength,
   onFocus,
-  onMax,
   onUserInput,
-  positionMax,
   value,
 }: AmountInputControlsProps) => {
-  const showInlineMax = balanceActionsEnabled && onMax && positionMax === 'inline'
-
   return (
     <>
       <NumericalInput
@@ -141,21 +125,11 @@ export const AmountInputControls = ({
         data-testid="token-amount-input"
         value={value}
         disabled={disabledInput}
-        readOnly={readOnlyInput}
         maxLength={maxLength}
         onUserInput={onUserInput}
         onFocus={onFocus}
       />
-      {estimatedUsd ? (
-        <span className="text-sm font-medium text-border">~{estimatedUsd}</span>
-      ) : (
-        showInlineMax && (
-          <StyledBalanceMax onClick={onMax}>
-            <Trans>MAX</Trans>
-          </StyledBalanceMax>
-        )
-      )}
-      {lockIcon && <Lock className="h-4 text-subText" />}
+      {estimatedUsd && <span className="text-sm font-medium text-border">~{estimatedUsd}</span>}
     </>
   )
 }

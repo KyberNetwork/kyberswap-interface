@@ -1,8 +1,9 @@
 import { parse } from 'lossless-json'
 
+import { getGasDropQuote, getKyberCrossRoutePlan } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/utils'
 import { type NormalizedQuote, type QuoteParams } from 'pages/Swap/crossChain/adapters/types'
 import { normalizeQuote } from 'pages/Swap/crossChain/quote/normalizeQuote'
-import { NonEvmChain } from 'types/crossChain'
+import { GasDropQuote, NonEvmChain } from 'types/crossChain'
 
 export type StreamQuoteResponse = {
   provider: string
@@ -15,6 +16,8 @@ export type StreamQuoteResponse = {
   outputUsd: number
   additionalFeeUsd?: number
   additionalFeeAmount?: string
+  gasDrop?: GasDropQuote
+  gas_drop?: GasDropQuote
   timeEstimate: number
   contractAddress: string
   rawQuote: unknown
@@ -53,11 +56,16 @@ export const normalizeStreamQuote = (data: StreamQuoteResponse, params: QuotePar
     throw new Error('Invalid quote output amounts')
   }
 
+  const kyberCrossRoute =
+    data.provider.toLowerCase() === 'kybercross' ? getKyberCrossRoutePlan(data.rawQuote) : undefined
+  const gasDrop = data.gasDrop ?? data.gas_drop ?? (kyberCrossRoute ? getGasDropQuote(kyberCrossRoute) : undefined)
+
   return normalizeQuote({
     quoteId: data.quoteId,
     quoteToken: data.quoteToken,
     // The request snapshot owns execution parameters; response quoteParams is intentionally ignored.
     quoteParams: { ...params },
+    gasDrop: gasDrop && typeof gasDrop === 'object' ? gasDrop : undefined,
     outputAmount,
     minimumOutputAmount: minOutputAmount,
     inputUsd: data.inputUsd,

@@ -116,7 +116,6 @@ export const CrossChainCurrencyPanel = ({
           onMax={!output && balance !== '' ? () => onUserInput?.(balance) : undefined}
           amountShortcuts={amountShortcuts}
           balanceActionsEnabled={connected && !!currency}
-          positionMax="top"
           positionLabel="in"
           label={
             output ? (

@@ -46,6 +46,7 @@ type Props = CrossChainFormSelectionProps & {
   isOutputCurrencyLoading?: boolean
   receiver?: ReactNode
   receiverAddress?: string
+  outputFooter?: ReactNode
   details: ReactNode
   action: ReactNode
 }
@@ -63,6 +64,7 @@ export const CrossChainSwapForm = ({
   isOutputCurrencyLoading,
   receiver,
   receiverAddress,
+  outputFooter,
   details,
   action,
   hidden,
@@ -191,6 +193,7 @@ export const CrossChainSwapForm = ({
             />
           ) : (
             <OutputCurrencyPanel
+              footer={outputFooter}
               label={receiver}
               wrapType={WrapType.NOT_APPLICABLE}
               parsedAmountIn={undefined}

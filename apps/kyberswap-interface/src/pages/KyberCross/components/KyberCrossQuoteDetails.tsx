@@ -9,9 +9,9 @@ import {
 import { QuoteDetails } from 'components/SwapForm/Quote/QuoteDetails'
 import { SwapRate } from 'components/SwapForm/Quote/SwapRate'
 import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
-import { GasDropQuoteLine } from 'pages/KyberCross/components/GasDrop'
 import { QuoteSelector } from 'pages/KyberCross/components/QuoteSelector'
 import { useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
+import { GasDropQuoteLine } from 'pages/Swap/crossChain/components/GasDropQuoteLine'
 import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
 import { getQuoteId } from 'pages/Swap/crossChain/registry'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -58,12 +58,7 @@ export const KyberCrossQuoteDetails = ({ recipient }: { recipient?: ReactNode })
           slippage={slippage}
           warning={warning}
         />
-        <GasDropQuoteLine
-          gasDrop={quote?.gasDrop}
-          chain={toChainId}
-          loading={swap.gasDropEnabled && swap.loading}
-          onRemove={() => swap.setGasDropEnabled(false)}
-        />
+        <GasDropQuoteLine gasDrop={quote?.gasDrop} chain={toChainId} loading={swap.gasDropEnabled && swap.loading} />
         <HoneypotWarning message={message} />
         <CrossChainPriceImpactWarning warning={warning} />
       </Stack>

@@ -10,6 +10,7 @@ import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
 import { NETWORKS_INFO } from 'constants/networks'
 import { cn } from 'utils/cn'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { shortString } from 'utils/string'
 import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
@@ -79,8 +80,6 @@ type CurrencySelectContentProps = {
   currencyLoading?: boolean
   loadingText?: string
   maxCurrencySymbolLength?: number
-  nativeCurrency?: Currency
-  tight: boolean
 }
 
 /** Renders caller-owned token resolution state; loading is distinct from an empty selection. */
@@ -94,9 +93,8 @@ export const CurrencySelectContent = ({
   currencyLoading,
   loadingText,
   maxCurrencySymbolLength,
-  nativeCurrency,
-  tight,
 }: CurrencySelectContentProps) => {
+  const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
   if (currencyLoading && !currency) {
     return (
       <Aligner className="gap-2" role="status" aria-label="Loading token" aria-busy="true">
@@ -128,7 +126,7 @@ export const CurrencySelectContent = ({
           className="token-symbol-container"
           data-testid="token-symbol-container"
           active={Boolean(currency && getCurrencyDisplaySymbol(currency))}
-          fontSize={tight ? '14px' : fontSize}
+          fontSize={fontSize}
         >
           {displaySymbol || loadingText || <Trans>Select a token</Trans>}
         </StyledTokenName>
