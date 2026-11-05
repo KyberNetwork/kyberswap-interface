@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { fetchTokenCategories, fetchTokenPrices } from 'services/tokenCatalog'
 
+import { NativeCurrencies } from 'constants/tokens'
 import {
   PairCategory,
   TokenPricesResponse,
@@ -24,6 +25,7 @@ type CheckSameAsset = (params: {
 }) => SameAssetRequest
 
 type PairInfoParams = {
+  gasDrop?: boolean
   currencyIn: Currency
   currencyOut: Currency
   fromChainId: Chain
@@ -37,6 +39,7 @@ export type PairInfo = {
   feeBps: number
   tokenInUsd: number
   tokenOutUsd: number
+  gasDropTokenUsd?: number
 }
 
 type EvmPairInfoParams = {
@@ -87,6 +90,7 @@ const unwrapQueryWithAbortSignal = async <T>(
 }
 
 export const getPairInfo = async ({
+  gasDrop,
   currencyIn,
   currencyOut,
   fromChainId,
@@ -109,6 +113,10 @@ export const getPairInfo = async ({
   }
   if (isEvmCurrency(currencyOut)) {
     priceRequestBody[toChainId] = [...(priceRequestBody[toChainId] || []), currencyOut.wrapped.address]
+  }
+  const gasDropToken = gasDrop ? NativeCurrencies[toChainId as ChainId] : undefined
+  if (gasDropToken) {
+    priceRequestBody[toChainId] = [...new Set([...(priceRequestBody[toChainId] || []), gasDropToken.wrapped.address])]
   }
 
   const isEvmPair = isEvmCurrency(currencyIn) && isEvmCurrency(currencyOut)
@@ -196,5 +204,9 @@ export const getPairInfo = async ({
     else feeBps = 20
   }
 
-  return { category, feeBps, tokenInUsd, tokenOutUsd }
+  const gasDropTokenUsd = gasDropToken
+    ? getTokenMidPriceUsd(pricesResponse?.data?.[toChainId]?.[gasDropToken.wrapped.address])
+    : undefined
+
+  return { category, feeBps, tokenInUsd, tokenOutUsd, gasDropTokenUsd }
 }
