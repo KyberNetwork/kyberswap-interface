@@ -126,6 +126,7 @@ it('preserves local Currency objects and never formats unresolved IDs with inven
   const local: HistoryTransaction = { ...rows()[0], sourceToken: usdc }
   lookup.evm.mockReturnValue({ currency: undefined })
   await render([local])
+  expect(lookup.evm).not.toHaveBeenCalledWith(address, ChainId.MAINNET)
   expect(renderedText()).toContain('-1.2345 USDC')
   await render(rows())
   expect(renderedText()).toContain('--- 0x1111')
