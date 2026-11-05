@@ -72,7 +72,6 @@ const createAdapter = (getQuote: SwapProvider['getQuote'], name = 'KyberCross'):
   getName: () => name,
   getIcon: () => '',
   getSupportedChains: () => [baseParams.fromChain, baseParams.toChain],
-  getSupportedTokens: () => [],
   getQuote,
   executeSwap: vi.fn(),
   getTransactionStatus: vi.fn(),

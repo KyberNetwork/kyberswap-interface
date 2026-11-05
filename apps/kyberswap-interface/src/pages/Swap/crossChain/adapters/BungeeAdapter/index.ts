@@ -64,10 +64,6 @@ export class BungeeAdapter extends BaseSwapAdapter {
     return [...MAINNET_NETWORKS, NonEvmChain.Bitcoin]
   }
 
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
-  }
-
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     if (params.fromChain === NonEvmChain.Bitcoin || params.toChain === NonEvmChain.Bitcoin) {
       throw new Error('Use the aggregator stream API for Socket Bitcoin quotes')

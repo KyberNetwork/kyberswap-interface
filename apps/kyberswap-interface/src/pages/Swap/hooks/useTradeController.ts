@@ -14,7 +14,6 @@ export type TradeController = {
   activeMainTab: TAB
   activeTab: TAB
   highlightDegenMode: boolean
-  mainTab: MainTab
   onBackToMainTab: () => void
   onTabChange: (tab: TAB) => void
   shouldHighlightSwapBox: boolean
@@ -88,7 +87,6 @@ export const useTradeController = (mainTab: MainTab): TradeController => {
     activeMainTab,
     activeTab,
     highlightDegenMode,
-    mainTab,
     onBackToMainTab,
     onTabChange,
     shouldHighlightSwapBox: qs.highlightBox === 'true',

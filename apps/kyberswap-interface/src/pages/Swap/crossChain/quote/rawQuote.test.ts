@@ -5,7 +5,6 @@ import {
   debridgeQuoteSchema,
   evmTransactionSchema,
   lifiQuoteSchema,
-  optimexQuoteSchema,
   parseMayanQuote,
   parseNearQuote,
   parseRelayQuote,
@@ -36,11 +35,6 @@ describe('provider payload boundaries', () => {
   it('accepts Solana serialized transactions without requiring an EVM address', () => {
     expect(lifiQuoteSchema.parse({ transactionRequest: { data: 'AQIDBA==' } }).transactionRequest.data).toBe('AQIDBA==')
     expect(debridgeQuoteSchema.parse({ orderId: 'order', tx: { data: '0x01020304' } }).tx.data).toBe('0x01020304')
-  })
-
-  it('keeps Optimex Bitcoin quotes without prebuilt transaction data', () => {
-    expect(optimexQuoteSchema.parse({ session_id: 'session', txData: null }).txData).toBeNull()
-    expect(() => optimexQuoteSchema.parse({ txData: { deposit_address: 'btc-address' } })).toThrow()
   })
 
   it('rejects mismatched provider payloads', () => {

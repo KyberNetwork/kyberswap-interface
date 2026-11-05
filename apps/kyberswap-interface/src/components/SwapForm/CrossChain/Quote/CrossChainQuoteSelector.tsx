@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, type HTMLMotionProps, motion, useReducedMotion } from 'framer-motion'
-import React, { type ReactNode, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
 

@@ -7,7 +7,6 @@ import { cn } from 'utils/cn'
 
 type Props = {
   hidden?: boolean
-  networkSelector?: ReactNode
   inputPanel: ReactNode
   outputPanel: ReactNode
   tokenInfo?: ReactNode
@@ -16,16 +15,7 @@ type Props = {
   onReverse: () => void
 }
 
-export const SwapFormLayout = ({
-  hidden,
-  networkSelector,
-  inputPanel,
-  outputPanel,
-  tokenInfo,
-  details,
-  action,
-  onReverse,
-}: Props) => (
+export const SwapFormLayout = ({ hidden, inputPanel, outputPanel, tokenInfo, details, action, onReverse }: Props) => (
   <Stack
     className={cn(
       'gap-4 [--ks-skeleton-base-color:var(--ks-buttonGray)] [--ks-skeleton-highlight-color:var(--ks-tabActive)]',
@@ -36,7 +26,6 @@ export const SwapFormLayout = ({
       id={TutorialIds.SWAP_FORM_CONTENT}
       className="relative z-[1] gap-3 bg-background has-[[data-wallet-menu]]:z-30"
     >
-      {networkSelector}
       <Stack className="gap-3">
         <div className="relative">
           {inputPanel}

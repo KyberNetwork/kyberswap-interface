@@ -130,6 +130,9 @@ const waitFor = (assertion: () => void) =>
     await vi.waitFor(assertion)
   })
 const hashes = () => history.transactions.map(tx => tx.sourceTxHash)
+const hasQueryError = () => api.endpoints.getTransactions.select(sender)(store.getState()).isError
+const refetchHistory = () =>
+  store.dispatch(api.endpoints.getTransactions.initiate(sender, { subscribe: false, forceRefetch: true }))
 beforeEach(() => {
   vi.stubEnv('VITE_KYBER_AI_API_URL', 'https://history.test/api')
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
@@ -303,17 +306,23 @@ it('ignores detail cache and keeps persisted local settlement until KD catches u
   fetcher.mockImplementation(async () =>
     response([{ ...serverRow(30), status: 'in_progress', verification: 'pending' }]),
   )
-  await act(async () => history.refresh())
+  await act(async () => {
+    await refetchHistory()
+  })
   await waitFor(() => expect(history.loadingMore).toBe(false))
   expect(history.transactions[0]).toMatchObject({ status: 'Success', outputAmount: '95' })
 
   fetcher.mockImplementation(async () => response([{ ...serverRow(30), fromToken: '', toToken: '' }]))
-  await act(async () => history.refresh())
+  await act(async () => {
+    await refetchHistory()
+  })
   await waitFor(() => expect(history.loadingMore).toBe(false))
   expect(history.transactions[0]).toMatchObject({ sourceToken: 'token', outputAmount: '95' })
 
   fetcher.mockImplementation(async () => response([serverRow(30)]))
-  await act(async () => history.refresh())
+  await act(async () => {
+    await refetchHistory()
+  })
   await waitFor(() => expect(history.loadingMore).toBe(false))
   expect(hashes()).toEqual(['hash-30'])
   expect(history.transactions[0].outputAmount).toBe('90')
@@ -329,7 +338,7 @@ it('keeps the current page on cursor failure and retries without skipping newly 
       : response(range(10, 1).map(serverRow))
   })
   await render()
-  await waitFor(() => expect(history.error).toBe(true))
+  await waitFor(() => expect(hasQueryError()).toBe(true))
   expect(history.currentPage).toBe(1)
   expect(history.transactions).toHaveLength(9)
   fail = false
@@ -345,7 +354,7 @@ it('shows a submitted same-chain swap before API indexing, updates its receipt, 
   // An unavailable index must not prevent local history rendering.
   fetcher.mockImplementation(async () => new Response('', { status: 503 }))
   await render()
-  await waitFor(() => expect(history.error).toBe(true))
+  await waitFor(() => expect(hasQueryError()).toBe(true))
   await act(async () => {
     store.dispatch(
       addTransaction({
@@ -378,7 +387,9 @@ it('shows a submitted same-chain swap before API indexing, updates its receipt, 
   })
   expect(history.transactions[0].status).toBe('Success')
   fetcher.mockImplementation(async () => response([{ ...serverRow(33), toChain: 'ethereum', actualOutput: '910001' }]))
-  await act(async () => history.refresh())
+  await act(async () => {
+    await refetchHistory()
+  })
   await waitFor(() => expect(history.transactions[0].fromBackend).toBe(true))
   expect(hashes()).toEqual(['hash-33'])
   expect(history.transactions[0].outputAmount).toBe('910001')
@@ -388,7 +399,7 @@ it('shows a submitted same-chain swap before API indexing, updates its receipt, 
   expect(hashes()).toEqual([])
 })
 
-it('does not let a late next-page request undo refresh navigation', async () => {
+it('does not let a late next-page request undo previous-page navigation', async () => {
   local = [localRow(32), localRow(31)]
   let release!: (value: Response) => void
   fetcher.mockImplementation(async (request: Request) => {
@@ -404,7 +415,7 @@ it('does not let a late next-page request undo refresh navigation', async () => 
     next = history.goNext()
   })
   await waitFor(() => expect(release).toBeDefined())
-  await act(async () => history.refresh())
+  await act(async () => history.goPrevious())
   await act(async () => {
     release(response(range(20, 11).map(serverRow)))
     await next

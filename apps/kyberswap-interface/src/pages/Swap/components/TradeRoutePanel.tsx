@@ -34,17 +34,16 @@ export const TradeRouteSkeleton = ({ poolLines = 2 }: { poolLines?: 1 | 2 }) => 
   </RouteContent>
 )
 
-/** Shared route shell; owns expansion and optional scrolling, not route data.
+/** Shared route shell; owns expansion and scrolling, not route data.
  * Changes to defaultCollapsed reset expansion when the surrounding layout changes. */
 type Props = {
   heading: ReactNode
   children: ReactNode
   defaultCollapsed?: boolean
-  scrollOnExpand?: boolean
   onExpand?: () => void
 }
 
-const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, scrollOnExpand = true, onExpand }: Props) => {
+const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, onExpand }: Props) => {
   const panelRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
 
@@ -55,8 +54,6 @@ const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, scrollOn
     if (!nextExpanded) return
 
     onExpand?.()
-
-    if (!scrollOnExpand) return
 
     // Wait for the expanded content to lay out before scrolling it into view.
     globalThis.requestAnimationFrame(() => {

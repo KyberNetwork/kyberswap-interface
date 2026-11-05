@@ -211,11 +211,7 @@ const SwapPageContent = ({
                   isProviderLoading={isProviderLoading}
                 />
               ) : (
-                <SingleChainRightPanel
-                  currencyIn={currencyIn}
-                  currencyOut={currencyOut}
-                  isTokenLoading={isInputCurrencyLoading || isOutputCurrencyLoading}
-                />
+                <SingleChainRightPanel isTokenLoading={isInputCurrencyLoading || isOutputCurrencyLoading} />
               )}
             </Suspense>
           </motion.div>

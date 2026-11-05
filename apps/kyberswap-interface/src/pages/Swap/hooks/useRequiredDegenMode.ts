@@ -1,18 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { TAB } from 'pages/Swap/layout/Tabs'
+
 const ENABLE_DEGEN_MODE_PARAM = 'enableDegenMode'
 const HIGHLIGHT_DURATION = 4_000
-const DEFAULT_SETTINGS_TAB = 'settings'
 
-export const useRequiredDegenMode = <Tab>({
-  settingsTab = DEFAULT_SETTINGS_TAB as Tab,
+export const useRequiredDegenMode = ({
   setActiveTab,
   syncTabWithUrl = false,
 }: {
   syncTabWithUrl?: boolean
-  settingsTab?: Tab
-  setActiveTab: (tab: Tab) => void
+  setActiveTab: (tab: TAB) => void
 }) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const shouldOpenSettings = searchParams.get(ENABLE_DEGEN_MODE_PARAM) === 'true'
@@ -21,19 +20,19 @@ export const useRequiredDegenMode = <Tab>({
   useEffect(() => {
     if (!shouldOpenSettings) return
 
-    if (!syncTabWithUrl) setActiveTab(settingsTab)
+    if (!syncTabWithUrl) setActiveTab(TAB.SETTINGS)
     setHighlightDegenMode(true)
 
     setSearchParams(
       prev => {
         const nextSearchParams = new URLSearchParams(prev)
         nextSearchParams.delete(ENABLE_DEGEN_MODE_PARAM)
-        if (syncTabWithUrl) nextSearchParams.set('tab', String(settingsTab))
+        if (syncTabWithUrl) nextSearchParams.set('tab', TAB.SETTINGS)
         return nextSearchParams
       },
       { replace: true },
     )
-  }, [shouldOpenSettings, setActiveTab, setSearchParams, settingsTab, syncTabWithUrl])
+  }, [shouldOpenSettings, setActiveTab, setSearchParams, syncTabWithUrl])
 
   useEffect(() => {
     if (!highlightDegenMode) return

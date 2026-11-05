@@ -166,13 +166,10 @@ type TransactionAmountLineProps = {
   amount: string
   chain: Chain
   prefix: '-' | '+'
-  size?: TransactionAmountSize
   token: Currency | string
 }
 
-type TransactionAmountSize = 'sm' | 'xs'
-
-const TokenAmountLine = ({ amount, chain, prefix, size = 'xs', token }: TransactionAmountLineProps) => {
+const TokenAmountLine = ({ amount, chain, prefix, token }: TransactionAmountLineProps) => {
   const currency = typeof token === 'string' ? undefined : token
   const symbol =
     typeof token === 'string'
@@ -193,7 +190,7 @@ const TokenAmountLine = ({ amount, chain, prefix, size = 'xs', token }: Transact
   return (
     <div className="flex min-w-0 items-center gap-1 max-sm:justify-between">
       <TokenLogoWithChain chainId={chain} currency={currency} />
-      <span className={cn('truncate font-medium text-subText', size === 'sm' ? 'text-sm' : 'text-xs')}>
+      <span className="truncate text-sm font-medium text-subText">
         {prefix}
         {formattedAmount} {symbol}
       </span>
@@ -201,10 +198,10 @@ const TokenAmountLine = ({ amount, chain, prefix, size = 'xs', token }: Transact
   )
 }
 
-const TransactionAmount = ({ size = 'sm', tx }: { size?: TransactionAmountSize; tx: HistoryTransaction }) => (
+const TransactionAmount = ({ tx }: { tx: HistoryTransaction }) => (
   <div className="flex min-w-0 flex-col gap-1">
-    <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" size={size} token={tx.sourceToken} />
-    <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" size={size} token={tx.targetToken} />
+    <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" token={tx.sourceToken} />
+    <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" token={tx.targetToken} />
     {tx.gasDrop && <GasDropTransactionLine tx={tx} />}
   </div>
 )
@@ -295,7 +292,6 @@ const TransactionRow = ({ tx }: { tx: HistoryTransaction }) => (
 type TransactionHistoryItemProps = {
   tx: HistoryTransaction
   mobile: boolean
-  showPagination: boolean
   filter?: string
 }
 

@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
 import axios from 'axios'
 import { WalletClient, formatUnits } from 'viem'
@@ -186,10 +186,6 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       ChainId.ROBINHOOD,
       ChainId.ARC,
     ]
-  }
-
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
   }
 
   async getQuote(params: QuoteParams): Promise<NormalizedQuote> {

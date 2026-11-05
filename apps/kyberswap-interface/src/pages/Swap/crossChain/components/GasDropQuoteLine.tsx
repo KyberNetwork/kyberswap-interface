@@ -23,7 +23,7 @@ export const GasDropQuoteLine = ({ gasDrop, chain, loading }: GasDropQuoteLinePr
     formatDisplayNumber(formatUnits(BigInt(amount), native.decimals), { significantDigits: 6 })
   const usd = amountUsd != null ? formatDisplayNumber(amountUsd, { style: 'currency', fractionDigits: 2 }) : undefined
   return (
-    <HStack className="items-center gap-1 font-medium text-xs">
+    <HStack className="items-center gap-1 text-xs font-medium">
       <span className="text-subText">{t`Gas Drop`}</span>
       {loading ? (
         <Skeleton width="130px" height="16px" />

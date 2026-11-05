@@ -139,8 +139,6 @@ stream transport only specifies where the displayed quotes come from.
 Keep provider payloads and execution metadata intact through normalization. The
 form needs display amounts, but execution and reconciliation also need the raw
 quote, spender, quote identifiers and provider tracking data.
-`parseStreamQuote.ts` also resolves Gas Drop allocations from explicit response
-fields or the KyberCross raw route plan's `gas_drop_swap`.
 
 ## Transaction history and settlement
 

@@ -2,7 +2,6 @@ import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import GasStation from 'components/Icons/GasStation'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -174,16 +173,3 @@ const SwitchGasDropRouteModal = ({
     </Stack>
   </Modal>
 )
-
-export const GasDropValue = ({ gasDrop, chain }: { gasDrop: GasDropQuote; chain: Chain }) => {
-  const { amountUsd } = useGasDropValue(gasDrop, chain)
-
-  return (
-    <HStack className="shrink-0 items-center gap-1 whitespace-nowrap" title={t`Gas Drop`}>
-      <GasStation size={16} />
-      <span>
-        {amountUsd != null ? `~${formatDisplayNumber(amountUsd, { style: 'currency', fractionDigits: 2 })}` : '--'}
-      </span>
-    </HStack>
-  )
-}

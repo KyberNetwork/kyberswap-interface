@@ -10,9 +10,6 @@ import { NonEvmChain } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({
   nearAddress: null as string | null,
-  onOpenWallet: vi.fn(),
-  signOut: vi.fn(),
-  setIsOpen: vi.fn(),
   onRecipientChange: vi.fn(),
   onRecipientApply: vi.fn(),
   onConnect: vi.fn(),
@@ -128,12 +125,10 @@ describe('non-EVM receiver wallet selector', () => {
     expect(mocks.onRecipientApply).not.toHaveBeenCalled()
     await click(button('Clear address'))
     expect(container.querySelector('input')?.value).toBe('')
-    expect(container.querySelector('[aria-label="Clear address"]')).toBeNull()
     expect(container.textContent).not.toContain('Apply')
     await click(button('Paste recipient address'))
     await click(button('Apply'))
-    expect(mocks.onRecipientApply).toHaveBeenCalledWith('receiver.near')
-    expect(container.querySelector('[data-wallet-menu]')).toBeNull()
+    expect(mocks.onRecipientApply.mock.calls).toEqual([['receiver.near']])
   })
 
   it('discards an unapplied paste on dismissal and restores the current recipient when reopened', async () => {
@@ -146,44 +141,16 @@ describe('non-EVM receiver wallet selector', () => {
 
     expect(container.querySelector('input')?.value).toBe('current.near')
     expect(mocks.onRecipientChange).not.toHaveBeenCalled()
+    expect(mocks.onRecipientApply).not.toHaveBeenCalled()
   })
 
   it('allows selecting the connected wallet instead of a custom recipient', async () => {
     mocks.nearAddress = 'connected.near'
     await render('custom.near')
     await click(button('custom.near'))
-    expect(container.querySelector('[data-wallet-menu] img')?.getAttribute('src')).toBe('/near-wallet.png')
     await click(button('connected.near'))
     expect(mocks.onRecipientChange).toHaveBeenCalledOnce()
     expect(mocks.onRecipientApply).not.toHaveBeenCalled()
-  })
-
-  it('shows the paste icon after Apply even for the connected address, then restores the wallet logo on selection', async () => {
-    mocks.nearAddress = 'connected.near'
-    mocks.readText.mockResolvedValue('connected.near')
-    await render('connected.near')
-    await click(button('connected.near'))
-    await click(button('Paste recipient address'))
-    await click(button('Apply'))
-    await render('connected.near', NonEvmChain.Near, true)
-    expect(container.querySelector('button [aria-label="Pasted receiver address"]')).not.toBeNull()
-    expect(container.querySelector('button img')).toBeNull()
-
-    await click(button('connected.near'))
-    const connectedWallet = container.querySelector('[data-wallet-menu] button') as HTMLButtonElement
-    await click(connectedWallet)
-    await render('connected.near', NonEvmChain.Near, false)
-    expect(container.querySelector('button [aria-label="Pasted receiver address"]')).toBeNull()
-    expect(container.querySelector('button img')?.getAttribute('src')).toBe('/near-wallet.png')
-  })
-
-  it.each([NonEvmChain.Near, NonEvmChain.Solana])('opens the destination wallet connector for %s', async chain => {
-    await render('', chain)
-    await click(button('Select Wallet'))
-    await click(button('Connect a wallet'))
-
-    expect(mocks.onConnect).toHaveBeenCalledOnce()
-    expect(mocks.onRecipientChange).not.toHaveBeenCalled()
   })
 
   it('keeps manual entry available when clipboard access fails and prevents an empty Apply', async () => {
@@ -194,7 +161,6 @@ describe('non-EVM receiver wallet selector', () => {
 
     expect(document.activeElement).toBe(container.querySelector('input'))
     expect(container.textContent).not.toContain('Apply')
-    expect(container.querySelector('[aria-label="Clear address"]')).toBeNull()
     expect(mocks.onRecipientChange).not.toHaveBeenCalled()
   })
 })

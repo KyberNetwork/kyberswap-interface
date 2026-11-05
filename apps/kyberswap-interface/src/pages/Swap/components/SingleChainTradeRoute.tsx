@@ -23,7 +23,6 @@ type SingleChainTradeRouteProps = {
   inputAmount: CurrencyAmount<Currency> | undefined
   outputAmount: CurrencyAmount<Currency> | undefined
   isSmartSettlement?: boolean
-  scrollOnExpand?: boolean
   onExpand?: () => void
 }
 
@@ -36,7 +35,6 @@ const SingleChainTradeRoute = ({
   inputAmount: rawInputAmount,
   outputAmount: rawOutputAmount,
   isSmartSettlement = false,
-  scrollOnExpand = true,
   onExpand,
 }: SingleChainTradeRouteProps) => {
   // Amounts are labels only, so an ERC-8056 token shows them in display units like the swap form.
@@ -61,7 +59,6 @@ const SingleChainTradeRoute = ({
   return (
     <TradeRoutePanel
       defaultCollapsed={defaultCollapsed}
-      scrollOnExpand={scrollOnExpand}
       onExpand={onExpand}
       heading={
         <div className="flex flex-wrap items-center gap-2">

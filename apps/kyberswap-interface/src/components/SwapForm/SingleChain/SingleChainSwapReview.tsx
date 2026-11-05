@@ -68,12 +68,11 @@ const SingleChainSwapReview = ({
       {showButton && (
         <SwapButtonWithPriceImpact
           isProcessingSwap={isProcessingSwap}
-          route={routeSummary}
+          hasRoute={!!routeSummary}
           onClick={openReview}
           isApproved={!!isApproved}
           showLoading={showLoading}
           priceImpact={priceImpact}
-          showNoteGetRoute={!routeSummary}
         />
       )}
       <SingleChainSwapModal

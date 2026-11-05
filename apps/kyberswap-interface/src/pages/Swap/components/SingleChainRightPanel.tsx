@@ -1,4 +1,3 @@
-import type { Currency } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 
 import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
@@ -13,14 +12,8 @@ import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 import { useTradeComposition } from 'utils/aggregationRouting'
 import { getTokenAddress } from 'utils/tokenInfo'
 
-type Props = {
-  currencyIn: Currency | undefined
-  currencyOut: Currency | undefined
-  isTokenLoading: boolean
-}
-
-export const SingleChainRightPanel = ({ currencyIn, currencyOut, isTokenLoading }: Props) => {
-  const { routeSummary, routeLoading } = useSingleChainSwapContext()
+export const SingleChainRightPanel = ({ isTokenLoading }: { isTokenLoading: boolean }) => {
+  const { currencyIn, currencyOut, routeSummary, routeLoading } = useSingleChainSwapContext()
   const { chainId: walletChainId } = useActiveWeb3React()
   const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()

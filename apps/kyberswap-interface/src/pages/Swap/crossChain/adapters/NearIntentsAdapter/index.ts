@@ -1,5 +1,5 @@
 import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import type { Transaction as NearTransaction } from '@near-wallet-selector/core'
 import type { useWalletSelector } from '@near-wallet-selector/react-hook'
 import {
@@ -81,10 +81,6 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       NonEvmChain.Near,
       ...Object.keys(MappingChainIdToBlockChain).map(Number),
     ]
-  }
-
-  getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
-    return []
   }
 
   async getQuote(params: NearQuoteParams): Promise<NormalizedQuote> {

@@ -1,7 +1,7 @@
 # SwapForm
 
 `SwapForm` contains the forms and quote/review orchestration for Unified Swap.
-It has two entry components: `SingleChainSwap` for same-chain EVM swaps and
+It has two entry components: `SingleChainSwapContent` for same-chain EVM swaps and
 `CrossChainSwap` for different-chain or non-EVM pairs. Shared layout, amount rows,
 settings and review visuals live alongside the mode-specific code.
 
@@ -32,8 +32,8 @@ includes both the form and the page's route panel.
 
 On the unified page, `SingleChainSwapFormProvider` connects the selected currencies
 to balances, preferences and permit data, then mounts `SingleChainSwapProvider`.
-The page renders `SingleChainSwapContent` inside it. The default `SingleChainSwap`
-export wraps its own provider for standalone callers that supply the configuration.
+The page renders `SingleChainSwapContent` inside it. The form and right panel read
+the selected currencies and quote from this shared provider.
 
 `CrossChainSwapProvider` is exported from `CrossChain/hooks/useCrossChainSwap.tsx`.
 It accepts `fromChain`, `toChain`, `tokenIn`, `tokenOut`, `amount` and `setAmount`.
@@ -46,30 +46,12 @@ page's callbacks; token selectors own only the current selection interaction.
 
 ## Shared amount panels
 
-`CurrencyInput/InputCurrencyPanel` and `OutputCurrencyPanel` adapt swap amounts,
-balances and token metadata to the shared
+`CurrencyInput/InputCurrencyPanel` and `OutputCurrencyPanel` adapt swap data to
 [`CurrencyInputPanel`](../CurrencyInputPanel/index.tsx). The shared component owns
-input/selector presentation and its modal state; the forms retain amount
-calculation and token-selection callbacks. Max/Half actions live in the balance
-row, and the presence of `onSwitchCurrency` selects direct token switching.
-
-`value` and `onUserInput` remain controlled by the form. The panel reads the token
-balance; `customBalanceText` and `balanceActionsEnabled` support independent-wallet
-display and action availability. `amountShortcuts` replace individual Max/Half
-buttons, with calculations owned by the caller or `useBalanceAmountShortcuts`.
-
-`AmountInputControls.tsx` owns amount/balance presentation. `CurrencySelect.tsx`
-derives native-currency display from `currency`; `currencyLoading` describes token
-resolution, not quote loading. `customCurrencySelect` lets the non-EVM form own
-its selector. The built-in selector reports choices to the form through callbacks;
-its browsing rules are documented in
-[TokenSelectorModal](../TokenSelectorModal/README.md).
-
-`CrossChainSwap` supplies the Gas Drop control through the output footer slot.
-The amount/footer wrapper owns their fixed 8px gap; the label-to-amount gap stays
-12px. This spacing does not need feature-specific props.
-The footer accepts a node or a function receiving `openTokenSelector`, so footer
-actions can use the panel's existing modal state.
+amount/token presentation, balance controls and selector open state. Forms own
+amount calculations, validation and committed token selection; the
+[TokenSelectorModal](../TokenSelectorModal/README.md) owns browsing and selection
+interaction. `CrossChainSwap` supplies Gas Drop through the output footer.
 
 ## Same-chain EVM flow
 
@@ -192,40 +174,23 @@ display do not own the selected provider or execution state.
 
 ### Gas Drop
 
-Gas Drop discovery runs automatically for different-chain pairs whose output is
-an EVM non-native currency and whose input USD value is finite and strictly
-greater than $2. The value comes from the raw input amount, token decimals and
-`getPairInfo`'s input price. Missing/zero pricing or a value of $2 or less requests
-only ordinary quotes. There is no Gas Drop settings preference for this flow.
+Gas Drop discovery runs automatically for different-chain pairs with an EVM
+non-native output and a known, finite input USD value greater than $2. Ineligible
+inputs request ordinary quotes only.
 
-[`gasDropQuotes.ts`](../../pages/Swap/crossChain/quote/gasDropQuotes.ts) collects the
-two streams under one cancellation signal. Ordinary results exclude Gas Drop
-requests; Gas Drop results require both the request flag and an actual gas
-allocation. A failed stream does not discard usable results from the other.
-`useQuoteSession.allQuotes` retains both sets, while `useCrossChainQuote` selects
-the visible set. Toggling uses these collected quotes without starting a request.
-Request changes reset the selected mode. If a completed refresh has no Gas Drop
-route, the controller returns to ordinary mode.
+[`gasDropQuotes.ts`](../../pages/Swap/crossChain/quote/gasDropQuotes.ts) collects
+ordinary and Gas Drop quotes concurrently under one cancellation boundary. Gas
+Drop results must contain an actual allocation. Failure in one mode preserves
+usable results from the other. `useCrossChainQuote` owns the selected mode;
+toggling uses collected quotes without another request. Request changes reset
+the mode, and a completed refresh without Gas Drop routes returns to ordinary mode.
 
-The output footer appears only when a valid Gas Drop quote is available.
-[`GasDropOption`](CrossChain/Quote/GasDrop.tsx) shows `+ Gas` with an explanatory
-tooltip, or the active allocation with a remove control. Enabling it from another
-provider opens the Switch Route confirmation; cancel/close leaves the mode
-unchanged. KyberCross or an absent selected provider enables directly. Pending
-confirmation belongs to `AddGasButton`, keyed by provider; the committed mode
-belongs to `useCrossChainQuote`.
-
-Gas Drop mode shows supported KyberCross routes. Route options show the Gas Drop
-notice under the heading, gas USD beside the provider and the removal note at the
-bottom. Best Return remains available; Fastest is hidden for Gas Drop quotes.
-The review modal renders the allocation beneath the output amount via the shared
-[`GasDropQuoteLine`](../../pages/Swap/crossChain/components/GasDropQuoteLine.tsx),
-without a tooltip and with USD formatted as `(~$…)`.
-
-[`useGasDropValue`](../../pages/Swap/crossChain/hooks/useGasDropValue.ts) prefers the
-API's allocation USD value, including zero. If absent, it converts the raw native
-amount using the destination native-token price. Missing prices leave USD
-unavailable. This display calculation does not change the quoted output amount.
+The option appears when a valid Gas Drop quote is available. Enabling it limits
+selection to supported KyberCross routes and requires confirmation when switching
+from another provider. The control owns pending confirmation; the quote controller
+owns the committed selection. Review displays the allocation from its quote
+snapshot. Shared value formatting uses API pricing or destination native-token
+pricing without modifying the quoted output amount.
 
 ### Approval, review and submission
 
@@ -281,7 +246,7 @@ belongs to the page-level transaction updater, not the confirmation modal.
 | Review amounts, output acceptance or warnings | `SwapModal/useSwapReviewData.ts`, `SwapModal/reviewData.ts`, `SwapModal/SwapReviewActions.tsx` |
 | Cross-chain request inputs, selection or refresh | `CrossChain/hooks/useCrossChainQuoteRequest.ts`, `CrossChain/hooks/useCrossChainQuote.ts`, `CrossChain/hooks/useQuoteSession.ts` |
 | Gas Drop eligibility, paired requests or selection | `pages/Swap/crossChain/quote/gasDropQuotes.ts`, `CrossChain/hooks/useCrossChainQuote.ts` |
-| Gas Drop control, route notice or value display | `CrossChain/Quote/GasDrop.tsx`, `CrossChain/Quote/CrossChainQuoteSelector.tsx`, `pages/Swap/crossChain/hooks/useGasDropValue.ts`, `pages/Swap/crossChain/components/GasDropQuoteLine.tsx` |
+| Gas Drop presentation | `CrossChain/Quote/GasDrop.tsx`, `pages/Swap/crossChain/components/GasDropQuoteLine.tsx` |
 | Cross-chain action prerequisites or allowance | `CrossChain/CrossChainSwapAction.tsx`, `pages/Swap/crossChain/hooks/useCrossChainApproval.ts` |
 | Cross-chain confirmation content | `CrossChain/CrossChainSwapConfirmation.tsx`, `CrossChain/Quote/` |
 | Provider-specific execution or settlement | `pages/Swap/crossChain/hooks/useCrossChainExecution.ts`, `pages/Swap/crossChain/adapters/`, `pages/Swap/crossChain/transactions/` |
