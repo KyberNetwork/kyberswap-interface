@@ -281,8 +281,8 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
 
             <div className="relative rounded-lg">
               {shouldShowLowActivityWarning && (
-                <HStack className="absolute top-0 z-10 items-center justify-center gap-1 rounded-lg border border-warning/25 bg-warning-10 px-3 py-2 text-center text-xs font-medium text-warning">
-                  <AlertTriangle size={14} />
+                <HStack className="absolute inset-x-2 top-2 z-10 w-fit items-center justify-center gap-1 rounded-lg border border-warning/25 bg-warning-10 px-3 py-2 text-center text-xs font-medium text-warning">
+                  <AlertTriangle className="shrink-0" size={14} />
                   <Trans>Limited on-chain activity in the past 24h - price may not reflect tradable rates</Trans>
                 </HStack>
               )}
