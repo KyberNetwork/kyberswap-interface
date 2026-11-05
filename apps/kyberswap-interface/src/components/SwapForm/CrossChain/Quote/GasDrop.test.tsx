@@ -26,11 +26,19 @@ vi.mock('components/Button', () => ({
 let root: ReturnType<typeof createRoot>
 let container: HTMLDivElement
 const onChange = vi.fn()
+const onRequest = vi.fn()
 const render = async (provider = 'Relay', enabled = false) => {
   await act(async () =>
     root.render(
       <I18nProvider i18n={i18n}>
-        <GasDropOption chain={8453} provider={provider} outputSymbol="USDC" enabled={enabled} onChange={onChange} />
+        <GasDropOption
+          chain={8453}
+          provider={provider}
+          outputSymbol="USDC"
+          enabled={enabled}
+          onRequest={onRequest}
+          onChange={onChange}
+        />
       </I18nProvider>,
     ),
   )
@@ -49,6 +57,7 @@ beforeEach(() => {
   i18n.activate('en')
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   onChange.mockReset()
+  onRequest.mockReset()
   container = document.createElement('div')
   root = createRoot(container)
 })
@@ -57,16 +66,19 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 
-it('keeps the current route on cancel or close and only adds gas on confirmation', async () => {
+it('requests gas on click but only commits the mode on confirmation', async () => {
   await render()
   await click('+ Gas')
   expect(onChange).not.toHaveBeenCalled()
+  expect(onRequest).toHaveBeenCalledTimes(1)
   await click('Cancel')
   await click('+ Gas')
   await click('Close')
   expect(onChange).not.toHaveBeenCalled()
   await click('+ Gas')
+  expect(onRequest).toHaveBeenCalledTimes(3)
   await click('Switch & Add Gas')
+  expect(onRequest).toHaveBeenCalledTimes(3)
   expect(onChange.mock.calls).toEqual([[true]])
 })
 
@@ -74,6 +86,7 @@ it('adds gas directly on KyberCross and removes it without confirmation', async 
   await render('KyberCross')
   await click('+ Gas')
   expect(onChange.mock.calls).toEqual([[true]])
+  expect(onRequest).toHaveBeenCalledTimes(1)
   await render('KyberCross', true)
   await click('Remove Gas Drop')
   expect(onChange.mock.calls).toEqual([[true], [false]])

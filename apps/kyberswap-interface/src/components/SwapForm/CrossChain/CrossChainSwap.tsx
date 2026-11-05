@@ -33,8 +33,10 @@ const CrossChainSwap = (props: Props) => {
     toChainId,
     selectedQuote,
     gasDropAvailable,
+    gasDropUnsupported,
     gasDropEnabled,
     setGasDropEnabled,
+    prepareGasDrop,
     loading,
     warning,
     recipient,
@@ -92,6 +94,9 @@ const CrossChainSwap = (props: Props) => {
               outputSymbol={currencyOut?.symbol}
               gasDrop={selectedQuote?.quote.gasDrop}
               enabled={gasDropEnabled}
+              unsupported={gasDropUnsupported}
+              loading={gasDropEnabled && loading && !selectedQuote}
+              onRequest={prepareGasDrop}
               onChange={setGasDropEnabled}
             />
           )
