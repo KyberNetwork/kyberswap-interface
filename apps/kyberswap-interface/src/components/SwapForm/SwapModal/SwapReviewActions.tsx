@@ -38,15 +38,9 @@ const ReservedOrderNotice = ({ symbol, limitOrdersTo, stopMarketsTo }: ReservedO
   return title && <ErrorWarning type="warn" title={title} />
 }
 
-const BuildErrorMessage = ({
-  errorWhileBuildRoute,
-  honeypot,
-}: {
-  errorWhileBuildRoute: string
-  honeypot: SwapReviewData['honeypot']
-}) => {
-  if (!errorWhileBuildRoute) return
-  if (errorWhileBuildRoute.toLowerCase().includes('permit')) {
+const BuildErrorMessage = ({ buildError, honeypot }: { buildError: string; honeypot: SwapReviewData['honeypot'] }) => {
+  if (!buildError) return
+  if (buildError.toLowerCase().includes('permit')) {
     return (
       <div>
         <Trans>
@@ -73,7 +67,7 @@ const BuildErrorMessage = ({
     )
   }
 
-  if (isSlippageBuildError(errorWhileBuildRoute)) {
+  if (isSlippageBuildError(buildError)) {
     return (
       <div>
         <Trans>
@@ -84,11 +78,9 @@ const BuildErrorMessage = ({
     )
   }
   if (
-    errorWhileBuildRoute.includes(
-      'Please use a different wallet to fill an order that you created via the KyberSwap Limit Order',
-    )
+    buildError.includes('Please use a different wallet to fill an order that you created via the KyberSwap Limit Order')
   )
-    return <div>{errorWhileBuildRoute}</div>
+    return <div>{buildError}</div>
 
   return (
     <div>
@@ -97,7 +89,7 @@ const BuildErrorMessage = ({
   )
 }
 
-type Props = {
+type SwapReviewActionsProps = {
   review: Pick<
     SwapReviewData,
     | 'parsedAmountIn'
@@ -113,36 +105,36 @@ type Props = {
     | 'reservedStopMarketLink'
   >
   slippage: number
-  defaultSlp: number
+  defaultSlippage: number
   isAdvancedMode: boolean
   isDegenMode: boolean
   isBuildingRoute: boolean
-  errorWhileBuildRoute: string | undefined
+  buildError: string | undefined
   hasAcceptedNewAmount: boolean
-  onDismiss: () => void
-  onSwap: () => void
-  onUseDefaultSlippage: () => void
-  onOpenSlippage: () => void
-  onBuildErrorDismiss: () => void
-  onAcceptNewAmount: () => void
+  onDismiss?: () => void
+  onConfirm?: () => void
+  onUseDefaultSlippage?: () => void
+  onOpenSlippage?: () => void
+  onDismissBuildError?: () => void
+  onAcceptNewAmount?: () => void
 }
 
-const SwapReviewWarnings = ({
+const SwapReviewActions = ({
   review,
   slippage,
-  defaultSlp,
+  defaultSlippage,
   isAdvancedMode,
   isDegenMode,
   isBuildingRoute,
-  errorWhileBuildRoute,
+  buildError,
   hasAcceptedNewAmount,
   onDismiss,
-  onSwap,
+  onConfirm,
   onUseDefaultSlippage,
   onOpenSlippage,
-  onBuildErrorDismiss,
+  onDismissBuildError,
   onAcceptNewAmount,
-}: Props) => {
+}: SwapReviewActionsProps) => {
   const {
     parsedAmountIn,
     outputChangePercent,
@@ -156,8 +148,8 @@ const SwapReviewWarnings = ({
     reservedOrderLink,
     reservedStopMarketLink,
   } = review
-  const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
-  const isSlippageNotEnough = isSlippageBuildError(errorWhileBuildRoute)
+  const shouldDisableConfirmButton = isBuildingRoute || !!buildError
+  const isSlippageNotEnough = isSlippageBuildError(buildError)
   const disableSwap =
     (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || shouldDisableByPriceImpact
   const disableAcceptNewAmount = hasAcceptedNewAmount || (priceImpactResult.isVeryHigh && !isDegenMode)
@@ -167,11 +159,8 @@ const SwapReviewWarnings = ({
 
       <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
-      {errorWhileBuildRoute && (
-        <ErrorWarning
-          type="warn"
-          title={<BuildErrorMessage errorWhileBuildRoute={errorWhileBuildRoute} honeypot={honeypot} />}
-        />
+      {buildError && (
+        <ErrorWarning type="warn" title={<BuildErrorMessage buildError={buildError} honeypot={honeypot} />} />
       )}
       {showReservedOrderWarning && (
         <ReservedOrderNotice
@@ -181,13 +170,13 @@ const SwapReviewWarnings = ({
         />
       )}
 
-      {errorWhileBuildRoute ? (
-        isSlippageNotEnough && slippage <= defaultSlp ? (
+      {buildError ? (
+        isSlippageNotEnough && slippage <= defaultSlippage ? (
           <div className="flex gap-4">
             <ButtonOutlined onClick={onDismiss} className="flex-1">
               Dismiss
             </ButtonOutlined>
-            {slippage < defaultSlp ? (
+            {slippage < defaultSlippage ? (
               <ButtonPrimary className="flex-[2]" onClick={onUseDefaultSlippage}>
                 Use Suggested Slippage
               </ButtonPrimary>
@@ -198,7 +187,7 @@ const SwapReviewWarnings = ({
             )}
           </div>
         ) : (
-          <ButtonPrimary onClick={onBuildErrorDismiss}>
+          <ButtonPrimary onClick={onDismissBuildError}>
             <span className="text-sm font-medium leading-none">{honeypot?.isFOT ? 'Adjust Settings' : 'Dismiss'}</span>
           </ButtonPrimary>
         )
@@ -220,7 +209,7 @@ const SwapReviewWarnings = ({
 
           <ButtonError
             error={!disableSwap && showWarningStyle}
-            onClick={onSwap}
+            onClick={onConfirm}
             disabled={disableSwap}
             id="confirm-swap-or-send"
             className="flex items-center gap-1"
@@ -257,4 +246,4 @@ const SwapReviewWarnings = ({
   )
 }
 
-export default SwapReviewWarnings
+export default SwapReviewActions

@@ -7,29 +7,29 @@ import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { CloseIcon } from 'theme/components'
 
-type Props = {
+type ConfirmOutputChangeModalProps = {
   show: boolean
   parsedAmountOut: CurrencyAmount<Currency> | undefined
   parsedAmountOutFromBuild: CurrencyAmount<Currency> | undefined
   formattedOutputChangePercent: string
-  onDismiss: () => void
-  onAccept: () => void
+  onDismiss?: () => void
+  onAccept?: () => void
 }
 
-const SwapModalAreYouSure = ({
+const ConfirmOutputChangeModal = ({
   show,
   parsedAmountOut,
   parsedAmountOutFromBuild,
   formattedOutputChangePercent,
   onDismiss,
   onAccept,
-}: Props) => {
+}: ConfirmOutputChangeModalProps) => {
   const [confirmText, setConfirmText] = useState('')
 
   const handleConfirm = () => {
     if (confirmText.trim().toLowerCase() === 'confirm') {
       setConfirmText('')
-      onAccept()
+      onAccept?.()
     }
   }
 
@@ -38,7 +38,7 @@ const SwapModalAreYouSure = ({
       isOpen={show}
       onDismiss={() => {
         setConfirmText('')
-        onDismiss()
+        onDismiss?.()
       }}
       maxHeight={100}
       width="480px"
@@ -50,7 +50,7 @@ const SwapModalAreYouSure = ({
             <Trans>Are you sure?</Trans>
           </span>
 
-          <CloseIcon onClick={() => onDismiss()} />
+          <CloseIcon onClick={() => onDismiss?.()} />
         </HStack>
 
         <Stack className="gap-4">
@@ -87,7 +87,7 @@ const SwapModalAreYouSure = ({
             className="flex-1 p-2.5 text-sm"
             onClick={() => {
               setConfirmText('')
-              onDismiss()
+              onDismiss?.()
             }}
           >
             <Trans>No, go back</Trans>
@@ -105,4 +105,4 @@ const SwapModalAreYouSure = ({
   )
 }
 
-export default SwapModalAreYouSure
+export default ConfirmOutputChangeModal

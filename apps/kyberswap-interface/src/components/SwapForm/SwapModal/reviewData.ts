@@ -155,4 +155,4 @@ export const getSwapReviewData = ({
   }
 }
 
-export type SwapReviewAmountsData = ReturnType<typeof getSwapReviewData>
+export type SwapReviewSummaryData = ReturnType<typeof getSwapReviewData>

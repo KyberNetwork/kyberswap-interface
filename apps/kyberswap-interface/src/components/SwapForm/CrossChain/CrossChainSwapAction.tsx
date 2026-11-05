@@ -25,6 +25,10 @@ export const CrossChainSwapAction = () => {
     reviewQuote,
     openReview,
     closeReview,
+    isSubmitting,
+    txHash,
+    txError,
+    confirmSwap,
     amountInWei,
     fromChainId,
     toChainId,
@@ -203,7 +207,15 @@ export const CrossChainSwapAction = () => {
 
   return (
     <>
-      <CrossChainSwapConfirmation quote={reviewQuote} isOpen={showPreview} onDismiss={closeReview} />
+      <CrossChainSwapConfirmation
+        quote={reviewQuote}
+        isOpen={showPreview}
+        isSubmitting={isSubmitting}
+        txHash={txHash}
+        txError={txError}
+        onConfirm={confirmSwap}
+        onDismiss={closeReview}
+      />
       <ButtonPrimary disabled={disabled} onClick={handleButtonClick}>
         {busy ? <Dots>{label}</Dots> : label}
       </ButtonPrimary>

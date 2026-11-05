@@ -1,72 +1,53 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { useDispatch } from 'react-redux'
 
+import { getFeeInfoForMixPanel, getSwapConfirmedTracking } from 'components/SwapForm/SingleChain/swapTracking'
 import useSingleChainSwapExecution from 'components/SwapForm/SingleChain/useSingleChainSwapExecution'
-import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
-import { getFeeInfoForMixPanel, getSwapConfirmedTracking } from 'components/SwapForm/SwapActionButton/swapTracking'
-import SwapModal from 'components/SwapForm/SwapModal'
+import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import type { BuildReview, SubmitReview, SwapReviewState } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { Field } from 'state/swap/actions'
+import { Field, permitError } from 'state/swap/actions'
 import { useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 
-type SwapOnlyButtonProps = {
-  showButton: boolean
-  routeSummary: DetailedRouteSummary | undefined
-  isGettingRoute: boolean
-  isApproved?: boolean
-
+type SingleChainSwapReviewParams = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
-  balanceIn: CurrencyAmount<Currency> | undefined
-  balanceOut: CurrencyAmount<Currency> | undefined
-  parsedAmount: CurrencyAmount<Currency> | undefined
-  isPermitSwap?: boolean
-
+  routeSummary: DetailedRouteSummary | undefined
   review: SwapReviewState
-  onOpenReview: (build: BuildReview) => Promise<void>
-  onConfirmReview: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
-  onDismissReview: () => void
+  isPermitSwap?: boolean
   buildRoute: BuildReview
+  openReviewSession: (build: BuildReview) => Promise<void>
+  confirmReviewSession: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
+  dismissReviewSession: () => void
 }
 
-const SwapOnlyButton = ({
-  showButton,
-  routeSummary,
-  isGettingRoute,
-  isApproved,
-
+/** Connects the review session to execution; UI consumers only open, confirm or dismiss it. */
+export const useSingleChainSwapReview = ({
   currencyIn,
   currencyOut,
-  balanceIn,
-  balanceOut,
-  parsedAmount,
-  isPermitSwap,
-
+  routeSummary,
   review,
-  onOpenReview,
-  onConfirmReview,
-  onDismissReview,
+  isPermitSwap,
   buildRoute,
-}: SwapOnlyButtonProps) => {
+  openReviewSession,
+  confirmReviewSession,
+  dismissReviewSession,
+}: SingleChainSwapReviewParams) => {
+  const { chainId, account, networkInfo } = useActiveWeb3React()
+  const { displayTypedValue } = useSwapFormContext()
+  const dispatch = useDispatch()
   const { trackingHandler } = useTracking({
     [Field.INPUT]: currencyIn,
     [Field.OUTPUT]: currencyOut,
   })
-  const { networkInfo } = useActiveWeb3React()
   const [slippage] = useUserSlippageTolerance()
   const [transactionTimeout] = useUserTransactionTTL()
-
-  const isProcessingSwap = review.phase !== 'closed'
-  const { buildResult } = review
-  const isBuildingRoute = review.phase === 'building'
-  const { priceImpact } = routeSummary || {}
-
   const swapCallback = useSingleChainSwapExecution(isPermitSwap)
-  const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
-  const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
+
+  const { buildResult, error } = review
 
   const getTokenAddress = (currency: Currency | undefined) =>
     currency?.isNative ? 'NATIVE' : currency?.wrapped?.address
@@ -101,8 +82,8 @@ const SwapOnlyButton = ({
     })
   }
 
-  const handleClickSwapButton = () => {
-    void onOpenReview(signal => {
+  const openReview = () => {
+    void openReviewSession(signal => {
       trackingHandler(TRACKING_EVENT_TYPE.SWAP_REVIEW_OPENED, {
         from_token: currencyIn?.symbol,
         from_token_address: getTokenAddress(currencyIn),
@@ -142,29 +123,42 @@ const SwapOnlyButton = ({
     return swapCallback(buildResult.data.routerAddress, buildResult.data.data, onRequestSignature)
   }
 
-  return (
-    <>
-      {showButton && (
-        <SwapButtonWithPriceImpact
-          isProcessingSwap={isProcessingSwap}
-          route={routeSummary}
-          onClick={handleClickSwapButton}
-          isApproved={!!isApproved}
-          showLoading={showLoading}
-          priceImpact={priceImpact}
-          showNoteGetRoute={!routeSummary}
-        />
-      )}
-      <SwapModal
-        isOpen={isProcessingSwap}
-        tokenAddToMetaMask={currencyOut}
-        review={review}
-        onDismiss={onDismissReview}
-        onConfirm={onConfirmReview}
-        swapCallback={buildResult?.data?.data && buildResult.data.routerAddress ? handleSubmit : undefined}
-      />
-    </>
-  )
-}
+  const handleError = (error: string) => {
+    const currencyIn = routeSummary?.parsedAmountIn?.currency
+    const currencyOut = routeSummary?.parsedAmountOut?.currency
+    const isUserRejected = error.toLowerCase().includes('user rejected') || error.toLowerCase().includes('user denied')
 
-export default SwapOnlyButton
+    trackingHandler(TRACKING_EVENT_TYPE.SWAP_FAILED, {
+      from_token: currencyIn?.symbol,
+      to_token: currencyOut?.symbol,
+      pair: currencyIn?.symbol && currencyOut?.symbol ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+      amount_in: displayTypedValue || routeSummary?.parsedAmountIn?.toSignificant(6),
+      amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
+      error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
+      error_message: error,
+      max_slippage: routeSummary?.priceImpact,
+      chain: networkInfo.name,
+    })
+  }
+
+  const handleErrorDismiss = () => {
+    if (
+      ((buildResult?.error && buildResult.error.toLowerCase().includes('permit')) ||
+        (error && error.toLowerCase().includes('permit'))) &&
+      routeSummary &&
+      account
+    ) {
+      dispatch(permitError({ chainId, address: routeSummary.parsedAmountIn.currency.wrapped.address, account }))
+    }
+
+    dismissReviewSession()
+  }
+
+  const confirmSwap = () => {
+    if (!buildResult?.data?.data || !buildResult.data.routerAddress) return
+
+    void confirmReviewSession(handleSubmit, handleError)
+  }
+
+  return { openReview, confirmSwap, dismissReview: dismissReviewSession, dismissReviewError: handleErrorDismiss }
+}

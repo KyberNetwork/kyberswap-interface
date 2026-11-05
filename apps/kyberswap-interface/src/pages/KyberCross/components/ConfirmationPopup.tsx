@@ -91,13 +91,13 @@ export const ConfirmationPopup = ({ quote: initialQuote, isOpen, onDismiss }: Co
   } = useKyberCrossSwap()
 
   const {
-    submittingTx,
+    isSubmitting,
     txHash,
     txError,
-    handleSwap: executeSwap,
-    resetExecution,
+    submitSwap: executeSwap,
+    resetSubmission,
   } = useCrossChainExecution(initialQuote, { syncWithBackend: false })
-  const review = useGasDropReview(initialQuote, isOpen && !submittingTx && !txHash)
+  const review = useGasDropReview(initialQuote, isOpen && !isSubmitting && !txHash)
   const selectedQuote = review.quote
   const priceImpactInfo = getQuotePriceImpactInfo(selectedQuote)
   const transactions = useCrossChainTransactions()
@@ -148,14 +148,14 @@ export const ConfirmationPopup = ({ quote: initialQuote, isOpen, onDismiss }: Co
   const submittedTransaction = transactions.find(tx => tx.sourceTxHash === txHash)
 
   const dismiss = () => {
-    resetExecution()
+    resetSubmission()
     setReviewError('')
     onDismiss?.()
   }
 
   return (
     <TransactionConfirmationModal
-      isOpen={submittingTx || isOpen}
+      isOpen={isSubmitting || isOpen}
       onDismiss={dismiss}
       hash={txHash}
       submittedDetails={
@@ -175,7 +175,7 @@ export const ConfirmationPopup = ({ quote: initialQuote, isOpen, onDismiss }: Co
           ? `https://mempool.space/tx/${txHash}`
           : getEtherscanLink(fromChainId, txHash, 'transaction')
       }
-      attemptingTxn={submittingTx}
+      attemptingTxn={isSubmitting}
       pendingText={
         <Trans>
           Swapping {currencyIn?.symbol ?? ''} for {currencyOut?.symbol ?? ''}

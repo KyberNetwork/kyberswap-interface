@@ -25,7 +25,7 @@ type Props = CrossChainFormSelectionProps
 const CrossChainSwap = (props: Props) => {
   const {
     amount,
-    onAmountChange,
+    setAmount,
     currencyIn,
     currencyOut,
     fromChainId,
@@ -71,7 +71,7 @@ const CrossChainSwap = (props: Props) => {
       <CrossChainSwapForm
         {...props}
         amount={amount}
-        onAmountChange={onAmountChange}
+        onAmountChange={setAmount}
         currencyIn={currencyIn}
         currencyOut={currencyOut}
         fromChainId={fromChainId}

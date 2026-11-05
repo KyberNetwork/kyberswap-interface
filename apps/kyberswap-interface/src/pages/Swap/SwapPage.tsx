@@ -48,7 +48,7 @@ const SwapPage = () => {
           <Suspense fallback={<SwapPageContent {...contentProps} isProviderLoading />}>
             <CrossChainSwapProvider
               amount={typedValue}
-              onAmountChange={onUserInput}
+              setAmount={onUserInput}
               tokenIn={pair.inputId}
               tokenOut={pair.outputId}
               fromChain={pair.inputChain}

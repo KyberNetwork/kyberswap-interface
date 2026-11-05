@@ -108,7 +108,7 @@ it('persists broadcast before confirmation, retaining reviewed identity even whe
   await render(makeQuote())
   let submission!: Promise<void>
   await act(async () => {
-    submission = execution.handleSwap()
+    submission = execution.submitSwap()
   })
   await act(async () =>
     broadcast('real-source-hash', { id: 'provider-deposit-id', depositAddress: 'provider-deposit-id' }),
@@ -145,7 +145,7 @@ it('does not call a broadcast swap failed when adapter confirmation times out', 
     throw new Error('confirmation timeout')
   })
   await render(makeQuote())
-  await act(async () => execution.handleSwap())
+  await act(async () => execution.submitSwap())
   expect(mocks.enqueue).toHaveBeenCalledOnce()
   expect(execution.txHash).toBe('source')
   expect(execution.txError).toBe('')
@@ -155,10 +155,10 @@ it('does not call a broadcast swap failed when adapter confirmation times out', 
 it('creates no record for a rejected wallet or a missing source hash', async () => {
   mocks.execute.mockRejectedValueOnce(new Error('User rejected'))
   await render(makeQuote())
-  await act(async () => execution.handleSwap())
+  await act(async () => execution.submitSwap())
   expect(mocks.enqueue).not.toHaveBeenCalled()
   mocks.execute.mockResolvedValueOnce({ sourceTxHash: '' })
-  await act(async () => execution.handleSwap())
+  await act(async () => execution.submitSwap())
   expect(mocks.enqueue).not.toHaveBeenCalled()
   expect(mocks.dispatch).not.toHaveBeenCalled()
 })
@@ -168,7 +168,7 @@ it('keeps legacy callers on local history and deduplicates the broadcast callbac
     return { sourceTxHash: 'source', id: 'provider' }
   })
   await render(makeQuote(false))
-  await act(async () => execution.handleSwap())
+  await act(async () => execution.submitSwap())
   expect(mocks.enqueue).not.toHaveBeenCalled()
   expect(mocks.dispatch).toHaveBeenCalledTimes(2)
 })
@@ -178,7 +178,7 @@ it('keeps legacy popup execution local even when a streamed quote has backend id
   const refreshed = { ...original, quote: { ...original.quote, outputAmount: 95n } }
   mocks.execute.mockResolvedValue({ sourceTxHash: 'source', id: 'provider' })
   await render(original, false)
-  await act(async () => execution.handleSwap(refreshed))
+  await act(async () => execution.submitSwap(refreshed))
   expect(mocks.execute.mock.calls[0][0]).toBe(refreshed)
   expect(mocks.execute.mock.calls[0][6]).toBeUndefined()
   expect(mocks.enqueue).not.toHaveBeenCalled()
@@ -201,7 +201,7 @@ it('executes and records the reviewed recipient instead of an adapter-returned a
     targetChain: 8453,
   })
   await render(quote)
-  await act(async () => execution.handleSwap())
+  await act(async () => execution.submitSwap())
   expect(mocks.execute.mock.calls[0][0].quote.quoteParams.recipient).toBe('pasted-receiver')
   expect(mocks.enqueue).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -248,7 +248,7 @@ it.each(['near', 'solana', 'bitcoin'] as const)(
       return { sourceTxHash: 'source-hash', sender: 'wrong-provider-sender', sourceChain: family }
     })
     await render(quote)
-    await act(async () => execution.handleSwap())
+    await act(async () => execution.submitSwap())
     expect(mocks.execute).toHaveBeenCalledOnce()
     expect(mocks.enqueue).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -261,7 +261,7 @@ it.each(['near', 'solana', 'bitcoin'] as const)(
 it('blocks execution when the input slot is empty even if a global wallet remains connected', async () => {
   mocks.wallets = { inputAddress: '', inputConnection: undefined }
   await render(makeQuote())
-  await act(async () => execution.handleSwap())
+  await act(async () => execution.submitSwap())
   expect(mocks.execute).not.toHaveBeenCalled()
   expect(execution.txError).toBeTruthy()
 })

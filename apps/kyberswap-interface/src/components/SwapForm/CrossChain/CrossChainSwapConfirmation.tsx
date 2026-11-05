@@ -1,77 +1,95 @@
 import { Trans, t } from '@lingui/macro'
-import { ArrowDown } from 'react-feather'
 import { formatUnits } from 'viem'
 
 import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { HStack, Stack } from 'components/Stack'
 import {
   CrossChainPriceImpactWarning,
   CrossChainQuoteSummaryRows,
 } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
 import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
+import { SwapReviewAmountCard, SwapReviewHeader } from 'components/SwapForm/SwapModal/SwapReviewLayout'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
-import { useCrossChainExecution } from 'pages/Swap/crossChain/hooks/useCrossChainExecution'
 import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
 import { getNetworkInfo } from 'pages/Swap/crossChain/utils'
-import { CloseIcon, ExternalLink } from 'theme'
+import { ExternalLink } from 'theme'
 import { Chain, Currency, NonEvmChain, isEvmChain } from 'types/crossChain'
 import { shortenHash } from 'utils/address'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
-type TokenBoxInfoProps = {
+type CrossChainReviewAmountProps = {
   chainId: Chain
   currency: Currency
   amount: string
-  usdValue: number
-  title: string
+  amountUsd: number
+  label: string
+  isOutput?: boolean
 }
 
-const TokenBoxInfo = ({ chainId, currency, usdValue, amount, title }: TokenBoxInfoProps) => {
+const CrossChainReviewAmount = ({
+  chainId,
+  currency,
+  amountUsd,
+  amount,
+  label,
+  isOutput,
+}: CrossChainReviewAmountProps) => {
   const { name, icon } = getNetworkInfo(chainId)
 
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-border p-3">
-      <div className="flex justify-between text-xs font-medium text-subText">
-        <span>{title}</span>
-        <div className="flex items-center gap-1">
-          <img src={icon} alt={chainId.toString()} width={16} height={16} className="rounded-full" />
+    <SwapReviewAmountCard
+      label={label}
+      isOutput={isOutput}
+      headerAside={
+        <HStack className="items-center gap-1">
+          <img src={icon} alt={chainId.toString()} width={16} height={16} className="shrink-0 rounded-full" />
           <span>{name}</span>
-        </div>
-      </div>
-      <div className="flex justify-between text-xl font-medium">
-        <span className="text-2xl">{formatDisplayNumber(amount, { significantDigits: 8 })}</span>
-        <div className="flex items-center gap-1 text-subText">
-          <span className="text-sm">~{formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 })}</span>
-          {isEvmChain(chainId) && isEvmCurrency(currency) ? (
-            <CurrencyLogo currency={currency} size="24px" />
-          ) : (
-            <img src={'logo' in currency ? currency.logo : undefined} width={24} height={24} alt="" />
-          )}
-          <span>{currency?.symbol}</span>
-        </div>
-      </div>
-    </div>
+        </HStack>
+      }
+    >
+      <span className="min-w-0 flex-1 truncate text-2xl font-medium">
+        {formatDisplayNumber(amount, { significantDigits: 8 })}
+      </span>
+      <HStack className="shrink-0 items-center gap-2 text-subText">
+        <span className="text-sm font-medium">
+          ~{formatDisplayNumber(amountUsd, { style: 'currency', significantDigits: 4 })}
+        </span>
+        {isEvmChain(chainId) && isEvmCurrency(currency) ? (
+          <CurrencyLogo currency={currency} size="24px" />
+        ) : (
+          <img src={'logo' in currency ? currency.logo : undefined} width={24} height={24} alt="" />
+        )}
+        <span className="text-xl font-medium">{currency?.symbol}</span>
+      </HStack>
+    </SwapReviewAmountCard>
   )
 }
 
 type CrossChainSwapConfirmationProps = {
   quote: ReviewedQuote | null
   isOpen: boolean
+  isSubmitting: boolean
+  txHash: string
+  txError: string
+  onConfirm?: () => void
   onDismiss?: () => void
 }
 
 export const CrossChainSwapConfirmation = ({
-  quote: selectedQuote,
+  quote: reviewedQuote,
   isOpen,
+  isSubmitting,
+  txHash,
+  txError,
+  onConfirm,
   onDismiss,
 }: CrossChainSwapConfirmationProps) => {
-  const { submittingTx, txHash, txError, handleSwap, resetExecution } = useCrossChainExecution(selectedQuote)
-
-  if (!selectedQuote) return null
+  if (!reviewedQuote) return null
 
   const {
     fromChain: fromChainId,
@@ -81,25 +99,20 @@ export const CrossChainSwapConfirmation = ({
     amount: amountInWei,
     recipient,
     slippage,
-  } = selectedQuote.quote.quoteParams
+  } = reviewedQuote.quote.quoteParams
   const amount = formatUnits(BigInt(amountInWei), currencyIn.decimals)
 
   const warning = getQuoteWarning({
-    selectedQuote,
-    category: selectedQuote.category,
+    selectedQuote: reviewedQuote,
+    category: reviewedQuote.category,
     isEvmPair: isEvmChain(fromChainId) && isEvmChain(toChainId),
     slippage,
   })
 
-  const dismiss = () => {
-    resetExecution()
-    onDismiss?.()
-  }
-
   return (
     <TransactionConfirmationModal
-      isOpen={submittingTx || isOpen}
-      onDismiss={dismiss}
+      isOpen={isSubmitting || isOpen}
+      onDismiss={() => onDismiss?.()}
       hash={txHash}
       scanLink={
         fromChainId === NonEvmChain.Solana
@@ -110,7 +123,7 @@ export const CrossChainSwapConfirmation = ({
           ? `https://mempool.space/tx/${txHash}`
           : getEtherscanLink(fromChainId, txHash, 'transaction')
       }
-      attemptingTxn={submittingTx}
+      attemptingTxn={isSubmitting}
       pendingText={
         <Trans>
           Swapping {currencyIn?.symbol ?? ''} for {currencyOut?.symbol ?? ''}
@@ -118,46 +131,38 @@ export const CrossChainSwapConfirmation = ({
       }
       content={() => {
         if (txError) {
-          return <TransactionErrorContent message={txError} onDismiss={dismiss} />
+          return <TransactionErrorContent message={txError} onDismiss={() => onDismiss?.()} />
         }
 
         return (
-          <div className="flex w-full flex-col gap-4 p-4">
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xl font-medium">{t`Confirm Swap Details`}</span>
-                <CloseIcon onClick={dismiss} />
-              </div>
-              <span className="text-xs text-subText">{t`Please review the details of your swap`}</span>
-            </div>
-            <div className="flex flex-col gap-3">
-              <div className="relative">
-                <TokenBoxInfo
-                  title={t`Input Amount`}
-                  chainId={fromChainId}
-                  currency={currencyIn}
-                  amount={amount}
-                  usdValue={selectedQuote.quote.inputUsd}
-                />
-                <div aria-hidden className="absolute inset-x-0 -bottom-4 z-[1] flex justify-center">
-                  <div className="flex size-5 items-center justify-center rounded-full border border-border bg-tabActive p-0.5 text-subText">
-                    <ArrowDown />
-                  </div>
-                </div>
-              </div>
-              <TokenBoxInfo
-                title={t`Output Amount`}
+          <Stack className="w-full gap-4 p-4 sm:p-5">
+            <SwapReviewHeader
+              title={t`Confirm Swap Details`}
+              subtitle={t`Please review the details of your swap`}
+              onDismiss={() => onDismiss?.()}
+            />
+            <Stack className="min-w-0 gap-2">
+              <CrossChainReviewAmount
+                label={t`Input Amount`}
+                chainId={fromChainId}
+                currency={currencyIn}
+                amount={amount}
+                amountUsd={reviewedQuote.quote.inputUsd}
+              />
+              <CrossChainReviewAmount
+                label={t`Output Amount`}
+                isOutput
                 chainId={toChainId}
                 currency={currencyOut}
-                amount={selectedQuote.quote.formattedOutputAmount}
-                usdValue={selectedQuote.quote.outputUsd}
+                amount={reviewedQuote.quote.formattedOutputAmount}
+                amountUsd={reviewedQuote.quote.outputUsd}
               />
-            </div>
-            <div className="flex justify-between rounded-2xl border border-border p-3">
-              <span className="text-xs font-medium text-subText">{t`Recipient`}</span>
-              <div className="flex items-center text-sm text-subText">
+            </Stack>
+            <HStack className="min-h-5 flex-wrap items-center justify-between gap-3 rounded-2xl border border-border px-4 py-3">
+              <span className="text-xs text-subText">{t`Recipient`}</span>
+              <HStack className="min-w-0 items-center gap-1 text-xs font-medium text-subText">
                 <ExternalLink
-                  className="text-text no-underline"
+                  className="min-w-0 break-all text-text no-underline"
                   href={
                     toChainId === NonEvmChain.Solana
                       ? `https://solscan.io/account/${recipient}`
@@ -171,17 +176,17 @@ export const CrossChainSwapConfirmation = ({
                   {recipient.includes('.near') ? recipient : shortenHash(recipient)} ↗
                 </ExternalLink>
                 <CopyHelper toCopy={recipient} />
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 rounded-2xl border border-solid border-border p-4 text-xs">
+              </HStack>
+            </HStack>
+            <Stack className="gap-2 rounded-2xl border border-border px-4 py-3 text-xs">
               <CrossChainQuoteSummaryRows
-                quote={selectedQuote}
+                quote={reviewedQuote}
                 tokenOut={currencyOut}
                 slippage={slippage}
                 warning={warning}
                 full
               />
-            </div>
+            </Stack>
 
             <CrossChainPriceImpactWarning warning={warning} />
 
@@ -189,11 +194,11 @@ export const CrossChainSwapConfirmation = ({
               <span>
                 <Trans>Routed via</Trans>
               </span>
-              <QuoteProviderName quote={selectedQuote} />
+              <QuoteProviderName quote={reviewedQuote} />
             </span>
 
-            <ButtonPrimary disabled={submittingTx} onClick={() => handleSwap()}>{t`Confirm Swap`}</ButtonPrimary>
-          </div>
+            <ButtonPrimary disabled={isSubmitting} onClick={onConfirm}>{t`Confirm Swap`}</ButtonPrimary>
+          </Stack>
         )
       }}
     />
