@@ -68,7 +68,6 @@ export const LimitOrderInputTokenPanel = ({
       selectClassName={selectClassName}
       requireOracle={requireOracle}
       value={inputAmount}
-      positionMax="top"
       onUserInput={events.onInputAmountChange}
       onMax={events.onMaxInput}
       amountShortcuts={amountShortcuts}
@@ -114,7 +113,6 @@ export const LimitOrderOutputTokenPanel = ({
       id="create-limit-order-input-tokenb"
       dataTestId="limit-order-input-tokenb"
       onCurrencySelect={events.onOutputTokenSelect}
-      positionMax="top"
       showPinnedTokens
       maxCurrencySymbolLength={6}
       onClickSelect={events.onTokenSelectorOpen}

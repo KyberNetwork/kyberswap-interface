@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import type { BridgeProvider, RoutePlan, TrackingExecution } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
-import type { KyberCrossRawQuote } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/types'
+import type { BridgeProvider, TrackingExecution } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/api'
+import type { GasDropPlan, KyberCrossRawQuote } from 'pages/Swap/crossChain/adapters/KyberCrossAdapter/types'
 import { evmTransactionSchema } from 'pages/Swap/crossChain/quote/rawQuote'
 import { normalizeAdapterName } from 'pages/Swap/crossChain/utils'
 import { type GasDropQuote, type GasDropStatus, type SwapStatus } from 'types/crossChain'
@@ -140,10 +140,10 @@ const getFinalTxHash = (trackingExecution: TrackingExecution, hasGasDrop: boolea
   return hasDestinationAction ? '' : details.bridge?.dest?.tx_hash || ''
 }
 
-export const getGasDropQuote = (route: Pick<RoutePlan, 'gas_drop_swap'>): GasDropQuote | undefined => {
+export const getGasDropQuote = (route: { gas_drop_swap?: GasDropPlan }): GasDropQuote | undefined => {
   const gas = route.gas_drop_swap
   if (!gas) return undefined
-  const summary = gas.metadata.route_summary
+  const summary = gas.metadata?.route_summary
   const usd = (value: unknown) => {
     const amount = Number(value)
     return Number.isFinite(amount) && amount > 0 ? amount : undefined
@@ -151,8 +151,8 @@ export const getGasDropQuote = (route: Pick<RoutePlan, 'gas_drop_swap'>): GasDro
   return {
     amount: gas.expected_output_amount,
     minAmount: gas.min_output_amount,
-    amountUsd: usd(summary.amountOutUsd),
-    inputAmountUsd: usd(summary.amountInUsd),
+    amountUsd: usd(summary?.amountOutUsd),
+    inputAmountUsd: usd(summary?.amountInUsd),
     inputToken: gas.token_in,
   }
 }

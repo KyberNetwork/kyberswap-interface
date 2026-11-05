@@ -14,6 +14,7 @@ import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
+  footer?: ReactNode
   label?: ReactNode
   balanceActionsEnabled?: boolean
   wrapType: WrapType
@@ -34,6 +35,7 @@ type Props = {
 
 /** Keeps token metadata loading separate from routeLoading, which affects the estimated amount only. */
 const OutputCurrencyPanel = ({
+  footer,
   label,
   balanceActionsEnabled,
   wrapType,
@@ -83,6 +85,7 @@ const OutputCurrencyPanel = ({
         </div>
       )}
       <CurrencyInputPanel
+        footer={footer}
         balanceActionsEnabled={balanceActionsEnabled}
         disabledInput
         value={routeLoading ? ' ' : getFormattedAmount()}

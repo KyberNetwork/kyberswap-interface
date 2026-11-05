@@ -13,11 +13,12 @@ import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWa
 import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
 import { SwapReviewAmountCard, SwapReviewHeader } from 'components/SwapForm/SwapModal/SwapReviewLayout'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { GasDropQuoteLine } from 'pages/Swap/crossChain/components/GasDropQuoteLine'
 import { QuoteProviderName } from 'pages/Swap/crossChain/components/QuoteProviderName'
 import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
 import { getNetworkInfo } from 'pages/Swap/crossChain/utils'
 import { ExternalLink } from 'theme'
-import { Chain, Currency, NonEvmChain, isEvmChain } from 'types/crossChain'
+import { Chain, Currency, GasDropQuote, NonEvmChain, isEvmChain } from 'types/crossChain'
 import { shortenHash } from 'utils/address'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -27,6 +28,7 @@ type CrossChainReviewAmountProps = {
   currency: Currency
   amount: string
   amountUsd: number
+  gasDrop?: GasDropQuote
   label: string
   isOutput?: boolean
 }
@@ -36,6 +38,7 @@ const CrossChainReviewAmount = ({
   currency,
   amountUsd,
   amount,
+  gasDrop,
   label,
   isOutput,
 }: CrossChainReviewAmountProps) => {
@@ -45,6 +48,7 @@ const CrossChainReviewAmount = ({
     <SwapReviewAmountCard
       label={label}
       isOutput={isOutput}
+      footer={gasDrop && <GasDropQuoteLine gasDrop={gasDrop} chain={chainId} />}
       headerAside={
         <HStack className="items-center gap-1">
           <img src={icon} alt={chainId.toString()} width={16} height={16} className="shrink-0 rounded-full" />
@@ -156,6 +160,7 @@ export const CrossChainSwapConfirmation = ({
                 currency={currencyOut}
                 amount={reviewedQuote.quote.formattedOutputAmount}
                 amountUsd={reviewedQuote.quote.outputUsd}
+                gasDrop={reviewedQuote.quote.gasDrop}
               />
             </Stack>
             <HStack className="min-h-5 flex-wrap items-center justify-between gap-3 rounded-2xl border border-border px-4 py-3">

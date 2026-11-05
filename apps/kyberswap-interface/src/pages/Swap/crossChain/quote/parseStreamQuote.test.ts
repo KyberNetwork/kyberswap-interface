@@ -38,6 +38,57 @@ const event = `{
 const normalize = (request = params) => normalizeStreamQuote(parseQuoteResponse(event), request)
 
 describe('aggregator quote response', () => {
+  it('reads the PRE built KyberCross Gas Drop allocation without optional pricing metadata', () => {
+    // Shape and amounts from the live 10 USDC Base -> Arbitrum response.
+    const rawQuote = {
+      data: {
+        route_plan: {
+          id: 'gas-drop-route',
+          expires_at: '2026-11-05T01:21:24.019950303Z',
+          bridge: { provider: 'eco' },
+          gas_drop_swap: {
+            token_in: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+            token_out: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+            input_amount: '1996081',
+            expected_output_amount: '827700647002394',
+            min_output_amount: '744930582302154',
+          },
+        },
+        build: { tx: { to: params.sender, data: '0x', value: '0' } },
+      },
+    }
+    const data = parseQuoteResponse(
+      JSON.stringify({
+        ...JSON.parse(event),
+        provider: 'kybercross',
+        outputAmount: 7926549,
+        minOutputAmount: 7926549,
+        rawQuote,
+      }),
+    )
+    const quote = normalizeStreamQuote(data, { ...params, gasDrop: true })
+
+    expect(quote.gasDrop).toEqual({
+      amount: '827700647002394',
+      minAmount: '744930582302154',
+      inputToken: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+      amountUsd: undefined,
+      inputAmountUsd: undefined,
+    })
+    expect(quote.quoteParams.gasDrop).toBe(true)
+    expect(quote.outputAmount).toBe(7926549n)
+    expect(quote.rawQuote).toEqual(rawQuote)
+    expect(quote.quoteId).toBe('aggregator-quote-123')
+  })
+
+  it('keeps the API Gas Drop allocation on the normalized quote', () => {
+    const gasDrop = { amount: '100', minAmount: '90', amountUsd: 0.1, inputToken: '0xgas' }
+    const quote = normalizeStreamQuote({ ...parseQuoteResponse(event), gasDrop }, { ...params, gasDrop: true })
+
+    expect(quote.gasDrop).toEqual(gasDrop)
+    expect(quote.quoteParams.gasDrop).toBe(true)
+  })
+
   it('keeps an independent request snapshot when the caller changes its amount or sources', () => {
     const request = { ...params, includedSources: ['mayan'] }
     const quote = normalize(request)

@@ -78,6 +78,7 @@ const getStreamingUrl = ({
     toAddress: params.recipient,
     fee: params.feeBps.toString(),
     integrator: 'kyberswap',
+    gasDrop: params.gasDrop ? 'true' : 'false',
     stream: 'true',
     slippage: params.slippage.toString(),
     ...(params.tokenInUsd > 0 ? { fromTokenUsd: params.tokenInUsd.toString() } : {}),

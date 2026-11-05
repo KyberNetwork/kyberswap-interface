@@ -27,17 +27,18 @@ type Props = {
   loadQuotes: (context: QuoteLoadContext) => Promise<void>
   refreshSeconds: number
   getQuoteKey: (quote: Quote) => string
+  selectQuotes?: (quotes: Quote[]) => Quote[]
 }
 
 /** One owner for cancellation, periodic refresh, route selection and immutable review snapshots. */
-export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteKey }: Props) => {
+export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteKey, selectQuotes }: Props) => {
   const disable = !request.params
   const { pairKey, isAmountPending } = request
 
   const { trackingHandler } = useTracking()
   const runRef = useRef<(() => void) | null>(null)
   const nextManualRefreshAt = useRef(0)
-  const [state, setState] = useState({ ...EMPTY_QUOTE_STATE, request, loading: !disable })
+  const [state, setState] = useState({ ...EMPTY_QUOTE_STATE, request, selectQuotes, loading: !disable })
 
   if (state.request !== request) {
     // Reset only quote-owned state. Recipient and form state live outside this session.
@@ -45,15 +46,19 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
     setState({
       ...previous,
       request,
+      selectQuotes,
       // Quotes from another amount/address/slippage must never become executable on a soft timeout.
       quotes: [],
       loading: !disable,
       allLoading: false,
       countdown: 0,
     })
+  } else if (state.selectQuotes !== selectQuotes) {
+    setState({ ...state, selectQuotes, selectedKey: null, reviewQuote: null })
   }
 
-  const { quotes, selectedKey, reviewQuote, category, loading, allLoading, countdown } = state
+  const { selectedKey, reviewQuote, category, loading, allLoading, countdown } = state
+  const quotes = selectQuotes ? selectQuotes(state.quotes) : state.quotes
   const showPreview = reviewQuote !== null
   const selectedQuote = quotes.find(quote => getQuoteKey(quote) === selectedKey) || quotes[0] || null
 
@@ -76,7 +81,8 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
   const openReview = (quote: Quote) => {
     // Validate after the async allowance check, against the current request AND selected route.
     setState(previous => {
-      const selected = previous.quotes.find(item => getQuoteKey(item) === previous.selectedKey) || previous.quotes[0]
+      const available = previous.selectQuotes ? previous.selectQuotes(previous.quotes) : previous.quotes
+      const selected = available.find(item => getQuoteKey(item) === previous.selectedKey) || available[0]
 
       return previous.request === request && !previous.loading && selected === quote
         ? { ...previous, reviewQuote: { ...quote, category: previous.category } }
@@ -163,6 +169,7 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
   }, [reviewQuote])
 
   return {
+    allQuotes: state.quotes,
     quotes,
     selectedQuote,
     category,

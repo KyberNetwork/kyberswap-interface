@@ -26,7 +26,6 @@ const trimHistory = (transactions: LocalTransaction[]) => {
 export type CrossChainQuoteMode = 'direct' | 'stream'
 
 export interface CrossChainSwapState {
-  gasDropFeatureEnabled: boolean
   kyberCrossExcludedSources: string[]
   transactions: LocalTransaction[]
   excludedSources: string[]
@@ -42,7 +41,6 @@ type BroadcastTransaction = {
 const slice = createSlice({
   name: 'crossChainSwap',
   initialState: {
-    gasDropFeatureEnabled: false,
     kyberCrossExcludedSources: [] as string[],
     transactions: [] as LocalTransaction[],
     excludedSources: [] as string[],
@@ -118,9 +116,6 @@ const slice = createSlice({
         Object.assign(current, update)
       }
     },
-    updateGasDropFeatureEnabled: (state, { payload }: { payload: boolean }) => {
-      state.gasDropFeatureEnabled = payload
-    },
     updateKyberCrossExcludedSources: (state, { payload }: { payload: string[] }) => {
       state.kyberCrossExcludedSources = payload
     },
@@ -138,11 +133,7 @@ export const {
   patchProviderTransactions,
   updateExcludedSources,
   updateKyberCrossExcludedSources,
-  updateGasDropFeatureEnabled,
 } = slice.actions
-
-export const useGasDropFeatureEnabled = () =>
-  useAppSelector(state => state.crossChainSwap.gasDropFeatureEnabled ?? false)
 
 export default slice.reducer
 

@@ -156,7 +156,7 @@ describe('getQuotes', () => {
     expect(onQuotes).toHaveBeenCalledOnce()
     const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string)
     expect(url.searchParams.get('stream')).toBe('true')
-    expect(url.searchParams.has('gas_drop')).toBe(false)
+    expect(url.searchParams.get('gasDrop')).toBe('true')
     expect(onQuotes.mock.calls[0][0][0].quote.gasDrop).toBeUndefined()
   })
 

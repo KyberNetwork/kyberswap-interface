@@ -32,9 +32,15 @@ export const chainIdToKyberCrossChainName: Partial<Record<ChainId, ChainName>> =
   Object.entries(kyberCrossChains).map(([name, chain]) => [chain.id, name]),
 )
 
+// Built stream routes omit the pricing metadata included in direct quotes.
+export type GasDropPlan = Omit<NonNullable<RoutePlan['gas_drop_swap']>, 'metadata'> & {
+  metadata?: NonNullable<RoutePlan['gas_drop_swap']>['metadata']
+}
+
 // The aggregator supplies a route summary and a built transaction, not a rebuildable route plan.
 export type KyberCrossStreamQuoteData = {
   route_plan: Pick<RoutePlan, 'id' | 'tags' | 'estimated_duration_sec'> & {
+    gas_drop_swap?: GasDropPlan
     expires_at?: string
     bridge: Pick<RoutePlan['bridge'], 'provider'> & Partial<Pick<RoutePlan['bridge'], 'metadata'>>
   }

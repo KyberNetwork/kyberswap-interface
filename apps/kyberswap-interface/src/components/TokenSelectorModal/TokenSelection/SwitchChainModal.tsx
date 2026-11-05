@@ -1,10 +1,10 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Modal from 'components/Modal'
-import { HStack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import { NETWORKS_INFO } from 'constants/networks'
 import { CloseIcon } from 'theme'
 
@@ -19,14 +19,25 @@ export const SwitchChainModal = ({ token, onDismiss, onConfirm }: SwitchChainMod
   const network = token ? NETWORKS_INFO[token.chainId] : undefined
 
   return (
-    <Modal isOpen={!!token} onDismiss={onDismiss} width="100%" maxWidth="540px">
+    <Modal isOpen={!!token} onDismiss={onDismiss} width="100%" maxWidth="456px">
       {token && network && (
-        <div className="flex w-full flex-col gap-6 p-6" data-testid="switch-chain-modal">
+        <Stack className="w-full gap-6 p-6" data-testid="switch-chain-modal">
           <HStack className="items-center justify-between">
-            <span className="text-lg font-medium">
+            <span className="text-xl font-medium">
               <Trans>Switch Chain</Trans>
             </span>
-            <CloseIcon onClick={onDismiss} />
+            <CloseIcon
+              aria-label={t`Close`}
+              role="button"
+              tabIndex={0}
+              onClick={onDismiss}
+              onKeyDown={event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onDismiss()
+                }
+              }}
+            />
           </HStack>
 
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm font-medium text-text">
@@ -45,7 +56,7 @@ export const SwitchChainModal = ({ token, onDismiss, onConfirm }: SwitchChainMod
             </HStack>
           </div>
 
-          <HStack className="justify-between gap-4">
+          <HStack className="gap-4">
             <ButtonOutlined onClick={onDismiss} data-testid="switch-chain-cancel">
               <Trans>Cancel</Trans>
             </ButtonOutlined>
@@ -53,7 +64,7 @@ export const SwitchChainModal = ({ token, onDismiss, onConfirm }: SwitchChainMod
               <Trans>Switch Chain</Trans>
             </ButtonPrimary>
           </HStack>
-        </div>
+        </Stack>
       )}
     </Modal>
   )

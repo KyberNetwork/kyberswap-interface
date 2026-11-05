@@ -26,11 +26,12 @@ type SwapReviewAmountCardProps = {
   label: ReactNode
   headerAside?: ReactNode
   isOutput?: boolean
+  footer?: ReactNode
   children: ReactNode
 }
 
 /** Input/output cards share an 8px pair gap; the arrow sits at its midpoint. */
-export const SwapReviewAmountCard = ({ label, headerAside, isOutput, children }: SwapReviewAmountCardProps) => (
+export const SwapReviewAmountCard = ({ label, headerAside, isOutput, footer, children }: SwapReviewAmountCardProps) => (
   <Stack className="relative min-w-0 gap-2 rounded-2xl border border-border px-4 py-3">
     {isOutput && (
       <div
@@ -45,5 +46,6 @@ export const SwapReviewAmountCard = ({ label, headerAside, isOutput, children }:
       {headerAside}
     </HStack>
     <HStack className="min-h-8 min-w-0 flex-wrap items-center justify-between gap-2">{children}</HStack>
+    {footer}
   </Stack>
 )

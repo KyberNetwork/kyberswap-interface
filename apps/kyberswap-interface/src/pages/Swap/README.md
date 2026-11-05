@@ -119,7 +119,14 @@ provider, not the route visualization.
 
 ## Cross-chain integration boundary
 
-The form calls `crossChain/quote/adapterQuotes.ts` with `quoteMode: 'stream'`.
+The form calls `crossChain/quote/gasDropQuotes.ts`, which requests ordinary quotes
+and, when eligible, Gas Drop quotes concurrently through
+`crossChain/quote/adapterQuotes.ts` with `quoteMode: 'stream'`. The form controller
+owns which collected set is visible; the page and route visualization do not
+start another request when Gas Drop is toggled. See
+[Gas Drop in SwapForm](../../components/SwapForm/README.md#gas-drop) for eligibility,
+selection and confirmation rules.
+
 `streamQuotes.ts` receives aggregator results; parsing/normalization converts them
 to the shared `Quote` model and associates them with registered adapters. Stream
 failures do not switch Unified Swap to client-side direct quotes.
@@ -132,6 +139,8 @@ stream transport only specifies where the displayed quotes come from.
 Keep provider payloads and execution metadata intact through normalization. The
 form needs display amounts, but execution and reconciliation also need the raw
 quote, spender, quote identifiers and provider tracking data.
+`parseStreamQuote.ts` also resolves Gas Drop allocations from explicit response
+fields or the KyberCross raw route plan's `gas_drop_swap`.
 
 ## Transaction history and settlement
 

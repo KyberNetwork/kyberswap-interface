@@ -11,6 +11,7 @@ import {
 } from 'components/SwapForm/CrossChain/CrossChainSwapForm'
 import { CrossChainQuoteDetails } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteDetails'
 import { CrossChainPriceImpactWarning } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
+import { GasDropOption } from 'components/SwapForm/CrossChain/Quote/GasDrop'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { useCrossChainWalletIntent } from 'components/SwapForm/CrossChain/hooks/useCrossChainWalletIntent'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -31,6 +32,9 @@ const CrossChainSwap = (props: Props) => {
     fromChainId,
     toChainId,
     selectedQuote,
+    gasDropAvailable,
+    gasDropEnabled,
+    setGasDropEnabled,
     loading,
     warning,
     recipient,
@@ -80,6 +84,18 @@ const CrossChainSwap = (props: Props) => {
         loading={loading}
         receiver={hasNonEvmChain ? <CrossChainReceiverWalletSelector key={toChainId} chain={toChainId} /> : undefined}
         receiverAddress={recipient}
+        outputFooter={
+          gasDropAvailable && (
+            <GasDropOption
+              chain={toChainId}
+              provider={selectedQuote?.adapter.getName()}
+              outputSymbol={currencyOut?.symbol}
+              gasDrop={selectedQuote?.quote.gasDrop}
+              enabled={gasDropEnabled}
+              onChange={setGasDropEnabled}
+            />
+          )
+        }
         details={
           <Stack className="gap-2">
             <CrossChainQuoteDetails

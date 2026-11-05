@@ -8,7 +8,6 @@ import { useCrossChainWalletIntent } from 'components/SwapForm/CrossChain/hooks/
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { GasDropPanel } from 'pages/KyberCross/components/GasDrop'
-import { GasDropFeatureSetting } from 'pages/KyberCross/components/GasDropFeatureSetting'
 import { KyberCrossQuoteDetails } from 'pages/KyberCross/components/KyberCrossQuoteDetails'
 import { SwapAction } from 'pages/KyberCross/components/SwapAction'
 import TransactionHistoryList from 'pages/KyberCross/components/TransactionHistoryList'
@@ -81,7 +80,6 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
                 <Settings
                   mode="cross-chain"
                   crossChainQuoteMode="direct"
-                  additionalSettings={<GasDropFeatureSetting />}
                   highlightDegenMode={controller.highlightDegenMode}
                   onBack={onBackToMainTab}
                   onClickLiquiditySources={() => onTabChange(TAB.CROSS_CHAIN_SOURCES)}

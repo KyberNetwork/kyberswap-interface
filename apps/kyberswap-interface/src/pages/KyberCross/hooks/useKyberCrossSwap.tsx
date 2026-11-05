@@ -9,7 +9,6 @@ import { kyberCrossSupportedChains } from 'pages/Swap/crossChain/adapters/KyberC
 import { getPriceImpactInfo } from 'pages/Swap/crossChain/quote/priceImpact'
 import { isEvmCurrency } from 'pages/Swap/crossChain/quote/utils'
 import type { Quote } from 'pages/Swap/crossChain/registry'
-import { useGasDropFeatureEnabled } from 'state/crossChainSwap'
 
 const useKyberCrossController = ({
   fromChain,
@@ -21,9 +20,7 @@ const useKyberCrossController = ({
 }: CrossChainSwapOptions) => {
   const pair = useCrossChainPair({ fromChainId: fromChain, toChainId: toChain, tokenIn, tokenOut })
   const recipient = useCrossChainRecipient(fromChain, toChain)
-  const gasDropFeatureEnabled = useGasDropFeatureEnabled()
   const gasDropSupported =
-    gasDropFeatureEnabled &&
     fromChain !== toChain &&
     kyberCrossSupportedChains.includes(fromChain as ChainId) &&
     kyberCrossSupportedChains.includes(toChain as ChainId) &&
@@ -32,10 +29,10 @@ const useKyberCrossController = ({
     !pair.currencyOut.isNative
   const gasDropKey = JSON.stringify([toChain, tokenOut, recipient.receiver])
   const routeKey = JSON.stringify([gasDropKey, fromChain, tokenIn, amount])
-  const [selection, setSelection] = useState({ key: gasDropKey, enabled: false })
+  const [selection, setSelection] = useState({ key: gasDropKey, enabled: true })
   const [failure, setFailure] = useState({ key: '', message: '' })
   const gasDropEnabled = gasDropSupported && selection.key === gasDropKey && selection.enabled
-  useEffect(() => setSelection({ key: gasDropKey, enabled: false }), [gasDropKey, gasDropSupported])
+  useEffect(() => setSelection({ key: gasDropKey, enabled: true }), [gasDropKey, gasDropSupported])
 
   const setGasDropEnabled = (enabled: boolean) => {
     setSelection({ key: gasDropKey, enabled })
