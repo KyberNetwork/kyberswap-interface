@@ -1,26 +1,41 @@
 import { rpcFetch } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 // eslint-disable-next-line no-restricted-imports
-import { getAccount, getPublicClient } from '@wagmi/core'
+import { getAccount } from '@wagmi/core'
 import blackjackApi from 'services/blackjack'
 
-import { CONNECTION, wagmiConfig } from 'components/Web3Provider'
+import { wagmiConfig } from 'components/Web3Provider'
+import { NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
-import { createAccessListIfEnabled } from 'utils/accessList'
+import {
+  AccessListConfig,
+  AccessListEntry,
+  DEFAULT_ACCESS_LIST_CONFIG,
+  fetchAccessList,
+  isAccessListRejectionError,
+  readRejectingConnectors,
+  rememberRejectingConnector,
+  resolveAccessListPolicy,
+  sanitizeAccessList,
+} from 'utils/accessList'
 import { calculateGasMarginBigInt } from 'utils/transaction'
 import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/transactionError'
 import { Hex } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
-// Wallets known to mishandle EIP-1559 transactions that carry an `accessList`.
-// SafePal's hardware can't sign the type-2 + accessList combo cleanly (-104
-// "show tx info failed", or the signature ends up not matching the
-// broadcasted tx data and the chain rejects it). Drop accessList for these
-// wallets — they lose the gas refund but the tx becomes signable.
-const ACCESS_LIST_INCOMPATIBLE_CONNECTORS = new Set<string>([CONNECTION.SAFEPAL])
+/** What became of the EIP-2930 access list on a transaction the policy attached one to. */
+export interface AccessListOutcome {
+  source: 'build' | 'rpc'
+  addresses: number
+  storageKeys: number
+  estimatedWithList: boolean
+  /** The wallet refused the list before signing and the transaction went out without it. */
+  rejectedByWallet: boolean
+}
 
 export interface SendEVMTransactionResult {
   hash: string
+  accessList?: AccessListOutcome
 }
 
 // encoded from bc_r7yhais5
@@ -77,6 +92,9 @@ export async function sendEVMTransaction({
   isSmartConnector,
   chainId,
   gasLimitMarginBps,
+  accessList: providedAccessList,
+  accessListConfig,
+  isSmartSettlement,
   onRequestSignature,
 }: {
   account: string
@@ -90,6 +108,10 @@ export async function sendEVMTransaction({
   isSmartConnector: boolean
   chainId: ChainId
   gasLimitMarginBps?: number
+  /** EIP-2930 list from the route build; attached as `accessListConfig` allows. */
+  accessList?: AccessListEntry[]
+  accessListConfig?: AccessListConfig
+  isSmartSettlement?: boolean
   // Fired once the tx is fully prepared (gas + fees estimated) and we're about to
   // ask the wallet to sign — lets the UI switch from "preparing" to "awaiting
   // signature" instead of claiming the wallet is open while we're still estimating.
@@ -107,47 +129,53 @@ export async function sendEVMTransaction({
 
   const txValue = value !== 0n ? value : undefined
 
-  // viem walletClient + publicClient via wagmi. The wallet client is gated — its
-  // `request()` runs `ensureNotBlacklisted` for any signing method, so we don't need a
-  // separate inline check here.
-  const publicClient = getPublicClient(wagmiConfig, { chainId: chainId as number })
+  // viem walletClient via wagmi. The wallet client is gated — its `request()` runs
+  // `ensureNotBlacklisted` for any signing method, so we don't need a separate inline check here.
   const walletClient = await getGatedWalletClient({ chainId: chainId })
-  if (!publicClient || !walletClient) {
+  if (!walletClient) {
     throw new Error('Wallet client unavailable for the requested chain')
   }
 
   const connectorId = getAccount(wagmiConfig).connector?.id
-  const accessList = ACCESS_LIST_INCOMPATIBLE_CONNECTORS.has(connectorId ?? '')
-    ? undefined
-    : await createAccessListIfEnabled(publicClient, chainId, {
-        from: account,
-        to: contractAddress,
-        data: callData,
-        value: txValue,
-      })
+  const config = accessListConfig ?? DEFAULT_ACCESS_LIST_CONFIG
+  const policy = resolveAccessListPolicy({
+    config,
+    chainId,
+    connectorId,
+    isSmartConnector,
+    isSmartSettlement: Boolean(isSmartSettlement),
+    chargesGasLimit: Boolean(NETWORKS_INFO[chainId]?.chargesGasLimit),
+    rejectingConnectors: readRejectingConnectors(),
+  })
 
-  let gasEstimate: bigint
-  try {
-    // Route gas estimation through the rotating RPC client (round-robin across
-    // healthy public endpoints, per-request timeout, Kyber RPC fallback) so a
-    // single slow/overloaded RPC can't stall the flow before the wallet prompt.
-    const gasHex = await rpcFetch<string>(
-      chainId as number,
-      'eth_estimateGas',
-      [
-        {
-          from: account,
-          to: contractAddress,
-          data: callData,
-          ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
-          ...(accessList ? { accessList } : {}),
-        },
-      ],
-      { timeout: PRE_SIGN_RPC_TIMEOUT_MS },
-    )
-    gasEstimate = BigInt(gasHex)
-  } catch (error) {
-    throw new TransactionError(
+  const call = {
+    from: account,
+    to: contractAddress,
+    data: callData,
+    ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
+  }
+  const endpoints = { from: account, to: contractAddress }
+
+  let accessList: AccessListEntry[] | undefined
+  let accessListSource: AccessListOutcome['source'] = 'build'
+  let pendingRpcList: Promise<AccessListEntry[] | undefined> | undefined
+  if (policy.attach) {
+    accessList = sanitizeAccessList(providedAccessList, endpoints)
+    if (!accessList && config.rpcFallback) {
+      accessListSource = 'rpc'
+      pendingRpcList = fetchAccessList(chainId, call).then(raw => sanitizeAccessList(raw, endpoints))
+    }
+  }
+
+  // Route gas estimation through the rotating RPC client (round-robin across
+  // healthy public endpoints, per-request timeout, Kyber RPC fallback) so a
+  // single slow/overloaded RPC can't stall the flow before the wallet prompt.
+  const estimateGas = (list?: AccessListEntry[]) =>
+    rpcFetch<string>(chainId as number, 'eth_estimateGas', [list ? { ...call, accessList: list } : call], {
+      timeout: PRE_SIGN_RPC_TIMEOUT_MS,
+    }).then(BigInt)
+  const estimateError = (error: unknown) =>
+    new TransactionError(
       errorInfo.name,
       'estimateGas',
       (error as Error)?.message,
@@ -155,9 +183,36 @@ export async function sendEVMTransaction({
       { cause: error },
       errorInfo.wallet,
     )
+
+  let gasEstimate: bigint
+  let estimatedWithList = false
+  try {
+    if (policy.attach && policy.estimateWithList) {
+      accessList = accessList ?? (await pendingRpcList)
+      if (accessList) {
+        try {
+          gasEstimate = await estimateGas(accessList)
+          estimatedWithList = true
+        } catch {
+          // The RPC would not estimate with the list; send plain rather than guess at a limit.
+          accessList = undefined
+          gasEstimate = await estimateGas()
+        }
+      } else {
+        gasEstimate = await estimateGas()
+      }
+    } else {
+      // The limit is estimated without the list on purpose: a wallet that drops the list still
+      // sends enough gas, and one that keeps it simply uses less.
+      const [estimate, rpcList] = await Promise.all([estimateGas(), pendingRpcList])
+      gasEstimate = estimate
+      accessList = accessList ?? rpcList
+    }
+  } catch (error) {
+    throw estimateError(error)
   }
 
-  const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId, gasLimitMarginBps)
+  let gasLimit = calculateGasMarginBigInt(gasEstimate, chainId, gasLimitMarginBps)
 
   // Send an explicit `gas` and `chainId` — hardware wallets decode the raw
   // eth_sendTransaction params and fail at the device ("(-104) show tx info
@@ -176,6 +231,9 @@ export async function sendEVMTransaction({
   }
   if (accessList) {
     txParams.accessList = accessList
+    // MetaMask files a list-carrying request as a legacy EIP-2930 transaction unless the type says
+    // otherwise, then refuses it on an EIP-1559 chain.
+    txParams.type = '0x2'
   }
 
   // Tx is fully prepared; the wallet prompt opens next. Flip the UI out of the
@@ -183,12 +241,33 @@ export async function sendEVMTransaction({
   // inside `request` before the prompt actually appears.)
   onRequestSignature?.()
 
-  try {
-    const hash = (await walletClient.request({
+  const outcome = (rejectedByWallet: boolean): AccessListOutcome | undefined =>
+    accessList
+      ? {
+          source: accessListSource,
+          addresses: accessList.length,
+          storageKeys: accessList.reduce((count, entry) => count + entry.storageKeys.length, 0),
+          estimatedWithList,
+          rejectedByWallet,
+        }
+      : undefined
+  const sendError = (error: unknown) =>
+    new TransactionError(
+      errorInfo.name,
+      'sendTransaction',
+      (error as Error)?.message,
+      { from: account, to: contractAddress, data: callData, gasLimit },
+      { cause: error },
+      errorInfo.wallet,
+    )
+  const send = async () =>
+    (await walletClient.request({
       method: 'eth_sendTransaction',
       params: [txParams] as never,
     })) as `0x${string}`
-    return { hash }
+
+  try {
+    return { hash: await send(), accessList: outcome(false) }
   } catch (error) {
     // Some wallets surface a transaction hash on the error object when the tx
     // was actually broadcasted but the wallet/RPC then reported a failure (e.g.
@@ -198,15 +277,29 @@ export async function sendEVMTransaction({
     // pay gas twice. Check the legacy ethers field and the two places viem
     // typically nests it (cause / details).
     const recovered = extractTxHashFromError(error)
-    if (recovered) return { hash: recovered }
-    throw new TransactionError(
-      errorInfo.name,
-      'sendTransaction',
-      (error as Error)?.message,
-      { from: account, to: contractAddress, data: callData, gasLimit },
-      { cause: error },
-      errorInfo.wallet,
-    )
+    if (recovered) return { hash: recovered, accessList: outcome(false) }
+    if (!accessList || !isAccessListRejectionError(error)) throw sendError(error)
+  }
+
+  // The wallet refused the list before signing. Remember that for its next transaction and send
+  // this one plain; a limit that was estimated with the list has to be estimated again without it.
+  if (connectorId) rememberRejectingConnector(connectorId)
+  delete txParams.accessList
+  delete txParams.type
+  if (estimatedWithList) {
+    try {
+      gasLimit = calculateGasMarginBigInt(await estimateGas(), chainId, gasLimitMarginBps)
+      txParams.gas = `0x${gasLimit.toString(16)}`
+    } catch (error) {
+      throw estimateError(error)
+    }
+  }
+  try {
+    return { hash: await send(), accessList: outcome(true) }
+  } catch (error) {
+    const recovered = extractTxHashFromError(error)
+    if (recovered) return { hash: recovered, accessList: outcome(true) }
+    throw sendError(error)
   }
 }
 

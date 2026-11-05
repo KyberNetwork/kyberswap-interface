@@ -59,7 +59,6 @@ const riseInfo: NetworkInfo = {
   coingeckoNativeTokenId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
-  accessListEnabled: false,
 }
 
 export default riseInfo

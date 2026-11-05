@@ -6,6 +6,7 @@ import { KS_SETTING_API } from 'constants/env'
 import { ChainStateMap } from 'hooks/useChainsConfig'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { TopToken } from 'state/topTokens/type'
+import type { AccessListRemoteConfig } from 'utils/accessList'
 import { formatTokenInfo } from 'utils/tokenInfo'
 
 export type KyberSwapConfig = {
@@ -34,6 +35,7 @@ export type KyberswapGlobalConfigurationResponse = {
       aggregator: string
       isEnableAuthenAggregator: boolean
       chainStates: ChainStateMap
+      accessList?: AccessListRemoteConfig
     }
   }
 }

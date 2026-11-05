@@ -1,3 +1,4 @@
+import { rpcFetch } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -7,43 +8,250 @@ import { Address, Hex } from './viem'
 export type AccessListEntry = { address: Address; storageKeys: Hex[] }
 
 /**
- * Best-effort `eth_createAccessList` lookup for chains that opt-in via
- * `NETWORKS_INFO[chainId].accessListEnabled`. Returns `undefined` when the
- * chain doesn't support it or when the RPC rejects the request — callers
- * should treat the access list as a gas-saving hint, not a requirement.
- *
- * `publicClient` is typed `any` because viem's `request()` is typed against an
- * RPC schema and the wagmi-resolved client's chain-union variant clashes with
- * viem's base `PublicClient` here. The runtime contract is `EIP1193`'s
- * `request({ method, params })`; the call only ever hits `eth_createAccessList`,
- * which isn't in viem's default RPC schema either, so we use `as any` on the
- * method name regardless.
+ * Which swaps on a chain carry an EIP-2930 access list.
+ * - `ss`: Smart Settlement swaps only. Their executor runs each candidate pool in a reverting
+ *   sub-call before executing the winner, and a revert un-warms everything the attempt touched;
+ *   a list keeps that state warm for the whole transaction, which is where the gas saving comes from.
+ * - `all`: every swap, for chains whose cold-access prices make a plain swap worth it (Monad, Polygon).
  */
-export async function createAccessListIfEnabled(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  publicClient: any,
+export type AccessListMode = 'off' | 'ss' | 'all'
+
+export type AccessListConfig = {
+  /** A chain that is absent is `off`. */
+  chains: Partial<Record<ChainId, AccessListMode>>
+  /** Connector ids of wallets that refuse a transaction carrying an access list. */
+  walletBlocklist: string[]
+  /**
+   * Connector ids trusted to sign the list exactly as sent. Only these wallets get a gas limit
+   * estimated with the list on a chain that charges the limit (see `NetworkInfo.chargesGasLimit`).
+   */
+  gasLimitWalletAllowlist: string[]
+  /** Ask the chain's RPC for a list when the route build did not return one. */
+  rpcFallback: boolean
+}
+
+/** The `accessList` object of the ks-setting global configuration, before validation. */
+export type AccessListRemoteConfig = {
+  chains?: Record<string, string>
+  walletBlocklist?: string[]
+  gasLimitWalletAllowlist?: string[]
+  rpcFallback?: boolean
+}
+
+const ACCESS_LIST_MODES: readonly AccessListMode[] = ['off', 'ss', 'all']
+
+export const DEFAULT_ACCESS_LIST_CONFIG: AccessListConfig = {
+  chains: {},
+  // Connector ids, as `CONNECTION` in components/Web3Provider spells them; literal here so this
+  // module stays free of the wallet stack. SafePal's hardware fails to sign a type-2 transaction
+  // that carries a list (-104 "show tx info failed"); Phantom rejects the request outright (-32000).
+  walletBlocklist: ['io.safepal', 'https://www.safepal.com/download', 'app.phantom'],
+  gasLimitWalletAllowlist: [],
+  rpcFallback: true,
+}
+
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every(item => typeof item === 'string')
+
+/** Validates the remote object field by field; a field that is missing or malformed keeps its default. */
+export function parseAccessListConfig(
+  raw: unknown,
+  defaults: AccessListConfig = DEFAULT_ACCESS_LIST_CONFIG,
+): AccessListConfig {
+  if (!raw || typeof raw !== 'object') return defaults
+  const remote = raw as AccessListRemoteConfig
+
+  const chains: AccessListConfig['chains'] = {}
+  if (remote.chains && typeof remote.chains === 'object') {
+    for (const [key, mode] of Object.entries(remote.chains)) {
+      const chainId = Number(key)
+      if (Number.isInteger(chainId) && ACCESS_LIST_MODES.includes(mode as AccessListMode)) {
+        chains[chainId as ChainId] = mode as AccessListMode
+      }
+    }
+  }
+
+  return {
+    chains: remote.chains && typeof remote.chains === 'object' ? chains : defaults.chains,
+    walletBlocklist: isStringArray(remote.walletBlocklist) ? remote.walletBlocklist : defaults.walletBlocklist,
+    gasLimitWalletAllowlist: isStringArray(remote.gasLimitWalletAllowlist)
+      ? remote.gasLimitWalletAllowlist
+      : defaults.gasLimitWalletAllowlist,
+    rpcFallback: typeof remote.rpcFallback === 'boolean' ? remote.rpcFallback : defaults.rpcFallback,
+  }
+}
+
+export type AccessListPolicy =
+  | { attach: false }
+  | {
+      attach: true
+      /**
+       * Estimate gas with the list in place. Only on a chain that charges the gas limit: there the
+       * saving exists only if the limit itself is lower, and that is safe only when the wallet is
+       * known to keep the list. Everywhere else the limit comes from a list-less estimate, so a wallet
+       * that silently drops the list still has enough gas.
+       */
+      estimateWithList: boolean
+    }
+
+export function resolveAccessListPolicy({
+  config,
+  chainId,
+  connectorId,
+  isSmartConnector,
+  isSmartSettlement,
+  chargesGasLimit,
+  rejectingConnectors,
+}: {
+  config: AccessListConfig
+  chainId: ChainId
+  connectorId: string | undefined
+  isSmartConnector: boolean
+  isSmartSettlement: boolean
+  chargesGasLimit: boolean
+  /** Connectors seen refusing a list on this device; see `rememberRejectingConnector`. */
+  rejectingConnectors: ReadonlySet<string>
+}): AccessListPolicy {
+  const mode = config.chains[chainId] ?? 'off'
+  if (mode === 'off' || (mode === 'ss' && !isSmartSettlement)) return { attach: false }
+  // A smart account batches the call; the list has no place in that request.
+  if (isSmartConnector) return { attach: false }
+  if (connectorId && (config.walletBlocklist.includes(connectorId) || rejectingConnectors.has(connectorId))) {
+    return { attach: false }
+  }
+  if (chargesGasLimit) {
+    if (!connectorId || !config.gasLimitWalletAllowlist.includes(connectorId)) return { attach: false }
+    return { attach: true, estimateWithList: true }
+  }
+  return { attach: true, estimateWithList: false }
+}
+
+const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/
+const STORAGE_KEY_PATTERN = /^0x[0-9a-fA-F]{64}$/
+// Precompiles live at the lowest addresses and are warm by definition.
+const PRECOMPILE_PATTERN = /^0x0{38}[0-9a-f]{2}$/
+
+/**
+ * Normalizes a list for the transaction: lowercase, one entry per address, no malformed keys, and
+ * none of the entries the protocol already warms for free (sender, callee, precompiles), since each
+ * listed address costs 2,400 gas and each key 1,900 whether or not it was needed. `undefined` when
+ * nothing useful is left.
+ */
+export function sanitizeAccessList(
+  list: unknown,
+  { from, to }: { from: string; to: string },
+): AccessListEntry[] | undefined {
+  if (!Array.isArray(list)) return undefined
+  const skip = new Set([from.toLowerCase(), to.toLowerCase()])
+  const byAddress = new Map<string, Set<string>>()
+
+  for (const entry of list) {
+    const address = (entry as { address?: unknown })?.address
+    if (typeof address !== 'string' || !ADDRESS_PATTERN.test(address)) continue
+    const lower = address.toLowerCase()
+    if (skip.has(lower) || PRECOMPILE_PATTERN.test(lower)) continue
+
+    const keys = byAddress.get(lower) ?? new Set<string>()
+    const storageKeys = (entry as { storageKeys?: unknown }).storageKeys
+    if (Array.isArray(storageKeys)) {
+      for (const key of storageKeys) {
+        if (typeof key === 'string' && STORAGE_KEY_PATTERN.test(key)) keys.add(key.toLowerCase())
+      }
+    }
+    byAddress.set(lower, keys)
+  }
+
+  if (byAddress.size === 0) return undefined
+  return [...byAddress.entries()].map(([address, keys]) => ({
+    address: address as Address,
+    storageKeys: [...keys] as Hex[],
+  }))
+}
+
+// Bounds the wait for a list the route build did not supply. The call runs beside the gas estimate,
+// so a slow answer costs the user nothing beyond this; a missing answer costs only the saving.
+const ACCESS_LIST_RPC_TIMEOUT_MS = 2500
+
+/**
+ * `eth_createAccessList` against the chain's default RPC. Deliberately not the rotating client: it
+ * puts an endpoint on cooldown for every method when one answers `-32601`, and a chain whose public
+ * RPCs lack this method would lose its pool right before the gas estimate. Resolves to `undefined`
+ * whenever the RPC cannot or will not answer.
+ */
+export async function fetchAccessList(
   chainId: ChainId,
-  params: { from: string; to: string; data: string; value?: bigint },
-): Promise<AccessListEntry[] | undefined> {
-  if (!NETWORKS_INFO[chainId]?.accessListEnabled) return undefined
-
+  call: { from: string; to: string; data: string; value?: string },
+): Promise<unknown> {
+  const rpcUrl = NETWORKS_INFO[chainId]?.defaultRpcUrl
+  if (!rpcUrl) return undefined
   try {
-    const result = (await publicClient.request({
-      method: 'eth_createAccessList' as any,
-      params: [
-        {
-          from: params.from,
-          to: params.to,
-          data: params.data,
-          ...(params.value !== undefined ? { value: `0x${params.value.toString(16)}` } : {}),
-        },
-        'latest',
-      ] as any,
-    })) as { accessList?: AccessListEntry[] } | undefined
-
-    return Array.isArray(result?.accessList) ? result.accessList : undefined
+    const result = await rpcFetch<{ accessList?: unknown }>(chainId, 'eth_createAccessList', [call, 'latest'], {
+      rpcUrl,
+      timeout: ACCESS_LIST_RPC_TIMEOUT_MS,
+    })
+    return result?.accessList
   } catch {
-    // Chain may not support eth_createAccessList, or the RPC rejected the call.
     return undefined
   }
+}
+
+const REJECTING_CONNECTORS_KEY = 'accessListRejectingConnectors'
+
+/** Connectors that refused a list-carrying transaction on this device. */
+export function readRejectingConnectors(): Set<string> {
+  if (typeof localStorage === 'undefined') return new Set()
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(REJECTING_CONNECTORS_KEY) || '[]')
+    return new Set(isStringArray(parsed) ? parsed : [])
+  } catch {
+    return new Set()
+  }
+}
+
+/** The wallet refused a list once; later transactions from it go out plain from the start. */
+export function rememberRejectingConnector(connectorId: string): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    const known = readRejectingConnectors()
+    known.add(connectorId)
+    localStorage.setItem(REJECTING_CONNECTORS_KEY, JSON.stringify([...known]))
+  } catch {
+    // Storage can be full or blocked; the next transaction simply retries the list.
+  }
+}
+
+const USER_REJECTION_CODE = 4001
+// -32602 is "invalid params"; -104 is SafePal's device-side "show tx info failed".
+const PARAMS_REJECTION_CODES = new Set([-32602, -104])
+const PARAMS_REJECTION_MESSAGE = /invalid param|missing or invalid parameters|access ?list/i
+const USER_REJECTION_MESSAGE = /user (rejected|denied|cancel)/i
+
+/**
+ * Whether a wallet turned the request down because of its access list, as opposed to the user
+ * closing the prompt or the transaction being unfundable. Phantom answers -32000 "Missing or invalid
+ * parameters."; -32000 alone is also geth's generic server error, so that code counts only with a
+ * parameters message.
+ */
+export function isAccessListRejectionError(error: unknown): boolean {
+  let sawParamsRejection = false
+  let current: unknown = error
+  for (let depth = 0; depth < 6 && current && typeof current === 'object'; depth++) {
+    const { code, message, details, cause } = current as {
+      code?: unknown
+      message?: unknown
+      details?: unknown
+      cause?: unknown
+    }
+    const text = [message, details].filter((part): part is string => typeof part === 'string').join(' ')
+    if (code === USER_REJECTION_CODE || USER_REJECTION_MESSAGE.test(text)) return false
+    if (
+      (typeof code === 'number' && PARAMS_REJECTION_CODES.has(code)) ||
+      (code === -32000 && PARAMS_REJECTION_MESSAGE.test(text)) ||
+      /access ?list/i.test(text)
+    ) {
+      sawParamsRejection = true
+    }
+    current = cause
+  }
+  return sawParamsRejection
 }

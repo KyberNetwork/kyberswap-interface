@@ -181,6 +181,8 @@ export default function Updater(): null {
   transactionsRef.current = transactions
   const accountRef = useRef(account)
   accountRef.current = account
+  const publicClientRef = useRef(publicClient)
+  publicClientRef.current = publicClient
 
   const handleTransactionReceipt = useCallback(
     (hash: string, receipt: any) => {
@@ -283,13 +285,25 @@ export default function Updater(): null {
             if (accountRef.current && arbitrary.isPermitSwap) {
               dispatch(revokePermit({ chainId, address: arbitrary.inputAddress, account: accountRef.current }))
             }
-            trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
-              arbitrary,
-              actual_gas: receipt.gasUsed || 0n,
-              gas_price: receipt.effectiveGasPrice || 0n,
-              tx_hash: receipt.transactionHash,
-              feeInfo: arbitrary.feeInfo,
-            })
+            const trackSwapCompleted = (accessListRetained?: boolean) =>
+              trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
+                arbitrary,
+                actual_gas: receipt.gasUsed || 0n,
+                gas_price: receipt.effectiveGasPrice || 0n,
+                tx_hash: receipt.transactionHash,
+                feeInfo: arbitrary.feeInfo,
+                access_list_retained: accessListRetained,
+              })
+            const client = publicClientRef.current
+            if (arbitrary.accessList && client) {
+              // Whether the wallet signed the list it was handed shows only on the mined transaction.
+              client
+                .getTransaction({ hash: receipt.transactionHash as Hash })
+                .then(tx => trackSwapCompleted('accessList' in tx && (tx.accessList?.length ?? 0) > 0))
+                .catch(() => trackSwapCompleted(undefined))
+            } else {
+              trackSwapCompleted()
+            }
             if (arbitrary.tipLink) {
               trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {
                 trade_type: 'swap',
