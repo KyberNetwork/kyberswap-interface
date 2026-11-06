@@ -397,11 +397,11 @@ export const elysium = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://elysium-rpc.kyberswap.com'],
+      http: ['https://rpc.hyperlogic.fun'],
     },
   },
   blockExplorers: {
-    default: { name: 'ElysScan', url: 'https://scan.elysp.com/#' },
+    default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' },
   },
   contracts: {
     multicall3: {

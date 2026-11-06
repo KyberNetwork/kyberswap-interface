@@ -531,7 +531,7 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   4153: 'https://explorer.risechain.com',
   4663: 'https://robin.etherscan.io',
   5042: 'https://arc.etherscan.io',
-  99901: 'https://scan.elysp.com/#',
+  99901: 'https://elysium.kinetiq.xyz',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
@@ -560,7 +560,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   4153: 'https://rpc.risechain.com',
   4663: 'https://rpc.mainnet.chain.robinhood.com',
   5042: 'https://rpc.mainnet.arc.io',
-  99901: 'https://elysium-rpc.kyberswap.com',
+  99901: 'https://rpc.hyperlogic.fun',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

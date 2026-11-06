@@ -188,12 +188,18 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   [ROBINHOOD]: ['https://rpc.mainnet.chain.robinhood.com'],
   [ARC]: ['https://rpc.mainnet.arc.io', 'https://arc.drpc.org'],
   [ELYSIUM]: [
-    'https://elysium-rpc.kyberswap.com',
-    'https://rpc.agoradex.app',
-    'https://rpc-live.elysp.com',
+    'https://rpc.hyperlogic.fun',
+    'https://rpc.eleos.fun',
+    'https://rpc.ascendlaunch.xyz',
     'https://rpc.thekleos.pro',
+    'https://rpc.agoradex.app',
+    'https://rpc.ronspad.fun',
+    'https://rpc.volta.family',
+    'https://supercolonyai.com/supercolony/api/elysium/rpc',
+    'https://obol-rpc.fly.dev',
+    'https://rpc-elysium.perpme.fun',
     'https://rpc.stockium.fun',
-    'https://rpc.betweenquotes.xyz',
+    'https://rpc.hesperia.trade',
   ],
 };
 

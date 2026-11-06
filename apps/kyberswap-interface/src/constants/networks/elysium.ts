@@ -18,9 +18,8 @@ const elysiumInfo: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  // The explorer routes by URL fragment (`#/tx/…`, `#/address/…`, `#/token/…`).
-  etherscanUrl: 'https://scan.elysp.com/#',
-  etherscanName: 'ElysScan',
+  etherscanUrl: 'https://elysium.kinetiq.xyz',
+  etherscanName: 'Elysium Explorer',
   bridgeURL: '',
   nativeToken: {
     symbol: 'HYPE',
@@ -28,7 +27,7 @@ const elysiumInfo: NetworkInfo = {
     logo: hyperevmIcon,
     decimal: 18,
   },
-  defaultRpcUrl: 'https://elysium-rpc.kyberswap.com',
+  defaultRpcUrl: 'https://rpc.hyperlogic.fun',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
