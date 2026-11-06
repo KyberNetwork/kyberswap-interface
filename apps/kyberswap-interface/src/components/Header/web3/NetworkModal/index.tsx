@@ -1,10 +1,10 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { useUpdateProfileMutation } from 'services/identity'
 
 import Column from 'components/Column'
+import { L1_CHAINS, L2_CHAINS } from 'components/Header/web3/NetworkModal/chains'
 import DraggableNetworkButton from 'components/Header/web3/NetworkModal/components/DraggableNetworkButton'
 import DropzoneOverlay from 'components/Header/web3/NetworkModal/components/DropzoneOverlay'
 import { useDragAndDrop } from 'components/Header/web3/NetworkModal/hooks'
@@ -25,41 +25,6 @@ import { useFavoriteChains } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
-
-const l1Chains = [
-  ChainId.MAINNET,
-  NonEvmChain.Bitcoin,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  NonEvmChain.Near,
-  NonEvmChain.Solana,
-  ChainId.BERA,
-  ChainId.SONIC,
-  ChainId.RONIN,
-  ChainId.FANTOM,
-  ChainId.HYPEREVM,
-  ChainId.PLASMA,
-  ChainId.MONAD,
-  ChainId.ARC,
-]
-
-const l2Chains = [
-  ChainId.BASE,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.MATIC,
-  ChainId.UNICHAIN,
-  ChainId.LINEA,
-  ChainId.ZKSYNC,
-  ChainId.SCROLL,
-  ChainId.BLAST,
-  ChainId.ABSTRACT,
-  ChainId.MANTLE,
-  ChainId.ETHERLINK,
-  ChainId.MEGAETH,
-  ChainId.ROBINHOOD,
-  ChainId.RISE,
-]
 
 export default function NetworkModal({
   deprecatedSoons,
@@ -162,7 +127,7 @@ export default function NetworkModal({
     )
   }
 
-  const renderListChain = (chains: Chain[], title: string) => {
+  const renderListChain = (chains: readonly Chain[], title: string) => {
     const displayChains = chains
       .map(item => {
         if (NonEvmChainInfo[item as NonEvmChain]) {
@@ -302,8 +267,8 @@ export default function NetworkModal({
               </NetworkList>
             )}
           </div>
-          {renderListChain(l1Chains, 'Layer-1 Networks')}
-          {renderListChain(l2Chains, 'Layer-2 Networks')}
+          {renderListChain(L1_CHAINS, 'Layer-1 Networks')}
+          {renderListChain(L2_CHAINS, 'Layer-2 Networks')}
         </Column>
       </Wrapper>
     </Modal>

@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import { ChainFeatureMap, enabledChains } from 'constants/chainFeature'
+
 export enum TokenSelectorTab {
   All = 'all',
   Trending = 'trending',
@@ -16,19 +18,40 @@ export const TOKEN_SELECTOR_TAB_ORDER: TokenSelectorTab[] = [
   TokenSelectorTab.Favorites,
 ]
 
-export const TRENDING_SUPPORTED_CHAINS: ChainId[] = [
-  ChainId.MAINNET,
-  ChainId.BASE,
-  ChainId.BSCMAINNET,
-  ChainId.HYPEREVM,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.AVAXMAINNET,
-  ChainId.MATIC,
-  ChainId.MONAD,
-  ChainId.ROBINHOOD,
-  ChainId.ARC,
-]
+/** What a chain still needs before the Trending tab can rank its tokens. */
+const NEEDS_KYBERSCORE = 'needs KyberScore rankings from token-catalog'
+
+const TRENDING_BY_CHAIN: ChainFeatureMap = {
+  [ChainId.MAINNET]: true,
+  [ChainId.BASE]: true,
+  [ChainId.BSCMAINNET]: true,
+  [ChainId.HYPEREVM]: true,
+  [ChainId.ARBITRUM]: true,
+  [ChainId.OPTIMISM]: true,
+  [ChainId.AVAXMAINNET]: true,
+  [ChainId.MATIC]: true,
+  [ChainId.MONAD]: true,
+  [ChainId.ROBINHOOD]: true,
+  [ChainId.ARC]: true,
+  [ChainId.GÖRLI]: 'testnet',
+  [ChainId.FANTOM]: NEEDS_KYBERSCORE,
+  [ChainId.ZKSYNC]: NEEDS_KYBERSCORE,
+  [ChainId.LINEA]: NEEDS_KYBERSCORE,
+  [ChainId.SCROLL]: NEEDS_KYBERSCORE,
+  [ChainId.BLAST]: NEEDS_KYBERSCORE,
+  [ChainId.MANTLE]: NEEDS_KYBERSCORE,
+  [ChainId.SONIC]: NEEDS_KYBERSCORE,
+  [ChainId.BERA]: NEEDS_KYBERSCORE,
+  [ChainId.RONIN]: NEEDS_KYBERSCORE,
+  [ChainId.UNICHAIN]: NEEDS_KYBERSCORE,
+  [ChainId.PLASMA]: NEEDS_KYBERSCORE,
+  [ChainId.ETHERLINK]: NEEDS_KYBERSCORE,
+  [ChainId.MEGAETH]: NEEDS_KYBERSCORE,
+  [ChainId.RISE]: NEEDS_KYBERSCORE,
+  [ChainId.ABSTRACT]: 'cross-chain only',
+}
+
+export const TRENDING_SUPPORTED_CHAINS: ChainId[] = enabledChains(TRENDING_BY_CHAIN)
 
 export const isTrendingSupportedChain = (chainId: ChainId): boolean => TRENDING_SUPPORTED_CHAINS.includes(chainId)
 

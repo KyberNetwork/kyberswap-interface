@@ -16,6 +16,7 @@ export {
   UnsupportedChainError,
   isChainUnsupported,
   WALLET_INVENTORY_CHAINS,
+  WALLET_INVENTORY_CHAIN_DECISIONS,
   isWalletInventoryChain,
   markChainUnsupported,
   parseRawAmount,
