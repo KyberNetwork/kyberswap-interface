@@ -28,6 +28,7 @@ const rawQuoteSchema = z
           route_plans: z
             .array(
               routeSummarySchema.extend({
+                sig: z.string().min(1),
                 expected_output_amount: z.string().regex(/^\d+$/),
                 min_output_amount: z.string().regex(/^\d+$/),
                 request: z.record(z.unknown()),
@@ -124,22 +125,6 @@ const getFinalReceivedAmount = (trackingExecution: TrackingExecution, hasGasDrop
   )
 }
 
-const getFinalTxHash = (trackingExecution: TrackingExecution, hasGasDrop: boolean): string => {
-  if (trackingExecution.dest_tx_hash) return trackingExecution.dest_tx_hash
-
-  const details = trackingExecution.data
-  const hasDestinationAction =
-    trackingExecution.flow_type === 'bridge_then_swap' ||
-    trackingExecution.flow_type === 'swap_bridge_swap' ||
-    !!details.dest_swap ||
-    !!details.dest_withdraw ||
-    !!details.withdraw ||
-    !!details.gas_drop ||
-    hasGasDrop
-
-  return hasDestinationAction ? '' : details.bridge?.dest?.tx_hash || ''
-}
-
 export const getGasDropQuote = (route: Pick<RoutePlan, 'gas_drop_swap'>): GasDropQuote | undefined => {
   const gas = route.gas_drop_swap
   if (!gas) return undefined
@@ -170,7 +155,7 @@ const getGasDropStatus = (execution: TrackingExecution): GasDropStatus => {
 }
 
 export const mapRouteStateToSwapStatus = (trackingExecution: TrackingExecution, hasGasDrop = false): SwapStatus => {
-  const txHash = getFinalTxHash(trackingExecution, hasGasDrop)
+  const txHash = trackingExecution.dest_tx_hash ?? ''
   const amountOut = getFinalReceivedAmount(trackingExecution, hasGasDrop)
   const gasStatus = hasGasDrop ? { gasDropStatus: getGasDropStatus(trackingExecution) } : {}
 

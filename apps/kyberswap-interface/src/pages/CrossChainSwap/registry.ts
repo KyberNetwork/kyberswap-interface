@@ -3,12 +3,18 @@ import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 
 export interface Quote {
   id?: string
+  selectionKey?: string
   adapter: SwapProvider
   quote: NormalizedQuote
   isReadOnly: boolean
 }
 
 export const getQuoteId = (quote: Quote): string => quote.id ?? quote.adapter.getName()
+
+export const getQuoteSelectionKey = (quote: Quote): string => quote.selectionKey ?? getQuoteId(quote)
+
+export const getSelectedQuote = (quotes: Quote[], selectionKey: string | null): Quote | null =>
+  quotes.find(quote => getQuoteSelectionKey(quote) === selectionKey) ?? quotes[0] ?? null
 
 export class CrossChainSwapAdapterRegistry {
   private adapters: Map<string, SwapProvider> = new Map()
