@@ -1,29 +1,64 @@
 import { ChainId } from '@kyber/schema';
 
-/** Chain id not in `@kyber/schema`, whose enum backs the widget schemas rather than this list. */
+/** Chain ids not in `@kyber/schema`, whose enum backs the widget schemas rather than this map. */
+const GOERLI = 5;
+const UNICHAIN = 130;
 const HYPEREVM = 999;
+const RONIN = 2020;
+const ABSTRACT = 2741;
+const RISE = 4153;
+const MEGAETH = 4326;
+const PLASMA = 9745;
+const ETHERLINK = 42793;
+
+/** What a chain still needs before the inventory can serve it. */
+const NOT_INDEXED = 'needs KyberData to index the chain';
 
 /**
- * Chains the inventory is allowed to serve. A release gate as much as a list: the service may index
- * a chain ahead of time for testing, and nothing here reads it until this list says so. A chain the
- * service reports as unsupported is additionally disabled for the session (see
- * `isWalletInventoryChain`), so the list drifting ahead of the backend degrades to the caller's own
- * balance source rather than failing. Both the app and the widget packages read this one list.
+ * Whether the inventory serves each chain, with what the others still need. A release gate as much
+ * as a list: the service may index a chain ahead of time for testing, and nothing here reads it
+ * until this map says so. A chain the service reports as unsupported is additionally disabled for
+ * the session (see `isWalletInventoryChain`), so the map running ahead of the backend degrades to
+ * the caller's own balance source rather than failing. Both the app and the widget packages read
+ * this one map, and the app checks that it names every chain the app knows, so a new chain fails
+ * type-check there until its decision is recorded here.
  *
- * Plain chain ids, since a chain reaches this list whether or not the widget schema names it.
+ * Plain chain ids, since a chain reaches this map whether or not the widget schema names it.
  */
-export const WALLET_INVENTORY_CHAINS: number[] = [
-  ChainId.Ethereum,
-  ChainId.Base,
-  ChainId.Bsc,
-  ChainId.Arbitrum,
-  ChainId.Robinhood,
-  ChainId.Optimism,
-  ChainId.PolygonPos,
-  ChainId.Avalanche,
-  ChainId.Monad,
-  HYPEREVM,
-];
+export const WALLET_INVENTORY_CHAIN_DECISIONS = {
+  [ChainId.Ethereum]: true,
+  [ChainId.Base]: true,
+  [ChainId.Bsc]: true,
+  [ChainId.Arbitrum]: true,
+  [ChainId.Robinhood]: true,
+  [ChainId.Optimism]: true,
+  [ChainId.PolygonPos]: true,
+  [ChainId.Avalanche]: true,
+  [ChainId.Monad]: true,
+  [HYPEREVM]: true,
+  [GOERLI]: 'testnet',
+  [ChainId.Fantom]: NOT_INDEXED,
+  [ChainId.ZkSync]: NOT_INDEXED,
+  [ChainId.Linea]: NOT_INDEXED,
+  [ChainId.Scroll]: NOT_INDEXED,
+  [ChainId.Blast]: NOT_INDEXED,
+  [ChainId.Mantle]: NOT_INDEXED,
+  [ChainId.Sonic]: NOT_INDEXED,
+  [ChainId.Berachain]: NOT_INDEXED,
+  [ChainId.Arc]: NOT_INDEXED,
+  [UNICHAIN]: NOT_INDEXED,
+  [RONIN]: NOT_INDEXED,
+  [ABSTRACT]: NOT_INDEXED,
+  [RISE]: NOT_INDEXED,
+  [MEGAETH]: NOT_INDEXED,
+  [PLASMA]: NOT_INDEXED,
+  [ETHERLINK]: NOT_INDEXED,
+} as const;
+
+/** The chains the inventory serves. */
+export const WALLET_INVENTORY_CHAINS: number[] = Object.entries(WALLET_INVENTORY_CHAIN_DECISIONS).flatMap(
+  ([chainId, decision]) => (decision === true ? [Number(chainId)] : []),
+);
 
 /** The service answered that it does not index this chain. */
 export class UnsupportedChainError extends Error {
