@@ -36,7 +36,7 @@ export const HistoryButton = ({ active, onClick }: { active: boolean; onClick: (
 
 // Remount only wallet-owned history state; keep the search input and focus stable.
 const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) => {
-  const history = useHistoryPagination(sender)
+  const history = useHistoryPagination(sender, !!filter)
   const { transactions } = history
 
   if (filter)
@@ -84,7 +84,7 @@ const HistoryPanel = ({ inputChain, onBack }: { inputChain: Chain; onBack: () =>
   const sender = useHistoryWallet(inputChain)
   const [search, setSearch] = useState('')
 
-  // Search has its own result pages and can explicitly extend the loaded API history.
+  // Search owns its result pages and loads more history only to fill the requested page.
   const query = search.trim().toLowerCase()
 
   return (

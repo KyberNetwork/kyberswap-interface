@@ -1,11 +1,10 @@
 import { t } from '@lingui/macro'
-import { useState } from 'react'
 
 import { ButtonOutlined } from 'components/Button'
 import Loader from 'components/Loader'
 import TransactionHistoryList from 'components/SwapTransactions/History/TransactionHistoryList'
 import { useHistorySearch } from 'components/SwapTransactions/History/useHistorySearch'
-import { HISTORY_PAGE_SIZE, type HistoryTransaction } from 'components/SwapTransactions/history'
+import type { HistoryTransaction } from 'components/SwapTransactions/history'
 
 type Props = {
   transactions: HistoryTransaction[]
@@ -27,25 +26,22 @@ export const HistorySearchResults = ({
   onLoadMore,
   onRetry,
 }: Props) => {
-  const result = useHistorySearch(transactions, query)
-  const [page, setPage] = useState(1)
-  const lastPage = Math.max(1, Math.ceil(result.transactions.length / HISTORY_PAGE_SIZE))
-  const currentPage = Math.min(page, lastPage)
-  const loading = loadingMore || result.loading
+  const result = useHistorySearch({ transactions, query, hasMore, loadingMore, isError, onLoadMore })
+  const loading = result.loading
   const emptyMessage = loading ? t`Loading` : t`No transactions found`
 
   return (
     <>
       <TransactionHistoryList
-        transactions={result.transactions.slice((currentPage - 1) * HISTORY_PAGE_SIZE, currentPage * HISTORY_PAGE_SIZE)}
+        transactions={result.transactions}
         emptyMessage={emptyMessage}
         cursorPagination={{
-          currentPage,
-          canGoPrevious: currentPage > 1,
-          canGoNext: currentPage < lastPage,
-          loading: false,
-          onPrevious: () => setPage(currentPage - 1),
-          onNext: () => setPage(currentPage + 1),
+          currentPage: result.currentPage,
+          canGoPrevious: result.canGoPrevious,
+          canGoNext: result.canGoNext,
+          loading,
+          onPrevious: result.goPrevious,
+          onNext: result.goNext,
         }}
       />
       <div className="flex flex-col items-center gap-2 py-3 text-center text-sm text-subText">
@@ -57,13 +53,7 @@ export const HistorySearchResults = ({
         )}
         {isError && <span>{t`Could not load history. Please try again.`}</span>}
         {result.unresolved && <span>{t`Some token details are unavailable. Results may be incomplete.`}</span>}
-        {isError ? (
-          <ButtonOutlined disabled={loadingMore} onClick={onRetry}>{t`Retry history`}</ButtonOutlined>
-        ) : hasMore ? (
-          <ButtonOutlined disabled={loadingMore} onClick={onLoadMore}>
-            {t`Search older transactions`}
-          </ButtonOutlined>
-        ) : null}
+        {isError ? <ButtonOutlined disabled={loadingMore} onClick={onRetry}>{t`Retry history`}</ButtonOutlined> : null}
       </div>
     </>
   )
