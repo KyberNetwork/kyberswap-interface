@@ -65,6 +65,7 @@ export const getExecutionSteps = (execution: TrackingExecution, hasGasDrop = fal
   const finished = isExecutionFinished(execution)
   const bridgeFailed = state === 'BRIDGE_FAILED' || state === 'BRIDGE_EXPIRED'
   const swapFailed = state === 'SWAP_EXPIRED' || state === 'SWAP_UNEXECUTABLE'
+  const refunding = state === 'REFUNDED' || state === 'SWAP_REFUND_PENDING'
 
   const steps: ExecutionStep[] = [{ id: 'created', label: t`Source transaction submitted`, status: 'complete' }]
 
@@ -94,7 +95,8 @@ export const getExecutionSteps = (execution: TrackingExecution, hasGasDrop = fal
     steps.push({
       id: 'destination-swap',
       label: t`Destination swap`,
-      status: data.dest_swap || success ? 'complete' : swapFailed ? 'failed' : 'waiting',
+      // Refund states do not say whether the destination swap was attempted.
+      status: data.dest_swap || success ? 'complete' : swapFailed ? 'failed' : refunding ? 'unknown' : 'waiting',
     })
   }
 

@@ -148,6 +148,9 @@ const KyberCrossTransactions = ({ execution, tx }: { execution?: TrackingExecuti
     !!plan?.gasDropSwap ||
     execution?.route_state === 'GAS_DROP_PENDING'
 
+  const refunding = execution
+    ? execution.route_state === 'REFUNDED' || execution.route_state === 'SWAP_REFUND_PENDING'
+    : tx.status === 'Refunded'
   const destinationHash = execution ? execution.dest_tx_hash : tx.targetTxHash
   const receiveHash = data?.bridge?.dest?.tx_hash
   const hasSeparateReceive = !!receiveHash && receiveHash.toLowerCase() !== destinationHash?.toLowerCase()
@@ -168,7 +171,7 @@ const KyberCrossTransactions = ({ execution, tx }: { execution?: TrackingExecuti
       : []),
     {
       id: 'destination',
-      label: getDestinationLabel(hasDestinationSwap, hasGasDrop),
+      label: refunding ? t`Destination Transaction` : getDestinationLabel(hasDestinationSwap, hasGasDrop),
       value: destinationHash,
       chain: tx.targetChain,
     },

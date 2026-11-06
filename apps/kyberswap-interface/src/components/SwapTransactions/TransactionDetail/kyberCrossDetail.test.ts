@@ -65,10 +65,20 @@ describe('KyberCross detail progress', () => {
   it('tracks refund separately from output delivery and stops after refund settlement', () => {
     const pending = getExecutionSteps(execution({ flow_type: 'bridge_then_swap', route_state: 'SWAP_REFUND_PENDING' }))
     expect(pending.filter(step => step.status === 'pending').map(step => step.id)).toEqual(['settlement'])
+    expect(pending.find(step => step.id === 'destination-swap')?.status).toBe('unknown')
     const refunded = execution({ flow_type: 'bridge_then_swap', route_state: 'REFUNDED' })
-    expect(getExecutionSteps(refunded).find(step => step.id === 'destination-swap')?.status).toBe('skipped')
+    expect(getExecutionSteps(refunded).find(step => step.id === 'destination-swap')?.status).toBe('unknown')
     expect(getExecutionSteps(refunded).at(-1)?.status).toBe('complete')
     expect(isExecutionFinished(refunded)).toBe(true)
+  })
+
+  it('preserves destination swap execution evidence when refunded', () => {
+    const current = execution({
+      flow_type: 'bridge_then_swap',
+      route_state: 'REFUNDED',
+      data: { dest_swap: { token_in: '0x333', token_out: '0x444', input_amount: '100', output_amount: '99' } },
+    })
+    expect(getExecutionSteps(current).find(step => step.id === 'destination-swap')?.status).toBe('complete')
   })
 
   it('marks a missing gas drop failed when the main swap succeeds', () => {
