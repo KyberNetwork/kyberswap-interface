@@ -95,8 +95,14 @@ export const getExecutionSteps = (execution: TrackingExecution, hasGasDrop = fal
     steps.push({
       id: 'destination-swap',
       label: t`Destination swap`,
-      // Refund states do not say whether the destination swap was attempted.
-      status: data.dest_swap || success ? 'complete' : swapFailed ? 'failed' : refunding ? 'unknown' : 'waiting',
+      status:
+        data.dest_swap || success
+          ? 'complete'
+          : data.refund?.chain === execution.source_chain
+          ? 'skipped'
+          : swapFailed || refunding || (state === 'FAILED' && !!data.bridge?.dest)
+          ? 'failed'
+          : 'waiting',
     })
   }
 

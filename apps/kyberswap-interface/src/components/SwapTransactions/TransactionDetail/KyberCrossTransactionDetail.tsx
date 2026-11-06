@@ -20,7 +20,6 @@ import ExecutionTimeline from 'components/SwapTransactions/TransactionDetail/Kyb
 import TokenAmount from 'components/SwapTransactions/TransactionDetail/TransactionDetailTokenAmount'
 import {
   type ExecutionStep,
-  getExecutionFlowLabel,
   getExecutionSteps,
   getLocalExecutionSteps,
 } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetail'
@@ -99,7 +98,7 @@ const TransferCard = ({
               <TokenAmount token={resolved} amount={amount} chain={chain} />
             </div>
             <HStack className="flex-wrap items-center gap-x-1 gap-y-0.5 text-xs font-medium text-subText">
-              {amountUsd !== undefined && Number.isFinite(amountUsd) && amountUsd > 0 && (
+              {amountUsd !== undefined && Number.isFinite(amountUsd) && amountUsd >= 0 && (
                 <>
                   <span>~{formatDisplayNumber(amountUsd, { style: 'currency', fractionDigits: 2 })}</span>
                   <span aria-hidden>•</span>
@@ -289,6 +288,32 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
     bridgeProvider ||
     ''
 
+  const refunded = settlement.status === 'Refunded'
+  const refund = refunded ? execution?.data.refund : undefined
+  const refundChain = refund ? backendChainToChain(refund.chain) : undefined
+  const { resolve } = useHistoryTokens(
+    refund && refundChain !== undefined ? [{ token: refund.token, chain: refundChain }] : [],
+  )
+  const refundToken = refund && refundChain !== undefined ? resolve(refund.token, refundChain) : undefined
+  const refundPriceAddress = (
+    typeof refundToken !== 'string' && isEvmCurrency(refundToken) ? refundToken.wrapped.address : refund?.token || ''
+  ).toLowerCase()
+  const refundPrices = useTokenPrices(
+    refund && typeof refundChain === 'number' ? [refundPriceAddress] : [],
+    typeof refundChain === 'number' ? refundChain : undefined,
+    { refresh: 'once' },
+  )
+  const refundPrice = refundPrices[refundPriceAddress]
+  let refundUsd: number | undefined
+  if (refund && refundToken && typeof refundToken !== 'string' && refundPrice > 0 && Number.isFinite(refundPrice)) {
+    try {
+      const value = Number(formatUnits(BigInt(refund.amount), refundToken.decimals)) * refundPrice
+      if (Number.isFinite(value) && value >= 0) refundUsd = value
+    } catch {
+      // Leave USD unknown when the refund amount cannot be parsed.
+    }
+  }
+
   const received = execution ? execution.route_state === 'SUCCESS' : tx.status === 'Success'
   const outputAmount = received
     ? settlement.amountOut
@@ -299,9 +324,52 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
   // Local USD snapshots describe the quote; adjust the estimate to the displayed received amount.
   const usdBaseAmount = Number(tx.usesBackendData ? tx.outputAmount : tx.estimatedAmountOut || tx.outputAmount)
   const outputUsd =
-    outputAmount !== undefined && usdBaseAmount > 0
+    outputAmount !== undefined && usdBaseAmount > 0 && tx.amountOutUsd > 0
       ? tx.amountOutUsd * (Number(outputAmount) / usdBaseAmount)
       : undefined
+
+  let outputTransfer: TransferCardProps | undefined
+  if (refunded) {
+    if (refund && refundChain !== undefined) {
+      outputTransfer = {
+        label: t`Refunded to your wallet`,
+        token: refund.token,
+        amount: refund.amount,
+        amountUsd: refundUsd,
+        chain: refundChain,
+        // The quote requests refunds to the sender on either chain.
+        address: execution?.from_address || tx.sender,
+        addressLabel: t`Recipient`,
+      }
+    }
+  } else {
+    outputTransfer = {
+      label: received ? t`Received` : settlement.status === 'Processing' ? t`Expected to receive` : t`To`,
+      token: tx.targetToken,
+      amount: outputAmount,
+      amountUsd: outputUsd,
+      chain: tx.targetChain,
+      address: execution?.to_address || tx.recipient,
+      addressLabel: t`Recipient`,
+    }
+  }
+
+  const gasDropContent =
+    settlement.gasDropStatus?.status === 'Delivered' && settlement.gasDropStatus.amount ? (
+      <GasDropAmount gasDrop={{ amount: settlement.gasDropStatus.amount }} chain={tx.targetChain} />
+    ) : (
+      hasGasDrop && (
+        <GasDropTransactionLine
+          showSeparator={false}
+          tx={{
+            ...tx,
+            status: settlement.status,
+            gasDropStatus: settlement.gasDropStatus,
+            targetTxHash: undefined,
+          }}
+        />
+      )
+    )
 
   return (
     <Stack className="gap-4">
@@ -312,7 +380,7 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
             label={t`From`}
             token={tx.sourceToken}
             amount={tx.inputAmount}
-            amountUsd={tx.amountInUsd}
+            amountUsd={tx.amountInUsd > 0 ? tx.amountInUsd : undefined}
             chain={tx.sourceChain}
             address={execution?.from_address || tx.sender}
             addressLabel={t`Sender`}
@@ -320,31 +388,15 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
         </div>
         <ArrowRight size={20} className="shrink-0 self-center text-subText max-sm:rotate-90" />
         <div className="flex min-w-0 flex-1 max-sm:w-full">
-          <TransferCard
-            label={received ? t`Received` : settlement.status === 'Processing' ? t`Expected to receive` : t`To`}
-            token={tx.targetToken}
-            amount={outputAmount}
-            amountUsd={outputUsd}
-            chain={tx.targetChain}
-            address={execution?.to_address || tx.recipient}
-            addressLabel={t`Recipient`}
-          >
-            {settlement.gasDropStatus?.status === 'Delivered' && settlement.gasDropStatus.amount ? (
-              <GasDropAmount gasDrop={{ amount: settlement.gasDropStatus.amount }} chain={tx.targetChain} />
-            ) : (
-              hasGasDrop && (
-                <GasDropTransactionLine
-                  showSeparator={false}
-                  tx={{
-                    ...tx,
-                    status: settlement.status,
-                    gasDropStatus: settlement.gasDropStatus,
-                    targetTxHash: undefined,
-                  }}
-                />
-              )
-            )}
-          </TransferCard>
+          {!outputTransfer ? (
+            <Stack className="flex-1 gap-3 rounded-xl bg-background p-4">
+              <span className="text-xs font-medium text-subText">{t`Refunded to your wallet`}</span>
+              <span className="text-sm text-subText">{t`Refund details unavailable`}</span>
+              {gasDropContent}
+            </Stack>
+          ) : (
+            <TransferCard {...outputTransfer}>{gasDropContent}</TransferCard>
+          )}
         </div>
       </HStack>
       {(flow || bridgeName || !!fees?.length) && (
@@ -352,7 +404,18 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
           {flow && (
             <Stack className="gap-1.5">
               <span className="text-xs font-medium text-subText">{t`Flow`}</span>
-              <span className="font-medium text-primary">{getExecutionFlowLabel(flow)}</span>
+              <span className="font-medium text-primary">
+                {steps
+                  .filter(step => ['source-swap', 'bridge', 'destination-swap'].includes(step.id))
+                  .map((step, index) => (
+                    <span key={step.id}>
+                      {index > 0 && ' → '}
+                      <span className={step.status === 'failed' ? 'text-red' : undefined}>
+                        {step.id === 'bridge' ? t`Bridge` : t`Swap`}
+                      </span>
+                    </span>
+                  ))}
+              </span>
             </Stack>
           )}
           {bridgeName && (
