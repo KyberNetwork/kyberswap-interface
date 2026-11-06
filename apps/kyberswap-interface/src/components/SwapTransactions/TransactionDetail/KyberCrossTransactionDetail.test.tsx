@@ -183,6 +183,30 @@ it('links distinct destination transactions without duplicating a shared receipt
   expect(transactionLinks()).not.toContain('https://basescan.org/tx/0xfinal')
 })
 
+it.each(['REFUNDED', 'SWAP_REFUND_PENDING'] as const)(
+  'keeps destination receipts without claiming a swap for %s',
+  async route_state => {
+    await showExecution({
+      ...execution,
+      flow_type: 'swap_bridge_swap',
+      route_state,
+      dest_tx_hash: '0xfinal',
+      data: {
+        bridge: {
+          source: { tx_hash: '0xdeposit', token: '0xtoken', amount: '99' },
+          dest: { tx_hash: '0xreceive', token: '0xtoken', amount: '99' },
+        },
+      },
+    })
+    expect(transactionLinks()).toEqual(
+      expect.arrayContaining(['https://basescan.org/tx/0xreceive', 'https://basescan.org/tx/0xfinal']),
+    )
+    expect(container.textContent).toContain('Destination Receive')
+    expect(container.textContent).toContain('Destination Transaction')
+    expect(container.textContent).not.toContain('Destination Swap')
+  },
+)
+
 it('converts both fees using token decimals and the price on each fee chain', async () => {
   mocks.resolveToken.mockImplementation((token: unknown) =>
     token === '0xfee' ? { symbol: 'FEE', decimals: 6 } : token,
