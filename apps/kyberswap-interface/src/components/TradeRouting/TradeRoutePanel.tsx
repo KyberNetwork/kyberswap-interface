@@ -84,7 +84,17 @@ const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, onExpand
           />
         </div>
       </button>
-      {isExpanded && <div className="border-t border-darkBorder p-4">{children}</div>}
+      <div
+        inert={!isExpanded}
+        className={cn(
+          'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
+          isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="border-t border-darkBorder p-4">{children}</div>
+        </div>
+      </div>
     </div>
   )
 }
