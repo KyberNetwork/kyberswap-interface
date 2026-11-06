@@ -76,8 +76,7 @@ const RouteOptionsContent = ({
   const FeeTooltip = upToLarge ? ClickTooltip : MouseoverTooltip
   const bestReturnQuote = sortQuotesByNetOutput(quotes)[0]
   const fastestQuoteIndex = quotes.reduce((fastestIndex, { quote }, index) => {
-    // Providers may use zero when no time estimate is available.
-    if (!Number.isFinite(quote.timeEstimate) || quote.timeEstimate <= 0) return fastestIndex
+    if (!Number.isFinite(quote.timeEstimate) || quote.timeEstimate < 0) return fastestIndex
     if (fastestIndex === -1) return index
 
     const fastestQuote = quotes[fastestIndex].quote
