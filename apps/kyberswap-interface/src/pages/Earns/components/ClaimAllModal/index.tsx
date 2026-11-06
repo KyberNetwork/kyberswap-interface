@@ -235,7 +235,7 @@ export default function ClaimAllModal({
                         </span>
                       </ChainRewardTitle>
                       <ChainRewardTokens
-                        data-open={isSelected ? 'true' : 'false'}
+                        open={isSelected}
                         data-signal={chain.tokens.length > 5 ? 'true' : 'false'}
                         showArrow
                         showBackground
@@ -299,7 +299,7 @@ export default function ClaimAllModal({
               </FilteredChainTitle>
 
               <FilteredChainTokens
-                data-open={selectedChainExpanded ? 'true' : 'false'}
+                open={selectedChainExpanded}
                 data-signal={selectedRewardChain.tokens.length > 5 ? 'true' : 'false'}
                 showBackground
               >

@@ -4,6 +4,7 @@ import { ChevronDown, X } from 'react-feather'
 import { ReactComponent as RecipientWalletIcon } from 'assets/svg/recipient_wallet.svg'
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonLight } from 'components/Button'
+import { Collapse } from 'components/Collapse'
 import { Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
@@ -57,54 +58,41 @@ export const RecipientInput = (props: RecipientInputProps) => {
           )}
         </div>
       )}
-      <div
-        aria-hidden={!expanded}
-        inert={!expanded}
-        className={cn(
-          'relative z-10 grid w-full transition-[grid-template-rows,opacity] duration-200 ease-in-out motion-reduce:transition-none',
-          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <div className="pt-2">
-            <AddressInput
-              className="[&>div]:py-2"
-              placeholder={
-                hideLabel ? t`Recipient (${networkName} address)` : t`Enter ${networkName} receiving address`
-              }
-              value={value}
-              error={error}
-              disabled={!expanded}
-              pattern={props.mode === 'nonEvm' ? null : undefined}
-              icon={
-                <>
-                  {hideLabel && props.mode === 'evm' && onUseMyWallet && (
-                    <ButtonLight
-                      type="button"
-                      className="w-fit shrink-0 whitespace-nowrap px-2 py-0.5"
-                      fontSize={12}
-                      onClick={onUseMyWallet}
-                    >
-                      <Trans>Use my wallet</Trans>
-                    </ButtonLight>
-                  )}
-                  {value ? (
-                    <button
-                      type="button"
-                      aria-label={t`Clear address`}
-                      className="flex shrink-0 items-center border-0 bg-transparent p-0 text-subText hover:text-text"
-                      onClick={() => onChange('')}
-                    >
-                      <X size={14} />
-                    </button>
-                  ) : undefined}
-                </>
-              }
-              onChange={event => onChange(event.target.value.replace(/\s+/g, ''))}
-            />
-          </div>
-        </div>
-      </div>
+      <Collapse open={expanded} className="relative z-10 w-full" contentGap={2}>
+        <AddressInput
+          className="[&>div]:py-2"
+          placeholder={hideLabel ? t`Recipient (${networkName} address)` : t`Enter ${networkName} receiving address`}
+          value={value}
+          error={error}
+          disabled={!expanded}
+          pattern={props.mode === 'nonEvm' ? null : undefined}
+          icon={
+            <>
+              {hideLabel && props.mode === 'evm' && onUseMyWallet && (
+                <ButtonLight
+                  type="button"
+                  className="w-fit shrink-0 whitespace-nowrap px-2 py-0.5"
+                  fontSize={12}
+                  onClick={onUseMyWallet}
+                >
+                  <Trans>Use my wallet</Trans>
+                </ButtonLight>
+              )}
+              {value ? (
+                <button
+                  type="button"
+                  aria-label={t`Clear address`}
+                  className="flex shrink-0 items-center border-0 bg-transparent p-0 text-subText hover:text-text"
+                  onClick={() => onChange('')}
+                >
+                  <X size={14} />
+                </button>
+              ) : undefined}
+            </>
+          }
+          onChange={event => onChange(event.target.value.replace(/\s+/g, ''))}
+        />
+      </Collapse>
     </Stack>
   )
 }

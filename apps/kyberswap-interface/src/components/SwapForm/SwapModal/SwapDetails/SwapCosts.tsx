@@ -3,6 +3,7 @@ import { type ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
+import { Collapse } from 'components/Collapse'
 import Divider from 'components/Divider'
 import { HStack, Stack } from 'components/Stack'
 import { SwapFeeLabel, TooltipTextOfSwapFee, formatSwapFeePercent } from 'components/SwapForm/Quote/SwapFee'
@@ -40,37 +41,30 @@ const GasBreakdown = ({
   }
 
   return (
-    <div
-      className={cn(
-        'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
-        expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-      )}
-    >
-      <div className="min-h-0 overflow-hidden">
-        <Stack className="gap-2">
-          <HStack className="items-center justify-end gap-2">
-            <DetailLabel placement="top" tooltip={<Trans>L2 execution fee</Trans>}>
-              Est. L2 gas fee
-            </DetailLabel>
-            <p className="text-xs font-medium text-text">
-              {gasUsd && formatDisplayNumber(gasUsd, { style: 'currency', significantDigits: 5 })}
-            </p>
-          </HStack>
+    <Collapse open={expanded} contentGap={2}>
+      <Stack className="gap-2">
+        <HStack className="items-center justify-end gap-2">
+          <DetailLabel placement="top" tooltip={<Trans>L2 execution fee</Trans>}>
+            Est. L2 gas fee
+          </DetailLabel>
+          <p className="text-xs font-medium text-text">
+            {gasUsd && formatDisplayNumber(gasUsd, { style: 'currency', significantDigits: 5 })}
+          </p>
+        </HStack>
 
-          <HStack className="items-center justify-end gap-2">
-            <DetailLabel placement="top" tooltip={<Trans>L1 fee that pays for rolls up cost</Trans>}>
-              Est. L1 gas fee
-            </DetailLabel>
-            <p className="text-xs font-medium text-text">
-              {formatDisplayNumber(additionalCostUsd, {
-                style: 'currency',
-                significantDigits: 5,
-              })}
-            </p>
-          </HStack>
-        </Stack>
-      </div>
-    </div>
+        <HStack className="items-center justify-end gap-2">
+          <DetailLabel placement="top" tooltip={<Trans>L1 fee that pays for rolls up cost</Trans>}>
+            Est. L1 gas fee
+          </DetailLabel>
+          <p className="text-xs font-medium text-text">
+            {formatDisplayNumber(additionalCostUsd, {
+              style: 'currency',
+              significantDigits: 5,
+            })}
+          </p>
+        </HStack>
+      </Stack>
+    </Collapse>
   )
 }
 
@@ -100,7 +94,7 @@ export const SwapGasDetails = ({
         }}
         isShowingSkeleton={isLoading}
         content={
-          <div className={cn('flex flex-col items-end', showDetailGas && hasAdditionalCost && 'gap-2')}>
+          <div className="flex flex-col items-end">
             <div
               className={cn('flex h-5 items-center gap-1', hasAdditionalCost && 'cursor-pointer')}
               onClick={() => hasAdditionalCost && setShowDetailGas(prev => !prev)}

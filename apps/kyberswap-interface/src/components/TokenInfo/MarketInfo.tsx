@@ -4,6 +4,7 @@ import { ReactNode, useMemo, useState } from 'react'
 
 import AddTokenToMetaMask from 'components/AddToMetamask'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
+import { Collapse } from 'components/Collapse'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
@@ -41,24 +42,19 @@ const MarketInfo = ({ token }: { token: Token | undefined }) => {
 
   return (
     <div className="flex w-full flex-col gap-2 rounded-sm p-4">
-      <div className="flex flex-col" style={{ gap: expand ? 8 : 0 }}>
+      <div className="flex flex-col">
         <div className="flex flex-col gap-2">
           {primaryInfo.map(item => (
             <InfoRow key={item.label} label={item.label} value={loading ? <Loader size="10px" /> : item.value} />
           ))}
         </div>
-        <div
-          className="flex flex-col gap-2 overflow-hidden transition-[max-height,opacity,transform] duration-300 ease-in-out"
-          style={{
-            maxHeight: expand ? 240 : 0,
-            opacity: expand ? 1 : 0,
-            transform: expand ? 'translateY(0)' : 'translateY(-4px)',
-          }}
-        >
-          {extraInfo.map(item => (
-            <InfoRow key={item.label} label={item.label} value={loading ? <Loader size="10px" /> : item.value} />
-          ))}
-        </div>
+        <Collapse open={expand} className="duration-300" contentGap={2}>
+          <div className="flex flex-col gap-2">
+            {extraInfo.map(item => (
+              <InfoRow key={item.label} label={item.label} value={loading ? <Loader size="10px" /> : item.value} />
+            ))}
+          </div>
+        </Collapse>
       </div>
 
       <InfoRow label={<Trans>Contract Address</Trans>} value={contractAddress} />

@@ -1,11 +1,11 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { type ButtonHTMLAttributes, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Repeat, X } from 'react-feather'
+import { ChevronDown, Repeat, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import ExpandableBox from 'components/ExpandableBox'
+import { Collapse } from 'components/Collapse'
 import HistoryIcon from 'components/Icons/History'
 import VoteIcon from 'components/Icons/Vote'
 import Wallet from 'components/Icons/Wallet'
@@ -26,7 +26,6 @@ import {
   useVotingInfo,
 } from 'hooks/kyberdao'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import DelegateConfirmModal from 'pages/KyberDAO/StakeKNC/DelegateConfirmModal'
 import MigrateModal from 'pages/KyberDAO/StakeKNC/MigrateModal'
@@ -67,7 +66,6 @@ export const KNCLogoWrapper = ({ children, className }: { children: ReactNode; c
 )
 
 export default function StakeKNCComponent() {
-  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const kyberDAOInfo = useKyberDAOInfo()
   const { stakedBalance, KNCBalance, delegatedAddress } = useStakingInfo()
@@ -427,31 +425,41 @@ export default function StakeKNCComponent() {
             <span className="text-xs italic text-subText">
               <Trans>*Only delegate to Ethereum address</Trans>
             </span>
-            <ExpandableBox
-              borderRadius="16px"
-              backgroundColor={theme.buttonBlack}
-              padding="16px"
-              className="text-subText"
-              style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-              headerContent={
-                <HStack className="items-center gap-2">
-                  <div className="shrink-0">
-                    <WarningIcon />
-                  </div>
-                  <span className="text-xs text-subText">
-                    <Trans>Important Notice: Kyber Network does not hold your funds or manage this process.</Trans>
-                  </span>
-                </HStack>
-              }
-              expandContent={
-                <p className="px-8 text-xs">
-                  <Trans>
-                    In this default delegation method, your delegate is responsible for voting on your behalf and
-                    distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC
-                  </Trans>
-                </p>
-              }
-            />
+            <div className="overflow-hidden rounded-2xl bg-buttonBlack text-subText drop-shadow-[0_4px_4px_rgba(0,0,0,0.16)]">
+              <Collapse
+                className="duration-300"
+                trigger={({ open, buttonProps }) => (
+                  <button
+                    {...buttonProps}
+                    className="flex w-full cursor-pointer items-center justify-between gap-4 border-0 bg-transparent p-4 text-left text-inherit"
+                  >
+                    <HStack className="items-center gap-2">
+                      <div className="shrink-0">
+                        <WarningIcon />
+                      </div>
+                      <span className="text-xs text-subText">
+                        <Trans>Important Notice: Kyber Network does not hold your funds or manage this process.</Trans>
+                      </span>
+                    </HStack>
+                    <ChevronDown
+                      className={cn(
+                        'size-5 shrink-0 transition-transform duration-200 motion-reduce:transition-none',
+                        open && 'rotate-180',
+                      )}
+                    />
+                  </button>
+                )}
+              >
+                <div className="border-t border-darkBorder p-4">
+                  <p className="px-8 text-xs">
+                    <Trans>
+                      In this default delegation method, your delegate is responsible for voting on your behalf and
+                      distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC
+                    </Trans>
+                  </p>
+                </div>
+              </Collapse>
+            </div>
             {account ? (
               <ButtonPrimary onClick={handleDelegate} disabled={!!errorMessage}>
                 {errorMessage || <Trans>Delegate</Trans>}
@@ -471,61 +479,71 @@ export default function StakeKNCComponent() {
           </>
         )}
       </Stack>
-      <ExpandableBox
-        border={`1px solid ${theme.darkBorder}`}
-        backgroundColor={theme.buttonBlack}
-        borderRadius="16px"
-        className="text-subText"
-        padding={'12px 16px'}
-        headerContent={
-          <span className="text-xs font-semibold uppercase tracking-wide text-text">
-            <Trans>Stake Information</Trans>
-          </span>
-        }
-        expandContent={
-          <Stack className="gap-2 text-xs">
-            <RowBetween>
-              <span>
-                <Trans>Stake Amount</Trans>
+      <div className="overflow-hidden rounded-2xl border border-darkBorder bg-buttonBlack text-subText">
+        <Collapse
+          className="duration-300"
+          trigger={({ open, buttonProps }) => (
+            <button
+              {...buttonProps}
+              className="flex w-full cursor-pointer items-center justify-between gap-4 border-0 bg-transparent px-4 py-3 text-left text-inherit"
+            >
+              <span className="text-xs font-semibold uppercase tracking-wide text-text">
+                <Trans>Stake Information</Trans>
               </span>
-              <span>
-                {stakedBalanceFormatted} KNC
-                {activeTab !== STAKE_TAB.Delegate && (
-                  <>
-                    {' '}
-                    &rarr;{' '}
-                    <span className="text-text">
-                      {Math.max(
-                        +stakedBalanceFormatted +
-                          (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0')),
-                        0,
-                      )}{' '}
-                      KNC
-                    </span>
-                  </>
+              <ChevronDown
+                className={cn(
+                  'size-5 shrink-0 transition-transform duration-200 motion-reduce:transition-none',
+                  open && 'rotate-180',
                 )}
-              </span>
-            </RowBetween>
-            <RowBetween>
-              <span>
-                <Trans>Voting power</Trans>{' '}
-                <InfoHelper
-                  text={t`Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%.`}
-                />
-              </span>
-              <span>
-                {currentVotingPower}%
-                {activeTab !== STAKE_TAB.Delegate && (
-                  <>
-                    {' '}
-                    &rarr; <span className="text-text">{newVotingPower}%</span>
-                  </>
-                )}
-              </span>
-            </RowBetween>
-          </Stack>
-        }
-      />
+              />
+            </button>
+          )}
+        >
+          <div className="border-t border-darkBorder px-4 py-3">
+            <Stack className="gap-2 text-xs">
+              <RowBetween>
+                <span>
+                  <Trans>Stake Amount</Trans>
+                </span>
+                <span>
+                  {stakedBalanceFormatted} KNC
+                  {activeTab !== STAKE_TAB.Delegate && (
+                    <>
+                      {' '}
+                      &rarr;{' '}
+                      <span className="text-text">
+                        {Math.max(
+                          +stakedBalanceFormatted +
+                            (activeTab === STAKE_TAB.Unstake ? -(inputValue || '0') : +(inputValue || '0')),
+                          0,
+                        )}{' '}
+                        KNC
+                      </span>
+                    </>
+                  )}
+                </span>
+              </RowBetween>
+              <RowBetween>
+                <span>
+                  <Trans>Voting power</Trans>{' '}
+                  <InfoHelper
+                    text={t`Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%.`}
+                  />
+                </span>
+                <span>
+                  {currentVotingPower}%
+                  {activeTab !== STAKE_TAB.Delegate && (
+                    <>
+                      {' '}
+                      &rarr; <span className="text-text">{newVotingPower}%</span>
+                    </>
+                  )}
+                </span>
+              </RowBetween>
+            </Stack>
+          </div>
+        </Collapse>
+      </div>
       <DelegateConfirmModal
         address={delegateAddress}
         isUndelegate={isUndelegate.current}

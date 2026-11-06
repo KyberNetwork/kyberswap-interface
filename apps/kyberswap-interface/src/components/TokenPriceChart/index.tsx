@@ -5,6 +5,7 @@ import { AlertTriangle, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import { type TokenChartTimeFrame } from 'services/tokenChart'
 
+import { Collapse } from 'components/Collapse'
 import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
 import Skeleton from 'components/Skeleton'
@@ -208,7 +209,7 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
         )}
       </HStack>
 
-      {isExpanded && (
+      <Collapse open={isExpanded} unmountOnExit>
         <Stack className="border-t border-darkBorder p-4">
           <Stack className="relative gap-3">
             <HStack className="flex-wrap items-start justify-between gap-4">
@@ -337,7 +338,7 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
             )}
           </Stack>
         </Stack>
-      )}
+      </Collapse>
     </Stack>
   )
 }
