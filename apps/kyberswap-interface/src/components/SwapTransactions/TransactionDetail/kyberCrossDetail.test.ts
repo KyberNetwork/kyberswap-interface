@@ -180,7 +180,12 @@ it('marks the unfinished destination swap failed when the route fails after a br
   const current = execution({
     flow_type: 'bridge_then_swap',
     route_state: 'FAILED',
-    data: { bridge: { dest: { tx_hash: '0x456', token: '0x333', amount: '99' } } },
+    data: {
+      bridge: {
+        source: { tx_hash: '0x123', token: '0x333', amount: '100' },
+        dest: { tx_hash: '0x456', token: '0x333', amount: '99' },
+      },
+    },
   })
   expect(getExecutionSteps(current).find(step => step.id === 'destination-swap')?.status).toBe('failed')
 })
