@@ -34,17 +34,19 @@ type Args = {
   permit?: string
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
+  /** The route was quoted exact-out, so it has to be built by the aggregator that quoted it. */
+  isExactOut?: boolean
 }
 
 const useBuildRoute = (args: Args) => {
-  const { recipient, routeSummary, slippage, transactionTimeout, permit, currencyIn, currencyOut } = args
+  const { recipient, routeSummary, slippage, transactionTimeout, permit, currencyIn, currencyOut, isExactOut } = args
   const [searchParams] = useSearchParams()
   const clientId = isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId')
   const { chainId, account } = useActiveWeb3React()
   const abortControllerRef = useRef(new AbortController())
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
   const [buildRoute] = routeApi.useBuildRouteMutation()
-  const aggregatorDomain = useRouteApiDomain()
+  const aggregatorDomain = useRouteApiDomain(isExactOut)
   const recipientLookup = useENS(recipient)
   const to: string | null = (recipient === '' ? account : recipientLookup.address) ?? null
 
@@ -91,7 +93,7 @@ const useBuildRoute = (args: Args) => {
     const payload: BuildRoutePayload = {
       routeSummary: rawRouteSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
-      slippageTolerance: slippage,
+      ...(isExactOut ? {} : { slippageTolerance: slippage }),
       sender: account,
       recipient: to || account,
       source: clientId || 'kyberswap',
@@ -153,6 +155,7 @@ const useBuildRoute = (args: Args) => {
     permit,
     currencyIn,
     currencyOut?.decimals,
+    isExactOut,
   ])
 
   return fetcher

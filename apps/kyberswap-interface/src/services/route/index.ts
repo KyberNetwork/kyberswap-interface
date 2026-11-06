@@ -10,6 +10,7 @@ import { ETHER_ADDRESS } from 'constants/index'
 export const AGGREGATOR_API_PATHS = {
   BUILD_ROUTE: '/api/v1/route/build',
   GET_ROUTE: '/api/v1/routes',
+  GET_ROUTE_EXACT_OUT: '/api/v1/routes/exact-out',
 } as const
 
 const getWrappedToken = (token: string, chainId: ChainId) =>
