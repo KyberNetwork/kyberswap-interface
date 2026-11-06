@@ -13,6 +13,7 @@ import { Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const formatTime = (seconds: number) => {
+  if (seconds === 0) return '< 1s'
   if (seconds <= 60) return `${seconds}s`
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
@@ -73,7 +74,7 @@ export const CrossChainQuoteSummaryRows = ({
         label={t`Est. Time`}
         tooltip={t`Estimated processing time for your transaction.`}
       >
-        {quote ? `~${formatTime(quote.quote.timeEstimate)}` : '--'}
+        {quote ? `${quote.quote.timeEstimate === 0 ? '' : '~'}${formatTime(quote.quote.timeEstimate)}` : '--'}
       </QuoteDetailRow>
 
       <QuoteDetailRow

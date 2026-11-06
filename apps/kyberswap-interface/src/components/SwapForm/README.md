@@ -175,7 +175,8 @@ Stream errors do not fall back to direct provider quotes.
 while more provider results arrive. With Gas Drop enabled, Route Options includes
 both modes, with Gas Drop routes first and each group sorted by net output.
 Best Return follows the highest net output across the list, independently of row
-position. Fastest uses a valid positive time estimate, breaking ties by output.
+position. Fastest uses a valid nonnegative time estimate, breaking ties by output.
+Zero-second estimates display as `< 1s` and remain eligible for Fastest.
 Row identity includes the mode; selection updates the provider and mode through
 `useCrossChainQuote`.
 
