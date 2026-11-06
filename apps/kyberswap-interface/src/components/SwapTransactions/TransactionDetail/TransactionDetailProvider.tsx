@@ -17,8 +17,8 @@ import IconButton from 'components/Button/IconButton'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
-import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetailQuery'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
+import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/kyberCrossExecutionQuery'
 import { ButtonText, CloseIcon } from 'theme'
 
 const getTransactionDetailKey = (tx: HistoryTransaction) => `${tx.sourceChain}:${tx.sourceTxHash.toLowerCase()}`

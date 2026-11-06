@@ -1,10 +1,10 @@
 import type { TrackingExecution } from 'services/crossChain/adapters/KyberCrossAdapter/api'
+import { isExecutionFinished } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
 import { describe, expect, it } from 'vitest'
 
 import {
   getExecutionSteps,
   getLocalExecutionSteps,
-  isExecutionFinished,
 } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetail'
 
 const execution = (overrides: Partial<TrackingExecution> = {}): TrackingExecution => ({

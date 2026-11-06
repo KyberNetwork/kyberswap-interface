@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import type { TrackingExecution } from 'services/crossChain/adapters/KyberCrossAdapter/api'
-import { mapRouteStateToSwapStatus } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
+import { isExecutionFinished, mapRouteStateToSwapStatus } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
 
 import type { NormalizedTxResponse } from 'types/crossChain'
 
@@ -9,9 +9,6 @@ export type ExecutionStep = {
   label: string
   status: 'complete' | 'pending' | 'waiting' | 'failed' | 'skipped' | 'unknown'
 }
-
-export const isExecutionFinished = (execution: TrackingExecution) =>
-  ['SUCCESS', 'FAILED', 'REFUNDED'].includes(execution.route_state)
 
 export const getExecutionFlowLabel = (flow: TrackingExecution['flow_type']) => {
   switch (flow) {

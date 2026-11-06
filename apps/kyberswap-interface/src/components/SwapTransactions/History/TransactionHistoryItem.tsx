@@ -8,12 +8,15 @@ import { normalizeAdapterName } from 'services/crossChain/utils'
 import { formatUnits } from 'viem'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
+import GasStation from 'components/Icons/GasStation'
 import Loader from 'components/Loader'
 import { TransactionDetailButton } from 'components/SwapTransactions/TransactionDetail/TransactionDetailProvider'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
+import { useHistoryGasDrop } from 'components/SwapTransactions/kyberCrossExecutionQuery'
 import { useHistoryToken } from 'components/SwapTransactions/useHistoryToken'
 import { TokenLogoWithChain } from 'components/TokenLogo/TokenLogoWithChain'
 import { NETWORKS_INFO } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
 import { ExternalLinkIcon } from 'theme'
 import {
   type Chain,
@@ -158,6 +161,13 @@ type TransactionAmountLineProps = {
   token: Currency | string
 }
 
+const AmountLine = ({ icon, children }: { icon: ReactNode; children: ReactNode }) => (
+  <div className="flex min-w-0 items-center gap-1 max-sm:justify-between">
+    {icon}
+    <span className="truncate text-sm font-medium text-subText">{children}</span>
+  </div>
+)
+
 const TokenAmountLine = ({ amount, chain, prefix, token }: TransactionAmountLineProps) => {
   const currency = typeof token === 'string' ? undefined : token
   const symbol =
@@ -177,13 +187,37 @@ const TokenAmountLine = ({ amount, chain, prefix, token }: TransactionAmountLine
   }, [amount, decimals])
 
   return (
-    <div className="flex min-w-0 items-center gap-1 max-sm:justify-between">
-      <TokenLogoWithChain chainId={chain} currency={currency} />
-      <span className="truncate text-sm font-medium text-subText">
-        {prefix}
-        {formattedAmount} {symbol}
-      </span>
-    </div>
+    <AmountLine icon={<TokenLogoWithChain chainId={chain} currency={currency} />}>
+      {prefix}
+      {formattedAmount} {symbol}
+    </AmountLine>
+  )
+}
+
+const GasDropLine = ({ tx }: { tx: HistoryTransaction }) => {
+  const native = NativeCurrencies[tx.targetChain as ChainId]
+  const gas = tx.gasDropStatus
+  if (!native || (!tx.gasDrop && !gas) || gas?.status === 'NotExecuted') return null
+
+  const text =
+    gas?.status === 'Delivered' && gas.amount
+      ? `+${formatDisplayNumber(formatUnits(BigInt(gas.amount), native.decimals), { significantDigits: 6 })} ${
+          native.symbol
+        }`
+      : gas?.status === 'Failed'
+      ? t`Not delivered`
+      : t`Pending`
+
+  return (
+    <AmountLine
+      icon={
+        <span className="mr-1 flex shrink-0 text-primary" role="img" aria-label={t`Gas Drop`}>
+          <GasStation size={16} />
+        </span>
+      }
+    >
+      {text}
+    </AmountLine>
   )
 }
 
@@ -191,6 +225,7 @@ const TransactionAmount = ({ tx }: { tx: HistoryTransaction }) => (
   <div className="flex min-w-0 flex-col gap-1">
     <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" token={tx.sourceToken} />
     <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" token={tx.targetToken} />
+    <GasDropLine tx={tx} />
   </div>
 )
 
@@ -261,7 +296,9 @@ const TransactionRow = ({ tx }: { tx: HistoryTransaction }) => (
     </div>
     <TransactionAmount tx={tx} />
     <TransactionTime tx={tx} />
-    <div className="flex min-w-0 flex-col gap-1 self-start">
+    <div
+      className={cn('flex min-w-0 flex-col gap-1', tx.sourceChain === tx.targetChain ? 'self-start' : 'self-center')}
+    >
       <div className="flex min-w-0 justify-end gap-2">
         <span className="shrink-0 text-sm font-medium text-text">
           {tx.sourceChain === tx.targetChain ? t`Tx Hash:` : t`Deposit:`}
@@ -287,6 +324,7 @@ type TransactionHistoryItemProps = {
 export const TransactionHistoryItem = ({ tx, mobile }: TransactionHistoryItemProps) => {
   const sourceToken = useHistoryToken(tx.sourceToken, tx.sourceChain)
   const targetToken = useHistoryToken(tx.targetToken, tx.targetChain)
-  const resolved = { ...tx, sourceToken, targetToken }
+  const gasDropStatus = useHistoryGasDrop(tx)
+  const resolved = { ...tx, sourceToken, targetToken, gasDropStatus }
   return mobile ? <TransactionCard tx={resolved} /> : <TransactionRow tx={resolved} />
 }

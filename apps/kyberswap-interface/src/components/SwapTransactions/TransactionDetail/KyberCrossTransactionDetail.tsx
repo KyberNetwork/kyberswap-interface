@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { ArrowRight } from 'react-feather'
 import type { TrackingExecution } from 'services/crossChain/adapters/KyberCrossAdapter/api'
-import { mapRouteStateToSwapStatus } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
+import { isExecutionFinished, mapRouteStateToSwapStatus } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
 import { CrossChainSwapFactory } from 'services/crossChain/factory'
 import { isEvmCurrency } from 'services/crossChain/quote/utils'
 import { getChainName, normalizeAdapterName } from 'services/crossChain/utils'
@@ -23,10 +23,9 @@ import {
   getExecutionFlowLabel,
   getExecutionSteps,
   getLocalExecutionSteps,
-  isExecutionFinished,
 } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetail'
-import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetailQuery'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
+import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/kyberCrossExecutionQuery'
 import { useHistoryToken } from 'components/SwapTransactions/useHistoryToken'
 import { useHistoryTokens } from 'components/SwapTransactions/useHistoryTokens'
 import { TokenLogoWithChain } from 'components/TokenLogo/TokenLogoWithChain'

@@ -70,8 +70,10 @@ const retainHistoryMetadata = (canonical: HistoryTransaction, local: HistoryTran
     ...canonical,
     sourceToken,
     targetToken,
-    // Retain quote-time detail only when the canonical route still matches the local broadcast.
+    // Retain local route and Gas Drop details only when the canonical route still matches the local broadcast.
     kyberCrossRoute: sameRoute ? local.kyberCrossRoute : undefined,
+    gasDrop: sameRoute ? local.gasDrop : undefined,
+    gasDropStatus: sameRoute ? local.gasDropStatus : undefined,
   }
 }
 
