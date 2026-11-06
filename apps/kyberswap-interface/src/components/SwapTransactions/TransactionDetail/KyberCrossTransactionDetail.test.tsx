@@ -9,8 +9,9 @@ import type { HistoryTransaction } from 'components/SwapTransactions/history'
 import ThemeProvider from 'theme'
 
 const mocks = vi.hoisted(() => ({ query: vi.fn() }))
-vi.mock('components/SwapTransactions/TransactionDetail/useKyberCrossDetail', () => ({
-  useKyberCrossDetail: mocks.query,
+vi.mock('@tanstack/react-query', async importOriginal => ({
+  ...(await importOriginal<typeof import('@tanstack/react-query')>()),
+  useQuery: mocks.query,
 }))
 vi.mock('services/crossChain/factory', () => ({
   CrossChainSwapFactory: { getKyberCrossBridgeSources: () => [] },
@@ -88,15 +89,20 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 
-it('shows processing during initial loading and non-final execution states', async () => {
-  mocks.query.mockReturnValue({ isPending: true, isError: false, errorUpdatedAt: 0 })
-  await render()
-  expect(container.querySelector('[role="status"]')?.textContent).toContain('Processing')
-
+it('shows processing for non-final execution states', async () => {
   for (const route_state of ['BRIDGE_PENDING', 'BRIDGE_FAILED', 'SWAP_REFUND_PENDING'] as const) {
     await showExecution({ ...execution, route_state })
     expect(container.querySelector('[role="status"]')?.textContent).toBe('Processing')
   }
+})
+
+it('renders available history data while the first execution is loading', async () => {
+  mocks.query.mockReturnValue({ isPending: true, errorUpdatedAt: 0 })
+  await render()
+  expect(container.textContent).toContain('100 IN')
+  expect(container.textContent).toContain('90 OUT')
+  expect(container.querySelector('[role="status"]')?.textContent).toBe('Processing')
+  expect(transactionLinks()).toContain('https://etherscan.io/tx/0xsource')
 })
 
 it.each([
@@ -129,17 +135,27 @@ it('uses the selected transaction on failure and switches to execution details a
   expect(transactionLinks()).toContain('https://basescan.org/tx/0xapi-fill')
 })
 
-it('falls back to FE data when refreshing a cached execution fails', async () => {
+it('keeps cached execution details when a refresh fails and updates them after recovery', async () => {
+  const cached = { ...execution, dest_tx_hash: '0xcached' }
+  const selected = { ...tx, status: 'Failed' as const, targetTxHash: '0xselected' }
+  mocks.query.mockReturnValue({ data: cached, isError: false, isPending: false })
+  await render(selected)
+
   mocks.query.mockReturnValue({
-    data: { ...execution, dest_tx_hash: '0xstale' },
+    data: cached,
     isError: true,
     isPending: false,
     errorUpdatedAt: 1,
   })
-  await render({ ...tx, targetTxHash: '0xselected' })
-  expect(container.textContent).toContain('90 OUT')
-  expect(transactionLinks()).toContain('https://basescan.org/tx/0xselected')
-  expect(transactionLinks()).not.toContain('https://basescan.org/tx/0xstale')
+  await render(selected)
+  expect(container.querySelector('[role="status"]')?.textContent).toBe('Processing')
+  expect(transactionLinks()).toContain('https://basescan.org/tx/0xcached')
+  expect(transactionLinks()).not.toContain('https://basescan.org/tx/0xselected')
+
+  await showExecution({ ...execution, route_state: 'SUCCESS', dest_tx_hash: '0xrecovered' })
+  expect(container.querySelector('[role="status"]')?.textContent).toBe('Completed')
+  expect(transactionLinks()).toContain('https://basescan.org/tx/0xrecovered')
+  expect(transactionLinks()).not.toContain('https://basescan.org/tx/0xcached')
 })
 
 it('links distinct destination transactions without duplicating a shared receipt hash', async () => {

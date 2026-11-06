@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { useQuery } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { ArrowRight } from 'react-feather'
 import type { TrackingExecution } from 'services/crossChain/adapters/KyberCrossAdapter/api'
@@ -14,7 +15,6 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { GasDropTransactionLine } from 'components/SwapTransactions/TransactionDetail/GasDropTransactionLine'
 import ExecutionTimeline from 'components/SwapTransactions/TransactionDetail/KyberCrossExecutionTimeline'
-import TransactionDetailSkeleton from 'components/SwapTransactions/TransactionDetail/TransactionDetailSkeleton'
 import TokenAmount from 'components/SwapTransactions/TransactionDetail/TransactionDetailTokenAmount'
 import {
   type ExecutionStep,
@@ -23,7 +23,7 @@ import {
   getLocalExecutionSteps,
   isExecutionFinished,
 } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetail'
-import { useKyberCrossDetail } from 'components/SwapTransactions/TransactionDetail/useKyberCrossDetail'
+import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetailQuery'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
 import { useHistoryToken } from 'components/SwapTransactions/useHistoryToken'
 import { TokenLogoWithChain } from 'components/TokenLogo/TokenLogoWithChain'
@@ -101,7 +101,7 @@ const TransferCard = ({
       <Divider className="shrink-0 opacity-50" />
       <HStack className="min-h-11 shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-3 text-xs text-subText">
         <span className="font-medium">{addressLabel}</span>
-        <TransactionDetailValue value={address} />
+        {address ? <TransactionDetailValue value={address} /> : <span>--</span>}
       </HStack>
     </Stack>
   )
@@ -138,7 +138,7 @@ const KyberCrossTransactions = ({ execution, tx }: { execution?: TrackingExecuti
   const destinationHash = execution ? execution.dest_tx_hash : tx.targetTxHash
   const receiveHash = data?.bridge?.dest?.tx_hash
   const hasSeparateReceive = !!receiveHash && receiveHash.toLowerCase() !== destinationHash?.toLowerCase()
-  const loading = !execution || !isExecutionFinished(execution)
+  const loading = execution ? !isExecutionFinished(execution) : !tx.status || tx.status === 'Processing'
 
   const rows = [
     { id: 'route', label: t`Route ID`, value: execution?.route_plan_id || plan?.id, chain: undefined },
@@ -315,9 +315,7 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
 }
 
 const KyberCrossTransactionDetail = ({ tx }: { tx: HistoryTransaction }) => {
-  const { data, isPending, isError, errorUpdatedAt } = useKyberCrossDetail(tx)
-  const waitingForExecution = !data && errorUpdatedAt > 0
-  const execution = isError ? undefined : data
+  const { data: execution } = useQuery(getKyberCrossDetailQueryOptions(tx))
 
   const steps = execution ? getExecutionSteps(execution, !!tx.gasDrop) : getLocalExecutionSteps(tx)
   const settlement: SwapStatus = execution
@@ -340,8 +338,6 @@ const KyberCrossTransactionDetail = ({ tx }: { tx: HistoryTransaction }) => {
       : t`Processing`
   const statusVariant =
     status === 'Success' ? BadgeVariant.PRIMARY : status === 'Failed' ? BadgeVariant.NEGATIVE : BadgeVariant.WARNING
-
-  if (isPending && !waitingForExecution) return <TransactionDetailSkeleton />
 
   return (
     <Stack className="gap-4">
