@@ -89,7 +89,7 @@ type TokenChartApiResponse = {
 const tokenChartApi = createApi({
   reducerPath: 'tokenChartApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_KYBER_AI_API_URL + '/v1',
+    baseUrl: import.meta.env.VITE_TOKEN_CHART_API_URL + '/v1',
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({
