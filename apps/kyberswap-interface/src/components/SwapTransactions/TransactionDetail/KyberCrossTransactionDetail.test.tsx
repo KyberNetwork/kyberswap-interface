@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import { i18n } from '@lingui/core'
+import { I18nProvider } from '@lingui/react'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { TrackingExecution } from 'services/crossChain/adapters/KyberCrossAdapter/api'
@@ -66,9 +68,11 @@ let container: HTMLDivElement
 const render = (selected = tx) =>
   act(async () =>
     root.render(
-      <ThemeProvider>
-        <KyberCrossTransactionDetail tx={selected} />
-      </ThemeProvider>,
+      <I18nProvider i18n={i18n}>
+        <ThemeProvider>
+          <KyberCrossTransactionDetail tx={selected} />
+        </ThemeProvider>
+      </I18nProvider>,
     ),
   )
 const showExecution = async (data: TrackingExecution) => {
@@ -79,6 +83,8 @@ const showExecution = async (data: TrackingExecution) => {
 const transactionLinks = () => [...container.querySelectorAll('a[href]')].map(link => link.getAttribute('href'))
 
 beforeEach(() => {
+  i18n.load('en', {})
+  i18n.activate('en')
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   mocks.resolveToken.mockImplementation((token: unknown) => token)
   mocks.prices.mockReturnValue({})
@@ -242,4 +248,82 @@ it.each([
   })
 
   expect(container.textContent).not.toContain('(~$')
+})
+
+it.each([
+  ['ethereum', 1, '1250000', '1.25', '~$2.5'],
+  ['base', 8453, '0', '0', '~$0'],
+  ['base', 8453, '1250000', '1.25', '~$3.75'],
+] as const)(
+  'shows the actual refunded asset and amount on %s instead of the quoted output',
+  async (chain, chainId, amount, formatted, usd) => {
+    mocks.prices.mockImplementation((_addresses: string[], priceChain: number) => ({
+      '0xrefund': priceChain === 1 ? 2 : 3,
+    }))
+    mocks.resolveToken.mockImplementation((token: unknown, tokenChain: number) =>
+      token === '0xrefund' && tokenChain === chainId ? { symbol: 'REFUND', decimals: 6 } : token,
+    )
+    await showExecution({
+      ...execution,
+      route_state: 'REFUNDED',
+      data: { refund: { chain, token: '0xrefund', amount } },
+    })
+
+    const refundCard = [...container.querySelectorAll('span')].find(
+      span => span.textContent === 'Refunded to your wallet',
+    )?.parentElement
+    expect(refundCard?.textContent).toContain(`${formatted} REFUND`)
+    expect(refundCard?.textContent).toContain(usd)
+    expect(refundCard?.textContent).not.toContain('90 OUT')
+    expect(refundCard?.textContent).not.toContain('$90')
+  },
+)
+
+it('does not display unknown history USD as zero dollars', async () => {
+  await render({ ...tx, amountInUsd: 0, amountOutUsd: 0 })
+  expect(container.textContent).not.toContain('~$0')
+})
+
+it('does not present the quoted destination as the refund asset when refund details are missing', async () => {
+  await render({ ...tx, status: 'Refunded' })
+  expect(container.textContent).toContain('Refund details unavailable')
+  expect(container.textContent).not.toContain('OUT')
+
+  await showExecution({ ...execution, route_state: 'REFUNDED' })
+  expect(container.textContent).toContain('Refund details unavailable')
+  expect(container.textContent).not.toContain('OUT')
+})
+
+it('preserves delivered gas when refund details are unavailable locally or from execution', async () => {
+  await render({
+    ...tx,
+    status: 'Refunded',
+    gasDropStatus: { status: 'Delivered', amount: '1000000000000000' },
+  })
+  expect(container.textContent).toContain('Refund details unavailable')
+  expect(container.textContent).toContain('0.001 ETH')
+
+  await showExecution({
+    ...execution,
+    route_state: 'REFUNDED',
+    data: { gas_drop: { token_in: '0xinput', token_out: '0xoutput', output_amount: '2000000000000000' } },
+  })
+  expect(container.textContent).toContain('Refund details unavailable')
+  expect(container.textContent).toContain('0.002 ETH')
+})
+
+it.each(['ethereum', 'base'] as const)('shows the sender as the refund recipient on %s', async chain => {
+  const sender = '0x1111111111111111111111111111111111111111'
+  const recipient = '0x2222222222222222222222222222222222222222'
+  await showExecution({
+    ...execution,
+    from_address: sender,
+    to_address: recipient,
+    route_state: 'REFUNDED',
+    data: { refund: { chain, token: '0xrefund', amount: '100' } },
+  })
+
+  const addresses = [...container.querySelectorAll('[title]')].map(element => element.getAttribute('title'))
+  expect(addresses.filter(address => address === sender)).toHaveLength(2)
+  expect(addresses).not.toContain(recipient)
 })

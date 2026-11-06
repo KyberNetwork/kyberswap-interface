@@ -65,9 +65,9 @@ describe('KyberCross detail progress', () => {
   it('tracks refund separately from output delivery and stops after refund settlement', () => {
     const pending = getExecutionSteps(execution({ flow_type: 'bridge_then_swap', route_state: 'SWAP_REFUND_PENDING' }))
     expect(pending.filter(step => step.status === 'pending').map(step => step.id)).toEqual(['settlement'])
-    expect(pending.find(step => step.id === 'destination-swap')?.status).toBe('unknown')
+    expect(pending.find(step => step.id === 'destination-swap')?.status).toBe('failed')
     const refunded = execution({ flow_type: 'bridge_then_swap', route_state: 'REFUNDED' })
-    expect(getExecutionSteps(refunded).find(step => step.id === 'destination-swap')?.status).toBe('unknown')
+    expect(getExecutionSteps(refunded).find(step => step.id === 'destination-swap')?.status).toBe('failed')
     expect(getExecutionSteps(refunded).at(-1)?.status).toBe('complete')
     expect(isExecutionFinished(refunded)).toBe(true)
   })
@@ -163,3 +163,32 @@ it('does not claim gas delivery or non-execution without a local gas result', ()
     }).find(step => step.id === 'gas-drop')?.status,
   ).toBe('complete')
 })
+
+it.each([
+  ['ethereum', 'skipped'],
+  ['base', 'failed'],
+] as const)('marks an unfinished destination swap correctly for a refund on %s', (chain, status) => {
+  const current = execution({
+    flow_type: 'bridge_then_swap',
+    route_state: 'REFUNDED',
+    data: { refund: { chain, token: '0x333', amount: '100' } },
+  })
+  expect(getExecutionSteps(current).find(step => step.id === 'destination-swap')?.status).toBe(status)
+})
+
+it('marks the unfinished destination swap failed when the route fails after a bridge fill', () => {
+  const current = execution({
+    flow_type: 'bridge_then_swap',
+    route_state: 'FAILED',
+    data: { bridge: { dest: { tx_hash: '0x456', token: '0x333', amount: '99' } } },
+  })
+  expect(getExecutionSteps(current).find(step => step.id === 'destination-swap')?.status).toBe('failed')
+})
+
+it.each(['SWAP_EXPIRED', 'SWAP_UNEXECUTABLE', 'SWAP_REFUND_PENDING', 'REFUNDED'] as const)(
+  'marks the destination swap failed for %s',
+  route_state => {
+    const steps = getExecutionSteps(execution({ flow_type: 'bridge_then_swap', route_state }))
+    expect(steps.find(step => step.id === 'destination-swap')?.status).toBe('failed')
+  },
+)
