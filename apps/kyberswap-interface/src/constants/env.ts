@@ -209,3 +209,5 @@ export const getAnnouncementTemplateType = (templateId?: number) => {
 
 const mock = (typeof localStorage !== 'undefined' ? localStorage.getItem('mock') : null)?.split(',') ?? []
 export const MOCK_ACCOUNT_EVM = isAddressString(mock[0]?.trim())
+
+export const TURNSTILE_SITE_KEY = required('TURNSTILE_SITE_KEY')
