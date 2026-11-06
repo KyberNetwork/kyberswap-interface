@@ -5,7 +5,9 @@ import { ArrowRight } from 'react-feather'
 import type { TrackingExecution } from 'services/crossChain/adapters/KyberCrossAdapter/api'
 import { mapRouteStateToSwapStatus } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
 import { CrossChainSwapFactory } from 'services/crossChain/factory'
+import { isEvmCurrency } from 'services/crossChain/quote/utils'
 import { getChainName, normalizeAdapterName } from 'services/crossChain/utils'
+import { formatUnits } from 'viem'
 
 import Badge, { BadgeVariant } from 'components/Badge'
 import CopyHelper from 'components/Copy'
@@ -26,21 +28,33 @@ import {
 import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetailQuery'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
 import { useHistoryToken } from 'components/SwapTransactions/useHistoryToken'
+import { useHistoryTokens } from 'components/SwapTransactions/useHistoryTokens'
 import { TokenLogoWithChain } from 'components/TokenLogo/TokenLogoWithChain'
+import { NETWORKS_INFO } from 'constants/networks'
 import { backendChainToChain } from 'state/crossChainSwap/model'
-import { ExternalLinkIcon } from 'theme'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { ExternalLink, LinkIcon } from 'theme'
 import type { Chain, Currency, SwapStatus } from 'types/crossChain'
 import { shortenHash } from 'utils/address'
 import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const TransactionDetailValue = ({ value, href }: { value: string; href?: string }) => (
+const TransactionDetailValue = ({ value, chain }: { value: string; chain?: Chain }) => (
   <HStack className="min-w-0 items-center gap-1 text-subText">
     <span className="truncate font-medium" title={value}>
       {shortenHash(value)}
     </span>
-    {href ? (
-      <ExternalLinkIcon href={href} className="size-3.5 shrink-0 text-subText [&>svg]:size-3.5" />
+    {typeof chain === 'number' ? (
+      <>
+        <span aria-hidden>•</span>
+        <ExternalLink
+          href={getEtherscanLink(chain, value, 'transaction')}
+          className="inline-flex shrink-0 items-center gap-1 text-subText"
+        >
+          {NETWORKS_INFO[chain].etherscanName}
+          <LinkIcon className="size-3.5" />
+        </ExternalLink>
+      </>
     ) : (
       <CopyHelper toCopy={value} />
     )}
@@ -85,7 +99,7 @@ const TransferCard = ({
             <div className="min-h-7 break-words text-xl font-medium leading-7">
               <TokenAmount token={resolved} amount={amount} chain={chain} />
             </div>
-            <HStack className="flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs font-medium text-subText">
+            <HStack className="flex-wrap items-center gap-x-1 gap-y-0.5 text-xs font-medium text-subText">
               {amountUsd !== undefined && Number.isFinite(amountUsd) && amountUsd > 0 && (
                 <>
                   <span>~{formatDisplayNumber(amountUsd, { style: 'currency', fractionDigits: 2 })}</span>
@@ -139,9 +153,10 @@ const KyberCrossTransactions = ({ execution, tx }: { execution?: TrackingExecuti
   const receiveHash = data?.bridge?.dest?.tx_hash
   const hasSeparateReceive = !!receiveHash && receiveHash.toLowerCase() !== destinationHash?.toLowerCase()
   const loading = execution ? !isExecutionFinished(execution) : !tx.status || tx.status === 'Processing'
+  const routeId = execution?.route_plan_id || plan?.id
+  const routeIdLabel = t`Route ID`
 
   const rows = [
-    { id: 'route', label: t`Route ID`, value: execution?.route_plan_id || plan?.id, chain: undefined },
     {
       id: 'source',
       label: hasSourceSwap ? t`Source Swap` : t`Source Transaction`,
@@ -162,17 +177,28 @@ const KyberCrossTransactions = ({ execution, tx }: { execution?: TrackingExecuti
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-background">
-      <span className="px-4 py-3 text-sm font-medium">{t`Transactions`}</span>
+      <HStack className="flex-wrap items-center justify-between gap-2 px-4 py-3">
+        <span className="text-sm font-medium">{t`Transactions`}</span>
+        <HStack className="items-center gap-2 text-xs text-subText">
+          <span>{routeIdLabel}:</span>
+          {routeId ? (
+            <TransactionDetailValue value={routeId} />
+          ) : loading ? (
+            <span className="inline-flex h-4 items-center" aria-label={t`Waiting for ${routeIdLabel}`} aria-busy="true">
+              <Skeleton inline width={100} height={12} variant="muted" />
+            </span>
+          ) : (
+            <span>--</span>
+          )}
+        </HStack>
+      </HStack>
       <Divider className="opacity-50" />
       <Stack className="gap-3 p-4 text-xs">
         {rows.map(({ id, label, value, chain }) => (
           <HStack key={id} className="min-h-4 flex-wrap items-center justify-between gap-2 text-subText">
             <span className="font-medium">{label}</span>
             {value ? (
-              <TransactionDetailValue
-                value={value}
-                href={typeof chain === 'number' ? getEtherscanLink(chain, value, 'transaction') : undefined}
-              />
+              <TransactionDetailValue value={value} chain={chain} />
             ) : loading ? (
               <span className="inline-flex h-4 items-center" aria-label={t`Waiting for ${label}`} aria-busy="true">
                 <Skeleton inline width={100} height={12} variant="muted" />
@@ -195,6 +221,29 @@ const ExecutionFee = ({
   estimated: boolean
 }) => {
   const chain = backendChainToChain(fee.chain)
+  const { resolve } = useHistoryTokens(chain === undefined ? [] : [{ token: fee.token, chain }])
+  const token = chain === undefined ? fee.token : resolve(fee.token, chain)
+  const currency = typeof token === 'string' ? undefined : token
+  const priceAddress = (isEvmCurrency(currency) ? currency.wrapped.address : fee.token).toLowerCase()
+  const prices = useTokenPrices(
+    typeof chain === 'number' ? [priceAddress] : [],
+    typeof chain === 'number' ? chain : undefined,
+    {
+      refresh: 'once',
+    },
+  )
+  const price = prices[priceAddress]
+
+  let amountUsd: number | undefined
+  if (currency && price > 0 && Number.isFinite(price)) {
+    try {
+      const value = Number(formatUnits(BigInt(fee.amount), currency.decimals)) * price
+      if (Number.isFinite(value) && value >= 0) amountUsd = value
+    } catch {
+      // Leave USD unknown when the fee amount cannot be parsed.
+    }
+  }
+
   if (chain === undefined) return null
 
   return (
@@ -204,7 +253,13 @@ const ExecutionFee = ({
       </span>
       <span className="font-medium">
         {estimated && '~'}
-        <TokenAmount token={fee.token} amount={fee.amount} chain={chain} />
+        <TokenAmount token={token} amount={fee.amount} chain={chain} />
+        {amountUsd !== undefined && (
+          <span className="text-xs text-subText">
+            {' '}
+            (~{formatDisplayNumber(amountUsd, { style: 'currency', fractionDigits: 2 })})
+          </span>
+        )}
         <span className="text-xs text-subText"> • {getChainName(chain)}</span>
       </span>
     </Stack>

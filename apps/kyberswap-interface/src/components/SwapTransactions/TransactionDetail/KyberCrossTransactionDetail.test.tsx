@@ -8,7 +8,7 @@ import KyberCrossTransactionDetail from 'components/SwapTransactions/Transaction
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
 import ThemeProvider from 'theme'
 
-const mocks = vi.hoisted(() => ({ query: vi.fn() }))
+const mocks = vi.hoisted(() => ({ query: vi.fn(), resolveToken: vi.fn(), prices: vi.fn() }))
 vi.mock('@tanstack/react-query', async importOriginal => ({
   ...(await importOriginal<typeof import('@tanstack/react-query')>()),
   useQuery: mocks.query,
@@ -22,8 +22,9 @@ vi.mock('services/crossChain/utils', () => ({
 }))
 vi.mock('components/TokenLogo/TokenLogoWithChain', () => ({ TokenLogoWithChain: () => null }))
 vi.mock('components/SwapTransactions/useHistoryTokens', () => ({
-  useHistoryTokens: () => ({ resolve: (token: unknown) => token, loading: false }),
+  useHistoryTokens: () => ({ resolve: mocks.resolveToken, loading: false }),
 }))
+vi.mock('state/tokenPrices/hooks', () => ({ useTokenPrices: mocks.prices }))
 
 const tx = {
   timestamp: 1000,
@@ -79,6 +80,8 @@ const transactionLinks = () => [...container.querySelectorAll('a[href]')].map(li
 
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  mocks.resolveToken.mockImplementation((token: unknown) => token)
+  mocks.prices.mockReturnValue({})
   mocks.query.mockReturnValue({ isError: true, isPending: false, errorUpdatedAt: 1 })
   container = document.createElement('div')
   root = createRoot(container)
@@ -178,4 +181,41 @@ it('links distinct destination transactions without duplicating a shared receipt
   await showExecution({ ...completed, dest_tx_hash: '0xreceive' })
   expect(transactionLinks().filter(href => href === 'https://basescan.org/tx/0xreceive')).toHaveLength(1)
   expect(transactionLinks()).not.toContain('https://basescan.org/tx/0xfinal')
+})
+
+it('converts both fees using token decimals and the price on each fee chain', async () => {
+  mocks.resolveToken.mockImplementation((token: unknown) =>
+    token === '0xfee' ? { symbol: 'FEE', decimals: 6 } : token,
+  )
+  mocks.prices.mockImplementation((_addresses: string[], chain: number) => ({ '0xfee': chain === 1 ? 2 : 3 }))
+  await showExecution({
+    ...execution,
+    data: {
+      fees: [
+        { fee_type: 'partner_fee', chain: 'ethereum', token: '0xfee', amount: '1250000', recipient: '0xpartner' },
+        { fee_type: 'protocol_fee', chain: 'base', token: '0xfee', amount: '2000000', recipient: '0xprotocol' },
+      ],
+    },
+  })
+
+  expect(container.textContent).toContain('1.25 FEE (~$2.5)')
+  expect(container.textContent).toContain('2 FEE (~$6)')
+})
+
+it.each([
+  ['1000000', 0],
+  ['invalid', 2],
+])('omits fee USD when the amount %s or price %s is unavailable', async (amount, price) => {
+  mocks.resolveToken.mockImplementation((token: unknown) =>
+    token === '0xfee' ? { symbol: 'FEE', decimals: 6 } : token,
+  )
+  mocks.prices.mockReturnValue({ '0xfee': price })
+  await showExecution({
+    ...execution,
+    data: {
+      fees: [{ fee_type: 'partner_fee', chain: 'ethereum', token: '0xfee', amount, recipient: '0xpartner' }],
+    },
+  })
+
+  expect(container.textContent).not.toContain('(~$')
 })

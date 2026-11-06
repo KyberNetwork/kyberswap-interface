@@ -95,7 +95,12 @@ export const CrossChainWalletSelector = (props: Props) => {
       >
         <button
           type="button"
-          className="flex items-center gap-1 border-0 bg-transparent p-0 text-subText hover:text-text"
+          className={cn(
+            'flex items-center gap-1 rounded-full border bg-transparent px-2 py-[5px]',
+            selectedAddress
+              ? 'border-transparent text-subText hover:text-text'
+              : 'border-primary/70 text-primary shadow-[0_0_8px_var(--ks-primary-30)] hover:bg-primary-10',
+          )}
           aria-expanded={isReceiver || address ? showMenu : undefined}
           title={selectedAddress || undefined}
           onClick={toggleMenu}
@@ -117,7 +122,7 @@ export const CrossChainWalletSelector = (props: Props) => {
           <div
             data-wallet-menu
             className={cn(
-              'absolute left-0 top-6 z-50 overflow-hidden rounded-lg bg-tableHeader shadow-lg',
+              'absolute left-0 top-full z-50 mt-2 overflow-hidden rounded-lg bg-tableHeader shadow-lg',
               isReceiver ? 'w-[300px]' : 'w-64',
             )}
           >
