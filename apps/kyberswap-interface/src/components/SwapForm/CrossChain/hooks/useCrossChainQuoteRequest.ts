@@ -7,7 +7,6 @@ import { parseUnits } from 'viem'
 import { CrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
 import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
-import useDebounce from 'hooks/useDebounce'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { NonEvmChain } from 'types/crossChain'
 
@@ -23,15 +22,13 @@ export type CrossChainQuoteInput = {
 export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isReadOnly }: CrossChainQuoteInput) => {
   const { pairKey, fromChainId, toChainId, currencyIn, currencyOut, nearTokens } = pair
 
-  const debouncedAmount = useDebounce(amount, 500)
   const { publicKey } = useWallet()
   const wallets = useSwapWallets()
   const { connection } = useConnection()
   const { walletInfo } = useBitcoinWallet()
   const [slippage] = useUserSlippageTolerance()
 
-  const amountInWei = currencyIn ? parseUnits(debouncedAmount || '0', currencyIn.decimals).toString() : undefined
-  const isAmountPending = amount !== debouncedAmount
+  const amountInWei = currencyIn ? parseUnits(amount || '0', currencyIn.decimals).toString() : undefined
 
   // An empty selected slot must not borrow credentials from a global wallet.
   const solanaAddress = (wallets ? wallets.inputAddress : publicKey?.toString()) || CROSS_CHAIN_FEE_RECEIVER_SOLANA
@@ -67,11 +64,10 @@ export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isRe
           }
         : null
 
-    return { pairKey, amount, isAmountPending, params, isReadOnly }
+    return { pairKey, amount, params, isReadOnly }
   }, [
     pairKey,
     amount,
-    isAmountPending,
     fromChainId,
     toChainId,
     currencyIn,

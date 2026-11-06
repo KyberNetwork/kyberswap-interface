@@ -25,7 +25,7 @@ export const RecipientToggle = ({ expanded, onToggle }: Pick<RecipientInputProps
       aria-label={t`Recipient`}
       aria-expanded={expanded}
       onClick={onToggle}
-      className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-subText/[0.08] p-0 text-subText hover:bg-subText/[0.12]"
+      className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-subText/[0.08] p-0 text-subText hover:bg-subText/[0.12]"
     >
       <RecipientWalletIcon aria-hidden="true" />
     </button>

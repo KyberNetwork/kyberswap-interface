@@ -24,15 +24,14 @@ export default function RefreshIndicator({
   size = 24,
 }: RefreshIndicatorProps) {
   return (
-    <SpinWrapper role="button" onClick={onRefresh} clickable={clickable}>
+    <SpinWrapper
+      role="button"
+      onClick={disableRefresh ? undefined : onRefresh}
+      clickable={clickable && !disableRefresh}
+    >
       <MouseoverTooltipDesktopOnly text={clickable ? t`Click to refresh` : null} placement="top" width="auto">
         <>
-          <Spin
-            countdown={countdown}
-            refreshTime={refreshTime}
-            spinning={isRefreshing && !disableRefresh}
-            size={size}
-          />
+          <Spin countdown={countdown} refreshTime={refreshTime} spinning={isRefreshing} size={size} />
 
           {countdown > 0 && !disableRefresh && <CountDown>{(countdown / 1_000).toFixed()}</CountDown>}
         </>

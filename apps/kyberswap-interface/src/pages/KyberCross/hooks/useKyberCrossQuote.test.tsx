@@ -80,7 +80,7 @@ afterEach(async () => {
 describe('KyberCross derivative quote session', () => {
   it('uses only direct routing and its own bridge filter with explicit Gas Drop params', async () => {
     await act(async () => render('100', true))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
+    await act(async () => vi.advanceTimersByTimeAsync(500))
     expect(mocks.getFallbackQuotes.mock.calls[0][0]).toMatchObject({
       quoteMode: 'direct',
       excludedSources: ['Across'],
@@ -91,7 +91,7 @@ describe('KyberCross derivative quote session', () => {
 
   it('selects and reviews a non-first route from the same provider', async () => {
     await act(async () => render('100'))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
+    await act(async () => vi.advanceTimersByTimeAsync(500))
     const request = mocks.getFallbackQuotes.mock.calls[0][0] as QuoteRequest
     const first = {
       id: 'first',
@@ -107,12 +107,17 @@ describe('KyberCross derivative quote session', () => {
     expect(state.selectedQuote).toBe(second)
     await act(async () => state.openReview(second))
     expect(state.reviewQuote?.id).toBe('second')
-    expect(request.signal.aborted).toBe(true)
+    expect(request.signal.aborted).toBe(false)
+    const reviewed = state.reviewQuote
+    const third = { ...first, id: 'third' }
+    await act(async () => request.onQuotes([third, first, second]))
+    expect(state.quotes).toEqual([third, first, second])
+    expect(state.reviewQuote).toBe(reviewed)
   })
 
   it('invalidates Gas Drop quotes immediately and ignores their late recovery callbacks', async () => {
     await act(async () => render('100', true))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
+    await act(async () => vi.advanceTimersByTimeAsync(500))
     const previous = mocks.getFallbackQuotes.mock.calls[0][0] as QuoteRequest
     await act(async () => render('100', false))
     expect(previous.signal.aborted).toBe(true)
@@ -123,7 +128,7 @@ describe('KyberCross derivative quote session', () => {
 
   it('reports a missing Gas Drop route without making the ordinary quote executable', async () => {
     await act(async () => render('100', true))
-    await act(async () => vi.advanceTimersByTimeAsync(800))
+    await act(async () => vi.advanceTimersByTimeAsync(500))
     const request = mocks.getFallbackQuotes.mock.calls[0][0] as QuoteRequest
     await act(async () => request.onQuotes([{ adapter: { getName: () => 'KyberCross' }, quote: {} } as Quote]))
     expect(state.quotes).toEqual([])

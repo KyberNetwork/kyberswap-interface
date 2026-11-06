@@ -1,6 +1,8 @@
 import { getQuotes } from 'services/crossChain/quote/adapterQuotes'
 import type { Quote } from 'services/crossChain/registry'
 
+export const QUOTE_EXPIRY_TIME = 60_000
+
 export const selectOrdinaryQuotes = (quotes: Quote[]) => quotes.filter(item => !item.quote.quoteParams.gasDrop)
 export const selectGasDropQuotes = (quotes: Quote[]) =>
   quotes.filter(item => item.quote.quoteParams.gasDrop && item.quote.gasDrop)

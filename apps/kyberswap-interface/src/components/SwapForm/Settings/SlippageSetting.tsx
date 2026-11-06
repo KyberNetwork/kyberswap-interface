@@ -134,7 +134,7 @@ const SlippageSetting = ({
 
   return (
     <div className="flex w-full flex-col" data-testid="slippage-setting">
-      <div className="flex min-h-5 items-center justify-between gap-1 text-subText">
+      <div className="flex min-h-6 items-center justify-between gap-1 text-subText">
         <div className="flex items-end gap-1">
           <span className="text-xs font-medium text-subText">
             <Trans>Max Slippage</Trans>:
