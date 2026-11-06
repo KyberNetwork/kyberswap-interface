@@ -10,8 +10,8 @@ import {
   TransactionDetailProvider,
   useTransactionDetailTrigger,
 } from 'components/SwapTransactions/TransactionDetail/TransactionDetailProvider'
-import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetailQuery'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
+import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/kyberCrossExecutionQuery'
 import ThemeProvider from 'theme'
 
 const scan = vi.hoisted(() => vi.fn())

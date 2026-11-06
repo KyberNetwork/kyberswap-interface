@@ -152,7 +152,7 @@ const ExecutionTimeline = ({ execution, tx, bridgeName, steps }: ExecutionTimeli
             </span>
             {index < steps.length - 1 && <div className="w-px flex-1 bg-border" />}
           </Stack>
-          <Stack className={cn('min-w-0 flex-1 gap-1.5', index < steps.length - 1 && 'pb-4')}>
+          <Stack className={cn('min-w-0 flex-1 gap-1', index < steps.length - 1 && 'pb-4')}>
             <HStack className="flex-wrap items-center justify-between gap-2">
               <span className="text-sm font-medium">{step.label}</span>
               <span className="text-xs font-medium text-subText">{statusLabels[step.status]}</span>

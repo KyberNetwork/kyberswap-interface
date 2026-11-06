@@ -197,6 +197,9 @@ export const getGasDropQuote = (route: { gas_drop_swap?: GasDropPlan }): GasDrop
   }
 }
 
+export const isExecutionFinished = (execution: TrackingExecution) =>
+  ['SUCCESS', 'FAILED', 'REFUNDED'].includes(execution.route_state)
+
 const getGasDropStatus = (execution: TrackingExecution): GasDropStatus => {
   if (execution.data.gas_drop) return { status: 'Delivered', amount: execution.data.gas_drop.output_amount }
   if (['BRIDGE_FAILED', 'BRIDGE_EXPIRED'].includes(execution.route_state)) return { status: 'NotExecuted' }

@@ -162,21 +162,29 @@ describe('persisted local settlement', () => {
   })
 })
 
-it('retains the planned route for backend history without attaching it to a conflicting provider', () => {
+it('retains the planned route and Gas Drop for backend history without attaching them to a conflicting route', () => {
   const planned = { id: 'route', bridgeProvider: 'relay' }
+  const gasDrop = { amount: '10', minAmount: '9', inputToken: 'input' }
+  const gasDropStatus = { status: 'Delivered' as const, amount: '11' }
   const local = localTransactionToHistory({
     ...transaction,
     adapter: 'KyberCross',
     kyberCrossRoute: planned,
+    gasDrop,
+    gasDropStatus,
     sourceToken: { ...transaction.sourceToken, address: 'input' } as NormalizedTxResponse['sourceToken'],
     targetToken: { ...transaction.targetToken, address: 'output' } as NormalizedTxResponse['targetToken'],
   })
-  const merge = (provider: string) =>
+  const merge = (provider: string, toChain = backend.toChain) =>
     mergeTransactionHistory({
-      server: [{ ...backend, provider }],
+      server: [{ ...backend, provider, toChain }],
       local: [local],
       sender: transaction.sender,
     })[0]
-  expect(merge('KyberCross')).toMatchObject({ usesBackendData: true, kyberCrossRoute: planned })
-  expect(merge('Relay').kyberCrossRoute).toBeUndefined()
+  expect(merge('KyberCross')).toMatchObject({ usesBackendData: true, kyberCrossRoute: planned, gasDrop, gasDropStatus })
+  for (const conflicting of [merge('Relay'), merge('KyberCross', 'arbitrum')]) {
+    expect(conflicting.kyberCrossRoute).toBeUndefined()
+    expect(conflicting.gasDrop).toBeUndefined()
+    expect(conflicting.gasDropStatus).toBeUndefined()
+  }
 })
