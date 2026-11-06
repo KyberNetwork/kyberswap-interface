@@ -48,7 +48,7 @@ export const SwapRate = ({
         </span>
         <HStack className="min-w-0 items-center gap-1 font-medium text-text">
           {loading && !hasValue ? (
-            <Skeleton width={100} height={14} />
+            <Skeleton width={128} height={14} />
           ) : hasValue && baseChain && quoteChain ? (
             <>
               {refresh && <RefreshIndicator {...refresh} size={24} clickable />}

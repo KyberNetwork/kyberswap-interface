@@ -7,6 +7,7 @@ import { useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
 
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
 import {
+  QUOTE_EXPIRY_TIME,
   getQuotesForMode,
   selectGasDropQuotes,
   selectOrdinaryQuotes,
@@ -15,7 +16,7 @@ import {
   CrossChainQuoteInput,
   useCrossChainQuoteRequest,
 } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuoteRequest'
-import { useGasDropPrefetch } from 'components/SwapForm/CrossChain/hooks/useGasDropPrefetch'
+import { useQuotePool } from 'components/SwapForm/CrossChain/hooks/useQuotePool'
 import { QuoteLoadContext, useQuoteSession } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -33,31 +34,12 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
   const selectionRequest = useMemo(() => ({ ...base, excludedSources }), [base, excludedSources])
   const { currencyOut, fromChainId, toChainId } = input.pair
   const gasDropSupported = fromChainId !== toChainId && isEvmCurrency(currencyOut) && !isNativeAsset(currencyOut)
-  // Only the route mode resets with this request; keep the form and its focus mounted.
-  const [eligibility, setEligibility] = useState({
-    request: selectionRequest,
-    available: false,
-    quotes: [] as Quote[],
-  })
-  const gasDropAvailable = gasDropSupported && eligibility.request === selectionRequest && eligibility.available
-  const [gasDropSelection, setGasDropSelection] = useState({ request: selectionRequest, enabled: false })
-  const gasDropEnabled = gasDropAvailable && gasDropSelection.request === selectionRequest && gasDropSelection.enabled
-  if (gasDropSelection.request === selectionRequest && gasDropSelection.enabled && !gasDropAvailable) {
-    setGasDropSelection({ request: selectionRequest, enabled: false })
-  }
-  const request = useMemo(() => ({ ...selectionRequest, gasDrop: gasDropEnabled }), [selectionRequest, gasDropEnabled])
-
-  const [unsupportedRequest, setUnsupportedRequest] = useState<typeof selectionRequest | null>(null)
-
   const [slippage] = useUserSlippageTolerance()
   const [checkSameAsset] = useLazyCheckSameAssetQuery()
 
   const loadQuoteMode = async ({ signal, publish }: QuoteLoadContext, gasDrop: boolean) => {
     const params = selectionRequest.params
-    if (!params || (gasDrop && !gasDropAvailable)) return { available: false, hasQuotes: false }
-
-    let available = gasDropAvailable
-    if (!gasDrop) setEligibility({ request: selectionRequest, available: false, quotes: [] })
+    if (!params) return
 
     const pairInfo = await getPairInfo({
       gasDrop,
@@ -69,11 +51,10 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
       signal,
     })
 
-    if (!pairInfo || signal.aborted) return { available: false, hasQuotes: false }
+    if (!pairInfo || signal.aborted) return
 
     publish({ category: pairInfo.category })
 
-    let hasQuotes = false
     await getQuotesForMode({
       params: {
         ...params,
@@ -89,47 +70,48 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
       excludedSources,
       registry,
       signal,
-      isReadOnly: request.isReadOnly,
-      onQuotes: quotes => {
-        hasQuotes = quotes.length > 0
-        if (!gasDrop) {
-          available =
-            gasDropSupported &&
-            quotes.some(
-              ({ adapter, quote }) =>
-                adapter.getName() === 'KyberCross' &&
-                Number.isFinite(quote.outputUsd) &&
-                quote.outputUsd > GAS_DROP_MIN_OUTPUT_USD,
-            )
-          setEligibility({ request: selectionRequest, available, quotes })
-        }
-        publish({ quotes })
-      },
+      isReadOnly: selectionRequest.isReadOnly,
+      onQuotes: quotes => publish({ quotes }),
       onQuoteReady: () => publish({ loading: false }),
     })
-    return { available, hasQuotes }
   }
 
-  const gasDropPrefetch = useGasDropPrefetch(selectionRequest, context => loadQuoteMode(context, true))
+  const ordinaryPool = useQuotePool(selectionRequest, context => loadQuoteMode(context, false))
+  const gasDropPool = useQuotePool(selectionRequest, context => loadQuoteMode(context, true))
+  const ordinaryQuotes = ordinaryPool.snapshot?.quotes ?? []
+  const gasDropAvailable =
+    gasDropSupported &&
+    ordinaryQuotes.some(
+      ({ adapter, quote }) =>
+        adapter.getName() === 'KyberCross' &&
+        Number.isFinite(quote.outputUsd) &&
+        quote.outputUsd > GAS_DROP_MIN_OUTPUT_USD,
+    )
+  const [gasDropSelection, setGasDropSelection] = useState({ request: selectionRequest, enabled: false })
+  const gasDropEnabled = gasDropAvailable && gasDropSelection.request === selectionRequest && gasDropSelection.enabled
+  if (gasDropSelection.request === selectionRequest && gasDropSelection.enabled && !gasDropAvailable) {
+    setGasDropSelection({ request: selectionRequest, enabled: false })
+  }
+  const request = useMemo(() => ({ ...selectionRequest, gasDrop: gasDropEnabled }), [selectionRequest, gasDropEnabled])
+
+  const [unsupportedRequest, setUnsupportedRequest] = useState<typeof selectionRequest | null>(null)
+
+  const activePool = gasDropEnabled ? gasDropPool : ordinaryPool
   const loadQuotes = async (context: QuoteLoadContext) => {
-    const result = gasDropEnabled ? await gasDropPrefetch.load(context) : await loadQuoteMode(context, false)
-    if (gasDropEnabled && !context.signal.aborted) {
-      setEligibility(previous =>
-        previous.request === selectionRequest ? { ...previous, available: result.available } : previous,
-      )
-      if (!result.hasQuotes) {
-        if (result.available) setUnsupportedRequest(selectionRequest)
-        setGasDropSelection({ request: selectionRequest, enabled: false })
-      }
+    const hasQuotes = await activePool.load(context)
+    if (gasDropEnabled && !context.signal.aborted && !hasQuotes) {
+      setUnsupportedRequest(selectionRequest)
+      setGasDropSelection({ request: selectionRequest, enabled: false })
     }
   }
 
   const session = useQuoteSession({
     request,
     loadQuotes,
-    refreshSeconds: 60,
+    refreshSeconds: QUOTE_EXPIRY_TIME / 1000,
     getQuoteKey: providerKey,
     selectQuotes: gasDropEnabled ? selectGasDropQuotes : selectOrdinaryQuotes,
+    initialSnapshot: activePool.reusableSnapshot,
   })
   const warning = getQuoteWarning({
     selectedQuote: session.selectedQuote,
@@ -141,7 +123,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
   return {
     ...session,
     routeOptions: gasDropEnabled
-      ? [...sortQuotesByNetOutput(session.quotes), ...sortQuotesByNetOutput(eligibility.quotes)]
+      ? [...sortQuotesByNetOutput(session.quotes), ...sortQuotesByNetOutput(ordinaryQuotes)]
       : session.quotes,
     amountInWei: request.params?.amount,
     slippage,
@@ -149,7 +131,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     gasDropAvailable,
     gasDropUnsupported: unsupportedRequest === selectionRequest,
     gasDropEnabled,
-    prepareGasDrop: gasDropPrefetch.prepare,
+    prepareGasDrop: gasDropPool.prepare,
     setGasDropEnabled: (enabled: boolean) => setGasDropSelection({ request: selectionRequest, enabled }),
     selectRoute: (quote: Quote) => {
       session.setSelectedKey(providerKey(quote))

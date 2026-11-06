@@ -15,12 +15,19 @@ const EMPTY_QUOTE_STATE = {
   loading: false,
   allLoading: false,
   countdown: 0,
+  expiresAt: null as number | null,
 }
 
 export type QuoteLoadContext = {
   signal: AbortSignal
   publish: (patch: Partial<typeof EMPTY_QUOTE_STATE>) => void
+  forceRefresh?: boolean
 }
+
+export type QuotePoolSnapshot = Pick<
+  typeof EMPTY_QUOTE_STATE,
+  'quotes' | 'category' | 'loading' | 'allLoading' | 'expiresAt'
+>
 
 type Props = {
   request: ReturnType<typeof useCrossChainQuoteRequest>
@@ -28,15 +35,25 @@ type Props = {
   refreshSeconds: number
   getQuoteKey: (quote: Quote) => string
   selectQuotes?: (quotes: Quote[]) => Quote[]
+  /** Existing quotes explicitly adopted for the new request when switching modes. */
+  initialSnapshot?: QuotePoolSnapshot
 }
 
-/** One owner for cancellation, periodic refresh, route selection and immutable review snapshots. */
-export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteKey, selectQuotes }: Props) => {
+/** One owner for request debounce, cancellation, refresh, selection and immutable review snapshots. */
+export const useQuoteSession = ({
+  request,
+  loadQuotes,
+  refreshSeconds,
+  getQuoteKey,
+  selectQuotes,
+  initialSnapshot,
+}: Props) => {
   const disable = !request.params
-  const { pairKey, isAmountPending } = request
+  const { pairKey } = request
 
   const { trackingHandler } = useTracking()
   const runRef = useRef<(() => void) | null>(null)
+  const reviewRefreshRef = useRef<((paused: boolean) => void) | null>(null)
   const nextManualRefreshAt = useRef(0)
   const [state, setState] = useState({ ...EMPTY_QUOTE_STATE, request, selectQuotes, loading: !disable })
 
@@ -48,10 +65,12 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
       request,
       selectQuotes,
       // Quotes from another amount/address/slippage must never become executable on a soft timeout.
-      quotes: [],
-      loading: !disable,
-      allLoading: false,
+      quotes: initialSnapshot?.quotes ?? [],
+      loading: !disable && (initialSnapshot?.loading ?? true),
+      allLoading: initialSnapshot?.allLoading ?? false,
       countdown: 0,
+      expiresAt: initialSnapshot?.expiresAt ?? null,
+      category: initialSnapshot?.category ?? previous.category,
     })
   } else if (state.selectQuotes !== selectQuotes) {
     setState({ ...state, selectQuotes, selectedKey: null, reviewQuote: null })
@@ -90,35 +109,64 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
     })
   }
 
-  const closeReview = () => update({ reviewQuote: null, loading: !disable })
+  const closeReview = () => {
+    setState(previous => {
+      if (previous.request !== request) return previous
+      const available = previous.selectQuotes ? previous.selectQuotes(previous.quotes) : previous.quotes
+      const hasFreshQuotes = available.length > 0 && (previous.allLoading || (previous.expiresAt ?? 0) > Date.now())
+      return { ...previous, reviewQuote: null, loading: !disable && !hasFreshQuotes }
+    })
+  }
 
   const load = useEffectEvent(loadQuotes)
 
   useEffect(() => {
     const { params } = request
-    if (!params || request.isAmountPending || showPreview) return
+    if (!params) return
 
     const controller = new AbortController()
     const { signal } = controller
     let running = false
+    let paused = showPreview
+    let hasQuotes = quotes.length > 0
     let timer: ReturnType<typeof setTimeout>
     let ticker: ReturnType<typeof setInterval> | undefined
+    let expiresAt = state.expiresAt ?? undefined
 
-    const run = async () => {
-      if (signal.aborted || running) return
-
+    const clearRefresh = () => {
       clearTimeout(timer)
       clearInterval(ticker)
+    }
+
+    const scheduleRefresh = () => {
+      if (paused) return
+      const deadline = expiresAt ?? Date.now() + refreshSeconds * 1000
+      const remaining = Math.max(0, deadline - Date.now())
+      update({ countdown: remaining })
+      ticker = setInterval(() => update({ countdown: Math.max(0, deadline - Date.now()) }), 1000)
+      timer = setTimeout(() => void run(), remaining)
+    }
+
+    const run = async (forceRefresh = true) => {
+      if (signal.aborted || running || paused) return
+
+      runRef.current = () => void run()
+      clearRefresh()
       running = true
-      update({ loading: true, allLoading: true, countdown: 0 })
+      expiresAt = undefined
+      update({ loading: true, allLoading: true, countdown: 0, expiresAt: null })
 
       // The same cancellation boundary covers pair lookup, streaming, periodic and manual refresh.
       const publish = (patch: Partial<typeof EMPTY_QUOTE_STATE>) => {
-        if (!signal.aborted) update(patch)
+        if (!signal.aborted) {
+          if (patch.expiresAt !== undefined) expiresAt = patch.expiresAt ?? undefined
+          if (patch.quotes) hasQuotes = patch.quotes.length > 0
+          update(patch)
+        }
       }
 
       try {
-        await load({ signal, publish })
+        await load({ signal, publish, forceRefresh })
       } catch (error) {
         if (!signal.aborted && (error as Error).message !== 'Cancelled') {
           console.error('Error getting quotes:', error)
@@ -128,25 +176,46 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
         running = false
 
         if (!signal.aborted) {
-          const deadline = Date.now() + refreshSeconds * 1000
-          update({ loading: false, allLoading: false, countdown: refreshSeconds * 1000 })
-          ticker = setInterval(() => update({ countdown: Math.max(0, deadline - Date.now()) }), 1000)
-          timer = setTimeout(() => void run(), refreshSeconds * 1000)
+          update({ loading: false, allLoading: false })
+          scheduleRefresh()
         }
       }
     }
 
-    runRef.current = () => void run()
-    timer = setTimeout(() => void run(), 300)
+    const syncReviewRefresh = (reviewOpen: boolean) => {
+      paused = reviewOpen
+      clearRefresh()
+      if (paused) {
+        update({ countdown: 0 })
+        return
+      }
+      // Review never detaches the active stream or starts a competing request.
+      if (running) return
+      if (hasQuotes && expiresAt !== undefined && expiresAt > Date.now()) {
+        runRef.current = () => void run()
+        scheduleRefresh()
+      } else {
+        // All request inputs share one debounce; changing any input cancels this timer.
+        timer = setTimeout(() => void run(false), 500)
+      }
+    }
+
+    reviewRefreshRef.current = syncReviewRefresh
+    if (allLoading) void run(false)
+    else syncReviewRefresh(showPreview)
 
     return () => {
       controller.abort()
       runRef.current = null
-      clearTimeout(timer)
-      clearInterval(ticker)
+      reviewRefreshRef.current = null
+      clearRefresh()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Effect Event reads the loader for this request.
-  }, [request, showPreview, update, refreshSeconds])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Request owns the stream; review only controls scheduling below.
+  }, [request, update, refreshSeconds])
+
+  useEffect(() => {
+    reviewRefreshRef.current?.(showPreview)
+  }, [showPreview])
 
   const trackReviewOpened = useEffectEvent((reviewedQuote: Quote) => {
     const { quote, adapter } = reviewedQuote
@@ -179,13 +248,13 @@ export const useQuoteSession = ({ request, loadQuotes, refreshSeconds, getQuoteK
     showPreview,
     disable,
     setSelectedKey,
-    loading: loading || isAmountPending,
+    loading,
     allLoading,
     refresh: {
       countdown,
       refreshTime: refreshSeconds,
-      disableRefresh: disable || showPreview || isAmountPending,
-      isRefreshing: loading || allLoading,
+      disableRefresh: disable || showPreview || loading,
+      isRefreshing: allLoading,
       onRefresh,
     },
   }

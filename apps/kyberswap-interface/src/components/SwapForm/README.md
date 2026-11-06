@@ -145,8 +145,8 @@ can use placeholders for preview requests, marked `isReadOnly`; those quotes are
 not executable.
 
 `useCrossChainQuoteRequest` captures pair, amount, slippage, sender, receiver and
-wallet request data. Amount requests debounce for 500 ms, while raw input remains
-part of request identity so old quotes stop being actionable immediately.
+wallet request data. All request inputs share a 500 ms debounce in `useQuoteSession`;
+raw input remains part of request identity so old quotes stop being actionable immediately.
 
 `useCrossChainQuote` obtains pair category, USD prices and platform-fee policy
 from `getPairInfo`, then invokes `getQuotesForMode`. That helper requests
@@ -157,16 +157,19 @@ Stream errors do not fall back to direct provider quotes.
 
 [`useQuoteSession`](CrossChain/hooks/useQuoteSession.ts) owns:
 
-- Cancellation for pair lookup, streaming, manual and periodic refresh.
-- Quote loading and the countdown; Unified Swap refreshes 60 seconds after a
-  request settles and pauses refresh while review is open.
+- Active-pool subscription, request debounce, manual and periodic refresh scheduling.
+- Quote loading and the countdown. Unified Swap keeps quotes valid for 60 seconds per mode
+  after the response stream finishes; switching modes or closing review reuses fresh quotes
+  without extending that deadline. Auto refresh follows the active mode's deadline;
+  manual refresh requests new data.
 - Selected provider retention on same-pair refreshes. If its quote is unavailable,
   selection falls back to the first quote. Pair changes reset selection and review.
 - Clearing live quotes when request inputs change, preventing an old amount or
   address from becoming actionable after a timeout.
 - A separate `reviewQuote` snapshot. Opening review validates that the quote is
   still selected and the request is current after asynchronous allowance checks.
-  The snapshot remains separate from live quote refresh state.
+  Both modes keep streaming into the live route pool while review is open, with
+  refresh paused. Incoming quotes never replace the modal's snapshot.
 
 `loading` controls whether a quote is ready for use; `allLoading` can remain true
 while more provider results arrive. With Gas Drop enabled, Route Options includes
@@ -188,7 +191,11 @@ changes to request inputs reset the selected mode. While Gas Drop is enabled,
 eligibility retains the ordinary request's result, including when the output
 after gas allocation falls below the threshold.
 
-`useGasDropPrefetch` owns on-demand requests and buffered results.
+`useQuotePool` owns each mode's request, results and expiry. Switching modes
+only changes the session's subscription; both pools keep collecting routes.
+Changing request inputs or unmounting cancels both pools. Gas Drop loads on demand; confirmation
+reuses the pending or fresh result, including failures: no valid Gas Drop route
+returns to ordinary mode, reusing ordinary quotes only while they remain fresh.
 `GasDropOption` handles presentation and confirmation; it does not own quote state.
 
 ### Approval, review and submission
@@ -247,7 +254,7 @@ belongs to the page-level transaction updater, not the confirmation modal.
 | Review amounts, output acceptance or warnings    | `SwapModal/useSwapReviewData.ts`, `SwapModal/reviewData.ts`, `SwapModal/SwapReviewActions.tsx`                                   |
 | Cross-chain request inputs, selection or refresh | `CrossChain/hooks/useCrossChainQuoteRequest.ts`, `CrossChain/hooks/useCrossChainQuote.ts`, `CrossChain/hooks/useQuoteSession.ts` |
 | Gas Drop eligibility or mode selection           | `CrossChain/hooks/useCrossChainQuote.ts`                                                                                         |
-| Gas Drop request and buffered results            | `CrossChain/hooks/useGasDropPrefetch.ts`, `CrossChain/hooks/getQuotesForMode.ts`                                                 |
+| Per-mode requests, results and expiry            | `CrossChain/hooks/useQuotePool.ts`, `CrossChain/hooks/getQuotesForMode.ts`                                                 |
 | Gas Drop presentation                            | `CrossChain/Quote/GasDrop.tsx`, `components/GasDrop/GasDropAmount.tsx`                                                           |
 | Cross-chain action prerequisites or allowance    | `CrossChain/CrossChainSwapAction.tsx`, `CrossChain/hooks/useCrossChainApproval.ts`                                               |
 | Cross-chain confirmation content                 | `CrossChain/CrossChainSwapConfirmation.tsx`, `CrossChain/Quote/`                                                                 |

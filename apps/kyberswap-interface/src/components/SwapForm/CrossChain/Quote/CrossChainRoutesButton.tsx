@@ -17,7 +17,7 @@ export const CrossChainRoutesButton = ({
     disabled={disabled}
     aria-expanded={expanded}
     onClick={onClick}
-    className="flex min-h-5 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full border-0 bg-subText/[0.08] px-2 py-1 text-xs font-medium leading-5 text-subText enabled:cursor-pointer enabled:hover:bg-subText/[0.12] disabled:cursor-default"
+    className="flex min-h-5 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full border-0 bg-subText/[0.08] px-2 py-1 text-xs font-medium text-subText enabled:cursor-pointer enabled:hover:bg-subText/[0.12] disabled:cursor-default"
   >
     <RouteIcon className="size-3.5 shrink-0 text-primary" />
     <Trans>Routes</Trans>
