@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Search } from 'react-feather'
+import { Eye } from 'react-feather'
 import { normalizeAdapterName } from 'services/crossChain/utils'
 
 import IconButton from 'components/Button/IconButton'
@@ -120,7 +120,7 @@ export const TransactionDetailButton = ({ tx }: { tx: HistoryTransaction }) => {
 
   return (
     <IconButton
-      className="size-6 rounded-md bg-primary/10 text-primary hover:bg-primary/25 focus-visible:bg-primary/25 focus-visible:ring-1 focus-visible:ring-primary"
+      className="size-6 rounded-md text-primary hover:bg-primary/25 focus-visible:bg-primary/25 focus-visible:ring-1 focus-visible:ring-primary"
       aria-label={t`View KyberCross transaction details`}
       title={t`View KyberCross transaction details`}
       aria-haspopup="dialog"
@@ -128,7 +128,7 @@ export const TransactionDetailButton = ({ tx }: { tx: HistoryTransaction }) => {
       disabled={loading}
       onClick={open}
     >
-      {loading ? <Loader size="14px" aria-hidden /> : <Search size={14} strokeWidth={2} aria-hidden />}
+      {loading ? <Loader size="14px" aria-hidden /> : <Eye size={14} strokeWidth={2} aria-hidden />}
     </IconButton>
   )
 }

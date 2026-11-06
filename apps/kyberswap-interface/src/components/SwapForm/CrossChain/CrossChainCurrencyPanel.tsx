@@ -121,7 +121,9 @@ export const CrossChainCurrencyPanel = ({
             output ? (
               receiver ?? <Trans>Est. Output</Trans>
             ) : (
-              <CrossChainSenderWalletSelector key={chain} chain={chain} />
+              <div className="-my-1 -ml-2 flex">
+                <CrossChainSenderWalletSelector key={chain} chain={chain} />
+              </div>
             )
           }
           customBalanceText={balance || '--'}

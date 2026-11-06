@@ -151,7 +151,11 @@ export const CrossChainSwapForm = ({
           ) : (
             <InputCurrencyPanel
               walletSelector={
-                typeof toChainId !== 'number' ? <CrossChainEvmSenderWalletSelector chain={fromChainId} /> : undefined
+                typeof toChainId !== 'number' ? (
+                  <div className="-my-1 -ml-2 flex">
+                    <CrossChainEvmSenderWalletSelector chain={fromChainId} />
+                  </div>
+                ) : undefined
               }
               amountInUsd={quote?.inputUsd?.toString()}
               wrapType={WrapType.NOT_APPLICABLE}

@@ -84,7 +84,13 @@ const CrossChainSwap = (props: Props) => {
         toChainId={toChainId}
         selectedQuote={selectedQuote || undefined}
         loading={loading}
-        receiver={hasNonEvmChain ? <CrossChainReceiverWalletSelector key={toChainId} chain={toChainId} /> : undefined}
+        receiver={
+          hasNonEvmChain ? (
+            <div className="-my-1 -ml-2 flex">
+              <CrossChainReceiverWalletSelector key={toChainId} chain={toChainId} />
+            </div>
+          ) : undefined
+        }
         receiverAddress={recipient}
         outputFooter={
           gasDropAvailable && (
