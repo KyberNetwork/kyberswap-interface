@@ -218,7 +218,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
   const [ttl] = useUserTransactionTTL()
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
-  const permitData = usePermitData(currencyIn?.wrapped.address)
+  const permitData = usePermitData(currencyIn?.wrapped.address, routeSummary?.routerAddress)
 
   const onChangeCurrencyIn = useCallback(
     (c: Currency) => {

@@ -26,6 +26,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
+import useSwapClientId from 'hooks/useSwapClientId'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
@@ -33,7 +34,6 @@ import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { cn } from 'utils/cn'
-import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 export type SwapFormProps = {
   hidden: boolean
@@ -61,6 +61,7 @@ export type SwapFormProps = {
 const SwapForm: React.FC<SwapFormProps> = props => {
   const notify = useNotify()
   const [searchParams] = useSearchParams()
+  const clientId = useSwapClientId()
   const {
     hidden,
     currencyIn,
@@ -186,7 +187,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
-    clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
+    clientId,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result

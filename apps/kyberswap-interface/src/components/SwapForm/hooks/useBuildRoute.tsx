@@ -1,7 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
 import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
 import { RouteSummary } from 'services/route/types/getRoute'
@@ -11,9 +10,9 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
+import useSwapClientId from 'hooks/useSwapClientId'
 import { getCookieValue } from 'utils/cookie'
 import { amountFromRoute, routeTokenDecimals } from 'utils/nativeErc20'
-import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 export type BuildRouteResult =
   | {
@@ -38,8 +37,7 @@ type Args = {
 
 const useBuildRoute = (args: Args) => {
   const { recipient, routeSummary, slippage, transactionTimeout, permit, currencyIn, currencyOut } = args
-  const [searchParams] = useSearchParams()
-  const clientId = isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId')
+  const clientId = useSwapClientId()
   const { chainId, account } = useActiveWeb3React()
   const abortControllerRef = useRef(new AbortController())
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()

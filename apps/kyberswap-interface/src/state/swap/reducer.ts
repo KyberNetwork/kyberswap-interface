@@ -10,6 +10,7 @@ import {
   resetSelectCurrency,
   revokePermit,
   setRecipient,
+  setRouterV3Test,
   setTrade,
   switchCurrencies,
   switchCurrenciesV2,
@@ -17,6 +18,8 @@ import {
 } from './actions'
 
 export interface SwapState {
+  readonly permitGeneration: number
+  readonly routerV3Test: boolean
   readonly independentField: Field // TODO: remove since unused anymore
   readonly typedValue: string
   readonly recipient: string | null
@@ -34,6 +37,7 @@ export interface SwapState {
     [account: string]: {
       [chainId: number]: {
         [address: string]: {
+          routerAddress?: string
           rawSignature?: string
           deadline?: number
           value?: string
@@ -45,6 +49,8 @@ export interface SwapState {
 }
 
 const initialState: SwapState = {
+  routerV3Test: false,
+  permitGeneration: 0,
   independentField: Field.INPUT,
   permitData: {},
   typedValue: '1',
@@ -62,6 +68,13 @@ const initialState: SwapState = {
 
 export default createReducer<SwapState>(initialState, builder =>
   builder
+    .addCase(setRouterV3Test, (state, { payload }) => {
+      if (state.routerV3Test === payload) return
+      state.permitGeneration += 1
+      state.routerV3Test = payload
+      state.permitData = {}
+      state.trade = undefined
+    })
     .addCase(replaceSwapState, (state, { payload: { typedValue, recipient, field } }) => {
       return {
         ...state,
@@ -100,18 +113,26 @@ export default createReducer<SwapState>(initialState, builder =>
     .addCase(setTrade, (state, { payload: { trade } }) => {
       state.trade = trade
     })
-    .addCase(permitUpdate, (state, { payload: { chainId, address, rawSignature, deadline, value, account } }) => {
-      if (!state.permitData) state.permitData = {}
-      if (!state.permitData[account]) state.permitData[account] = {}
-      if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
+    .addCase(
+      permitUpdate,
+      (
+        state,
+        { payload: { chainId, address, rawSignature, deadline, value, account, routerAddress, permitGeneration } },
+      ) => {
+        if (permitGeneration !== state.permitGeneration) return
+        if (!state.permitData) state.permitData = {}
+        if (!state.permitData[account]) state.permitData[account] = {}
+        if (!state.permitData[account][chainId]) state.permitData[account][chainId] = {}
 
-      state.permitData[account][chainId][address] = {
-        rawSignature,
-        deadline,
-        value,
-        errorCount: state.permitData[account][chainId][address]?.errorCount || 0,
-      }
-    })
+        state.permitData[account][chainId][address] = {
+          rawSignature,
+          routerAddress,
+          deadline,
+          value,
+          errorCount: state.permitData[account][chainId][address]?.errorCount || 0,
+        }
+      },
+    )
     .addCase(revokePermit, (state, { payload: { chainId, address, account } }) => {
       if (
         !state.permitData ||

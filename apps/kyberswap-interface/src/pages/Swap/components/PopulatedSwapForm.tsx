@@ -26,7 +26,7 @@ export const PopulatedSwapForm: React.FC<Props> = ({ routeSummary, setRouteSumma
   const [ttl] = useUserTransactionTTL()
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
-  const permitData = usePermitData(currencyIn?.wrapped.address)
+  const permitData = usePermitData(currencyIn?.wrapped.address, routeSummary?.routerAddress)
 
   const { onCurrencySelection } = useSwapActionHandlers()
 
