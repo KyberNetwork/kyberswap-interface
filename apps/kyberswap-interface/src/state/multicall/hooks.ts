@@ -1,4 +1,4 @@
-import { keepPreviousData } from '@tanstack/react-query'
+import { hashFn } from '@wagmi/core/query'
 import { useMemo } from 'react'
 import { useReadContract, useReadContracts } from 'wagmi'
 
@@ -11,7 +11,12 @@ import { Abi, Address } from 'utils/viem'
 // When the per-block refresh keys this query, expose the previous block's data
 // as a placeholder so the UI doesn't flash LOADING_CALL_STATE every block.
 // Keep the cache small: drop stale entries after a single block-time window.
-const PER_BLOCK_QUERY_OPTIONS = { placeholderData: keepPreviousData, gcTime: 30_000 } as const
+const perBlockQueryOptions = (scopeKey: string) => ({
+  gcTime: 30_000,
+  // A new block may reuse the same read, but another account/token/chain may not.
+  placeholderData: <T>(data: T | undefined, query: { queryKey: readonly unknown[] } | undefined) =>
+    (query?.queryKey[1] as { scopeKey?: string } | undefined)?.scopeKey === scopeKey ? data : undefined,
+})
 
 export interface Result extends ReadonlyArray<any> {
   readonly [key: string]: any
@@ -117,7 +122,9 @@ export function useSingleCallResult(
   const blockNumber = useBlockNumberFor(chainId)
   const blockNumberArg = staleTime === Infinity || blockNumber === undefined ? undefined : BigInt(blockNumber)
 
+  const scopeKey = hashFn([contract?.chainId, contract?.address, methodName, inputs])
   const { data, isError } = useReadContract({
+    scopeKey,
     address: contract?.address,
     abi: abi ?? [],
     functionName: methodName,
@@ -126,7 +133,7 @@ export function useSingleCallResult(
     ...(blockNumberArg !== undefined ? { blockNumber: blockNumberArg } : {}),
     query: {
       enabled,
-      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : PER_BLOCK_QUERY_OPTIONS),
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : perBlockQueryOptions(scopeKey)),
     },
   })
 
@@ -173,13 +180,21 @@ export function useSingleContractMultipleData(
     }))
   }, [contract, abi, fnItem, methodName, validInputs, chainId])
 
+  const scopeKey = useMemo(
+    () =>
+      hashFn(
+        contractCalls.map(({ address, chainId, functionName, args }) => ({ address, chainId, functionName, args })),
+      ),
+    [contractCalls],
+  )
   const { data } = useReadContracts({
+    scopeKey,
     contracts: contractCalls,
     allowFailure: true,
     ...(blockNumberArg !== undefined ? { blockNumber: blockNumberArg } : {}),
     query: {
       enabled: contractCalls.length > 0,
-      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : PER_BLOCK_QUERY_OPTIONS),
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : perBlockQueryOptions(scopeKey)),
     },
   })
 
@@ -237,13 +252,21 @@ export function useMultipleContractSingleData(
       .filter((c): c is NonNullable<typeof c> => c !== null)
   }, [addresses, abi, fnItem, argsValid, methodName, callInputs, chainId])
 
+  const scopeKey = useMemo(
+    () =>
+      hashFn(
+        contractCalls.map(({ address, chainId, functionName, args }) => ({ address, chainId, functionName, args })),
+      ),
+    [contractCalls],
+  )
   const { data } = useReadContracts({
+    scopeKey,
     contracts: contractCalls,
     allowFailure: true,
     ...(blockNumberArg !== undefined ? { blockNumber: blockNumberArg } : {}),
     query: {
       enabled: contractCalls.length > 0,
-      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : PER_BLOCK_QUERY_OPTIONS),
+      ...(staleTime !== undefined ? { staleTime, gcTime: staleTime } : perBlockQueryOptions(scopeKey)),
     },
   })
 

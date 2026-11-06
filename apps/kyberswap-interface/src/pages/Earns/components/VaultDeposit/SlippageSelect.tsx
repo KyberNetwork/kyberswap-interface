@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
+import { Collapse } from 'components/Collapse'
 import { TextHelper } from 'components/Text'
 import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import { WarningNote } from 'pages/Earns/components/VaultDeposit/styles'
@@ -102,68 +103,61 @@ const SlippageSelect = ({
         </span>
       </button>
 
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out motion-reduce:transition-none',
-          isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <div className="flex items-stretch rounded-[20px] border border-solid border-border bg-background">
-            {PRESETS_BPS.map(preset => (
-              <button
-                key={preset}
-                type="button"
-                tabIndex={isExpanded ? undefined : -1}
-                onClick={() => {
-                  setCustom('')
-                  onChange(preset)
-                }}
-                className={cn(
-                  'min-h-8 min-w-0 flex-1 cursor-pointer rounded-[20px] border-none px-2 text-sm',
-                  value === preset && !isCustom
-                    ? 'bg-tabActive font-medium text-text'
-                    : 'bg-transparent font-normal text-subText hover:bg-buttonGray',
-                )}
-              >
-                {formatSlippage(preset)}
-              </button>
-            ))}
-
-            <div
-              className={cn(
-                'flex min-w-0 flex-1 items-center justify-center gap-1 rounded-[20px] px-2',
-                isCustom ? 'bg-tabActive text-text' : 'bg-transparent text-subText',
-              )}
-            >
-              <input
-                inputMode="decimal"
-                value={custom}
-                placeholder={t`Custom`}
-                tabIndex={isExpanded ? undefined : -1}
-                onChange={e => handleCustomChange(e.target.value)}
-                onFocus={() => setEditing(true)}
-                onBlur={handleCustomBlur}
-                className="w-14 min-w-0 border-none bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit"
-              />
-              <span className="text-sm">%</span>
-            </div>
-          </div>
-
-          {suggested !== undefined && suggested !== value ? (
+      <Collapse open={isExpanded}>
+        <div className="flex items-stretch rounded-[20px] border border-solid border-border bg-background">
+          {PRESETS_BPS.map(preset => (
             <button
+              key={preset}
               type="button"
               tabIndex={isExpanded ? undefined : -1}
-              onClick={() => handleSuggestionClick(suggested)}
-              className="mt-2 w-fit cursor-pointer border-none bg-transparent p-0 text-xs leading-4 text-primary transition-[filter] duration-200 hover:brightness-[1.12] motion-reduce:transition-none"
+              onClick={() => {
+                setCustom('')
+                onChange(preset)
+              }}
+              className={cn(
+                'min-h-8 min-w-0 flex-1 cursor-pointer rounded-[20px] border-none px-2 text-sm',
+                value === preset && !isCustom
+                  ? 'bg-tabActive font-medium text-text'
+                  : 'bg-transparent font-normal text-subText hover:bg-buttonGray',
+              )}
             >
-              {t`Suggestion`}: {formatSlippage(suggested)}
+              {formatSlippage(preset)}
             </button>
-          ) : null}
+          ))}
 
-          {notice ? <WarningNote className="mt-2">{notice.message}</WarningNote> : null}
+          <div
+            className={cn(
+              'flex min-w-0 flex-1 items-center justify-center gap-1 rounded-[20px] px-2',
+              isCustom ? 'bg-tabActive text-text' : 'bg-transparent text-subText',
+            )}
+          >
+            <input
+              inputMode="decimal"
+              value={custom}
+              placeholder={t`Custom`}
+              tabIndex={isExpanded ? undefined : -1}
+              onChange={e => handleCustomChange(e.target.value)}
+              onFocus={() => setEditing(true)}
+              onBlur={handleCustomBlur}
+              className="w-14 min-w-0 border-none bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit"
+            />
+            <span className="text-sm">%</span>
+          </div>
         </div>
-      </div>
+
+        {suggested !== undefined && suggested !== value ? (
+          <button
+            type="button"
+            tabIndex={isExpanded ? undefined : -1}
+            onClick={() => handleSuggestionClick(suggested)}
+            className="mt-2 w-fit cursor-pointer border-none bg-transparent p-0 text-xs leading-4 text-primary transition-[filter] duration-200 hover:brightness-[1.12] motion-reduce:transition-none"
+          >
+            {t`Suggestion`}: {formatSlippage(suggested)}
+          </button>
+        ) : null}
+
+        {notice ? <WarningNote className="mt-2">{notice.message}</WarningNote> : null}
+      </Collapse>
     </div>
   )
 }

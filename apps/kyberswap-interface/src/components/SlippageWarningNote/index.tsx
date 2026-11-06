@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { FC } from 'react'
 
 import { ErrorWarning } from 'components/ErrorWarning'
 import { PAIR_CATEGORY } from 'constants/trade'
@@ -14,7 +13,7 @@ type Props = {
 export const SLIPPAGE_EXPLANATION_URL =
   'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
 
-const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
+const SlippageWarningNote = ({ className, rawSlippage }: Props) => {
   const pairCategory = usePairCategory()
   const slippageStatus = checkRangeSlippage(rawSlippage, pairCategory)
 
@@ -24,25 +23,29 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
 
   const msg = (SLIPPAGE_WARNING_MESSAGES[slippageStatus] as Record<PAIR_CATEGORY, string>)?.[pairCategory] || ''
 
-  const shortText = (
-    <div>
-      <Trans>
-        <span className="inline w-fit border-b border-transparent">Your </span>
+  return (
+    <ErrorWarning
+      className={className}
+      type="warn"
+      title={
+        <div>
+          <Trans>
+            <span className="inline w-fit border-b border-transparent">Your </span>
 
-        <a
-          href={SLIPPAGE_EXPLANATION_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="inline w-fit min-w-max cursor-pointer border-b border-dotted border-text font-medium text-text"
-        >
-          Slippage
-        </a>
-        <span className="inline w-fit border-b border-transparent"> {msg}</span>
-      </Trans>
-    </div>
+            <a
+              href={SLIPPAGE_EXPLANATION_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline w-fit min-w-max cursor-pointer border-b border-dotted border-text font-medium text-text"
+            >
+              Slippage
+            </a>
+            <span className="inline w-fit border-b border-transparent"> {msg}</span>
+          </Trans>
+        </div>
+      }
+    />
   )
-
-  return <ErrorWarning className={className} type="warn" title={shortText} />
 }
 
 export default SlippageWarningNote

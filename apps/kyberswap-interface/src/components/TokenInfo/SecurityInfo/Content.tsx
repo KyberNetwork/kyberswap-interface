@@ -3,22 +3,9 @@ import { PropsWithChildren } from 'react'
 import { AlertOctagon } from 'react-feather'
 
 import Loader from 'components/Loader'
-import { RISKY_THRESHOLD, isItemRisky } from 'components/TokenInfo/utils'
+import { type ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from 'components/TokenInfo/utils'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
-
-export enum WarningType {
-  RISKY,
-  WARNING,
-}
-
-export type ItemData = {
-  label: string
-  value: string | undefined
-  type: WarningType
-  isNumber?: boolean
-  riskyReverse?: boolean
-}
 
 type LabelProps = PropsWithChildren<{
   color?: string
@@ -78,6 +65,7 @@ export const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }
   )
 }
 
+/** Presentation of normalized security items; fetching and risk classification belong to the caller and utils. */
 export type ContentProps = {
   data: ItemData[]
   totalRisk: number

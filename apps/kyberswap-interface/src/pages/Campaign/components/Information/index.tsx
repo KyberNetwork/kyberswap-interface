@@ -3,6 +3,7 @@ import { Fragment, useState } from 'react'
 import { Minus, Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
 
+import { Collapse } from 'components/Collapse'
 import Divider from 'components/Divider'
 import { ButtonIcon } from 'components/PageWrappers'
 import { TERMS_OF_USE } from 'constants/index'
@@ -50,16 +51,9 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
         </ButtonIcon>
       </div>
 
-      <div
-        className="w-[95%] overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
-        style={{
-          maxHeight: isShowRule ? '10000px' : 0,
-          opacity: isShowRule ? 1 : 0,
-          marginTop: isShowRule ? '1rem' : 0,
-        }}
-      >
-        {HowToSection({ week: selectedWeek })}
-      </div>
+      <Collapse open={isShowRule} className="w-[95%] duration-300" contentGap={4}>
+        <div className="pl-3.5 leading-7 text-subText">{HowToSection({ week: selectedWeek })}</div>
+      </Collapse>
 
       <Divider style={{ marginTop: '20px' }} />
 
@@ -73,16 +67,9 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
         </ButtonIcon>
       </div>
 
-      <div
-        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
-        style={{
-          maxHeight: isShowTimeline ? '1000px' : 0,
-          opacity: isShowTimeline ? 1 : 0,
-          marginTop: isShowTimeline ? '1rem' : 0,
-        }}
-      >
-        {TimelineSection({ week: selectedWeek })}
-      </div>
+      <Collapse open={isShowTimeline} className="duration-300" contentGap={4}>
+        <div className="pl-3.5 leading-7 text-subText">{TimelineSection({ week: selectedWeek })}</div>
+      </Collapse>
 
       <Divider style={{ marginTop: '20px' }} />
 
@@ -94,16 +81,9 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
         </ButtonIcon>
       </div>
 
-      <div
-        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
-        style={{
-          maxHeight: isShowReward ? '2000px' : 0,
-          opacity: isShowReward ? 1 : 0,
-          marginTop: isShowReward ? '1rem' : 0,
-        }}
-      >
-        {RewardsSection({ week: selectedWeek })}
-      </div>
+      <Collapse open={isShowReward} className="duration-300" contentGap={4}>
+        <div className="pl-3.5 leading-7 text-subText">{RewardsSection({ week: selectedWeek })}</div>
+      </Collapse>
 
       {customSections.map((section, index) => {
         const isShowSection = showCustomSections[index] ?? true
@@ -128,16 +108,9 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
               </ButtonIcon>
             </div>
 
-            <div
-              className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
-              style={{
-                maxHeight: isShowSection ? '2000px' : 0,
-                opacity: isShowSection ? 1 : 0,
-                marginTop: isShowSection ? '1rem' : 0,
-              }}
-            >
-              {CustomSectionContent({ week: selectedWeek })}
-            </div>
+            <Collapse open={isShowSection} className="duration-300" contentGap={4}>
+              <div className="pl-3.5 leading-7 text-subText">{CustomSectionContent({ week: selectedWeek })}</div>
+            </Collapse>
           </Fragment>
         )
       })}
@@ -152,23 +125,18 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
         </ButtonIcon>
       </div>
 
-      <div
-        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
-        style={{
-          maxHeight: isShowTc ? '2000px' : 0,
-          opacity: isShowTc ? 1 : 0,
-          marginTop: isShowTc ? '1rem' : 0,
-        }}
-      >
-        <li>
-          <Trans>
-            These Terms and Conditions <ExternalLink href={TERMS_OF_USE.file}>({'"Terms"'})</ExternalLink> should be
-            read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply to
-            all KyberSwap promotional activities ({'"Campaign"'}).
-          </Trans>
-        </li>
-        {TermsSection({ week: selectedWeek })}
-      </div>
+      <Collapse open={isShowTc} className="duration-300" contentGap={4}>
+        <div className="pl-3.5 leading-7 text-subText">
+          <li>
+            <Trans>
+              These Terms and Conditions <ExternalLink href={TERMS_OF_USE.file}>({'"Terms"'})</ExternalLink> should be
+              read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply to
+              all KyberSwap promotional activities ({'"Campaign"'}).
+            </Trans>
+          </li>
+          {TermsSection({ week: selectedWeek })}
+        </div>
+      </Collapse>
 
       <Divider style={{ marginTop: '20px' }} />
 
@@ -180,16 +148,14 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
         </ButtonIcon>
       </div>
 
-      <div
-        className="overflow-hidden pl-3.5 leading-7 text-subText transition-all duration-300"
-        style={{
-          maxHeight: isShowFaq ? '5000px' : 0,
-          opacity: isShowFaq ? 1 : 0,
-          maxWidth: upTo400 ? '300px' : upTo450 ? '350px' : undefined,
-        }}
-      >
-        {FaqSection({ week: selectedWeek })}
-      </div>
+      <Collapse open={isShowFaq} className="duration-300">
+        <div
+          className="pl-3.5 leading-7 text-subText"
+          style={{ maxWidth: upTo400 ? '300px' : upTo450 ? '350px' : undefined }}
+        >
+          {FaqSection({ week: selectedWeek })}
+        </div>
+      </Collapse>
     </div>
   )
 }

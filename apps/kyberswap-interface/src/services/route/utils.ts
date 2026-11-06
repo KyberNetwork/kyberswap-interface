@@ -2,7 +2,7 @@ import { JSBI } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Fraction, Price } from '@kyberswap/ks-sdk-core'
 import { GetRouteData, RouteSummary } from 'services/route/types/getRoute'
 
-import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute'
+import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useRouteRequest'
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/trade'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'

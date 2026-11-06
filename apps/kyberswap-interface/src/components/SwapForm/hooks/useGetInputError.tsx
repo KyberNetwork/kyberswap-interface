@@ -33,7 +33,7 @@ const BAD_RECIPIENT_ADDRESSES: Set<string> = new Set(
 
 type Args = {
   typedValue: string
-  recipient: string | null | undefined
+  recipient: string
   parsedAmountFromTypedValue: CurrencyAmount<Currency> | undefined
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
@@ -43,8 +43,8 @@ const useGetInputError = (args: Args): string | undefined => {
   const { typedValue, recipient, currencyIn, currencyOut, parsedAmountFromTypedValue: parsedAmount, balanceIn } = args
   const { account, chainId } = useActiveWeb3React()
 
-  const recipientLookup = useENS(recipient ?? undefined)
-  const to = (recipient === null || recipient === '' ? account : recipientLookup.address) ?? null
+  const recipientLookup = useENS(recipient)
+  const to = recipientLookup.address
 
   let inputError: string | undefined
   if (!account) {

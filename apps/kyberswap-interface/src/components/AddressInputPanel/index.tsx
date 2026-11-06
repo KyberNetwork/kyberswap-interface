@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { CSSProperties, ChangeEvent, DOMAttributes, ReactNode, useCallback } from 'react'
 import { ChevronDown } from 'react-feather'
 
+import { Collapse } from 'components/Collapse'
 import { AutoColumn } from 'components/Column'
 import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
@@ -126,19 +127,9 @@ export default function AddressInputPanel({
         />
       </div>
 
-      <div
-        id={id}
-        className={cn(
-          'relative z-10 grid w-full transition-[grid-template-rows,opacity] duration-200 ease-in-out',
-          value !== null ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <div className="pt-2">
-            <AddressInput onChange={handleInput} value={value || ''} error={error} />
-          </div>
-        </div>
-      </div>
+      <Collapse open={value !== null} id={id} className="relative z-10 w-full" contentGap={2}>
+        <AddressInput onChange={handleInput} value={value || ''} error={error} />
+      </Collapse>
     </AutoColumn>
   )
 }

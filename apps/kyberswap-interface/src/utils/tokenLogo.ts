@@ -6,15 +6,21 @@ import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import store from 'state'
+import type { TokenAddressMap } from 'state/lists/reducer'
+import { isAddress } from 'utils/address'
 
-export const getNativeTokenLogo = (chainId: ChainId) => {
-  return (
-    store.getState()?.lists?.mapWhitelistTokens?.[chainId]?.[ETHER_ADDRESS]?.logoURI ||
-    (chainId ? NETWORKS_INFO[chainId].nativeToken.logo : '')
-  )
+export const getNativeTokenLogo = (
+  chainId: ChainId,
+  tokens: TokenAddressMap[number] = store.getState()?.lists?.mapWhitelistTokens?.[chainId],
+) => {
+  return tokens?.[ETHER_ADDRESS]?.logoURI || (chainId ? NETWORKS_INFO[chainId].nativeToken.logo : '')
 }
 
-export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string => {
+export const getTokenLogoURL = (
+  inputAddress: string,
+  chainId: ChainId,
+  tokens: TokenAddressMap[number] = store.getState()?.lists?.mapWhitelistTokens?.[chainId],
+): string => {
   let address = inputAddress
   if (address === ZERO_ADDRESS) {
     address = WETH[chainId].address
@@ -33,6 +39,8 @@ export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string 
     return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
   }
 
-  const imageURL = store.getState()?.lists?.mapWhitelistTokens?.[chainId]?.[address]?.logoURI
+  const normalizedAddress = isAddress(chainId, address.toLowerCase()) || address
+  const imageURL =
+    tokens?.[normalizedAddress]?.logoURI || tokens?.[address]?.logoURI || tokens?.[address.toLowerCase()]?.logoURI
   return imageURL || ''
 }

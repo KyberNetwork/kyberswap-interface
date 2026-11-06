@@ -17,7 +17,8 @@ import RouteFallback from 'components/RouteFallback'
 import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
+import { KYBERCROSS } from 'constants/env'
+import { APP_PATHS, PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
 import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import {
   CLASSIC_NOT_SUPPORTED,
@@ -35,9 +36,9 @@ import useDisconnectOnStaleTerms from 'hooks/web3/useDisconnectOnStaleTerms'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import CrossChainPage from 'pages/Swap/CrossChainPage'
 import LimitPage from 'pages/Swap/LimitPage'
 import SwapPage from 'pages/Swap/SwapPage'
+import SwapRoute from 'pages/Swap/SwapRoute'
 import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useIsSafeAppAcceptedTerm } from 'state/user/hooks'
@@ -52,6 +53,7 @@ const Consent = lazy(() => import('pages/Oauth/Consent'))
 const ElasticSnapshot = lazy(() => import('pages/ElasticSnapshot'))
 const MarketOverview = lazy(() => import('pages/MarketOverview'))
 
+const KyberCrossPage = lazy(() => import('pages/KyberCross'))
 const PartnerSwap = lazy(() => import('pages/PartnerSwap'))
 const MyPool = lazy(() => import('pages/MyPool'))
 
@@ -250,23 +252,14 @@ export default function App() {
             )}
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
-              <Route path={APP_PATHS.SWAP} element={<RedirectPathToTradeNetwork />} />
-              <Route
-                path={`${APP_PATHS.SWAP}/:network/:currency?`}
-                element={
-                  <NetworkSyncedPage>
-                    <SwapPage />
-                  </NetworkSyncedPage>
-                }
-              />
+              <Route path={APP_PATHS.SWAP} element={<SwapRoute />} />
+              <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapRoute />} />
               <Route path={`${APP_PATHS.BUY}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.BUY} />} />
               <Route path={`${APP_PATHS.SELL}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.SELL} />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
               <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
-              {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
-                <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<CrossChainPage />} />
-              )}
+              {KYBERCROSS && <Route path={APP_PATHS.KYBER_CROSS} element={<KyberCrossPage />} />}
 
               <Route path={APP_PATHS.LIMIT} element={<RedirectPathToTradeNetwork />} />
               {isSupportLimitOrder(chainId) && (

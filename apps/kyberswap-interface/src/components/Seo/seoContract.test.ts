@@ -45,12 +45,6 @@ const APPROVED_STATIC_METADATA = [
       'Non-custodial platform to swap, earn, and trade crypto at the best rates across chains. Powered by an advanced multi-chain aggregator engine.',
   },
   {
-    route: '/cross-chain',
-    title: 'Cross-Chain Swap | KyberSwap',
-    description:
-      'Swap tokens between EVMs, Bitcoin, Solana, and Near chains in one step - no manual bridging. Quotes from multiple providers, best rate picked automatically.',
-  },
-  {
     route: '/earn',
     title: 'Explore Earning Opportunity, Provide Liquidity & Earn Yield',
     description:
@@ -120,7 +114,8 @@ describe('SEO contract', () => {
     it('keeps the approved inventory boundaries', () => {
       expect(SITEMAP_SWAP_CHAIN_SLUGS).toHaveLength(19)
       expect(SITEMAP_LIMIT_CHAIN_SLUGS).toHaveLength(17)
-      expect(SITEMAP_PAGE_ROUTES).toHaveLength(48)
+      expect(SITEMAP_PAGE_ROUTES).toHaveLength(47)
+      expect(SITEMAP_PAGE_ROUTES).not.toContain('/cross-chain')
       expect(new Set(SITEMAP_PAGE_ROUTES).size).toBe(SITEMAP_PAGE_ROUTES.length)
       expect(SITEMAP_PAGE_ROUTES[0]).toBe('/')
       expect(SITEMAP_SWAP_CHAIN_SLUGS.at(-1)).toBe('arc')
@@ -271,26 +266,10 @@ describe('SEO contract', () => {
       ).toMatchObject({ canonicalPath: '/swap/base/usdc-to-eth', robots: 'noindex,follow' })
     })
 
-    it('canonicalizes valid cross-chain state using only the four normalized state parameters', () => {
-      const metadata = resolveRouteMetadata(
-        '/cross-chain',
-        '?tokenOut=ETH&to=1&utm_source=test&tokenIn=SOL&from=Solana',
-      )
-
-      expect(metadata).toMatchObject({
-        canonicalPath: '/cross-chain?from=solana&to=1&tokenIn=SOL&tokenOut=ETH',
-        robots: 'noindex,follow',
-      })
-    })
-
     it('rejects duplicate route state keys', () => {
       expect(
         resolveRouteMetadata('/swap/base', '?inputCurrency=eth&inputCurrency=weth&outputCurrency=usdc'),
       ).toMatchObject({ canonicalPath: '/swap/base', robots: 'noindex,follow' })
-      expect(resolveRouteMetadata('/cross-chain', '?from=1&from=8453&to=10&tokenIn=ETH&tokenOut=USDC')).toMatchObject({
-        canonicalPath: '/cross-chain',
-        robots: 'noindex,follow',
-      })
     })
 
     it('keeps malformed pool paths out of the index', () => {

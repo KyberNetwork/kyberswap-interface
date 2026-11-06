@@ -50,6 +50,7 @@ export const useTokenSelectorSource = (chainId: ChainId, requireOracle: boolean)
     () => (requireOracle && tokenFilter ? { oracleTokenFilter: tokenFilter } : undefined),
     [requireOracle, tokenFilter],
   )
+
   // Preserve the existing failure behavior: an unanswered request is not proof a token lacks a feed.
   const isListable = useCallback(
     (currency: Currency | undefined) => !requireOracle || !isReady || hasOracle(currency),

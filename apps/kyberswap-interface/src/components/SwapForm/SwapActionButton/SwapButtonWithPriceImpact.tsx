@@ -1,5 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
@@ -10,32 +9,23 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
+type Props = {
+  isProcessingSwap: boolean
+  showLoading: boolean
+  onClick: () => void
+  priceImpact: number | undefined
+  isApproved: boolean
+  hasRoute: boolean
+}
+
 const SwapButtonWithPriceImpact = ({
   isProcessingSwap,
   showLoading,
   onClick,
   priceImpact,
   isApproved,
-  route,
-  disabled,
-  showNoteGetRoute,
-  disabledText,
-  text,
-  showTooltipPriceImpact = true,
-}: {
-  isProcessingSwap: boolean
-  showLoading: boolean
-  onClick: () => void
-  priceImpact: number | undefined
-  isApproved: boolean
-  route: any
-  minimal?: boolean
-  disabled?: boolean
-  showNoteGetRoute?: boolean
-  disabledText?: ReactNode
-  text?: ReactNode
-  showTooltipPriceImpact?: boolean
-}) => {
+  hasRoute,
+}: Props) => {
   const [isDegenMode] = useDegenModeManager()
   const priceImpactResult = checkPriceImpact(priceImpact)
 
@@ -62,7 +52,7 @@ const SwapButtonWithPriceImpact = ({
   }
 
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isDegenMode, priceImpact)
-  const shouldDisable = !route || !isApproved || disabled
+  const shouldDisable = !hasRoute || !isApproved
 
   if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
     return (
@@ -91,7 +81,7 @@ const SwapButtonWithPriceImpact = ({
         }
       }}
     >
-      {shouldDisableByPriceImpact && showTooltipPriceImpact ? (
+      {shouldDisableByPriceImpact ? (
         <MouseoverTooltip
           text={
             <Trans>
@@ -102,7 +92,7 @@ const SwapButtonWithPriceImpact = ({
         >
           <Info size={14} />
         </MouseoverTooltip>
-      ) : showNoteGetRoute && showTooltipPriceImpact ? (
+      ) : !hasRoute ? (
         <MouseoverTooltip
           text={
             <Trans>
@@ -114,11 +104,7 @@ const SwapButtonWithPriceImpact = ({
           <Info size={14} />
         </MouseoverTooltip>
       ) : null}
-      <span>
-        {shouldDisable
-          ? disabledText || t`Swap Disabled`
-          : text || (shouldDisableByPriceImpact ? t`Swap Anyway` : t`Swap`)}
-      </span>
+      <span>{shouldDisable ? t`Swap Disabled` : shouldDisableByPriceImpact ? t`Swap Anyway` : t`Swap`}</span>
     </ButtonPrimary>
   )
 }

@@ -262,6 +262,8 @@ export default function Updater(): null {
             transaction.extraInfo?.arbitrary?.outputDecimals !== undefined
           ) {
             const extraInfo = { ...transaction.extraInfo }
+            if (extraInfo.swap)
+              extraInfo.swap = { ...extraInfo.swap, outputAmount: parsed.args.returnAmount.toString() }
             ;(extraInfo as any).tokenAmountOut = formatUnits(
               parsed.args.returnAmount,
               transaction.extraInfo?.arbitrary?.outputDecimals,

@@ -13,6 +13,7 @@ import {
   Wrapper,
 } from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
+import { Collapse } from 'components/Collapse'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
 import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
@@ -52,10 +53,7 @@ export default function AnnouncementItem({
   }
 
   return (
-    <Wrapper
-      onClick={() => setExpand(!expand)}
-      style={{ maxHeight: expand ? 'unset' : '100%', height: expand ? 'auto' : 'unset' }}
-    >
+    <Wrapper onClick={() => setExpand(!expand)}>
       <div className="flex w-full justify-between">
         <Title onClick={onClick}>
           <InboxIcon type={templateType} chainId={chainId} />
@@ -68,38 +66,40 @@ export default function AnnouncementItem({
           </ArrowWrapper>
         </div>
       </div>
-      <Desc>
-        <Trans>
-          Your position{' '}
-          <DoubleCurrencyLogoV2
-            logoUrl1={token0LogoURL}
-            logoUrl2={token1LogoURL}
-            size={16}
-            style={{ marginRight: 12 }}
-          />{' '}
-          {token0Symbol}-{token1Symbol} is <span className={statusColorClass}>{statusMessage}</span>
-          <MoneyBag color={isInRange ? theme.apr : theme.warning} size={16} />
-        </Trans>
-      </Desc>
-      {expand && (
-        <Desc className="flex-col gap-1 max-md:text-xs">
-          <div>
-            <Trans>
-              Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}
-            </Trans>
-          </div>
-          <div>
-            <Trans>
-              Min Price of your range is {minPrice} {token0Symbol} per {token1Symbol}
-            </Trans>
-          </div>
-          <div>
-            <Trans>
-              Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}
-            </Trans>
-          </div>
+      <div className="w-full">
+        <Desc>
+          <Trans>
+            Your position{' '}
+            <DoubleCurrencyLogoV2
+              logoUrl1={token0LogoURL}
+              logoUrl2={token1LogoURL}
+              size={16}
+              style={{ marginRight: 12 }}
+            />{' '}
+            {token0Symbol}-{token1Symbol} is <span className={statusColorClass}>{statusMessage}</span>
+            <MoneyBag color={isInRange ? theme.apr : theme.warning} size={16} />
+          </Trans>
         </Desc>
-      )}
+        <Collapse open={expand} contentGap={3}>
+          <Desc className="flex-col gap-1 max-md:text-xs">
+            <div>
+              <Trans>
+                Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}
+              </Trans>
+            </div>
+            <div>
+              <Trans>
+                Min Price of your range is {minPrice} {token0Symbol} per {token1Symbol}
+              </Trans>
+            </div>
+            <div>
+              <Trans>
+                Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}
+              </Trans>
+            </div>
+          </Desc>
+        </Collapse>
+      </div>
     </Wrapper>
   )
 }

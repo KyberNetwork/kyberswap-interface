@@ -2,21 +2,20 @@ import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useQueries } from '@tanstack/react-query'
 import axios from 'axios'
-import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { fetchAbstractTokens } from 'services/crossChainTokens'
 import ksSettingApi from 'services/ksSetting'
 
+import { getHoldingComparator } from 'components/TokenSelectorModal/hooks/holdingSort'
 import type { TokenSearchFilters } from 'components/TokenSelectorModal/types'
 import { KS_SETTING_API } from 'constants/env'
-import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
 import { fetchListTokenByAddresses, fetchTokenInfoFromRpc, formatAndCacheToken } from 'hooks/useTokens'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { isAddress } from 'utils/address'
+import { isAddress, isAddressString } from 'utils/address'
 import { filterTruthy } from 'utils/array'
 import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
@@ -79,10 +78,39 @@ const fetchTokenSearchPage = async (
     ...(!search && { isWhitelisted: true }),
     ...(filters?.oracleTokenFilter && { [filters.oracleTokenFilter]: true }),
   }
+
   const response = await axios.get(`${KS_SETTING_API}/v1/tokens?${toSearchParams(params).toString()}`)
   const { tokens = [] } = response.data.data
 
   return filterTruthy(tokens.map(formatAndCacheToken))
+}
+
+/** Aggregate browse/search uses the same KS Setting contract, with no chain filter. */
+export const fetchAllNetworkTokenPage = async (
+  search: string,
+  page: number,
+): Promise<{ tokens: WrappedTokenInfo[]; rawCount: number; totalItems?: number }> => {
+  const value = search.trim()
+  const params = {
+    ...(value ? (isAddressString(value) ? { addresses: value } : { query: value }) : { isWhitelisted: true }),
+    page,
+    pageSize: TOKEN_SEARCH_PAGE_SIZE,
+  }
+
+  const response = await axios.get(
+    `${KS_SETTING_API}/v1/tokens?${new URLSearchParams(
+      Object.entries(params).map(([key, item]) => [key, String(item)]),
+    ).toString()}`,
+  )
+  if (response.data?.code !== 0 || !response.data?.data) throw new Error('Token list request failed')
+
+  const data = response.data.data
+  const tokens = data.tokens ?? []
+  return {
+    tokens: filterTruthy(tokens.map(formatAndCacheToken)),
+    rawCount: tokens.length,
+    totalItems: data.pagination?.totalItems,
+  }
 }
 
 export const fetchTokens = async (
@@ -167,6 +195,7 @@ export const mergeHeldSearchResults = (
   const merged = results.concat(heldMatches.filter(token => !seen.has(getTokenAddress(token))))
   const held: Currency[] = []
   const rest: Currency[] = []
+
   merged.forEach(token => {
     const address = getTokenAddress(token)
     const leads = heldAddresses.has(address) && !impersonators?.has(address)
@@ -260,102 +289,24 @@ export const useAddressRpcTokenSearch = ({
   }
 }
 
-function balanceComparator(
-  balanceA?: TokenAmount | CurrencyAmount<Currency>,
-  balanceB?: TokenAmount | CurrencyAmount<Currency>,
-) {
-  if (balanceA && balanceB) {
-    if (balanceA.equalTo(balanceB)) return 0
-    const isBalanceAGreater = JSBI.greaterThan(
-      JSBI.multiply(balanceA.quotient, balanceB.decimalScale),
-      JSBI.multiply(balanceB.quotient, balanceA.decimalScale),
-    )
-    return isBalanceAGreater ? -1 : 1
-  }
-
-  if (balanceA?.greaterThan('0')) {
-    return -1
-  }
-
-  if (balanceB?.greaterThan('0')) {
-    return 1
-  }
-
-  return 0
-}
-
-function usdValueOf(balance: TokenAmount | CurrencyAmount<Currency> | undefined, price: number | undefined): number {
-  if (!balance || !price || price <= 0) return 0
-  const amount = parseFloat(balance.toExact())
-  if (!Number.isFinite(amount) || amount <= 0) return 0
-  return amount * price
-}
-
-export function getTokenComparator(
+export const getTokenComparator = (
   balances: TokenBalanceMap,
   ethBalance: CurrencyAmount<Currency> | undefined,
   tokenPrices: TokenPriceMap,
-  // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
-  // Held tokens that are on no list (checksummed). A priced one sorts below every listed holding,
-  // whatever either side is worth, and above tokens the wallet does not hold: an airdropped
-  // impersonation is minted with an enormous supply and may even carry a quote, and neither may hand
-  // it the top. An unpriced one is almost always spam and sorts last, below every listed token.
   unlistedAddresses?: Set<string>,
-): (tokenA: Token, tokenB: Token) => number {
-  const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
-  const symbolOrder = (tokenA: Token, tokenB: Token) => {
-    if (tokenA.symbol && tokenB.symbol) {
-      return tokenA.symbol.toLowerCase().localeCompare(tokenB.symbol.toLowerCase())
+): ((tokenA: Token, tokenB: Token) => number) =>
+  getHoldingComparator(currency => {
+    const address = getTokenAddress(currency)
+    return {
+      balance: isTokenNative(currency) ? ethBalance : balances[address],
+      price: tokenPrices[address.toLowerCase()] ?? tokenPrices[address],
+      favorite: favoriteAddresses?.has(address.toLowerCase()),
+      unlisted: unlistedAddresses?.has(address),
     }
-    return tokenA.symbol ? -1 : tokenB.symbol ? 1 : 0
-  }
-  return function sortTokens(tokenA: Token, tokenB: Token): number {
-    const balanceA = isTokenNative(tokenA) ? ethBalance : balances[tokenA.address]
-    const balanceB = isTokenNative(tokenB) ? ethBalance : balances[tokenB.address]
+  })
 
-    const priceA = tokenPrices[tokenA.address?.toLowerCase()] ?? tokenPrices[tokenA.address]
-    const priceB = tokenPrices[tokenB.address?.toLowerCase()] ?? tokenPrices[tokenB.address]
-    const usdBalanceA = usdValueOf(balanceA, priceA)
-    const usdBalanceB = usdValueOf(balanceB, priceB)
-    const heldA = !!balanceA?.greaterThan('0')
-    const heldB = !!balanceB?.greaterThan('0')
-
-    if (unlistedAddresses?.size) {
-      // Unpriced unlisted holdings go last, among themselves alphabetically rather than by amount.
-      const spamA = unlistedAddresses.has(tokenA.address) && !(priceA > 0)
-      const spamB = unlistedAddresses.has(tokenB.address) && !(priceB > 0)
-      if (spamA !== spamB) return spamA ? 1 : -1
-      if (spamA) return symbolOrder(tokenA, tokenB)
-
-      // A listed holding ranks above any unlisted one before value is even looked at.
-      const listedHeldA = heldA && !unlistedAddresses.has(tokenA.address)
-      const listedHeldB = heldB && !unlistedAddresses.has(tokenB.address)
-      if (listedHeldA !== listedHeldB) return listedHeldA ? -1 : 1
-    }
-
-    if (usdBalanceA > 0 || usdBalanceB > 0) {
-      if (usdBalanceA !== usdBalanceB) return usdBalanceB - usdBalanceA
-    }
-
-    // Anything held ranks above anything not held, priced or not.
-    if (heldA !== heldB) return heldA ? -1 : 1
-
-    const balanceComp = balanceComparator(balanceA, balanceB)
-    if (balanceComp !== 0) return balanceComp
-
-    // Favorites rank above non-favorites, but only after balance/value — a held token still leads.
-    if (favoriteAddresses?.size) {
-      const favA = favoriteAddresses.has(favoriteKey(tokenA))
-      const favB = favoriteAddresses.has(favoriteKey(tokenB))
-      if (favA !== favB) return favA ? -1 : 1
-    }
-
-    return symbolOrder(tokenA, tokenB)
-  }
-}
-
-export function useTokenComparator(
+export const useTokenComparator = (
   // Balances for the tokens being sorted, plus the native balance, owned by the caller: the list's
   // balance column reads the same tokens, and one shared multicall serves both.
   balances: TokenBalanceMap,
@@ -368,7 +319,7 @@ export function useTokenComparator(
   favoriteAddresses?: Set<string>,
   // Checksummed addresses of held tokens on no list; see `getTokenComparator`.
   unlistedAddresses?: Set<string>,
-): (tokenA: Token, tokenB: Token) => number {
+): ((tokenA: Token, tokenB: Token) => number) => {
   // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
   // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
   // sentinel is always included: its balance lives in `ethBalance`, not in this map.

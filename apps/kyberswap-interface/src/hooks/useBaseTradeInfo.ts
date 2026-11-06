@@ -1,5 +1,5 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import useGetRoute, { ArgsGetRoute } from 'components/SwapForm/hooks/useGetRoute'
@@ -61,10 +61,6 @@ export function useBaseTradeInfoLimitOrder(
 export const useBaseTradeInfoWithAggregator = (args: ArgsGetRoute) => {
   const { currencyIn, currencyOut } = args
   const { fetcher: getRoute, result } = useGetRoute(args)
-
-  useEffect(() => {
-    getRoute()
-  }, [getRoute])
 
   const executionPrice = useMemo(() => {
     if (!result?.data?.data || result.error || !currencyIn || !currencyOut) {

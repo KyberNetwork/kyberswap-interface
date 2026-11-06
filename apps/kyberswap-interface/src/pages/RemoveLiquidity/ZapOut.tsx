@@ -741,8 +741,6 @@ export default function ZapOut({
                   label={t`Output`}
                   disableCurrencySelect={false}
                   showPinnedTokens
-                  positionMax="top"
-                  isSwitchMode
                   estimatedUsd={formatDisplayNumber(estimatedUsd, {
                     style: 'currency',
                     significantDigits: 6,

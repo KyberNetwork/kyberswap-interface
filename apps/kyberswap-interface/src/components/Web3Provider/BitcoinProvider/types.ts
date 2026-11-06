@@ -13,6 +13,8 @@ export interface BitcoinWalletBase {
   type: WalletType
   connect: (path?: string) => Promise<void>
   disconnect?: () => Promise<void>
+  /** Release this instance without revoking another slot's wallet permissions. */
+  dispose?: () => void | Promise<void>
   sendBitcoin: ({ recipient, amount }: SendBitcoinParams) => Promise<string>
   isInstalled: () => boolean
   // Silent session re-hydration on mount: reads already-authorized accounts WITHOUT prompting. Only
@@ -28,6 +30,7 @@ export interface AddressResponse {
 }
 
 export interface WalletInfo {
+  derivationPath?: string
   isConnected: boolean
   address: string | null
   publicKey: string | null
@@ -35,8 +38,9 @@ export interface WalletInfo {
 }
 
 export interface CreateProviderParams {
+  addressOnly?: boolean
   connectingWallet: string | null
-  setConnectingWallet: (wallet: WalletType | null) => void
+  setConnectingWallet?: (wallet: WalletType | null) => void
   setWalletInfo: (info: WalletInfo) => void
   defaultInfo: WalletInfo
 }

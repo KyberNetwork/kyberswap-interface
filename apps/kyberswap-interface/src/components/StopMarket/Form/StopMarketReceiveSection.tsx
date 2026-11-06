@@ -47,7 +47,6 @@ const StopMarketReceiveSection = ({
       otherCurrency={sellCurrency}
       onCurrencySelect={onSelectCurrency}
       estimatedUsd={estimatedUsd}
-      positionMax="top"
       positionLabel="in"
       showPinnedTokens
       maxCurrencySymbolLength={6}

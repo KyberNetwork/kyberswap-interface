@@ -8,19 +8,19 @@ import { useActiveWeb3React } from 'hooks'
 import { AppDispatch, AppState } from 'state'
 import { useBlockNumber } from 'state/application/hooks'
 import { addTransaction } from 'state/transactions/actions'
+import { isTransactionRecent } from 'state/transactions/selectors'
 import {
   GroupedTxsByHash,
   TransactionDetails,
   TransactionExtraInfo1Token,
   TransactionHistory,
 } from 'state/transactions/type'
-import { findTx } from 'utils/transaction'
 import { Hash } from 'utils/viem'
 
 type LegacyTx = { to?: string | null; nonce?: number; data?: string }
 
 // helper that can take a viem transaction response and add it to the list of transactions
-export function useTransactionAdder(): (tx: TransactionHistory) => void {
+export const useTransactionAdder = (): ((tx: TransactionHistory) => void) => {
   const { chainId, account } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const blockNumber = useBlockNumber()
@@ -41,6 +41,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
       const lookupChainId = (desiredChainId ?? chainId) as number
       const publicClient = getPublicClient(wagmiConfig, { chainId: lookupChainId })
 
+      const sentAtBlock = blockNumberRef.current
       let tx: LegacyTx | undefined
       try {
         if (publicClient) {
@@ -63,7 +64,7 @@ export function useTransactionAdder(): (tx: TransactionHistory) => void {
           to: tx?.to ?? undefined,
           nonce: tx?.nonce,
           data: tx?.data,
-          sentAtBlock: blockNumberRef.current,
+          sentAtBlock,
           chainId: desiredChainId ?? chainId,
           type,
           firstTxHash,
@@ -87,7 +88,7 @@ const filterTxsMapByAccount = (obj: GroupedTxsByHash | undefined, account: strin
   return result
 }
 // returns all the transactions for the current chain
-export function useAllTransactions(allChain = false): GroupedTxsByHash | undefined {
+export const useAllTransactions = (allChain = false): GroupedTxsByHash | undefined => {
   const { chainId, account } = useActiveWeb3React()
   const transactions = useSelector<AppState, AppState['transactions']>(state => state.transactions)
 
@@ -99,65 +100,29 @@ export function useAllTransactions(allChain = false): GroupedTxsByHash | undefin
   }, [allChain, transactions, chainId, account])
 }
 
-export function useSortRecentTransactions(recentOnly = true, allChain = false) {
+export const useSortRecentTransactions = (recentOnly = true, allChain = false) => {
   const allTransactions = useAllTransactions(allChain)
-  const { account } = useActiveWeb3React()
   return useMemo(() => {
     const txGroups: TransactionDetails[][] = allTransactions
       ? (Object.values(allTransactions).filter(Boolean) as TransactionDetails[][])
       : []
     return txGroups
-      .filter(txs => {
-        const isMyGroup = isOwnTransactionGroup(txs, account)
-        return recentOnly ? isTransactionGroupRecent(txs) && isMyGroup : isMyGroup
-      })
+      .filter(txs => !recentOnly || isTransactionRecent({ addedTime: txs[0]?.addedTime ?? 0 }))
       .sort(newTransactionsGroupFirst)
-  }, [allTransactions, recentOnly, account])
+  }, [allTransactions, recentOnly])
 }
 
-export function useIsTransactionPending(transactionHash?: string): boolean {
-  const transactions = useAllTransactions()
-
-  if (!transactionHash) return false
-
-  const tx = findTx(transactions, transactionHash)
-  if (!tx) return false
-
-  return !tx.receipt
-}
-
-function isOwnTransactionGroup(txs: TransactionDetails[], account: string | undefined): boolean {
+const isOwnTransactionGroup = (txs: TransactionDetails[], account: string | undefined): boolean => {
   return !!account && txs[0]?.from === account && !!txs[0]?.group
 }
 
-/**
- * Returns whether a transaction happened in the last day (86400 seconds * 1000 milliseconds / second)
- * @param tx to check for recency
- */
-function isTransactionGroupRecent(txs: TransactionDetails[]): boolean {
-  return new Date().getTime() - (txs[0]?.addedTime ?? 0) < 86_400_000
-}
-
 // we want the latest one to come first, so return negative if a is after b
-function newTransactionsGroupFirst(a: TransactionDetails[], b: TransactionDetails[]) {
+const newTransactionsGroupFirst = (a: TransactionDetails[], b: TransactionDetails[]) => {
   return (b[0]?.addedTime ?? 0) - (a[0]?.addedTime ?? 0)
 }
 
-/**
- * Returns whether a transaction happened in the last day (86400 seconds * 1000 milliseconds / second)
- * @param tx to check for recency
- */
-export function isTransactionRecent(tx: TransactionDetails): boolean {
-  return new Date().getTime() - tx.addedTime < 86_400_000
-}
-
-// we want the latest one to come first, so return negative if a is after b
-export function newTransactionsFirst(a: TransactionDetails, b: TransactionDetails) {
-  return b.addedTime - a.addedTime
-}
-
 // returns whether a token has a pending approval transaction
-export function useHasPendingApproval(tokenAddress: string | undefined, spender: string | undefined): boolean {
+export const useHasPendingApproval = (tokenAddress: string | undefined, spender: string | undefined): boolean => {
   const allTransactions = useAllTransactions()
   return useMemo(
     () =>

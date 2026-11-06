@@ -17,12 +17,12 @@ import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useFavoriteChains } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'types/crossChain'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
