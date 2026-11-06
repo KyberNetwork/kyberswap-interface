@@ -1,11 +1,11 @@
 import { Trans } from '@lingui/macro'
 import { type ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
+import { getNetworkInfo } from 'services/crossChain/utils'
 
 import RefreshIndicator, { type RefreshIndicatorProps } from 'components/RefreshLoading/RefreshIndicator'
 import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
-import { TokenLogoWithChain } from 'components/TokenLogo/TokenLogoWithChain'
 import type { Chain, Currency } from 'types/crossChain'
 
 type Props = {
@@ -58,13 +58,27 @@ export const SwapRate = ({
                 className="flex min-w-0 cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-xs font-medium text-text"
               >
                 <span className="inline-flex min-w-0 items-center gap-1 whitespace-nowrap">
-                  1 <TokenLogoWithChain currency={baseCurrency} chainId={baseChain} />
-                  <span className="truncate">{baseCurrency?.symbol}</span>
+                  1
+                  <span className="relative inline-flex min-w-0 pr-3">
+                    <span className="truncate">{baseCurrency?.symbol}</span>
+                    <img
+                      src={getNetworkInfo(baseChain).icon}
+                      alt={getNetworkInfo(baseChain).name}
+                      className="absolute -top-0.5 right-0 size-[10px] rounded-full"
+                    />
+                  </span>
                 </span>
                 <span className="shrink-0">=</span>
                 <span className="inline-flex min-w-0 items-center gap-1 whitespace-nowrap">
-                  {value} <TokenLogoWithChain currency={quoteCurrency} chainId={quoteChain} />
-                  <span className="truncate">{quoteCurrency?.symbol}</span>
+                  {value}
+                  <span className="relative inline-flex min-w-0 pr-3">
+                    <span className="truncate">{quoteCurrency?.symbol}</span>
+                    <img
+                      src={getNetworkInfo(quoteChain).icon}
+                      alt={getNetworkInfo(quoteChain).name}
+                      className="absolute -top-0.5 right-0 size-[10px] rounded-full"
+                    />
+                  </span>
                 </span>
                 <Repeat size={14} className="shrink-0 text-subText" />
               </button>
