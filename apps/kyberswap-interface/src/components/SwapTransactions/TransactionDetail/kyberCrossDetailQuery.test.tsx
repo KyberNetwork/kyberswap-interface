@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, type UseQueryResult, useQuery } from '@tanstack/react-query'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { ScanTxStatusResponse, TrackingExecution } from 'services/crossChain/adapters/KyberCrossAdapter/api'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
-import { useKyberCrossDetail } from 'components/SwapTransactions/TransactionDetail/useKyberCrossDetail'
+import { getKyberCrossDetailQueryOptions } from 'components/SwapTransactions/TransactionDetail/kyberCrossDetailQuery'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
 
 const scan = vi.hoisted(() => vi.fn())
@@ -21,9 +21,9 @@ const response = (hash: string, route_state: TrackingExecution['route_state'] = 
   } as ScanTxStatusResponse)
 let root: ReturnType<typeof createRoot>
 let client: QueryClient
-let result: ReturnType<typeof useKyberCrossDetail>
+let result: UseQueryResult<TrackingExecution>
 const Harness = ({ transaction }: { transaction: HistoryTransaction }) => {
-  result = useKyberCrossDetail(transaction)
+  result = useQuery(getKyberCrossDetailQueryOptions(transaction))
   return null
 }
 const render = (transaction = tx) =>

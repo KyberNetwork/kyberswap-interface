@@ -228,7 +228,7 @@ const MobileDetailRow = ({ label, children }: { label: string; children: ReactNo
 )
 
 const TransactionCard = ({ tx }: { tx: HistoryTransaction }) => (
-  <div className="flex min-w-0 flex-col gap-3 rounded-lg bg-background p-3 transition-colors focus-within:bg-tableHeader hover:bg-tableHeader active:bg-tableHeader">
+  <div className="flex min-w-0 flex-col gap-3 rounded-lg bg-background p-3 transition-colors hover:bg-tableHeader">
     <div className="flex items-start justify-between gap-3">
       <TransactionProvider tx={tx} />
       <StatusBadge status={tx.status} />
@@ -253,7 +253,7 @@ const TransactionCard = ({ tx }: { tx: HistoryTransaction }) => (
 )
 
 const TransactionRow = ({ tx }: { tx: HistoryTransaction }) => (
-  <TransactionTableGrid className="rounded-lg px-2 py-3 transition-colors focus-within:bg-tableHeader hover:bg-tableHeader">
+  <TransactionTableGrid className="rounded-lg px-2 py-3 transition-colors hover:bg-tableHeader">
     <TransactionProvider tx={tx} />
     <ChainRoute tx={tx} />
     <div className="flex justify-center">

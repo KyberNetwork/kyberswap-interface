@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { queryOptions } from '@tanstack/react-query'
 import { kyberCrossApi } from 'services/crossChain/adapters/KyberCrossAdapter/api'
 import { chainIdToKyberCrossChainName } from 'services/crossChain/adapters/KyberCrossAdapter/types'
 import type { Hash } from 'viem'
@@ -8,8 +8,8 @@ import type { HistoryTransaction } from 'components/SwapTransactions/history'
 
 const DETAIL_POLLING_INTERVAL = 5_000
 
-export const useKyberCrossDetail = (tx: HistoryTransaction) =>
-  useQuery({
+export const getKyberCrossDetailQueryOptions = (tx: HistoryTransaction) =>
+  queryOptions({
     queryKey: ['kybercross-execution', tx.sourceChain, tx.sourceTxHash.toLowerCase()],
     queryFn: async () => {
       const response = await kyberCrossApi.scanTxStatus(tx.sourceTxHash as Hash)
@@ -28,7 +28,9 @@ export const useKyberCrossDetail = (tx: HistoryTransaction) =>
     },
 
     retry: 1,
-    refetchOnMount: 'always',
+    // Opening prepares this cache; mounting the modal must not repeat that request.
+    staleTime: DETAIL_POLLING_INTERVAL,
+    retryOnMount: false,
     refetchInterval: query => {
       const { data, status } = query.state
       if (status !== 'error' && data && isExecutionFinished(data)) return false
