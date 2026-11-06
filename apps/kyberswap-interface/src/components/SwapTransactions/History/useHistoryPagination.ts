@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import walletTransactionsApi, { useGetTransactionsInfiniteQueryState } from 'services/walletTransactionsApi'
 
-import { HISTORY_PAGE_SIZE, getLoadedHistory, mergeTransactionHistory } from 'components/SwapTransactions/history'
+import { HISTORY_PAGE_SIZE, getLoadedHistory } from 'components/SwapTransactions/history'
 import { selectLocalSwapHistory } from 'components/SwapTransactions/localTransactionSelectors'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 // The page owns only cursor navigation. The page-level updater owns the cache
 // subscription and polling, so closing History does not stop KD refreshes.
-export const useHistoryPagination = (sender: string) => {
+export const useHistoryPagination = (sender: string, searching = false) => {
   const dispatch = useAppDispatch()
   const local = useAppSelector(selectLocalSwapHistory)
   const [page, setPage] = useState(1)
@@ -94,17 +94,30 @@ export const useHistoryPagination = (sender: string) => {
   }, [list.currentData, loaded.hasMore, lastPage])
 
   useEffect(() => {
-    if (loaded.transactions.length < end && loaded.hasMore && !list.isFetching && !list.isError && !loadingMore)
+    if (
+      !searching &&
+      loaded.transactions.length < end &&
+      loaded.hasMore &&
+      !list.isFetching &&
+      !list.isError &&
+      !loadingMore
+    )
       void fetchNextPage()
-  }, [end, fetchNextPage, loaded.transactions.length, loaded.hasMore, list.isFetching, list.isError, loadingMore])
+  }, [
+    searching,
+    end,
+    fetchNextPage,
+    loaded.transactions.length,
+    loaded.hasMore,
+    list.isFetching,
+    list.isError,
+    loadingMore,
+  ])
 
   return {
     transactions: loaded.transactions.slice((page - 1) * HISTORY_PAGE_SIZE, end),
-    searchTransactions: mergeTransactionHistory({
-      server: list.currentData?.pages.flatMap(page => page.transactions) ?? [],
-      local,
-      sender,
-    }),
+    // Search must respect the loaded time window too; older local rows cannot jump ahead of unloaded matches.
+    searchTransactions: loaded.transactions,
     hasMore: loaded.hasMore,
     loadMore: fetchNextPage,
     retryHistory,

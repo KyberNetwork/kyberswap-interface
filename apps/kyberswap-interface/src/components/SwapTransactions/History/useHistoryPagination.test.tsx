@@ -219,10 +219,7 @@ it('merges local and API rows before slicing, without duplicates or moving old l
   })
   await render()
   await waitFor(() => expect(hashes()).toEqual(range(32, 23).map(n => `hash-${n}`)))
-  expect(history.searchTransactions.map(tx => tx.sourceTxHash)).toEqual([
-    ...range(32, 21).map(n => `hash-${n}`),
-    'hash-5',
-  ])
+  expect(history.searchTransactions.map(tx => tx.sourceTxHash)).toEqual(range(32, 22).map(n => `hash-${n}`))
   expect(history.hasMore).toBe(true)
   expect(fetcher).toHaveBeenCalledOnce()
   await act(async () => history.goNext())
@@ -249,13 +246,13 @@ it('loads another search cursor without moving the normal history page', async (
     response((new URL(request.url).searchParams.get('offset') === '10' ? range(10, 1) : range(20, 11)).map(serverRow)),
   )
   await render()
-  await waitFor(() => expect(history.searchTransactions).toHaveLength(11))
+  await waitFor(() => expect(history.searchTransactions).toHaveLength(10))
   await act(async () => {
     await history.loadMore()
   })
-  expect(history.searchTransactions).toHaveLength(21)
+  expect(history.searchTransactions).toHaveLength(20)
   expect(history.currentPage).toBe(1)
-  expect(history.searchTransactions[20].sourceTxHash).toBe('hash-1')
+  expect(history.searchTransactions[19].sourceTxHash).toBe('hash-2')
 })
 
 it('clamps after local rows disappear', async () => {
