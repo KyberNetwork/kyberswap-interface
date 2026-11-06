@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { ButtonHTMLAttributes, ReactNode } from 'react'
 import { Calendar, ChevronDown } from 'react-feather'
 
+import { Collapse } from 'components/Collapse'
 import { HStack, Stack } from 'components/Stack'
 import { DropdownIcon } from 'components/SwapForm/Settings/SlippageSetting'
 import { TextDashed } from 'components/Text'
@@ -106,47 +107,38 @@ const LimitOrderExpirySection = ({
         {rightComponent}
       </HStack>
 
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
-          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <div className="pt-2">
-            <div
-              className="grid w-full max-w-full grid-cols-3 gap-1 rounded-[20px] bg-tabBackground p-1"
-              data-testid="expiry-options"
-            >
-              {expireOptions.map(item => {
-                const active = customDateExpire ? item.custom : item.value === expire
+      <Collapse open={!!expanded} contentGap={2}>
+        <div
+          className="grid w-full max-w-full grid-cols-3 gap-1 rounded-[20px] bg-tabBackground p-1"
+          data-testid="expiry-options"
+        >
+          {expireOptions.map(item => {
+            const active = customDateExpire ? item.custom : item.value === expire
 
-                return (
-                  <ExpireOptionButton
-                    key={item.label}
-                    onClick={() => {
-                      if (item.onSelect) item.onSelect()
-                      else if (item.value) events.onExpireChange?.(item.value)
-                    }}
-                    active={active}
-                    custom={item.custom}
-                    data-testid={item.custom ? 'expiry-option-custom' : `expiry-option-${item.value}`}
-                  >
-                    {item.custom ? (
-                      <HStack as="span" className="items-center justify-center gap-1">
-                        <Calendar size={12} />
-                        {item.label}
-                      </HStack>
-                    ) : (
-                      item.label
-                    )}
-                  </ExpireOptionButton>
-                )
-              })}
-            </div>
-          </div>
+            return (
+              <ExpireOptionButton
+                key={item.label}
+                onClick={() => {
+                  if (item.onSelect) item.onSelect()
+                  else if (item.value) events.onExpireChange?.(item.value)
+                }}
+                active={active}
+                custom={item.custom}
+                data-testid={item.custom ? 'expiry-option-custom' : `expiry-option-${item.value}`}
+              >
+                {item.custom ? (
+                  <HStack as="span" className="items-center justify-center gap-1">
+                    <Calendar size={12} />
+                    {item.label}
+                  </HStack>
+                ) : (
+                  item.label
+                )}
+              </ExpireOptionButton>
+            )
+          })}
         </div>
-      </div>
+      </Collapse>
     </Stack>
   )
 }

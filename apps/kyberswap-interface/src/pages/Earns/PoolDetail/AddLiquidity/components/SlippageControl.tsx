@@ -5,6 +5,7 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
+import { Collapse } from 'components/Collapse'
 import { HStack, Stack } from 'components/Stack'
 import { TextHelper } from 'components/Text'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/trade'
@@ -196,91 +197,93 @@ const SlippageControl = ({ context, value, onTrackEvent, onSlippageChange }: Sli
   return (
     <Stack className="gap-2">
       <Stack className="w-full gap-2 rounded-xl border border-border bg-background px-3 py-2 text-text hover:bg-darkText">
-        <button
-          type="button"
-          aria-expanded={isExpanded}
-          onClick={() => setIsExpanded(prev => !prev)}
-          className="flex w-full cursor-pointer items-center justify-between gap-2 border-none bg-transparent p-0 text-inherit"
-        >
-          <HStack className="w-full items-center justify-between gap-4">
-            <TextHelper
-              tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
-              placement="bottom"
-              className="text-subText"
-              fontSize={14}
-              width="fit-content"
-            >
-              Max Slippage
-            </TextHelper>
-            <HStack as="span" className="items-center gap-1">
-              <span className="text-sm font-medium" style={{ color: valueColor }}>
-                {formatSlippageLabel(slippage)}
-              </span>
-              <ChevronDown
-                className={cn(
-                  'size-4 text-subText transition-transform duration-200 ease-out',
-                  isExpanded && 'rotate-180',
-                )}
-              />
-            </HStack>
-          </HStack>
-        </button>
-
-        {isExpanded && (
-          <>
-            <div className="flex items-stretch rounded-[20px] border border-border bg-background">
-              {PRESET_SLIPPAGE_OPTIONS.map(item => (
-                <button
-                  type="button"
-                  key={item}
-                  onClick={() => handlePresetClick(item)}
+        <div>
+          <button
+            type="button"
+            aria-expanded={isExpanded}
+            onClick={() => setIsExpanded(prev => !prev)}
+            className="flex w-full cursor-pointer items-center justify-between gap-2 border-none bg-transparent p-0 text-inherit"
+          >
+            <HStack className="w-full items-center justify-between gap-4">
+              <TextHelper
+                tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price."
+                placement="bottom"
+                className="text-subText"
+                fontSize={14}
+                width="fit-content"
+              >
+                Max Slippage
+              </TextHelper>
+              <HStack as="span" className="items-center gap-1">
+                <span className="text-sm font-medium" style={{ color: valueColor }}>
+                  {formatSlippageLabel(slippage)}
+                </span>
+                <ChevronDown
                   className={cn(
-                    'min-h-8 min-w-0 flex-1 cursor-pointer rounded-[20px] border-none pl-3 pr-2 text-sm',
-                    slippage === item && !isCustom
-                      ? 'bg-tabActive font-medium text-text hover:bg-tabActive/80'
-                      : 'bg-transparent font-normal text-subText hover:bg-buttonGray',
+                    'size-4 text-subText transition-transform duration-200 ease-out',
+                    isExpanded && 'rotate-180',
+                  )}
+                />
+              </HStack>
+            </HStack>
+          </button>
+
+          <Collapse open={isExpanded} contentGap={2}>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-stretch rounded-[20px] border border-border bg-background">
+                {PRESET_SLIPPAGE_OPTIONS.map(item => (
+                  <button
+                    type="button"
+                    key={item}
+                    onClick={() => handlePresetClick(item)}
+                    className={cn(
+                      'min-h-8 min-w-0 flex-1 cursor-pointer rounded-[20px] border-none pl-3 pr-2 text-sm',
+                      slippage === item && !isCustom
+                        ? 'bg-tabActive font-medium text-text hover:bg-tabActive/80'
+                        : 'bg-transparent font-normal text-subText hover:bg-buttonGray',
+                    )}
+                  >
+                    {formatSlippageInput(item)}%
+                  </button>
+                ))}
+
+                <div
+                  className={cn(
+                    'flex min-w-0 flex-1 items-center justify-center gap-1 rounded-[20px] px-2',
+                    isCustom
+                      ? 'bg-tabActive text-text hover:bg-tabActive'
+                      : 'bg-transparent text-subText hover:bg-background',
                   )}
                 >
-                  {formatSlippageInput(item)}%
-                </button>
-              ))}
-
-              <div
-                className={cn(
-                  'flex min-w-0 flex-1 items-center justify-center gap-1 rounded-[20px] px-2',
-                  isCustom
-                    ? 'bg-tabActive text-text hover:bg-tabActive'
-                    : 'bg-transparent text-subText hover:bg-background',
-                )}
-              >
-                <input
-                  onBlur={event => handleCustomInputBlur(event.currentTarget.value)}
-                  onChange={event => handleCustomInputChange(event.target.value)}
-                  onFocus={() => {
-                    setIsInputFocused(true)
-                    setIsCustom(true)
-                  }}
-                  placeholder="Custom"
-                  value={customInput}
-                  className="w-14 min-w-0 border-none bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit"
-                />
-                <span className="text-sm">%</span>
+                  <input
+                    onBlur={event => handleCustomInputBlur(event.currentTarget.value)}
+                    onChange={event => handleCustomInputChange(event.target.value)}
+                    onFocus={() => {
+                      setIsInputFocused(true)
+                      setIsCustom(true)
+                    }}
+                    placeholder="Custom"
+                    value={customInput}
+                    className="w-14 min-w-0 border-none bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit"
+                  />
+                  <span className="text-sm">%</span>
+                </div>
               </div>
+
+              {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
+                <button
+                  type="button"
+                  onClick={handleSuggestionClick}
+                  className="w-fit cursor-pointer border-none bg-transparent p-0 text-sm text-primary hover:brightness-[1.12]"
+                >
+                  <Trans>Suggestion</Trans>: {formatSlippageLabel(suggestedSlippage)}
+                </button>
+              )}
+
+              {warningMessage ? <NoteCard $tone={isValid ? 'warning' : 'error'}>{warningMessage}</NoteCard> : null}
             </div>
-
-            {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
-              <button
-                type="button"
-                onClick={handleSuggestionClick}
-                className="w-fit cursor-pointer border-none bg-transparent p-0 text-sm text-primary hover:brightness-[1.12]"
-              >
-                <Trans>Suggestion</Trans>: {formatSlippageLabel(suggestedSlippage)}
-              </button>
-            )}
-
-            {warningMessage ? <NoteCard $tone={isValid ? 'warning' : 'error'}>{warningMessage}</NoteCard> : null}
-          </>
-        )}
+          </Collapse>
+        </div>
 
         <ZapImpact route={route} />
 

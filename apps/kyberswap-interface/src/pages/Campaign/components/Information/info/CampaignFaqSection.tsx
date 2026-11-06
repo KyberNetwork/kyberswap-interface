@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Minus, Plus } from 'react-feather'
 
+import { Collapse } from 'components/Collapse'
 import { ButtonIcon } from 'components/PageWrappers'
 import { FaqItem } from 'pages/Campaign/components/Information/info/types'
 
@@ -16,15 +17,9 @@ function FaqRow({ q, a }: FaqItem) {
         </ButtonIcon>
       </div>
 
-      <p
-        className="mx-4 mr-8 overflow-hidden italic text-subText transition-all duration-300 ease-in-out"
-        style={{
-          maxHeight: show ? '1000px' : 0,
-          opacity: show ? 1 : 0,
-        }}
-      >
-        {a}
-      </p>
+      <Collapse open={show} className="duration-300">
+        <p className="pl-4 pr-8 italic text-subText">{a}</p>
+      </Collapse>
     </>
   )
 }

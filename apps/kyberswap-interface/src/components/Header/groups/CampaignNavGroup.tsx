@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { Collapse } from 'components/Collapse'
 import Column from 'components/Column'
 import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
@@ -67,23 +68,19 @@ const CampaignNavGroup = ({ dropdownAlign }: Props) => {
             <DropdownSVG className={cn('transition-transform duration-300', showStip ? 'rotate-180' : 'rotate-0')} />
           </StyledNavLink>
 
-          <Column
-            className={cn(
-              'h-auto overflow-hidden px-2 transition-all duration-300 ease-in-out',
-              showStip ? 'visible' : 'invisible',
-            )}
-            style={{ maxHeight: showStip ? '300px' : 0 }}
-          >
-            <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} className="!gap-3 !text-sm">
-              <li>{t`Aggregator Trading`}</li>
-            </StyledNavLink>
-            <StyledNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN} className="!gap-3 !text-sm">
-              <li>{t`Limit Order`}</li>
-            </StyledNavLink>
-            <StyledNavLink to={APP_PATHS.REFFERAL_CAMPAIGN} className="!gap-3 !text-sm">
-              <li>{t`Referral`}</li>
-            </StyledNavLink>
-          </Column>
+          <Collapse open={showStip} className="duration-300">
+            <Column className="px-2">
+              <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} className="!gap-3 !text-sm">
+                <li>{t`Aggregator Trading`}</li>
+              </StyledNavLink>
+              <StyledNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN} className="!gap-3 !text-sm">
+                <li>{t`Limit Order`}</li>
+              </StyledNavLink>
+              <StyledNavLink to={APP_PATHS.REFFERAL_CAMPAIGN} className="!gap-3 !text-sm">
+                <li>{t`Referral`}</li>
+              </StyledNavLink>
+            </Column>
+          </Collapse>
           <StyledNavLink to={APP_PATHS.MY_DASHBOARD} className="!gap-3">
             <Trans>My Dashboard</Trans>
           </StyledNavLink>

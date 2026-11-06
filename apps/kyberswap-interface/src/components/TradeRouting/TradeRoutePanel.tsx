@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing_icon.svg'
+import { Collapse } from 'components/Collapse'
 import Skeleton from 'components/Skeleton'
 import { HopCard, PairRow, PairTokenSlot, RouteContent, RouteList, TokenLink } from 'components/TradeRouting/styled'
 import { cn } from 'utils/cn'
@@ -47,8 +48,7 @@ const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, onExpand
   const panelRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(!defaultCollapsed)
 
-  const handleToggle = () => {
-    const nextExpanded = !isExpanded
+  const handleOpenChange = (nextExpanded: boolean) => {
     setIsExpanded(nextExpanded)
 
     if (!nextExpanded) return
@@ -67,34 +67,30 @@ const TradeRoutePanel = ({ heading, children, defaultCollapsed = false, onExpand
 
   return (
     <div ref={panelRef} className="overflow-hidden rounded-xl border border-darkBorder">
-      <button
-        type="button"
-        onClick={handleToggle}
-        aria-expanded={isExpanded}
-        className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-background px-4 py-1.5 text-left text-subText"
-      >
-        <div className="flex min-w-0 items-center gap-2.5">
-          <RoutingIcon className="size-6 shrink-0" />
-          {heading}
-        </div>
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-transparent transition-colors duration-150 ease-in-out group-hover:bg-tableHeader">
-          <ChevronDown
-            size={18}
-            className={cn('text-subText transition-transform duration-150 ease-in-out', isExpanded && 'rotate-180')}
-          />
-        </div>
-      </button>
-      <div
-        inert={!isExpanded}
-        className={cn(
-          'grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none',
-          isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+      <Collapse
+        open={isExpanded}
+        onOpenChange={handleOpenChange}
+        className="duration-300"
+        trigger={({ buttonProps }) => (
+          <button
+            {...buttonProps}
+            className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-background px-4 py-1.5 text-left text-subText"
+          >
+            <div className="flex min-w-0 items-center gap-2.5">
+              <RoutingIcon className="size-6 shrink-0" />
+              {heading}
+            </div>
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-transparent transition-colors duration-150 ease-in-out group-hover:bg-tableHeader">
+              <ChevronDown
+                size={18}
+                className={cn('text-subText transition-transform duration-150 ease-in-out', isExpanded && 'rotate-180')}
+              />
+            </div>
+          </button>
         )}
       >
-        <div className="min-h-0 overflow-hidden">
-          <div className="border-t border-darkBorder p-4">{children}</div>
-        </div>
-      </div>
+        <div className="border-t border-darkBorder p-4">{children}</div>
+      </Collapse>
     </div>
   )
 }
