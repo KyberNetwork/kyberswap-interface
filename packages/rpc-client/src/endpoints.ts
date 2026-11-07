@@ -12,6 +12,7 @@ const MEGAETH = 4326;
 const UNICHAIN = 130;
 const ROBINHOOD = 4663;
 const ARC = 5042;
+const ELYSIUM = 99901;
 
 /**
  * Public endpoints tried, in order, when the KyberSwap RPC fails. An endpoint earns its place by
@@ -186,6 +187,20 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   ],
   [ROBINHOOD]: ['https://rpc.mainnet.chain.robinhood.com'],
   [ARC]: ['https://rpc.mainnet.arc.io', 'https://arc.drpc.org'],
+  [ELYSIUM]: [
+    'https://rpc.hyperlogic.fun',
+    'https://rpc.eleos.fun',
+    'https://rpc.ascendlaunch.xyz',
+    'https://rpc.thekleos.pro',
+    'https://rpc.agoradex.app',
+    'https://rpc.ronspad.fun',
+    'https://rpc.volta.family',
+    'https://supercolonyai.com/supercolony/api/elysium/rpc',
+    'https://obol-rpc.fly.dev',
+    'https://rpc-elysium.perpme.fun',
+    'https://rpc.stockium.fun',
+    'https://rpc.hesperia.trade',
+  ],
 };
 
 export const KYBER_RPC_ENDPOINTS: Record<number, string> = {

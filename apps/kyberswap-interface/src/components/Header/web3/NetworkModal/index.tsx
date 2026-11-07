@@ -59,6 +59,7 @@ const l2Chains = [
   ChainId.MEGAETH,
   ChainId.ROBINHOOD,
   ChainId.RISE,
+  ChainId.ELYSIUM,
 ]
 
 export default function NetworkModal({
