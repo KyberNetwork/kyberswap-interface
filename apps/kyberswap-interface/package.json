@@ -79,6 +79,7 @@
     "@reach/portal": "^0.17.0",
     "@reduxjs/toolkit": "^2.8.0",
     "@relayprotocol/relay-sdk": "^5.1.0",
+    "@reown/appkit-controllers": "1.8.17-wc-circular-dependencies-fix.0",
     "@safe-global/safe-apps-provider": "^0.18.6",
     "@safe-global/safe-apps-sdk": "^9.1.0",
     "@solana/spl-token": "^0.4.13",

@@ -16,7 +16,7 @@ import {
 import { useOrderedConnections } from 'components/Header/web3/WalletModal/useConnections'
 import Modal from 'components/Modal'
 import WalletPopup from 'components/WalletPopup'
-import { registerPortoConnector } from 'components/Web3Provider'
+import { CONNECTION, registerPortoConnector } from 'components/Web3Provider'
 import { setMetaMaskMobileLink, useMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -146,9 +146,12 @@ export default function WalletModal() {
             {isIdle && <Terms checked={isAcceptedTerm} onChange={handleAcceptTermChange} />}
             <Content>
               <Options>
-                {connectors.map(c => (
-                  <WalletOption connector={c} key={c.uid} />
-                ))}
+                {connectors.flatMap(c => [
+                  <WalletOption connector={c} key={c.uid} />,
+                  ...(c.id === CONNECTION.WALLET_CONNECT_CONNECTOR_ID
+                    ? [<WalletOption connector={c} oath key={`${c.uid}-oath`} />]
+                    : []),
+                ])}
               </Options>
             </Content>
           </div>
