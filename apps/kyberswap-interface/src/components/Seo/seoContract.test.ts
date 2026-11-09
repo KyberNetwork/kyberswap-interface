@@ -35,6 +35,7 @@ const APPROVED_SWAP_SUBJECTS = [
   ['megaeth', ['eth']],
   ['monad', ['mon']],
   ['robinhood', ['eth']],
+  ['elysium', ['hype']],
 ] as const
 
 const APPROVED_STATIC_METADATA = [
@@ -118,13 +119,13 @@ const readPublicFile = (filename: string) =>
 describe('SEO contract', () => {
   describe('static sitemap inventory', () => {
     it('keeps the approved inventory boundaries', () => {
-      expect(SITEMAP_SWAP_CHAIN_SLUGS).toHaveLength(19)
-      expect(SITEMAP_LIMIT_CHAIN_SLUGS).toHaveLength(17)
-      expect(SITEMAP_PAGE_ROUTES).toHaveLength(48)
+      expect(SITEMAP_SWAP_CHAIN_SLUGS).toHaveLength(20)
+      expect(SITEMAP_LIMIT_CHAIN_SLUGS).toHaveLength(18)
+      expect(SITEMAP_PAGE_ROUTES).toHaveLength(50)
       expect(new Set(SITEMAP_PAGE_ROUTES).size).toBe(SITEMAP_PAGE_ROUTES.length)
       expect(SITEMAP_PAGE_ROUTES[0]).toBe('/')
-      expect(SITEMAP_SWAP_CHAIN_SLUGS.at(-1)).toBe('arc')
-      expect(SITEMAP_LIMIT_CHAIN_SLUGS.at(-1)).toBe('arc')
+      expect(SITEMAP_SWAP_CHAIN_SLUGS.at(-1)).toBe('elysium')
+      expect(SITEMAP_LIMIT_CHAIN_SLUGS.at(-1)).toBe('elysium')
 
       for (const chain of ['zksync', 'scroll', 'fantom', 'blast', 'mantle']) {
         expect(SITEMAP_PAGE_ROUTES).not.toContain(`/swap/${chain}`)
@@ -206,10 +207,10 @@ describe('SEO contract', () => {
     })
 
     it('curates exactly the approved per-chain token intents', () => {
-      expect(CURATED_SWAP_PAIR_ROUTES).toHaveLength(46)
+      expect(CURATED_SWAP_PAIR_ROUTES).toHaveLength(48)
       expect(new Set(CURATED_SWAP_PAIR_ROUTES).size).toBe(CURATED_SWAP_PAIR_ROUTES.length)
-      expect(CURATED_SWAP_INTENT_REDIRECTS).toHaveLength(46)
-      expect(new Set(CURATED_SWAP_INTENT_REDIRECTS.map(({ sourcePath }) => sourcePath)).size).toBe(46)
+      expect(CURATED_SWAP_INTENT_REDIRECTS).toHaveLength(48)
+      expect(new Set(CURATED_SWAP_INTENT_REDIRECTS.map(({ sourcePath }) => sourcePath)).size).toBe(48)
       expect(
         CURATED_SWAP_INTENT_REDIRECTS.every(({ targetPath }) => CURATED_SWAP_PAIR_ROUTES.includes(targetPath)),
       ).toBe(true)
