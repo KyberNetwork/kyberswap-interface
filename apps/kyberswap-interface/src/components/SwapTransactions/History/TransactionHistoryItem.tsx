@@ -8,8 +8,10 @@ import { normalizeAdapterName } from 'services/crossChain/utils'
 import { formatUnits } from 'viem'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
+import { useGasDropValue } from 'components/GasDrop/useGasDropValue'
 import GasStation from 'components/Icons/GasStation'
 import Loader from 'components/Loader'
+import { Center } from 'components/Stack'
 import { TransactionDetailButton } from 'components/SwapTransactions/TransactionDetail/TransactionDetailProvider'
 import type { HistoryTransaction } from 'components/SwapTransactions/history'
 import { useHistoryGasDrop } from 'components/SwapTransactions/kyberCrossExecutionQuery'
@@ -161,10 +163,10 @@ type TransactionAmountLineProps = {
   token: Currency | string
 }
 
-const AmountLine = ({ icon, children }: { icon: ReactNode; children: ReactNode }) => (
+const AmountLine = ({ icon, children, className }: { icon: ReactNode; children: ReactNode; className?: string }) => (
   <div className="flex min-w-0 items-center gap-1 max-sm:justify-between">
     {icon}
-    <span className="truncate text-sm font-medium text-subText">{children}</span>
+    <span className={cn('truncate text-sm font-medium text-subText', className)}>{children}</span>
   </div>
 )
 
@@ -187,7 +189,7 @@ const TokenAmountLine = ({ amount, chain, prefix, token }: TransactionAmountLine
   }, [amount, decimals])
 
   return (
-    <AmountLine icon={<TokenLogoWithChain chainId={chain} currency={currency} />}>
+    <AmountLine icon={<TokenLogoWithChain chainId={chain} currency={currency} />} className="text-text">
       {prefix}
       {formattedAmount} {symbol}
     </AmountLine>
@@ -197,6 +199,10 @@ const TokenAmountLine = ({ amount, chain, prefix, token }: TransactionAmountLine
 const GasDropLine = ({ tx }: { tx: HistoryTransaction }) => {
   const native = NativeCurrencies[tx.targetChain as ChainId]
   const gas = tx.gasDropStatus
+  const { amountUsd } = useGasDropValue(
+    gas?.status === 'Delivered' && gas.amount ? { amount: gas.amount } : undefined,
+    tx.targetChain,
+  )
   if (!native || (!tx.gasDrop && !gas) || gas?.status === 'NotExecuted') return null
 
   const text =
@@ -210,13 +216,15 @@ const GasDropLine = ({ tx }: { tx: HistoryTransaction }) => {
 
   return (
     <AmountLine
+      className="text-xs"
       icon={
-        <span className="mr-1 flex shrink-0 text-primary" role="img" aria-label={t`Gas Drop`}>
+        <Center as="span" className="size-5 shrink-0 text-primary" role="img" aria-label={t`Gas Drop`}>
           <GasStation size={16} />
-        </span>
+        </Center>
       }
     >
       {text}
+      {amountUsd != null && ` (${formatDisplayNumber(amountUsd, { style: 'currency', fractionDigits: 2 })})`}
     </AmountLine>
   )
 }

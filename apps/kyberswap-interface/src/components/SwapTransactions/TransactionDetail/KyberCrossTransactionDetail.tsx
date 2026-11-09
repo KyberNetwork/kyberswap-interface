@@ -280,6 +280,7 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
 
   const bridgeProvider = execution ? execution.bridge_provider : plan?.bridgeProvider
   const flow = execution ? execution.flow_type : plan?.flowType
+  const slippage = execution?.slippage_bps
   const fees = execution ? execution.data.fees : plan?.fees?.map(fee => ({ ...fee, fee_type: fee.type }))
   const bridgeName =
     CrossChainSwapFactory.getKyberCrossBridgeSources()
@@ -399,36 +400,40 @@ const ExecutionContent = ({ execution, tx, settlement, steps }: ExecutionContent
           )}
         </div>
       </HStack>
-      {(flow || bridgeName || !!fees?.length) && (
-        <div className="grid grid-cols-2 gap-4 rounded-xl bg-background p-4 text-sm">
-          {flow && (
-            <Stack className="gap-1.5">
-              <span className="text-xs font-medium text-subText">{t`Flow`}</span>
-              <span className="font-medium text-primary">
-                {steps
-                  .filter(step => ['source-swap', 'bridge', 'destination-swap'].includes(step.id))
-                  .map((step, index) => (
-                    <span key={step.id}>
-                      {index > 0 && ' → '}
-                      <span className={step.status === 'failed' ? 'text-red' : undefined}>
-                        {step.id === 'bridge' ? t`Bridge` : t`Swap`}
-                      </span>
+      <div className="grid grid-cols-2 gap-4 rounded-xl bg-background p-4 text-sm">
+        {flow && (
+          <Stack className="gap-1.5">
+            <span className="text-xs font-medium text-subText">{t`Flow`}</span>
+            <span className="font-medium text-primary">
+              {steps
+                .filter(step => ['source-swap', 'bridge', 'destination-swap'].includes(step.id))
+                .map((step, index) => (
+                  <span key={step.id}>
+                    {index > 0 && ' → '}
+                    <span className={step.status === 'failed' ? 'text-red' : undefined}>
+                      {step.id === 'bridge' ? t`Bridge` : t`Swap`}
                     </span>
-                  ))}
-              </span>
-            </Stack>
-          )}
-          {bridgeName && (
-            <Stack className="gap-1.5">
-              <span className="text-xs font-medium text-subText">{t`Bridge`}</span>
-              <span className="font-medium">{bridgeName}</span>
-            </Stack>
-          )}
-          {fees?.map((fee, index) => (
-            <ExecutionFee key={`${fee.fee_type}:${fee.chain}:${fee.token}:${index}`} fee={fee} estimated={!execution} />
-          ))}
-        </div>
-      )}
+                  </span>
+                ))}
+            </span>
+          </Stack>
+        )}
+        {bridgeName && (
+          <Stack className="gap-1.5">
+            <span className="text-xs font-medium text-subText">{t`Bridge`}</span>
+            <span className="font-medium">{bridgeName}</span>
+          </Stack>
+        )}
+        {fees?.map((fee, index) => (
+          <ExecutionFee key={`${fee.fee_type}:${fee.chain}:${fee.token}:${index}`} fee={fee} estimated={!execution} />
+        ))}
+        {slippage !== undefined && (
+          <Stack className="gap-1.5">
+            <span className="text-xs font-medium text-subText">{t`Slippage`}</span>
+            <span className="font-medium">{slippage / 100}%</span>
+          </Stack>
+        )}
+      </div>
       <KyberCrossTransactions execution={execution} tx={tx} />
     </Stack>
   )

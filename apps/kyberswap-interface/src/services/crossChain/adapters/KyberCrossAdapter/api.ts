@@ -266,6 +266,7 @@ type RouteExecutionData = {
 }
 
 export type TrackingExecution = {
+  slippage_bps?: number
   route_plan_id: string
   from_address: Address
   to_address: Address

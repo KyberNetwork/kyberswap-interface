@@ -24,7 +24,7 @@ type Props = {
 const TransactionHistoryList = ({ transactions, emptyMessage = t`No transactions found`, cursorPagination }: Props) => {
   const mobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <div className="w-full overflow-hidden">
+    <div className="flex w-full flex-col overflow-hidden max-sm:gap-2">
       <div className="peer flex flex-col gap-1 empty:hidden max-sm:gap-2">
         {transactions.map(tx => (
           <TransactionHistoryItem key={localTransactionKey(tx)} tx={tx} mobile={mobile} />
@@ -35,7 +35,7 @@ const TransactionHistoryList = ({ transactions, emptyMessage = t`No transactions
         <span className="text-center text-sm font-medium text-subText">{emptyMessage}</span>
       </div>
       {cursorPagination && (cursorPagination.canGoPrevious || cursorPagination.canGoNext) && (
-        <div className="flex justify-center bg-background px-4 py-3 max-sm:mt-2 max-sm:rounded-lg">
+        <div className="flex justify-center bg-background px-4 py-3 max-sm:rounded-lg">
           <HistoryPagination
             currentPage={cursorPagination.currentPage}
             canGoPrevious={cursorPagination.canGoPrevious}
