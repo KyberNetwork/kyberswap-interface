@@ -1,7 +1,16 @@
-import { INDEXER_CATCHUP_WINDOW_MS } from '@kyber/hooks'
+import { INDEXER_CATCHUP_WINDOW_MS, WALLET_INVENTORY_CHAIN_DECISIONS } from '@kyber/hooks'
 
-// The served-chain list is `WALLET_INVENTORY_CHAINS` in `@kyber/hooks`, shared with the widget
-// selectors so the two can never drift; the store gates on it through `isWalletInventoryChain`.
+import { ChainFeatureMap } from 'constants/chainFeature'
+
+/**
+ * The served-chain decisions live in `@kyber/hooks`, shared with the widget selectors so the two can
+ * never drift; the store gates on them through `isWalletInventoryChain`. Checked here against every
+ * chain this app knows: adding one to `ChainId` fails type-check until `@kyber/hooks` records whether
+ * the inventory serves it.
+ *
+ * @public Read by type-check only; nothing imports it.
+ */
+export const WALLET_INVENTORY_DECISIONS: ChainFeatureMap = WALLET_INVENTORY_CHAIN_DECISIONS
 
 /** How stale an inventory may get before a mounted consumer refetches it. */
 export const INVENTORY_TTL_MS = 30_000

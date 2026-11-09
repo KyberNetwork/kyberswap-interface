@@ -1,5 +1,6 @@
 import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
+import { ChainFeatureMap, enabledValues } from 'constants/chainFeature'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/trade'
@@ -92,7 +93,8 @@ export const KNC: Partial<Record<ChainId, Token>> = {
   [ChainId.BASE]: new Token(ChainId.BASE, '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1', 18, 'KNC', 'KNC'),
 }
 
-export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
+/** The output token a swap page opens with on each chain. */
+const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: ChainFeatureMap<Token> = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'USDT', 'Tether USD'),
   [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 18, 'USDC', 'USDC'),
@@ -134,11 +136,18 @@ export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
   // the stablecoin is what the user arrives holding and the volatile asset is the quote.
   [ChainId.ARC]: new Token(ChainId.ARC, '0x128cC466B61f542da60c70e3aA11c10e19B84EDB', 18, 'WETH', 'Wrapped Ether'),
   [ChainId.ELYSIUM]: new Token(ChainId.ELYSIUM, '0xb47c4C8F73F009CC0C0d3f92B388d13E293F0B65', 6, 'USDC', 'USDC'),
+  [ChainId.ABSTRACT]: 'cross-chain only',
 }
 
-export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
-  [ChainId.MAINNET]: DEFAULT_OUTPUT_TOKENS[ChainId.MAINNET],
-  [ChainId.MATIC]: DEFAULT_OUTPUT_TOKENS[ChainId.MATIC],
+export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = enabledValues(DEFAULT_OUTPUT_TOKEN_BY_CHAIN)
+
+/** What a chain still needs before it gets a token price chart. */
+const NEEDS_CHART_QUOTE = 'needs a quote token KyberData serves price-chart candles against'
+
+/** The quote token KyberData serves each chain's price-chart candles against. */
+const PRICE_CHART_QUOTE_BY_CHAIN: ChainFeatureMap<Token> = {
+  [ChainId.MAINNET]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MAINNET],
+  [ChainId.MATIC]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MATIC],
   [ChainId.BSCMAINNET]: new Token(
     ChainId.BSCMAINNET,
     '0x55d398326f99059fF775485246999027B3197955',
@@ -163,11 +172,29 @@ export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
   ),
   [ChainId.BASE]: new Token(ChainId.BASE, '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', 6, 'USDC', 'USD Coin'),
   [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb88339CB7199b77E23DB6E890353E22632Ba630f', 6, 'USDC', 'USDC'),
-  [ChainId.MONAD]: DEFAULT_OUTPUT_TOKENS[ChainId.MONAD],
-  [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKENS[ChainId.ROBINHOOD],
+  [ChainId.MONAD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MONAD],
+  [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.ROBINHOOD],
   [ChainId.ARC]: WETH[ChainId.ARC],
-  [ChainId.ELYSIUM]: DEFAULT_OUTPUT_TOKENS[ChainId.ELYSIUM],
+  [ChainId.ELYSIUM]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.ELYSIUM],
+  [ChainId.GÖRLI]: 'testnet',
+  [ChainId.FANTOM]: NEEDS_CHART_QUOTE,
+  [ChainId.ZKSYNC]: NEEDS_CHART_QUOTE,
+  [ChainId.LINEA]: NEEDS_CHART_QUOTE,
+  [ChainId.SCROLL]: NEEDS_CHART_QUOTE,
+  [ChainId.BLAST]: NEEDS_CHART_QUOTE,
+  [ChainId.MANTLE]: NEEDS_CHART_QUOTE,
+  [ChainId.SONIC]: NEEDS_CHART_QUOTE,
+  [ChainId.BERA]: NEEDS_CHART_QUOTE,
+  [ChainId.RONIN]: NEEDS_CHART_QUOTE,
+  [ChainId.UNICHAIN]: NEEDS_CHART_QUOTE,
+  [ChainId.PLASMA]: NEEDS_CHART_QUOTE,
+  [ChainId.ETHERLINK]: NEEDS_CHART_QUOTE,
+  [ChainId.MEGAETH]: NEEDS_CHART_QUOTE,
+  [ChainId.RISE]: NEEDS_CHART_QUOTE,
+  [ChainId.ABSTRACT]: 'cross-chain only',
 }
+
+export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = enabledValues(PRICE_CHART_QUOTE_BY_CHAIN)
 
 // Swap-intent routes use this when the subject is native or wrapped-native, avoiding native -> native pairs.
 export const STABLE_TOKENS: Partial<Record<ChainId, Token>> = {
