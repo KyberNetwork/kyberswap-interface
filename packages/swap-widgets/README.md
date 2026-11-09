@@ -154,6 +154,7 @@ For full isolation you can also render the widget inside a Shadow DOM (e.g. via 
 | Rise | 4153 |
 | Robinhood | 4663 |
 | Arc | 5042 |
+| Elysium | 99901 |
 
 Other listed chains (Cronos, BTTC) are deprecated.
 

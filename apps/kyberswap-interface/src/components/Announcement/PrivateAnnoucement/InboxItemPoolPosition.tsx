@@ -15,6 +15,7 @@ import {
 import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
+import TokenSymbol from 'components/TokenSymbol'
 import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
@@ -82,17 +83,17 @@ function InboxItemPoolPosition({
             size={12}
           />
           <PrimaryText>
-            {token0Symbol}/{token1Symbol}
+            <TokenSymbol symbol={token0Symbol} />/<TokenSymbol symbol={token1Symbol} />
           </PrimaryText>
         </div>
         <PrimaryText color={isInRange ? theme.primary : theme.warning}>
-          {currentPrice} {token0Symbol}/{token1Symbol}
+          {currentPrice} <TokenSymbol symbol={token0Symbol} />/<TokenSymbol symbol={token1Symbol} />
         </PrimaryText>
       </InboxItemRow>
 
       <InboxItemRow>
         <PrimaryText className="text-subText">
-          {minPrice} - {maxPrice} {token0Symbol}/{token1Symbol}
+          {minPrice} - {maxPrice} <TokenSymbol symbol={token0Symbol} />/<TokenSymbol symbol={token1Symbol} />
         </PrimaryText>
         {time}
       </InboxItemRow>

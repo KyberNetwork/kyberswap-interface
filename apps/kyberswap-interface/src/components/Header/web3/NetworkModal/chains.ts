@@ -36,6 +36,7 @@ export const L2_CHAINS = [
   ChainId.MEGAETH,
   ChainId.ROBINHOOD,
   ChainId.RISE,
+  ChainId.ELYSIUM,
 ] as const
 
 type PlacedChain = (typeof L1_CHAINS)[number] | (typeof L2_CHAINS)[number]

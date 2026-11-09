@@ -387,6 +387,30 @@ export const arc = defineChain({
   },
 })
 
+export const elysium = defineChain({
+  id: ChainId.ELYSIUM,
+  name: 'Elysium',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'HYPE',
+    symbol: 'HYPE',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.hyperlogic.fun'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
 const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(mainnet),
   withKyberRpc(arbitrum),
@@ -414,6 +438,7 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(rise),
   withKyberRpc(arc),
   withKyberRpc(abstract),
+  withKyberRpc(elysium),
 ] as const
 
 // One endpoint's share of the wait. `fallback()` walks its URLs in order and moves on only once the

@@ -174,4 +174,12 @@
   <url>
     <loc>https://kyberswap.com/swap/robinhood/eth-to-usdg</loc>
   </url>
+
+  <!-- Swap pairs - elysium -->
+  <url>
+    <loc>https://kyberswap.com/swap/elysium/usdc-to-hype</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/elysium/hype-to-usdc</loc>
+  </url>
 </urlset>

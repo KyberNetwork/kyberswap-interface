@@ -20,6 +20,7 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import type { DisplayCandle } from 'components/TokenPriceChart/chartOptions'
 import type { PriceMarkerOverlay } from 'components/TokenPriceChart/priceMarkers'
+import TokenSymbol from 'components/TokenSymbol'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
@@ -261,7 +262,7 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
                 >
                   <CurrencyLogo currency={token} size="20px" />
                   <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
-                    {token.symbol}/{quoteToken.symbol}
+                    <TokenSymbol symbol={token.symbol} />/<TokenSymbol symbol={quoteToken.symbol} />
                   </span>
                 </button>
               )
@@ -305,9 +306,9 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
                 {currentPrice !== undefined && (
                   <HStack className="flex-wrap items-baseline gap-x-2 gap-y-1">
                     <span className="text-base text-subText">
-                      1 {activeToken.symbol} ={' '}
+                      1 <TokenSymbol symbol={activeToken.symbol} /> ={' '}
                       <span className="text-xl font-medium text-text">
-                        {formatRate(currentPrice)} {quoteToken.symbol}
+                        {formatRate(currentPrice)} <TokenSymbol symbol={quoteToken.symbol} />
                       </span>
                     </span>
 

@@ -11,6 +11,7 @@ import {
   bera,
   blast,
   bnb,
+  elysium,
   ethereum,
   etherlink,
   fantom,
@@ -65,6 +66,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.RISE]: rise,
   [ChainId.ARC]: arc,
   [ChainId.ABSTRACT]: abstract,
+  [ChainId.ELYSIUM]: elysium,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -122,6 +124,7 @@ const STOP_MARKET_BY_CHAIN: ChainFeatureMap = {
   [ChainId.MEGAETH]: NEEDS_SERVICE_SUPPORT,
   [ChainId.RISE]: NEEDS_SERVICE_SUPPORT,
   [ChainId.ARC]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.ELYSIUM]: NEEDS_SERVICE_SUPPORT,
   [ChainId.ABSTRACT]: 'cross-chain only',
 }
 
@@ -158,6 +161,7 @@ export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.ROBINHOOD,
   ChainId.RISE,
   ChainId.ARC,
+  ChainId.ELYSIUM,
 ]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {

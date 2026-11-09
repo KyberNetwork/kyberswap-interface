@@ -23,6 +23,7 @@ import {
   riseTokens,
   robinhoodTokens,
   arcTokens,
+  elysiumTokens,
 } from './tokens'
 import hyperEvmTokens from './tokens/hyperevm'
 
@@ -179,6 +180,14 @@ export const NATIVE_TOKEN: {
     address: NATIVE_TOKEN_ADDRESS,
     chainId: 5042,
     logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/755d9eee-8d2d-44b8-ad38-1f2765f036ce.png',
+  },
+  99901: {
+    name: 'HYPE',
+    symbol: 'HYPE',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 99901,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/5735d731-d5da-4ba4-af94-2e945110130c1750316953655.png',
   },
 }
 
@@ -385,6 +394,14 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 5042,
     logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/755d9eee-8d2d-44b8-ad38-1f2765f036ce.png',
   },
+  99901: {
+    name: 'Wrapped HYPE',
+    decimals: 18,
+    symbol: 'WHYPE',
+    address: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81',
+    chainId: 99901,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/35881.png',
+  },
 }
 
 /**
@@ -427,6 +444,7 @@ export const DEFAULT_TOKENS: {
   4153: riseTokens,
   4663: robinhoodTokens,
   5042: arcTokens,
+  99901: elysiumTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -455,6 +473,7 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   4153: '0xcA11bde05977b3631167028862bE2a173976CA11',
   4663: '0xcA11bde05977b3631167028862bE2a173976CA11',
   5042: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  99901: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -483,6 +502,7 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   4153: 'rise',
   4663: 'robinhood',
   5042: 'arc',
+  99901: 'elysium',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -511,6 +531,7 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   4153: 'https://explorer.risechain.com',
   4663: 'https://robin.etherscan.io',
   5042: 'https://arc.etherscan.io',
+  99901: 'https://elysium.kinetiq.xyz',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
@@ -539,6 +560,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   4153: 'https://rpc.risechain.com',
   4663: 'https://rpc.mainnet.chain.robinhood.com',
   5042: 'https://rpc.mainnet.arc.io',
+  99901: 'https://rpc.hyperlogic.fun',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

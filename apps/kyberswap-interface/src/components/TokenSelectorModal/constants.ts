@@ -33,6 +33,7 @@ const TRENDING_BY_CHAIN: ChainFeatureMap = {
   [ChainId.MONAD]: true,
   [ChainId.ROBINHOOD]: true,
   [ChainId.ARC]: true,
+  [ChainId.ELYSIUM]: true,
   [ChainId.GÖRLI]: 'testnet',
   [ChainId.FANTOM]: NEEDS_KYBERSCORE,
   [ChainId.ZKSYNC]: NEEDS_KYBERSCORE,

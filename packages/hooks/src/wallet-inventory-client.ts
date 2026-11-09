@@ -10,6 +10,7 @@ const RISE = 4153;
 const MEGAETH = 4326;
 const PLASMA = 9745;
 const ETHERLINK = 42793;
+const ELYSIUM = 99901;
 
 /** What a chain still needs before the inventory can serve it. */
 const NOT_INDEXED = 'needs KyberData to index the chain';
@@ -36,6 +37,7 @@ export const WALLET_INVENTORY_CHAIN_DECISIONS = {
   [ChainId.Avalanche]: true,
   [ChainId.Monad]: true,
   [HYPEREVM]: true,
+  [ELYSIUM]: true,
   [GOERLI]: 'testnet',
   [ChainId.Fantom]: NOT_INDEXED,
   [ChainId.ZkSync]: NOT_INDEXED,

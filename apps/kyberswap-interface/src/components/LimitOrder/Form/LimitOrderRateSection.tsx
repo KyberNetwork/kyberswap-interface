@@ -10,6 +10,7 @@ import { formatPriceInputValue } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
 import PercentPresetSelector from 'components/PercentPresetSelector'
 import { HStack, Stack } from 'components/Stack'
+import TokenSymbol from 'components/TokenSymbol'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
@@ -169,7 +170,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
         {quoteCurrency && baseCurrency && (
           <HStack className="min-w-0 shrink-0 items-center gap-1.5">
             <span className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText">
-              {quoteCurrency.symbol}/{baseCurrency.symbol}
+              <TokenSymbol symbol={quoteCurrency.symbol} />/<TokenSymbol symbol={baseCurrency.symbol} />
             </span>
             <button
               type="button"
