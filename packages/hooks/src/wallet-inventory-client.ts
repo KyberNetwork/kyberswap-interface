@@ -1,7 +1,8 @@
 import { ChainId } from '@kyber/schema';
 
-/** Chain id not in `@kyber/schema`, whose enum backs the widget schemas rather than this list. */
+/** Chain ids not in `@kyber/schema`, whose enum backs the widget schemas rather than this list. */
 const HYPEREVM = 999;
+const ELYSIUM = 99901;
 
 /**
  * Chains the inventory is allowed to serve. A release gate as much as a list: the service may index
@@ -23,6 +24,7 @@ export const WALLET_INVENTORY_CHAINS: number[] = [
   ChainId.Avalanche,
   ChainId.Monad,
   HYPEREVM,
+  ELYSIUM,
 ];
 
 /** The service answered that it does not index this chain. */
