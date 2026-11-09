@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
@@ -83,7 +84,7 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
         </ImageContainer>
         <Link to={positionDetailUrl} className="min-w-0 text-inherit no-underline hover:text-text">
           <span className="block max-w-[140px] cursor-pointer truncate">
-            {posDetail.token0.symbol}/{posDetail.token1.symbol}
+            <TokenSymbol symbol={posDetail.token0.symbol} />/<TokenSymbol symbol={posDetail.token1.symbol} />
           </span>
         </Link>
         <Badge className="shrink-0">Fee {posDetail.poolFee}%</Badge>

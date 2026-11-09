@@ -21,6 +21,7 @@ import {
 } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { APP_PATHS } from 'constants/index'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { getDexVersion, getTokenId } from 'pages/Earns/utils/position'
@@ -146,7 +147,7 @@ const InboxItemEarnPosition = ({
             size={16}
           />
           <PrimaryText className="text-sm">
-            {token0Symbol}/{token1Symbol}
+            <TokenSymbol symbol={token0Symbol} />/<TokenSymbol symbol={token1Symbol} />
           </PrimaryText>
 
           <div className="flex items-center gap-1 rounded-xl bg-white/[0.05] px-2 py-1">
@@ -175,7 +176,7 @@ const InboxItemEarnPosition = ({
       {[Status.IN_RANGE, Status.OUT_RANGE].includes(status) && (
         <InboxItemRow>
           <PrimaryText>
-            {currentPrice} {token0Symbol}/{token1Symbol}
+            {currentPrice} <TokenSymbol symbol={token0Symbol} />/<TokenSymbol symbol={token1Symbol} />
           </PrimaryText>
           <PrimaryText className="text-subText">
             {minPrice} - {maxPrice}

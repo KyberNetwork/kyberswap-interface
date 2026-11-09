@@ -5,6 +5,7 @@ import { TableCell, TableRow, getPoolTableGridTemplateColumns } from 'components
 import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTheme from 'hooks/useTheme'
@@ -95,7 +96,7 @@ const DesktopTableRow = ({
             {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
           </HStack>
           <SymbolText data-testid="earn-pool-row-pair">
-            {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+            <TokenSymbol symbol={pool.tokens?.[0]?.symbol} />/<TokenSymbol symbol={pool.tokens?.[1]?.symbol} />
           </SymbolText>
           <MouseoverTooltipDesktopOnly
             text={

@@ -7,6 +7,7 @@ import CopyHelper from 'components/Copy'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
@@ -105,7 +106,7 @@ const PositionHeader = ({
               </ImageContainer>
               <Link to={getPoolDetailUrl(position?.chain.id, position?.dex.id ?? '', position?.pool.address ?? '')}>
                 <span className={cn('-ml-2.5 text-text', upToSmall ? 'text-xl' : 'text-base')}>
-                  {position?.token0.symbol}/{position?.token1.symbol}
+                  <TokenSymbol symbol={position?.token0.symbol} />/<TokenSymbol symbol={position?.token1.symbol} />
                 </span>
               </Link>
             </div>

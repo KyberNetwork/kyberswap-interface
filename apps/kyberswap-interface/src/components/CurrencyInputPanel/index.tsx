@@ -12,6 +12,7 @@ import Wallet from 'components/Icons/Wallet'
 import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import TokenSelectorModal from 'components/TokenSelectorModal'
+import TokenSymbol from 'components/TokenSymbol'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
@@ -314,7 +315,7 @@ const CurrencySelectContent = ({
           active={Boolean(currency && getCurrencyDisplaySymbol(currency))}
           fontSize={tight ? '14px' : fontSize}
         >
-          {tokenSymbol}
+          {typeof tokenSymbol === 'string' ? <TokenSymbol symbol={tokenSymbol} /> : tokenSymbol}
         </StyledTokenName>
       </RowFixed>
 
