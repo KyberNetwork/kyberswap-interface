@@ -33,7 +33,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { arc, robinhood, wagmiConfig } from 'components/Web3Provider'
+import { arc, elysium, robinhood, wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import {
   BaseSwapAdapter,
@@ -90,6 +90,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         monad,
         robinhood,
         arc,
+        elysium,
       ]
         .map(convertViemChainToRelayChain)
         .concat(solanaChain as any),
@@ -128,6 +129,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       ChainId.MONAD,
       ChainId.ROBINHOOD,
       ChainId.ARC,
+      ChainId.ELYSIUM,
     ]
   }
 
