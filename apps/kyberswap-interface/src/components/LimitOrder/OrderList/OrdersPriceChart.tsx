@@ -13,6 +13,7 @@ import {
   type PriceMarkerOverlay,
   invertMarkerOverlay,
 } from 'components/TokenPriceChart/priceMarkers'
+import TokenSymbol from 'components/TokenSymbol'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 
 type Props = {
@@ -104,9 +105,9 @@ const OrdersPriceChart = ({ currencyIn, currencyOut, isStopMarketPage }: Props) 
               </span>
             </span>
             <span className="inline-flex font-medium">
-              <span>{baseCurrency.symbol}</span>
+              <TokenSymbol symbol={baseCurrency.symbol} />
               <span>/</span>
-              <span>{quoteCurrency.symbol}</span>
+              <TokenSymbol symbol={quoteCurrency.symbol} />
             </span>
           </span>
         ),
@@ -147,7 +148,7 @@ const OrdersPriceChart = ({ currencyIn, currencyOut, isStopMarketPage }: Props) 
         label: (
           <span className="flex items-center justify-center gap-1 whitespace-nowrap px-1 font-medium">
             <CurrencyLogo currency={token} size="20px" />
-            {token.symbol}
+            <TokenSymbol symbol={token.symbol} />
             <span className="text-xs font-medium">
               <Trans>in {quoteSymbol}</Trans>
             </span>

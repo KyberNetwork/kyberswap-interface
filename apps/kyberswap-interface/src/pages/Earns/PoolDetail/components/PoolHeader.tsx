@@ -14,6 +14,7 @@ import InfoHelper from 'components/InfoHelper'
 import { ListingPageNavigateButton } from 'components/Listing/Page'
 import { Center, HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { APP_PATHS } from 'constants/index'
 import { NetworkInfo } from 'constants/networks/type'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
@@ -84,7 +85,7 @@ const PoolHeaderPage = () => {
           <TokenLogo src={secondaryToken.logoURI} size={20} translateLeft />
         </HStack>
         <span className="text-sm font-medium text-text">
-          {primaryToken.symbol}/{secondaryToken.symbol}
+          <TokenSymbol symbol={primaryToken.symbol} />/<TokenSymbol symbol={secondaryToken.symbol} />
         </span>
         <span className="text-sm text-subText">{shortenAddress(pool.address, 4)}</span>
         <CopyHelper size={14} margin="0" toCopy={pool.address} />
@@ -110,7 +111,7 @@ const PoolHeaderPage = () => {
             </HStack>
 
             <span className="whitespace-nowrap text-2xl font-medium text-text">
-              {primaryToken.symbol}/{secondaryToken.symbol}
+              <TokenSymbol symbol={primaryToken.symbol} />/<TokenSymbol symbol={secondaryToken.symbol} />
             </span>
 
             <Center className="size-8 rounded-lg bg-buttonGray">
@@ -167,7 +168,7 @@ const PoolHeaderReview = () => {
 
       <Stack className="gap-1">
         <span className="text-base font-medium text-text">
-          {primaryToken.symbol}/{secondaryToken.symbol}
+          <TokenSymbol symbol={primaryToken.symbol} />/<TokenSymbol symbol={secondaryToken.symbol} />
         </span>
 
         <HStack className="flex-wrap items-center gap-2">

@@ -3,6 +3,7 @@ import { Star } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -98,7 +99,7 @@ const MobileTableRow = ({
               )}
             </HStack>
             <SymbolText data-testid="earn-pool-row-pair">
-              {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+              <TokenSymbol symbol={pool.tokens?.[0]?.symbol} />/<TokenSymbol symbol={pool.tokens?.[1]?.symbol} />
             </SymbolText>
             <FeeTier data-testid="earn-pool-row-fee-tier">
               {formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%

@@ -20,6 +20,7 @@ import SegmentedControl from 'components/SegmentedControl'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
@@ -525,7 +526,7 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
             </HStack>
 
             <span className="whitespace-nowrap text-xl font-medium text-text">
-              {displayedToken0.symbol}/{displayedToken1.symbol}
+              <TokenSymbol symbol={displayedToken0.symbol} />/<TokenSymbol symbol={displayedToken1.symbol} />
             </span>
 
             <RevertIconWrapper onClick={() => setRevertPrice(prev => !prev)}>

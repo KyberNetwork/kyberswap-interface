@@ -6,6 +6,7 @@ import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import Modal from 'components/Modal'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import {
   Apr,
   FeeTier,
@@ -79,7 +80,8 @@ export default function MigrationModal({
                         <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
                       </div>
                       <SymbolText>
-                        {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+                        <TokenSymbol symbol={pool.tokens?.[0]?.symbol} />/
+                        <TokenSymbol symbol={pool.tokens?.[1]?.symbol} />
                       </SymbolText>
                       <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
                     </div>
@@ -139,7 +141,8 @@ export default function MigrationModal({
                           <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
                         </div>
                         <SymbolText>
-                          {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+                          <TokenSymbol symbol={pool.tokens?.[0]?.symbol} />/
+                          <TokenSymbol symbol={pool.tokens?.[1]?.symbol} />
                         </SymbolText>
                       </div>
                       <div className="flex items-center gap-0.5">

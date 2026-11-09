@@ -33,6 +33,7 @@ import NumericalInput from 'components/NumericalInput'
 import ProcessingStepsModal from 'components/ProcessingSteps/ProcessingStepsModal'
 import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { HStack, Stack } from 'components/Stack'
+import TokenSymbol from 'components/TokenSymbol'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useLimitState } from 'state/limit/hooks'
@@ -302,7 +303,8 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
             <HStack className="items-center gap-2 text-base font-medium text-text">
               <PairLogos payCurrency={context.payCurrency} receiveCurrency={context.receiveCurrency} />
               <span className="text-xl leading-none">
-                {context.payCurrency.symbol}/{context.receiveCurrency.symbol}
+                <TokenSymbol symbol={context.payCurrency.symbol} />/
+                <TokenSymbol symbol={context.receiveCurrency.symbol} />
               </span>
             </HStack>
 
