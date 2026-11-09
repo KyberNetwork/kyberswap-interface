@@ -58,6 +58,7 @@ const CURATED_SWAP_SUBJECT_IDS_BY_CHAIN: Record<CuratedSwapChainSlug, readonly s
   // Arc's native asset is USDC, so a native-subject intent would pair USDC with itself, and no other
   // Arc token has a market worth promoting.
   arc: [],
+  elysium: ['hype'],
 }
 
 // Build each chain catalog once, including its pair targets and buy/sell redirects.
