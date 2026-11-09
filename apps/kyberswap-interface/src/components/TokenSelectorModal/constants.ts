@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { ChainFeatureMap, enabledChains } from 'constants/chainFeature'
+import { ChainFeatureMap } from 'constants/chainFeature'
 
 export enum TokenSelectorTab {
   All = 'all',
@@ -52,9 +52,7 @@ const TRENDING_BY_CHAIN: ChainFeatureMap = {
   [ChainId.ABSTRACT]: 'cross-chain only',
 }
 
-export const TRENDING_SUPPORTED_CHAINS: ChainId[] = enabledChains(TRENDING_BY_CHAIN)
-
-export const isTrendingSupportedChain = (chainId: ChainId): boolean => TRENDING_SUPPORTED_CHAINS.includes(chainId)
+export const isTrendingSupportedChain = (chainId: ChainId): boolean => TRENDING_BY_CHAIN[chainId] === true
 
 /**
  * Whether Trending rows the catalog returns without a `metrics.price` are topped up from the live

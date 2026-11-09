@@ -14,6 +14,8 @@ const ELYSIUM = 99901;
 
 /** What a chain still needs before the inventory can serve it. */
 const NOT_INDEXED = 'needs KyberData to index the chain';
+/** KyberData already serves the chain; the inventory waits on the decision to turn it on. */
+const NOT_RELEASED = 'needs a release decision';
 
 /**
  * Whether the inventory serves each chain, with what the others still need. A release gate as much
@@ -47,7 +49,7 @@ export const WALLET_INVENTORY_CHAIN_DECISIONS = {
   [ChainId.Mantle]: NOT_INDEXED,
   [ChainId.Sonic]: NOT_INDEXED,
   [ChainId.Berachain]: NOT_INDEXED,
-  [ChainId.Arc]: NOT_INDEXED,
+  [ChainId.Arc]: NOT_RELEASED,
   [UNICHAIN]: NOT_INDEXED,
   [RONIN]: NOT_INDEXED,
   [ABSTRACT]: NOT_INDEXED,

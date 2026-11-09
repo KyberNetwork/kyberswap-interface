@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
-import { ChainFeatureMap, enabledChains } from 'constants/chainFeature'
+import { ChainFeatureMap } from 'constants/chainFeature'
 import {
   abstract,
   arbitrum,
@@ -92,9 +92,8 @@ const NEEDS_SERVICE_SUPPORT = 'needs the conditional-order service to accept the
 /**
  * Stop market order runs on a fixed chain set instead of the per-chain, per-env `limitOrder` config.
  *
- * Every chain turned on must be one the conditional-order service accepts: it rejects an unknown
- * chain with `chain id is not supported`, and one bad id fails the whole order-list request, so
- * turning on a chain it does not know breaks the table for every chain at once.
+ * Every chain turned on must be one the conditional-order service accepts: it answers an unknown
+ * chain with `chain id is not supported`, so the order table and form fail on that chain.
  * Chains it accepts but has no oracle feeds for stay on — the form degrades to "not available yet".
  */
 const STOP_MARKET_BY_CHAIN: ChainFeatureMap = {
@@ -128,9 +127,7 @@ const STOP_MARKET_BY_CHAIN: ChainFeatureMap = {
   [ChainId.ABSTRACT]: 'cross-chain only',
 }
 
-const STOP_MARKET_NETWORKS: ChainId[] = enabledChains(STOP_MARKET_BY_CHAIN)
-
-export const isSupportStopMarket = (chainId: ChainId): boolean => STOP_MARKET_NETWORKS.includes(chainId)
+export const isSupportStopMarket = (chainId: ChainId): boolean => STOP_MARKET_BY_CHAIN[chainId] === true
 
 // Available to cross-chain wallets and token reads, but not single-chain products.
 export const CROSS_CHAIN_ONLY_NETWORKS: ChainId[] = [ChainId.ABSTRACT]

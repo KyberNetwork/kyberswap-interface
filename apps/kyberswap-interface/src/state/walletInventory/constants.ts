@@ -7,6 +7,8 @@ import { ChainFeatureMap } from 'constants/chainFeature'
  * never drift; the store gates on them through `isWalletInventoryChain`. Checked here against every
  * chain this app knows: adding one to `ChainId` fails type-check until `@kyber/hooks` records whether
  * the inventory serves it.
+ *
+ * @public Read by type-check only; nothing imports it.
  */
 export const WALLET_INVENTORY_DECISIONS: ChainFeatureMap = WALLET_INVENTORY_CHAIN_DECISIONS
 
