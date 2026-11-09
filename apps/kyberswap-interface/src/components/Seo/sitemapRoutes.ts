@@ -19,6 +19,7 @@ export const SITEMAP_SWAP_CHAIN_SLUGS = [
   'monad',
   'robinhood',
   'arc',
+  'elysium',
 ] as const
 
 export const SITEMAP_LIMIT_CHAIN_SLUGS = [
@@ -39,6 +40,7 @@ export const SITEMAP_LIMIT_CHAIN_SLUGS = [
   'monad',
   'robinhood',
   'arc',
+  'elysium',
 ] as const
 
 /**

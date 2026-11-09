@@ -8,8 +8,17 @@ type UIntString = string
 type TokenReference = string
 type JsonObject = Record<string, unknown>
 
-export type ChainName = 'ethereum' | 'arbitrum' | 'base' | 'bsc' | 'robinhood' | 'hyperevm'
-export type BridgeProvider = 'across' | 'relay' | 'mayan' | 'near_intents' | 'cctp_v2' | 'cctp_v2_fast' | 'ccip' | 'eco'
+export type ChainName = 'ethereum' | 'arbitrum' | 'base' | 'bsc' | 'robinhood' | 'hyperevm' | 'elysium'
+export type BridgeProvider =
+  | 'across'
+  | 'relay'
+  | 'mayan'
+  | 'near_intents'
+  | 'cctp_v2'
+  | 'cctp_v2_fast'
+  | 'ccip'
+  | 'eco'
+  | 'arbitrum_bridge'
 type FlowType = 'bridge_only' | 'swap_then_bridge' | 'bridge_then_swap' | 'swap_bridge_swap'
 export type RouteState =
   | 'BRIDGE_PENDING'
@@ -156,6 +165,17 @@ export type NearIntentsBridgeMetadata = {
   deposit_address: string
 }
 
+type ArbitrumBridgeMetadata = {
+  gateway_router: Address
+  inbox: Address
+  gateway: Address
+  to_address: Address
+  gas_limit: number
+  max_fee_per_gas: UIntString
+  max_submission_cost: UIntString
+  retryable_fee: UIntString
+}
+
 export type BridgeMetadata =
   | AcrossBridgeMetadata
   | CCTPBridgeMetadata
@@ -163,6 +183,7 @@ export type BridgeMetadata =
   | RelayDepositAddressBridgeMetadata
   | MayanBridgeMetadata
   | NearIntentsBridgeMetadata
+  | ArbitrumBridgeMetadata
 
 type BridgePlan = {
   lane_id: string

@@ -51,9 +51,9 @@ when it cannot prove identity synchronously; OG Service performs strict resoluti
 
 The maintained discovery inventory currently contains:
 
-- 46 landing URLs from `SITEMAP_PAGE_ROUTES`;
-- 46 curated canonical Swap pairs from `CURATED_SWAP_PAIR_ROUTES`;
-- 46 Buy/Sell aliases derived from 23 approved token intents across 18 Swap chains.
+- 50 landing URLs from `SITEMAP_PAGE_ROUTES`;
+- 48 curated canonical Swap pairs from `CURATED_SWAP_PAIR_ROUTES`;
+- 48 Buy/Sell aliases derived from 24 approved token intents across 19 Swap chains.
 
 The route catalogs, generated redirect map, checked-in XML, and contract tests must change together. Do not copy the
 full URL list into another source file or manually maintain a second route manifest.

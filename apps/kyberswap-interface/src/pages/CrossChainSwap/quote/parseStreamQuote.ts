@@ -1,5 +1,10 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { parse } from 'lossless-json'
+import { formatUnits } from 'viem'
+import { z } from 'zod'
 
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { NonEvmChain, type NormalizedQuote, type QuoteParams } from 'pages/CrossChainSwap/adapters/types'
 import { normalizeQuote } from 'pages/CrossChainSwap/quote/normalizeQuote'
 
@@ -10,7 +15,7 @@ export type StreamQuoteResponse = {
   inputUsd: number
   outputUsd: number
   additionalFeeUsd?: number
-  additionalFeeAmount?: string
+  additionalFeeAmount?: string | number
   timeEstimate: number
   contractAddress: string
   rawQuote: unknown
@@ -42,6 +47,52 @@ const getPlatformFeePercent = (data: StreamQuoteResponse, params: QuoteParams) =
   return isMayanMctp || isSocketBitcoinOrigin ? 0 : params.feeBps / 100
 }
 
+// KyberCross returns raw fee amounts; bridge metadata identifies the fee asset.
+// Do not infer fee decimals from the input token (which may be an ERC-20).
+const kyberCrossAdditionalFeesSchema = z.object({
+  data: z.object({
+    route_plan: z.object({
+      bridge: z.object({
+        additional_fees: z.array(
+          z.object({
+            chain: z.string(),
+            token: z.string(),
+            token_decimals: z.number().int().min(0).max(255),
+            amount: z.string().regex(/^\d+$/),
+          }),
+        ),
+      }),
+    }),
+  }),
+})
+
+const getAdditionalFeeAmount = (data: StreamQuoteResponse, params: QuoteParams): string | undefined => {
+  if (data.provider.toLowerCase() === 'kybercross') {
+    const result = kyberCrossAdditionalFeesSchema.safeParse(data.rawQuote)
+    const network = NETWORKS_INFO[params.fromChain as ChainId]
+    if (result.success) {
+      const fees = result.data.data.route_plan.bridge.additional_fees
+      if (
+        fees.length &&
+        fees.every(
+          fee =>
+            fee.chain === network.route &&
+            [ETHER_ADDRESS.toLowerCase(), ZERO_ADDRESS].includes(fee.token.toLowerCase()) &&
+            fee.token_decimals === network.nativeToken.decimal,
+        )
+      ) {
+        const amount = fees.reduce((sum, fee) => sum + BigInt(fee.amount), 0n)
+        return `${formatUnits(amount, network.nativeToken.decimal)} ${network.nativeToken.symbol}`
+      }
+    }
+    // A numeric/raw amount without asset metadata is not a display amount.
+    return typeof data.additionalFeeAmount === 'string' && !/^\d+$/.test(data.additionalFeeAmount)
+      ? data.additionalFeeAmount
+      : undefined
+  }
+  return typeof data.additionalFeeAmount === 'string' ? data.additionalFeeAmount : undefined
+}
+
 export const normalizeStreamQuote = (data: StreamQuoteResponse, params: QuoteParams): NormalizedQuote => {
   const outputAmount = BigInt(data.outputAmount)
   const minOutputAmount = BigInt(data.minOutputAmount)
@@ -57,7 +108,7 @@ export const normalizeStreamQuote = (data: StreamQuoteResponse, params: QuotePar
     inputUsd: data.inputUsd,
     outputUsd: data.outputUsd,
     additionalFeeUsd: data.additionalFeeUsd,
-    additionalFeeAmount: data.additionalFeeAmount,
+    additionalFeeAmount: getAdditionalFeeAmount(data, params),
     timeEstimate: data.timeEstimate,
     contractAddress: data.contractAddress,
     rawQuote: data.rawQuote,

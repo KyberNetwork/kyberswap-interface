@@ -1,3 +1,4 @@
+import arbitrumIcon from 'assets/networks/arbitrum.svg'
 import type { CrossChainQuoteMode } from 'state/crossChainSwap'
 
 import {
@@ -43,6 +44,11 @@ const ccipSource: CrossChainSource = {
 const ecoSource: CrossChainSource = {
   getName: () => 'Eco',
   getIcon: () => ECO_ICON,
+}
+
+const arbitrumBridgeSource: CrossChainSource = {
+  getName: () => 'Arbitrum Bridge',
+  getIcon: () => arbitrumIcon,
 }
 
 // Factory for creating swap provider instances
@@ -107,6 +113,7 @@ export class CrossChainSwapFactory {
       cctpV2FastSource,
       ccipSource,
       ecoSource,
+      arbitrumBridgeSource,
     ]
   }
 
