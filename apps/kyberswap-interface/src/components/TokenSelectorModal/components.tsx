@@ -87,6 +87,7 @@ export const Separator = ({ className, ...props }: ComponentPropsWithoutRef<'div
 // then hours ("15H") up to a day, then days ("3D").
 export const formatAgeBadge = (addedAt?: number): string | null => {
   if (!addedAt) return null
+
   const hours = Math.floor(Date.now() / 1000 / 3600 - addedAt / 3600)
   if (hours < 12) return 'NEW'
   if (hours < 24) return `${hours}H`

@@ -53,6 +53,7 @@ export const ImportTokenView = ({
     }
 
     window.addEventListener('keydown', onKeydown)
+
     return () => {
       window.removeEventListener('keydown', onKeydown)
     }

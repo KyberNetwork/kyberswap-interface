@@ -62,6 +62,7 @@ export const useTrendingTokens = (
         // A short page means the server has no more rows — stop regardless of what `totalItems` claims
         // (it can over-report), so pagination can never loop refetching empty pages.
         if (lastCount < TRENDING_PAGE_SIZE) return undefined
+
         const loaded = allPages.reduce((sum, page) => sum + (page?.data?.tokens?.length ?? 0), 0)
         const total = lastPage?.data?.pagination?.totalItems ?? loaded
         return loaded < total ? allPages.length + 1 : undefined
@@ -81,6 +82,7 @@ export const useTrendingTokens = (
   return useMemo(() => {
     const raw = (data?.pages ?? []).flatMap(page => page?.data?.tokens ?? [])
     const { tokens, extras } = mapCatalogTokens(raw)
+
     return {
       tokens,
       lastPageChains: (data?.pages[data.pages.length - 1]?.data?.tokens ?? []).map(token => Number(token.chainId)),

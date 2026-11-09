@@ -77,6 +77,7 @@ export const TabBar = memo(({ tabs, activeTab, onChange }: TabBarProps) => {
       {tabs.map(tab => {
         const { icon: Icon, iconColor, label } = TAB_META[tab]
         const isActive = tab === activeTab
+
         return (
           <button
             key={tab}

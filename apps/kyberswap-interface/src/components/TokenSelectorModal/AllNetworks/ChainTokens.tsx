@@ -1,6 +1,6 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
 import { useDeepCompareEffect } from 'react-use'
 
 import { ChainSnapshot } from 'components/TokenSelectorModal/AllNetworks/types'
@@ -31,14 +31,16 @@ type Props = {
 }
 
 /** Each chain reuses the single-chain sources. Only acquisition state contributes to the trailing loader. */
-export const ChainTokens = ({ chainId, activeTab, session, catalogTokens, onSnapshot }: Props) => {
+const ChainTokensSource = ({ chainId, activeTab, session, catalogTokens, onSnapshot }: Props) => {
   const account = useEvmBalanceAccount()
+
   const isAll = activeTab === TokenSelectorTab.All
   const isFavorites = activeTab === TokenSelectorTab.Favorites
 
   const { tokens: defaultTokens, isLoading: listLoading } = useAllTokensWithLoading(false, chainId)
   const imports = useUserAddedTokens(chainId)
   const { favoriteTokens, isLoading: favoritesLoading } = useUserFavoriteTokens(chainId)
+
   // Local metadata stays derived from Redux; only missing metadata belongs in the query cache.
   const { available, missing } = useMemo(
     () => splitFavoriteTokens(favoriteTokens ?? [], defaultTokens),
@@ -64,6 +66,7 @@ export const ChainTokens = ({ chainId, activeTab, session, catalogTokens, onSnap
       ? [...available, ...(missingKey ? favorites.data ?? [] : [])]
       : imports
     const seen = new Set<string>()
+
     return source.filter(token => {
       const key = tokenRowKey(token.chainId, getTokenAddress(token))
       if (seen.has(key)) return false
@@ -95,7 +98,10 @@ export const ChainTokens = ({ chainId, activeTab, session, catalogTokens, onSnap
   const balances = inventory.active ? indexed : rpc
   const native = useNativeBalance(chainId)
   const waiting = useBalanceWait(balances, !!account)
-  const balanceOf = (token: Currency) => (isTokenNative(token) ? native : balances[token.wrapped.address])
+  const balanceOf = useCallback(
+    (token: Currency) => (isTokenNative(token) ? native : balances[token.wrapped.address]),
+    [native, balances],
+  )
 
   const priceAddresses = currencies
     .filter(token => balanceOf(token)?.greaterThan('0'))
@@ -103,37 +109,56 @@ export const ChainTokens = ({ chainId, activeTab, session, catalogTokens, onSnap
   const prices = useTokenPrices(priceAddresses, chainId)
   const extras = useLocalTokenMetrics(isAll ? EMPTY_CURRENCIES : currencies, chainId)
 
-  const unlisted = new Set(discoveries.map(token => token.address))
-  const favoriteSet = new Set(favoriteTokens)
-  const importsSet = new Set(imports.map(token => token.address))
-
   const initialListDone = useRef(false)
   const initialPending =
     listLoading || (isAll && inventory.loading) || (!!account && !inventory.active && rpcLoading && waiting)
   if (!initialPending) initialListDone.current = true
 
-  const snapshot: ChainSnapshot = {
-    currencies: isAll
-      ? currencies.filter(token => balanceOf(token)?.greaterThan('0') || importsSet.has(getTokenAddress(token)))
-      : currencies,
-    balances: Object.fromEntries(
-      currencies.map(token => [
-        tokenRowKey(chainId, getTokenAddress(token)),
-        {
-          balance: balanceOf(token),
-          price: prices[token.wrapped.address.toLowerCase()] ?? 0,
-          waiting,
-          favorite: favoriteSet.has(getTokenAddress(token).toLowerCase()),
-          unlisted: unlisted.has(getTokenAddress(token)),
-          impersonator: impersonators.has(getTokenAddress(token)),
-        },
-      ]),
-    ),
+  const snapshot = useMemo<ChainSnapshot>(() => {
+    const unlisted = new Set(discoveries.map(token => token.address))
+    const favoriteSet = new Set(favoriteTokens)
+    const importsSet = new Set(imports.map(token => token.address))
+
+    return {
+      currencies: isAll
+        ? currencies.filter(token => balanceOf(token)?.greaterThan('0') || importsSet.has(getTokenAddress(token)))
+        : currencies,
+      balances: Object.fromEntries(
+        currencies.map(token => [
+          tokenRowKey(chainId, getTokenAddress(token)),
+          {
+            balance: balanceOf(token),
+            price: prices[token.wrapped.address.toLowerCase()] ?? 0,
+            waiting,
+            favorite: favoriteSet.has(getTokenAddress(token).toLowerCase()),
+            unlisted: unlisted.has(getTokenAddress(token)),
+            impersonator: impersonators.has(getTokenAddress(token)),
+          },
+        ]),
+      ),
+      extras,
+      loading: isFavorites
+        ? favoritesLoading || (!!missingKey && favorites.isLoading)
+        : isAll && !initialListDone.current && initialPending,
+    }
+  }, [
+    currencies,
+    chainId,
+    impersonators,
+    balanceOf,
+    prices,
+    waiting,
+    discoveries,
+    favoriteTokens,
+    imports,
     extras,
-    loading: isFavorites
-      ? favoritesLoading || (!!missingKey && favorites.isLoading)
-      : isAll && !initialListDone.current && initialPending,
-  }
+    isAll,
+    isFavorites,
+    favoritesLoading,
+    missingKey,
+    favorites.isLoading,
+    initialPending,
+  ])
 
   // Compare the full observation, including token metadata, before publishing to the controller.
   useDeepCompareEffect(() => {
@@ -142,3 +167,5 @@ export const ChainTokens = ({ chainId, activeTab, session, catalogTokens, onSnap
 
   return null
 }
+
+export const ChainTokens = memo(ChainTokensSource)

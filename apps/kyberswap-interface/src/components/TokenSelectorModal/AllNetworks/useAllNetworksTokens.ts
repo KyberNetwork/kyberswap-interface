@@ -23,6 +23,7 @@ export const useAllNetworksTokens = ({ active, query }: { active: boolean; query
   const currencies = useMemo(() => (catalog.data?.pages ?? []).flatMap(page => page.tokens), [catalog.data])
 
   const { hasNextPage, isFetching, isFetchNextPageError, fetchNextPage } = catalog
+
   const fetchMore = useCallback(async () => {
     if (hasNextPage && !isFetching && !isFetchNextPageError) await fetchNextPage()
   }, [hasNextPage, isFetching, isFetchNextPageError, fetchNextPage])

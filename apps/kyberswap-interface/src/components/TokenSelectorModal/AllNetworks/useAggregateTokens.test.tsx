@@ -9,14 +9,21 @@ import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { tokenRowKey } from 'components/TokenSelectorModal/types'
 import { NativeCurrencies } from 'constants/tokens'
 
-import { AGGREGATE_UPDATE_INTERVAL_MS, useAggregateTokens } from './useAggregateTokens'
+import { AGGREGATE_UPDATE_INTERVAL_MS } from './useAggregateSnapshot'
+import { useAggregateTokens } from './useAggregateTokens'
 
 const mocks = vi.hoisted(() => ({
   account: 'a',
+  comparator: vi.fn(),
   all: { currencies: [] as Currency[], loading: false, hasMore: false, fetchMore: vi.fn() },
   trending: vi.fn(),
   recent: vi.fn(),
 }))
+vi.mock('components/TokenSelectorModal/hooks/holdingSort', async importOriginal => {
+  const actual = await importOriginal<typeof import('components/TokenSelectorModal/hooks/holdingSort')>()
+  mocks.comparator.mockImplementation(actual.getHoldingComparator)
+  return { ...actual, getHoldingComparator: mocks.comparator }
+})
 vi.mock('state/wallet/WalletBalanceContext', () => ({ useEvmBalanceAccount: () => mocks.account }))
 vi.mock('components/TokenSelectorModal/AllNetworks/useAllNetworksTokens', () => ({
   useAllNetworksTokens: () => mocks.all,
@@ -99,6 +106,7 @@ const snapshot = (token: Token, loading = false): ChainSnapshot => ({
 })
 beforeEach(() => {
   vi.useFakeTimers()
+  mocks.comparator.mockClear()
   mocks.account = 'a'
   mocks.all = { currencies: [], loading: false, hasMore: false, fetchMore: vi.fn() }
   mocks.trending.mockReturnValue({ tokens: [], extras: {}, loading: false, hasMore: false, fetchMore: vi.fn() })
@@ -109,6 +117,82 @@ afterEach(async () => {
   root = undefined as unknown as typeof root
   vi.useRealTimers()
 })
+
+it.each([TokenSelectorTab.All, TokenSelectorTab.Trending, TokenSelectorTab.New])(
+  'keeps %s loading until the completed catalog is published',
+  async tab => {
+    const setCatalog = (tokens: Currency[], loading: boolean) => {
+      mocks.all = { ...mocks.all, currencies: tokens, loading }
+      mocks.trending.mockReturnValue({ tokens, extras: {}, loading, hasMore: false, fetchMore: vi.fn() })
+      mocks.recent.mockReturnValue({ tokens, extras: {}, loading })
+    }
+    setCatalog([], true)
+    await mount(tab)
+    if (data.needsChainSources) {
+      await act(async () => {
+        networks.forEach(({ chainId }) =>
+          data.onSnapshot(data.session, chainId, { currencies: [], balances: {}, extras: {}, loading: false }),
+        )
+      })
+      await flushBatch()
+    }
+
+    setCatalog([a], false)
+    await mount(tab)
+    await act(async () => vi.advanceTimersByTime(AGGREGATE_UPDATE_INTERVAL_MS - 1))
+    expect(data.visibleCurrencies).toEqual([])
+    expect(data.isListLoading).toBe(true)
+    await act(async () => vi.advanceTimersByTime(1))
+    expect(data.visibleCurrencies).toEqual([a])
+    expect(data.isListLoading).toBe(false)
+  },
+)
+
+it.each([TokenSelectorTab.Trending, TokenSelectorTab.New])(
+  'ends %s loading when an empty catalog completion is published',
+  async tab => {
+    const source = tab === TokenSelectorTab.Trending ? mocks.trending : mocks.recent
+    source.mockReturnValue({ tokens: [], extras: {}, loading: true, hasMore: false })
+    await mount(tab)
+    source.mockReturnValue({ tokens: [], extras: {}, loading: false, hasMore: false })
+    await mount(tab)
+    expect(data.isListLoading).toBe(true)
+    await flushBatch()
+    expect(data.visibleCurrencies).toEqual([])
+    expect(data.isListLoading).toBe(false)
+  },
+)
+
+it('preserves chain subscriptions and their batch deadline across search A/B/A, discarding obsolete catalog data', async () => {
+  mocks.all.currencies = [a]
+  await mount(TokenSelectorTab.All)
+  const session = data.session
+  await act(async () => {
+    data.onSnapshot(session, 1, { ...snapshot(a), currencies: [] })
+    data.onSnapshot(session, 56, { ...snapshot(b), currencies: [] })
+  })
+  mocks.all.currencies = [a, b]
+  await mount(TokenSelectorTab.All)
+  await act(async () => vi.advanceTimersByTime(100))
+
+  mocks.all.currencies = [a]
+  await mount(TokenSelectorTab.All, 'AAA')
+  expect(data.session).toBe(session)
+  expect(data.visibleCurrencies).toEqual([a])
+  await mount(TokenSelectorTab.All)
+  expect(data.session).toBe(session)
+  expect(data.balances).toEqual({})
+  await act(async () => vi.advanceTimersByTime(AGGREGATE_UPDATE_INTERVAL_MS - 100))
+  expect(data.visibleCurrencies).toEqual([a])
+  expect(Object.keys(data.balances)).toHaveLength(2)
+  expect(data.isListLoading).toBe(false)
+
+  // Existing observers keep publishing through their original session after the search changes.
+  await act(async () => data.onSnapshot(session, 56, snapshot(b)))
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([b, a])
+})
+
 it('publishes a completed Favorites chain before the others and ends loading after an empty completion', async () => {
   await mount(TokenSelectorTab.Favorites)
   expect(data.isListLoading).toBe(true)
@@ -318,4 +402,206 @@ it('keeps API address matches when the pasted query contains outer whitespace', 
   mocks.all.currencies = [a]
   await mount(TokenSelectorTab.All, ` ${address} `)
   expect(data.visibleCurrencies).toEqual([a])
+})
+
+it('restores the sorted All Networks snapshot immediately and only reorders for new data', async () => {
+  mocks.all.currencies = [a, b]
+  await mount(TokenSelectorTab.All)
+  const oldSession = data.session
+  const first = snapshot(a)
+  const second = snapshot(b)
+  await act(async () => {
+    data.onSnapshot(oldSession, 1, first)
+    data.onSnapshot(oldSession, 56, second)
+  })
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([b, a])
+  const balances = data.balances
+
+  // A pending update from the previous subscription must not survive leaving the view.
+  const updated = snapshot(a)
+  updated.balances[tokenRowKey(a.chainId, address)].price = 100
+  await act(async () => data.onSnapshot(oldSession, 1, updated))
+  await mount(TokenSelectorTab.All, '', false)
+  await mount(TokenSelectorTab.All)
+  expect(data.session).not.toBe(oldSession)
+  expect(data.visibleCurrencies).toEqual([b, a])
+  expect(data.balances).toEqual(balances)
+  expect(data.isListLoading).toBe(false)
+  await act(async () => data.onSnapshot(oldSession, 1, updated))
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([b, a])
+
+  // Republishing the same source data does not change order; a new price still does.
+  await act(async () => {
+    data.onSnapshot(data.session, 1, first)
+    data.onSnapshot(data.session, 56, second)
+  })
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([b, a])
+  await act(async () => data.onSnapshot(data.session, 1, updated))
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([a, b])
+})
+
+it('publishes reactivated chains at each batch deadline without waiting for other chains or the catalog', async () => {
+  mocks.all.currencies = [a, b]
+  await mount(TokenSelectorTab.All)
+  const publish = data.onSnapshot
+  await act(async () => {
+    publish(data.session, 1, snapshot(a))
+    publish(data.session, 56, snapshot(b))
+  })
+  await flushBatch()
+  const previous = data.visibleCurrencies
+  const retainedB = data.balances[tokenRowKey(56, address)]
+  expect(previous).toEqual([b, a])
+
+  await mount(TokenSelectorTab.All, '', false)
+  mocks.all = { ...mocks.all, loading: true }
+  await mount(TokenSelectorTab.All)
+  const resumedSession = data.session
+  expect(data.visibleCurrencies).toBe(previous)
+  expect(data.onSnapshot).toBe(publish)
+
+  // Even a loading chain can contribute available data; later observations replace it in the batch.
+  const updatedA = snapshot(a, true)
+  updatedA.balances[tokenRowKey(1, address)].price = 100
+  await act(async () => publish(resumedSession, 1, snapshot(a, true)))
+  await act(async () => vi.advanceTimersByTime(100))
+  await act(async () => publish(resumedSession, 1, updatedA))
+  await act(async () => vi.advanceTimersByTime(149))
+  expect(data.visibleCurrencies).toBe(previous)
+  await act(async () => vi.advanceTimersByTime(1))
+  expect(data.visibleCurrencies).toEqual([a, b])
+  expect(data.balances[tokenRowKey(56, address)]).toBe(retainedB)
+  expect(data.isListLoading).toBe(true)
+
+  // A slower chain changes the ranking in the next batch, without waiting for catalog completion.
+  const updatedB = snapshot(b)
+  updatedB.balances[tokenRowKey(56, address)].price = 200
+  await act(async () => publish(resumedSession, 56, updatedB))
+  expect(data.visibleCurrencies).toEqual([a, b])
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([b, a])
+  expect(data.isListLoading).toBe(true)
+
+  mocks.all = { ...mocks.all, loading: false }
+  await mount(TokenSelectorTab.All)
+  await act(async () => publish(resumedSession, 1, { ...updatedA, loading: false }))
+  await flushBatch()
+  expect(data.isListLoading).toBe(false)
+  expect(vi.getTimerCount()).toBe(0)
+})
+
+it('clears retained observations if the wallet changes while All Networks is inactive', async () => {
+  await mount(TokenSelectorTab.All)
+  await act(async () => data.onSnapshot(data.session, 1, snapshot(a)))
+  await flushBatch()
+  await mount(TokenSelectorTab.All, '', false)
+  mocks.account = 'b'
+  await mount(TokenSelectorTab.All, '', false)
+  await mount(TokenSelectorTab.All)
+  expect(data.visibleCurrencies).toEqual([])
+  expect(data.balances).toEqual({})
+})
+
+it('publishes catalog pages and the latest per-chain balances together at a fixed deadline', async () => {
+  mocks.all.currencies = [a]
+  await mount(TokenSelectorTab.All)
+  const initial = data.visibleCurrencies
+  await act(async () => data.onSnapshot(data.session, 1, snapshot(a)))
+  await act(async () => vi.advanceTimersByTime(100))
+  mocks.all.currencies = [a, b]
+  await mount(TokenSelectorTab.All)
+  await act(async () => data.onSnapshot(data.session, 56, snapshot(b)))
+  expect(data.visibleCurrencies).toBe(initial)
+  expect(data.balances).toEqual({})
+  const calls = mocks.comparator.mock.calls.length
+  await act(async () => vi.advanceTimersByTime(150))
+  expect(data.visibleCurrencies).toEqual([b, a])
+  expect(Object.keys(data.balances)).toHaveLength(2)
+  expect(mocks.comparator).toHaveBeenCalledTimes(calls + 1)
+
+  // A response after the boundary belongs to the next publication, not a replay of the last batch.
+  const next = snapshot(a)
+  next.balances[tokenRowKey(1, address)].price = 100
+  await act(async () => data.onSnapshot(data.session, 1, next))
+  expect(data.visibleCurrencies).toEqual([b, a])
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([a, b])
+})
+
+it('does not sort for equivalent snapshots or waiting-only updates, including remounted sources', async () => {
+  await mount(TokenSelectorTab.All)
+  await act(async () => data.onSnapshot(data.session, 1, snapshot(a)))
+  await flushBatch()
+  const original = data.visibleCurrencies
+  const balances = data.balances
+  const calls = mocks.comparator.mock.calls.length
+  // New objects, including a newly constructed SDK balance, with exactly the same values.
+  await act(async () => data.onSnapshot(data.session, 1, snapshot(a)))
+  await flushBatch()
+  expect(data.visibleCurrencies).toBe(original)
+  expect(data.balances).toBe(balances)
+  expect(mocks.comparator).toHaveBeenCalledTimes(calls)
+
+  const waiting = snapshot(a, true)
+  waiting.balances[tokenRowKey(1, address)].waiting = true
+  await act(async () => data.onSnapshot(data.session, 1, waiting))
+  await flushBatch()
+  expect(data.balances[tokenRowKey(1, address)].waiting).toBe(true)
+  expect(data.visibleCurrencies).toBe(original)
+  expect(mocks.comparator).toHaveBeenCalledTimes(calls)
+
+  await mount(TokenSelectorTab.All, '', false)
+  await mount(TokenSelectorTab.All)
+  const resumedCalls = mocks.comparator.mock.calls.length
+  await act(async () => data.onSnapshot(data.session, 1, { ...waiting }))
+  await flushBatch()
+  expect(data.visibleCurrencies).toBe(original)
+  expect(mocks.comparator).toHaveBeenCalledTimes(resumedCalls)
+})
+
+it('keeps order identity for value changes that do not change rank and replaces stale catalog batches on search', async () => {
+  mocks.all.currencies = [a, b]
+  await mount(TokenSelectorTab.All)
+  await act(async () => {
+    data.onSnapshot(data.session, 1, snapshot(a))
+    data.onSnapshot(data.session, 56, snapshot(b))
+  })
+  await flushBatch()
+  const original = data.visibleCurrencies
+  const update = snapshot(b)
+  update.balances[tokenRowKey(56, address)].price = 30
+  await act(async () => data.onSnapshot(data.session, 56, update))
+  await flushBatch()
+  expect(data.visibleCurrencies).toBe(original)
+  expect(data.balances[tokenRowKey(56, address)].price).toBe(30)
+
+  mocks.all.currencies = [a, b, c]
+  await mount(TokenSelectorTab.All)
+  mocks.all.currencies = [a]
+  await mount(TokenSelectorTab.All, 'AAA')
+  expect(data.visibleCurrencies).toEqual([a])
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([a])
+})
+
+it('does not starve publication under continuous responses and ignores callbacks after unmount', async () => {
+  await mount(TokenSelectorTab.All)
+  for (let i = 0; i < 5; i++) {
+    const update = snapshot(a)
+    update.balances[tokenRowKey(1, address)].price = i + 1
+    await act(async () => data.onSnapshot(data.session, 1, update))
+    await act(async () => vi.advanceTimersByTime(50))
+  }
+  expect(data.balances[tokenRowKey(1, address)].price).toBe(5)
+  expect(data.visibleCurrencies).toEqual([a])
+  const publish = data.onSnapshot
+  const session = data.session
+  await act(async () => root.unmount())
+  root = undefined as unknown as typeof root
+  await act(async () => publish(session, 1, snapshot(a)))
+  expect(vi.getTimerCount()).toBe(0)
 })

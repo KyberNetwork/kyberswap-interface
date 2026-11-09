@@ -129,6 +129,7 @@ export const useTokenSelection = ({
   const importOrSelectToken = useCallback(
     (selection: Selection) => {
       const { currency, imported } = selection
+
       if (!imported && getNeedsImport(currency, address => isImported(currency.chainId, address), true)) {
         openImport(selection)
         return

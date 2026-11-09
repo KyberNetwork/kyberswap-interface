@@ -46,6 +46,7 @@ export const useTokenSearch = (
   const tokenSearchResults = useMemo(() => {
     const flat = tokenSearchData?.pages.flatMap(page => page) ?? []
     const seen = new Set<string>()
+
     return flat.filter(token => {
       const key = tokenRowKey(token.chainId, token.wrapped.address)
       if (seen.has(key)) return false

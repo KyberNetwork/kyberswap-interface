@@ -29,5 +29,6 @@ export const CatalogPrices = ({ chainId, session, currencies, extras, onSnapshot
   useEffect(() => {
     onSnapshot(session, chainId, { currencies: [], balances: {}, extras: priced, loading: false })
   }, [session, chainId, priced, onSnapshot])
+
   return null
 }

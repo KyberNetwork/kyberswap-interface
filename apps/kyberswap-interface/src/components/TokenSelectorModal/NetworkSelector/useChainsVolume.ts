@@ -29,6 +29,7 @@ export const useChainsVolume = (enabled = true): Record<number, number> => {
     data?.data?.chains?.forEach(entry => {
       if (entry?.chainId !== undefined) result[entry.chainId] = entry.totalVolumeUsd ?? 0
     })
+
     return result
   }, [data])
 }

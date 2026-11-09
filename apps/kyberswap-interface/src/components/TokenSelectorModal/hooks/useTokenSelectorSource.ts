@@ -19,6 +19,7 @@ export const buildOracleTokenMap = (chainId: ChainId, tokens: TokenInfo[]): Toke
       return [currency.address, currency]
     }),
   )
+
   const native = NativeCurrencies[chainId]
   if (native.isNative && tokens.some(token => token.address.toLowerCase() === getOracleLookupAddress(native))) {
     tokenMap[ETHER_ADDRESS] = new WrappedTokenInfo({
@@ -29,6 +30,7 @@ export const buildOracleTokenMap = (chainId: ChainId, tokens: TokenInfo[]): Toke
       name: native.name || '',
     })
   }
+
   return tokenMap
 }
 

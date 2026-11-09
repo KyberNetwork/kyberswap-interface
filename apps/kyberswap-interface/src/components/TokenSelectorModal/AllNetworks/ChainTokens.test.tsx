@@ -77,7 +77,7 @@ const render = async (
           chainId={1}
           activeTab={activeTab}
           session="wallet:all"
-          catalogTokens={remote}
+          catalogTokens={[...remote]}
           onSnapshot={onSnapshot}
         />
       </QueryClientProvider>,
@@ -133,7 +133,7 @@ it('derives Favorites and import eligibility from late local metadata', async ()
             chainId={1}
             activeTab={TokenSelectorTab.Favorites}
             session="wallet:all"
-            catalogTokens={remote}
+            catalogTokens={[...remote]}
             onSnapshot={onSnapshot}
           />
         </QueryClientProvider>,
@@ -199,7 +199,7 @@ it('publishes only changed observations without dropping token metadata changes'
             chainId={1}
             activeTab={TokenSelectorTab.Imported}
             session="wallet:all"
-            catalogTokens={remote}
+            catalogTokens={[...remote]}
             onSnapshot={onSnapshot}
           />
         </QueryClientProvider>,

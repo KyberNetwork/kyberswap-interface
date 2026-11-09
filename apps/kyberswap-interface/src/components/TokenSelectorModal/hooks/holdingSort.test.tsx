@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { expect, it } from 'vitest'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { expect, it, vi } from 'vitest'
 
 import { AggregateBalances } from 'components/TokenSelectorModal/AllNetworks/types'
 import { getHoldingComparator } from 'components/TokenSelectorModal/hooks/holdingSort'
@@ -48,4 +48,15 @@ it('keeps listed holdings ahead of unlisted tokens and uses favorites only after
       [tokenRowKey(1, third.address)]: balances[tokenRowKey(1, third.address)],
     }),
   ).toEqual([third, ethToken])
+})
+
+it('normalizes each holding once per input snapshot and observes changed values with a new comparator', () => {
+  const balance = CurrencyAmount.fromRawAmount(ethToken, '2000000')
+  const normalize = vi.spyOn(balance, 'toExact')
+  const lookup = vi.fn((currency: Currency) => (currency === ethToken ? { balance, price: 10 } : undefined))
+  const compare = getHoldingComparator(lookup)
+  for (let i = 0; i < 10; i++) expect(compare(ethToken, bnbToken)).toBeLessThan(0)
+  expect(lookup).toHaveBeenCalledTimes(2)
+  expect(normalize).toHaveBeenCalledTimes(1)
+  expect(getHoldingComparator(() => undefined)(ethToken, bnbToken)).toBeLessThan(0)
 })

@@ -34,6 +34,7 @@ export const TokenListSkeleton = ({
     >
       {Array.from({ length: SKELETON_ROWS }).map((_, index) => {
         const widths = ROW_WIDTHS[index % ROW_WIDTHS.length]
+
         return (
           <HStack key={index} className="h-12 shrink-0 items-center justify-between gap-2 px-3 sm:gap-3">
             <HStack className="min-w-0 flex-1 items-center gap-2">

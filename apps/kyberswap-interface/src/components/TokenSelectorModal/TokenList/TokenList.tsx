@@ -4,6 +4,7 @@ import React, { CSSProperties, memo, useCallback, useEffect, useLayoutEffect, us
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
+import { useGetKyberswapConfigurationQuery } from 'services/ksSetting'
 
 import { VirtualRow, VirtualRowData } from 'components/TokenSelectorModal/TokenList/VirtualTokenRow'
 import {
@@ -14,14 +15,16 @@ import {
 } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { restrictedTokenKey, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
+import { useAppSelector } from 'state/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
+import { getFavoriteTokenAddresses } from 'state/user/favorites'
 import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
 // Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
 // churn the row data bag and re-render every row).
 const EMPTY_ITEM_STYLE: CSSProperties = {}
+
 // Stable empties so a gated price subscription / balance column never allocates a fresh array to
 // disable itself.
 const EMPTY_BALANCES: (CurrencyAmount<Currency> | undefined)[] = []
@@ -31,6 +34,12 @@ const EMPTY_ADDRESSES: string[] = []
 const itemKey = (index: number, data: VirtualRowData) => {
   const currency = data.currencies[index]
   return currency ? tokenRowKey(currency.chainId, getTokenAddress(currency)) : 'load-more'
+}
+
+// One configuration subscription per displayed chain, shared by every row on that chain.
+const ChainConfiguration = ({ chainId }: { chainId: ChainId }) => {
+  useGetKyberswapConfigurationQuery(chainId)
+  return null
 }
 
 type Props = {
@@ -119,9 +128,19 @@ const TokenList = ({
 }: Props) => {
   const account = useEvmBalanceAccount()
   const prefersReducedMotion = useReducedMotion()
+  const tokenImports = useAppSelector(state => state.user.tokens)
+  const favorites = useAppSelector(state => state.user.favoriteTokensByChainIdv2)
+  const configurations = useAppSelector(state => state.application.config)
+  const isTokenRestricted = useIsTokenRestricted()
+
+  const listRef = useRef<VariableSizeList | null>(null)
+  const rowsRenderedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  // Keys of restricted rows the user clicked; each grows to reveal the inline "not available" notice.
+  const [warnedKeys, setWarnedKeys] = useState<Set<string>>(() => new Set())
+
   const shouldAnimateReorder = animateReorder && !prefersReducedMotion
-  const { favoriteTokens } = useUserFavoriteTokens(customChainId)
-  const tokenImports = useUserAddedTokens(customChainId)
+  const displayedChains = useMemo(() => [...new Set(currencies.map(currency => currency.chainId))], [currencies])
 
   // Row-aligned view of the shared balance map. The metric tabs show volume / FDV rather than
   // a balance, so they read nothing.
@@ -139,47 +158,53 @@ const TokenList = ({
   // chain whitelist.
   const priceAddresses = useMemo(() => {
     if (showPriceColumn) return EMPTY_ADDRESSES
+
     const held = currencies
       .filter((_, index) => currencyBalances[index]?.greaterThan('0'))
       .map(currency => currency.wrapped.address)
     return held.length ? held : EMPTY_ADDRESSES
   }, [showPriceColumn, currencies, currencyBalances])
+
   // Live tier: this is the surface where a frozen price sits visibly next to a fresh one elsewhere,
   // and the held-token narrowing above keeps the union to a single request.
   const tokenPrices = useTokenPrices(priceAddresses, customChainId)
 
-  // O(1) row-level membership checks (exact-case for imports to match the address equality used
-  // elsewhere; lowercased for favorites, which can be stored in either case).
-  const importedAddressSet = useMemo(() => new Set(tokenImports.map(token => token.address)), [tokenImports])
-  const favoriteAddressSet = useMemo(
-    () => new Set((favoriteTokens ?? []).map(address => address.toLowerCase())),
-    [favoriteTokens],
+  // Chain-qualified membership is shared by the whole list, including discovery tabs whose
+  // metrics do not need ChainTokens observers. Rows never register their own data subscriptions.
+  const importedAddressSet = useMemo(
+    () =>
+      new Set(
+        Object.entries(tokenImports).flatMap(([chainId, tokens]) =>
+          Object.values(tokens ?? {})
+            .filter(token => token.symbol || token.decimals || token.name)
+            .map(token => tokenRowKey(Number(chainId), token.address)),
+        ),
+      ),
+    [tokenImports],
   )
-
-  const isTokenRestricted = useIsTokenRestricted()
-  const listRef = useRef<VariableSizeList | null>(null)
-  // Keys of restricted rows the user clicked; each grows to reveal the inline "not available" notice.
-  const [warnedKeys, setWarnedKeys] = useState<Set<string>>(() => new Set())
+  const favoriteAddressSet = useMemo(() => {
+    const chains = new Set([...Object.keys(configurations), ...Object.keys(favorites ?? {})])
+    return new Set(
+      [...chains].flatMap(chain =>
+        getFavoriteTokenAddresses(
+          favorites?.[Number(chain) as ChainId],
+          configurations[Number(chain) as ChainId]?.commonTokens,
+        ).map(address => tokenRowKey(Number(chain), address)),
+      ),
+    )
+  }, [favorites, configurations])
 
   const getItemSize = useCallback(
     (index: number) => {
       const currency = currencies[index]
       if (!currency) return NORMAL_ITEM_SIZE
+
       return warnedKeys.has(restrictedTokenKey(currency.chainId, getTokenAddress(currency)))
         ? RESTRICTED_ITEM_SIZE
         : NORMAL_ITEM_SIZE
     },
     [currencies, warnedKeys],
   )
-
-  const onWarnRestricted = useCallback((key: string) => {
-    setWarnedKeys(prev => {
-      if (prev.has(key)) return prev
-      const next = new Set(prev)
-      next.add(key)
-      return next
-    })
-  }, [])
 
   // Offsets only change when heights at an index change. Reordering normal rows needs no reset;
   // moving/expanding a restricted row does, before paint so animation gets the final destination.
@@ -188,9 +213,15 @@ const TokenList = ({
     [currencies, getItemSize],
   )
 
-  useLayoutEffect(() => {
-    listRef.current?.resetAfterIndex(0)
-  }, [rowSizesSignature])
+  const onWarnRestricted = useCallback((key: string) => {
+    setWarnedKeys(prev => {
+      if (prev.has(key)) return prev
+
+      const next = new Set(prev)
+      next.add(key)
+      return next
+    })
+  }, [])
 
   const itemData = useMemo<VirtualRowData>(
     () => ({
@@ -261,15 +292,15 @@ const TokenList = ({
     ],
   )
 
-  const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])
-  const itemCount = hasMore || loadingMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
+  // Reserve a trailing row while loading or when another page is available.
+  const itemCount = hasMore || loadingMore ? currencies.length + 1 : currencies.length
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
-
-  const rowsRenderedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])
 
   const handleItemsRendered = useCallback(
     (range: { visibleStartIndex: number; visibleStopIndex: number }) => {
       if (!onRowsRendered) return
+
       if (rowsRenderedTimer.current) clearTimeout(rowsRenderedTimer.current)
       rowsRenderedTimer.current = setTimeout(() => {
         const start = Math.max(0, range.visibleStartIndex - ROWS_RENDERED_MARGIN)
@@ -279,10 +310,17 @@ const TokenList = ({
     [onRowsRendered, currencies],
   )
 
+  useLayoutEffect(() => {
+    listRef.current?.resetAfterIndex(0)
+  }, [rowSizesSignature])
+
   useEffect(() => () => clearTimeout(rowsRenderedTimer.current), [])
 
   return (
     <div className="min-h-0 flex-1" data-testid="token-list">
+      {displayedChains.map(chainId => (
+        <ChainConfiguration key={chainId} chainId={chainId} />
+      ))}
       <AutoSizer>
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>

@@ -14,6 +14,7 @@ const balanceComparator = (
 ) => {
   if (balanceA && balanceB) {
     if (balanceA.equalTo(balanceB)) return 0
+
     const isBalanceAGreater = JSBI.greaterThan(
       JSBI.multiply(balanceA.quotient, balanceB.decimalScale),
       JSBI.multiply(balanceB.quotient, balanceA.decimalScale),
@@ -34,6 +35,7 @@ const balanceComparator = (
 
 const usdValueOf = (balance: TokenAmount | CurrencyAmount<Currency> | undefined, price: number | undefined): number => {
   if (!balance || !price || price <= 0) return 0
+
   const amount = parseFloat(balance.toExact())
   if (!Number.isFinite(amount) || amount <= 0) return 0
   return amount * price
@@ -47,17 +49,27 @@ export const getHoldingComparator = (lookup: (currency: Currency) => TokenHoldin
     }
     return tokenA.symbol ? -1 : tokenB.symbol ? 1 : 0
   }
+
+  // A comparator belongs to one immutable input snapshot. Normalize each holding once, not on
+  // every O(n log n) comparison (toExact performs decimal arithmetic).
+  const ranks = new Map<Currency, { info: TokenHolding | undefined; usd: number; held: boolean }>()
+  const rank = (currency: Currency) => {
+    let result = ranks.get(currency)
+    if (!result) {
+      const info = lookup(currency)
+      result = { info, usd: usdValueOf(info?.balance, info?.price), held: !!info?.balance?.greaterThan('0') }
+      ranks.set(currency, result)
+    }
+    return result
+  }
+
   return (tokenA: Currency, tokenB: Currency): number => {
-    const infoA = lookup(tokenA)
-    const infoB = lookup(tokenB)
+    const { info: infoA, usd: usdBalanceA, held: heldA } = rank(tokenA)
+    const { info: infoB, usd: usdBalanceB, held: heldB } = rank(tokenB)
     const balanceA = infoA?.balance
     const balanceB = infoB?.balance
     const priceA = infoA?.price ?? 0
     const priceB = infoB?.price ?? 0
-    const usdBalanceA = usdValueOf(balanceA, priceA)
-    const usdBalanceB = usdValueOf(balanceB, priceB)
-    const heldA = !!balanceA?.greaterThan('0')
-    const heldB = !!balanceB?.greaterThan('0')
 
     if (infoA?.unlisted || infoB?.unlisted) {
       // Unpriced unlisted holdings go last, among themselves alphabetically rather than by amount.

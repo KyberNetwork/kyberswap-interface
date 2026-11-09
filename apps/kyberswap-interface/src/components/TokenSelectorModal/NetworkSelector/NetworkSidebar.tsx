@@ -28,12 +28,14 @@ export const NetworkSidebar = ({ chains, selectedChainId, onChange, showAllNetwo
   const prefersReducedMotion = useReducedMotion()
   const dispatch = useAppDispatch()
   const pinnedChains = useAppSelector(state => state.user.pinnedTokenSelectorChains)
+
   const isPinned = (chainId: TokenSelectorChain) => pinnedChains?.includes(String(chainId)) ?? false
 
   const search = query.trim().toLowerCase()
   const sortedChains = [...chains].sort((a, b) => {
     const aIndex = pinnedChains?.indexOf(String(a.chainId)) ?? -1
     const bIndex = pinnedChains?.indexOf(String(b.chainId)) ?? -1
+
     if (aIndex === -1) return bIndex === -1 ? 0 : 1
     if (bIndex === -1) return -1
     return aIndex - bIndex

@@ -20,9 +20,10 @@ export const ChainSelector = memo(
     const [open, setOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
 
-    // The whole selector modal lives inside a reach-portal, so keep portal clicks in scope: a click
-    // inside the modal but outside this dropdown must still close it.
-    useOnClickOutside(ref, () => setOpen(false), { ignoreReachPortal: false })
+    // Chevrons signal (and scroll to) the chains hidden above/below the list's max height.
+    const scrollRef = useRef<HTMLDivElement>(null)
+    const [canScrollUp, setCanScrollUp] = useState(false)
+    const [canScrollDown, setCanScrollDown] = useState(false)
 
     const options = showAllNetworks ? [{ chainId: 'all' as const, name: t`All Networks`, icon: '' }, ...chains] : chains
     const selectedChain = options.find(chain => chain.chainId === selectedChainId)
@@ -32,25 +33,25 @@ export const ChainSelector = memo(
       setOpen(false)
     }
 
-    // Chevrons signal (and scroll to) the chains hidden above/below the list's max height.
-    const scrollRef = useRef<HTMLDivElement>(null)
-    const [canScrollUp, setCanScrollUp] = useState(false)
-    const [canScrollDown, setCanScrollDown] = useState(false)
-
     const updateScrollIndicators = useCallback(() => {
       const el = scrollRef.current
       if (!el) return
+
       setCanScrollUp(el.scrollTop > 0)
       setCanScrollDown(el.scrollTop + el.clientHeight < el.scrollHeight - 1)
     }, [])
 
-    useEffect(() => {
-      if (open) requestAnimationFrame(updateScrollIndicators)
-    }, [open, chains, updateScrollIndicators])
-
     const handleScrollClick = (direction: 'up' | 'down') => {
       scrollRef.current?.scrollBy({ top: direction === 'up' ? -100 : 100, behavior: 'smooth' })
     }
+
+    // The whole selector modal lives inside a reach-portal, so keep portal clicks in scope: a click
+    // inside the modal but outside this dropdown must still close it.
+    useOnClickOutside(ref, () => setOpen(false), { ignoreReachPortal: false })
+
+    useEffect(() => {
+      if (open) requestAnimationFrame(updateScrollIndicators)
+    }, [open, chains, updateScrollIndicators])
 
     return (
       <div
@@ -103,6 +104,7 @@ export const ChainSelector = memo(
             >
               {options.map(chain => {
                 const selected = chain.chainId === selectedChainId
+
                 return (
                   <div
                     key={chain.chainId}

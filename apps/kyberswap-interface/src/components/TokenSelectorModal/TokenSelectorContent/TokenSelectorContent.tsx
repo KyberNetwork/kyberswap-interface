@@ -1,6 +1,6 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { KeyboardEvent, ReactNode, useCallback, useEffect, useState } from 'react'
+import { KeyboardEvent, ReactNode, useCallback, useDeferredValue, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 
@@ -60,6 +60,7 @@ const sortNetworksByPriority = (networks: TokenSelectorNetwork[]): TokenSelector
   [...networks].sort((a, b) => {
     const aPriority = PRIORITY_CHAINS.indexOf(a.chainId)
     const bPriority = PRIORITY_CHAINS.indexOf(b.chainId)
+
     if (aPriority !== -1 || bPriority !== -1) {
       return (
         (aPriority === -1 ? PRIORITY_CHAINS.length : aPriority) -
@@ -70,6 +71,7 @@ const sortNetworksByPriority = (networks: TokenSelectorNetwork[]): TokenSelector
     if (typeof a.chainId === 'number' && typeof b.chainId === 'number') return a.chainId - b.chainId
     if (typeof a.chainId === 'number') return -1
     if (typeof b.chainId === 'number') return 1
+
     return 0
   })
 
@@ -142,6 +144,7 @@ export const TokenSelectorContent = ({
   onShowTokenInfo,
 }: Props) => {
   const [nonEvmChain, setNonEvmChain] = useState<NonEvmChain | undefined>(initialNonEvmChain)
+
   const view = useTokenSelectorView({ anchorChainId, importChainId, showDiscoveryTabs, networkSortBy, trackingSource })
   const {
     activeTab,
@@ -189,6 +192,10 @@ export const TokenSelectorContent = ({
     otherSelectedCurrency,
   })
 
+  // Paint the selected network and retained snapshot before mounting all chain observers.
+  // Only source mounting is deferred; session guards and display identity change immediately.
+  const sourceSession = useDeferredValue(aggregate.session)
+
   const data = useTokenSelectorData({
     enabled: !allNetworks && !nonEvmChain,
     requireOracle,
@@ -230,7 +237,6 @@ export const TokenSelectorContent = ({
   const isImportedTab = activeTab === TokenSelectorTab.Imported
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
-
   const subtitle = getTabSubtitle(activeTab)
 
   const selectNetwork = (chain: TokenSelectorChain) => {
@@ -246,6 +252,7 @@ export const TokenSelectorContent = ({
   const requestSelect = useCallback(
     (currency: Currency, method?: TokenSelectionContext['method'], intent: 'select' | 'import' = 'select') => {
       const rowIndex = visibleCurrencies.findIndex(item => item.equals(currency))
+
       onRequestSelect?.(
         currency,
         {
@@ -259,6 +266,9 @@ export const TokenSelectorContent = ({
     },
     [visibleCurrencies, activeTab, debouncedQuery, onRequestSelect],
   )
+
+  const handleSelect = useCallback((currency: Currency) => requestSelect(currency), [requestSelect])
+  const handleImport = useCallback((token: Token) => requestSelect(token, undefined, 'import'), [requestSelect])
 
   const handleEnter = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
@@ -308,27 +318,28 @@ export const TokenSelectorContent = ({
 
   return (
     <ContentWrapper className="min-h-0 gap-3 overflow-hidden p-4" data-testid="token-selector-modal">
-      {aggregate.groups.map(group =>
-        aggregate.needsChainSources ? (
-          <ChainTokens
-            key={`${aggregate.session}:${group.chainId}`}
-            chainId={group.chainId}
-            activeTab={activeTab}
-            session={aggregate.session}
-            catalogTokens={group.currencies}
-            onSnapshot={aggregate.onSnapshot}
-          />
-        ) : aggregate.needsCatalogPrices ? (
-          <CatalogPrices
-            key={`${aggregate.session}:${group.chainId}`}
-            chainId={group.chainId}
-            session={aggregate.session}
-            currencies={group.currencies}
-            extras={aggregate.catalogExtras}
-            onSnapshot={aggregate.onSnapshot}
-          />
-        ) : null,
-      )}
+      {sourceSession === aggregate.session &&
+        aggregate.groups.map(group =>
+          aggregate.needsChainSources ? (
+            <ChainTokens
+              key={`${aggregate.session}:${group.chainId}`}
+              chainId={group.chainId}
+              activeTab={activeTab}
+              session={aggregate.session}
+              catalogTokens={group.currencies}
+              onSnapshot={aggregate.onSnapshot}
+            />
+          ) : aggregate.needsCatalogPrices ? (
+            <CatalogPrices
+              key={`${aggregate.session}:${group.chainId}`}
+              chainId={group.chainId}
+              session={aggregate.session}
+              currencies={group.currencies}
+              extras={aggregate.catalogExtras}
+              onSnapshot={aggregate.onSnapshot}
+            />
+          ) : null,
+        )}
       <HStack className="shrink-0 items-center justify-between gap-3">
         <HStack className="min-w-0 items-center gap-1 text-xl font-medium">
           {title || <Trans>Select a token</Trans>}
@@ -475,8 +486,8 @@ export const TokenSelectorContent = ({
                     onRowsRendered={handleRowsRendered}
                     onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
                     onToggleFavorite={handleClickFavorite}
-                    onCurrencySelect={currency => requestSelect(currency)}
-                    onImportToken={token => requestSelect(token, undefined, 'import')}
+                    onCurrencySelect={handleSelect}
+                    onImportToken={handleImport}
                     onShowTokenInfo={onShowTokenInfo}
                     showAddress={isAllTab}
                     showCopyAddress={!isAllTab}

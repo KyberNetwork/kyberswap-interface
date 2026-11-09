@@ -35,13 +35,6 @@ export const useTokenSelectorView = ({
   const { supportedChains } = useChainsConfig()
   const { trackingHandler } = useTracking()
 
-  const chainVolumes = useChainsVolume(networkSortBy === 'api' && showDiscoveryTabs)
-  const rankedChains = useMemo(() => {
-    if (networkSortBy !== 'api') return supportedChains
-    if (!Object.keys(chainVolumes).length) return supportedChains
-    return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
-  }, [supportedChains, chainVolumes, networkSortBy])
-
   const [allNetworks, setAllNetworks] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState(anchorChainId)
 
@@ -54,15 +47,21 @@ export const useTokenSelectorView = ({
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
-
   const inputRef = useRef<HTMLInputElement>(null)
-  const listTokenRef = useRef<HTMLDivElement>(null)
+  const preSearchTabRef = useRef<TokenSelectorTab | null>(null)
 
   const [sort, setSort] = useState<TokenSort | null>(null)
   const [metricColumn, setMetricColumn] = useState<TokenMetricColumn>('volume24h')
   const pendingSortScrollReset = useRef(false)
+  const listTokenRef = useRef<HTMLDivElement>(null)
 
-  const preSearchTabRef = useRef<TokenSelectorTab | null>(null)
+  const chainVolumes = useChainsVolume(networkSortBy === 'api' && showDiscoveryTabs)
+  const rankedChains = useMemo(() => {
+    if (networkSortBy !== 'api') return supportedChains
+    if (!Object.keys(chainVolumes).length) return supportedChains
+
+    return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
+  }, [supportedChains, chainVolumes, networkSortBy])
 
   const visibleTabs = useMemo(
     () =>
@@ -98,6 +97,7 @@ export const useTokenSelectorView = ({
 
   const resetScrollAfterSort = useCallback(() => {
     if (!pendingSortScrollReset.current) return
+
     pendingSortScrollReset.current = false
     resetScroll()
   }, [resetScroll])
@@ -105,6 +105,7 @@ export const useTokenSelectorView = ({
   const handleTabChange = useCallback(
     (nextTab: TokenSelectorTab) => {
       setActiveTab(nextTab)
+
       trackingHandler(TRACKING_EVENT_TYPE.TS_TAB_SELECTED, {
         source: trackingSource,
         tab: nextTab,
@@ -120,6 +121,7 @@ export const useTokenSelectorView = ({
     (chainId: ChainId | 'all') => {
       setAllNetworks(chainId === 'all')
       if (chainId !== 'all') setSelectedChainId(chainId)
+
       trackingHandler(TRACKING_EVENT_TYPE.TS_CHAIN_SWITCHED, {
         source: trackingSource,
         from_chain: allNetworks ? 'All Networks' : NETWORKS_INFO[selectedChainId].name,
@@ -170,6 +172,7 @@ export const useTokenSelectorView = ({
 
   useEffect(() => {
     if (!trackingDebouncedQuery || !trackingSource) return
+
     trackingHandler(TRACKING_EVENT_TYPE.TS_SEARCHED, {
       source: trackingSource,
       search_query: trackingDebouncedQuery,

@@ -121,10 +121,12 @@ export const TokenRow = ({
       onRestrictedClick?.()
       return
     }
+
     if (isImport || importOnClick) {
       onImportToken?.(currency.wrapped)
       return
     }
+
     onSelect?.(currency)
   }
 

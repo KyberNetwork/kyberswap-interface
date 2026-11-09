@@ -1,123 +1,79 @@
 # TokenSelectorModal
 
-`TokenSelectorModal` is the shared token picker used by Swap, Limit Order, Pool, Earn, Wallet and other token-input surfaces. It provides chain browsing, token search, discovery tabs, wallet holdings, favorites, imports, token details and selection hand-off to the caller.
+Shared token picker for Swap, Limit Order, Pool, Earn, Wallet and other token inputs. It provides network browsing, search, discovery tabs, holdings, favorites, imports and token details. The caller owns the committed currency or pair; the modal owns browsing and the selection flow.
 
-The modal keeps browsing concerns separate from the selection transaction. Browsing decides which rows are visible; the selection owner decides whether a row can be selected, imported or requires a wallet network switch.
+## Ownership
 
-## Supported modes
+| Owner                                                                                                                                          | Responsibility                                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [index.tsx](index.tsx)                                                                                                                         | Public contract, modal shell, import/detail overlays and selection composition.                                            |
+| [TokenSelectorContent](TokenSelectorContent/TokenSelectorContent.tsx) and [useTokenSelectorView](TokenSelectorContent/useTokenSelectorView.ts) | Selected network, tab, query, sort controls and wiring the active data controller to the list.                             |
+| [useTokenSelectorData](hooks/useTokenSelectorData.ts)                                                                                          | Single-chain source composition, search matches, shared balances, filtering and ordering.                                  |
+| [useAggregateTokens](AllNetworks/useAggregateTokens.ts)                                                                                        | All Networks source selection, supported-chain filtering, merging, ordering and pagination.                                |
+| [useAggregateSnapshot](AllNetworks/useAggregateSnapshot.ts)                                                                                    | Batched display publication, structural sharing and session guards. Fetching and cache retention remain with source hooks. |
+| [ChainTokens](AllNetworks/ChainTokens.tsx)                                                                                                     | Per-chain observations using shared inventory, balance, favorite and metric sources.                                       |
+| [TokenList](TokenList/TokenList.tsx) and [VirtualTokenRow](TokenList/VirtualTokenRow.tsx)                                                      | List subscriptions, virtualization and row movement; memoized rows receive their own values and emit intent.               |
+| [useTokenSelection](TokenSelection/useTokenSelection.ts)                                                                                       | Restriction checks, import/chain confirmation, selection tracking, commit and dismissal.                                   |
 
-### Single-chain browsing
+[NetworkSelector](NetworkSelector/) owns network navigation and non-EVM content. Shared [favorite actions](../../state/user/favorites.ts) own membership changes; [wallet inventory](../../state/walletInventory/) owns inventory subscriptions and metadata resolution.
 
-The selector starts on `customChainId`, falling back to the app chain. Network browsing uses `useChainsConfig`; form callers with non-EVM support also expose Blast and configured cross-chain-only EVM networks. The single-chain controller combines:
+## Browsing modes
 
-- configured token lists and native currency;
-- user-imported tokens;
-- wallet inventory discoveries and balances;
-- favorites and common tokens;
-- catalog and RPC address-search results.
+The selector starts on `customChainId`, falling back to the app chain. Single-chain browsing combines configured tokens and native currency with imports, favorites, wallet discoveries and catalog search. Local imports, native tokens and held discoveries remain searchable when the catalog omits them. RPC address lookup is a fallback where allowed.
 
-Search keeps local imports, native tokens and wallet discoveries available even when the catalog does not return them. An unlisted token follows the normal import and restricted-token rules when selected.
+Networks use fixed priority by default; `networkSortBy="api"` opts into volume ordering. Pinned networks appear first. Form callers with non-EVM support also expose Blast and configured cross-chain-only EVM networks.
 
-### All Networks
+**All Networks** aggregates only the EVM networks exposed by the caller. All, Imported and Favorites observe each participating chain; Trending and New use their catalog sources and price fallback policy. Catalog and local rows merge before search, wrap/unwrap exclusion and ordering. Inventory discovers unknown holdings on supported chains; balance lookups on other chains cover known tokens only. Aggregate search does not run an all-chain RPC address scan.
 
-All Networks is available for normal token selection (`requireOracle={false}`). It aggregates supported EVM chains only; non-EVM chains use their own selector view.
+**Non-EVM networks** require form mode and `onSelectNonEvmCurrency`. [NonEvmTokenSelectorContent](NetworkSelector/NonEvmTokenSelectorContent.tsx) owns their sources and display. Selection goes directly to that callback and dismisses the modal.
 
-The aggregate controller:
+**Oracle mode** (`requireOracle`) restricts networks and token eligibility for flows such as Stop Market, disables RPC search and hides All Networks. It uses the same EVM selection flow.
 
-1. Fetches catalog pages without a `chainIds` filter.
-2. Filters returned rows to the networks exposed by the caller.
-3. Observes each participating chain for holdings, imports, favorites and token metadata on All, Imported and Favorites. Trending and New use catalog data and their price fallback policy.
-4. Merges catalog and local rows using `chainId + address` as the identity.
-5. Applies search, wrap/unwrap exclusion and tab-specific ordering after the sources are merged.
-6. Publishes chain observations progressively while preserving rows already received.
-
-Aggregate catalog pagination uses the raw API page size/count, so a page containing no supported-chain rows does not hide later supported rows. A trailing list row represents pending aggregate acquisition or the next page.
-
-Chain observations are published in fixed 250ms windows, retaining the latest result from every chain received in that window. Wallet, tab, network scope and active-state changes invalidate pending publications. Routine price and balance refreshes do not restart initial list loading.
-
-Wallet inventory discovers holdings on supported inventory chains. Other chains fall back to balances for known tokens; this does not discover unknown assets. Aggregate search merges catalog results with imports and known holdings without running an all-chain RPC address scan.
-
-### Non-EVM networks
-
-Non-EVM networks are shown when the caller uses form selection mode and provides `onSelectNonEvmCurrency`. Their content and token sources are owned by `NonEvmTokenSelectorContent`; selection is sent directly to the caller and the modal is dismissed. Non-EVM choices do not enter the EVM aggregate controller.
-
-### Oracle-restricted mode
-
-`requireOracle` is used by Oracle-dependent flows such as Stop Market. It limits the chain list to networks supported by the Oracle feature, filters rows through the Oracle token predicate and hides All Networks. The selection transaction remains the same as in other modes.
+`showDiscoveryTabs={false}` hides network navigation and discovery tabs without changing selection semantics.
 
 ## Tabs and ordering
 
-| Tab           | Source and behavior                                                                                                                                                                                                                                                                       |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **All**       | Configured tokens, native currency, imports, wallet discoveries and catalog search. Empty search uses wallet holding/value ordering; search promotes held matches while preserving impersonator safeguards.                                                                               |
-| **Trending**  | Public token catalog with the `kyberscore` tag. Supports infinite scroll on supported Trending chains and server-side metric sorting.                                                                                                                                                     |
-| **New**       | Public token catalog with the `new` tag. One page of 20 for a selected chain or 50 for All Networks; filtering does not fetch additional pages. Sorting is server-side.                                                                                                                   |
-| **Imported**  | User-imported tokens for the selected chain or all supported EVM chains, with balance-aware ordering and local metric sorting.                                                                                                                                                            |
-| **Favorites** | Common tokens plus explicitly favorited addresses, excluding explicit removals, resolved independently per chain. Default order is FDV descending; column sorting overrides it. Membership, star state and mutations use the same per-chain rule, with a limit of 12 favorites per chain. |
+| Tab       | Source and ordering                                                                                                                                                                   |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All       | Configured tokens, native currency, imports, discoveries and catalog results. Browsing sorts by holdings/value; search promotes held matches with impersonator safeguards.            |
+| Trending  | Token catalog `kyberscore` feed, with pagination and server-side metric sorting.                                                                                                      |
+| New       | Token catalog `new` feed, newest first unless sorted server-side. One page: 20 tokens per selected chain or 50 for All Networks.                                                      |
+| Imported  | User imports, ordered by holdings unless a metric sort is selected.                                                                                                                   |
+| Favorites | Common tokens plus explicit favorites, excluding explicit removals. Default order is FDV descending; column sorting overrides it. Membership is scoped per chain, with a limit of 12. |
 
-Discovery tabs use catalog metrics for price, 24h change, volume and FDV. Imported and Favorites resolve local metrics and use the shared metric comparator. All and Imported use wallet balances for the ordering rules that require them.
+[holdingSort](hooks/holdingSort.ts) owns wallet-value ranking; [metricSort](hooks/metricSort.ts) owns local metric ordering. Imported and Favorites resolve metrics for their local tokens. New fills missing catalog prices from the shared live-price source; Trending does so only when `TRENDING_PRICE_FALLBACK_ENABLED` is enabled.
 
-All Networks All uses KS Setting `/v1/tokens`; Trending and New use Token API `/v1/public/tokens`. All and Trending paginate in batches of 20. New supplements missing catalog prices through the shared live-price source; Trending does so only when `TRENDING_PRICE_FALLBACK_ENABLED` is enabled.
+All Networks All uses KS Setting `/v1/tokens`; Trending and New use Token API `/v1/public/tokens`. All and Trending paginate in batches of 20. Aggregate pagination uses raw page counts and advances past pages containing only unsupported networks; New does not fetch additional pages.
 
-## Public selection contract
+## Cache, publication and animation
 
-`TokenSelectorModal` exposes these selection-related props:
+Source hooks own cached server data. The aggregate snapshot is a display projection, not another request cache. Off-app-chain native and ERC20 balance reads share a 15-second refresh cadence and five-minute inactive retention, configured in [contractQuery](../../services/contractQuery.ts) and consumed by [bridge hooks](../../hooks/bridge/index.ts). Current-chain multicall and wallet inventory retain their own lifecycles.
 
-- `selectedCurrency` and `otherSelectedCurrency` identify the current pair and support wrap/unwrap filtering.
-- `onCurrencySelect` receives a committed EVM currency.
-- `onCurrencyImport` is called when the import-warning view opens; the final imported currency is committed through `onCurrencySelect` after confirmation.
-- `onSelectChain` is called before an EVM selection from another chain is committed. It is retained for existing callers that own chain state.
-- `chainSelectionMode` is either `wallet` or `form`:
-  - **wallet** mode confirms and switches the wallet network before committing a different-chain selection;
-  - **form** mode leaves chain state to the caller and commits the selected currency without switching the wallet.
-- `onSelectNonEvmCurrency` is enabled only for form mode. The callback receives the selected chain and currency, then the modal closes.
-- `showDiscoveryTabs={false}` hides the network sidebar and discovery tabs without changing selection semantics.
+Balance caches are scoped by wallet and chain; ERC20 snapshots also depend on the requested token list. Returning to a fresh snapshot reuses it immediately; stale snapshots refresh in the background. A rejected RPC refresh retains the last successful balance until a later read succeeds, so a displayed cached amount is not a freshness guarantee. Missing balances remain unknown rather than becoming zero. ERC20 reads are skipped without a wallet, chain or tokens.
 
-When `chainSelectionMode` is omitted, the modal preserves the legacy contract: an `onSelectChain` callback implies form mode; otherwise it uses wallet mode.
+Within an aggregate session, catalog and chain updates publish together in fixed 250ms windows, using the latest observation from each source. Later responses do not extend the deadline. Initial loading and reactivation both publish available observations without waiting for every chain or the catalog to finish. Chains without a new observation retain their previous data. Equivalent data preserves references, and waiting-only changes do not rebuild holding ranks. Catalog completion and its loading state publish together, so the empty state does not appear while completed results are still queued. A trailing row represents initial acquisition or further pagination.
 
-## Selection lifecycle
+Wallet, tab, supported-network scope and discovery sort define aggregate identity. Identity changes replace the snapshot; leaving the aggregate view cancels pending work but retains its published observations. Returning to the same identity and search displays the retained view immediately. Chain observers mount in a deferred render so network navigation and the retained view can paint first. Search replaces only the catalog: old queued catalog results are discarded while chain subscriptions, pending balance updates and their deadline survive. Session guards reject obsolete callbacks after deactivation or identity changes.
 
-Rows show import and restriction affordances and emit selection/import intent. The content attaches the active tab, query, selection method and row index; the transaction owner rechecks restrictions before committing.
+Rows use chain/address keys and spring-driven transforms. All Networks and single-chain views have separate row identities, so switching between them starts rows at their destination without reorder animation. Within the same view, controllers calculate order from available data and a mounted row moves when its position changes. Unchanged order causes no movement, including when sources republish equivalent cached data. Later balance or price changes can still reorder the list. Search and reduced-motion preferences disable reorder animation. List offsets reset only when row heights change, such as an expanded restriction notice.
 
-`useTokenSelection` owns the complete EVM transaction:
+## Selection contract and lifecycle
 
-1. Normalize native currency and reject restricted tokens.
-2. For an ordinary different-chain selection in wallet mode, confirm and switch the wallet chain, then resolve any required import warning. An explicit import intent opens the warning first and proceeds to chain confirmation afterward.
-3. For same-chain or form-mode selections, resolve any required import warning directly.
-4. Recheck restrictions, call `onSelectChain` when the selected chain differs from the anchor, record selection tracking, then call `onCurrencySelect` and dismiss.
+`chainSelectionMode="wallet"` confirms and switches the wallet network for a different-chain pick. `"form"` lets the caller own chain state. When omitted, `onSelectChain` implies form mode; otherwise the selector uses wallet mode.
 
-`ImportTokenView` persists the confirmed token through the user-token store before returning it to the selection owner. The caller owns the committed pair or business state.
+Rows report select/import intent. Content attaches the tab, query, method and row index, then `useTokenSelection`:
 
-Each modal session and network-switch request has a generation guard. Closing, cancelling or reopening the modal invalidates late wallet callbacks so an old selection cannot commit into a new session. The search view remains mounted behind import and token-detail overlays, preserving its chain, tab, query and scroll state when the user goes back.
+1. Normalizes native currency and rejects restricted tokens.
+2. Resolves chain confirmation and import requirements. Ordinary wallet-mode picks switch chain before import; explicit import intent opens the warning first.
+3. Rechecks restrictions, calls `onSelectChain` for a changed anchor chain, records tracking, calls `onCurrencySelect` and dismisses.
 
-## Ownership map
+`onCurrencyImport` reports that the warning opened. [ImportTokenView](TokenSelection/ImportTokenView.tsx) persists confirmed tokens before returning them to the selection owner; `onCurrencySelect` receives the final EVM currency. Non-EVM picks use `onSelectNonEvmCurrency` instead.
 
-| Location                                       | Owns                                                                                                                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.tsx`                                    | Modal shell, overlay transitions, session composition and the public prop contract.                                                         |
-| `TokenSelectorContent/`                        | Search input, selected network, active tab, sort state, non-EVM view composition and list wiring.                                           |
-| `TokenSelectorContent/useTokenSelectorView.ts` | Temporary browsing state: selected chain, All Networks toggle, query/debounce, tab restoration and metric sort controls.                    |
-| `hooks/useTokenSelectorData.ts`                | Single-chain sources, inventory, local search matches, balances, holdings sorting, wrap filtering and tab data composition.                 |
-| `AllNetworks/`                                 | Aggregate catalog pagination, supported-chain filtering, per-chain observers, merge/dedupe, progressive publication and aggregate ordering. |
-| `NetworkSelector/`                             | Network navigation, chain icons, chain volume ordering and non-EVM content.                                                                 |
-| `TokenList/`                                   | Virtualized rows, stable row identity, loading row, balance/metric presentation and row-level intent callbacks.                             |
-| `TokenSelection/`                              | Import confirmation, chain-switch confirmation and the EVM selection transaction.                                                           |
-| `state/user/favorites.ts`                      | Per-chain favorite membership and toggle/remove decisions, reading current Redux state at action time.                                      |
-| `state/walletInventory/`                       | Shared wallet inventory subscriptions and token metadata resolution.                                                                        |
+Closing or cancelling invalidates late wallet callbacks. The browsing view stays mounted behind import/detail overlays, preserving network, tab, query and scroll when returning.
 
-The data controllers own acquisition and derived list state. Presentation components render the controller contract and report intent. No row or child content component should duplicate commit, favorite membership, pagination or dismissal logic.
+## Maintenance boundaries
 
-## Identity and data invariants
-
-- Use `tokenRowKey(chainId, address)` for aggregate list identity and React keys. The same address on two chains represents two rows.
-- Native currency and the catalog's native sentinel are treated as one asset on their chain; the wrapped native token remains separate.
-- Imports, favorites, balances, prices and metadata are always resolved in a chain-qualified scope.
-- All Networks filters aggregate sources to the caller's supported EVM networks before rendering.
-- Search and wrap/unwrap filtering are applied to the final merged list for aggregate tabs.
-- A list can reorder as holdings, prices or chain data arrive; stable chain/address keys keep rows attached to the correct token.
-
-## Extension guidelines
-
-Add a new source to the controller that owns its lifecycle, then expose the existing list contract to `TokenSelectorContent`. Keep rows presentational and use intent callbacks for selection, import, favorite and removal actions. Reuse the shared token identity, favorite actions, inventory, metrics and filtering helpers instead of creating a second per-chain implementation.
-
-When adding a new selection path, route it through `useTokenSelection` so restriction checks, import confirmation, chain handling, tracking and dismissal remain a single transaction. When adding a new network, update the network configuration and the appropriate network-specific source; do not make the aggregate EVM controller responsible for non-EVM assets.
+- Use `tokenRowKey(chainId, address)` for list identity and chain-qualified lookups. Native currency and its catalog sentinel represent one asset; wrapped native remains separate.
+- Add sources to the controller that owns their lifecycle. Keep cache policy in source hooks and batch publication in `useAggregateSnapshot`.
+- Keep balance, price, import and favorite subscriptions at the source/list level; pass row-specific values to the renderer.
+- Route EVM selection paths through `useTokenSelection` and favorite mutations through the shared favorite actions. Keep caller business state outside the modal.

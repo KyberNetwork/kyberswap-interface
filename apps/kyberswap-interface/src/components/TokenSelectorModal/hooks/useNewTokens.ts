@@ -53,6 +53,7 @@ export const useNewTokens = (
       ...catalogMetricsToExtra(raw),
       addedAt: raw.whitelistedAt ?? raw.createdAt,
     }))
+
     return {
       tokens,
       extras,

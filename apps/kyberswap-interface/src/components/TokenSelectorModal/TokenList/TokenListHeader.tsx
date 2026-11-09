@@ -87,6 +87,7 @@ const MetricColumnHeader = ({ metric, onMetricChange, sort, onSort }: MetricColu
       {TOKEN_METRIC_COLUMNS.map(option => {
         const active = option === metric
         const copy = metricCopy(option)
+
         return (
           <button
             key={option}
@@ -130,6 +131,7 @@ export const TokenListHeader = ({ activeTab, metricColumn, sort, onSort, onMetri
   const isImportedTab = activeTab === TokenSelectorTab.Imported
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
+
   return (
     <HStack className="shrink-0 items-center px-2 text-xs font-medium uppercase text-subText">
       <HeaderCell className="flex-1" align="left">

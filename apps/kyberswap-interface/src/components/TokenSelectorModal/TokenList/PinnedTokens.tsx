@@ -28,12 +28,15 @@ type PinnedTokensProps = {
 export const PinnedTokens = ({ onSelect, selectedCurrency, tokens, onToggleFavorite }: PinnedTokensProps) => {
   const [isEditMode, setEditMode] = useState(false)
   const isHeightSmall = window.outerHeight < HEIGHT_THRESHOLD
+
   if (!tokens.length) return null
+
   return (
     <HStack className="flex-wrap items-center gap-2">
       {(tokens as Token[]).map((token: Token) => {
         const selected = isSameCurrency(selectedCurrency, token)
         const { symbol } = getDisplayTokenInfo(token)
+
         return (
           <PinnedTokenPill
             data-testid="favorite-token"

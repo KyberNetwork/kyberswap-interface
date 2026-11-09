@@ -35,6 +35,7 @@ export const useTokenTabData = ({
   favoriteCurrenciesBase,
 }: Props) => {
   const chainIdList = useMemo(() => [primaryChainId], [primaryChainId])
+
   const isTrendingTab = enabled && activeTab === TokenSelectorTab.Trending
   const isNewTab = enabled && activeTab === TokenSelectorTab.New
   const isImportedTab = enabled && activeTab === TokenSelectorTab.Imported

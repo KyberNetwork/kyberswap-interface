@@ -49,6 +49,7 @@ export const useTokensMetrics = (currencies: Currency[], chainId: ChainId): Toke
           fetchTokenCatalogTokens({ chainIds: chainId, addresses: chunk.join(','), page: 1, pageSize: chunk.length }),
         ),
       )
+
       return responses.flatMap(res => res?.data?.tokens ?? [])
     },
     staleTime: 60_000,
@@ -64,6 +65,7 @@ export const useTokensMetrics = (currencies: Currency[], chainId: ChainId): Toke
       const wrappedExtra = extras[tokenRowKey(chainId, wrappedNativeAddress)]
       if (wrappedExtra) extras[tokenRowKey(chainId, ETHER_ADDRESS)] = wrappedExtra
     }
+
     return extras
   }, [data, hasNative, wrappedNativeAddress, chainId])
 }

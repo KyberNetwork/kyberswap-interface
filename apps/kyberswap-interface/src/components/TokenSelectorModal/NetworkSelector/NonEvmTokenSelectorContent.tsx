@@ -75,12 +75,6 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
     )
   }, [isBitcoin, isSolana, solanaTokens, solanaBalances, nearTokens, query])
 
-  const getRawBalance = (id: string) => {
-    if (isBitcoin) return bitcoinBalance
-    if (isSolana) return solanaBalances[id]?.rawAmount
-    return nearBalances[id]
-  }
-
   const selectedId =
     selectedCurrency &&
     ('assetId' in selectedCurrency
@@ -88,6 +82,13 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
       : 'id' in selectedCurrency
       ? selectedCurrency.id
       : selectedCurrency.symbol)
+
+  const getRawBalance = (id: string) => {
+    if (isBitcoin) return bitcoinBalance
+    if (isSolana) return solanaBalances[id]?.rawAmount
+
+    return nearBalances[id]
+  }
 
   return (
     <Stack className="min-h-0 min-w-0 flex-1 gap-3">
@@ -129,6 +130,7 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
             {tokens.map(token => {
               const id = 'id' in token ? token.id : 'assetId' in token ? token.assetId : token.symbol
               const rawBalance = getRawBalance(id)
+
               return (
                 <button
                   key={id}

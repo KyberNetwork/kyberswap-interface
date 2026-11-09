@@ -44,14 +44,18 @@ export const mapCatalogTokens = (
   const tokens: WrappedTokenInfo[] = []
   const extras: TokenRowExtraMap = {}
   const seen = new Set<string>()
+
   raw.forEach(t => {
     const token = catalogTokenToWrapped(t)
     if (!token) return
+
     const key = tokenRowKey(token.chainId, token.address)
     if (seen.has(key)) return
+
     seen.add(key)
     tokens.push(token)
     extras[key] = extraFor(t)
   })
+
   return { tokens, extras }
 }

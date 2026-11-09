@@ -8,6 +8,7 @@ import { getTokenAddress } from 'utils/tokenInfo'
 
 export const splitFavoriteTokens = (addresses: string[], defaultTokens: ReturnType<typeof useAllTokens>) => {
   const known = new Map(Object.entries(defaultTokens).map(([address, token]) => [address.toLowerCase(), token]))
+
   return {
     available: addresses.flatMap(address => known.get(address.toLowerCase()) ?? []),
     missing: addresses.filter(address => !known.has(address.toLowerCase())),
@@ -21,6 +22,7 @@ export const resolveFavoriteTokens = async (
 ): Promise<Currency[]> => {
   const { available, missing } = splitFavoriteTokens(addresses, defaultTokens)
   if (!missing.length) return available
+
   const resolved = await fetchListTokenByAddresses(missing, chainId)
   return available.concat(
     resolved.sort((a, b) => missing.indexOf(a.address.toLowerCase()) - missing.indexOf(b.address.toLowerCase())),
@@ -67,6 +69,7 @@ export const useTokenFavorites = (primaryChainId: ChainId, defaultTokens: Return
           // Preserve the existing single-chain behavior: keep the last result on lookup failure.
         })
     }
+
     // Each lookup belongs to this chain/membership/map; a replacement or unmount invalidates it.
     return () => {
       cancelled = true

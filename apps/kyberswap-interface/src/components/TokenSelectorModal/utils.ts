@@ -106,6 +106,7 @@ export const fetchAllNetworkTokenPage = async (
 
   const data = response.data.data
   const tokens = data.tokens ?? []
+
   return {
     tokens: filterTruthy(tokens.map(formatAndCacheToken)),
     rawCount: tokens.length,
@@ -133,6 +134,7 @@ export const fetchTokens = async (
         tokens.slice((page - 1) * TOKEN_SEARCH_PAGE_SIZE, page * TOKEN_SEARCH_PAGE_SIZE).map(formatAndCacheToken),
       )
     }
+
     // A single address is looked up directly; the caller screens the one token that comes back.
     if (search && primaryChainId && isAddress(primaryChainId, search)) {
       return fetchTokenByAddress(search, primaryChainId)
@@ -172,6 +174,7 @@ export const getNeedsImport = (
  */
 export const concatUnseenTokens = (results: Currency[], extras: Currency[]): Currency[] => {
   if (!extras.length) return results
+
   const seen = new Set(results.map(token => getTokenAddress(token).toLowerCase()))
   return results.concat(extras.filter(token => !seen.has(getTokenAddress(token).toLowerCase())))
 }
@@ -191,6 +194,7 @@ export const mergeHeldSearchResults = (
   impersonators?: Set<string>,
 ): Currency[] => {
   if (!heldAddresses?.size) return results
+
   const seen = new Set(results.map(getTokenAddress))
   const merged = results.concat(heldMatches.filter(token => !seen.has(getTokenAddress(token))))
   const held: Currency[] = []
@@ -201,6 +205,7 @@ export const mergeHeldSearchResults = (
     const leads = heldAddresses.has(address) && !impersonators?.has(address)
     ;(leads ? held : rest).push(token)
   })
+
   return held.concat(rest)
 }
 
@@ -325,6 +330,7 @@ export const useTokenComparator = (
   // sentinel is always included: its balance lives in `ethBalance`, not in this map.
   const tokenPriceAddresses = useMemo(() => {
     if (!enabled) return EMPTY_PRICE_ADDRESSES
+
     const held = Object.keys(balances).filter(address => balances[address]?.greaterThan('0'))
     held.push(NATIVE_TOKEN_ADDRESS)
     return held

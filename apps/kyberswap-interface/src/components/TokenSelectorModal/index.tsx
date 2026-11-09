@@ -74,6 +74,12 @@ const TokenSelectorModal = ({
   onSelectChain,
 }: Props) => {
   const { chainId: appChainId } = useActiveWeb3React()
+  const isDesktopWidth = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall + 1}px)`)
+
+  // Detail view stays mounted until slideOutRight finishes (onAnimationEnd below).
+  const [tokenToShowInfo, setTokenToShowInfo] = useState<Token | null>(null)
+  const [detailClosing, setDetailClosing] = useState(false)
+
   const anchorChainId = customChainId || appChainId
 
   // Selection owns import, chain confirmation, and commit callbacks.
@@ -94,11 +100,6 @@ const TokenSelectorModal = ({
   // Track each modal session independently of the selected view.
   const lastOpen = useLast(isOpen)
   const { trackingHandler } = useTracking()
-
-  // Detail view stays mounted until slideOutRight finishes (onAnimationEnd below).
-  const [tokenToShowInfo, setTokenToShowInfo] = useState<Token | null>(null)
-  const [detailClosing, setDetailClosing] = useState(false)
-  const isDesktopWidth = useMedia(`(min-width: ${MEDIA_WIDTHS.upToSmall + 1}px)`)
 
   const dismissModal = () => {
     setTokenToShowInfo(null)

@@ -50,14 +50,13 @@ export const useTokenSelectorData = ({
   otherSelectedCurrency,
 }: Props) => {
   const account = useEvmBalanceAccount()
+  const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const isAllTab = enabled && activeTab === TokenSelectorTab.All
   const isImportedTab = enabled && activeTab === TokenSelectorTab.Imported
   const isTrendingTab = enabled && activeTab === TokenSelectorTab.Trending
   const isNewTab = enabled && activeTab === TokenSelectorTab.New
   const isFavoritesTab = enabled && activeTab === TokenSelectorTab.Favorites
-
-  const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const selectorSource = useTokenSelectorSource(primaryChainId, requireOracle)
   const { defaultTokens, searchFilters, isListable, allowRpcSearch } = selectorSource
@@ -244,20 +243,6 @@ export const useTokenSelectorData = ({
     [localFilter, pinnedTokens, primaryChainId],
   )
 
-  // Native leads the pills unless search excludes it; the wrap filter does not hide that shortcut.
-  // Cap only when the Favorites tab can expose the overflow.
-  const quickSelectTokens = useMemo(() => {
-    const native = NativeCurrencies[primaryChainId] as Currency | undefined
-    const nativeMatchesSearch =
-      !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
-
-    const nativeLead = nativeMatchesSearch && native && isListable(native) ? [native] : []
-    const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
-    const list = [...nativeLead, ...rest]
-
-    return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
-  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, isListable])
-
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
     [localFilter, tokenImports, tokenComparator],
@@ -276,6 +261,20 @@ export const useTokenSelectorData = ({
 
   const { hasMore: tabHasMore, fetchMore: fetchMoreTab } = tabData
   const { fetchMore: fetchMoreSearch } = search
+
+  // Native leads the pills unless search excludes it; the wrap filter does not hide that shortcut.
+  // Cap only when the Favorites tab can expose the overflow.
+  const quickSelectTokens = useMemo(() => {
+    const native = NativeCurrencies[primaryChainId] as Currency | undefined
+    const nativeMatchesSearch =
+      !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
+
+    const nativeLead = nativeMatchesSearch && native && isListable(native) ? [native] : []
+    const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
+    const list = [...nativeLead, ...rest]
+
+    return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
+  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth, isListable])
 
   // Enrich only visible unlisted holdings after the chain list is ready; avoid scanning a spam-heavy wallet.
   const handleRowsRendered = useCallback(

@@ -9,6 +9,7 @@ export const useLocalTokenMetrics = (tokens: Currency[], chainId: ChainId): Toke
   const metrics = useTokensMetrics(tokens, chainId)
   const addresses = useMemo(() => tokens.map(token => token.wrapped.address), [tokens])
   const prices = useTokenPrices(addresses, chainId)
+
   return useMemo(
     () =>
       Object.fromEntries(

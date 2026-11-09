@@ -4,6 +4,7 @@ import { TokenRowExtraMap, TokenSort, tokenRowKey } from 'components/TokenSelect
 
 export const sortTokenMetrics = (tokens: Currency[], extras: TokenRowExtraMap, sort: TokenSort | null): Currency[] => {
   if (!sort) return tokens
+
   const extraOf = (token: Currency) => extras[tokenRowKey(token.chainId, token.wrapped.address)]
   const rank = (token: Currency) => {
     const extra = extraOf(token)

@@ -18,7 +18,6 @@ import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 
 import { getNeedsImport, isSameCurrency } from 'components/TokenSelectorModal/utils'
 import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
 import { restrictedTokenKey } from 'hooks/useRestrictedTokens'
-import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { getTokenAddress } from 'utils/tokenInfo'
 
 // Data bag handed to every virtualized row through react-window's `itemData`. Delivering row data
@@ -66,44 +65,38 @@ const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balan
   return <Balance balance={displayBalance ?? balance} />
 }
 
-const TokenVirtualRow = memo(({ index, style, data }: ListChildComponentProps<VirtualRowData>) => {
-  const currency = data.currencies[index]
-  // The trailing slot (present while more pages can load) has no currency yet — show the loader.
-  if (!currency) {
-    return (
-      <div style={style} data-testid="token-list-load-more">
-        <Center className="h-12">
-          <Loader size="20px" />
-        </Center>
-      </div>
-    )
-  }
+type RowProps = Omit<
+  VirtualRowData,
+  | 'currencies'
+  | 'currencyBalances'
+  | 'aggregateBalances'
+  | 'importedAddressSet'
+  | 'favoriteAddressSet'
+  | 'heldAddresses'
+  | 'impersonators'
+  | 'tokenPrices'
+  | 'extras'
+> & {
+  currency: Currency
+  currencyBalance?: CurrencyAmount<Currency>
+  extra?: TokenRowExtra
+  priceForUsd: number
+  needsImport: boolean
+  held: boolean
+  isFavorite: boolean
+  impersonator?: boolean
+  style: CSSProperties
+}
 
-  const token = currency.wrapped
-
-  // Not whitelisted and not yet imported. Without `importAsRow` (Favorites, or while searching) the
-  // right column becomes an Import button; with `importAsRow` (Trending / All, not searching) the row
-  // stays normal — dimmed to 50% — and clicking it imports.
-  const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
-
-  // A held token found by search keeps its balance column (dimmed, click imports) rather than turning
-  // into an Import button: the balance is the very thing that tells the user this is the one they own.
-  const held = !!data.heldAddresses?.has(getTokenAddress(currency))
+const TokenVirtualRow = (data: RowProps) => {
+  const { currency, currencyBalance, extra, priceForUsd, needsImport, held, isFavorite, style } = data
   const importAsRow = needsImport && (!!data.importAsRow || held)
   const rightColumn = needsImport && !importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
   const isSelected = isSameCurrency(data.selectedCurrency, currency)
   const otherSelected = isSameCurrency(data.otherCurrency, currency)
 
-  const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
-  const isFavorite = favoriteTokenAddress ? data.favoriteAddressSet.has(favoriteTokenAddress.toLowerCase()) : false
-
-  const currencyBalance = data.currencyBalances[index]
-  const extra: TokenRowExtra | undefined = data.extras?.[tokenRowKey(currency.chainId, token.address)]
-  // Non-All tabs already carry price in the catalog extras; only the All tab fetches Redux prices.
-  const priceForUsd = data.showPriceColumn ? extra?.price ?? 0 : data.tokenPrices[token.address] || 0
   const usdBalance = priceForUsd * parseFloat(currencyBalance?.toExact() || '0')
-
   const customBalance =
     data.scaleERC8056Balances && currency.isToken && currencyBalance && (isSelected || otherSelected) ? (
       <SelectedTokenBalance currency={currency} balance={currencyBalance} />
@@ -158,54 +151,66 @@ const TokenVirtualRow = memo(({ index, style, data }: ListChildComponentProps<Vi
         restricted={restricted}
         warned={warned}
         onRestrictedClick={() => data.onWarnRestricted(restrictedKey)}
-        impersonator={data.impersonators?.has(token.address)}
+        impersonator={data.impersonator}
         held={held}
       />
     </motion.div>
   )
-})
+}
 
-TokenVirtualRow.displayName = 'TokenVirtualRow'
+const MemoTokenVirtualRow = memo(TokenVirtualRow)
 
-const NetworkRow = ({ index, style, data }: ListChildComponentProps<VirtualRowData>) => {
-  const currency = data.currencies[index]
-  const imports = useUserAddedTokens(currency.chainId)
-  const { favoriteTokens } = useUserFavoriteTokens(currency.chainId)
+// Normalize the two sources once at the row boundary. Rows receive only their own values;
+// All Networks and single-chain views have separate identities so switching starts at the new position.
+export const VirtualRow = ({ index, style, data }: ListChildComponentProps<VirtualRowData>) => {
+  const {
+    currencies,
+    currencyBalances,
+    aggregateBalances,
+    importedAddressSet,
+    favoriteAddressSet,
+    heldAddresses,
+    impersonators,
+    tokenPrices,
+    extras,
+    ...shared
+  } = data
 
-  const rowData: VirtualRowData = {
-    ...data,
-    importedAddressSet: new Set(imports.map(token => token.address)),
-    favoriteAddressSet: new Set(favoriteTokens),
-    impersonators: undefined,
-    heldAddresses: data.heldAddresses?.has(tokenRowKey(currency.chainId, getTokenAddress(currency)))
-      ? new Set([getTokenAddress(currency)])
-      : undefined,
+  const currency = currencies[index]
+  if (!currency) {
+    return (
+      <div style={style} data-testid="token-list-load-more">
+        <Center className="h-12">
+          <Loader size="20px" />
+        </Center>
+      </div>
+    )
   }
 
-  // All/Imported/Favorites read the controller's observations; Trending/New render metrics only.
-  const observation = data.aggregateBalances?.[tokenRowKey(currency.chainId, getTokenAddress(currency))]
-  const currencyBalances: VirtualRowData['currencyBalances'] = []
-  currencyBalances[index] = observation?.balance
+  const token = currency.wrapped
+  const rowKey = tokenRowKey(currency.chainId, getTokenAddress(currency))
+  const observation = data.allNetworks ? aggregateBalances?.[rowKey] : undefined
+  const extra = extras?.[tokenRowKey(currency.chainId, token.address)]
+  const price = data.allNetworks ? observation?.price : tokenPrices[token.address]
+
   return (
-    <TokenVirtualRow
-      index={index}
+    <MemoTokenVirtualRow
+      key={data.allNetworks ? 'all' : 'chain'}
+      {...shared}
       style={style}
-      data={{
-        ...rowData,
-        currencyBalances,
-        impersonators: observation?.impersonator ? new Set([currency.wrapped.address]) : undefined,
-        tokenPrices: { [currency.wrapped.address]: observation?.price ?? 0 },
-        waitingForBalances: observation?.waiting ?? !!data.aggregateBalances,
-      }}
+      currency={currency}
+      currencyBalance={data.allNetworks ? observation?.balance : currencyBalances[index]}
+      extra={extra}
+      priceForUsd={data.showPriceColumn ? extra?.price ?? 0 : price ?? 0}
+      needsImport={getNeedsImport(
+        currency,
+        address => importedAddressSet.has(tokenRowKey(currency.chainId, address)),
+        !!data.onImportToken,
+      )}
+      held={!!heldAddresses?.has(data.allNetworks ? rowKey : getTokenAddress(currency))}
+      isFavorite={currency.isToken && favoriteAddressSet.has(tokenRowKey(currency.chainId, token.address))}
+      impersonator={data.allNetworks ? observation?.impersonator : impersonators?.has(token.address)}
+      waitingForBalances={data.allNetworks ? observation?.waiting ?? !!aggregateBalances : data.waitingForBalances}
     />
   )
 }
-
-export const VirtualRow = memo((props: ListChildComponentProps<VirtualRowData>) => {
-  return props.data.allNetworks && props.data.currencies[props.index] ? (
-    <NetworkRow {...props} />
-  ) : (
-    <TokenVirtualRow {...props} />
-  )
-})
-VirtualRow.displayName = 'VirtualTokenRow'
