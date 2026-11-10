@@ -58,14 +58,8 @@ import transactions from 'state/transactions/reducer'
 import tutorial from 'state/tutorial/reducer'
 import user, { UserState } from 'state/user/reducer'
 
-const PERSISTED_KEYS: string[] = [
-  'user',
-  'transactions',
-  'profile',
-  'crossChainSwap.transactions',
-  'crossChainSwap.excludedSources',
-  'crossChainSwap.kyberCrossExcludedSources',
-]
+// Liquidity source selections stay in memory and reset on reload.
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap.transactions']
 
 // Client-only: read persisted state from localStorage and migrate from old version to
 // new version, preventing lost favorite tokens of user. Returns {} under SSR/prerender.
@@ -205,8 +199,7 @@ export const makeStore = (preloadedState?: Partial<AppState>) =>
         )
         .concat(persistCrossChainTransactions)
         .concat(apiMiddlewares),
-    // Nested persisted keys can restore preferences without a transaction list.
-    // Redux only applies slice defaults when the whole slice is undefined.
+    // Merge persisted transactions with the remaining slice defaults.
     preloadedState: preloadedState && {
       ...preloadedState,
       crossChainSwap: {
