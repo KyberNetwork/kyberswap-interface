@@ -8,9 +8,10 @@ import { ChainSnapshot } from 'components/TokenSelectorModal/AllNetworks/types'
 import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { tokenRowKey } from 'components/TokenSelectorModal/types'
 import { NativeCurrencies } from 'constants/tokens'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import { AGGREGATE_UPDATE_INTERVAL_MS } from './useAggregateSnapshot'
-import { useAggregateTokens } from './useAggregateTokens'
+import { mergeAggregateTokens, useAggregateTokens } from './useAggregateTokens'
 
 const mocks = vi.hoisted(() => ({
   account: 'a',
@@ -604,4 +605,107 @@ it('does not starve publication under continuous responses and ignores callbacks
   root = undefined as unknown as typeof root
   await act(async () => publish(session, 1, snapshot(a)))
   expect(vi.getTimerCount()).toBe(0)
+})
+
+it('keeps API market-cap order for unpriced tokens and prioritizes priced wallet value', async () => {
+  mocks.all.currencies = [b, a, d, c]
+  await mount(TokenSelectorTab.All, '', true, undefined, manyNetworks)
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([b, a, d, c])
+
+  const unpriced = snapshot(b)
+  unpriced.balances[tokenRowKey(b.chainId, address)].price = 0
+  await act(async () => {
+    data.onSnapshot(data.session, 1, snapshot(a))
+    data.onSnapshot(data.session, 56, unpriced)
+    data.onSnapshot(data.session, 137, snapshot(c))
+  })
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([c, a, b, d])
+})
+
+it.each([true, false])('advances search-empty Trending pages and settles when a match exists: %s', async found => {
+  const next = vi.fn()
+  const nvidia = new Token(1, '0x0000000000000000000000000000000000000002', 18, 'NVDA', 'NVIDIA')
+  const source = {
+    tokens: [a],
+    extras: {},
+    loading: false,
+    hasMore: true,
+    fetchMore: next,
+    lastPageChains: [1],
+    pageCount: 1,
+  }
+  mocks.trending.mockReturnValue(source)
+  await mount(TokenSelectorTab.Trending, 'nvidia')
+  expect(data.visibleCurrencies).toEqual([])
+  expect(next).toHaveBeenCalledOnce()
+
+  mocks.trending.mockReturnValue({ ...source, tokens: [a, b], lastPageChains: [56], pageCount: 2 })
+  await mount(TokenSelectorTab.Trending, 'nvidia')
+  await flushBatch()
+  expect(next).toHaveBeenCalledTimes(2)
+
+  mocks.trending.mockReturnValue({
+    ...source,
+    tokens: found ? [a, b, nvidia] : [a, b],
+    pageCount: 3,
+    hasMore: false,
+  })
+  await mount(TokenSelectorTab.Trending, 'nvidia')
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual(found ? [nvidia] : [])
+  expect(data.isListLoading).toBe(false)
+  expect(data.listHasMore).toBe(false)
+  expect(next).toHaveBeenCalledTimes(2)
+})
+
+it('preserves local execution metadata while retaining catalog order', () => {
+  const local = new WrappedTokenInfo({
+    chainId: 1,
+    address,
+    decimals: 6,
+    symbol: 'AAA',
+    name: 'AAA',
+    permitType: 'AMOUNT',
+    permitVersion: '1',
+    domainSeparator: 'domain',
+    isWhitelisted: true,
+  })
+  const result = mergeAggregateTokens([local, c], [b, a, b])
+  expect(result).toEqual([b, local, c])
+  expect(result[1]).toBe(local)
+  expect((result[1] as WrappedTokenInfo).permitType).toBe('AMOUNT')
+  expect((result[1] as WrappedTokenInfo).permitVersion).toBe('1')
+})
+
+it('continues past a search-empty page even when earlier pages have matches', async () => {
+  const next = vi.fn()
+  const source = {
+    tokens: [a],
+    extras: {},
+    loading: false,
+    hasMore: true,
+    fetchMore: next,
+    lastPageTokens: [a],
+    lastPageChains: [1],
+    pageCount: 1,
+  }
+  mocks.trending.mockReturnValue(source)
+  await mount(TokenSelectorTab.Trending, 'AAA')
+  expect(data.visibleCurrencies).toEqual([a])
+  expect(next).not.toHaveBeenCalled()
+
+  mocks.trending.mockReturnValue({ ...source, tokens: [a, b], lastPageTokens: [b], lastPageChains: [56], pageCount: 2 })
+  await mount(TokenSelectorTab.Trending, 'AAA')
+  await flushBatch()
+  expect(data.visibleCurrencies).toEqual([a])
+  expect(next).toHaveBeenCalledOnce()
+
+  mocks.trending.mockReturnValue({ ...source, tokens: [a, b], lastPageTokens: [], pageCount: 3, hasMore: false })
+  await mount(TokenSelectorTab.Trending, 'AAA')
+  await flushBatch()
+  expect(data.listHasMore).toBe(false)
+  expect(data.isListLoading).toBe(false)
+  expect(next).toHaveBeenCalledOnce()
 })

@@ -5,7 +5,9 @@ import axios from 'axios'
 import { useMemo } from 'react'
 import { fetchAbstractTokens } from 'services/crossChainTokens'
 import ksSettingApi from 'services/ksSetting'
+import { fetchTokenCatalogTokens } from 'services/tokenCatalog'
 
+import { catalogTokenToWrapped } from 'components/TokenSelectorModal/hooks/catalog'
 import { getHoldingComparator } from 'components/TokenSelectorModal/hooks/holdingSort'
 import type { TokenSearchFilters } from 'components/TokenSelectorModal/types'
 import { KS_SETTING_API } from 'constants/env'
@@ -85,30 +87,27 @@ const fetchTokenSearchPage = async (
   return filterTruthy(tokens.map(formatAndCacheToken))
 }
 
-/** Aggregate browse/search uses the same KS Setting contract, with no chain filter. */
+/** Aggregate catalog uses market-cap ranking; the controller applies wallet value priority. */
 export const fetchAllNetworkTokenPage = async (
   search: string,
   page: number,
 ): Promise<{ tokens: WrappedTokenInfo[]; rawCount: number; totalItems?: number }> => {
   const value = search.trim()
-  const params = {
-    ...(value ? (isAddressString(value) ? { addresses: value } : { query: value }) : { isWhitelisted: true }),
+  const response = await fetchTokenCatalogTokens({
+    ...(value ? (isAddressString(value) ? { addresses: value } : { name: value, symbol: value }) : {}),
+    isVerified: true,
+    tokenTypes: 'erc20',
+    sort: 'marketCap:desc',
     page,
     pageSize: TOKEN_SEARCH_PAGE_SIZE,
-  }
+  })
+  if (!response?.data) throw new Error('Token list request failed')
 
-  const response = await axios.get(
-    `${KS_SETTING_API}/v1/tokens?${new URLSearchParams(
-      Object.entries(params).map(([key, item]) => [key, String(item)]),
-    ).toString()}`,
-  )
-  if (response.data?.code !== 0 || !response.data?.data) throw new Error('Token list request failed')
-
-  const data = response.data.data
+  const data = response.data
   const tokens = data.tokens ?? []
 
   return {
-    tokens: filterTruthy(tokens.map(formatAndCacheToken)),
+    tokens: filterTruthy(tokens.map(catalogTokenToWrapped)),
     rawCount: tokens.length,
     totalItems: data.pagination?.totalItems,
   }

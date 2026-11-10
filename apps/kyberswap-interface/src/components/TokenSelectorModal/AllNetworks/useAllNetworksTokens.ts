@@ -6,7 +6,7 @@ import { TOKEN_SEARCH_PAGE_SIZE, fetchAllNetworkTokenPage } from 'components/Tok
 /** Owns API pages only. The aggregate controller owns chain eligibility and token merging. */
 export const useAllNetworksTokens = ({ active, query }: { active: boolean; query: string }) => {
   const catalog = useInfiniteQuery({
-    queryKey: ['token-selector-all-networks-ks-setting', query],
+    queryKey: ['token-selector-all-networks-catalog-verified-market-cap', query],
     enabled: active,
     initialPageParam: 1,
     queryFn: ({ pageParam }) => fetchAllNetworkTokenPage(query, pageParam),
@@ -35,6 +35,7 @@ export const useAllNetworksTokens = ({ active, query }: { active: boolean; query
 
   return {
     currencies,
+    lastPageTokens: catalog.data?.pages[(catalog.data?.pages.length ?? 1) - 1]?.tokens,
     lastPageChains: (catalog.data?.pages[(catalog.data?.pages.length ?? 1) - 1]?.tokens ?? []).map(
       token => token.chainId,
     ),

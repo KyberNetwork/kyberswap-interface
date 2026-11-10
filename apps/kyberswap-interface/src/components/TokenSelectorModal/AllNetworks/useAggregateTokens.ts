@@ -28,13 +28,16 @@ type Props = {
 }
 
 export const mergeAggregateTokens = (local: Currency[], remote: Currency[]): Currency[] => {
+  const keyOf = (token: Currency) => tokenRowKey(token.chainId, getTokenAddress(token))
+  const localByKey = new Map(local.map(token => [keyOf(token), token]))
   const seen = new Set<string>()
 
-  return [...local, ...remote].filter(token => {
-    const key = tokenRowKey(token.chainId, getTokenAddress(token))
-    if (seen.has(key)) return false
+  // Catalog owns order; local tokens retain execution metadata (including permit fields).
+  return [...remote, ...local].flatMap(token => {
+    const key = keyOf(token)
+    if (seen.has(key)) return []
     seen.add(key)
-    return true
+    return [localByKey.get(key) ?? token]
   })
 }
 
@@ -150,7 +153,17 @@ export const useAggregateTokens = ({
         return rank(a) - rank(b)
       })
 
-    if (isAll) return [...filtered].sort(holding)
+    if (isAll) {
+      const values = new Map(
+        filtered.map(token => {
+          const row = holdings[tokenRowKey(token.chainId, getTokenAddress(token))]
+          const value = Number(row?.balance?.toExact() ?? 0) * (row?.price ?? 0)
+          return [token, Number.isFinite(value) && value > 0 ? value : 0] as const
+        }),
+      )
+      // Stable sort retains API market-cap order for equal/unavailable wallet values.
+      return [...filtered].sort((a, b) => (values.get(b) ?? 0) - (values.get(a) ?? 0))
+    }
     if (activeTab === TokenSelectorTab.Imported) return sortTokenMetrics([...filtered].sort(holding), extras, sort)
 
     return sortTokenMetrics(filtered, extras, sort ?? { field: 'fdv', dir: 'desc' })
@@ -183,7 +196,14 @@ export const useAggregateTokens = ({
   const hasMore = isAll ? catalog.hasMore : isTrending && trending.hasMore
   const lastPageChains = isAll ? catalog.lastPageChains : trending.lastPageChains
   const pageCount = isAll ? catalog.pageCount : trending.pageCount
-  const lastPageFilteredEmpty = !lastPageChains?.some(chainId => chains.includes(chainId))
+  const lastPageTokens = isAll ? catalog.lastPageTokens : trending.lastPageTokens
+  const lastPageFilteredEmpty =
+    !lastPageChains?.some(chainId => chains.includes(chainId)) ||
+    (!!query &&
+      !!lastPageTokens &&
+      !lastPageTokens.some(
+        token => chains.includes(token.chainId) && filterTokens(token.chainId, [token], query).length > 0,
+      ))
 
   const handleRowsRendered = useCallback(
     (rows: Currency[]) => {
@@ -200,10 +220,12 @@ export const useAggregateTokens = ({
     [holdings],
   )
 
-  // Filtering a complete page must not make the next supported token unreachable.
+  // InfiniteLoader cannot advance when filtering leaves the same empty visible range.
+  // Keep paging after publication until a match appears or the source is exhausted.
+  const needsNextPage = lastPageFilteredEmpty || (!loading && stableCurrencies.length === 0)
   useEffect(() => {
-    if (active && lastPageFilteredEmpty && hasMore) void fetchMore()
-  }, [active, lastPageFilteredEmpty, pageCount, hasMore, fetchMore])
+    if (active && needsNextPage && hasMore) void fetchMore()
+  }, [active, needsNextPage, pageCount, hasMore, fetchMore])
 
   return {
     session,

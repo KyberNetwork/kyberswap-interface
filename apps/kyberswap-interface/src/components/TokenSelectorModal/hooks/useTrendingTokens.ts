@@ -16,6 +16,7 @@ type UseTrendingTokensResult = {
   extras: TokenRowExtraMap
   loading: boolean
   hasMore: boolean
+  lastPageTokens: WrappedTokenInfo[]
   lastPageChains: number[]
   pageCount: number
   fetchMore: () => Promise<void>
@@ -85,6 +86,7 @@ export const useTrendingTokens = (
 
     return {
       tokens,
+      lastPageTokens: mapCatalogTokens(data?.pages[data.pages.length - 1]?.data?.tokens ?? []).tokens,
       lastPageChains: (data?.pages[data.pages.length - 1]?.data?.tokens ?? []).map(token => Number(token.chainId)),
       pageCount: data?.pages.length ?? 0,
       extras,

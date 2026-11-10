@@ -1,5 +1,5 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
-import axios from 'axios'
+import * as tokenCatalog from 'services/tokenCatalog'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ETHER_ADDRESS } from 'constants/index'
@@ -31,47 +31,61 @@ describe('selector currency identity', () => {
   })
 })
 
-describe('aggregate KS Setting requests', () => {
+describe('aggregate public token catalog requests', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
-  it('omits chainIds and unsupported tags/sort, preserves query and maps the old response shape', async () => {
+  it('requests verified ERC20 tokens with market-cap ranking without chainIds and maps public catalog metadata', async () => {
     const token = {
-      chainId: 1,
+      chainId: '1',
       address: '0x0000000000000000000000000000000000000001',
       decimals: 18,
       symbol: 'TOKEN',
       name: 'Token',
-      logoURI: 'logo.svg',
-      permitType: 'AMOUNT',
+      logoURL: 'logo.svg',
+      id: 1,
     }
-    const get = vi.spyOn(axios, 'get').mockResolvedValue({
-      data: {
-        code: 0,
-        data: { tokens: [token, { chainId: 1, address: 'invalid', decimals: 18 }], pagination: { totalItems: 20 } },
-      },
+    const get = vi.spyOn(tokenCatalog, 'fetchTokenCatalogTokens').mockResolvedValue({
+      data: { tokens: [token, { ...token, address: 'invalid' }], pagination: { totalItems: 20 } },
     })
     const result = await fetchAllNetworkTokenPage('USDC', 2)
-    const url = new URL(get.mock.calls[0][0])
-    expect(url.pathname).toBe('/api/v1/tokens')
-    expect(url.searchParams.get('query')).toBe('USDC')
-    expect(url.searchParams.get('page')).toBe('2')
-    for (const field of ['chainIds', 'name', 'tag', 'sort']) expect(url.searchParams.has(field)).toBe(false)
+    expect(get).toHaveBeenCalledWith({
+      name: 'USDC',
+      symbol: 'USDC',
+      isVerified: true,
+      tokenTypes: 'erc20',
+      sort: 'marketCap:desc',
+      page: 2,
+      pageSize: 20,
+    })
     expect(result.rawCount).toBe(2)
     expect(result.tokens).toHaveLength(1)
     expect(result.tokens[0].logoURI).toBe('logo.svg')
-    expect(result.tokens[0].permitType).toBe('AMOUNT')
+    expect(result.tokens[0].chainId).toBe(1)
   })
-  it('uses addresses for an exact contract search and whitelist for browsing', async () => {
-    const get = vi.spyOn(axios, 'get').mockResolvedValue({ data: { code: 0, data: { tokens: null } } })
+  it('keeps verified ERC20 filters for both address search and browsing', async () => {
+    const get = vi.spyOn(tokenCatalog, 'fetchTokenCatalogTokens').mockResolvedValue({ data: { tokens: [] } })
     const address = '0x0000000000000000000000000000000000000001'
     await fetchAllNetworkTokenPage(address, 1)
-    expect(new URL(get.mock.calls[0][0]).searchParams.get('addresses')).toBe(address)
+    expect(get.mock.calls[0][0]).toEqual({
+      addresses: address,
+      isVerified: true,
+      tokenTypes: 'erc20',
+      sort: 'marketCap:desc',
+      page: 1,
+      pageSize: 20,
+    })
     await fetchAllNetworkTokenPage('', 1)
-    expect(new URL(get.mock.calls[1][0]).searchParams.get('isWhitelisted')).toBe('true')
+    expect(get.mock.calls[1][0]).toEqual({
+      isVerified: true,
+      tokenTypes: 'erc20',
+      sort: 'marketCap:desc',
+      page: 1,
+      pageSize: 20,
+    })
   })
   it('surfaces API error envelopes instead of treating them as an empty list', async () => {
-    vi.spyOn(axios, 'get').mockResolvedValue({ data: { code: 4004, message: 'Invalid input' } })
+    vi.spyOn(tokenCatalog, 'fetchTokenCatalogTokens').mockResolvedValue({} as tokenCatalog.TokenCatalogListResponse)
     await expect(fetchAllNetworkTokenPage('', 1)).rejects.toThrow('Token list request failed')
   })
 })
