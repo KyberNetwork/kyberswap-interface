@@ -49,6 +49,26 @@ describe('SSR render smoke', () => {
     expect(lineaHtml).not.toMatch(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/swap\/ethereum")[^>]*>/)
   })
 
+  it.each([
+    ['/swap/ethereum/eth-to-wbtc', 'ETH', 'WBTC'],
+    ['/swap/ethereum/wbtc-to-eth', 'WBTC', 'ETH'],
+    ['/swap/base/eth-to-wbtc', 'ETH', 'WBTC'],
+    ['/swap/base/wbtc-to-eth', 'WBTC', 'ETH'],
+    ['/swap/bnb/bnb-to-wbtc', 'BNB', 'WBTC'],
+    ['/swap/bnb/wbtc-to-bnb', 'WBTC', 'BNB'],
+    ['/swap/optimism/eth-to-op', 'ETH', 'OP'],
+    ['/swap/optimism/op-to-eth', 'OP', 'ETH'],
+  ])('renders both curated currencies at %s without client token fetching', async (route, input, output) => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml(route)
+    const main = html.match(/<main\b[\s\S]*?<\/main>/)?.[0] ?? ''
+    const text = main.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
+
+    expect(main).not.toBe('')
+    expect(text).not.toContain('Select a token')
+    expect(text).toContain(`0 ${input} Est. Output 0 ${output}`)
+  })
+
   it('gives every sitemap URL a unique HTML artifact and retains dynamic-route fallbacks', async () => {
     const { prerenderManifest } = await import('entry-server')
 

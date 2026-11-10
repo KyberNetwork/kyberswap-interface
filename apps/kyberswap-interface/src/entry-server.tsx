@@ -19,9 +19,12 @@ import { APP_PATHS, KYBERSWAP_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import App from 'pages/App'
 import { makeStore } from 'state'
+import { setTokenList } from 'state/lists/actions'
 import { updateChainId } from 'state/user/actions'
 import ThemeProvider from 'theme'
 import { getChainIdFromSlug } from 'utils/string'
+
+import { getPrerenderTokens } from './prerenderTokens'
 
 // Match the client entry before any lazy route module evaluates helpers that depend on these plugins.
 dayjs.extend(utc)
@@ -97,7 +100,10 @@ const getRouteNetworkSlug = (url: string) => {
 function createRouteAppTree(url: string) {
   const store = makeStore()
   const routeChainId = getChainIdFromSlug(getRouteNetworkSlug(url))
-  if (routeChainId !== undefined) store.dispatch(updateChainId(routeChainId))
+  if (routeChainId !== undefined) {
+    store.dispatch(updateChainId(routeChainId))
+    store.dispatch(setTokenList({ chainId: routeChainId, tokenList: getPrerenderTokens(routeChainId) }))
+  }
 
   const queryClient = new QueryClient()
   return (
