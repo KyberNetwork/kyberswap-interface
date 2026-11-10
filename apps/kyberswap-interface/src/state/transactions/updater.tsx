@@ -295,12 +295,13 @@ export default function Updater(): null {
                 access_list_retained: accessListRetained,
               })
             const client = publicClientRef.current
-            if (arbitrary.accessList && client) {
-              // Whether the wallet signed the list it was handed shows only on the mined transaction.
-              client
-                .getTransaction({ hash: receipt.transactionHash as Hash })
-                .then(tx => trackSwapCompleted('accessList' in tx && (tx.accessList?.length ?? 0) > 0))
-                .catch(() => trackSwapCompleted(undefined))
+            if (arbitrary.accessList?.addresses && client) {
+              // Whether the wallet signed the list it was handed shows only on the mined transaction. The
+              // tracking call sits outside the rejection handler so a throw inside it cannot fire twice.
+              client.getTransaction({ hash: receipt.transactionHash as Hash }).then(
+                tx => trackSwapCompleted('accessList' in tx && (tx.accessList?.length ?? 0) > 0),
+                () => trackSwapCompleted(undefined),
+              )
             } else {
               trackSwapCompleted()
             }

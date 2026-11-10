@@ -1,4 +1,4 @@
-import { rpcFetch } from '@kyber/rpc-client'
+import { directRpcFetch } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -26,60 +26,30 @@ export type AccessListConfig = {
    * estimated with the list on a chain that charges the limit (see `NetworkInfo.chargesGasLimit`).
    */
   gasLimitWalletAllowlist: string[]
-  /** Ask the chain's RPC for a list when the route build did not return one. */
-  rpcFallback: boolean
 }
 
-/** The `accessList` object of the ks-setting global configuration, before validation. */
-export type AccessListRemoteConfig = {
-  chains?: Record<string, string>
-  walletBlocklist?: string[]
-  gasLimitWalletAllowlist?: string[]
-  rpcFallback?: boolean
-}
-
-const ACCESS_LIST_MODES: readonly AccessListMode[] = ['off', 'ss', 'all']
-
-export const DEFAULT_ACCESS_LIST_CONFIG: AccessListConfig = {
-  chains: {},
+export const ACCESS_LIST_CONFIG: AccessListConfig = {
+  // Chains whose default RPC answers `eth_createAccessList` and where Smart Settlement routes measured
+  // a 5–37% gas saving with a list. Optimism and Unichain also run Smart Settlement, but their public
+  // RPCs refuse the method.
+  chains: {
+    [ChainId.MAINNET]: 'ss',
+    [ChainId.BASE]: 'ss',
+    [ChainId.BSCMAINNET]: 'ss',
+    [ChainId.ARBITRUM]: 'ss',
+    [ChainId.MATIC]: 'ss',
+  },
   // Connector ids, as `CONNECTION` in components/Web3Provider spells them; literal here so this
   // module stays free of the wallet stack. SafePal's hardware fails to sign a type-2 transaction
   // that carries a list (-104 "show tx info failed"); Phantom rejects the request outright (-32000).
   walletBlocklist: ['io.safepal', 'https://www.safepal.com/download', 'app.phantom'],
+  // Empty keeps every chain that charges the gas limit (Monad) list-less until a wallet is confirmed
+  // at runtime to sign the list exactly as sent.
   gasLimitWalletAllowlist: [],
-  rpcFallback: true,
 }
 
 const isStringArray = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every(item => typeof item === 'string')
-
-/** Validates the remote object field by field; a field that is missing or malformed keeps its default. */
-export function parseAccessListConfig(
-  raw: unknown,
-  defaults: AccessListConfig = DEFAULT_ACCESS_LIST_CONFIG,
-): AccessListConfig {
-  if (!raw || typeof raw !== 'object') return defaults
-  const remote = raw as AccessListRemoteConfig
-
-  const chains: AccessListConfig['chains'] = {}
-  if (remote.chains && typeof remote.chains === 'object') {
-    for (const [key, mode] of Object.entries(remote.chains)) {
-      const chainId = Number(key)
-      if (Number.isInteger(chainId) && ACCESS_LIST_MODES.includes(mode as AccessListMode)) {
-        chains[chainId as ChainId] = mode as AccessListMode
-      }
-    }
-  }
-
-  return {
-    chains: remote.chains && typeof remote.chains === 'object' ? chains : defaults.chains,
-    walletBlocklist: isStringArray(remote.walletBlocklist) ? remote.walletBlocklist : defaults.walletBlocklist,
-    gasLimitWalletAllowlist: isStringArray(remote.gasLimitWalletAllowlist)
-      ? remote.gasLimitWalletAllowlist
-      : defaults.gasLimitWalletAllowlist,
-    rpcFallback: typeof remote.rpcFallback === 'boolean' ? remote.rpcFallback : defaults.rpcFallback,
-  }
-}
 
 export type AccessListPolicy =
   | { attach: false }
@@ -168,15 +138,17 @@ export function sanitizeAccessList(
   }))
 }
 
-// Bounds the wait for a list the route build did not supply. The call runs beside the gas estimate,
-// so a slow answer costs the user nothing beyond this; a missing answer costs only the saving.
+// Bounds the wait for the list. The call runs beside the gas estimate, so a slow answer costs the
+// user nothing beyond this; a missing answer costs only the saving.
 const ACCESS_LIST_RPC_TIMEOUT_MS = 2500
 
 /**
- * `eth_createAccessList` against the chain's default RPC. Deliberately not the rotating client: it
- * puts an endpoint on cooldown for every method when one answers `-32601`, and a chain whose public
- * RPCs lack this method would lose its pool right before the gas estimate. Resolves to `undefined`
- * whenever the RPC cannot or will not answer.
+ * `eth_createAccessList` for the swap about to be sent, against the chain's default RPC. Requested at
+ * send time so only a swap the policy attaches a list to pays for the call, and the list reflects
+ * the state the transaction will run on.
+ * Deliberately not the rotating client: it puts an endpoint on cooldown for every method when one
+ * answers `-32601`, and a chain whose public RPCs lack this method would lose its pool right before
+ * the gas estimate. Resolves to `undefined` whenever the RPC cannot or will not answer.
  */
 export async function fetchAccessList(
   chainId: ChainId,
@@ -185,10 +157,12 @@ export async function fetchAccessList(
   const rpcUrl = NETWORKS_INFO[chainId]?.defaultRpcUrl
   if (!rpcUrl) return undefined
   try {
-    const result = await rpcFetch<{ accessList?: unknown }>(chainId, 'eth_createAccessList', [call, 'latest'], {
+    const result = await directRpcFetch<{ accessList?: unknown }>(
       rpcUrl,
-      timeout: ACCESS_LIST_RPC_TIMEOUT_MS,
-    })
+      'eth_createAccessList',
+      [call, 'latest'],
+      ACCESS_LIST_RPC_TIMEOUT_MS,
+    )
     return result?.accessList
   } catch {
     return undefined
@@ -196,6 +170,9 @@ export async function fetchAccessList(
 }
 
 const REJECTING_CONNECTORS_KEY = 'accessListRejectingConnectors'
+// WalletConnect is one connector id for every wallet reached through it, so one wallet's refusal says
+// nothing about the next; a transaction from it is retried plain each time instead.
+const SHARED_CONNECTOR_IDS = new Set(['walletConnect'])
 
 /** Connectors that refused a list-carrying transaction on this device. */
 export function readRejectingConnectors(): Set<string> {
@@ -210,7 +187,7 @@ export function readRejectingConnectors(): Set<string> {
 
 /** The wallet refused a list once; later transactions from it go out plain from the start. */
 export function rememberRejectingConnector(connectorId: string): void {
-  if (typeof localStorage === 'undefined') return
+  if (SHARED_CONNECTOR_IDS.has(connectorId) || typeof localStorage === 'undefined') return
   try {
     const known = readRejectingConnectors()
     known.add(connectorId)

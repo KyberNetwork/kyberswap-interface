@@ -1,7 +1,5 @@
 import { RouteSummary as RawRouteSummary } from 'services/route/types/getRoute'
 
-import type { AccessListEntry } from 'utils/accessList'
-
 export type BuildRoutePayload = {
   routeSummary: RawRouteSummary
   deadline: number
@@ -32,13 +30,10 @@ export type BuildRouteData = {
   outputChange?: {
     percent: number
   }
-  /** Estimated without `accessList`, so it stays a safe gas limit for a wallet that drops the list. */
   gas: string
   gasUsd: string
   routerAddress: string
   additionalCostUsd?: string
-  /** EIP-2930 list from the build's own simulation of `data`; absent when the service has none. */
-  accessList?: AccessListEntry[]
 }
 
 export type BuildRouteResponse = {

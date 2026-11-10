@@ -7,14 +7,12 @@ import { AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { ChainStateMap } from 'hooks/useChainsConfig'
 import { AppState } from 'state'
-import { AccessListConfig, parseAccessListConfig } from 'utils/accessList'
 
 type KyberswapGlobalConfig = {
   aggregatorDomain: string
   aggregatorAPI: string
   isEnableAuthenAggregator: boolean
   chainStates: ChainStateMap
-  accessListConfig: AccessListConfig
 }
 
 const parseGlobalResponse = (
@@ -29,7 +27,6 @@ const parseGlobalResponse = (
     aggregatorDomain,
     aggregatorAPI: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}/route/encode`,
     isEnableAuthenAggregator,
-    accessListConfig: parseAccessListConfig(data?.accessList),
   }
 }
 export const useKyberswapGlobalConfig = () => {

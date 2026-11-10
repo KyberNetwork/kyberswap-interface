@@ -3,16 +3,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   AccessListConfig,
-  DEFAULT_ACCESS_LIST_CONFIG,
   isAccessListRejectionError,
-  parseAccessListConfig,
   readRejectingConnectors,
   rememberRejectingConnector,
   resolveAccessListPolicy,
   sanitizeAccessList,
 } from 'utils/accessList'
 
-vi.mock('@kyber/rpc-client', () => ({ rpcFetch: vi.fn() }))
+vi.mock('@kyber/rpc-client', () => ({ directRpcFetch: vi.fn() }))
 
 const sender = '0x000000000000000000000000000000000000dEaD'
 const router = '0x6131B5fae19EA4f9D964eAc0408E4408b66337b5'
@@ -63,32 +61,11 @@ describe('sanitizeAccessList', () => {
   })
 })
 
-describe('parseAccessListConfig', () => {
-  it('falls back to the defaults for a missing or malformed object', () => {
-    expect(parseAccessListConfig(undefined)).toBe(DEFAULT_ACCESS_LIST_CONFIG)
-    expect(parseAccessListConfig('ss')).toBe(DEFAULT_ACCESS_LIST_CONFIG)
-  })
-
-  it('keeps only well-formed chain modes and replaces the lists it is given', () => {
-    const parsed = parseAccessListConfig({
-      chains: { '8453': 'ss', '143': 'all', '1': 'sometimes', abc: 'ss' },
-      walletBlocklist: ['app.phantom'],
-      gasLimitWalletAllowlist: 'io.metamask',
-      rpcFallback: false,
-    })
-    expect(parsed.chains).toEqual({ [ChainId.BASE]: 'ss', [ChainId.MONAD]: 'all' })
-    expect(parsed.walletBlocklist).toEqual(['app.phantom'])
-    expect(parsed.gasLimitWalletAllowlist).toBe(DEFAULT_ACCESS_LIST_CONFIG.gasLimitWalletAllowlist)
-    expect(parsed.rpcFallback).toBe(false)
-  })
-})
-
 describe('resolveAccessListPolicy', () => {
   const config: AccessListConfig = {
     chains: { [ChainId.BASE]: 'ss', [ChainId.MATIC]: 'all', [ChainId.MONAD]: 'all' },
     walletBlocklist: ['app.phantom'],
     gasLimitWalletAllowlist: ['io.metamask'],
-    rpcFallback: true,
   }
   const base = {
     config,
@@ -165,7 +142,7 @@ describe('rejecting connectors memory', () => {
     expect(() => rememberRejectingConnector('app.phantom')).not.toThrow()
   })
 
-  it('remembers each connector once', () => {
+  it('remembers each connector once, never the WalletConnect id many wallets share', () => {
     const store = new Map<string, string>()
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => store.get(key) ?? null,
@@ -176,6 +153,7 @@ describe('rejecting connectors memory', () => {
     rememberRejectingConnector('app.phantom')
     rememberRejectingConnector('app.phantom')
     rememberRejectingConnector('io.safepal')
+    rememberRejectingConnector('walletConnect')
     expect([...readRejectingConnectors()]).toEqual(['app.phantom', 'io.safepal'])
   })
 

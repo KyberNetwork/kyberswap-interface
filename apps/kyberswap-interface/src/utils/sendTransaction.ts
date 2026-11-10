@@ -8,9 +8,8 @@ import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
 import {
-  AccessListConfig,
+  ACCESS_LIST_CONFIG,
   AccessListEntry,
-  DEFAULT_ACCESS_LIST_CONFIG,
   fetchAccessList,
   isAccessListRejectionError,
   readRejectingConnectors,
@@ -23,9 +22,11 @@ import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/trans
 import { Hex } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
-/** What became of the EIP-2930 access list on a transaction the policy attached one to. */
+/**
+ * What became of the EIP-2930 access list on a transaction the policy asked one for. `addresses` is 0
+ * when the RPC supplied no usable list and the transaction went out plain.
+ */
 export interface AccessListOutcome {
-  source: 'build' | 'rpc'
   addresses: number
   storageKeys: number
   estimatedWithList: boolean
@@ -92,8 +93,6 @@ export async function sendEVMTransaction({
   isSmartConnector,
   chainId,
   gasLimitMarginBps,
-  accessList: providedAccessList,
-  accessListConfig,
   isSmartSettlement,
   onRequestSignature,
 }: {
@@ -108,9 +107,7 @@ export async function sendEVMTransaction({
   isSmartConnector: boolean
   chainId: ChainId
   gasLimitMarginBps?: number
-  /** EIP-2930 list from the route build; attached as `accessListConfig` allows. */
-  accessList?: AccessListEntry[]
-  accessListConfig?: AccessListConfig
+  /** Smart Settlement swaps are what `ACCESS_LIST_CONFIG` attaches an access list to; see `resolveAccessListPolicy`. */
   isSmartSettlement?: boolean
   // Fired once the tx is fully prepared (gas + fees estimated) and we're about to
   // ask the wallet to sign — lets the UI switch from "preparing" to "awaiting
@@ -137,9 +134,8 @@ export async function sendEVMTransaction({
   }
 
   const connectorId = getAccount(wagmiConfig).connector?.id
-  const config = accessListConfig ?? DEFAULT_ACCESS_LIST_CONFIG
   const policy = resolveAccessListPolicy({
-    config,
+    config: ACCESS_LIST_CONFIG,
     chainId,
     connectorId,
     isSmartConnector,
@@ -156,16 +152,11 @@ export async function sendEVMTransaction({
   }
   const endpoints = { from: account, to: contractAddress }
 
+  // Requested up front so it resolves while the gas estimate is in flight.
+  const pendingAccessList = policy.attach
+    ? fetchAccessList(chainId, call).then(raw => sanitizeAccessList(raw, endpoints))
+    : undefined
   let accessList: AccessListEntry[] | undefined
-  let accessListSource: AccessListOutcome['source'] = 'build'
-  let pendingRpcList: Promise<AccessListEntry[] | undefined> | undefined
-  if (policy.attach) {
-    accessList = sanitizeAccessList(providedAccessList, endpoints)
-    if (!accessList && config.rpcFallback) {
-      accessListSource = 'rpc'
-      pendingRpcList = fetchAccessList(chainId, call).then(raw => sanitizeAccessList(raw, endpoints))
-    }
-  }
 
   // Route gas estimation through the rotating RPC client (round-robin across
   // healthy public endpoints, per-request timeout, Kyber RPC fallback) so a
@@ -188,7 +179,7 @@ export async function sendEVMTransaction({
   let estimatedWithList = false
   try {
     if (policy.attach && policy.estimateWithList) {
-      accessList = accessList ?? (await pendingRpcList)
+      accessList = await pendingAccessList
       if (accessList) {
         try {
           gasEstimate = await estimateGas(accessList)
@@ -204,9 +195,9 @@ export async function sendEVMTransaction({
     } else {
       // The limit is estimated without the list on purpose: a wallet that drops the list still
       // sends enough gas, and one that keeps it simply uses less.
-      const [estimate, rpcList] = await Promise.all([estimateGas(), pendingRpcList])
+      const [estimate, list] = await Promise.all([estimateGas(), pendingAccessList])
       gasEstimate = estimate
-      accessList = accessList ?? rpcList
+      accessList = list
     }
   } catch (error) {
     throw estimateError(error)
@@ -241,12 +232,12 @@ export async function sendEVMTransaction({
   // inside `request` before the prompt actually appears.)
   onRequestSignature?.()
 
+  // Reported whenever the policy asked for a list, so a chain whose RPC yields none shows up as such.
   const outcome = (rejectedByWallet: boolean): AccessListOutcome | undefined =>
-    accessList
+    policy.attach
       ? {
-          source: accessListSource,
-          addresses: accessList.length,
-          storageKeys: accessList.reduce((count, entry) => count + entry.storageKeys.length, 0),
+          addresses: accessList?.length ?? 0,
+          storageKeys: accessList?.reduce((count, entry) => count + entry.storageKeys.length, 0) ?? 0,
           estimatedWithList,
           rejectedByWallet,
         }
@@ -281,9 +272,8 @@ export async function sendEVMTransaction({
     if (!accessList || !isAccessListRejectionError(error)) throw sendError(error)
   }
 
-  // The wallet refused the list before signing. Remember that for its next transaction and send
-  // this one plain; a limit that was estimated with the list has to be estimated again without it.
-  if (connectorId) rememberRejectingConnector(connectorId)
+  // The wallet refused the list before signing, so this transaction goes out plain; a limit that
+  // was estimated with the list has to be estimated again without it.
   delete txParams.accessList
   delete txParams.type
   if (estimatedWithList) {
@@ -294,13 +284,18 @@ export async function sendEVMTransaction({
       throw estimateError(error)
     }
   }
+  let plainHash: `0x${string}`
   try {
-    return { hash: await send(), accessList: outcome(true) }
+    plainHash = await send()
   } catch (error) {
     const recovered = extractTxHashFromError(error)
-    if (recovered) return { hash: recovered, accessList: outcome(true) }
-    throw sendError(error)
+    if (!recovered) throw sendError(error)
+    plainHash = recovered
   }
+  // Remembered only once the plain transaction went through, so a failure that merely looked like a
+  // list rejection does not cost the wallet its lists for good.
+  if (connectorId) rememberRejectingConnector(connectorId)
+  return { hash: plainHash, accessList: outcome(true) }
 }
 
 function extractTxHashFromError(error: unknown): `0x${string}` | undefined {

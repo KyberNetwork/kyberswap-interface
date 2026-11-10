@@ -7,13 +7,11 @@ import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useERC8056DisplayBalance } from 'hooks/useERC8056Token'
-import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy } from 'types/route'
-import { AccessListEntry } from 'utils/accessList'
 import { isAddress, shortenAddress } from 'utils/address'
 import { swapTxValue } from 'utils/nativeErc20'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -34,7 +32,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
 
   const [allowedSlippage] = useUserSlippageTolerance()
   const [searchParams] = useSearchParams()
-  const { accessListConfig } = useKyberswapGlobalConfig()
   const { trackingHandler } = useTracking()
 
   const addTransactionWithType = useTransactionAdder()
@@ -144,12 +141,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
   )
 
   const swapCallbackForEVM = useCallback(
-    async (
-      routerAddress: string | undefined,
-      encodedSwapData: string | undefined,
-      onRequestSignature?: () => void,
-      accessList?: AccessListEntry[],
-    ) => {
+    async (routerAddress: string | undefined, encodedSwapData: string | undefined, onRequestSignature?: () => void) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
@@ -167,8 +159,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
         },
         chainId,
         gasLimitMarginBps: isSmartSettlement ? 5_000 : undefined,
-        accessList,
-        accessListConfig,
         isSmartSettlement: Boolean(isSmartSettlement),
         onRequestSignature,
       })
@@ -187,7 +177,6 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       walletKey,
       isSmartConnector,
       isSmartSettlement,
-      accessListConfig,
       trackingHandler,
       networkInfo.name,
     ],

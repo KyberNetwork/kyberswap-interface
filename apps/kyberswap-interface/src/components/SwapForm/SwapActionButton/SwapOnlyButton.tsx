@@ -208,12 +208,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           feeInfo: getFeeInfoForMixPanel(routeSummary),
         })
 
-        return swapCallback(
-          buildResult.data.routerAddress,
-          buildResult.data.data,
-          onRequestSignature,
-          buildResult.data.accessList,
-        )
+        return swapCallback(buildResult.data.routerAddress, buildResult.data.data, onRequestSignature)
       }
     }
 

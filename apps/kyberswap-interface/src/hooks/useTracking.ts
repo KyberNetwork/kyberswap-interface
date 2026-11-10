@@ -692,7 +692,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           // Access-list rollout telemetry: `retained` says whether the mined transaction still carried the
           // list the wallet was handed, which no wallet documents.
           if (arbitrary.accessList) {
-            body.access_list_source = arbitrary.accessList.source
             body.access_list_addresses = arbitrary.accessList.addresses
             body.access_list_storage_keys = arbitrary.accessList.storageKeys
             body.access_list_estimated_with_list = arbitrary.accessList.estimatedWithList
