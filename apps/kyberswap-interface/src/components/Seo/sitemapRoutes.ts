@@ -64,6 +64,7 @@ export const SITEMAP_PAGE_ROUTES = [
   ...SITEMAP_SWAP_CHAIN_SLUGS.map(chain => `/swap/${chain}`),
   ...SITEMAP_LIMIT_CHAIN_SLUGS.map(chain => `/limit/${chain}`),
   ...SITEMAP_STOP_MARKET_CHAIN_SLUGS.map(chain => `/stop-market/${chain}`),
+  '/cross-chain',
   '/earn',
   '/earn/pools',
   '/earn/positions',
