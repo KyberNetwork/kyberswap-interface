@@ -4,17 +4,12 @@ import { useGetLOConfigQuery } from 'services/limitOrder'
 
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { isActiveStatus } from 'components/LimitOrder/utils'
+import { LIMIT_ORDER_ABI } from 'constants/abis'
 import { useActiveWeb3React } from 'hooks'
+import { useReadingContract } from 'hooks/useContract'
+import { useSingleCallResult } from 'state/multicall/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
-import { OrderNonces, subscribeCancellingOrders } from 'utils/firebase'
-
-type CancellingOrders = {
-  orderIds: number[]
-  noncesByContract: OrderNonces
-}
-
-const EMPTY_CANCELLING_ORDERS: CancellingOrders = { orderIds: [], noncesByContract: {} }
 
 const mergeOrderIds = (...orderIdsList: number[][]) => Array.from(new Set(orderIdsList.flat()))
 
@@ -24,6 +19,22 @@ const getCancelOrderIdsFromTransaction = (transaction: TransactionDetails) => {
   return arbitrary?.orderId ? [arbitrary.orderId] : orderIds
 }
 
+/**
+ * Whether a cancel-all has already voided the order on chain: it raises the maker's nonce on the contract, and
+ * every order signed with a lower nonce stops being fillable. The order list reports such an order as active
+ * until the cancel is indexed.
+ */
+export const isCancelledByNonce = (
+  order: Pick<LimitOrder, 'status' | 'nonce' | 'contractAddress'>,
+  contract: string,
+  makerNonce: bigint | undefined,
+) =>
+  makerNonce !== undefined &&
+  !!contract &&
+  isActiveStatus(order.status) &&
+  order.contractAddress?.toLowerCase() === contract.toLowerCase() &&
+  BigInt(order.nonce) < makerNonce
+
 const isTransactionPendingOrSuccessful = (transaction: TransactionDetails) =>
   !transaction.receipt || transaction.receipt.status === 1 || typeof transaction.receipt.status === 'undefined'
 
@@ -31,14 +42,13 @@ export const useCancellingOrders = ({ chainId }: { chainId: ChainId }) => {
   const { account } = useActiveWeb3React()
   const transactions = useAllTransactions(true)
 
-  const scopeKey = `${account?.toLowerCase() || ''}:${chainId}`
-  const [subscription, setSubscription] = useState({ scopeKey, orders: EMPTY_CANCELLING_ORDERS })
-  const cancellingOrders = subscription.scopeKey === scopeKey ? subscription.orders : EMPTY_CANCELLING_ORDERS
   const [localCancellingOrdersIds, setLocalCancellingOrdersIds] = useState<number[]>([])
 
   const { currentData } = useGetLOConfigQuery(chainId)
 
   const contract = currentData?.contract || ''
+  const loContract = useReadingContract(contract, LIMIT_ORDER_ABI, chainId)
+  const makerNonce = useSingleCallResult(loContract, 'nonce', [account ?? undefined]).result?.[0] as bigint | undefined
 
   const transactionOrderIds = useMemo(() => {
     const cancelTransactions = Object.values(transactions ?? {})
@@ -65,50 +75,29 @@ export const useCancellingOrders = ({ chainId }: { chainId: ChainId }) => {
   }, [account, chainId])
 
   useEffect(() => {
-    let active = true
-    setSubscription({ scopeKey, orders: EMPTY_CANCELLING_ORDERS })
-    if (!account) return
-
-    const unsubscribe = subscribeCancellingOrders(account, chainId, data => {
-      if (!active) return
-      setSubscription({
-        scopeKey,
-        orders: {
-          orderIds: data?.orderIds ?? [],
-          noncesByContract: data?.noncesByContract ?? {},
-        },
-      })
-    })
-    return () => {
-      active = false
-      unsubscribe?.()
-    }
-  }, [account, chainId, scopeKey])
-
-  useEffect(() => {
     setLocalCancellingOrdersIds(current => current.filter(orderId => !transactionOrderIds.all.includes(orderId)))
   }, [transactionOrderIds.all])
 
   const mergedCancellingOrdersIds = useMemo(
-    () => mergeOrderIds(cancellingOrders.orderIds, transactionOrderIds.cancelling, localCancellingOrdersIds),
-    [cancellingOrders.orderIds, localCancellingOrdersIds, transactionOrderIds.cancelling],
+    () => mergeOrderIds(transactionOrderIds.cancelling, localCancellingOrdersIds),
+    [localCancellingOrdersIds, transactionOrderIds.cancelling],
   )
 
   const isOrderCancelling = useCallback(
     (order: LimitOrder | undefined) => {
       if (!order) return false
-      const nonces = cancellingOrders.noncesByContract[contract] || []
-      const { status, nonce, operatorSignatureExpiredAt, id } = order
+      const { status, operatorSignatureExpiredAt, id } = order
 
       const isCancellingHardCancel =
-        isActiveStatus(status) && (nonces?.includes?.(nonce) || mergedCancellingOrdersIds.includes(id))
+        (isActiveStatus(status) && mergedCancellingOrdersIds.includes(id)) ||
+        isCancelledByNonce(order, contract, makerNonce)
 
       const isCancellingGaslessCancel =
         status === LimitOrderStatus.CANCELLING && (operatorSignatureExpiredAt || 0) * 1000 - Date.now() > 0
 
       return isCancellingHardCancel || isCancellingGaslessCancel
     },
-    [cancellingOrders.noncesByContract, contract, mergedCancellingOrdersIds],
+    [contract, makerNonce, mergedCancellingOrdersIds],
   )
 
   return useMemo(
