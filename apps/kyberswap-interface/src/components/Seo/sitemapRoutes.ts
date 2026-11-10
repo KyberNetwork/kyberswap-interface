@@ -43,6 +43,18 @@ export const SITEMAP_LIMIT_CHAIN_SLUGS = [
   'elysium',
 ] as const
 
+export const SITEMAP_STOP_MARKET_CHAIN_SLUGS = [
+  'ethereum',
+  'arbitrum',
+  'base',
+  'optimism',
+  'polygon',
+  'bnb',
+  'avalanche',
+  'robinhood',
+  'hyperevm',
+] as const
+
 /**
  * The bounded landing-page inventory advertised by the checked-in public sitemap.
  * Runtime chain routes outside this matrix remain available but are intentionally not promoted here.
@@ -51,8 +63,7 @@ export const SITEMAP_PAGE_ROUTES = [
   '/',
   ...SITEMAP_SWAP_CHAIN_SLUGS.map(chain => `/swap/${chain}`),
   ...SITEMAP_LIMIT_CHAIN_SLUGS.map(chain => `/limit/${chain}`),
-  // Stop market order is built but not launched, so its routes resolve without being advertised for indexing.
-  // Add them here when the feature goes live.
+  ...SITEMAP_STOP_MARKET_CHAIN_SLUGS.map(chain => `/stop-market/${chain}`),
   '/cross-chain',
   '/earn',
   '/earn/pools',
