@@ -11,6 +11,7 @@ import { useSwapFormPair } from 'components/SwapForm/hooks/useSwapFormPair'
 import { TAB, Tabs } from 'components/TradeLayout/Tabs'
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import SwapRoute from 'pages/Swap/SwapRoute'
+import { LegacyCrossChainRedirect } from 'pages/Swap/redirects'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
 import { NonEvmChain } from 'types/crossChain'
@@ -84,7 +85,7 @@ function Page({ getPairLocation }: { getPairLocation?: Parameters<typeof useSwap
   return (
     <>
       <Tabs activeTab={activeTab} onTabChange={() => undefined} />
-      <output>{location.pathname + location.search}</output>
+      <output>{location.pathname + location.search + location.hash}</output>
       <span data-output-symbol>{pair.currencyOut?.symbol}</span>
       <span data-loading>{String(pair.isOutputCurrencyLoading)}</span>
       <span data-pair>{`${pair.inputChain}:${pair.inputId} → ${pair.outputChain}:${pair.outputId}`}</span>
@@ -101,19 +102,20 @@ function Page({ getPairLocation }: { getPairLocation?: Parameters<typeof useSwap
 
 let container: HTMLDivElement
 let root: ReturnType<typeof createRoot>
-const mount = async (url: string) => {
+const mount = async (url: string, previousUrl?: string) => {
   container = document.createElement('div')
   document.body.append(container)
   root = createRoot(container)
-  await render(url)
+  await render(url, previousUrl)
 }
-const render = async (url: string) => {
+const render = async (url: string, previousUrl?: string) => {
   await act(async () => {
     root.render(
       <I18nProvider i18n={i18n}>
-        <MemoryRouter initialEntries={[url]}>
+        <MemoryRouter initialEntries={previousUrl ? [previousUrl, url] : [url]} initialIndex={previousUrl ? 1 : 0}>
           <Routes>
             <Route path="/swap" element={<SwapRoute />} />
+            <Route path="/cross-chain" element={<LegacyCrossChainRedirect />} />
             <Route path="/swap/:network/:currency?" element={<SwapRoute />} />
             <Route path="/limit/:network/:currency?" element={<Page />} />
             <Route
@@ -146,6 +148,37 @@ afterEach(async () => {
 
 // Exercise the real pair reader, selection hook and tab navigation with a wallet on another chain.
 describe('unified swap pair navigation', () => {
+  it.each(['1', NonEvmChain.Solana])('replaces legacy cross-chain links and preserves the pair for %s', async from => {
+    const tokenIn = from === '1' ? 'ETH' : 'CaseSensitiveToken'
+    const search = `?from=${from}&to=8453&tokenIn=${tokenIn}&tokenOut=${usdc.address}&input=12&utm_source=legacy`
+    const previousUrl = '/swap/ethereum/eth-to-usdc'
+    await mount(`/cross-chain${search}#history`, previousUrl)
+
+    expect(url()).toBe(`/swap${search}#history`)
+    expect(pairText()).toBe(`${from}:${tokenIn} → 8453:${usdc.address}`)
+    await click('Back')
+    expect(url()).toBe(previousUrl)
+  })
+
+  it('uses the legacy cross-chain pair when embedded query fields are also present', async () => {
+    await mount(
+      `/cross-chain?from=1&to=8453&tokenIn=ETH&tokenOut=${usdc.address}&chainId=10&toChain=1&inputCurrency=DAI&outputCurrency=ETH&input=12`,
+    )
+    expect(url()).toBe(`/swap?from=1&to=8453&tokenIn=ETH&tokenOut=${usdc.address}&input=12`)
+    expect(pairText()).toBe(`1:ETH → 8453:${usdc.address}`)
+  })
+
+  it('normalizes a same-chain legacy pair to the unified network path', async () => {
+    await mount(`/cross-chain?from=8453&to=8453&tokenIn=ETH&tokenOut=${usdc.address}&input=12#history`)
+    expect(url()).toBe(`/swap/base/eth-to-${usdc.address.toLowerCase()}?input=12#history`)
+    expect(pairText()).toBe(`8453:eth → 8453:${usdc.address}`)
+  })
+
+  it('redirects a bare legacy cross-chain link to the default swap network', async () => {
+    await mount('/cross-chain')
+    expect(url()).toBe('/swap/ethereum')
+  })
+
   it('keeps the selected pair and network through Swap → Limit → Swap', async () => {
     await mount(`/swap/base/${weth.address}-to-usdc?input=12`)
     const pair = pairText()
