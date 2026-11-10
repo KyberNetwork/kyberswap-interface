@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Checked-in landing-page sitemap. Vite copies public/ into build/ unchanged; tests keep these 50 URLs
+  Checked-in landing-page sitemap. Vite copies public/ into build/ unchanged; tests keep these 59 URLs
   synchronized with the prerender inventory.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -125,6 +125,35 @@
   </url>
   <url>
     <loc>https://kyberswap.com/limit/elysium</loc>
+  </url>
+
+  <!-- Stop Market - per chain -->
+  <url>
+    <loc>https://kyberswap.com/stop-market/ethereum</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/arbitrum</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/base</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/optimism</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/polygon</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/bnb</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/avalanche</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/robinhood</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/stop-market/hyperevm</loc>
   </url>
 
   <!-- Cross-chain and Earn -->

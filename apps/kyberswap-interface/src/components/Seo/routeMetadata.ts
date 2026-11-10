@@ -54,7 +54,7 @@ const DEFAULT_LIMIT_SEO_COPY: SeoCopy = { title: LIMIT_TITLE, description: LIMIT
 // Sitemap: Stop Market Order - per chain
 const STOP_MARKET_TITLE = 'Stop Market Orders | KyberSwap'
 const STOP_MARKET_DESCRIPTION =
-  'Set a trigger price and KyberSwap sells automatically at the best available market price when the Oracle price reaches it. Free to place, tokens stay in your wallet.'
+  'Trigger a market swap when price reaches your level. Fully self-custodial, powered by independent oracle feeds. Gasless submission, free to cancel.'
 const DEFAULT_STOP_MARKET_SEO_COPY: SeoCopy = { title: STOP_MARKET_TITLE, description: STOP_MARKET_DESCRIPTION }
 
 // Sitemap: Cross-chain and Earn
@@ -123,7 +123,9 @@ const getSwapSeoCopy = (networkRoute: string): SeoCopy => {
   return networkName
     ? {
         title: `KyberSwap - Swap, Trade & Earn Tokens on ${networkName} at the Best Rate`,
-        description: SWAP_DESCRIPTION,
+        description: `Swap tokens on ${networkName} at the best rate and settlement with KyberSwap. ${
+          supportsLimitOrder(networkRoute) ? 'Limit orders and cross-chain swaps' : 'Cross-chain swaps'
+        } also available, all in one place.`,
       }
     : DEFAULT_SWAP_SEO_COPY
 }
@@ -152,8 +154,8 @@ const getStopMarketSeoCopy = (networkRoute: string): SeoCopy => {
   const networkName = getNetworkNameByRoute(networkRoute)
   return networkName
     ? {
-        title: `Stop Market Orders - Protect Your Positions on ${networkName} | KyberSwap`,
-        description: STOP_MARKET_DESCRIPTION,
+        title: `Stop Market Orders - Set Your Exit Price on ${networkName} | KyberSwap`,
+        description: `Trigger a market swap when price reaches your level on ${networkName}. Fully self-custodial, powered by independent oracle feeds. Gasless submission, free to cancel.`,
       }
     : DEFAULT_STOP_MARKET_SEO_COPY
 }

@@ -12,8 +12,6 @@ import { renderRouteHeadHtml, renderTradeShellHeadHtml } from './seoHead'
 import { SITEMAP_LIMIT_CHAIN_SLUGS, SITEMAP_PAGE_ROUTES, SITEMAP_SWAP_CHAIN_SLUGS } from './sitemapRoutes'
 
 const SITE_URL = 'https://kyberswap.com'
-const SWAP_DESCRIPTION =
-  'Swap any token at the best rate across chains. An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal slippage.'
 const LIMIT_DESCRIPTION =
   'Set a target price and your order settles on-chain automatically when the market reaches it. Gasless submission, no slippage, zero fee for placing order.'
 const APPROVED_SWAP_SUBJECTS = [
@@ -121,7 +119,7 @@ describe('SEO contract', () => {
     it('keeps the approved inventory boundaries', () => {
       expect(SITEMAP_SWAP_CHAIN_SLUGS).toHaveLength(20)
       expect(SITEMAP_LIMIT_CHAIN_SLUGS).toHaveLength(18)
-      expect(SITEMAP_PAGE_ROUTES).toHaveLength(50)
+      expect(SITEMAP_PAGE_ROUTES).toHaveLength(59)
       expect(new Set(SITEMAP_PAGE_ROUTES).size).toBe(SITEMAP_PAGE_ROUTES.length)
       expect(SITEMAP_PAGE_ROUTES[0]).toBe('/')
       expect(SITEMAP_SWAP_CHAIN_SLUGS.at(-1)).toBe('elysium')
@@ -165,7 +163,9 @@ describe('SEO contract', () => {
         const networkName = NETWORKS_INFO[chainId].name
         expect(resolveRouteMetadata(`/swap/${chain}`, ''), chain).toMatchObject({
           title: `KyberSwap - Swap, Trade & Earn Tokens on ${networkName} at the Best Rate`,
-          description: SWAP_DESCRIPTION,
+          description: `Swap tokens on ${networkName} at the best rate and settlement with KyberSwap. ${
+            chain === 'etherlink' ? 'Cross-chain swaps' : 'Limit orders and cross-chain swaps'
+          } also available, all in one place.`,
         })
       }
 
@@ -344,6 +344,7 @@ describe('SEO contract', () => {
       expect(nginx).toContain('return 301 $swap_intent_redirect$is_args$args;')
       expect(nginx).toContain('~^/swap(?:/|$) /swap/index.html;')
       expect(nginx).toContain('~^/limit(?:/|$) /limit/index.html;')
+      expect(nginx).toContain('~^/stop-market(?:/|$) /stop-market/index.html;')
       expect(nginx).toContain('try_files $uri/index.html $uri $spa_fallback =404;')
       expect(dockerfile).toContain('COPY ./build/swap-intent-redirects.map /etc/nginx/swap-intent-redirects.map')
       expect(prerender).toContain('writeSwapIntentRedirectMap(prerenderManifest.swapIntentRedirects)')
