@@ -21,6 +21,7 @@ import {
 import { AnnouncementTemplateSmartExit } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { APP_PATHS } from 'constants/index'
 import { EARN_DEXES, SMART_EXIT_DEX_TYPE_TO_EXCHANGE } from 'pages/Earns/constants'
 import { getDexVersion } from 'pages/Earns/utils/position'
@@ -81,7 +82,7 @@ const InboxItemSmartExit = ({
             size={16}
           />
           <PrimaryText className="text-sm">
-            {position.pool.token0.symbol}/{position.pool.token1.symbol}
+            <TokenSymbol symbol={position.pool.token0.symbol} />/<TokenSymbol symbol={position.pool.token1.symbol} />
           </PrimaryText>
 
           <div className="flex items-center gap-1 rounded-xl bg-white/[0.05] px-2 py-1">

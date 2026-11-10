@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
+import { ChainFeatureMap } from 'constants/chainFeature'
 import {
   abstract,
   arbitrum,
@@ -10,6 +11,7 @@ import {
   bera,
   blast,
   bnb,
+  elysium,
   ethereum,
   etherlink,
   fantom,
@@ -64,6 +66,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.RISE]: rise,
   [ChainId.ARC]: arc,
   [ChainId.ABSTRACT]: abstract,
+  [ChainId.ELYSIUM]: elysium,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -83,27 +86,48 @@ export const isSupportLimitOrder = (chainId: ChainId, envKey: EnvKeys = ENV_KEY)
   return limitOrder === '*' || (limitOrder || []).includes(envKey)
 }
 
+/** What a chain still needs before Stop Market can be turned on for it. */
+const NEEDS_SERVICE_SUPPORT = 'needs the conditional-order service to accept the chain'
+
 /**
  * Stop market order runs on a fixed chain set instead of the per-chain, per-env `limitOrder` config.
  *
- * Every entry must be one the conditional-order service accepts: it rejects an unknown chain with
- * `chain id is not supported`, and one bad id fails the whole order-list request, so listing a chain
- * it does not know breaks the table for every chain at once.
- * Chains it accepts but has no oracle feeds for stay in — the form degrades to "not available yet".
+ * Every chain turned on must be one the conditional-order service accepts: it answers an unknown
+ * chain with `chain id is not supported`, so the order table and form fail on that chain.
+ * Chains it accepts but has no oracle feeds for stay on — the form degrades to "not available yet".
  */
-const STOP_MARKET_NETWORKS: ChainId[] = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM,
-  ChainId.BSCMAINNET,
-  ChainId.OPTIMISM,
-  ChainId.BASE,
-  ChainId.MATIC,
-  ChainId.AVAXMAINNET,
-  ChainId.ROBINHOOD,
-  ChainId.HYPEREVM,
-]
+const STOP_MARKET_BY_CHAIN: ChainFeatureMap = {
+  [ChainId.MAINNET]: true,
+  [ChainId.ARBITRUM]: true,
+  [ChainId.BSCMAINNET]: true,
+  [ChainId.OPTIMISM]: true,
+  [ChainId.BASE]: true,
+  [ChainId.MATIC]: true,
+  [ChainId.AVAXMAINNET]: true,
+  [ChainId.ROBINHOOD]: true,
+  [ChainId.HYPEREVM]: true,
+  [ChainId.GÖRLI]: 'testnet',
+  [ChainId.FANTOM]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.ZKSYNC]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.LINEA]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.SCROLL]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.BLAST]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.MANTLE]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.SONIC]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.BERA]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.RONIN]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.UNICHAIN]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.PLASMA]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.ETHERLINK]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.MONAD]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.MEGAETH]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.RISE]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.ARC]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.ELYSIUM]: NEEDS_SERVICE_SUPPORT,
+  [ChainId.ABSTRACT]: 'cross-chain only',
+}
 
-export const isSupportStopMarket = (chainId: ChainId): boolean => STOP_MARKET_NETWORKS.includes(chainId)
+export const isSupportStopMarket = (chainId: ChainId): boolean => STOP_MARKET_BY_CHAIN[chainId] === true
 
 // Available to cross-chain wallets and token reads, but not single-chain products.
 export const CROSS_CHAIN_ONLY_NETWORKS: ChainId[] = [ChainId.ABSTRACT]
@@ -134,6 +158,7 @@ export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.ROBINHOOD,
   ChainId.RISE,
   ChainId.ARC,
+  ChainId.ELYSIUM,
 ]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {

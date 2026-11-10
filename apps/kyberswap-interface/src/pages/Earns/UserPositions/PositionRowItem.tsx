@@ -9,6 +9,7 @@ import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { PAIR_CATEGORY } from 'constants/trade'
@@ -185,7 +186,7 @@ export default function PositionRowItem({
             <TokenLogo src={chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
           <span className={cn('-ml-2 max-w-[160px] truncate', upToSmall ? 'text-[15px]' : 'text-[16px]')}>
-            {token0.symbol}/{token1.symbol}
+            <TokenSymbol symbol={token0.symbol} />/<TokenSymbol symbol={token1.symbol} />
           </span>
           {!isUnfinalized && (
             <Badge

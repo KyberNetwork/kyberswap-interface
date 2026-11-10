@@ -16,6 +16,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import InfoHelper from 'components/InfoHelper'
 import { IconWrapper } from 'components/PageWrappers'
 import { RowBetween, RowFixed } from 'components/Row'
+import TokenSymbol from 'components/TokenSymbol'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { ONE_BIPS } from 'constants/trade'
@@ -118,7 +119,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
           <RowFixed>
             <DoubleCurrencyLogo currency0={native0} currency1={native1} margin={true} size={20} />
             <span className="text-xl font-medium">
-              {native0?.symbol}/{native1?.symbol}
+              <TokenSymbol symbol={native0?.symbol} />/<TokenSymbol symbol={native1?.symbol} />
             </span>
           </RowFixed>
           <RowFixed>
@@ -216,7 +217,8 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
             <DoubleCurrencyLogo currency0={native0} currency1={native1} size={16} />
             <UppercaseText className="ml-1">
               <span className="text-xs font-medium text-subText">
-                {native0?.symbol}/{native1?.symbol} <Trans>LP Tokens</Trans>
+                <TokenSymbol symbol={native0?.symbol} />/<TokenSymbol symbol={native1?.symbol} />{' '}
+                <Trans>LP Tokens</Trans>
               </span>
             </UppercaseText>
           </RowFixed>

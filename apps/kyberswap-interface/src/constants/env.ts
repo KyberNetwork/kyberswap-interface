@@ -82,16 +82,8 @@ type FirebaseConfig = {
   measurementId?: string
 }
 
-export const FIREBASE: { [key in EnvKeys]: { DEFAULT: FirebaseConfig; LIMIT_ORDER?: FirebaseConfig } } = {
+export const FIREBASE: { [key in EnvKeys]: { DEFAULT: FirebaseConfig } } = {
   development: {
-    LIMIT_ORDER: {
-      apiKey: 'AIzaSyBHRrinrQ3CXVrevZN442fjG0EZ-nYNNaU',
-      authDomain: 'limit-order-dev.firebaseapp.com',
-      projectId: 'limit-order-dev',
-      storageBucket: 'limit-order-dev.appspot.com',
-      messagingSenderId: '522790089501',
-      appId: '1:522790089501:web:524403003ae65c09c727f4',
-    },
     DEFAULT: {
       apiKey: 'AIzaSyDszHtJ4CJq0mwjBJ1pTt5OOzG5tiooEsg',
       authDomain: 'test-bace2.firebaseapp.com',
@@ -103,14 +95,6 @@ export const FIREBASE: { [key in EnvKeys]: { DEFAULT: FirebaseConfig; LIMIT_ORDE
     },
   },
   staging: {
-    LIMIT_ORDER: {
-      apiKey: 'AIzaSyDVtU3R0ZWgO4YzKbvjP372E8sgvz1vAqc',
-      authDomain: 'staging-339203.firebaseapp.com',
-      projectId: 'staging-339203',
-      storageBucket: 'staging-339203.appspot.com',
-      messagingSenderId: '641432115631',
-      appId: '1:641432115631:web:1ae29340e7e34e0c08f75a',
-    },
     DEFAULT: {
       apiKey: 'AIzaSyAXTm2d_yT2r_hP-WJk68Aj_aGZOqPYIK8',
       authDomain: 'notification---staging.firebaseapp.com',

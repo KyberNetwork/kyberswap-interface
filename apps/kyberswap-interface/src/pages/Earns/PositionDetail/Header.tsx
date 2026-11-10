@@ -11,6 +11,7 @@ import CopyHelper from 'components/Copy'
 import { ListingPageNavigateButton } from 'components/Listing/Page'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { TELEGRAM_BOT_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
@@ -127,7 +128,7 @@ const PositionDetailHeader = () => {
                     <TokenLogo src={position?.token1.logo} size={18} translateLeft />
                   </div>
                   <span className="text-sm font-medium text-text">
-                    {position?.token0.symbol}/{position?.token1.symbol}
+                    <TokenSymbol symbol={position?.token0.symbol} />/<TokenSymbol symbol={position?.token1.symbol} />
                   </span>
                   <span className="text-sm text-subText">{shortenAddress(position?.pool.address || '', 4)}</span>
                   <CopyHelper size={14} margin="0" toCopy={position?.pool.address || ''} />
@@ -161,7 +162,7 @@ const PositionDetailHeader = () => {
                   <TokenLogo src={position?.chain.logo} size={16} translateLeft translateTop />
                 </ImageContainer>
                 <span className="-ml-2.5 whitespace-nowrap text-2xl font-medium leading-7 text-text">
-                  {position?.token0.symbol}/{position?.token1.symbol}
+                  <TokenSymbol symbol={position?.token0.symbol} />/<TokenSymbol symbol={position?.token1.symbol} />
                 </span>
               </div>
             </Link>

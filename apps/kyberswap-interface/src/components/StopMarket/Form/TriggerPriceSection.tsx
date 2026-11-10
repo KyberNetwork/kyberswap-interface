@@ -12,6 +12,7 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { TriggerDistance } from 'components/StopMarket/TriggerDistance'
 import { TRIGGER_PERCENT_PRESETS } from 'components/StopMarket/constants'
+import TokenSymbol from 'components/TokenSymbol'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -205,7 +206,7 @@ const TriggerPriceSection = ({
               className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText"
               data-testid="stop-market-trigger-unit"
             >
-              {quoteCurrency.symbol}/{baseCurrency.symbol}
+              <TokenSymbol symbol={quoteCurrency.symbol} />/<TokenSymbol symbol={baseCurrency.symbol} />
             </span>
             <button
               type="button"

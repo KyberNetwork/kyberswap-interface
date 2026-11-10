@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 
 import TokenLogo from 'components/TokenLogo'
+import TokenSymbol from 'components/TokenSymbol'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import {
   getFeeYieldCondition,
@@ -45,7 +46,8 @@ export default function Condition({
     return (
       <>
         <Trans>Pool price is</Trans> {displayIsLte ? '≤' : '≥'}{' '}
-        {formatDisplayNumber(displayValue, { significantDigits: 6 })} {baseSymbol}/{quoteSymbol}
+        {formatDisplayNumber(displayValue, { significantDigits: 6 })} <TokenSymbol symbol={baseSymbol} />/
+        <TokenSymbol symbol={quoteSymbol} />
       </>
     )
   }
@@ -61,7 +63,7 @@ export default function Condition({
             <TokenLogo src={position.chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
           <span>
-            {position.token0.symbol}/{position.token1.symbol}
+            <TokenSymbol symbol={position.token0.symbol} />/<TokenSymbol symbol={position.token1.symbol} />
           </span>
           <Badge>Fee {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%</Badge>
         </div>

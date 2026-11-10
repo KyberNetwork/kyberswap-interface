@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { type Chain as ViemChain } from 'viem'
 import { arbitrum, base, bsc, hyperEvm, mainnet } from 'viem/chains'
 
-import { robinhood } from 'components/Web3Provider'
+import { elysium, robinhood } from 'components/Web3Provider'
 import type {
   BuildResult,
   ChainName,
@@ -19,6 +19,7 @@ const kyberCrossChains: Record<ChainName, ViemChain & { id: ChainId }> = {
   bsc,
   robinhood,
   hyperevm: hyperEvm,
+  elysium,
 }
 
 export const kyberCrossSupportedChains = Object.values(kyberCrossChains).map(chain => chain.id)

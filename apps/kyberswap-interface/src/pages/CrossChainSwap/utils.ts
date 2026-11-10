@@ -51,6 +51,10 @@ export const CANONICAL_TOKENS: Record<string, Record<number, string>> = {
     [ChainId.ARC]: '0x128cC466B61f542da60c70e3aA11c10e19B84EDB',
     [ChainId.ABSTRACT]: WETH[ChainId.ABSTRACT].address,
   },
+  HYPE: {
+    [ChainId.HYPEREVM]: WETH[ChainId.HYPEREVM].address,
+    [ChainId.ELYSIUM]: WETH[ChainId.ELYSIUM].address,
+  },
   BNB: {
     [ChainId.BSCMAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
     [ChainId.MAINNET]: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
