@@ -12,7 +12,7 @@ import { StaticRouter } from 'react-router-dom/server'
 import { WagmiProvider } from 'wagmi'
 
 import RouteFallback from 'components/RouteFallback'
-import { CURATED_SWAP_INTENT_REDIRECTS } from 'components/Seo/curatedSwapCatalog'
+import { CURATED_SWAP_INTENT_REDIRECTS, CURATED_SWAP_PAIR_ROUTES } from 'components/Seo/curatedSwapCatalog'
 import { SITEMAP_PAGE_ROUTES } from 'components/Seo/sitemapRoutes'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS, KYBERSWAP_URL } from 'constants/index'
@@ -37,12 +37,10 @@ export { renderRouteHeadHtml, renderTradeShellHeadHtml } from 'components/Seo/se
 const DEFAULT_NETWORK_ROUTE = NETWORKS_INFO[ChainId.MAINNET].route
 const ROOT_SOURCE_ROUTE = `${APP_PATHS.SWAP}/${DEFAULT_NETWORK_ROUTE}`
 
-const distinctPageRoutes = SITEMAP_PAGE_ROUTES.filter(
-  route =>
-    route !== '/' &&
-    !route.startsWith(`${APP_PATHS.SWAP}/`) &&
-    !route.startsWith(`${APP_PATHS.LIMIT}/`) &&
-    !route.startsWith(`${APP_PATHS.STOP_MARKET}/`),
+// Use the same bounded catalogs as both public sitemaps. Dynamic URLs outside these inventories
+// continue to use the shared product shells below; `/` keeps its dedicated index-root.html artifact.
+const distinctPageRoutes = [...new Set([...SITEMAP_PAGE_ROUTES, ...CURATED_SWAP_PAIR_ROUTES])].filter(
+  route => route !== '/',
 )
 
 export const prerenderManifest = {

@@ -3,8 +3,8 @@
 // Runs AFTER `vite build` (which produces build/index.html, the template + client assets).
 // It loads src/entry-server.tsx through Vite's own SSR transform pipeline (ssrLoadModule) — the
 // same path the Vitest smoke test uses — so SVG `?react`, lingui `.po`, CSS, path aliases and
-// `import.meta.env.SSR` all work without a separate SSR bundle. It renders distinct static pages and
-// one shared shell per Swap/Limit product. nginx serves these artifacts directly; there is no Node
+// `import.meta.env.SSR` all work without a separate SSR bundle. It renders each sitemap URL and retains
+// shared product shells for other dynamic URLs. nginx serves these artifacts directly; there is no Node
 // runtime in production.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, extname, resolve } from 'node:path'
