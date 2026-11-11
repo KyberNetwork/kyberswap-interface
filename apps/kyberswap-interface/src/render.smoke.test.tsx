@@ -40,7 +40,6 @@ describe('SSR render smoke', () => {
     expect(html).toContain('id="swap-currency-input"')
     expect(html).toContain('id="swap-currency-output"')
     expect(html).toContain('<aside')
-    expect(html).toContain('Swap between tokens on different chains')
     expect(html).toContain('Swap')
     expect(html).not.toContain('id="cross-chain-nav-link"')
     expect(html).not.toContain('Swap EVM')
@@ -176,7 +175,12 @@ describe('SSR render smoke', () => {
       { outputPath: 'limit/index.html', product: 'limit', sourceRoute: '/limit/ethereum' },
       { outputPath: 'stop-market/index.html', product: 'stop-market', sourceRoute: '/stop-market/ethereum' },
     ])
-    expect(prerenderManifest.distinctPages).toHaveLength(10)
+    expect(prerenderManifest.distinctPages).toHaveLength(11)
+    expect(prerenderManifest.distinctPages).toContainEqual({
+      pathname: '/cross-chain',
+      sourceRoute: '/cross-chain',
+      outputPath: 'cross-chain/index.html',
+    })
     expect(
       prerenderManifest.distinctPages.every(
         ({ pathname }) =>
