@@ -40,16 +40,18 @@ const MarketRateValue = ({
   currencyIn,
   currencyOut,
   marketPrice,
+  defaultShowInverted,
 }: {
   currencyIn?: Currency
   currencyOut?: Currency
   marketPrice?: BaseTradeInfo
+  defaultShowInverted: boolean
 }) => {
-  const [showInverted, setShowInverted] = useState(false)
-  const baseCurrency = showInverted ? currencyIn : currencyOut
-  const quoteCurrency = showInverted ? currencyOut : currencyIn
-  const rate = showInverted ? marketPrice?.marketRate : marketPrice?.invertRate
-  const usdValue = showInverted ? marketPrice?.priceUsdIn : marketPrice?.priceUsdOut
+  const [showInverted, setShowInverted] = useState(defaultShowInverted)
+  const baseCurrency = showInverted ? currencyOut : currencyIn
+  const quoteCurrency = showInverted ? currencyIn : currencyOut
+  const rate = showInverted ? marketPrice?.invertRate : marketPrice?.marketRate
+  const usdValue = showInverted ? marketPrice?.priceUsdOut : marketPrice?.priceUsdIn
 
   if (!baseCurrency || !quoteCurrency) return <span>--</span>
 
@@ -73,6 +75,7 @@ const MarketRateValue = ({
 
 type Props = {
   order: LimitOrderCreateContext
+  showInvertedRate: boolean
   isOpen: boolean
   needsWrap?: boolean
   onDismiss?: () => void
@@ -80,7 +83,15 @@ type Props = {
   warnings: CreateOrderWarning[]
 }
 
-const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit, warnings }: Props) => {
+const CreateOrderConfirmModal = ({
+  order,
+  showInvertedRate,
+  isOpen,
+  needsWrap,
+  onDismiss,
+  onSubmit,
+  warnings,
+}: Props) => {
   const { currencyIn, currencyOut, inputAmount, outputAmount, expiredAt, rateInfo, tradeInfo, deltaRate } = order
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = Number(deltaRate.rawPercent) < WORSE_PRICE_DIFF_THRESHOLD
@@ -123,13 +134,22 @@ const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit
 
         <Stack className="gap-4">
           <OrderSummary
+            key={`${isOpen}-${showInvertedRate}`}
+            defaultShowInverted={showInvertedRate}
             inputCurrency={inputAmount ? <TokenAmountValue currency={currencyIn} amount={inputAmount} /> : null}
             outputCurrency={outputAmount ? <TokenAmountValue currency={currencyOut} amount={outputAmount} /> : null}
             currencyIn={currencyIn}
             currencyOut={currencyOut}
             rateInfo={rateInfo}
             expires={<span>{dayjs(expiredAt).format('DD/MM/YYYY HH:mm')}</span>}
-            marketRate={<MarketRateValue marketPrice={tradeInfo} currencyIn={currencyIn} currencyOut={currencyOut} />}
+            marketRate={
+              <MarketRateValue
+                defaultShowInverted={showInvertedRate}
+                marketPrice={tradeInfo}
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+              />
+            }
           />
 
           {warnings.length > 0 && (

@@ -12,12 +12,13 @@ type CreateOrderController = ReturnType<typeof useCreateLimitOrder>
 
 type CreateOrderFlowProps = {
   order: LimitOrderCreateContext
+  showInvertedRate: boolean
   isOpen: boolean
   onDismiss?: () => void
   createOrder: CreateOrderController
 }
 
-const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderFlowProps) => {
+const CreateOrderFlow = ({ order, showInvertedRate, isOpen, onDismiss, createOrder }: CreateOrderFlowProps) => {
   const navigateToOrders = useOrderListNavigation()
   const { currencyIn, currencyOut, chainId } = order
   const processingState = useProcessingState<ProcessingOrderStep>()
@@ -48,6 +49,7 @@ const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderF
     <>
       <CreateOrderConfirmModal
         order={order}
+        showInvertedRate={showInvertedRate}
         isOpen={isOpen}
         needsWrap={createOrder.processing.steps.includes('wrap')}
         onDismiss={onDismiss}
