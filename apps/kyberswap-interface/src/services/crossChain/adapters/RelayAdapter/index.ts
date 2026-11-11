@@ -7,8 +7,8 @@ import {
   createClient,
   getClient,
 } from '@relayprotocol/relay-sdk'
-import { getPublicClient } from '@wagmi/core'
 import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
 import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { parseRelayQuote } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
@@ -38,7 +38,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { arc, elysium, robinhood, wagmiConfig } from 'components/Web3Provider/config'
+import { arc, elysium, robinhood } from 'components/Web3Provider/config'
 import { ZERO_ADDRESS } from 'constants/index'
 import {
   Chain,
@@ -227,20 +227,7 @@ export class RelayAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    if (typeof p.sourceChain === 'number') {
-      const publicClient = getPublicClient(wagmiConfig, {
-        chainId: p.sourceChain as any,
-      })
-      const receipt = await publicClient?.getTransactionReceipt({
-        hash: p.sourceTxHash as `0x${string}`,
-      })
-      if (receipt?.status === 'reverted') {
-        return {
-          txHash: '',
-          status: 'Failed',
-        }
-      }
-    }
+    if (await isSourceTransactionReverted(p)) return { txHash: '', status: 'Failed' }
 
     const res = await fetch(`https://api.relay.link/intents/status/v2?requestId=${p.id}`).then(r => r.json())
 

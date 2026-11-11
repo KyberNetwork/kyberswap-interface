@@ -6,6 +6,7 @@ import {
   normalizeSocketStatus,
   parseSocketQuote,
 } from 'services/crossChain/adapters/BungeeAdapter/utils'
+import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
 import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { Quote } from 'services/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, isWrappedToken } from 'services/crossChain/utils'
@@ -190,6 +191,8 @@ export class BungeeAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
+    if (await isSourceTransactionReverted(params)) return { txHash: '', status: 'Failed' }
+
     const response = await getBungeeStatus({ quoteId: params.id })
     const data = response.data
 

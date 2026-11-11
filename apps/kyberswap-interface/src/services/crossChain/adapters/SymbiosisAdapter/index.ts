@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { getPublicClient } from '@wagmi/core'
 import axios from 'axios'
 import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
 import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { evmTransactionSchema } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
@@ -9,7 +9,6 @@ import { CROSS_CHAIN_FEE_RECEIVER } from 'services/crossChain/utils'
 import { WalletClient, formatUnits } from 'viem'
 import { z } from 'zod'
 
-import { wagmiConfig } from 'components/Web3Provider/config'
 import { ZERO_ADDRESS } from 'constants/index'
 import { Currency as AdapterCurrency, Chain, NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
@@ -328,23 +327,8 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
 
     const statusCode = txData?.status?.code
 
-    if (
-      statusCode === SymbiosisTxStatusCode.NotFound &&
-      typeof p.sourceChain === 'number' &&
-      p.sourceTxHash.startsWith('0x')
-    ) {
-      const publicClient = getPublicClient(wagmiConfig, {
-        chainId: p.sourceChain as number,
-      })
-      const receipt = await publicClient?.getTransactionReceipt({
-        hash: p.sourceTxHash as `0x${string}`,
-      })
-      if (receipt?.status === 'reverted') {
-        return {
-          txHash: '',
-          status: 'Failed',
-        }
-      }
+    if (statusCode === SymbiosisTxStatusCode.NotFound && (await isSourceTransactionReverted(p))) {
+      return { txHash: '', status: 'Failed' }
     }
 
     return {

@@ -2,8 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
-import { getPublicClient } from '@wagmi/core'
 import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
 import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { debridgeQuoteSchema, evmTransactionSchema } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
@@ -11,7 +11,6 @@ import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'servi
 import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 import { WalletClient, formatUnits } from 'viem'
 
-import { wagmiConfig } from 'components/Web3Provider/config'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import {
@@ -285,20 +284,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    if (typeof p.sourceChain === 'number') {
-      const publicClient = getPublicClient(wagmiConfig, {
-        chainId: p.sourceChain,
-      })
-      const receipt = await publicClient?.getTransactionReceipt({
-        hash: p.sourceTxHash as `0x${string}`,
-      })
-      if (receipt?.status === 'reverted') {
-        return {
-          txHash: '',
-          status: 'Failed',
-        }
-      }
-    }
+    if (await isSourceTransactionReverted(p)) return { txHash: '', status: 'Failed' }
 
     const r = await fetch(`${DEBRIDGE_STATS_API}/Orders/${p.id}`).then(res => res.json())
 

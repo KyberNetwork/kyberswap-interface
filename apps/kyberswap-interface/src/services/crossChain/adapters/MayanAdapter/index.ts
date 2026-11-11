@@ -2,16 +2,15 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ChainName, type SolanaTransactionSigner, swapFromSolana } from '@mayanfinance/swap-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
-import { getPublicClient } from '@wagmi/core'
 import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'services/crossChain/adapters/BaseSwapAdapter'
 import { buildEvmTransaction } from 'services/crossChain/adapters/MayanAdapter/streamExecution'
+import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
 import { evmTransactionSchema, parseMayanQuote } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'services/crossChain/utils'
 import { WalletClient, parseUnits } from 'viem'
 import { z } from 'zod'
 
-import { wagmiConfig } from 'components/Web3Provider/config'
 import { Chain, NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
@@ -218,19 +217,8 @@ export class MayanAdapter extends BaseSwapAdapter {
       }
     }
 
-    if (res.statusCode === 404) {
-      const publicClient = getPublicClient(wagmiConfig, {
-        chainId: p.sourceChain as number,
-      })
-      const receipt = await publicClient?.getTransactionReceipt({
-        hash: p.sourceTxHash as `0x${string}`,
-      })
-      if (receipt?.status === 'reverted') {
-        return {
-          txHash: '',
-          status: 'Failed',
-        }
-      }
+    if (res.statusCode === 404 && (await isSourceTransactionReverted(p))) {
+      return { txHash: '', status: 'Failed' }
     }
 
     return {
