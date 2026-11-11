@@ -15,6 +15,7 @@ import {
 import { QuoteProviderName } from 'components/SwapForm/CrossChain/Quote/QuoteProviderName'
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
 import type { ReviewedQuote } from 'components/SwapForm/CrossChain/hooks/useQuoteSession'
+import { usePriceImpactDegenMode } from 'components/SwapForm/SwapActionButton/usePriceImpactDegenMode'
 import { SwapReviewAmountCard, SwapReviewHeader } from 'components/SwapForm/SwapModal/SwapReviewLayout'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { ExternalLink } from 'theme'
@@ -93,6 +94,10 @@ export const CrossChainSwapConfirmation = ({
   onConfirm,
   onDismiss,
 }: CrossChainSwapConfirmationProps) => {
+  const { isDegenMode, hasVeryHighPriceImpact, shouldRequireDegenMode, requestDegenMode } = usePriceImpactDegenMode(
+    reviewedQuote?.quote.priceImpact,
+  )
+
   if (!reviewedQuote) return null
 
   const {
@@ -112,7 +117,6 @@ export const CrossChainSwapConfirmation = ({
     isEvmPair: isEvmChain(fromChainId) && isEvmChain(toChainId),
     slippage,
   })
-
   return (
     <TransactionConfirmationModal
       isOpen={isSubmitting || isOpen}
@@ -202,7 +206,13 @@ export const CrossChainSwapConfirmation = ({
               <QuoteProviderName quote={reviewedQuote} />
             </span>
 
-            <ButtonPrimary disabled={isSubmitting} onClick={onConfirm}>{t`Confirm Swap`}</ButtonPrimary>
+            <ButtonPrimary
+              disabled={isSubmitting}
+              onClick={shouldRequireDegenMode ? requestDegenMode : onConfirm}
+              className={hasVeryHighPriceImpact && isDegenMode && !isSubmitting ? '!bg-red !text-text' : undefined}
+            >
+              {hasVeryHighPriceImpact && isDegenMode ? t`Swap Anyway` : t`Confirm Swap`}
+            </ButtonPrimary>
           </Stack>
         )
       }}

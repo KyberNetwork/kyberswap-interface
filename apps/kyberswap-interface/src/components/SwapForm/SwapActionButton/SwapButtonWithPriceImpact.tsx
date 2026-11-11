@@ -1,12 +1,10 @@
 import { Trans, t } from '@lingui/macro'
 import { Info } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
+import { usePriceImpactDegenMode } from 'components/SwapForm/SwapActionButton/usePriceImpactDegenMode'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useDegenModeManager } from 'state/user/hooks'
-import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
 type Props = {
@@ -26,10 +24,8 @@ const SwapButtonWithPriceImpact = ({
   isApproved,
   hasRoute,
 }: Props) => {
-  const [isDegenMode] = useDegenModeManager()
   const priceImpactResult = checkPriceImpact(priceImpact)
-
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { isDegenMode, shouldRequireDegenMode, requestDegenMode } = usePriceImpactDegenMode(priceImpact)
 
   if (isProcessingSwap) {
     return (
@@ -51,7 +47,6 @@ const SwapButtonWithPriceImpact = ({
     )
   }
 
-  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isDegenMode, priceImpact)
   const shouldDisable = !hasRoute || !isApproved
 
   if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
@@ -73,15 +68,14 @@ const SwapButtonWithPriceImpact = ({
       className="gap-1"
       disabled={shouldDisable}
       onClick={() => {
-        if (shouldDisableByPriceImpact && !isDegenMode) {
-          searchParams.set('enableDegenMode', 'true')
-          setSearchParams(searchParams)
+        if (shouldRequireDegenMode) {
+          requestDegenMode()
         } else {
           onClick()
         }
       }}
     >
-      {shouldDisableByPriceImpact ? (
+      {shouldRequireDegenMode ? (
         <MouseoverTooltip
           text={
             <Trans>
@@ -104,7 +98,7 @@ const SwapButtonWithPriceImpact = ({
           <Info size={14} />
         </MouseoverTooltip>
       ) : null}
-      <span>{shouldDisable ? t`Swap Disabled` : shouldDisableByPriceImpact ? t`Swap Anyway` : t`Swap`}</span>
+      <span>{shouldDisable ? t`Swap Disabled` : shouldRequireDegenMode ? t`Swap Anyway` : t`Swap`}</span>
     </ButtonPrimary>
   )
 }
