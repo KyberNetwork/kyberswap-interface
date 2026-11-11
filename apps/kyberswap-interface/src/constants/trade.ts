@@ -21,3 +21,6 @@ export const DEFAULT_TIPS = [0, 10, 30, 50]
 export const MAX_FEE_IN_BIPS = 2000
 
 export const CHAINS_SUPPORT_FEE_CONFIGS: ChainId[] = []
+
+/** Chains where the aggregator serves exact-out quotes, so the swap output amount can be typed. */
+export const EXACT_OUT_SUPPORTED_CHAINS: ChainId[] = [ChainId.MAINNET]

@@ -24,6 +24,9 @@ const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x1111115e73933b2168F41112F828EbD2FC7c5d0
 
 export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined
+  /** Output amount to quote for; when set, the route is fetched exact-out and `parsedAmount` is ignored. */
+  parsedAmountOut?: CurrencyAmount<Currency>
+  exactOutMaxOvershootBps?: number
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
 
@@ -73,17 +76,27 @@ const getFeeConfigParams = (
 }
 
 // default use aggregator, utils the first time sign-in successfully (guest/sign in eth) => use meta
-export const useRouteApiDomain = () => {
+// Exact-out routes are served only by the env-configured aggregator, so they skip the ks-setting domain.
+export const useRouteApiDomain = (isExactOut = false) => {
   const { aggregatorDomain } = useKyberswapGlobalConfig()
   const { authenticationSuccess } = useSessionInfo()
-  return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
+  return authenticationSuccess && !isExactOut ? aggregatorDomain : AGGREGATOR_API
 }
 
 export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'>
 
 const useGetRoute = (args: ArgsGetRoute) => {
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const { parsedAmount, currencyIn, currencyOut, customChain, isProcessingSwap, clientId } = args
+  const {
+    parsedAmount,
+    parsedAmountOut,
+    exactOutMaxOvershootBps,
+    currencyIn,
+    currencyOut,
+    customChain,
+    isProcessingSwap,
+    clientId,
+  } = args
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
   const [isLoading, setIsLoading] = useState(false)
@@ -98,7 +111,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const feeConfigFromUrl = useGetFeeConfig()
 
   const [trigger, _result] = routeApi.useLazyGetRouteQuery()
-  const aggregatorDomain = useRouteApiDomain()
+  const aggregatorDomain = useRouteApiDomain(!!parsedAmountOut)
 
   const getSwapFeeConfig = useGetSwapFeeConfig()
 
@@ -118,11 +131,12 @@ const useGetRoute = (args: ArgsGetRoute) => {
   }, [_result])
 
   const dispatch = useAppDispatch()
+  const hasRequestAmount = !!(parsedAmountOut || parsedAmount)
   useEffect(() => {
-    if (!parsedAmount) {
+    if (!hasRequestAmount) {
       dispatch(routeApi.util.resetApiState())
     }
-  }, [dispatch, parsedAmount])
+  }, [dispatch, hasRequestAmount])
 
   useEffect(() => {
     if (!isProcessingSwap) {
@@ -196,6 +210,32 @@ const useGetRoute = (args: ArgsGetRoute) => {
   }, [currencyIn, currencyOut])
 
   const fetcher = useCallback(async () => {
+    if (parsedAmountOut) {
+      if (isProcessingSwap || !currencyIn || !currencyOut || !parsedAmountOut.currency.equals(currencyOut)) {
+        return undefined
+      }
+
+      // The exact-out endpoint rejects every fee param, so the quote carries no platform fee.
+      intendedFeeConfig.current = { feeAmount: '', feeReceiver: '', isInBps: '', chargeFeeBy: ChargeFeeBy.NONE }
+
+      triggerDebounced({
+        url: `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE_EXACT_OUT}`,
+        params: {
+          tokenIn: getRouteTokenAddressParam(currencyIn, 'in'),
+          tokenOut: getRouteTokenAddressParam(currencyOut, 'out'),
+          tokenInDecimals: routeTokenDecimals(currencyIn, 'in'),
+          tokenOutDecimals: routeTokenDecimals(currencyOut, 'out'),
+          amountOut: parsedAmountOut.quotient.toString(),
+          ...(dexes ? { includedSources: dexes } : {}),
+          ...(exactOutMaxOvershootBps ? { exactOutMaxOvershootBps } : {}),
+          gasInclude: 'true',
+          chainId,
+        },
+        authentication: isEnableAuthenAggregator,
+      })
+      return undefined
+    }
+
     const amountIn = parsedAmount ? routeAmountIn(parsedAmount) : ''
 
     if (isProcessingSwap || !currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
@@ -255,6 +295,8 @@ const useGetRoute = (args: ArgsGetRoute) => {
     getSwapFeeConfig,
     isEnableAuthenAggregator,
     parsedAmount,
+    parsedAmountOut,
+    exactOutMaxOvershootBps,
     triggerDebounced,
     feeConfigFromUrl,
     isProcessingSwap,
