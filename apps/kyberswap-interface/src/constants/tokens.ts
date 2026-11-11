@@ -136,7 +136,7 @@ const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: ChainFeatureMap<Token> = {
   // the stablecoin is what the user arrives holding and the volatile asset is the quote.
   [ChainId.ARC]: new Token(ChainId.ARC, '0x128cC466B61f542da60c70e3aA11c10e19B84EDB', 18, 'WETH', 'Wrapped Ether'),
   [ChainId.ELYSIUM]: new Token(ChainId.ELYSIUM, '0xb47c4C8F73F009CC0C0d3f92B388d13E293F0B65', 6, 'USDC', 'USDC'),
-  [ChainId.ABSTRACT]: 'cross-chain only',
+  [ChainId.ABSTRACT]: 'needs service support',
 }
 
 export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = enabledValues(DEFAULT_OUTPUT_TOKEN_BY_CHAIN)
@@ -191,7 +191,7 @@ const PRICE_CHART_QUOTE_BY_CHAIN: ChainFeatureMap<Token> = {
   [ChainId.ETHERLINK]: NEEDS_CHART_QUOTE,
   [ChainId.MEGAETH]: NEEDS_CHART_QUOTE,
   [ChainId.RISE]: NEEDS_CHART_QUOTE,
-  [ChainId.ABSTRACT]: 'cross-chain only',
+  [ChainId.ABSTRACT]: 'needs service support',
 }
 
 export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = enabledValues(PRICE_CHART_QUOTE_BY_CHAIN)
