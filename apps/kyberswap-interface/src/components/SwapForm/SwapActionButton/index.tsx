@@ -86,6 +86,7 @@ type Props = {
 
   review: SwapReviewState
   openReviewSession: (build: BuildReview) => Promise<void>
+  rebuildReviewSession: (build: BuildReview) => Promise<void>
   confirmReviewSession: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
   dismissReviewSession: () => void
   onWrap?: () => Promise<string | undefined>
@@ -111,6 +112,7 @@ const SwapActionButton = ({
 
   review,
   openReviewSession,
+  rebuildReviewSession,
   confirmReviewSession,
   dismissReviewSession,
   onWrap,
@@ -391,6 +393,7 @@ const SwapActionButton = ({
           isApproved={approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED}
           review={review}
           openReviewSession={openReviewSession}
+          rebuildReviewSession={rebuildReviewSession}
           confirmReviewSession={confirmReviewSession}
           dismissReviewSession={dismissReviewSession}
           buildRoute={buildRoute}

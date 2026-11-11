@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { Info } from 'react-feather'
 import { Link } from 'react-router-dom'
 
 import { ButtonError, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -8,7 +7,6 @@ import SlippageWarningNote from 'components/SlippageWarningNote'
 import { AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD, isSlippageBuildError } from 'components/SwapForm/SwapModal/reviewData'
 import type { SwapReviewData } from 'components/SwapForm/SwapModal/useSwapReviewData'
 import PriceImpactNote from 'components/SwapForm/Warnings/PriceImpactNote'
-import { MouseoverTooltip } from 'components/Tooltip'
 
 type ReservedOrderNoticeProps = {
   symbol: string | undefined
@@ -95,9 +93,7 @@ type SwapReviewActionsProps = {
     | 'parsedAmountIn'
     | 'outputChangePercent'
     | 'priceImpactFromBuild'
-    | 'priceImpactResult'
     | 'showWarningStyle'
-    | 'shouldDisableByPriceImpact'
     | 'isShowAcceptNewAmount'
     | 'honeypot'
     | 'showReservedOrderWarning'
@@ -107,7 +103,6 @@ type SwapReviewActionsProps = {
   slippage: number
   defaultSlippage: number
   isAdvancedMode: boolean
-  isDegenMode: boolean
   isBuildingRoute: boolean
   buildError: string | undefined
   hasAcceptedNewAmount: boolean
@@ -124,7 +119,6 @@ const SwapReviewActions = ({
   slippage,
   defaultSlippage,
   isAdvancedMode,
-  isDegenMode,
   isBuildingRoute,
   buildError,
   hasAcceptedNewAmount,
@@ -139,9 +133,7 @@ const SwapReviewActions = ({
     parsedAmountIn,
     outputChangePercent,
     priceImpactFromBuild,
-    priceImpactResult,
     showWarningStyle,
-    shouldDisableByPriceImpact,
     isShowAcceptNewAmount,
     honeypot,
     showReservedOrderWarning,
@@ -150,9 +142,8 @@ const SwapReviewActions = ({
   } = review
   const shouldDisableConfirmButton = isBuildingRoute || !!buildError
   const isSlippageNotEnough = isSlippageBuildError(buildError)
-  const disableSwap =
-    (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton || shouldDisableByPriceImpact
-  const disableAcceptNewAmount = hasAcceptedNewAmount || (priceImpactResult.isVeryHigh && !isDegenMode)
+  const disableSwap = (isShowAcceptNewAmount && !hasAcceptedNewAmount) || shouldDisableConfirmButton
+  const disableAcceptNewAmount = hasAcceptedNewAmount
   return (
     <div className="flex flex-col gap-4">
       <SlippageWarningNote rawSlippage={slippage} />
@@ -219,21 +210,9 @@ const SwapReviewActions = ({
                 <Trans>Swap</Trans>
               </span>
             ) : disableSwap ? (
-              <>
-                {shouldDisableByPriceImpact && (
-                  <MouseoverTooltip
-                    text={
-                      <Trans>
-                        To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for
-                        this trade. If you still wish to continue, you can turn on Degen Mode from Settings.
-                      </Trans>
-                    }
-                  >
-                    <Info size={14} />
-                  </MouseoverTooltip>
-                )}
-                <span>{shouldDisableByPriceImpact ? <Trans>Swap Disabled</Trans> : <Trans>Confirm Swap</Trans>}</span>
-              </>
+              <span>
+                <Trans>Confirm Swap</Trans>
+              </span>
             ) : (
               <span className="text-sm font-medium leading-none">
                 <Trans>Confirm Swap</Trans>

@@ -3,15 +3,14 @@ import { Info } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
-import { usePriceImpactDegenMode } from 'components/SwapForm/SwapActionButton/usePriceImpactDegenMode'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { checkPriceImpact } from 'utils/prices'
+import type { PriceImpactAction } from 'utils/prices'
 
 type Props = {
   isProcessingSwap: boolean
   showLoading: boolean
   onClick: () => void
-  priceImpact: number | undefined
+  priceImpactAction: PriceImpactAction
   isApproved: boolean
   hasRoute: boolean
 }
@@ -20,13 +19,10 @@ const SwapButtonWithPriceImpact = ({
   isProcessingSwap,
   showLoading,
   onClick,
-  priceImpact,
+  priceImpactAction,
   isApproved,
   hasRoute,
 }: Props) => {
-  const priceImpactResult = checkPriceImpact(priceImpact)
-  const { isDegenMode, shouldRequireDegenMode, requestDegenMode } = usePriceImpactDegenMode(priceImpact)
-
   if (isProcessingSwap) {
     return (
       <ButtonPrimary id="swap-button" disabled>
@@ -49,7 +45,7 @@ const SwapButtonWithPriceImpact = ({
 
   const shouldDisable = !hasRoute || !isApproved
 
-  if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
+  if (priceImpactAction === 'swap-anyway') {
     return (
       <ButtonPrimary
         id="swap-button"
@@ -63,19 +59,8 @@ const SwapButtonWithPriceImpact = ({
   }
 
   return (
-    <ButtonPrimary
-      id="swap-button"
-      className="gap-1"
-      disabled={shouldDisable}
-      onClick={() => {
-        if (shouldRequireDegenMode) {
-          requestDegenMode()
-        } else {
-          onClick()
-        }
-      }}
-    >
-      {shouldRequireDegenMode ? (
+    <ButtonPrimary id="swap-button" className="gap-1" disabled={shouldDisable} onClick={onClick}>
+      {priceImpactAction === 'enable-degen' ? (
         <MouseoverTooltip
           text={
             <Trans>
@@ -98,7 +83,7 @@ const SwapButtonWithPriceImpact = ({
           <Info size={14} />
         </MouseoverTooltip>
       ) : null}
-      <span>{shouldDisable ? t`Swap Disabled` : shouldRequireDegenMode ? t`Swap Anyway` : t`Swap`}</span>
+      <span>{shouldDisable ? t`Swap Disabled` : priceImpactAction === 'enable-degen' ? t`Swap Anyway` : t`Swap`}</span>
     </ButtonPrimary>
   )
 }

@@ -21,6 +21,7 @@ type SingleChainSwapReviewProps = {
 
   review: SwapReviewState
   openReviewSession: (build: BuildReview) => Promise<void>
+  rebuildReviewSession: (build: BuildReview) => Promise<void>
   confirmReviewSession: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
   dismissReviewSession: () => void
   buildRoute: BuildReview
@@ -41,11 +42,12 @@ const SingleChainSwapReview = ({
 
   review,
   openReviewSession,
+  rebuildReviewSession,
   confirmReviewSession,
   dismissReviewSession,
   buildRoute,
 }: SingleChainSwapReviewProps) => {
-  const { openReview, confirmSwap, dismissReview, dismissReviewError } = useSingleChainSwapReview({
+  const { priceImpactAction, openReview, confirmSwap, dismissReview, dismissReviewError } = useSingleChainSwapReview({
     currencyIn,
     currencyOut,
     routeSummary,
@@ -53,13 +55,13 @@ const SingleChainSwapReview = ({
     isPermitSwap,
     buildRoute,
     openReviewSession,
+    rebuildReviewSession,
     confirmReviewSession,
     dismissReviewSession,
   })
 
   const isProcessingSwap = review.phase !== 'closed'
   const isBuildingRoute = review.phase === 'building'
-  const { priceImpact } = routeSummary || {}
   const userHasSpecifiedInputOutput = Boolean(currencyIn && currencyOut && parsedAmount)
   const showLoading = isGettingRoute || isBuildingRoute || ((!balanceIn || !balanceOut) && userHasSpecifiedInputOutput)
 
@@ -72,7 +74,7 @@ const SingleChainSwapReview = ({
           onClick={openReview}
           isApproved={!!isApproved}
           showLoading={showLoading}
-          priceImpact={priceImpact}
+          priceImpactAction={priceImpactAction}
         />
       )}
       <SingleChainSwapModal

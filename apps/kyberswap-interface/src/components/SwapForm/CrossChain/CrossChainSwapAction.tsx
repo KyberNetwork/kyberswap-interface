@@ -9,6 +9,7 @@ import { CrossChainSwapConfirmation } from 'components/SwapForm/CrossChain/Cross
 import { useCrossChainApproval } from 'components/SwapForm/CrossChain/hooks/useCrossChainApproval'
 import { useCrossChainBalance } from 'components/SwapForm/CrossChain/hooks/useCrossChainBalance'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
+import SwapButtonWithPriceImpact from 'components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact'
 import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -29,6 +30,8 @@ export const CrossChainSwapAction = () => {
     txHash,
     txError,
     confirmSwap,
+    priceImpactAction,
+    reviewHasVeryHighPriceImpact,
     amountInWei,
     fromChainId,
     toChainId,
@@ -88,13 +91,8 @@ export const CrossChainSwapAction = () => {
     ? t`Connect Solana Wallet`
     : t`Connect Wallet`
 
-  const checkAllowanceAndOpenPreview = async () => {
-    if (!selectedQuote || !isSelectedQuoteExecutable) return
-
-    const hasSufficientAllowance = await revalidateAllowance()
-    if (!hasSufficientAllowance) return
-
-    openReview(selectedQuote)
+  const requestReview = () => {
+    void openReview(revalidateAllowance)
   }
 
   // The first unmet prerequisite determines the action; keep this priority order.
@@ -102,6 +100,7 @@ export const CrossChainSwapAction = () => {
     label,
     disabled = false,
     busy = false,
+    readyToReview = false,
     onClick,
   } = (() => {
     if (isApproving) {
@@ -197,8 +196,9 @@ export const CrossChainSwapAction = () => {
 
     return {
       label: t`Review the Cross-chain Swap`,
+      readyToReview: true,
       disabled: isRevalidating,
-      onClick: checkAllowanceAndOpenPreview,
+      onClick: requestReview,
     }
   })()
 
@@ -215,12 +215,24 @@ export const CrossChainSwapAction = () => {
         isSubmitting={isSubmitting}
         txHash={txHash}
         txError={txError}
+        hasVeryHighPriceImpact={reviewHasVeryHighPriceImpact}
         onConfirm={confirmSwap}
         onDismiss={closeReview}
       />
-      <ButtonPrimary disabled={disabled} onClick={handleButtonClick}>
-        {busy ? <Dots>{label}</Dots> : label}
-      </ButtonPrimary>
+      {readyToReview ? (
+        <SwapButtonWithPriceImpact
+          isProcessingSwap={showPreview || isSubmitting}
+          showLoading={isRevalidating}
+          priceImpactAction={priceImpactAction}
+          isApproved
+          hasRoute={isSelectedQuoteExecutable}
+          onClick={requestReview}
+        />
+      ) : (
+        <ButtonPrimary disabled={disabled} onClick={handleButtonClick}>
+          {busy ? <Dots>{label}</Dots> : label}
+        </ButtonPrimary>
+      )}
     </>
   )
 }

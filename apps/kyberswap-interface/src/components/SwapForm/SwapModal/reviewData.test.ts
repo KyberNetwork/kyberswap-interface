@@ -71,10 +71,7 @@ it('uses the quote for minimum receiving and the build for output and USD risk',
   expect(review.details.minimumAmountOut?.toExact()).toBe('198')
   expect(review.parsedAmountOutFromBuild?.toExact()).toBe('160')
   expect(review.priceImpactFromBuild).toBe(20)
-  expect(review.shouldDisableByPriceImpact).toBe(true)
-  expect(
-    getSwapReviewData({ ...defaults, buildResult: build(-20, '80'), isAdvancedMode: true }).shouldDisableByPriceImpact,
-  ).toBe(false)
+  expect(review.priceImpactResult.isVeryHigh).toBe(true)
 })
 
 it('caps suggested retry slippage by pair category without raising smaller suggestions', () => {

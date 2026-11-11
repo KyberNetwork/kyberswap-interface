@@ -80,6 +80,7 @@ export const SingleChainSwapContent = ({
     buildRoute,
     review,
     openReview,
+    rebuildReview,
     confirmReview,
     dismissReview,
   } = useSingleChainSwapContext()
@@ -276,6 +277,7 @@ export const SingleChainSwapContent = ({
             routeSummary={routeSummary}
             review={review}
             openReviewSession={openReview}
+            rebuildReviewSession={rebuildReview}
             confirmReviewSession={confirmReview}
             dismissReviewSession={dismissReview}
             onWrap={onWrap}

@@ -6,7 +6,6 @@ import { PAIR_CATEGORY } from 'constants/trade'
 import { ERC8056TokenInfo, getERC8056DisplayAmount, getERC8056DisplayPrice } from 'hooks/useERC8056Token'
 import { DetailedRouteSummary } from 'types/route'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
-import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
 
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
@@ -32,7 +31,6 @@ type ReviewDataParams = {
   buildResult: BuildRouteResult | undefined
   routeSummary: DetailedRouteSummary | undefined
   slippage: number
-  isAdvancedMode: boolean
   inputERC8056Info: ERC8056TokenInfo
   outputERC8056Info: ERC8056TokenInfo
   category: PAIR_CATEGORY
@@ -42,7 +40,6 @@ export const getSwapReviewData = ({
   buildResult,
   routeSummary,
   slippage,
-  isAdvancedMode,
   inputERC8056Info,
   outputERC8056Info,
   category,
@@ -131,8 +128,6 @@ export const getSwapReviewData = ({
 
   const showWarningStyle = priceImpactResult.isVeryHigh || priceImpactResult.isInvalid
 
-  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isAdvancedMode, priceImpactFromBuild)
-
   const isShowAcceptNewAmount =
     outputChangePercent < SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD ||
     (category === PAIR_CATEGORY.STABLE && outputChangePercent < 0)
@@ -149,7 +144,6 @@ export const getSwapReviewData = ({
     priceImpactFromBuild,
     priceImpactResult,
     showWarningStyle,
-    shouldDisableByPriceImpact,
     isShowAcceptNewAmount,
     dynamicSuggestedSlippage: getSuggestedSlippage(buildResult, category),
   }

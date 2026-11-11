@@ -1,8 +1,11 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { useCallback, useLayoutEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
+import { calculatePriceImpact } from 'services/route/utils'
 
 import { getFeeInfoForMixPanel, getSwapConfirmedTracking } from 'components/SwapForm/SingleChain/swapTracking'
 import useSingleChainSwapExecution from 'components/SwapForm/SingleChain/useSingleChainSwapExecution'
+import { usePriceImpactDegenMode } from 'components/SwapForm/SwapActionButton/usePriceImpactDegenMode'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import type { BuildReview, SubmitReview, SwapReviewState } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { useActiveWeb3React } from 'hooks'
@@ -20,6 +23,7 @@ type SingleChainSwapReviewParams = {
   isPermitSwap?: boolean
   buildRoute: BuildReview
   openReviewSession: (build: BuildReview) => Promise<void>
+  rebuildReviewSession: (build: BuildReview) => Promise<void>
   confirmReviewSession: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
   dismissReviewSession: () => void
 }
@@ -33,6 +37,7 @@ export const useSingleChainSwapReview = ({
   isPermitSwap,
   buildRoute,
   openReviewSession,
+  rebuildReviewSession,
   confirmReviewSession,
   dismissReviewSession,
 }: SingleChainSwapReviewParams) => {
@@ -47,7 +52,37 @@ export const useSingleChainSwapReview = ({
   const [transactionTimeout] = useUserTransactionTTL()
   const swapCallback = useSingleChainSwapExecution(isPermitSwap)
 
+  const { priceImpactAction, requiresDegenMode, requestDegenMode } = usePriceImpactDegenMode(routeSummary?.priceImpact)
   const { buildResult, error } = review
+  const requireDegenModeForBuild = useCallback(
+    (result: typeof buildResult) => {
+      if (!result?.data) return false
+      return requiresDegenMode(
+        calculatePriceImpact(Number(result.data.amountInUsd || 0), Number(result.data.amountOutUsd || 0)),
+      )
+    },
+    [requiresDegenMode],
+  )
+  const returnToDegenSettings = useCallback(() => {
+    dismissReviewSession()
+    requestDegenMode()
+  }, [dismissReviewSession, requestDegenMode])
+
+  const buildReviewedRoute = useCallback<BuildReview>(
+    async signal => {
+      const result = await buildRoute(signal)
+      if (!signal.aborted && requireDegenModeForBuild(result)) returnToDegenSettings()
+      return result
+    },
+    [buildRoute, requireDegenModeForBuild, returnToDegenSettings],
+  )
+
+  const previousSlippage = useRef(slippage)
+  useLayoutEffect(() => {
+    const changed = previousSlippage.current !== slippage
+    previousSlippage.current = slippage
+    if (changed) void rebuildReviewSession(buildReviewedRoute)
+  }, [slippage, rebuildReviewSession, buildReviewedRoute])
 
   const getTokenAddress = (currency: Currency | undefined) =>
     currency?.isNative ? 'NATIVE' : currency?.wrapped?.address
@@ -83,7 +118,12 @@ export const useSingleChainSwapReview = ({
   }
 
   const openReview = () => {
-    void openReviewSession(signal => {
+    if (review.phase !== 'closed') return
+    if (requiresDegenMode(routeSummary?.priceImpact)) {
+      requestDegenMode()
+      return
+    }
+    void openReviewSession(async signal => {
       trackingHandler(TRACKING_EVENT_TYPE.SWAP_REVIEW_OPENED, {
         from_token: currencyIn?.symbol,
         from_token_address: getTokenAddress(currencyIn),
@@ -111,7 +151,7 @@ export const useSingleChainSwapReview = ({
 
       trackingSwapInit()
 
-      return buildRoute(signal)
+      return buildReviewedRoute(signal)
     })
   }
 
@@ -155,10 +195,20 @@ export const useSingleChainSwapReview = ({
   }
 
   const confirmSwap = () => {
-    if (!buildResult?.data?.data || !buildResult.data.routerAddress) return
+    if (review.phase !== 'review' || !buildResult?.data?.data || !buildResult.data.routerAddress) return
 
+    if (requireDegenModeForBuild(buildResult)) {
+      returnToDegenSettings()
+      return
+    }
     void confirmReviewSession(handleSubmit, handleError)
   }
 
-  return { openReview, confirmSwap, dismissReview: dismissReviewSession, dismissReviewError: handleErrorDismiss }
+  return {
+    priceImpactAction,
+    openReview,
+    confirmSwap,
+    dismissReview: dismissReviewSession,
+    dismissReviewError: handleErrorDismiss,
+  }
 }

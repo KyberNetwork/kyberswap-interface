@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactNode, createContext, useContext, useLayoutEffect, useMemo, useRef } from 'react'
+import { ReactNode, createContext, useContext, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
 
@@ -129,16 +129,6 @@ const useSingleChainSwap = ({
     currencyOut,
   })
 
-  const previousSlippage = useRef(slippage)
-
-  // Rebuild an open review before paint so Confirm cannot submit the previous slippage.
-  useLayoutEffect(() => {
-    const changed = previousSlippage.current !== slippage
-    previousSlippage.current = slippage
-
-    if (changed) void rebuildReview(buildRoute)
-  }, [slippage, rebuildReview, buildRoute])
-
   return {
     chainId,
     chainError,
@@ -167,6 +157,7 @@ const useSingleChainSwap = ({
     buildRoute,
     review,
     openReview,
+    rebuildReview,
     confirmReview,
     dismissReview,
   }

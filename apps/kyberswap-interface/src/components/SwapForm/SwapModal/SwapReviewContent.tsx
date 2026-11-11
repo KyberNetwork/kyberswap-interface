@@ -16,7 +16,7 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDefaultSlippageByPair } from 'state/swap/hooks'
-import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
+import { useSlippageSettingByPage } from 'state/user/hooks'
 
 type SwapReviewContentProps = {
   buildResult: BuildRouteResult | undefined
@@ -47,7 +47,6 @@ const SwapReviewContent = ({
   const [showAreYouSureModal, setShowAreYouSureModal] = useState(false)
   const [retry, setRetry] = useState(0)
   const [showInverted, setShowInverted] = useState(false)
-  const [isDegenMode] = useDegenModeManager()
   const { setRawSlippage } = useSlippageSettingByPage()
   const defaultSlippage = useDefaultSlippageByPair()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -158,7 +157,6 @@ const SwapReviewContent = ({
           slippage={slippage}
           defaultSlippage={defaultSlippage}
           isAdvancedMode={isAdvancedMode}
-          isDegenMode={isDegenMode}
           isBuildingRoute={isBuildingRoute}
           buildError={buildError}
           hasAcceptedNewAmount={hasAcceptedNewAmount}

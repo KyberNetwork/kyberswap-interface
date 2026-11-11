@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { format } from 'date-fns'
 import { type HTMLAttributes, type ReactNode, useMemo } from 'react'
-import { ChevronRight } from 'react-feather'
+import { ChevronRight, CornerDownLeft } from 'react-feather'
 import { registry } from 'services/crossChain/factory'
 import { normalizeAdapterName } from 'services/crossChain/utils'
 import { formatUnits } from 'viem'
@@ -232,7 +232,16 @@ const GasDropLine = ({ tx }: { tx: HistoryTransaction }) => {
 const TransactionAmount = ({ tx }: { tx: HistoryTransaction }) => (
   <div className="flex min-w-0 flex-col gap-1">
     <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" token={tx.sourceToken} />
-    <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" token={tx.targetToken} />
+    {tx.status === 'Refunded' ? (
+      <span className="flex items-center gap-1 text-sm font-medium text-subText">
+        <Center as="span" className="size-5 shrink-0" aria-hidden>
+          <CornerDownLeft size={16} />
+        </Center>
+        {t`Refunded`}
+      </span>
+    ) : (
+      <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" token={tx.targetToken} />
+    )}
     <GasDropLine tx={tx} />
   </div>
 )

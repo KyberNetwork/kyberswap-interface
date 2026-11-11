@@ -1,10 +1,13 @@
-import { ReactNode, createContext, useContext } from 'react'
+import { ReactNode, createContext, useContext, useLayoutEffect, useRef } from 'react'
+import { isQuoteExecutable } from 'services/crossChain/utils'
 
 import { useCrossChainExecution } from 'components/SwapForm/CrossChain/hooks/useCrossChainExecution'
 import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
 import { useCrossChainQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
 import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
+import { usePriceImpactDegenMode } from 'components/SwapForm/SwapActionButton/usePriceImpactDegenMode'
 import { Chain } from 'types/crossChain'
+import { type PriceImpactAction, checkPriceImpact } from 'utils/prices'
 
 export type CrossChainSwapOptions = {
   fromChain: Chain
@@ -17,7 +20,10 @@ export type CrossChainSwapOptions = {
 
 type CrossChainSwapContext = ReturnType<typeof useCrossChainPair> &
   ReturnType<typeof useCrossChainRecipient> &
-  ReturnType<typeof useCrossChainQuote> & {
+  Omit<ReturnType<typeof useCrossChainQuote>, 'openReview'> & {
+    openReview: (checkAllowance: () => Promise<boolean>) => Promise<void>
+    priceImpactAction: PriceImpactAction
+    reviewHasVeryHighPriceImpact: boolean
     isSubmitting: boolean
     txHash: string
     txError: string
@@ -44,13 +50,67 @@ const CrossChainSwapProvider = ({ children, amount, setAmount, fromChain, toChai
 
   const { isSubmitting, txHash, txError, submitSwap, resetSubmission } = useCrossChainExecution(quote.reviewQuote)
 
-  const confirmSwap = () => {
-    void submitSwap()
-  }
+  const { priceImpactAction, requiresDegenMode, requestDegenMode } = usePriceImpactDegenMode(
+    quote.selectedQuote?.quote.priceImpact,
+  )
+  const reviewedImpact = checkPriceImpact(quote.reviewQuote?.quote.priceImpact)
+  const reviewHasVeryHighPriceImpact = reviewedImpact.isVeryHigh || reviewedImpact.isInvalid
+  const pendingReview = useRef<symbol | null>(null)
+
+  useLayoutEffect(() => {
+    pendingReview.current = null
+    return () => {
+      pendingReview.current = null
+    }
+  }, [quote.selectedQuote, recipient.sender, recipient.receiver, recipient.isReadOnly])
 
   const closeReview = () => {
+    pendingReview.current = null
     resetSubmission()
     quote.closeReview()
+  }
+
+  const openReview = async (checkAllowance: () => Promise<boolean>) => {
+    const selectedQuote = quote.selectedQuote
+    if (
+      pendingReview.current ||
+      quote.showPreview ||
+      isSubmitting ||
+      quote.loading ||
+      recipient.isReadOnly ||
+      !selectedQuote ||
+      !isQuoteExecutable(selectedQuote, recipient.sender, recipient.receiver)
+    )
+      return
+
+    if (requiresDegenMode(selectedQuote.quote.priceImpact)) {
+      requestDegenMode()
+      return
+    }
+
+    const attempt = Symbol('open review')
+    pendingReview.current = attempt
+    try {
+      const approved = await checkAllowance()
+      if (pendingReview.current !== attempt || !approved) return
+      if (requiresDegenMode(selectedQuote.quote.priceImpact)) {
+        requestDegenMode()
+        return
+      }
+      quote.openReview(selectedQuote)
+    } finally {
+      if (pendingReview.current === attempt) pendingReview.current = null
+    }
+  }
+
+  const confirmSwap = () => {
+    if (!quote.reviewQuote || isSubmitting) return
+    if (requiresDegenMode(quote.reviewQuote.quote.priceImpact)) {
+      closeReview()
+      requestDegenMode()
+      return
+    }
+    void submitSwap()
   }
 
   return (
@@ -62,6 +122,9 @@ const CrossChainSwapProvider = ({ children, amount, setAmount, fromChain, toChai
         isSubmitting: isSubmitting,
         txHash,
         txError,
+        openReview,
+        priceImpactAction,
+        reviewHasVeryHighPriceImpact,
         confirmSwap,
         closeReview,
         amount,

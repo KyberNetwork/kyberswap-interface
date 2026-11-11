@@ -117,17 +117,18 @@ it must not substitute a newer displayed quote.
 
 The review identity includes wallet, chain, pair, amount, recipient and Degen
 Mode. Changes invalidate the session and cancel outstanding builds. Changing
-slippage rebuilds an open/building review before the previous build can be
-confirmed. Session generations prevent late callbacks from restoring dismissed
+slippage makes `useSingleChainSwapReview` rebuild an open/building review before
+the previous build can be confirmed. Initial builds and rebuilds share the same
+price-impact gate. Session generations prevent late callbacks from restoring dismissed
 or replaced review UI.
 
 `SwapModal/useSwapReviewData` and `reviewData.ts` derive built amounts, output
 changes, minimum received and warnings. `SwapReviewContent` composes summary,
 details and actions. Output changes can require explicit acceptance, including
 the additional `ConfirmOutputChangeModal` for the configured threshold. Build
-errors and price-impact rules gate confirmation; suggested slippage feeds back
-through the shared setting and rebuilds the route. Keep these rules in the
-review data/action modules rather than duplicating them in amount cards.
+errors and output acceptance gate the modal action; the controller owns the
+Degen Mode prerequisite. Suggested slippage feeds back through the shared
+setting and rebuilds the route.
 
 `useSingleChainSwapExecution` sends the reviewed payload with the correct native
 value and records the hash and captured swap metadata in `state/transactions`.
@@ -214,6 +215,11 @@ work, token selection and restrictions, positive amount, input wallet, available
 route, balance, source network, recipient, executable quote, then allowance.
 EVM approval targets `selectedQuote.quote.contractAddress`.
 `useCrossChainApproval` revalidates allowance before opening review.
+`CrossChainSwapProvider` and `useSingleChainSwapReview` own Degen Mode gates
+before review and confirmation, using shared price-impact rules. Cross-chain
+rechecks after allowance; same-chain checks the built amounts. Both use
+`SwapButtonWithPriceImpact` for presentation. Buttons and modals report intent;
+controllers own navigation to Settings and review transitions.
 
 `CrossChainSwapConfirmation` receives `reviewQuote`, submission state and actions
 as props. Amounts, recipient, slippage and warnings come from that snapshot. The
