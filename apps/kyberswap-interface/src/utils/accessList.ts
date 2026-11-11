@@ -8,11 +8,12 @@ import { Address, Hex } from './viem'
 export type AccessListEntry = { address: Address; storageKeys: Hex[] }
 
 /**
- * Which swaps on a chain carry an EIP-2930 access list.
+ * Which swaps on a chain carry an EIP-2930 access list. Only swaps are candidates: approvals, wraps,
+ * claims and the like reach `sendEVMTransaction` without a swap context and stay list-less.
  * - `ss`: Smart Settlement swaps only. Their executor runs each candidate pool in a reverting
  *   sub-call before executing the winner, and a revert un-warms everything the attempt touched;
  *   a list keeps that state warm for the whole transaction, which is where the gas saving comes from.
- * - `all`: every swap, for chains whose cold-access prices make a plain swap worth it (Monad, Polygon).
+ * - `all`: every swap, for a chain whose cold-access prices make a plain swap worth it.
  */
 export type AccessListMode = 'off' | 'ss' | 'all'
 
@@ -47,9 +48,6 @@ export const ACCESS_LIST_CONFIG: AccessListConfig = {
   // at runtime to sign the list exactly as sent.
   gasLimitWalletAllowlist: [],
 }
-
-const isStringArray = (value: unknown): value is string[] =>
-  Array.isArray(value) && value.every(item => typeof item === 'string')
 
 export type AccessListPolicy =
   | { attach: false }
@@ -98,8 +96,8 @@ export function resolveAccessListPolicy({
 
 const ADDRESS_PATTERN = /^0x[0-9a-fA-F]{40}$/
 const STORAGE_KEY_PATTERN = /^0x[0-9a-fA-F]{64}$/
-// Precompiles live at the lowest addresses and are warm by definition.
-const PRECOMPILE_PATTERN = /^0x0{38}[0-9a-f]{2}$/
+// Precompiles live at the lowest addresses (RIP-7212's P256VERIFY at 0x…0100 included) and are warm by definition.
+const PRECOMPILE_PATTERN = /^0x0{37}[01][0-9a-f]{2}$/
 
 /**
  * Normalizes a list for the transaction: lowercase, one entry per address, no malformed keys, and
@@ -142,6 +140,22 @@ export function sanitizeAccessList(
 // user nothing beyond this; a missing answer costs only the saving.
 const ACCESS_LIST_RPC_TIMEOUT_MS = 2500
 
+/** Settles with `undefined` once `ms` pass or the promise rejects, whichever comes first. */
+const settleWithin = <T>(promise: Promise<T>, ms: number): Promise<T | undefined> =>
+  new Promise(resolve => {
+    const timer = setTimeout(() => resolve(undefined), ms)
+    promise.then(
+      value => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      () => {
+        clearTimeout(timer)
+        resolve(undefined)
+      },
+    )
+  })
+
 /**
  * `eth_createAccessList` for the swap about to be sent, against the chain's default RPC. Requested at
  * send time so only a swap the policy attaches a list to pays for the call, and the list reflects
@@ -156,42 +170,57 @@ export async function fetchAccessList(
 ): Promise<unknown> {
   const rpcUrl = NETWORKS_INFO[chainId]?.defaultRpcUrl
   if (!rpcUrl) return undefined
-  try {
-    const result = await directRpcFetch<{ accessList?: unknown }>(
+  // `directRpcFetch` stops its own timer once the headers arrive; the deadline here covers the body too.
+  const result = await settleWithin(
+    directRpcFetch<{ accessList?: unknown; error?: unknown }>(
       rpcUrl,
       'eth_createAccessList',
       [call, 'latest'],
       ACCESS_LIST_RPC_TIMEOUT_MS,
-    )
-    return result?.accessList
-  } catch {
-    return undefined
-  }
+    ),
+    ACCESS_LIST_RPC_TIMEOUT_MS,
+  )
+  // A list built by a simulation that reverted describes a path the real transaction will not take.
+  if (!result || result.error) return undefined
+  return result.accessList
 }
 
 const REJECTING_CONNECTORS_KEY = 'accessListRejectingConnectors'
-// WalletConnect is one connector id for every wallet reached through it, so one wallet's refusal says
-// nothing about the next; a transaction from it is retried plain each time instead.
-const SHARED_CONNECTOR_IDS = new Set(['walletConnect'])
+// A refusal is remembered this long; wallets ship fixes, so the list is tried again afterwards.
+const REJECTION_MEMORY_MS = 30 * 24 * 60 * 60 * 1000
+// One connector id can stand for many wallets: WalletConnect (and Uniswap's flavour of it) for every
+// wallet reached through it, `injected` for any wallet without an EIP-6963 announcement. One wallet's
+// refusal says nothing about the next, so a transaction from these is retried plain each time instead.
+const SHARED_CONNECTOR_IDS = new Set(['walletConnect', 'uniswapWalletConnect', 'injected'])
 
-/** Connectors that refused a list-carrying transaction on this device. */
-export function readRejectingConnectors(): Set<string> {
-  if (typeof localStorage === 'undefined') return new Set()
+/** Connector id → time of its last refusal, without the entries that have aged out. */
+function readRejectionTimes(): Record<string, number> {
+  if (typeof localStorage === 'undefined') return {}
   try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(REJECTING_CONNECTORS_KEY) || '[]')
-    return new Set(isStringArray(parsed) ? parsed : [])
+    const parsed: unknown = JSON.parse(localStorage.getItem(REJECTING_CONNECTORS_KEY) || '{}')
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+    const now = Date.now()
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        (entry): entry is [string, number] => typeof entry[1] === 'number' && now - entry[1] < REJECTION_MEMORY_MS,
+      ),
+    )
   } catch {
-    return new Set()
+    return {}
   }
 }
 
-/** The wallet refused a list once; later transactions from it go out plain from the start. */
+/** Connectors that refused a list-carrying transaction on this device within `REJECTION_MEMORY_MS`. */
+export function readRejectingConnectors(): Set<string> {
+  return new Set(Object.keys(readRejectionTimes()))
+}
+
+/** The wallet refused a list; later transactions from it go out plain from the start, for a while. */
 export function rememberRejectingConnector(connectorId: string): void {
   if (SHARED_CONNECTOR_IDS.has(connectorId) || typeof localStorage === 'undefined') return
   try {
-    const known = readRejectingConnectors()
-    known.add(connectorId)
-    localStorage.setItem(REJECTING_CONNECTORS_KEY, JSON.stringify([...known]))
+    const known = { ...readRejectionTimes(), [connectorId]: Date.now() }
+    localStorage.setItem(REJECTING_CONNECTORS_KEY, JSON.stringify(known))
   } catch {
     // Storage can be full or blocked; the next transaction simply retries the list.
   }
@@ -201,13 +230,15 @@ const USER_REJECTION_CODE = 4001
 // -32602 is "invalid params"; -104 is SafePal's device-side "show tx info failed".
 const PARAMS_REJECTION_CODES = new Set([-32602, -104])
 const PARAMS_REJECTION_MESSAGE = /invalid param|missing or invalid parameters|access ?list/i
-const USER_REJECTION_MESSAGE = /user (rejected|denied|cancel)/i
+const USER_REJECTION_MESSAGE = /user (rejected|denied|cancel)|rejected by (the )?user|declined/i
 
 /**
  * Whether a wallet turned the request down because of its access list, as opposed to the user
  * closing the prompt or the transaction being unfundable. Phantom answers -32000 "Missing or invalid
  * parameters."; -32000 alone is also geth's generic server error, so that code counts only with a
- * parameters message.
+ * parameters message — the wallet's own. viem wraps every -32000 in an error whose `message` opens
+ * with "Missing or invalid parameters." and keeps the wallet's text in `details`, so `details` is
+ * what gets read whenever it is present.
  */
 export function isAccessListRejectionError(error: unknown): boolean {
   let sawParamsRejection = false
@@ -219,7 +250,7 @@ export function isAccessListRejectionError(error: unknown): boolean {
       details?: unknown
       cause?: unknown
     }
-    const text = [message, details].filter((part): part is string => typeof part === 'string').join(' ')
+    const text = typeof details === 'string' ? details : typeof message === 'string' ? message : ''
     if (code === USER_REJECTION_CODE || USER_REJECTION_MESSAGE.test(text)) return false
     if (
       (typeof code === 'number' && PARAMS_REJECTION_CODES.has(code)) ||

@@ -33,6 +33,9 @@ import { isAddress } from 'utils/address'
 import { findTx } from 'utils/transaction'
 import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes, toEventSelector } from 'utils/viem'
 
+// Bounds the read of a mined swap's access list before `Swap Completed` fires.
+const ACCESS_LIST_LOOKUP_TIMEOUT_MS = 3000
+
 const appsSdk = new SafeAppsSDK()
 
 // Emitted by the vault's withdraw queue for a new native redemption; the request id is its first indexed topic.
@@ -295,15 +298,25 @@ export default function Updater(): null {
                 access_list_retained: accessListRetained,
               })
             const client = publicClientRef.current
-            if (arbitrary.accessList?.addresses && client) {
+            const requestedList = arbitrary.accessList
+            if (requestedList?.addresses && !requestedList.rejectedByWallet && client) {
               // Whether the wallet signed the list it was handed shows only on the mined transaction. The
-              // tracking call sits outside the rejection handler so a throw inside it cannot fire twice.
-              client.getTransaction({ hash: receipt.transactionHash as Hash }).then(
-                tx => trackSwapCompleted('accessList' in tx && (tx.accessList?.length ?? 0) > 0),
-                () => trackSwapCompleted(undefined),
-              )
+              // lookup is time-boxed so a slow RPC cannot hold back the volume event, and the tracking
+              // call sits outside the rejection handler so a throw inside it cannot fire twice.
+              let timer: ReturnType<typeof setTimeout> | undefined
+              Promise.race([
+                client
+                  .getTransaction({ hash: receipt.transactionHash as Hash })
+                  .then(tx => 'accessList' in tx && (tx.accessList?.length ?? 0) > 0),
+                new Promise<undefined>(resolve => {
+                  timer = setTimeout(() => resolve(undefined), ACCESS_LIST_LOOKUP_TIMEOUT_MS)
+                }),
+              ])
+                .then(trackSwapCompleted, () => trackSwapCompleted(undefined))
+                .finally(() => clearTimeout(timer))
             } else {
-              trackSwapCompleted()
+              // A list the wallet refused never reached the chain; a swap sent without one leaves the field unset.
+              trackSwapCompleted(requestedList?.rejectedByWallet ? false : undefined)
             }
             if (arbitrary.tipLink) {
               trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {

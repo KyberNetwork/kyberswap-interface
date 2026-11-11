@@ -1,4 +1,4 @@
-import { rpcFetch } from '@kyber/rpc-client'
+import { directRpcFetch, rpcFetch } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 // eslint-disable-next-line no-restricted-imports
 import { getAccount } from '@wagmi/core'
@@ -10,6 +10,7 @@ import store from 'state'
 import {
   ACCESS_LIST_CONFIG,
   AccessListEntry,
+  AccessListPolicy,
   fetchAccessList,
   isAccessListRejectionError,
   readRejectingConnectors,
@@ -93,7 +94,7 @@ export async function sendEVMTransaction({
   isSmartConnector,
   chainId,
   gasLimitMarginBps,
-  isSmartSettlement,
+  swap,
   onRequestSignature,
 }: {
   account: string
@@ -107,8 +108,11 @@ export async function sendEVMTransaction({
   isSmartConnector: boolean
   chainId: ChainId
   gasLimitMarginBps?: number
-  /** Smart Settlement swaps are what `ACCESS_LIST_CONFIG` attaches an access list to; see `resolveAccessListPolicy`. */
-  isSmartSettlement?: boolean
+  /**
+   * Present for swaps only. `ACCESS_LIST_CONFIG` governs swaps, so a transaction sent without it
+   * (approval, wrap, claim, …) never carries an access list; see `resolveAccessListPolicy`.
+   */
+  swap?: { isSmartSettlement: boolean }
   // Fired once the tx is fully prepared (gas + fees estimated) and we're about to
   // ask the wallet to sign — lets the UI switch from "preparing" to "awaiting
   // signature" instead of claiming the wallet is open while we're still estimating.
@@ -134,15 +138,17 @@ export async function sendEVMTransaction({
   }
 
   const connectorId = getAccount(wagmiConfig).connector?.id
-  const policy = resolveAccessListPolicy({
-    config: ACCESS_LIST_CONFIG,
-    chainId,
-    connectorId,
-    isSmartConnector,
-    isSmartSettlement: Boolean(isSmartSettlement),
-    chargesGasLimit: Boolean(NETWORKS_INFO[chainId]?.chargesGasLimit),
-    rejectingConnectors: readRejectingConnectors(),
-  })
+  const policy: AccessListPolicy = swap
+    ? resolveAccessListPolicy({
+        config: ACCESS_LIST_CONFIG,
+        chainId,
+        connectorId,
+        isSmartConnector,
+        isSmartSettlement: swap.isSmartSettlement,
+        chargesGasLimit: Boolean(NETWORKS_INFO[chainId]?.chargesGasLimit),
+        rejectingConnectors: readRejectingConnectors(),
+      })
+    : { attach: false }
 
   const call = {
     from: account,
@@ -161,10 +167,21 @@ export async function sendEVMTransaction({
   // Route gas estimation through the rotating RPC client (round-robin across
   // healthy public endpoints, per-request timeout, Kyber RPC fallback) so a
   // single slow/overloaded RPC can't stall the flow before the wallet prompt.
-  const estimateGas = (list?: AccessListEntry[]) =>
-    rpcFetch<string>(chainId as number, 'eth_estimateGas', [list ? { ...call, accessList: list } : call], {
-      timeout: PRE_SIGN_RPC_TIMEOUT_MS,
-    }).then(BigInt)
+  const estimateGas = () =>
+    rpcFetch<string>(chainId as number, 'eth_estimateGas', [call], { timeout: PRE_SIGN_RPC_TIMEOUT_MS }).then(BigInt)
+  // An estimate that carries the list goes to the default RPC alone: the rotating client reads the
+  // -32602 an endpoint gives for the unknown `accessList` field as an endpoint failure and would cool
+  // down the whole pool right before the send.
+  const estimateGasWithList = (list: AccessListEntry[]) => {
+    const rpcUrl = NETWORKS_INFO[chainId]?.defaultRpcUrl
+    if (!rpcUrl) throw new Error(`No default RPC for chain ${chainId}`)
+    return directRpcFetch<string>(
+      rpcUrl,
+      'eth_estimateGas',
+      [{ ...call, accessList: list }],
+      PRE_SIGN_RPC_TIMEOUT_MS,
+    ).then(BigInt)
+  }
   const estimateError = (error: unknown) =>
     new TransactionError(
       errorInfo.name,
@@ -182,7 +199,7 @@ export async function sendEVMTransaction({
       accessList = await pendingAccessList
       if (accessList) {
         try {
-          gasEstimate = await estimateGas(accessList)
+          gasEstimate = await estimateGasWithList(accessList)
           estimatedWithList = true
         } catch {
           // The RPC would not estimate with the list; send plain rather than guess at a limit.
@@ -194,7 +211,8 @@ export async function sendEVMTransaction({
       }
     } else {
       // The limit is estimated without the list on purpose: a wallet that drops the list still
-      // sends enough gas, and one that keeps it simply uses less.
+      // sends enough gas, and one that keeps it simply uses less. On Arbitrum the list is also L1
+      // calldata charged in gas units, a few thousand for a typical list, which the margin absorbs.
       const [estimate, list] = await Promise.all([estimateGas(), pendingAccessList])
       gasEstimate = estimate
       accessList = list

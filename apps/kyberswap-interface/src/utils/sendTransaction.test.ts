@@ -1,10 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { InvalidInputRpcError, RpcRequestError } from 'viem'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { AccessListConfig } from 'utils/accessList'
+import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
-
-import { sendEVMTransaction } from './sendTransaction'
 
 const mocks = vi.hoisted(() => ({
   rpcFetch: vi.fn(),
@@ -49,6 +49,9 @@ const rawList = [
 const hash = `0x${'ab'.repeat(32)}` as const
 const plainHash = `0x${'cd'.repeat(32)}` as const
 const rejection = { code: -32602, message: 'Invalid params' }
+/** What `walletClient.request` throws when the wallet answers -32000: viem's wrapper keeps the wallet's text in `details`. */
+const viemWrapped32000 = (message: string) =>
+  new InvalidInputRpcError(new RpcRequestError({ body: {}, url: 'wallet', error: { code: -32000, message } }))
 
 const send = (overrides: Partial<Parameters<typeof sendEVMTransaction>[0]> = {}) =>
   sendEVMTransaction({
@@ -59,13 +62,14 @@ const send = (overrides: Partial<Parameters<typeof sendEVMTransaction>[0]> = {})
     errorInfo: { name: ErrorName.SwapError, wallet: 'MetaMask' },
     isSmartConnector: false,
     chainId: ChainId.MAINNET,
-    isSmartSettlement: true,
+    swap: { isSmartSettlement: true },
     ...overrides,
   })
 
 const sentParams = (call = 0) => mocks.sent[call]
 const walletAnswers = (...outcomes: typeof mocks.outcomes) => mocks.outcomes.push(...outcomes)
 const estimateCalls = () => mocks.rpcFetch.mock.calls.filter(([, method]) => method === 'eth_estimateGas')
+const listEstimateCalls = () => mocks.directRpcFetch.mock.calls.filter(([, method]) => method === 'eth_estimateGas')
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -78,11 +82,11 @@ beforeEach(() => {
       mocks.storage.set(key, value)
     },
   })
-  // 100,000 gas without a list, 80,000 with one.
-  mocks.rpcFetch.mockImplementation(async (_chain: number, _method: string, [call]: [{ accessList?: unknown }]) =>
-    call.accessList ? '0x13880' : '0x186a0',
+  // 100,000 gas without a list (rotating client), 80,000 with one (default RPC).
+  mocks.rpcFetch.mockResolvedValue('0x186a0')
+  mocks.directRpcFetch.mockImplementation(async (_url: string, method: string, [arg]: [{ accessList?: unknown }]) =>
+    method === 'eth_createAccessList' ? { accessList: rawList } : arg.accessList ? '0x13880' : '0x186a0',
   )
-  mocks.directRpcFetch.mockResolvedValue({ accessList: rawList })
   mocks.sent = []
   mocks.outcomes = []
   mocks.request.mockImplementation(async ({ params }: { params: unknown[] }) => {
@@ -105,6 +109,7 @@ describe('sendEVMTransaction with an access list', () => {
     )
     expect(estimateCalls()).toHaveLength(1)
     expect(estimateCalls()[0][2][0].accessList).toBeUndefined()
+    expect(listEstimateCalls()).toHaveLength(0)
     expect(sentParams()).toMatchObject({
       type: '0x2',
       accessList: [{ address: pool, storageKeys: [slot(1), slot(2)] }],
@@ -132,8 +137,8 @@ describe('sendEVMTransaction with an access list', () => {
   })
 
   it('attaches nothing, and reports nothing, when the policy keeps the swap list-less', async () => {
-    const plain = await send({ isSmartSettlement: false })
-    const blocked = await send({ isSmartSettlement: true, chainId: ChainId.OPTIMISM })
+    const plain = await send({ swap: { isSmartSettlement: false } })
+    const blocked = await send({ swap: { isSmartSettlement: true }, chainId: ChainId.OPTIMISM })
 
     expect(mocks.directRpcFetch).not.toHaveBeenCalled()
     expect(plain).toEqual({ hash, accessList: undefined })
@@ -155,7 +160,7 @@ describe('sendEVMTransaction with an access list', () => {
       hash: plainHash,
       accessList: { addresses: 1, storageKeys: 2, estimatedWithList: false, rejectedByWallet: true },
     })
-    expect(JSON.parse(mocks.storage.get('accessListRejectingConnectors') ?? '[]')).toEqual(['io.metamask'])
+    expect(Object.keys(JSON.parse(mocks.storage.get('accessListRejectingConnectors') ?? '{}'))).toEqual(['io.metamask'])
   })
 
   it('does not remember the connector when the plain resend fails too', async () => {
@@ -168,7 +173,7 @@ describe('sendEVMTransaction with an access list', () => {
   })
 
   it('skips the list from the start for a connector that refused one before', async () => {
-    mocks.storage.set('accessListRejectingConnectors', JSON.stringify(['io.metamask']))
+    mocks.storage.set('accessListRejectingConnectors', JSON.stringify({ 'io.metamask': Date.now() }))
 
     const result = await send()
 
@@ -198,6 +203,68 @@ describe('sendEVMTransaction with an access list', () => {
       accessList: { addresses: 1, storageKeys: 2, estimatedWithList: false, rejectedByWallet: false },
     })
   })
+
+  it('does not read a viem-wrapped -32000 "insufficient funds" as a list rejection', async () => {
+    walletAnswers({ error: viemWrapped32000('insufficient funds for gas * price + value') })
+
+    await expect(send()).rejects.toMatchObject({ message: expect.stringContaining('insufficient funds') })
+
+    expect(mocks.request).toHaveBeenCalledTimes(1)
+    expect(mocks.storage.has('accessListRejectingConnectors')).toBe(false)
+  })
+
+  it('resends plain when the wallet itself answers -32000 "Missing or invalid parameters." through viem', async () => {
+    walletAnswers({ error: viemWrapped32000('Missing or invalid parameters.') }, { value: plainHash })
+
+    const result = await send()
+
+    expect(mocks.request).toHaveBeenCalledTimes(2)
+    expect(sentParams(1).accessList).toBeUndefined()
+    expect(result).toEqual({
+      hash: plainHash,
+      accessList: { addresses: 1, storageKeys: 2, estimatedWithList: false, rejectedByWallet: true },
+    })
+  })
+
+  it('sends plain when the RPC reports that the simulation behind the list reverted', async () => {
+    mocks.directRpcFetch.mockResolvedValue({ accessList: rawList, error: 'execution reverted' })
+
+    const result = await send()
+
+    expect(sentParams().accessList).toBeUndefined()
+    expect(result?.accessList).toEqual({
+      addresses: 0,
+      storageKeys: 0,
+      estimatedWithList: false,
+      rejectedByWallet: false,
+    })
+  })
+
+  it('sends plain when the access-list RPC stalls past its deadline', async () => {
+    vi.useFakeTimers()
+    try {
+      mocks.directRpcFetch.mockReturnValue(new Promise(() => undefined))
+
+      const pending = send()
+      await vi.advanceTimersByTimeAsync(3000)
+      const result = await pending
+
+      expect(sentParams().accessList).toBeUndefined()
+      expect(result?.accessList?.addresses).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('never fetches a list for a transaction without a swap context, even on an `all` chain', async () => {
+    mocks.config = { chains: { [ChainId.MAINNET]: 'all' }, walletBlocklist: [], gasLimitWalletAllowlist: [] }
+
+    const result = await send({ swap: undefined })
+
+    expect(mocks.directRpcFetch).not.toHaveBeenCalled()
+    expect(sentParams().accessList).toBeUndefined()
+    expect(result).toEqual({ hash, accessList: undefined })
+  })
 })
 
 describe('sendEVMTransaction on a chain that charges the gas limit', () => {
@@ -208,13 +275,15 @@ describe('sendEVMTransaction on a chain that charges the gas limit', () => {
       gasLimitWalletAllowlist: ['io.metamask'],
     }
   })
-  const sendOnMonad = () => send({ chainId: ChainId.MONAD, isSmartSettlement: false })
+  const sendOnMonad = () => send({ chainId: ChainId.MONAD, swap: { isSmartSettlement: false } })
 
-  it('estimates with the list for an allowlisted wallet and sends that lower limit', async () => {
+  it('estimates with the list, against the default RPC, for an allowlisted wallet and sends that lower limit', async () => {
     const result = await sendOnMonad()
 
-    expect(estimateCalls()).toHaveLength(1)
-    expect(estimateCalls()[0][2][0].accessList).toBeDefined()
+    expect(estimateCalls()).toHaveLength(0)
+    expect(listEstimateCalls()).toHaveLength(1)
+    expect(listEstimateCalls()[0][0]).toContain('http')
+    expect(listEstimateCalls()[0][2][0].accessList).toBeDefined()
     expect(sentParams()).toMatchObject({ type: '0x2', gas: `0x${(100_000).toString(16)}` })
     expect(result?.accessList).toEqual({
       addresses: 1,
@@ -229,8 +298,9 @@ describe('sendEVMTransaction on a chain that charges the gas limit', () => {
 
     const result = await sendOnMonad()
 
-    expect(estimateCalls()).toHaveLength(2)
-    expect(estimateCalls()[1][2][0].accessList).toBeUndefined()
+    expect(listEstimateCalls()).toHaveLength(1)
+    expect(estimateCalls()).toHaveLength(1)
+    expect(estimateCalls()[0][2][0].accessList).toBeUndefined()
     expect(sentParams(1)).not.toHaveProperty('accessList')
     expect(sentParams(1).gas).toBe(`0x${(120_000).toString(16)}`)
     expect(result).toEqual({
@@ -240,14 +310,15 @@ describe('sendEVMTransaction on a chain that charges the gas limit', () => {
   })
 
   it('falls back to a plain transaction when the RPC will not estimate with the list', async () => {
-    mocks.rpcFetch.mockImplementation(async (_chain: number, _method: string, [call]: [{ accessList?: unknown }]) => {
-      if (call.accessList) throw new Error('invalid argument 0: accessList')
-      return '0x186a0'
+    mocks.directRpcFetch.mockImplementation(async (_url: string, method: string) => {
+      if (method === 'eth_estimateGas') throw new Error('invalid argument 0: accessList')
+      return { accessList: rawList }
     })
 
     const result = await sendOnMonad()
 
-    expect(estimateCalls()).toHaveLength(2)
+    expect(listEstimateCalls()).toHaveLength(1)
+    expect(estimateCalls()).toHaveLength(1)
     expect(sentParams()).not.toHaveProperty('accessList')
     expect(sentParams().gas).toBe(`0x${(120_000).toString(16)}`)
     expect(result?.accessList).toEqual({

@@ -159,14 +159,15 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
         },
         chainId,
         gasLimitMarginBps: isSmartSettlement ? 5_000 : undefined,
-        isSmartSettlement: Boolean(isSmartSettlement),
+        swap: { isSmartSettlement: Boolean(isSmartSettlement) },
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
+      // The transaction is on-chain by now; it is recorded before anything that can still throw.
+      handleSwapResponse(response)
       if (response.accessList?.rejectedByWallet) {
         trackingHandler(TRACKING_EVENT_TYPE.ACCESS_LIST_REJECTED, { wallet: walletKey, chain: networkInfo.name })
       }
-      handleSwapResponse(response)
       return response?.hash
     },
     [
