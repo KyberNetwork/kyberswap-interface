@@ -6,7 +6,7 @@ import { useMedia } from 'react-use'
 import { sortQuotesByNetOutput } from 'services/crossChain/quote/utils'
 import { Quote, getQuoteId } from 'services/crossChain/registry'
 
-import { ReactComponent as FeeIcon } from 'assets/svg/earn/ic_earn_claim_fees.svg'
+import { ReactComponent as FeeIcon } from 'assets/svg/fee.svg'
 import GasStation from 'components/Icons/GasStation'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
@@ -193,13 +193,7 @@ const RouteOptionsContent = ({
                               style={{ zIndex: Z_INDEXS.MODAL + 1 }}
                             >
                               <span aria-label={t`Additional Fee`} className="flex items-center">
-                                <FeeIcon
-                                  width={16}
-                                  height={16}
-                                  strokeWidth={1.5}
-                                  className="shrink-0"
-                                  aria-hidden="true"
-                                />
+                                <FeeIcon width={16} height={16} className="shrink-0" aria-hidden="true" />
                               </span>
                             </FeeTooltip>
                             <span>{additionalFee}</span>
