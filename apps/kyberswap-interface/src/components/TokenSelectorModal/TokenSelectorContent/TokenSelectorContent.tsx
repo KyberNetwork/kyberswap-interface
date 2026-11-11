@@ -37,7 +37,7 @@ import {
   TokenSelectorNetwork,
   tokenRowKey,
 } from 'components/TokenSelectorModal/types'
-import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
+import { NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme'
@@ -173,9 +173,9 @@ export const TokenSelectorContent = ({
     : onSelectNonEvmCurrency
     ? [
         ...rankedChains,
-        ...[ChainId.BLAST, ...CROSS_CHAIN_ONLY_NETWORKS]
+        ...[ChainId.BLAST]
           .filter(chainId => !rankedChains.some(chain => chain.chainId === chainId))
-          .map(chainId => NETWORKS_INFO[chainId]),
+          .map(chainId => NETWORKS_INFO[chainId as ChainId]),
         ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] })),
       ]
     : rankedChains

@@ -1,19 +1,16 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useAccount as useAccountWagmi } from 'wagmi'
 
 import { SMART_WALLETS } from 'components/Web3Provider'
 import { MOCK_ACCOUNT_EVM } from 'constants/env'
-import { APP_PATHS } from 'constants/index'
-import { CROSS_CHAIN_ONLY_NETWORKS, isSupportedChainId } from 'constants/networks'
+import { isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { useAccount } from 'hooks/useAccount'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { AppState } from 'state'
-import { isSwapLikePath } from 'utils/routes'
-import { getEmbeddedSwapPair, getSwapChains, isCrossChainPair } from 'utils/swapFlow'
 
 export function useActiveWeb3React(): {
   chainId: ChainId
@@ -25,22 +22,9 @@ export function useActiveWeb3React(): {
   const [searchParams] = useSearchParams()
   const rawChainIdState = useSelector<AppState, ChainId>(state => state.user.chainId) || ChainId.MAINNET
   const { chainId } = useAccountWagmi()
-  const { pathname } = useLocation()
-  const isEmbeddedSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP) || pathname.startsWith(APP_PATHS.USER_SWAP)
-  const embeddedPair = getEmbeddedSwapPair(searchParams)
-  const isCrossChain =
-    pathname === APP_PATHS.KYBER_CROSS ||
-    pathname === APP_PATHS.CROSS_CHAIN ||
-    (isEmbeddedSwap
-      ? isCrossChainPair(embeddedPair.fromChain, embeddedPair.toChain)
-      : isSwapLikePath(pathname) && getSwapChains(searchParams, rawChainIdState).isCrossChain)
-  const isWrongNetwork =
-    !!chainId && (!isSupportedChainId(chainId) || (!isCrossChain && CROSS_CHAIN_ONLY_NETWORKS.includes(chainId)))
+  const isWrongNetwork = !!chainId && !isSupportedChainId(chainId)
   const { connector } = useAccount()
-  const chainIdState =
-    isWrongNetwork || (!isCrossChain && CROSS_CHAIN_ONLY_NETWORKS.includes(rawChainIdState))
-      ? ChainId.MAINNET
-      : rawChainIdState
+  const chainIdState = isWrongNetwork ? ChainId.MAINNET : rawChainIdState
 
   /**Hook for EVM infos */
   const { account: evmAccount } = useWeb3React()
