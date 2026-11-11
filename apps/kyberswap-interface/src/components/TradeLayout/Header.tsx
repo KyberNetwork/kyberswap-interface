@@ -89,7 +89,7 @@ export const Header = ({
                 An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal
                 slippage.
               </HiddenH2>
-              <span className="text-xs font-medium text-subText">{t`Swap between tokens on different chains`}</span>
+              <span className="text-xs font-medium text-subText">{t`Across chains, at the best available rate`}</span>
             </>
           )}
           {isCrossChainPage && (

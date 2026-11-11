@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { type PropsWithChildren, type ReactNode, Suspense, lazy } from 'react'
+import { type PropsWithChildren, type ReactNode, Suspense } from 'react'
 
-import { FarmingPoolBannerSkeleton, TrendingPoolBannerSkeleton } from 'components/EarnBanner/Skeletons'
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
@@ -12,18 +11,8 @@ import { TAB } from 'components/TradeLayout/Tabs'
 import type { TradeController } from 'components/TradeLayout/useTradeController'
 import { useTradeLayoutPrefetch } from 'components/TradeLayout/useTradeLayoutPrefetch'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import {
-  BannerWrapper,
-  Container,
-  PageWrapper,
-  RightPanel,
-  SwapFormWrapper,
-  TradeBody,
-} from 'pages/Swap/layout/components'
+import { Container, PageWrapper, RightPanel, SwapFormWrapper, TradeBody } from 'pages/Swap/layout/components'
 import { cn } from 'utils/cn'
-
-const FarmingPoolBanner = lazy(() => import('components/EarnBanner/FarmingPoolBanner'))
-const TrendingPoolBanner = lazy(() => import('components/EarnBanner/TrendingPoolBanner'))
 
 type SwapLayoutProps = PropsWithChildren<{
   customChainId?: ChainId
@@ -73,19 +62,6 @@ export const SwapLayout = ({
           </SwapFormWrapper>
 
           <RightPanel>
-            <Suspense
-              fallback={
-                <BannerWrapper>
-                  <TrendingPoolBannerSkeleton />
-                  <FarmingPoolBannerSkeleton />
-                </BannerWrapper>
-              }
-            >
-              <BannerWrapper>
-                <TrendingPoolBanner />
-                <FarmingPoolBanner />
-              </BannerWrapper>
-            </Suspense>
             <Suspense fallback={rightPanelFallback ?? <LocalLoader />}>{rightPanel}</Suspense>
           </RightPanel>
         </LimitOrderProvider>

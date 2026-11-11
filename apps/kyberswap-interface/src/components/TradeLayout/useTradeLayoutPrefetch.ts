@@ -10,8 +10,6 @@ const LEFT_CONTENT_LOADERS: LazyComponentLoader[] = [
 ]
 
 const RIGHT_PANEL_LOADERS: LazyComponentLoader[] = [
-  () => import('components/EarnBanner/TrendingPoolBanner'),
-  () => import('components/EarnBanner/FarmingPoolBanner'),
   () => import('components/TokenPriceChart/TokenPriceChartCanvas'),
   () => import('components/TradeRouting'),
   // Limit Order and Stop Market share this panel.

@@ -63,6 +63,7 @@ export const RightPanel = ({ children }: PropsWithChildren) => {
   )
 }
 
+/** @deprecated Pool banners are no longer displayed in the trade layout. */
 export const BannerWrapper = ({ children, className, ...rest }: DivProps) => (
   <div
     className={cn('grid w-full grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-5 overflow-hidden max-lg:hidden', className)}
