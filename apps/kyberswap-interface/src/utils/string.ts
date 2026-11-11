@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import DOMPurify from 'dompurify'
 
-import { CROSS_CHAIN_ONLY_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
 export const queryStringToObject = (queryString: string) => {
   return Object.fromEntries(new URLSearchParams(queryString).entries())
@@ -28,9 +28,7 @@ export const isEmailValid = (value: string | undefined) =>
   (value || '').trim().match(/^\w+([\.-]?\w)*@\w+([\.-]?\w)*(\.\w{2,10})+$/)
 
 export const getChainIdFromSlug = (network: string | undefined): ChainId | undefined => {
-  return SUPPORTED_NETWORKS.find(
-    chainId => NETWORKS_INFO[chainId].route === network && !CROSS_CHAIN_ONLY_NETWORKS.includes(chainId),
-  )
+  return SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
 }
 
 export function capitalizeFirstLetter(str?: string) {

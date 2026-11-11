@@ -5,7 +5,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
  * note belongs (an address in place of `new Token(…)`) fails type-check instead of switching the
  * feature off for that chain.
  */
-export type ChainFeatureNote = 'testnet' | 'cross-chain only' | `needs ${string}`
+export type ChainFeatureNote = 'testnet' | `needs ${string}`
 
 /**
  * One feature's decision for every chain: its value on the chains that have it, and on each other

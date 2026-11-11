@@ -49,7 +49,7 @@ const TRENDING_BY_CHAIN: ChainFeatureMap = {
   [ChainId.ETHERLINK]: NEEDS_KYBERSCORE,
   [ChainId.MEGAETH]: NEEDS_KYBERSCORE,
   [ChainId.RISE]: NEEDS_KYBERSCORE,
-  [ChainId.ABSTRACT]: 'cross-chain only',
+  [ChainId.ABSTRACT]: NEEDS_KYBERSCORE,
 }
 
 export const isTrendingSupportedChain = (chainId: ChainId): boolean => TRENDING_BY_CHAIN[chainId] === true
