@@ -1,4 +1,3 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
   AdaptedWallet,
   MAINNET_RELAY_API,
@@ -7,13 +6,11 @@ import {
   createClient,
   getClient,
 } from '@relayprotocol/relay-sdk'
-import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter } from 'services/crossChain/adapters/BaseSwapAdapter'
 import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
-import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { parseRelayQuote } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
-import { CROSS_CHAIN_FEE_RECEIVER } from 'services/crossChain/utils'
-import { WalletClient, formatUnits } from 'viem'
+import { WalletClient } from 'viem'
 import {
   abstract,
   arbitrum,
@@ -39,15 +36,7 @@ import {
 } from 'viem/chains'
 
 import { arc, elysium, robinhood } from 'components/Web3Provider/config'
-import { ZERO_ADDRESS } from 'constants/index'
-import {
-  Chain,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedTxResponse,
-  type SolanaToken,
-  SwapStatus,
-} from 'types/crossChain'
+import { NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const SolanaChainId = 792703809
 
@@ -101,95 +90,6 @@ export class RelayAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/84e906bb-eaeb-45d3-a64c-2aa9c84eb3ea1747759080942.png'
   }
-  getSupportedChains(): Chain[] {
-    return [
-      NonEvmChain.Solana,
-      ChainId.ARBITRUM,
-      ChainId.AVAXMAINNET,
-      ChainId.BASE,
-      ChainId.BERA,
-      ChainId.BLAST,
-      ChainId.ABSTRACT,
-      ChainId.BSCMAINNET,
-      ChainId.FANTOM,
-      ChainId.LINEA,
-      ChainId.MAINNET,
-      ChainId.MANTLE,
-      ChainId.OPTIMISM,
-      ChainId.MATIC,
-      ChainId.SCROLL,
-      ChainId.SONIC,
-      ChainId.ZKSYNC,
-      ChainId.RONIN,
-      ChainId.UNICHAIN,
-      ChainId.HYPEREVM,
-      ChainId.PLASMA,
-      ChainId.MONAD,
-      ChainId.ROBINHOOD,
-      ChainId.ARC,
-      ChainId.ELYSIUM,
-    ]
-  }
-
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
-    const evmFromToken = params.fromToken as Currency
-    const evmToToken = params.toToken as Currency
-    const currency =
-      params.fromChain === 'solana'
-        ? (params.fromToken as SolanaToken).id
-        : evmFromToken.isNative
-        ? ZERO_ADDRESS
-        : evmFromToken.wrapped.address
-
-    const toCurrency =
-      params.toChain === 'solana'
-        ? (params.toToken as SolanaToken).id
-        : evmToToken.isNative
-        ? ZERO_ADDRESS
-        : evmToToken.wrapped.address
-
-    const resp = await getClient().actions.getQuote({
-      chainId: params.fromChain === 'solana' ? SolanaChainId : +params.fromChain,
-      toChainId: params.toChain === 'solana' ? SolanaChainId : +params.toChain,
-      currency,
-      toCurrency,
-      amount: params.amount,
-      tradeType: 'EXACT_INPUT',
-      wallet: params.walletClient,
-      recipient: params.recipient,
-      options: {
-        appFees: [
-          {
-            recipient: CROSS_CHAIN_FEE_RECEIVER,
-            fee: params.feeBps.toString(),
-          },
-        ],
-      },
-    })
-
-    const formattedOutputAmount = formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals)
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
-      ? Number(resp.details?.currencyIn?.amountUsd || 0)
-      : params.tokenInUsd * +formattedInputAmount
-    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
-      ? Number(resp.details?.currencyOut?.amountUsd || 0)
-      : params.tokenOutUsd * +formattedOutputAmount
-
-    return normalizeQuote({
-      quoteParams: params,
-      outputAmount: BigInt(resp.details?.currencyOut?.amount || '0'),
-      inputUsd,
-      outputUsd,
-      timeEstimate: resp.details?.timeEstimate || 0,
-      // Relay executes any approval steps itself; skip the app's separate approval flow.
-      contractAddress: ZERO_ADDRESS,
-      rawQuote: resp,
-      additionalFeeUsd: 0,
-      platformFeePercent: (params.feeBps * 100) / 10000,
-    })
-  }
-
   async executeSwap(quote: Quote, walletClient: WalletClient | AdaptedWallet): Promise<NormalizedTxResponse> {
     // Resolve after the source deposit; Relay's request ID owns destination-status lookup.
     return new Promise<NormalizedTxResponse>((resolve, reject) => {

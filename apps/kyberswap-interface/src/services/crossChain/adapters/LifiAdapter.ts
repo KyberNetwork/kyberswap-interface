@@ -1,24 +1,12 @@
-import { createConfig, getQuote, getStatus } from '@lifi/sdk'
+import { createConfig, getStatus } from '@lifi/sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
-import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
-import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
+import { BaseSwapAdapter } from 'services/crossChain/adapters/BaseSwapAdapter'
 import { evmTransactionSchema, lifiQuoteSchema } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
-import { CROSS_CHAIN_FEE_RECEIVER } from 'services/crossChain/utils'
-import { WalletClient, formatUnits } from 'viem'
+import { WalletClient } from 'viem'
 
-import { ZERO_ADDRESS } from 'constants/index'
-import { MAINNET_NETWORKS } from 'constants/networks'
-import {
-  Chain,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedTxResponse,
-  type SolanaToken,
-  SwapStatus,
-} from 'types/crossChain'
-import { toBigIntSafe } from 'utils/bigint'
+import { NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 export class LifiAdapter extends BaseSwapAdapter {
   constructor() {
@@ -34,61 +22,6 @@ export class LifiAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/aed3a971-48be-4c3c-9597-5ab78073fbf11745552578218.png'
   }
-  getSupportedChains(): Chain[] {
-    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
-  }
-
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
-    const r = await getQuote({
-      fromChain: params.fromChain === 'solana' ? 'SOL' : +params.fromChain,
-      fromToken:
-        params.fromChain === 'solana'
-          ? (params.fromToken as SolanaToken).id
-          : (params.fromToken as any).isNative
-          ? ZERO_ADDRESS
-          : (params.fromToken as any).wrapped.address,
-      fromAmount: params.amount,
-      fromAddress: params.sender === ZERO_ADDRESS ? CROSS_CHAIN_FEE_RECEIVER : params.sender,
-
-      toChain: params.toChain === 'solana' ? 'SOL' : +params.toChain,
-      toToken:
-        params.toChain === 'solana'
-          ? (params.toToken as SolanaToken).id
-          : (params.toToken as any).isNative
-          ? ZERO_ADDRESS
-          : (params.toToken as any).wrapped.address,
-      toAddress: params.recipient,
-      fee: params.feeBps / 10_000,
-    })
-
-    const outputAmount = toBigIntSafe(r.estimate.toAmount)
-    const inputAmount = toBigIntSafe(params.amount)
-
-    const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
-    const formattedInputAmount = formatUnits(inputAmount, params.fromToken.decimals)
-
-    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
-      ? Number(r.estimate.fromAmountUSD)
-      : params.tokenInUsd * +formattedInputAmount
-    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
-      ? Number(r.estimate.toAmountUSD)
-      : params.tokenOutUsd * +formattedOutputAmount
-
-    return normalizeQuote({
-      quoteParams: params,
-      outputAmount,
-      inputUsd,
-      outputUsd,
-
-      timeEstimate: r.estimate.executionDuration,
-      contractAddress: r.transactionRequest?.to || r.estimate.approvalAddress,
-      rawQuote: r,
-
-      additionalFeeUsd: 0,
-      platformFeePercent: (params.feeBps * 100) / 10_000,
-    })
-  }
-
   async executeSwap(
     { quote }: Quote,
     walletClient: WalletClient,

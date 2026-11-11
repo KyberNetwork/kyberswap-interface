@@ -1,5 +1,5 @@
 import { KyberCrossAdapter } from 'services/crossChain/adapters/KyberCrossAdapter'
-import { NearQuoteParams, QuoteParams, SwapProvider } from 'services/crossChain/adapters/types'
+import { QuoteParams, QuoteProvider } from 'services/crossChain/adapters/types'
 import { CrossChainSwapFactory } from 'services/crossChain/factory'
 import { getSourceFilters, streamQuotes } from 'services/crossChain/quote/streamQuotes'
 import { PairCategory, sortQuotesByNetOutput } from 'services/crossChain/quote/utils'
@@ -13,7 +13,7 @@ const KYBERCROSS_QUOTE_TIMEOUT_MS = 60_000
 
 type QuoteRunnerParams = {
   quoteMode: CrossChainQuoteMode
-  params: QuoteParams | NearQuoteParams
+  params: QuoteParams
   category: PairCategory
   currencyIn: Currency
   currencyOut: Currency
@@ -25,7 +25,7 @@ type QuoteRunnerParams = {
   onQuoteReady: () => void
 }
 
-const getAdapterQuote = async (adapter: SwapProvider, params: QuoteParams | NearQuoteParams, signal: AbortSignal) => {
+const getAdapterQuote = async (adapter: QuoteProvider, params: QuoteParams, signal: AbortSignal) => {
   if (signal.aborted) throw new Error('Cancelled')
 
   const quoteTimeoutMs = adapter.getName() === 'KyberCross' ? KYBERCROSS_QUOTE_TIMEOUT_MS : DEFAULT_QUOTE_TIMEOUT_MS
@@ -54,7 +54,7 @@ const getAdapterQuote = async (adapter: SwapProvider, params: QuoteParams | Near
   }
 }
 
-export const isSameChainEvmSwap = (params: QuoteParams | NearQuoteParams) =>
+export const isSameChainEvmSwap = (params: QuoteParams) =>
   params.fromChain === params.toChain &&
   isEvmChain(params.fromChain) &&
   !NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain) &&
@@ -71,7 +71,7 @@ export const getSameChainQuote = async ({
   onQuotes,
   onQuoteReady,
 }: QuoteRunnerParams) => {
-  const kyberswapAdapter = registry.getAdapter('KyberSwap')
+  const kyberswapAdapter = registry.getQuoteAdapter('KyberSwap')
   const isKyberSwapSupported = kyberswapAdapter?.canSupport(category, currencyIn, currencyOut) ?? true
 
   if (kyberswapAdapter && isKyberSwapSupported) {
@@ -96,7 +96,7 @@ export const getSameChainQuote = async ({
   throw new Error('KyberSwap adapter not available')
 }
 
-export const getFallbackQuotes = async ({
+export const getDirectQuotes = async ({
   quoteMode,
   params,
   category,
@@ -108,10 +108,8 @@ export const getFallbackQuotes = async ({
   onQuotes,
   onQuoteReady,
 }: QuoteRunnerParams) => {
-  console.log('Falling back to client-side adapter getQuote...')
-
-  const fallbackQuotes: Quote[] = []
-  const clientQuoteAdapters = CrossChainSwapFactory.getClientQuoteAdapters(quoteMode)
+  const directQuotes: Quote[] = []
+  const clientQuoteAdapters = CrossChainSwapFactory.getDirectQuoteAdapters()
   let clientAdapters = clientQuoteAdapters.filter(adapter => !excludedSources.includes(adapter.getName()))
   if (clientAdapters.length === 0) clientAdapters = clientQuoteAdapters
 
@@ -121,25 +119,25 @@ export const getFallbackQuotes = async ({
       (!params.gasDrop || adapter.getName() === 'KyberCross') &&
       adapter.getSupportedChains().includes(params.fromChain) &&
       adapter.getSupportedChains().includes(params.toChain),
-  ) as SwapProvider[]
+  )
+
+  const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
+    quoteMode,
+    excludedSources,
+    category,
+    currencyIn,
+    currencyOut,
+  )
+  const isExcludedAllSources = selectableSources.every(source => excludedSources.includes(source.getName()))
+  const quoteParams = isExcludedAllSources
+    ? params
+    : { ...params, includedSources: includedSourceNames, excludedSources: excludedSourceNames }
 
   await Promise.all(
     adapters.map(async adapter => {
       try {
         if (signal.aborted) throw new Error('Cancelled')
         if (!adapter.canSupport(category, currencyIn, currencyOut)) return
-
-        const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
-          quoteMode,
-          excludedSources,
-          category,
-          currencyIn,
-          currencyOut,
-        )
-        const isExcludedAllSources = selectableSources.every(source => excludedSources.includes(source.getName()))
-        const quoteParams = isExcludedAllSources
-          ? params
-          : { ...params, includedSources: includedSourceNames, excludedSources: excludedSourceNames }
 
         const quote = await getAdapterQuote(adapter, quoteParams, signal)
         if (signal.aborted) throw new Error('Cancelled')
@@ -148,8 +146,8 @@ export const getFallbackQuotes = async ({
           adapter instanceof KyberCrossAdapter
             ? adapter.getRouteQuotes(quote, isReadOnly)
             : [{ adapter, quote, isReadOnly }]
-        fallbackQuotes.push(...routeQuotes)
-        onQuotes(sortQuotesByNetOutput(fallbackQuotes))
+        directQuotes.push(...routeQuotes)
+        onQuotes(sortQuotesByNetOutput(directQuotes))
         onQuoteReady()
       } catch (error) {
         if ((error as Error).message === 'Cancelled' || signal.aborted) throw new Error('Cancelled')
@@ -158,7 +156,7 @@ export const getFallbackQuotes = async ({
     }),
   )
 
-  if (fallbackQuotes.length === 0) throw new Error('No valid quotes found for the requested swap')
+  if (directQuotes.length === 0) throw new Error('No valid quotes found for the requested swap')
 }
 
 export const getQuotes = async (options: QuoteRunnerParams) => {
@@ -168,7 +166,7 @@ export const getQuotes = async (options: QuoteRunnerParams) => {
   }
 
   if (options.quoteMode === 'direct') {
-    await getFallbackQuotes(options)
+    await getDirectQuotes(options)
     return
   }
 

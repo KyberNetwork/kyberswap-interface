@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import type { getFallbackQuotes } from 'services/crossChain/quote/adapterQuotes'
+import type { getDirectQuotes } from 'services/crossChain/quote/adapterQuotes'
 import type { Quote } from 'services/crossChain/registry'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   connection: {},
   unavailable: vi.fn(),
   checkSameAsset: vi.fn(),
-  getFallbackQuotes: vi.fn(),
+  getDirectQuotes: vi.fn(),
   state: { crossChainSwap: { excludedSources: ['Relay'], kyberCrossExcludedSources: ['Across'] } },
 }))
 vi.mock('@solana/wallet-adapter-react', () => ({
@@ -28,13 +28,13 @@ vi.mock('state/hooks', () => ({
 vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [50] }))
 vi.mock('services/crossChain/factory', () => ({ registry: {} }))
 vi.mock('services/crossChain/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
-vi.mock('services/crossChain/quote/adapterQuotes', () => ({ getFallbackQuotes: mocks.getFallbackQuotes }))
+vi.mock('services/crossChain/quote/adapterQuotes', () => ({ getDirectQuotes: mocks.getDirectQuotes }))
 vi.mock('services/crossChain/quote/getPairInfo', () => ({
   getPairInfo: async () => ({ category: 'stablePair', feeBps: 10, tokenInUsd: 1, tokenOutUsd: 1 }),
 }))
 
 type Props = Parameters<typeof useKyberCrossQuote>[0]
-type QuoteRequest = Parameters<typeof getFallbackQuotes>[0]
+type QuoteRequest = Parameters<typeof getDirectQuotes>[0]
 const pair = {
   pairKey: '1:USDC-8453:USDC',
   fromChainId: 1,
@@ -68,7 +68,7 @@ beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.useFakeTimers()
   mocks.unavailable.mockReset()
-  mocks.getFallbackQuotes.mockReset().mockImplementation(() => new Promise(() => undefined))
+  mocks.getDirectQuotes.mockReset().mockImplementation(() => new Promise(() => undefined))
   root = createRoot(document.createElement('div'))
 })
 afterEach(async () => {
@@ -81,7 +81,7 @@ describe('KyberCross derivative quote session', () => {
   it('uses only direct routing and its own bridge filter with explicit Gas Drop params', async () => {
     await act(async () => render('100', true))
     await act(async () => vi.advanceTimersByTimeAsync(500))
-    expect(mocks.getFallbackQuotes.mock.calls[0][0]).toMatchObject({
+    expect(mocks.getDirectQuotes.mock.calls[0][0]).toMatchObject({
       quoteMode: 'direct',
       excludedSources: ['Across'],
       params: { amount: '100000000', gasDrop: true, sender: 'sender', recipient: 'recipient' },
@@ -92,7 +92,7 @@ describe('KyberCross derivative quote session', () => {
   it('selects and reviews a non-first route from the same provider', async () => {
     await act(async () => render('100'))
     await act(async () => vi.advanceTimersByTimeAsync(500))
-    const request = mocks.getFallbackQuotes.mock.calls[0][0] as QuoteRequest
+    const request = mocks.getDirectQuotes.mock.calls[0][0] as QuoteRequest
     const first = {
       id: 'first',
       adapter: { getName: () => 'KyberCross' },
@@ -118,7 +118,7 @@ describe('KyberCross derivative quote session', () => {
   it('invalidates Gas Drop quotes immediately and ignores their late recovery callbacks', async () => {
     await act(async () => render('100', true))
     await act(async () => vi.advanceTimersByTimeAsync(500))
-    const previous = mocks.getFallbackQuotes.mock.calls[0][0] as QuoteRequest
+    const previous = mocks.getDirectQuotes.mock.calls[0][0] as QuoteRequest
     await act(async () => render('100', false))
     expect(previous.signal.aborted).toBe(true)
     await act(async () => previous.onQuotes([]))
@@ -129,7 +129,7 @@ describe('KyberCross derivative quote session', () => {
   it('reports a missing Gas Drop route without making the ordinary quote executable', async () => {
     await act(async () => render('100', true))
     await act(async () => vi.advanceTimersByTimeAsync(500))
-    const request = mocks.getFallbackQuotes.mock.calls[0][0] as QuoteRequest
+    const request = mocks.getDirectQuotes.mock.calls[0][0] as QuoteRequest
     await act(async () => request.onQuotes([{ adapter: { getName: () => 'KyberCross' }, quote: {} } as Quote]))
     expect(state.quotes).toEqual([])
     expect(mocks.unavailable).toHaveBeenCalledOnce()

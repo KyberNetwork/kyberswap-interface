@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
 import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'services/crossChain/adapters/BaseSwapAdapter'
+import type { QuoteProvider } from 'services/crossChain/adapters/types'
 import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { kyberSwapQuoteSchema } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
@@ -16,11 +17,7 @@ import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
 import { Chain, NOT_SUPPORTED_CHAINS_PRICE_SERVICE, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
-export class KyberSwapAdapter extends BaseSwapAdapter {
-  constructor() {
-    super()
-  }
-
+export class KyberSwapAdapter extends BaseSwapAdapter implements QuoteProvider {
   getName(): string {
     return 'KyberSwap'
   }

@@ -1,35 +1,20 @@
-import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'services/crossChain/adapters/BaseSwapAdapter'
-import { getBungeeQuote, getBungeeStatus } from 'services/crossChain/adapters/BungeeAdapter/api'
-import { type SocketQuoteParams } from 'services/crossChain/adapters/BungeeAdapter/types'
+import { BaseSwapAdapter } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { getBungeeStatus } from 'services/crossChain/adapters/BungeeAdapter/api'
 import {
   getSocketTxRoute,
   normalizeSocketStatus,
   parseSocketQuote,
 } from 'services/crossChain/adapters/BungeeAdapter/utils'
 import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
-import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { Quote } from 'services/crossChain/registry'
-import { CROSS_CHAIN_FEE_RECEIVER, isWrappedToken } from 'services/crossChain/utils'
-import { WalletClient, formatUnits } from 'viem'
+import { isWrappedToken } from 'services/crossChain/utils'
+import { WalletClient } from 'viem'
 
 import SocketLogo from 'assets/svg/socket_logo.svg'
-import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import {
-  BitcoinToken,
-  Chain,
-  Currency,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedTxResponse,
-  SwapStatus,
-} from 'types/crossChain'
+import { BitcoinToken, Currency, NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 export class BungeeAdapter extends BaseSwapAdapter {
-  constructor() {
-    super()
-  }
-
   getName(): string {
     return 'Socket'
   }
@@ -59,66 +44,6 @@ export class BungeeAdapter extends BaseSwapAdapter {
     }
 
     return true
-  }
-
-  getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS, NonEvmChain.Bitcoin]
-  }
-
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
-    if (params.fromChain === NonEvmChain.Bitcoin || params.toChain === NonEvmChain.Bitcoin) {
-      throw new Error('Use the aggregator stream API for Socket Bitcoin quotes')
-    }
-
-    const quoteParams: SocketQuoteParams = {
-      userAddress: params.sender,
-      originChainId: params.fromChain.toString(),
-      destinationChainId: params.toChain.toString(),
-      inputToken: params.fromToken.isNative ? ETHER_ADDRESS : params.fromToken.wrapped.address,
-      inputAmount: params.amount,
-      receiverAddress: params.recipient,
-      outputToken: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.wrapped.address,
-      slippage: ((params.slippage * 100) / 10_000).toString(),
-      feeBps: params.feeBps.toString(),
-      feeTakerAddress: CROSS_CHAIN_FEE_RECEIVER,
-      userOps: 'tx',
-    }
-
-    const response = await getBungeeQuote(quoteParams)
-
-    const data = response.data
-    const serverReqId = response.headers['server-req-id']
-    const quoteResult = data.result
-
-    const route = getSocketTxRoute(quoteResult)
-
-    if (!data.success || !quoteResult || !route?.output?.amount) {
-      throw new Error(`Quote error: ${data.statusCode}: ${data.message}. server-req-id: ${serverReqId}`)
-    }
-
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const formattedOutputAmount = formatUnits(BigInt(route.output.amount), params.toToken.decimals)
-    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
-      ? Number(quoteResult.input?.valueInUsd)
-      : params.tokenInUsd * +formattedInputAmount
-    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
-      ? Number(route.output.valueInUsd)
-      : params.tokenOutUsd * +formattedOutputAmount
-
-    return normalizeQuote({
-      quoteParams: params,
-      outputAmount: BigInt(route.output.amount),
-      inputUsd,
-      outputUsd,
-      timeEstimate: route.estimatedTime || 0,
-      contractAddress: route.approval?.spenderAddress || ZERO_ADDRESS,
-      rawQuote: {
-        ...quoteResult,
-        route,
-      },
-      additionalFeeUsd: 0,
-      platformFeePercent: (params.feeBps * 100) / 10000,
-    })
   }
 
   async executeSwap(

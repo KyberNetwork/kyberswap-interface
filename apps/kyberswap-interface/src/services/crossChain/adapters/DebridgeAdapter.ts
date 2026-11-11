@@ -1,166 +1,23 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
-import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter } from 'services/crossChain/adapters/BaseSwapAdapter'
 import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
-import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { debridgeQuoteSchema, evmTransactionSchema } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
-import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'services/crossChain/utils'
-import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
-import { WalletClient, formatUnits } from 'viem'
+import { WalletClient } from 'viem'
 
-import { ZERO_ADDRESS } from 'constants/index'
-import { NativeCurrencies } from 'constants/tokens'
-import {
-  Chain,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedTxResponse,
-  type SolanaToken,
-  SwapStatus,
-} from 'types/crossChain'
+import { NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
-const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 const DEBRIDGE_STATS_API = 'https://stats-api.dln.trade/api'
 
-const mappingChainId: Record<string, number> = {
-  [ChainId.SONIC]: 100000014,
-  [ChainId.MANTLE]: 100000023,
-  [ChainId.BERA]: 100000020,
-  [ChainId.HYPEREVM]: 100000022,
-  [ChainId.MONAD]: 100000030,
-  [NonEvmChain.Solana]: 7565164,
-}
-
 export class DeBridgeAdapter extends BaseSwapAdapter {
-  constructor() {
-    super()
-  }
-
   getName(): string {
     return 'deBridge'
   }
   getIcon(): string {
     return 'https://app.debridge.finance/assets/images/meta-deswap/favicon-32x32.png'
   }
-  getSupportedChains(): Chain[] {
-    return [
-      ChainId.MAINNET,
-      ChainId.BSCMAINNET,
-      ChainId.MATIC,
-      ChainId.AVAXMAINNET,
-      ChainId.ARBITRUM,
-      ChainId.OPTIMISM,
-      ChainId.LINEA,
-      ChainId.BASE,
-      ChainId.MANTLE,
-      ChainId.BERA,
-      ChainId.SONIC,
-      ChainId.HYPEREVM,
-      ChainId.MONAD,
-      // NonEvmChain.Solana,
-    ]
-  }
-
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
-    const fromToken = params.fromToken as any
-    const toToken = params.toToken as any
-    let p: Record<string, string | boolean | number> = {
-      srcChainId: mappingChainId[params.fromChain] || params.fromChain,
-      srcChainTokenIn:
-        params.fromChain === 'solana'
-          ? (params.fromToken as SolanaToken).id
-          : fromToken.isNative
-          ? ZERO_ADDRESS
-          : fromToken.address,
-
-      srcChainTokenInAmount: params.amount,
-
-      dstChainId: mappingChainId[params.toChain] || params.toChain,
-      dstChainTokenOut:
-        params.toChain === 'solana'
-          ? (params.toToken as SolanaToken).id
-          : toToken.isNative
-          ? ZERO_ADDRESS
-          : toToken.address,
-
-      dstChainTokenOutAmount: 'auto',
-
-      enableEstimate: false,
-      prependOperatingExpenses: false,
-
-      referralCode: 31982,
-      affiliateFeePercent: (params.feeBps * 100) / 10_000,
-      affiliateFeeRecipient: params.fromChain === 'solana' ? CROSS_CHAIN_FEE_RECEIVER_SOLANA : CROSS_CHAIN_FEE_RECEIVER,
-    }
-
-    let path = 'quote'
-    if (params.recipient && params.sender && params.sender !== ZERO_ADDRESS) {
-      path = 'create-tx'
-      p = {
-        ...p,
-        srcChainOrderAuthorityAddress: params.sender,
-        dstChainOrderAuthorityAddress: params.recipient,
-        dstChainTokenOutRecipient: params.recipient,
-      }
-    }
-
-    const queryParams = new URLSearchParams()
-    for (const [key, value] of Object.entries(p)) {
-      queryParams.append(key, String(value))
-    }
-
-    const r = await fetch(`${DEBRIDGE_API}/${path}?${queryParams.toString()}`).then(res => res.json())
-    if (!r.estimation) {
-      throw new Error('No route found')
-    }
-
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const formattedOutputAmount = formatUnits(
-      BigInt(r.estimation.dstChainTokenOut.recommendedAmount),
-      params.toToken.decimals,
-    )
-
-    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
-      ? r.estimation.srcChainTokenIn.approximateUsdValue
-      : params.tokenInUsd * +formattedInputAmount
-    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
-      ? r.estimation.dstChainTokenOut.recommendedApproximateUsdValue
-      : params.tokenOutUsd * +formattedOutputAmount
-
-    const fixFee = r.fixFee
-
-    const wrappedAddress = NativeCurrencies[params.fromChain as ChainId].wrapped.address
-
-    // A missing native price omits the protocol-fee USD estimate without blocking the route.
-    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] }).catch(() => null)
-    const nativePrice = getMidPrice(priceRes?.data?.[params.fromChain]?.[wrappedAddress]) ?? 0
-
-    const nativeDecimals = params.fromChain === 'solana' ? 9 : NativeCurrencies[params.fromChain as ChainId].decimals
-    const additionalFeeUsd = Number(nativePrice) * (Number(fixFee) / 10 ** nativeDecimals)
-    const additionalFeeAmount = `${Number(fixFee) / 10 ** nativeDecimals} ${
-      params.fromChain === 'solana' ? 'SOL' : NativeCurrencies[params.fromChain as ChainId].symbol
-    }`
-
-    return normalizeQuote({
-      quoteParams: params,
-      outputAmount: BigInt(r.estimation.dstChainTokenOut.recommendedAmount),
-
-      inputUsd,
-      outputUsd,
-
-      timeEstimate: r.order.approximateFulfillmentDelay,
-      contractAddress: r.tx.allowanceTarget || r.tx.to,
-      rawQuote: r,
-
-      additionalFeeUsd,
-      additionalFeeAmount,
-      platformFeePercent: (params.feeBps * 100) / 10_000,
-    })
-  }
-
   async executeSwap(
     { quote }: Quote,
     walletClient: WalletClient,

@@ -1,11 +1,13 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import type { NormalizedQuote, QuoteParams, SwapProvider } from 'services/crossChain/adapters'
+import { getClient } from '@relayprotocol/relay-sdk'
+import type { NormalizedQuote, QuoteParams } from 'services/crossChain/adapters'
 import { KyberCrossAdapter } from 'services/crossChain/adapters/KyberCrossAdapter'
 import { type RoutePlan, kyberCrossApi } from 'services/crossChain/adapters/KyberCrossAdapter/api'
 import * as kyberCrossExecution from 'services/crossChain/adapters/KyberCrossAdapter/service'
 import { getKyberCrossRoutePlan } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
+import type { QuoteProvider } from 'services/crossChain/adapters/types'
 import { CrossChainSwapFactory } from 'services/crossChain/factory'
-import { getFallbackQuotes, getQuotes } from 'services/crossChain/quote/adapterQuotes'
+import { getDirectQuotes, getQuotes } from 'services/crossChain/quote/adapterQuotes'
 import { getSourceFilters } from 'services/crossChain/quote/streamQuotes'
 import { CrossChainSwapAdapterRegistry, type Quote, getQuoteId } from 'services/crossChain/registry'
 import type { WalletClient } from 'viem'
@@ -68,10 +70,10 @@ const normalizedQuote: NormalizedQuote = {
   platformFeePercent: 0.1,
 }
 
-const createAdapter = (getQuote: SwapProvider['getQuote'], name = 'KyberCross'): SwapProvider => ({
+const createAdapter = (getQuote: QuoteProvider['getQuote'], name = 'KyberCross'): QuoteProvider => ({
   getName: () => name,
-  getIcon: () => '',
   getSupportedChains: () => [baseParams.fromChain, baseParams.toChain],
+  getIcon: () => '',
   getQuote,
   executeSwap: vi.fn(),
   getTransactionStatus: vi.fn(),
@@ -132,7 +134,7 @@ describe('getQuotes', () => {
     const { adapter, getQuote, run } = setup(params, 'KyberCross', 'direct')
     const otherQuote = vi.fn().mockResolvedValue(normalizedQuote)
     const other = createAdapter(otherQuote, 'Symbiosis')
-    vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters').mockReturnValue([adapter, other])
+    vi.spyOn(CrossChainSwapFactory, 'getDirectQuoteAdapters').mockReturnValue([adapter, other])
     getQuote.mockResolvedValue({ ...normalizedQuote, quoteParams: params })
     await run()
     expect(fetch).not.toHaveBeenCalled()
@@ -145,7 +147,7 @@ describe('getQuotes', () => {
       createResponse(createReader({ done: false, value: encoder.encode(quoteEvent()) })),
     )
     const { getQuote, onQuotes, run } = setup({ ...baseParams, gasDrop: true })
-    const localAdapters = vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters')
+    const localAdapters = vi.spyOn(CrossChainSwapFactory, 'getDirectQuoteAdapters')
 
     await run()
 
@@ -257,13 +259,13 @@ describe('getQuotes', () => {
   })
 })
 
-const runFallbackQuotes = (adapter: SwapProvider, signal: AbortSignal) => {
-  vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters').mockReturnValue([adapter])
+const runDirectQuotes = (adapter: QuoteProvider, signal: AbortSignal) => {
+  vi.spyOn(CrossChainSwapFactory, 'getDirectQuoteAdapters').mockReturnValue([adapter])
   vi.spyOn(CrossChainSwapFactory, 'getSelectableSources').mockReturnValue([adapter])
 
   const onQuotes = vi.fn()
   const onQuoteReady = vi.fn()
-  const promise = getFallbackQuotes({
+  const promise = getDirectQuotes({
     quoteMode: 'direct',
     params: baseParams,
     category: 'commonPair',
@@ -281,6 +283,29 @@ const runFallbackQuotes = (adapter: SwapProvider, signal: AbortSignal) => {
 }
 
 describe('CrossChainSwapFactory', () => {
+  it('resolves execution aliases without exposing them as direct quote adapters', () => {
+    const socket = CrossChainSwapFactory.getAllAdapters().find(adapter => adapter.getName() === 'Socket')
+    if (!socket) throw new Error('Socket adapter missing')
+    const registry = new CrossChainSwapAdapterRegistry()
+    registry.registerAdapter(socket)
+    expect(registry.getAdapter('Bungee')).toBe(socket)
+    expect(registry.getAdapter('Socket')).toBe(socket)
+    expect(registry.getAllAdapters()).toEqual([socket])
+    expect(registry.getQuoteAdapter('Bungee')).toBeUndefined()
+  })
+
+  it('resolves a direct quote provider through the same registry instance', () => {
+    const adapter = createAdapter(vi.fn(), 'KyberSwap')
+    const registry = new CrossChainSwapAdapterRegistry()
+    registry.registerAdapter(adapter)
+    expect(registry.getQuoteAdapter('KyberSwap')).toBe(adapter)
+    expect(registry.getQuoteAdapter('missing')).toBeUndefined()
+  })
+
+  it('keeps Elysium registered for Relay execution with aggregator quotes', () => {
+    expect(getClient().chains.some(chain => chain.id === ChainId.ELYSIUM)).toBe(true)
+  })
+
   it('uses bridge filters for direct mode and adapter filters for stream mode', () => {
     const direct = getSourceFilters('direct', ['Relay'], 'commonPair', fromToken, toToken)
     const stream = getSourceFilters('stream', ['KyberCross'], 'commonPair', fromToken, toToken)
@@ -292,13 +317,11 @@ describe('CrossChainSwapFactory', () => {
     expect(stream.selectableSources.map(source => source.getName())).not.toContain('CCIP')
     expect(stream.excludedSourceNames).toContain('KyberCross')
     expect(stream.excludedSourceNames).toContain('KyberSwap')
-    expect(CrossChainSwapFactory.getClientQuoteAdapters('direct').map(adapter => adapter.getName())).toEqual([
-      'KyberCross',
-    ])
+    expect(CrossChainSwapFactory.getDirectQuoteAdapters().map(adapter => adapter.getName())).toEqual(['KyberCross'])
   })
 })
 
-describe('getFallbackQuotes', () => {
+describe('getDirectQuotes', () => {
   it.each([
     ['Relay', 10_000],
     ['KyberCross', 60_000],
@@ -308,7 +331,7 @@ describe('getFallbackQuotes', () => {
       vi.fn(() => new Promise(resolve => setTimeout(() => resolve(normalizedQuote), timeout - 1))),
       name,
     )
-    const { promise, onQuotes, onQuoteReady } = runFallbackQuotes(adapter, new AbortController().signal)
+    const { promise, onQuotes, onQuoteReady } = runDirectQuotes(adapter, new AbortController().signal)
 
     await vi.advanceTimersByTimeAsync(timeout - 1)
     await promise
@@ -333,7 +356,7 @@ describe('getFallbackQuotes', () => {
       }),
       name,
     )
-    const { promise, onQuotes, onQuoteReady } = runFallbackQuotes(adapter, new AbortController().signal)
+    const { promise, onQuotes, onQuoteReady } = runDirectQuotes(adapter, new AbortController().signal)
     const rejection = expect(promise).rejects.toThrow('No valid quotes found')
 
     await vi.advanceTimersByTimeAsync(timeout - 1)
@@ -356,7 +379,7 @@ describe('getFallbackQuotes', () => {
     })
     const adapter = createAdapter(getQuote)
     const controller = new AbortController()
-    const { promise, onQuotes, onQuoteReady } = runFallbackQuotes(adapter, controller.signal)
+    const { promise, onQuotes, onQuoteReady } = runDirectQuotes(adapter, controller.signal)
 
     controller.abort()
 
@@ -424,7 +447,7 @@ describe('KyberCross route options', () => {
     const adapter = new KyberCrossAdapter()
     const registry = new CrossChainSwapAdapterRegistry()
     registry.registerAdapter(adapter)
-    vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters').mockReturnValue([adapter])
+    vi.spyOn(CrossChainSwapFactory, 'getDirectQuoteAdapters').mockReturnValue([adapter])
     vi.spyOn(CrossChainSwapFactory, 'getSelectableSources').mockReturnValue([adapter])
     const onQuotes = vi.fn<[Quote[]], void>()
 

@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { registry } from 'services/crossChain/factory'
-import { getFallbackQuotes } from 'services/crossChain/quote/adapterQuotes'
+import { getDirectQuotes } from 'services/crossChain/quote/adapterQuotes'
 import { getPairInfo } from 'services/crossChain/quote/getPairInfo'
 import { getQuoteId } from 'services/crossChain/registry'
 import { useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
@@ -50,7 +50,7 @@ export const useKyberCrossQuote = ({ gasDropEnabled, onGasDropUnavailable, ...in
       })
       if (!pairInfo || signal.aborted) return
       publish({ category: pairInfo.category })
-      await getFallbackQuotes({
+      await getDirectQuotes({
         quoteMode: 'direct',
         params: {
           ...params,

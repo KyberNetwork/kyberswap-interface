@@ -1,8 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ChainName, type SolanaTransactionSigner, swapFromSolana } from '@mayanfinance/swap-sdk'
+import { type SolanaTransactionSigner, swapFromSolana } from '@mayanfinance/swap-sdk'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
-import { BaseSwapAdapter, EvmQuoteParams, NormalizedQuote } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter } from 'services/crossChain/adapters/BaseSwapAdapter'
 import { buildEvmTransaction } from 'services/crossChain/adapters/MayanAdapter/streamExecution'
 import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
 import { evmTransactionSchema, parseMayanQuote } from 'services/crossChain/quote/rawQuote'
@@ -11,47 +10,23 @@ import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'servi
 import { WalletClient, parseUnits } from 'viem'
 import { z } from 'zod'
 
-import { Chain, NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
+import { NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
 
 const streamedTransactionSchema = evmTransactionSchema.extend({ chainId: z.number().optional() })
-
-const mappingChain: Record<string, ChainName> = {
-  [ChainId.MAINNET]: 'ethereum',
-  [ChainId.BSCMAINNET]: 'bsc',
-  [ChainId.MATIC]: 'polygon',
-  [ChainId.AVAXMAINNET]: 'avalanche',
-  [ChainId.ARBITRUM]: 'arbitrum',
-  [ChainId.OPTIMISM]: 'optimism',
-  [ChainId.BASE]: 'base',
-  [ChainId.LINEA]: 'linea',
-  [NonEvmChain.Solana]: 'solana',
-}
 
 function hasSolanaSigner(x: unknown): x is { signTransaction: SolanaTransactionSigner } {
   return typeof x === 'object' && x !== null && typeof (x as any).signTransaction === 'function'
 }
 
 export class MayanAdapter extends BaseSwapAdapter {
-  constructor() {
-    super()
-  }
-
   getName(): string {
     return 'Mayan'
   }
   getIcon(): string {
     return 'https://swap.mayan.finance/favicon.ico'
   }
-  getSupportedChains(): Chain[] {
-    return [...Object.keys(mappingChain).map(Number), NonEvmChain.Solana]
-  }
-
-  async getQuote(_params: EvmQuoteParams): Promise<NormalizedQuote> {
-    throw new Error('Mayan quotes must come from the aggregator stream')
-  }
-
   async executeSwap(
     { quote }: Quote,
     walletClient: WalletClient,

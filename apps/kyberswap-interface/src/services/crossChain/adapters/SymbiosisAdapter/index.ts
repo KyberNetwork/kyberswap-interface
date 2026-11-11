@@ -1,15 +1,12 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
-import { BaseSwapAdapter, NormalizedQuote, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter, QuoteParams } from 'services/crossChain/adapters/BaseSwapAdapter'
 import { isSourceTransactionReverted } from 'services/crossChain/adapters/sourceTransaction'
-import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { evmTransactionSchema } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
 import { CROSS_CHAIN_FEE_RECEIVER } from 'services/crossChain/utils'
-import { WalletClient, formatUnits } from 'viem'
+import { WalletClient } from 'viem'
 import { z } from 'zod'
 
-import { ZERO_ADDRESS } from 'constants/index'
 import { Currency as AdapterCurrency, Chain, NonEvmChain, NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 const symbiosisClient = axios.create({
@@ -141,10 +138,6 @@ const getSwapBody = (quoteParams: QuoteParams): SymbiosisSwapRequest => ({
  * Execution requires /v2/swap transaction data from the stream (a deposit address for BTC).
  */
 export class SymbiosisAdapter extends BaseSwapAdapter {
-  constructor() {
-    super()
-  }
-
   getName(): string {
     return 'Symbiosis'
   }
@@ -162,59 +155,6 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     }
 
     return true
-  }
-
-  getSupportedChains(): Chain[] {
-    return [
-      NonEvmChain.Bitcoin,
-      ChainId.MAINNET,
-      ChainId.BSCMAINNET,
-      ChainId.MATIC,
-      ChainId.AVAXMAINNET,
-      ChainId.ZKSYNC,
-      ChainId.ARBITRUM,
-      ChainId.OPTIMISM,
-      ChainId.LINEA,
-      ChainId.MANTLE,
-      ChainId.BASE,
-      ChainId.SCROLL,
-      ChainId.BLAST,
-      ChainId.ABSTRACT,
-      ChainId.SONIC,
-      ChainId.BERA,
-      ChainId.ROBINHOOD,
-      ChainId.ARC,
-    ]
-  }
-
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
-    const { data: quoteData } = await symbiosisClient.post<SymbiosisSwapResponse>('/quote', getSwapBody(params))
-
-    if (!quoteData.tokenAmountOut?.amount) throw new Error('No route found')
-
-    const formattedOutputAmount = formatUnits(BigInt(quoteData.tokenAmountOut.amount), params.toToken.decimals)
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-
-    const inputUsd = params.tokenInUsd * +formattedInputAmount
-    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
-
-    // Calculate protocol fee from the fees array
-    const additionalFeeUsd = (quoteData.fees || []).reduce<number>((total, fee) => {
-      const { amount, decimals, priceUsd = 0 } = fee.value
-      return total + (Number(amount) / Math.pow(10, decimals)) * priceUsd
-    }, 0)
-
-    return normalizeQuote({
-      quoteParams: params,
-      outputAmount: BigInt(quoteData.tokenAmountOut.amount),
-      inputUsd,
-      outputUsd,
-      timeEstimate: quoteData.estimatedTime || 0,
-      contractAddress: quoteData.approveTo || ZERO_ADDRESS,
-      rawQuote: quoteData,
-      additionalFeeUsd,
-      platformFeePercent: (params.feeBps * 100) / 10_000,
-    })
   }
 
   async executeSwap(

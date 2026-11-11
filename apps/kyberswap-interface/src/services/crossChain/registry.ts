@@ -1,4 +1,4 @@
-import type { NormalizedQuote, SwapProvider } from 'services/crossChain/adapters/types'
+import type { NormalizedQuote, QuoteProvider, SwapProvider } from 'services/crossChain/adapters/types'
 import { normalizeAdapterName } from 'services/crossChain/utils'
 
 export interface Quote {
@@ -24,6 +24,20 @@ export class CrossChainSwapAdapterRegistry {
   getAdapter(name?: string): SwapProvider | undefined {
     if (!name) return undefined
     return this.adapters.get(normalizeAdapterName(name))
+  }
+
+  getQuoteAdapter(name: string): QuoteProvider | undefined {
+    const adapter = this.getAdapter(name)
+    if (
+      adapter &&
+      'getQuote' in adapter &&
+      typeof adapter.getQuote === 'function' &&
+      'getSupportedChains' in adapter &&
+      typeof adapter.getSupportedChains === 'function'
+    ) {
+      return adapter as QuoteProvider
+    }
+    return undefined
   }
 
   getAllAdapters(): SwapProvider[] {

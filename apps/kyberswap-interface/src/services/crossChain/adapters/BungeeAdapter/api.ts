@@ -1,10 +1,4 @@
-import axios from 'axios'
-import {
-  type SocketQuoteParams,
-  type SocketQuoteResponse,
-  type SocketStatusParams,
-  type SocketStatusResponse,
-} from 'services/crossChain/adapters/BungeeAdapter/types'
+import { type SocketStatusParams, type SocketStatusResponse } from 'services/crossChain/adapters/BungeeAdapter/types'
 
 import { KYBERSWAP_DOMAIN } from 'constants/index'
 
@@ -23,15 +17,6 @@ const SOCKET_API_BASE_URL =
   typeof window !== 'undefined' && window.location?.hostname === KYBERSWAP_DOMAIN
     ? SOCKET_BACKEND_API_BASE_URL
     : SOCKET_PUBLIC_API_BASE_URL
-
-export const bungeeApi = axios.create({
-  baseURL: SOCKET_API_BASE_URL,
-  headers: SOCKET_API_HEADERS,
-  validateStatus: () => true,
-})
-
-export const getBungeeQuote = (params: SocketQuoteParams) =>
-  bungeeApi.get<SocketQuoteResponse>('/v3/swap/quote', { params })
 
 export const getBungeeStatus = async (params: SocketStatusParams) => {
   const searchParams = new URLSearchParams()

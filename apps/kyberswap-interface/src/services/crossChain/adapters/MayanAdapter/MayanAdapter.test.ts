@@ -64,11 +64,6 @@ beforeEach(() => {
 })
 
 describe('Mayan aggregator execution', () => {
-  it('requires aggregator quotes', async () => {
-    await expect(
-      adapter.getQuote(makeQuote(raw).quote.quoteParams as Parameters<MayanAdapter['getQuote']>[0]),
-    ).rejects.toThrow('aggregator stream')
-  })
   it('sends a complete streamed tx without rebuilding', async () => {
     await adapter.executeSwap(makeQuote({ tx: { to: account, data: '0x1234', value: '10', chainId: 1 } }), wallet)
     expect(sendTransaction).toHaveBeenCalledWith({ chain: undefined, account, to: account, data: '0x1234', value: 10n })

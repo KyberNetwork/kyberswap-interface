@@ -1,26 +1,15 @@
 import { AcrossClient, createAcrossClient } from '@across-protocol/app-sdk'
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
-import axios from 'axios'
 import { getAcrossDepositStatus } from 'services/crossChain/adapters/AcrossAdapter/api'
-import {
-  AcrossSuggestedFeesQuote,
-  AcrossSwapQuote,
-  AcrossWalletClient,
-} from 'services/crossChain/adapters/AcrossAdapter/types'
+import { AcrossWalletClient } from 'services/crossChain/adapters/AcrossAdapter/types'
 import { getAcrossFillTxHash, mapAcrossDepositStatus } from 'services/crossChain/adapters/AcrossAdapter/utils'
-import {
-  BaseSwapAdapter,
-  EvmQuoteParams,
-  NormalizedQuote,
-  QuoteParams,
-} from 'services/crossChain/adapters/BaseSwapAdapter'
-import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
+import { BaseSwapAdapter } from 'services/crossChain/adapters/BaseSwapAdapter'
 import { parseAcrossQuote } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
-import { CROSS_CHAIN_FEE_RECEIVER, isNativeToken, isWrappedToken } from 'services/crossChain/utils'
-import { type Address, WalletClient, formatUnits } from 'viem'
+import { isNativeToken, isWrappedToken } from 'services/crossChain/utils'
+import { WalletClient } from 'viem'
 import {
   arbitrum,
   base,
@@ -38,22 +27,8 @@ import {
 } from 'viem/chains'
 
 import { arc, robinhood } from 'components/Web3Provider/config'
-import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import {
-  Chain,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  NormalizedTxResponse,
-  type SolanaToken,
-  SwapStatus,
-  isEvmChain,
-} from 'types/crossChain'
-
-const API_URL = 'https://app.across.to/api/suggested-fees'
-
-const getAcrossTokenAddress = (token: Currency): Address =>
-  (token.isNative ? ZERO_ADDRESS : token.wrapped.address) as Address
+import { NormalizedTxResponse, SwapStatus } from 'types/crossChain'
 
 export class AcrossAdapter extends BaseSwapAdapter {
   private acrossClient: AcrossClient
@@ -126,110 +101,6 @@ export class AcrossAdapter extends BaseSwapAdapter {
     console.warn(`Across does not support swap from ${tokenIn.symbol || 'unknown'} to ${tokenOut.symbol || 'unknown'}`)
 
     return false
-  }
-
-  getSupportedChains(): Chain[] {
-    return [
-      ChainId.MAINNET,
-      ChainId.ARBITRUM,
-      ChainId.OPTIMISM,
-      ChainId.LINEA,
-      ChainId.MATIC,
-      ChainId.ZKSYNC,
-      ChainId.BASE,
-      ChainId.SCROLL,
-      ChainId.BLAST,
-      ChainId.UNICHAIN,
-      ChainId.BSCMAINNET,
-      ChainId.PLASMA,
-      ChainId.MONAD,
-      ChainId.ROBINHOOD,
-      ChainId.ARC,
-      // NonEvmChain.Solana,
-    ]
-  }
-
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
-    try {
-      const isFromSol = params.fromChain === NonEvmChain.Solana
-      let rawQuote: AcrossSuggestedFeesQuote | AcrossSwapQuote
-      let outputAmount: bigint
-      let contractAddress: string
-      let timeEstimate: number
-
-      if (isFromSol && isEvmChain(params.toChain)) {
-        const fromToken = params.fromToken as SolanaToken
-        const toToken = params.toToken as Token
-        const reqParams = new URLSearchParams({
-          inputToken: fromToken.id,
-          outputToken: toToken.wrapped.address,
-          destinationChainId: params.toChain.toString(),
-          originChainId: '34268394551451',
-          amount: params.amount,
-          skipAmountLimit: 'true',
-          allowUnmatchedDecimals: 'true',
-        })
-
-        const { data } = await axios.get<AcrossSuggestedFeesQuote>(API_URL, { params: reqParams })
-        rawQuote = data
-        outputAmount = BigInt(data.outputAmount)
-        contractAddress = ZERO_ADDRESS
-        timeEstimate = data.estimatedFillTimeSec
-      } else {
-        const quoteParams = params as EvmQuoteParams
-        const swapQuote = await this.acrossClient.getSwapQuote({
-          route: {
-            originChainId: +params.fromChain,
-            destinationChainId: +params.toChain,
-            inputToken: getAcrossTokenAddress(quoteParams.fromToken),
-            outputToken: getAcrossTokenAddress(quoteParams.toToken),
-          },
-          amount: params.amount,
-          appFee: params.feeBps / 10_000,
-          appFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
-          slippage: params.slippage / 10_000, // https://docs.across.to/reference/api-reference#get-swap-approval
-          depositor: params.sender,
-        })
-
-        rawQuote = swapQuote
-        outputAmount = BigInt(swapQuote.expectedOutputAmount)
-        contractAddress = swapQuote.checks.allowance.spender
-        timeEstimate = swapQuote.expectedFillTime
-      }
-
-      // For matching symbols, reuse the other side's price when this chain lacks price-service coverage.
-      const isSameToken = params.fromToken.symbol === params.toToken.symbol
-      const tokenInUsd =
-        isSameToken && NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain) && params.tokenOutUsd
-          ? params.tokenOutUsd
-          : params.tokenInUsd
-      const tokenOutUsd =
-        isSameToken && NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain) && params.tokenInUsd
-          ? params.tokenInUsd
-          : params.tokenOutUsd
-
-      const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
-      const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-
-      const inputUsd = tokenInUsd * +formattedInputAmount
-      const outputUsd = tokenOutUsd * +formattedOutputAmount
-
-      return normalizeQuote({
-        quoteParams: params,
-        outputAmount,
-        inputUsd,
-        outputUsd,
-        timeEstimate,
-        contractAddress,
-        rawQuote,
-
-        additionalFeeUsd: 0,
-        platformFeePercent: (params.feeBps * 100) / 10_000,
-      })
-    } catch (error) {
-      console.log('Across getQuote error', error)
-      throw error
-    }
   }
 
   async executeSwap(

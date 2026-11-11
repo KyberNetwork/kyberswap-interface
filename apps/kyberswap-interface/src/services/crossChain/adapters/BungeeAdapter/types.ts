@@ -37,33 +37,6 @@ type SocketTokenAmount = {
   valueInUsd?: string | number
 }
 
-type SocketQuoteUserOp = 'tx' | 'deposit' | 'cex-withdraw'
-type SocketQuoteUserOps =
-  | SocketQuoteUserOp
-  | `${SocketQuoteUserOp},${SocketQuoteUserOp}`
-  | `${SocketQuoteUserOp},${SocketQuoteUserOp},${SocketQuoteUserOp}`
-
-export type SocketQuoteParams = {
-  userOps: SocketQuoteUserOps
-  originChainId: string
-  destinationChainId: string
-  inputToken: string
-  inputAmount: string
-  outputToken: string
-  receiverAddress: string
-  userAddress: string
-  slippage?: string
-  feeBps?: string
-  feeTakerAddress?: string
-  includeProvider?: string
-  excludeProvider?: string
-  refuel?: 'true' | 'false'
-  destinationPayload?: `0x${string}`
-  destinationGasLimit?: string
-  refundAddress?: string
-  exchange?: string
-}
-
 export type SocketTxRoute = {
   userOp: 'tx' | string
   quoteId: string
@@ -121,8 +94,6 @@ export type SocketQuoteResult = {
   route?: SocketTxRoute
   routes?: SocketTxRoute[]
 }
-
-export type SocketQuoteResponse = SocketApiResponse<SocketQuoteResult>
 
 type SocketStatusStep = {
   chainId?: number

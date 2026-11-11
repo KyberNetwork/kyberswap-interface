@@ -24,6 +24,7 @@ import {
   normalizeProvider,
   parseKyberCrossQuote,
 } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
+import type { QuoteProvider } from 'services/crossChain/adapters/types'
 import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { Quote } from 'services/crossChain/registry'
 import { type Address, type Hash, WalletClient, formatUnits } from 'viem'
@@ -42,7 +43,7 @@ const getKyberCrossChainName = (chainId: Chain): QuoteRequest['from_chain'] => {
 const getKyberCrossTokenAddress = (token: Currency): Address =>
   (token.isNative ? ETHER_ADDRESS : token.wrapped.address) as Address
 
-export class KyberCrossAdapter extends BaseSwapAdapter {
+export class KyberCrossAdapter extends BaseSwapAdapter implements QuoteProvider {
   getName(): string {
     return 'KyberCross'
   }

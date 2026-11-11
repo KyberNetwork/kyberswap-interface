@@ -1,18 +1,15 @@
-import {
-  AcrossAdapter,
-  DeBridgeAdapter,
-  KyberCrossAdapter,
-  KyberSwapAdapter,
-  LifiAdapter,
-  MayanAdapter,
-  RelayAdapter,
-  SwapProvider,
-  SymbiosisAdapter,
-} from 'services/crossChain/adapters'
+import { AcrossAdapter } from 'services/crossChain/adapters/AcrossAdapter'
 import { BungeeAdapter } from 'services/crossChain/adapters/BungeeAdapter'
+import { DeBridgeAdapter } from 'services/crossChain/adapters/DebridgeAdapter'
+import { KyberCrossAdapter } from 'services/crossChain/adapters/KyberCrossAdapter'
+import { KyberSwapAdapter } from 'services/crossChain/adapters/KyberSwapAdapter'
+import { LifiAdapter } from 'services/crossChain/adapters/LifiAdapter'
+import { MayanAdapter } from 'services/crossChain/adapters/MayanAdapter'
 import { NearIntentsAdapter } from 'services/crossChain/adapters/NearIntentsAdapter'
+import { RelayAdapter } from 'services/crossChain/adapters/RelayAdapter'
+import { SymbiosisAdapter } from 'services/crossChain/adapters/SymbiosisAdapter'
+import type { QuoteProvider, SwapProvider } from 'services/crossChain/adapters/types'
 import { CrossChainSwapAdapterRegistry } from 'services/crossChain/registry'
-import { normalizeAdapterName } from 'services/crossChain/utils'
 
 import arbitrumIcon from 'assets/networks/arbitrum.svg'
 import type { CrossChainQuoteMode } from 'state/crossChainSwap'
@@ -48,7 +45,7 @@ const arbitrumBridgeSource: CrossChainSource = {
   getIcon: () => arbitrumIcon,
 }
 
-// Factory for creating swap provider instances
+// Owns adapter instances; registry.ts owns name and legacy-alias lookup.
 export class CrossChainSwapFactory {
   private static adapterCreators = {
     across: () => new AcrossAdapter(),
@@ -65,34 +62,12 @@ export class CrossChainSwapFactory {
 
   private static adapters = new Map<string, SwapProvider>()
 
-  private static getAdapterKey(name?: string): string {
-    const key = normalizeAdapterName(name)
-    return key === 'bungee' ? 'socket' : key
-  }
-
-  private static getAdapterCreator(name?: string): (() => SwapProvider) | undefined {
-    const key = CrossChainSwapFactory.getAdapterKey(name)
-
-    if (!Object.prototype.hasOwnProperty.call(CrossChainSwapFactory.adapterCreators, key)) return undefined
-
-    return CrossChainSwapFactory.adapterCreators[key as keyof typeof CrossChainSwapFactory.adapterCreators]
-  }
-
-  private static getOrCreateAdapter(name: string): SwapProvider {
-    const key = CrossChainSwapFactory.getAdapterKey(name)
-    const createAdapter = CrossChainSwapFactory.getAdapterCreator(key)
-
-    if (!createAdapter) {
-      throw new Error(`Unsupported cross-chain adapter: ${name}`)
-    }
-
-    let adapter = CrossChainSwapFactory.adapters.get(key)
-
+  private static getOrCreateAdapter(name: keyof typeof CrossChainSwapFactory.adapterCreators): SwapProvider {
+    let adapter = CrossChainSwapFactory.adapters.get(name)
     if (!adapter) {
-      adapter = createAdapter()
-      CrossChainSwapFactory.adapters.set(key, adapter)
+      adapter = CrossChainSwapFactory.adapterCreators[name]()
+      CrossChainSwapFactory.adapters.set(name, adapter)
     }
-
     return adapter
   }
 
@@ -119,12 +94,10 @@ export class CrossChainSwapFactory {
   }
 
   // Direct client quote adapters. When stream is disabled, KyberCross owns quote routing.
-  static getClientQuoteAdapters(quoteMode: CrossChainQuoteMode): SwapProvider[] {
-    if (quoteMode === 'direct') {
-      return [CrossChainSwapFactory.getOrCreateAdapter('kybercross')]
-    }
-
-    return CrossChainSwapFactory.getAllAdapters()
+  static getDirectQuoteAdapters(): QuoteProvider[] {
+    const adapter = CrossChainSwapFactory.getOrCreateAdapter('kybercross')
+    if (!(adapter instanceof KyberCrossAdapter)) throw new Error('Invalid KyberCross adapter')
+    return [adapter]
   }
 
   // Registry/status lookup needs every active adapter, even when quotes only use KyberCross.

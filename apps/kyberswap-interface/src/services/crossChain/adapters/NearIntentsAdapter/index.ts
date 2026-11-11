@@ -1,4 +1,4 @@
-import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
+import { OneClickService, OpenAPI } from '@defuse-protocol/one-click-sdk-typescript'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import type { Transaction as NearTransaction } from '@near-wallet-selector/core'
 import type { useWalletSelector } from '@near-wallet-selector/react-hook'
@@ -12,27 +12,19 @@ import {
 } from '@solana/spl-token'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
-import { BaseSwapAdapter, NearQuoteParams, NormalizedQuote } from 'services/crossChain/adapters/BaseSwapAdapter'
+import { BaseSwapAdapter } from 'services/crossChain/adapters/BaseSwapAdapter'
 import {
   getNearTransferHash,
   removeMyNearWalletPendingTransaction,
   saveMyNearWalletPendingTransaction,
 } from 'services/crossChain/adapters/NearIntentsAdapter/pendingTransaction'
-import { normalizeQuote } from 'services/crossChain/quote/normalizeQuote'
 import { parseNearQuote } from 'services/crossChain/quote/rawQuote'
 import { Quote } from 'services/crossChain/registry'
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'services/crossChain/utils'
+import { BTC_DEFAULT_RECEIVER, SOLANA_NATIVE } from 'services/crossChain/utils'
 import { WalletClient } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
-import {
-  Chain,
-  type NearToken,
-  NonEvmChain,
-  NormalizedTxResponse,
-  type SolanaToken,
-  SwapStatus,
-} from 'types/crossChain'
+import { type NearToken, NonEvmChain, NormalizedTxResponse, type SolanaToken, SwapStatus } from 'types/crossChain'
 
 export const MappingChainIdToBlockChain: Record<string, string> = {
   [NonEvmChain.Bitcoin]: 'btc',
@@ -74,113 +66,6 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png'
   }
-  getSupportedChains(): Chain[] {
-    return [
-      NonEvmChain.Solana,
-      NonEvmChain.Bitcoin,
-      NonEvmChain.Near,
-      ...Object.keys(MappingChainIdToBlockChain).map(Number),
-    ]
-  }
-
-  async getQuote(params: NearQuoteParams): Promise<NormalizedQuote> {
-    const deadline = new Date()
-
-    // 1 hour for Bitcoin, 20 minutes for other chains
-    deadline.setSeconds(deadline.getSeconds() + (params.fromChain === NonEvmChain.Bitcoin ? 60 * 60 : 60 * 20))
-
-    const fromAssetId =
-      'assetId' in params.fromToken
-        ? params.fromToken.assetId === 'near'
-          ? 'nep141:wrap.near'
-          : params.fromToken.assetId
-        : params.nearTokens.find(token => {
-            const blockchain = MappingChainIdToBlockChain[params.fromChain as ChainId]
-
-            if (params.fromChain === 'solana')
-              return (params.fromToken as SolanaToken).id === SOLANA_NATIVE
-                ? token.symbol === 'SOL' && token.blockchain === 'sol'
-                : token.blockchain === blockchain && token.contractAddress === (params.fromToken as any).id
-
-            return (
-              token.blockchain === blockchain &&
-              ((params.fromToken as any).isNative
-                ? token.symbol.toLowerCase() === params.fromToken.symbol?.toLowerCase() &&
-                  (token.assetId.includes('omft') || token.assetId.includes('omni.hot.tg'))
-                : token.contractAddress?.toLowerCase() === (params.fromToken as any).wrapped?.address.toLowerCase())
-            )
-          })?.assetId
-
-    const toAssetId =
-      'assetId' in params.toToken
-        ? params.toToken.assetId === 'near'
-          ? 'nep141:wrap.near'
-          : params.toToken.assetId
-        : params.nearTokens.find(token => {
-            const blockchain = MappingChainIdToBlockChain[params.toChain as ChainId]
-            if (params.toChain === 'solana')
-              return (params.toToken as SolanaToken).id === SOLANA_NATIVE
-                ? token.symbol === 'SOL' && token.blockchain === 'sol'
-                : token.blockchain === blockchain && token.contractAddress === (params.toToken as any).id
-
-            return (
-              token.blockchain === blockchain &&
-              ((params.toToken as any).isNative
-                ? token.symbol.toLowerCase() === params.toToken.symbol?.toLowerCase() &&
-                  (token.assetId.includes('omft') || token.assetId.includes('omni.hot.tg'))
-                : token.contractAddress?.toLowerCase() === (params.toToken as any).wrapped?.address.toLowerCase())
-            )
-          })?.assetId
-
-    if (!fromAssetId || !toAssetId) {
-      throw new Error('not supported tokens')
-    }
-
-    // Create a quote request
-    const quoteRequest: QuoteRequest = {
-      dry: true,
-      deadline: deadline.toISOString(),
-      slippageTolerance: params.slippage,
-      swapType: QuoteRequest.swapType.EXACT_INPUT,
-
-      originAsset: fromAssetId,
-      depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
-
-      destinationAsset: toAssetId,
-      amount: params.amount,
-
-      refundTo: params.sender,
-      refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
-      referral: 'kyberswap',
-
-      recipient: params.recipient,
-      recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
-      appFees: [
-        {
-          recipient: CROSS_CHAIN_FEE_RECEIVER.toLowerCase(),
-          fee: params.feeBps,
-        },
-      ],
-    }
-
-    const quote = await OneClickService.getQuote(quoteRequest)
-    const inputUsd = +quote.quote.amountInUsd
-    const outputUsd = +quote.quote.amountOutUsd
-
-    return normalizeQuote({
-      quoteParams: params,
-      outputAmount: BigInt(quote.quote.amountOut),
-      inputUsd,
-      outputUsd,
-      timeEstimate: quote.quote.timeEstimate || 0,
-      // Near intent dont need to approve, we send token to contract directly
-      contractAddress: ZERO_ADDRESS,
-      rawQuote: quote,
-      additionalFeeUsd: 0,
-      platformFeePercent: (params.feeBps * 100) / 10_000,
-    })
-  }
-
   async executeSwap(
     { quote }: Quote,
     walletClient: WalletClient,

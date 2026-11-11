@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { KyberCrossAdapter } from 'services/crossChain/adapters/KyberCrossAdapter'
 import { getKyberCrossRoutePlan } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
 import { Quote } from 'services/crossChain/registry'
 
@@ -31,6 +32,7 @@ export const useGasDropReview = (initialQuote: Quote | null, active: boolean) =>
     setRefreshing(true)
     setError('')
     try {
+      if (!(previous.adapter instanceof KyberCrossAdapter)) throw new Error('Gas Drop requires KyberCross')
       const quote = await previous.adapter.getQuote(previous.quote.quoteParams, request.signal)
       if (request.signal.aborted) return
       const next = { ...previous, quote }

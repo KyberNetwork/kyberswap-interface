@@ -16,11 +16,6 @@ export interface AcrossDepositStatusResponse {
   message?: string
 }
 
-export interface AcrossSuggestedFeesQuote {
-  outputAmount: string
-  estimatedFillTimeSec: number
-}
-
 export type AcrossSwapQuote = Awaited<ReturnType<AcrossClient['getSwapQuote']>>
 export type AcrossWalletClient = ExecuteQuoteParams['walletClient']
 export type AcrossDeposit = ExecuteQuoteParams['deposit']

@@ -1,4 +1,4 @@
-import { NearQuoteParams, QuoteParams } from 'services/crossChain/adapters/types'
+import { QuoteParams } from 'services/crossChain/adapters/types'
 import { CrossChainSwapFactory } from 'services/crossChain/factory'
 import { normalizeStreamQuote, parseQuoteResponse } from 'services/crossChain/quote/parseStreamQuote'
 import { PairCategory, getCurrencyAddress, sortQuotesByOutput } from 'services/crossChain/quote/utils'
@@ -19,7 +19,7 @@ const SSE_EVENT = {
 const SOFT_TIMEOUT_MS = 3000
 
 type StreamQuotesParams = {
-  params: QuoteParams | NearQuoteParams
+  params: QuoteParams
   category: PairCategory
   currencyIn: Currency
   currencyOut: Currency

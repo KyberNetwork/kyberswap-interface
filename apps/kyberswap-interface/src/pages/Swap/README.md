@@ -46,7 +46,12 @@ browsing and selection ownership.
 
 Unified Swap uses streamed quotes. `pages/KyberCross` reuses form and provider
 modules while retaining its own quote policy, Gas Drop and source preferences.
-Preserve these caller options when changing shared modules.
+Preserve these caller options when changing shared modules. Only KyberSwap and
+KyberCross fetch quotes directly in the client. Other provider adapters execute
+streamed quotes and track status; their SDK chain configuration is still required
+for execution, independently of direct-quote chain filtering. The factory owns
+adapter instances; the registry resolves provider names and legacy aliases.
+Quote routing selects same-chain, direct or stream mode explicitly.
 
 Transaction views share local/indexed history projections. Verified terminal
 backend data owns settlement; pending or incomplete records retain local execution
