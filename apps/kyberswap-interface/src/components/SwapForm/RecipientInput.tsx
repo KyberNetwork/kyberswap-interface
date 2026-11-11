@@ -3,9 +3,9 @@ import { ChevronDown, X } from 'react-feather'
 
 import { ReactComponent as RecipientWalletIcon } from 'assets/svg/recipient_wallet.svg'
 import { AddressInput } from 'components/AddressInputPanel'
-import { ButtonLight } from 'components/Button'
 import { Collapse } from 'components/Collapse'
 import { Stack } from 'components/Stack'
+import type { RecipientAddressType } from 'components/SwapForm/hooks/useEvmRecipient'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
 
@@ -16,8 +16,7 @@ type RecipientInputProps = {
   error?: boolean
   onChange: (value: string) => void
   onToggle: () => void
-  onUseMyWallet?: () => void
-} & ({ mode: 'evm' } | { mode: 'nonEvm'; networkName: string })
+} & RecipientAddressType
 
 export const RecipientToggle = ({ expanded, onToggle }: Pick<RecipientInputProps, 'expanded' | 'onToggle'>) => (
   <MouseoverTooltip text={t`Send to another wallet`} placement="top" width="max-content">
@@ -35,7 +34,7 @@ export const RecipientToggle = ({ expanded, onToggle }: Pick<RecipientInputProps
 
 /** Shared recipient UI. Collapsing only changes visibility; the form owns the receiving address. */
 export const RecipientInput = (props: RecipientInputProps) => {
-  const { value, expanded, hideLabel, error, onChange, onToggle, onUseMyWallet } = props
+  const { value, expanded, hideLabel, error, onChange, onToggle } = props
   const networkName = props.mode === 'evm' ? 'EVM' : props.networkName
 
   return (
@@ -51,48 +50,56 @@ export const RecipientInput = (props: RecipientInputProps) => {
             {props.mode === 'evm' ? <Trans>Recipient (EVM address)</Trans> : <Trans>Send to other wallet</Trans>}
             <ChevronDown size={14} className={cn('transition-transform duration-300', expanded && 'rotate-180')} />
           </button>
-          {props.mode === 'evm' && expanded && onUseMyWallet && (
-            <ButtonLight type="button" className="w-fit px-2 py-0.5" fontSize={12} onClick={onUseMyWallet}>
-              <Trans>Use my wallet</Trans>
-            </ButtonLight>
-          )}
         </div>
       )}
       <Collapse open={expanded} className="relative z-10 w-full" contentGap={2}>
-        <AddressInput
-          className="[&>div]:py-2"
-          placeholder={hideLabel ? t`Recipient (${networkName} address)` : t`Enter ${networkName} receiving address`}
+        <RecipientAddressInput
+          {...(props.mode === 'evm' ? { mode: 'evm' as const } : { mode: 'nonEvm' as const, networkName })}
           value={value}
           error={error}
           disabled={!expanded}
-          pattern={props.mode === 'nonEvm' ? null : undefined}
-          icon={
-            <>
-              {hideLabel && props.mode === 'evm' && onUseMyWallet && (
-                <ButtonLight
-                  type="button"
-                  className="w-fit shrink-0 whitespace-nowrap px-2 py-0.5"
-                  fontSize={12}
-                  onClick={onUseMyWallet}
-                >
-                  <Trans>Use my wallet</Trans>
-                </ButtonLight>
-              )}
-              {value ? (
-                <button
-                  type="button"
-                  aria-label={t`Clear address`}
-                  className="flex shrink-0 items-center border-0 bg-transparent p-0 text-subText hover:text-text"
-                  onClick={() => onChange('')}
-                >
-                  <X size={14} />
-                </button>
-              ) : undefined}
-            </>
-          }
-          onChange={event => onChange(event.target.value.replace(/\s+/g, ''))}
+          placeholder={hideLabel ? undefined : t`Enter ${networkName} receiving address`}
+          onChange={onChange}
         />
       </Collapse>
     </Stack>
+  )
+}
+
+type RecipientAddressInputProps = RecipientAddressType & {
+  value: string
+  error?: boolean
+  disabled?: boolean
+  autoFocus?: boolean
+  placeholder?: string
+  onChange: (value: string) => void
+}
+
+export const RecipientAddressInput = (props: RecipientAddressInputProps) => {
+  const { value, error, disabled, autoFocus, placeholder, onChange } = props
+  const networkName = props.mode === 'evm' ? 'EVM' : props.networkName
+  return (
+    <AddressInput
+      autoFocus={autoFocus}
+      className="[&>div]:py-2"
+      placeholder={placeholder ?? t`Recipient (${networkName} address)`}
+      value={value}
+      error={error}
+      disabled={disabled}
+      pattern={props.mode === 'nonEvm' ? null : undefined}
+      onChange={event => onChange(event.target.value.replace(/\s+/g, ''))}
+      icon={
+        value ? (
+          <button
+            type="button"
+            aria-label={t`Clear address`}
+            className="flex shrink-0 items-center border-0 bg-transparent p-0 text-subText hover:text-text"
+            onClick={() => onChange('')}
+          >
+            <X size={14} />
+          </button>
+        ) : undefined
+      }
+    />
   )
 }

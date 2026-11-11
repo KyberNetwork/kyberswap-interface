@@ -7,6 +7,8 @@ import IconButton from 'components/Button/IconButton'
 import { HStack, Stack } from 'components/Stack'
 import { DegenModeSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/DegenModeSetting'
 import { LiquiditySourcesSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/LiquiditySourcesSetting'
+import { SendToAnotherWalletSetting } from 'components/SwapForm/Settings/SwapSettingsPanel/SendToAnotherWalletSetting'
+import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import { SlippageSetting } from 'components/TransactionSettings/SlippageSetting'
 import { TransactionTimeLimitSetting } from 'components/TransactionSettings/TransactionTimeLimitSetting'
 import {
@@ -37,6 +39,25 @@ const CrossChainSourceSetting = lazy(
   () => import('components/SwapForm/Settings/SwapSettingsPanel/CrossChainSourceSetting'),
 )
 
+const CrossChainSendToAnotherWalletSetting = lazy(
+  () => import('components/SwapForm/Settings/SwapSettingsPanel/CrossChainSendToAnotherWalletSetting'),
+)
+
+const SingleChainSendToAnotherWalletSetting = ({ onApply }: { onApply: () => void }) => {
+  const { recipientInputValue, applyRecipient, isWrapOrUnwrap } = useSingleChainSwapContext()
+  return (
+    <SendToAnotherWalletSetting
+      mode="evm"
+      disabled={isWrapOrUnwrap}
+      recipientInputValue={recipientInputValue}
+      onApply={value => {
+        applyRecipient(value)
+        onApply()
+      }}
+    />
+  )
+}
+
 type DisplaySettingRowProps = {
   label: ReactNode
   tooltip: ReactNode
@@ -56,6 +77,7 @@ type SwapSettingsPanelProps = {
   mode: 'single-chain' | 'cross-chain' | 'limit' | 'stop-market'
   /** Independent of quote mode: unified cross-chain also supports chart/route display preferences. */
   showDisplaySettings?: boolean
+  recipientSettingsReady?: boolean
   crossChainQuoteMode?: CrossChainQuoteMode
   highlightDegenMode?: boolean
   onBack: () => void
@@ -67,6 +89,7 @@ const SwapSettingsPanel = ({
   chainId,
   mode,
   showDisplaySettings = mode === 'single-chain',
+  recipientSettingsReady = true,
   crossChainQuoteMode,
   highlightDegenMode,
   onBack,
@@ -123,6 +146,17 @@ const SwapSettingsPanel = ({
 
         {showDisplaySettings && (
           <>
+            {recipientSettingsReady && (mode === 'single-chain' || mode === 'cross-chain') && (
+              <>
+                {mode === 'single-chain' ? (
+                  <SingleChainSendToAnotherWalletSetting onApply={onBack} />
+                ) : (
+                  <Suspense fallback={null}>
+                    <CrossChainSendToAnotherWalletSetting onApply={onBack} />
+                  </Suspense>
+                )}
+              </>
+            )}
             <SettingsDivider />
             <SettingsSection title={<Trans>Display Settings</Trans>}>
               <DisplaySettingRow

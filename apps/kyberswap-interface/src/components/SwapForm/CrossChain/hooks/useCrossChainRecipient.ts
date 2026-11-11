@@ -7,7 +7,8 @@ import {
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
 } from 'services/crossChain/utils'
 
-import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
+import { type RecipientAddressType, useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
+import { useRecipientAddress } from 'components/SwapForm/hooks/useRecipientAddress'
 import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ZERO_ADDRESS } from 'constants/index'
@@ -26,7 +27,7 @@ const getPreviewAddress = (chain: Chain | undefined, account: string | undefined
 
 /**
  * The provider owns signing sessions. This hook owns recipient presentation state,
- * so reverse can swap wallets without changing paste mode, text, or collapse state.
+ * so reverse preserves paste mode, text, and collapse state.
  */
 export const useCrossChainRecipient = (fromChainId: Chain, toChainId?: Chain) => {
   const { account } = useActiveWeb3React()
@@ -71,10 +72,15 @@ export const useCrossChainRecipient = (fromChainId: Chain, toChainId?: Chain) =>
     setRecipientInput(previous => ({ ...previous, ...change }))
   }
   const setRecipient = (value: string) => {
-    if (hasIndependentReceiver) updateInput({ pastedAddress: value, mode: 'paste' })
+    if (hasIndependentReceiver) updateInput({ pastedAddress: value, mode: value ? 'paste' : 'wallet' })
     else evm.setRecipient(value)
   }
-  const applyRecipient = (value: string) => updateInput({ pastedAddress: value, mode: 'paste', expanded: true })
+  const applyRecipient = (value: string) => {
+    if (hasIndependentReceiver) updateInput({ pastedAddress: value, mode: value ? 'paste' : 'wallet', expanded: true })
+    else {
+      evm.applyRecipient(value)
+    }
+  }
   const selectWalletRecipient = () => {
     if (hasIndependentReceiver) updateInput({ mode: 'wallet' })
     else evm.useMyWallet()
@@ -84,19 +90,31 @@ export const useCrossChainRecipient = (fromChainId: Chain, toChainId?: Chain) =>
     else evm.toggleExpanded()
   }
 
+  const recipientAddressType: RecipientAddressType = nonEvmChain
+    ? {
+        mode: 'nonEvm',
+        networkName:
+          nonEvmChain === NonEvmChain.Near ? 'NEAR' : nonEvmChain === NonEvmChain.Bitcoin ? 'Bitcoin' : 'Solana',
+      }
+    : { mode: 'evm' }
+
+  const recipientLookup = useRecipientAddress(recipient, recipientAddressType)
+
   return {
     recipient,
+    recipientError: recipientLookup.error,
+    recipientMessage: recipientLookup.message,
+    hasCustomRecipient: hasIndependentReceiver ? isPastedRecipient : evm.hasCustomRecipient,
+    recipientAddressType,
     recipientInputValue: hasIndependentReceiver ? recipientInput.pastedAddress : evm.inputValue,
     receiverWallet,
     pastedRecipient: hasIndependentReceiver ? recipientInput.pastedAddress : '',
     isPastedRecipient,
     showRecipientInput,
-    recipientMode: nonEvmChain ? ('nonEvm' as const) : ('evm' as const),
-    canUseMyWallet: !hasIndependentReceiver && evm.canUseMyWallet,
     sender: senderAddress || getPreviewAddress(fromChainId, account),
-    receiver: recipient || getPreviewAddress(toChainId, account),
+    receiver: recipientLookup.address || getPreviewAddress(toChainId, account),
     // Placeholder addresses support preview quotes only; they must never be executable.
-    isReadOnly: !senderAddress || !recipient,
+    isReadOnly: !senderAddress || !recipientLookup.address,
     setRecipient,
     applyRecipient,
     selectWalletRecipient,

@@ -18,6 +18,7 @@ type Props = {
   placeholder?: string
   icon?: ReactNode
   disabled?: boolean
+  autoFocus?: boolean
   className?: string
   inputClassName?: string
   style?: CSSProperties
@@ -33,6 +34,7 @@ export function AddressInput({
   placeholder,
   icon,
   disabled = false,
+  autoFocus = false,
   style = {},
   className,
   inputClassName,
@@ -43,6 +45,7 @@ export function AddressInput({
       <div className="flex-1 p-3">
         <Row className="gap-[5px]">
           <input
+            autoFocus={autoFocus}
             style={style}
             disabled={disabled}
             className={cn(

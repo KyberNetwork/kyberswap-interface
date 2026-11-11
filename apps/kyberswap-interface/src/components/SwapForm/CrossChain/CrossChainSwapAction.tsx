@@ -37,7 +37,8 @@ export const CrossChainSwapAction = () => {
     loading,
     allLoading,
     selectedQuote,
-    recipient,
+    recipientMessage,
+    isReadOnly,
     sender,
     receiver,
   } = useCrossChainSwap()
@@ -66,7 +67,7 @@ export const CrossChainSwapAction = () => {
     })
 
   const isFindingRoute = loading || (allLoading && !selectedQuote)
-  const isSelectedQuoteExecutable = isQuoteExecutable(selectedQuote, sender, receiver)
+  const isSelectedQuoteExecutable = !isReadOnly && isQuoteExecutable(selectedQuote, sender, receiver)
 
   // Restricted-token check applies only to EVM sides (the restricted list is keyed by EVM chainId).
   const restrictedCurrency =
@@ -107,6 +108,14 @@ export const CrossChainSwapAction = () => {
       return {
         label: t`Approving`,
         busy: true,
+        disabled: true,
+      }
+    }
+
+    // Recipient failures must not be presented as route refresh/loading failures.
+    if (wallets?.inputAddress && recipientMessage) {
+      return {
+        label: recipientMessage,
         disabled: true,
       }
     }
@@ -167,13 +176,6 @@ export const CrossChainSwapAction = () => {
       return {
         label: t`Switch Network`,
         onClick: () => changeNetwork(fromChainId as ChainId),
-      }
-    }
-
-    if (!recipient) {
-      return {
-        label: t`Enter Recipient`,
-        disabled: true,
       }
     }
 

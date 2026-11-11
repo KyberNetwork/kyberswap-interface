@@ -177,6 +177,7 @@ const SwapPageContent = ({
                 <SwapSettingsPanel
                   chainId={singleChainId}
                   crossChainQuoteMode="stream"
+                  recipientSettingsReady={!isProviderLoading}
                   showDisplaySettings
                   mode={isCrossChain ? 'cross-chain' : 'single-chain'}
                   highlightDegenMode={highlightDegenMode}

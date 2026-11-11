@@ -40,7 +40,8 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     loading,
     allLoading,
     selectedQuote,
-    recipient,
+    recipientMessage,
+    isReadOnly,
     sender,
     receiver,
   } = useKyberCrossSwap()
@@ -78,7 +79,9 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     })
 
   const isFindingRoute = loading || (allLoading && !selectedQuote)
+  const hasSender = isFromEvm ? !!account : isFromNear ? !!signedAccountId : isFromSol ? !!solanaAddress : !!btcAddress
   const isSelectedQuoteExecutable =
+    !isReadOnly &&
     isQuoteExecutable(selectedQuote, sender, receiver) &&
     !!selectedQuote &&
     selectedQuote.quote.quoteParams.amount === amountInWei &&
@@ -134,6 +137,13 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
         disabled: true,
       }
     }
+    if (hasSender && recipientMessage) {
+      return {
+        label: recipientMessage,
+        disabled: true,
+      }
+    }
+
     if (isFindingRoute) {
       return {
         label: <Dots>{t`Finding the best route`}</Dots>,
@@ -231,13 +241,6 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
         onClick: () => {
           if (isFromEvm) changeNetwork(fromChainId as ChainId)
         },
-      }
-    }
-
-    if (!recipient) {
-      return {
-        label: t`Enter Recipient`,
-        disabled: true,
       }
     }
 

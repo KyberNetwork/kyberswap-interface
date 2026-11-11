@@ -40,7 +40,7 @@ const CrossChainSwap = (props: Props) => {
     loading,
     warning,
     recipient,
-    isPastedRecipient,
+    hasCustomRecipient,
   } = useCrossChainSwap()
   const { trackingHandler } = useTracking()
   const [showBitcoin, setShowBitcoin] = useState(false)
@@ -109,9 +109,7 @@ const CrossChainSwap = (props: Props) => {
         }
         details={
           <Stack className="gap-2">
-            <CrossChainQuoteDetails
-              recipient={!hasNonEvmChain || isPastedRecipient ? <CrossChainRecipient /> : undefined}
-            />
+            <CrossChainQuoteDetails recipient={hasCustomRecipient ? <CrossChainRecipient /> : undefined} />
             <HoneypotWarning message={message} />
             <CrossChainPriceImpactWarning warning={warning} />
           </Stack>

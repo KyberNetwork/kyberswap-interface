@@ -8,6 +8,7 @@ import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
 import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
+import { useRecipientAddress } from 'components/SwapForm/hooks/useRecipientAddress'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { MAINNET_NETWORKS } from 'constants/networks'
@@ -54,7 +55,8 @@ const useSingleChainSwap = ({
     execute: onWrap,
   } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
   const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
-  const recipient = isDegenMode && !isWrapOrUnwrap ? evmRecipient.recipient : account || ''
+  const recipientLookup = useRecipientAddress(isWrapOrUnwrap ? account || '' : evmRecipient.recipient, { mode: 'evm' })
+  const recipient = recipientLookup.address || ''
 
   // Invalidate a built review on wallet/form changes; slippage is rebuilt separately below.
   const reviewIdentity = JSON.stringify([
@@ -143,11 +145,15 @@ const useSingleChainSwap = ({
     typedValue,
     onUserInput,
     recipient,
+    recipientError: recipientLookup.error,
+    recipientMessage: recipientLookup.message,
     onRecipientChange: evmRecipient.setRecipient,
+    recipientInputValue: evmRecipient.inputValue,
+    hasCustomRecipient: evmRecipient.hasCustomRecipient,
     showRecipientInput: evmRecipient.expanded,
     toggleRecipient: evmRecipient.toggleExpanded,
-    canUseMyWallet: evmRecipient.canUseMyWallet,
     selectWalletRecipient: evmRecipient.useMyWallet,
+    applyRecipient: evmRecipient.applyRecipient,
     parsedAmount,
     wrapType,
     wrapInputError,

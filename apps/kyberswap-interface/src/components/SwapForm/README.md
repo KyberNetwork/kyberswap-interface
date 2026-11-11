@@ -86,8 +86,16 @@ review. Approval and permit use the route's API-returned `routerAddress`. Native
 payment uses `paysNativeOnSwap` and bypasses token allowance/permit. Wrap/unwrap
 uses `useWrapCallback` instead of requesting/building an aggregator route.
 
-Custom recipient selection is available in Degen Mode for ordinary swaps. The
-default recipient and wrap/unwrap recipient are the connected account.
+Settings → Send to another Wallet opens a recipient popup for all Swap modes,
+independently of Degen Mode. The popup owns temporary edits; recipient hooks own
+Apply and expanding the form input. Popup and form share the address field.
+EVM-to-EVM forms initially hide recipient controls until a custom address is applied.
+Clearing the input restores the selected wallet; collapsing does not change the recipient.
+The setting is disabled for wrap/unwrap, which receives into the connected wallet.
+Recipient resolution is shared by Settings and the form: ENS resolves on Ethereum
+before quote/build; non-EVM addresses are checked for destination format. Draft text
+is preserved, and pending/invalid recipients cannot execute. These checks do not
+verify account existence or ownership.
 
 ### Review and execution
 

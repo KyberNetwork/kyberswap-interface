@@ -20,7 +20,6 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import useENS from 'hooks/useENS'
 import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
@@ -61,11 +60,13 @@ export const SingleChainSwapContent = ({
     typedValue,
     onUserInput,
     recipient,
+    recipientInputValue,
+    recipientError,
+    recipientMessage,
     onRecipientChange,
+    hasCustomRecipient,
     showRecipientInput,
     toggleRecipient,
-    canUseMyWallet,
-    selectWalletRecipient,
     parsedAmount,
     wrapType,
     wrapInputError,
@@ -83,7 +84,6 @@ export const SingleChainSwapContent = ({
     dismissReview,
   } = useSingleChainSwapContext()
 
-  const recipientLookup = useENS(recipient)
   const debouncedTypedValue = useDebounce(typedValue, 1000)
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
   const { displayTypedValue, onDisplayInput, onRawValue } = useERC8056TypedInput(
@@ -101,6 +101,7 @@ export const SingleChainSwapContent = ({
     currencyOut,
     typedValue,
     recipient,
+    recipientMessage,
     balanceIn,
     parsedAmountFromTypedValue: parsedAmount,
   })
@@ -229,19 +230,20 @@ export const SingleChainSwapContent = ({
             {!isWrapOrUnwrap && (
               <SingleChainQuoteDetails
                 recipientToggle={
-                  isDegenMode ? <RecipientToggle expanded={showRecipientInput} onToggle={toggleRecipient} /> : undefined
+                  hasCustomRecipient ? (
+                    <RecipientToggle expanded={showRecipientInput} onToggle={toggleRecipient} />
+                  ) : undefined
                 }
                 recipient={
-                  isDegenMode ? (
+                  hasCustomRecipient ? (
                     <RecipientInput
                       hideLabel
                       mode="evm"
-                      value={recipient}
+                      value={recipientInputValue}
                       expanded={showRecipientInput}
-                      error={!!recipient && !recipientLookup.loading && !recipientLookup.address}
+                      error={recipientError}
                       onChange={onRecipientChange}
                       onToggle={toggleRecipient}
-                      onUseMyWallet={canUseMyWallet ? selectWalletRecipient : undefined}
                     />
                   ) : undefined
                 }

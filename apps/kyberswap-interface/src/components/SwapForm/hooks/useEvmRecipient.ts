@@ -1,6 +1,8 @@
 import { useState } from 'react'
 
-/** null follows the connected wallet; a string is an explicit recipient, including an empty input. */
+export type RecipientAddressType = { mode: 'evm' } | { mode: 'nonEvm'; networkName: string }
+
+/** null follows the connected wallet; a non-empty string is an explicit recipient. */
 export const useEvmRecipient = (account?: string) => {
   const [customRecipient, setCustomRecipient] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
@@ -8,10 +10,14 @@ export const useEvmRecipient = (account?: string) => {
   return {
     recipient: customRecipient ?? account ?? '',
     inputValue: customRecipient ?? '',
+    hasCustomRecipient: customRecipient !== null,
     expanded,
-    canUseMyWallet: !!account && customRecipient !== null,
-    setRecipient: (value: string) => setCustomRecipient(value),
+    setRecipient: (value: string) => setCustomRecipient(value || null),
     useMyWallet: () => setCustomRecipient(null),
     toggleExpanded: () => setExpanded(previous => !previous),
+    applyRecipient: (value: string) => {
+      setCustomRecipient(value || null)
+      setExpanded(true)
+    },
   }
 }

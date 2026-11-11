@@ -12,6 +12,10 @@ import {
 } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 
+vi.mock('components/SwapForm/hooks/useRecipientAddress', () => ({
+  useRecipientAddress: (value: string) => ({ address: value || undefined, loading: false, error: false }),
+}))
+
 const mocks = vi.hoisted(() => ({
   trigger: vi.fn(),
   fee: vi.fn(),
@@ -378,7 +382,7 @@ it('shares the effective recipient with build and review, preserving custom inpu
   expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '0xcustom' }))
   expect(form.review.phase).toBe('closed')
   await renderForm(false)
-  expect(form.recipient).toBe('0xchanged')
+  expect(form.recipient).toBe('0xcustom')
   await renderForm()
   expect(form.recipient).toBe('0xcustom')
   mocks.wrapType = 1
@@ -388,7 +392,7 @@ it('shares the effective recipient with build and review, preserving custom inpu
   await renderForm()
   expect(form.recipient).toBe('0xcustom')
   await act(async () => form.onRecipientChange(''))
-  expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '' }))
+  expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '0xchanged' }))
   await act(async () => form.selectWalletRecipient())
   expect(form.recipient).toBe('0xchanged')
   expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '0xchanged' }))
