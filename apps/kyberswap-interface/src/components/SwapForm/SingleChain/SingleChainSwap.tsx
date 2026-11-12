@@ -14,7 +14,7 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import { useERC8056TypedInput } from 'hooks/useERC8056Token'
 
 /** Same-chain details and execution; fields and selection belong to the common form. */
-export const SingleChainSwapContent = () => {
+export const SingleChainSwapContent = ({ isCurrencyLoading = false }: { isCurrencyLoading?: boolean }) => {
   const {
     currencyIn,
     currencyOut,
@@ -122,6 +122,7 @@ export const SingleChainSwapContent = () => {
       </Stack>
 
       <SwapActionButton
+        isCurrencyLoading={isCurrencyLoading}
         chainError={chainError}
         isGettingRoute={isGettingRoute}
         parsedAmountFromTypedValue={parsedAmount}

@@ -118,8 +118,6 @@ export const useQuoteSession = ({
     })
   }
 
-  const load = useEffectEvent(loadQuotes)
-
   useEffect(() => {
     const { params } = request
     if (!params) return
@@ -166,7 +164,8 @@ export const useQuoteSession = ({
       }
 
       try {
-        await load({ signal, publish, forceRefresh })
+        // Capture the loader with this request; never mix a session with another request's pool.
+        await loadQuotes({ signal, publish, forceRefresh })
       } catch (error) {
         if (!signal.aborted && (error as Error).message !== 'Cancelled') {
           console.error('Error getting quotes:', error)

@@ -5,7 +5,7 @@ import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWith
 import SwapPage from 'pages/Swap/SwapPage'
 import { RedirectPathToTradeNetwork } from 'pages/Swap/redirects'
 import { useCurrencyFromUrl } from 'state/swap/hooks'
-import { getDefaultSwapTokenId, getTradeLocation, isCrossChainPair } from 'utils/swapFlow'
+import { getTradeLocation, isCrossChainPair } from 'utils/swapFlow'
 
 const NetworkSync = () => {
   useSyncNetworkParamWithStore()
@@ -31,8 +31,8 @@ const SwapRoute = () => {
       {
         fromChain: inputChain,
         toChain: outputChain,
-        tokenIn: fromCurrency || getDefaultSwapTokenId(inputChain),
-        tokenOut: toCurrency || getDefaultSwapTokenId(outputChain),
+        tokenIn: fromCurrency,
+        tokenOut: toCurrency,
       },
       params,
     )

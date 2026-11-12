@@ -47,7 +47,7 @@ export interface SwapState {
 const initialState: SwapState = {
   independentField: Field.INPUT,
   permitData: {},
-  typedValue: '1',
+  typedValue: '',
   recipient: null,
   trade: undefined,
 
@@ -66,7 +66,7 @@ export default createReducer<SwapState>(initialState, builder =>
       return {
         ...state,
         independentField: field,
-        typedValue: typedValue || state.typedValue || '1',
+        typedValue: typedValue ?? state.typedValue,
         recipient,
       }
     })

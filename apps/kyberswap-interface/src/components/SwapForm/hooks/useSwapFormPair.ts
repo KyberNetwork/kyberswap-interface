@@ -2,12 +2,14 @@ import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
 import { type To, useNavigate, useSearchParams } from 'react-router-dom'
 
+import { APP_PATHS } from 'constants/index'
 import usePageLocation from 'hooks/usePageLocation'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { Field } from 'state/swap/actions'
 import { useSwapCurrencyResolution } from 'state/swap/hooks'
 import { type Chain, type Currency, NonEvmChain, type NonEvmCurrency } from 'types/crossChain'
 import { currencyId } from 'utils/currencyId'
+import { isPathOrChild } from 'utils/routes'
 import {
   SwapPair,
   getDefaultSwapTokenId,
@@ -54,6 +56,7 @@ export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSea
 
   const [outputChainDefault, setOutputChainDefault] = useState<'idle' | 'pending' | 'done'>('idle')
 
+  const isUnifiedSwap = isPathOrChild(pathname, APP_PATHS.SWAP)
   const isCrossChain = isCrossChainPair(inputChain, outputChain)
 
   const currencyIn = matches(selected.currencyIn, fromCurrency, inputChain) ? selected.currencyIn : resolvedInput
@@ -62,13 +65,17 @@ export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSea
 
   // Resolve path-backed EVM tokens before writing query parameters; preserve non-EVM IDs verbatim.
   const inputId =
-    inputChain === NonEvmChain.Bitcoin
+    isUnifiedSwap && !fromCurrency
+      ? ''
+      : inputChain === NonEvmChain.Bitcoin
       ? 'BTC'
       : currencyIn
       ? currencyId(currencyIn, currencyIn.chainId)
       : fromCurrency || getDefaultSwapTokenId(inputChain)
   const outputId =
-    outputChain === NonEvmChain.Bitcoin
+    isUnifiedSwap && !toCurrency
+      ? ''
+      : outputChain === NonEvmChain.Bitcoin
       ? 'BTC'
       : currencyOut
       ? currencyId(currencyOut, currencyOut.chainId)

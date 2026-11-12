@@ -5,13 +5,14 @@ import type { Quote } from 'services/crossChain/registry'
 import { normalizeAdapterName } from 'services/crossChain/utils'
 import { formatUnits } from 'viem'
 
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { TokenLogoWithChain } from 'components/TokenLogo/TokenLogoWithChain'
-import RouteGraphView from 'components/TradeRouting/RouteGraphView'
+import RouteGraphView, { EmptyRouteGraph } from 'components/TradeRouting/RouteGraphView'
 import TradeRoutePanel, { TradeRouteSkeleton } from 'components/TradeRouting/TradeRoutePanel'
 import { type RouteStep, getCrossChainRouteSteps } from 'components/TradeRouting/getCrossChainRouteSteps'
 import { buildSequentialRouteGraph } from 'components/TradeRouting/routeGraph'
-import { EmptyRoute, PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
+import { PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
 import { type Chain, type Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -56,7 +57,7 @@ const buildCrossChainGraph = (steps: RouteStep[]) =>
   )
 
 const RouteTokenLabel = ({ currency, chain, amount }: { currency?: Currency; chain?: Chain; amount?: string }) => {
-  if (!currency || !chain) return null
+  if (!currency || !chain) return <img src={UnknownToken} className="size-[18px]" alt="" />
 
   return (
     <span className="inline-flex items-center gap-1.5">
@@ -128,7 +129,7 @@ export const CrossChainTradeRouteView = ({
               </TokenLink>
             </PairTokenSlot>
           </PairRow>
-          {!selectedQuote ? <EmptyRoute /> : <RouteGraphView graph={graph} />}
+          {!selectedQuote ? <EmptyRouteGraph message={t`No route found`} /> : <RouteGraphView graph={graph} />}
         </RouteContent>
       )}
     </TradeRoutePanel>

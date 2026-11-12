@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import type { AnchorHTMLAttributes, ComponentPropsWithRef, HTMLAttributes } from 'react'
 
 import { cn } from 'utils/cn'
@@ -59,17 +58,4 @@ export const HopCard = ({ className, ...rest }: ComponentPropsWithRef<'div'>) =>
 
 export const PoolList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col gap-2 rounded-lg bg-white/[0.06] px-3 py-2', className)} {...rest} />
-)
-
-export const EmptyRoute = ({ message = t`No route found` }: { message?: string }) => (
-  <RouteList>
-    <div className="pb-9">
-      <div className="relative flex items-center justify-center px-12">
-        <div className="absolute inset-x-2.5 top-1/2 border-t border-buttonGray" />
-        <div className="relative rounded-lg border border-darkBorder bg-buttonBlack px-3 py-2 text-sm font-medium italic text-text3">
-          {message}
-        </div>
-      </div>
-    </div>
-  </RouteList>
 )

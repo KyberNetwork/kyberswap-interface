@@ -3,9 +3,9 @@ import { t } from '@lingui/macro'
 import { memo, useMemo } from 'react'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import RouteGraphView from 'components/TradeRouting/RouteGraphView'
+import RouteGraphView, { EmptyRouteGraph } from 'components/TradeRouting/RouteGraphView'
 import { buildV2RouteGraph, buildV3RouteGraph } from 'components/TradeRouting/routeGraph'
-import { EmptyRoute, PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
+import { PairRow, PairTokenSlot, RouteContent, TokenLink } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
@@ -82,7 +82,7 @@ const Routing = ({
         </PairRow>
 
         {!availableRoute ? (
-          <EmptyRoute message={isWrap ? t`Wrapping` : isUnwrap ? t`Unwrapping` : undefined} />
+          <EmptyRouteGraph message={isWrap ? t`Wrapping` : isUnwrap ? t`Unwrapping` : t`No route found`} />
         ) : graph ? (
           <RouteGraphView graph={graph} />
         ) : null}

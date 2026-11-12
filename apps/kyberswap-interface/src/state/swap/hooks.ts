@@ -19,9 +19,15 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress } from 'utils/address'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
-import { getSwapIntentFromPath, getTradeProductPath, isSwapLikePath, resolveSwapIntentPair } from 'utils/routes'
+import {
+  getSwapIntentFromPath,
+  getTradeProductPath,
+  isPathOrChild,
+  isSwapLikePath,
+  resolveSwapIntentPair,
+} from 'utils/routes'
 import { getChainIdFromSlug } from 'utils/string'
-import { getEmbeddedSwapPair, getSwapChains } from 'utils/swapFlow'
+import { getDefaultSwapTokenId, getEmbeddedSwapPair, getSwapChains } from 'utils/swapFlow'
 
 interface ParsedUrlQuery {
   [key: string]: string | string[]
@@ -291,6 +297,8 @@ export const useCurrencyFromUrl = () => {
     pathname.startsWith(APP_PATHS.USER_SWAP)
   const { fromChain, toChain } = getSwapChains(isSwapPage ? params : new URLSearchParams(), chainId)
 
+  const isUnifiedSwap = isPathOrChild(pathname, APP_PATHS.SWAP)
+
   const pathPair = useMemo(() => {
     const swapIntent = getSwapIntentFromPath(pathname)
     const nativeToken = NativeCurrencies[chainId]
@@ -314,7 +322,12 @@ export const useCurrencyFromUrl = () => {
     const fromCurrency = matches?.[0]?.toLowerCase() || ''
     let toCurrency = matches?.[1]?.toLowerCase() || ''
     const nativeSymbol = NativeCurrencies[chainId].symbol?.toLowerCase() || 'eth'
-    const defaultOutput = DEFAULT_OUTPUT_TOKENS[chainId]?.symbol?.toLowerCase() || ''
+    const defaultOutput = isUnifiedSwap ? '' : DEFAULT_OUTPUT_TOKENS[chainId]?.symbol?.toLowerCase() || ''
+
+    // Explicit empty sides survive selection and reversal; only a bare route gets the native input.
+    if (isUnifiedSwap && matches?.length === 2) {
+      return { fromCurrency, toCurrency: fromCurrency === toCurrency ? '' : toCurrency }
+    }
 
     if (!fromCurrency && !toCurrency)
       return {
@@ -330,7 +343,7 @@ export const useCurrencyFromUrl = () => {
       fromCurrency: fromCurrency || (toCurrency === nativeSymbol ? defaultOutput : nativeSymbol),
       toCurrency: toCurrency || defaultOutput,
     }
-  }, [chainId, currencyParam, pathname, tokenParam])
+  }, [chainId, currencyParam, pathname, tokenParam, isUnifiedSwap])
 
   if (embedded) {
     const pair = getEmbeddedSwapPair(params)
@@ -348,13 +361,17 @@ export const useCurrencyFromUrl = () => {
         (params.has('from')
           ? typeof fromChain === 'number'
             ? NativeCurrencies[fromChain].symbol || ''
+            : isUnifiedSwap
+            ? getDefaultSwapTokenId(fromChain)
             : ''
           : pathPair.fromCurrency)
       : pathPair.fromCurrency,
     toCurrency: isSwapPage
       ? params.get('tokenOut') ??
         (params.has('to')
-          ? typeof toChain === 'number'
+          ? isUnifiedSwap
+            ? ''
+            : typeof toChain === 'number'
             ? NativeCurrencies[toChain].symbol || ''
             : ''
           : pathPair.toCurrency)
