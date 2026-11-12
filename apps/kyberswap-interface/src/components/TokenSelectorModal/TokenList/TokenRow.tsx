@@ -5,6 +5,7 @@ import { getDisplayTokenInfo } from 'components/TokenSelectorModal/TokenList/Pin
 import { TokenRowIdentity } from 'components/TokenSelectorModal/TokenList/TokenRowIdentity'
 import { TokenRowValues } from 'components/TokenSelectorModal/TokenList/TokenRowValues'
 import { restrictedTokenMessage } from 'hooks/useRestrictedTokens'
+import { useIsTokenPriceSettled } from 'state/tokenPrices/hooks'
 import { cn } from 'utils/cn'
 
 type TokenRowProps = {
@@ -25,6 +26,11 @@ type TokenRowProps = {
   customName?: ReactNode
   customBalance?: ReactNode
   usdBalance?: number
+  /**
+   * Show "-" for the USD value when the row holds a balance and the price service has answered
+   * without a usable price, so an unpriced holding reads as such instead of leaving the line empty.
+   */
+  markUnpriced?: boolean
   hoverColor?: string
   hideBalance?: boolean
   showLoading?: boolean
@@ -88,6 +94,7 @@ export const TokenRow = ({
   customName,
   customBalance,
   usdBalance,
+  markUnpriced,
   hoverColor,
   hideBalance,
   showLoading,
@@ -115,6 +122,8 @@ export const TokenRow = ({
 }: TokenRowProps) => {
   const isImport = rightColumn === 'import'
   const { symbol } = getDisplayTokenInfo(currency)
+  const priceSettled = useIsTokenPriceSettled(currency.chainId, currency.wrapped.address)
+  const usdUnpriced = !!markUnpriced && !usdBalance && priceSettled && !!currencyBalance?.greaterThan('0')
 
   const activate = () => {
     if (restricted) {
@@ -203,6 +212,7 @@ export const TokenRow = ({
           showLoading={showLoading}
           balanceUnknown={balanceUnknown}
           usdBalance={usdBalance}
+          usdUnpriced={usdUnpriced}
           usdValueClassName={usdValueClassName}
           onImportToken={onImportToken}
           onRemoveImportedToken={onRemoveImportedToken}

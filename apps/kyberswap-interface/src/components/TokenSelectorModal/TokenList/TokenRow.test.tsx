@@ -14,6 +14,8 @@ vi.mock('components/TokenSelectorModal/TokenList/PinnedTokens', () => ({
 }))
 vi.mock('utils/dmm', () => ({ useCurrencyConvertedToNative: (currency: Token) => currency }))
 vi.mock('hooks/useRestrictedTokens', () => ({ restrictedTokenMessage: () => 'Unavailable' }))
+const prices = vi.hoisted(() => ({ settled: false }))
+vi.mock('state/tokenPrices/hooks', () => ({ useIsTokenPriceSettled: () => prices.settled }))
 
 const token = new Token(1, '0x0000000000000000000000000000000000000001', 18, 'TOKEN', 'Token')
 i18n.loadAndActivate({ locale: 'en', messages: {} })
@@ -43,6 +45,7 @@ afterEach(async () => {
   await act(async () => root?.unmount())
   root = undefined
   container?.remove()
+  prices.settled = false
 })
 
 it('keeps selection separate from import and restriction actions, including keyboard activation', async () => {
@@ -113,4 +116,31 @@ it('distinguishes zero, unavailable and hidden balances and preserves custom bal
   expect(container.querySelector('[data-testid="token-usd-value"]')).toBeNull()
   await render({ customBalance: <span data-custom>Scaled amount</span>, hideBalance: true })
   expect(container.querySelector('[data-custom]')?.textContent).toBe('Scaled amount')
+})
+
+it('reads "-" for a held balance whose price settled without a usable value, only where the caller asks', async () => {
+  const held = CurrencyAmount.fromRawAmount(token, '120000000000000000000000')
+  const usdText = () => container.querySelector('[data-testid="token-usd-value"]')?.textContent
+  const dash = () => container.querySelector('[data-testid="token-usd-unpriced"]')
+
+  // Still on its way: nothing yet, so a priced token never flashes "-" first.
+  await render({ currencyBalance: held, usdBalance: 0, markUnpriced: true })
+  expect(dash()).toBeNull()
+
+  prices.settled = true
+  await render({ currencyBalance: held, usdBalance: 0, markUnpriced: true })
+  expect(dash()?.textContent).toBe('-')
+  expect(usdText()).toBeUndefined()
+
+  await render({ currencyBalance: held, usdBalance: 2370.5, markUnpriced: true })
+  expect(dash()).toBeNull()
+  expect(usdText()).toBe('$2,371')
+
+  await render({ currencyBalance: CurrencyAmount.fromRawAmount(token, '0'), usdBalance: 0, markUnpriced: true })
+  expect(dash()).toBeNull()
+  await render({ currencyBalance: held, usdBalance: 0, markUnpriced: true, hideBalance: true })
+  expect(dash()).toBeNull()
+  // The Send token list shows no USD values at all.
+  await render({ currencyBalance: held })
+  expect(dash()).toBeNull()
 })

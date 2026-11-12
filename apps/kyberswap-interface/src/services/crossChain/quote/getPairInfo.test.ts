@@ -5,7 +5,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { NativeCurrencies } from 'constants/tokens'
 
-vi.mock('services/tokenCatalog', () => ({
+vi.mock('services/tokenCatalog', async importOriginal => ({
+  isPriceStale: (await importOriginal<typeof import('services/tokenCatalog')>()).isPriceStale,
   fetchTokenPrices: vi.fn(),
   fetchTokenCategories: vi.fn(async () => []),
 }))
