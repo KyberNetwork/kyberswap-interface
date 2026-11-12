@@ -1,46 +1,28 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode } from 'react'
 import { Info } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useDegenModeManager } from 'state/user/hooks'
-import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
-import { checkPriceImpact } from 'utils/prices'
+import type { PriceImpactAction } from 'utils/prices'
+
+type Props = {
+  isProcessingSwap: boolean
+  showLoading: boolean
+  onClick: () => void
+  priceImpactAction: PriceImpactAction
+  isApproved: boolean
+  hasRoute: boolean
+}
 
 const SwapButtonWithPriceImpact = ({
   isProcessingSwap,
   showLoading,
   onClick,
-  priceImpact,
+  priceImpactAction,
   isApproved,
-  route,
-  disabled,
-  showNoteGetRoute,
-  disabledText,
-  text,
-  showTooltipPriceImpact = true,
-}: {
-  isProcessingSwap: boolean
-  showLoading: boolean
-  onClick: () => void
-  priceImpact: number | undefined
-  isApproved: boolean
-  route: any
-  minimal?: boolean
-  disabled?: boolean
-  showNoteGetRoute?: boolean
-  disabledText?: ReactNode
-  text?: ReactNode
-  showTooltipPriceImpact?: boolean
-}) => {
-  const [isDegenMode] = useDegenModeManager()
-  const priceImpactResult = checkPriceImpact(priceImpact)
-
-  const [searchParams, setSearchParams] = useSearchParams()
-
+  hasRoute,
+}: Props) => {
   if (isProcessingSwap) {
     return (
       <ButtonPrimary id="swap-button" disabled>
@@ -61,10 +43,9 @@ const SwapButtonWithPriceImpact = ({
     )
   }
 
-  const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isDegenMode, priceImpact)
-  const shouldDisable = !route || !isApproved || disabled
+  const shouldDisable = !hasRoute || !isApproved
 
-  if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
+  if (priceImpactAction === 'swap-anyway') {
     return (
       <ButtonPrimary
         id="swap-button"
@@ -78,20 +59,8 @@ const SwapButtonWithPriceImpact = ({
   }
 
   return (
-    <ButtonPrimary
-      id="swap-button"
-      className="gap-1"
-      disabled={shouldDisable}
-      onClick={() => {
-        if (shouldDisableByPriceImpact && !isDegenMode) {
-          searchParams.set('enableDegenMode', 'true')
-          setSearchParams(searchParams)
-        } else {
-          onClick()
-        }
-      }}
-    >
-      {shouldDisableByPriceImpact && showTooltipPriceImpact ? (
+    <ButtonPrimary id="swap-button" className="gap-1" disabled={shouldDisable} onClick={onClick}>
+      {priceImpactAction === 'enable-degen' ? (
         <MouseoverTooltip
           text={
             <Trans>
@@ -102,7 +71,7 @@ const SwapButtonWithPriceImpact = ({
         >
           <Info size={14} />
         </MouseoverTooltip>
-      ) : showNoteGetRoute && showTooltipPriceImpact ? (
+      ) : !hasRoute ? (
         <MouseoverTooltip
           text={
             <Trans>
@@ -114,11 +83,7 @@ const SwapButtonWithPriceImpact = ({
           <Info size={14} />
         </MouseoverTooltip>
       ) : null}
-      <span>
-        {shouldDisable
-          ? disabledText || t`Swap Disabled`
-          : text || (shouldDisableByPriceImpact ? t`Swap Anyway` : t`Swap`)}
-      </span>
+      <span>{shouldDisable ? t`Swap Disabled` : priceImpactAction === 'enable-degen' ? t`Swap Anyway` : t`Swap`}</span>
     </ButtonPrimary>
   )
 }

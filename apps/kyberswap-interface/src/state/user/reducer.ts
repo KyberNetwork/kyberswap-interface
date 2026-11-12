@@ -18,6 +18,7 @@ import {
   toggleHolidayMode,
   toggleMyEarningChart,
   toggleOpenLimitOrders,
+  togglePinnedTokenSelectorChain,
   togglePricingChart,
   toggleSuccessSound,
   toggleTradeRoutes,
@@ -127,6 +128,7 @@ export interface UserState {
   showTradeRoutes: boolean
   successSoundEnabled: boolean
   favoriteChains: string[]
+  pinnedTokenSelectorChains: string[]
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -167,6 +169,7 @@ const initialState: UserState = {
   showTradeRoutes: true,
   successSoundEnabled: true,
   favoriteChains: [],
+  pinnedTokenSelectorChains: [],
 }
 
 export default createReducer(initialState, builder =>
@@ -357,5 +360,11 @@ export default createReducer(initialState, builder =>
     })
     .addCase(updateFavoriteChains, (state, { payload }) => {
       state.favoriteChains = payload
+    })
+    .addCase(togglePinnedTokenSelectorChain, (state, { payload: chainId }) => {
+      const pinnedChains = state.pinnedTokenSelectorChains ?? []
+      state.pinnedTokenSelectorChains = pinnedChains.includes(chainId)
+        ? pinnedChains.filter(id => id !== chainId)
+        : [...pinnedChains, chainId]
     }),
 )

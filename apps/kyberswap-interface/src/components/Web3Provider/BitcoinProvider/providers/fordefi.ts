@@ -7,6 +7,7 @@ export const createFordefiProvider = ({
   setConnectingWallet,
   setWalletInfo,
   defaultInfo,
+  addressOnly = false,
 }: CreateProviderParams): BitcoinWalletBase => {
   const handleAccountsChanged = async (accounts: string[]) => {
     if (accounts.length === 0) {
@@ -34,6 +35,7 @@ export const createFordefiProvider = ({
   }
 
   const setupEventListeners = () => {
+    if (addressOnly) return
     const provider = getFordefiUnisatProvider()
     provider?.on?.('accountsChanged', handleAccountsChanged)
     provider?.on?.('disconnect', handleDisconnect)
@@ -59,9 +61,10 @@ export const createFordefiProvider = ({
       if (!!connectingWallet) {
         return
       }
-      setConnectingWallet('fordefi')
+      setConnectingWallet?.('fordefi')
       const currentNetwork = await provider.getNetwork()
       if (currentNetwork !== 'livenet') {
+        if (addressOnly) throw new Error('Please switch your Bitcoin wallet to mainnet')
         await provider.switchNetwork('livenet')
       }
       const [accounts, publicKey] = await Promise.all([provider.requestAccounts(), provider.getPublicKey()])
@@ -72,9 +75,10 @@ export const createFordefiProvider = ({
         publicKey,
         walletType: 'fordefi',
       })
-      setConnectingWallet(null)
+      setConnectingWallet?.(null)
       setupEventListeners()
     },
+    dispose: removeEventListeners,
     disconnect: async () => {
       removeEventListeners()
       localStorage.removeItem('bitcoinWallet')

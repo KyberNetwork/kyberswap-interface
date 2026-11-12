@@ -6,7 +6,8 @@ import type { AmountShortcut } from 'components/CurrencyInputPanel'
 import { getGasReservation } from 'utils/gasReserve'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
-const SHARES = [25, 50, 100] as const
+export const getBalanceAmountShares = (hasWalletSelector: boolean) =>
+  hasWalletSelector ? ([50, 100] as const) : ([25, 50, 100] as const)
 
 /** Reserve native gas for Max; percentage presets use the full balance. */
 export const useBalanceAmountShortcuts = (
@@ -14,11 +15,12 @@ export const useBalanceAmountShortcuts = (
   value: string,
   onChange: (value: string) => void,
   testIdPrefix: string,
+  hasWalletSelector = false,
 ): AmountShortcut[] =>
   useMemo(() => {
     const spendable = maxAmountSpend(balance)
     const maxAmount = getGasReservation(balance)?.maxAmount ?? spendable
-    return SHARES.map(share => {
+    return getBalanceAmountShares(hasWalletSelector).map(share => {
       const amount = share === 100 ? maxAmount : spendable?.multiply(new Fraction(share, 100))
       const exact = amount?.toExact()
       return {
@@ -30,4 +32,4 @@ export const useBalanceAmountShortcuts = (
         dataTestId: `${testIdPrefix}-${share === 100 ? 'max' : share}`,
       }
     })
-  }, [balance, value, onChange, testIdPrefix])
+  }, [balance, value, onChange, testIdPrefix, hasWalletSelector])

@@ -19,6 +19,7 @@ export const buildOracleTokenMap = (chainId: ChainId, tokens: TokenInfo[]): Toke
       return [currency.address, currency]
     }),
   )
+
   const native = NativeCurrencies[chainId]
   if (native.isNative && tokens.some(token => token.address.toLowerCase() === getOracleLookupAddress(native))) {
     tokenMap[ETHER_ADDRESS] = new WrappedTokenInfo({
@@ -29,6 +30,7 @@ export const buildOracleTokenMap = (chainId: ChainId, tokens: TokenInfo[]): Toke
       name: native.name || '',
     })
   }
+
   return tokenMap
 }
 
@@ -50,6 +52,7 @@ export const useTokenSelectorSource = (chainId: ChainId, requireOracle: boolean)
     () => (requireOracle && tokenFilter ? { oracleTokenFilter: tokenFilter } : undefined),
     [requireOracle, tokenFilter],
   )
+
   // Preserve the existing failure behavior: an unanswered request is not proof a token lacks a feed.
   const isListable = useCallback(
     (currency: Currency | undefined) => !requireOracle || !isReady || hasOracle(currency),

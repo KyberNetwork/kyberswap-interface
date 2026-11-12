@@ -13,8 +13,11 @@ import { PAIR_CATEGORY } from 'constants/trade'
  * place.
  */
 
-/** Either side can be absent when the price service cannot value that leg of the market. */
-export type TokenPriceEntry = { PriceBuy?: number; PriceSell?: number }
+/**
+ * Either side can be absent when the price service cannot value that leg of the market. `buyAtMs` /
+ * `sellAtMs` are when each side was last priced (epoch ms).
+ */
+export type TokenPriceEntry = { PriceBuy?: number; PriceSell?: number; buyAtMs?: number; sellAtMs?: number }
 
 export type TokenPricesResponse = {
   data: { [chainId: string]: { [address: string]: TokenPriceEntry } }
@@ -147,13 +150,24 @@ interface AddRemoveFavoriteParams {
 const MAX_PRICE_SPREAD_RATIO = 2
 
 /**
- * The single definition of a token's USD price across the app: the mid of the buy/sell spread, or
- * `null` when either side is missing or the two sides are too far apart — a one-sided or wildly
- * split quote comes from a market the price service could only value on one leg and can sit orders
- * of magnitude away from the tradable price.
+ * The price service keeps serving a token's last price after its market stops trading, so a side
+ * not repriced within this window says what the token was worth, not what it is worth.
  */
-export const getMidPrice = (entry?: TokenPriceEntry): number | null => {
+export const MAX_PRICE_AGE_MS = 24 * 60 * 60 * 1000
+
+/** Whether either side was last priced more than MAX_PRICE_AGE_MS ago; a side without a timestamp counts as current. */
+export const isPriceStale = (entry: TokenPriceEntry, now = Date.now()): boolean =>
+  [entry.buyAtMs, entry.sellAtMs].some(pricedAt => pricedAt !== undefined && now - pricedAt > MAX_PRICE_AGE_MS)
+
+/**
+ * The single definition of a token's USD price across the app: the mid of the buy/sell spread, or
+ * `null` when either side is missing, stale, or the two sides are too far apart — a one-sided or
+ * wildly split quote comes from a market the price service could only value on one leg and can sit
+ * orders of magnitude away from the tradable price.
+ */
+export const getMidPrice = (entry?: TokenPriceEntry, now = Date.now()): number | null => {
   if (!entry?.PriceBuy || !entry?.PriceSell) return null
+  if (isPriceStale(entry, now)) return null
   const [low, high] =
     entry.PriceBuy < entry.PriceSell ? [entry.PriceBuy, entry.PriceSell] : [entry.PriceSell, entry.PriceBuy]
   if (high >= low * MAX_PRICE_SPREAD_RATIO) return null

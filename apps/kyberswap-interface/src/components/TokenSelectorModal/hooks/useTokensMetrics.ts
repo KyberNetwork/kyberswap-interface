@@ -43,11 +43,13 @@ export const useTokensMetrics = (currencies: Currency[], chainId: ChainId): Toke
     queryFn: async () => {
       const chunks: string[][] = []
       for (let i = 0; i < addresses.length; i += CHUNK_SIZE) chunks.push(addresses.slice(i, i + CHUNK_SIZE))
+
       const responses = await Promise.all(
         chunks.map(chunk =>
           fetchTokenCatalogTokens({ chainIds: chainId, addresses: chunk.join(','), page: 1, pageSize: chunk.length }),
         ),
       )
+
       return responses.flatMap(res => res?.data?.tokens ?? [])
     },
     staleTime: 60_000,
@@ -56,12 +58,14 @@ export const useTokensMetrics = (currencies: Currency[], chainId: ChainId): Toke
 
   return useMemo(() => {
     const extras = mapCatalogTokens(data ?? []).extras
+
     // Native rows look up their metrics by the `0xEeee…` placeholder key; point that at the wrapped
     // (WETH) token's metrics so a native token shows the same price / 24h change as its wrapped form.
     if (hasNative && wrappedNativeAddress) {
       const wrappedExtra = extras[tokenRowKey(chainId, wrappedNativeAddress)]
       if (wrappedExtra) extras[tokenRowKey(chainId, ETHER_ADDRESS)] = wrappedExtra
     }
+
     return extras
   }, [data, hasNative, wrappedNativeAddress, chainId])
 }

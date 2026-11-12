@@ -27,6 +27,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout
 
+/** @deprecated Pool banners are no longer displayed in the trade layout. */
 export default function FarmingPoolBanner() {
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()

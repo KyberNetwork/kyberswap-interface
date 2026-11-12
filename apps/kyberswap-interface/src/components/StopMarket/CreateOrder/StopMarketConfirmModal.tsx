@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 
 import { ButtonPrimary } from 'components/Button'
 import CheckBox from 'components/CheckBox'
+import { Collapse } from 'components/Collapse'
 import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
 import { getSwapCurrencyId } from 'components/LimitOrder/TakeOrder/utils'
@@ -356,19 +357,19 @@ const StopMarketConfirmModal = ({
               }}
               data-testid="stop-market-confirm-terms-checkbox"
             />
-            <span>
+            <div>
               <Trans>
                 I acknowledge that Stop Market order will be automatically triggered and executed based on my specified
                 parameters and third-party price data, without further confirmation, and accept the associated risks.
               </Trans>
-              {isTermsExpanded && (
+              <Collapse open={isTermsExpanded}>
                 <span className="block">
                   <Trans>
                     Execution may be delayed, fail, or occur at a price different from my specified trigger price due to
                     market conditions, price data delays or discrepancies, or technical issues.
                   </Trans>
                 </span>
-              )}
+              </Collapse>
               {!isTermsExpanded && ' '}
               <button
                 type="button"
@@ -385,7 +386,7 @@ const StopMarketConfirmModal = ({
               >
                 {isTermsExpanded ? <Trans>See less</Trans> : <Trans>See more</Trans>}
               </button>
-            </span>
+            </div>
           </label>
         )}
 

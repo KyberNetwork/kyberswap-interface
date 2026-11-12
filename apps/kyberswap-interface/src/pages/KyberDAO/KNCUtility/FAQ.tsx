@@ -3,6 +3,7 @@ import { ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { NavLink } from 'react-router-dom'
 
+import { Collapse } from 'components/Collapse'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { KyberDAOCardDivider } from 'pages/KyberDAO/common'
@@ -44,7 +45,9 @@ const DetailPanel = ({ isExpanded, title, content, toggleExpand }: PanelProps) =
         </div>
       </HStack>
 
-      {isExpanded && <div className="pt-4 text-sm text-subText">{content}</div>}
+      <Collapse open={isExpanded} contentGap={4}>
+        <div className="text-sm text-subText">{content}</div>
+      </Collapse>
     </Stack>
   )
 }

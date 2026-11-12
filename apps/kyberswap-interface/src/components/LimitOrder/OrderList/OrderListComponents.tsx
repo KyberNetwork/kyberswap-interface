@@ -3,6 +3,7 @@ import { HTMLAttributes, ReactNode, Ref } from 'react'
 import { Trash } from 'react-feather'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
+import { Collapse } from 'components/Collapse'
 import { OrderKind } from 'components/LimitOrder/types'
 import Loader from 'components/Loader'
 import SearchInput from 'components/SearchInput'
@@ -76,15 +77,9 @@ export const EmptyOrders = ({ isActiveTab, keyword }: EmptyOrdersProps) => (
 
 /** Both tables keep details mounted for collapse; hidden links must not receive keyboard focus. */
 export const OrderRowDetails = ({ expanded, children }: { expanded: boolean; children: ReactNode }) => (
-  <div
-    inert={!expanded}
-    className={cn(
-      'grid bg-raisedBlack transition-[grid-template-rows,opacity] duration-200 ease-in-out max-sm:hidden',
-      expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-    )}
-  >
-    <div className="min-h-0 overflow-hidden">{children}</div>
-  </div>
+  <Collapse open={expanded} className="bg-raisedBlack max-sm:hidden">
+    {children}
+  </Collapse>
 )
 
 type OrderListFiltersProps = {

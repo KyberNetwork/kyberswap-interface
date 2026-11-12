@@ -2,6 +2,7 @@ import { type CSSProperties, type ReactNode, useId, useState } from 'react'
 import { AlertTriangle, ChevronDown, Info } from 'react-feather'
 
 import IconButton from 'components/Button/IconButton'
+import { Collapse } from 'components/Collapse'
 import { HStack, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
@@ -86,18 +87,9 @@ export const ErrorWarning = ({
         </IconButton>
       </HStack>
 
-      <div
-        id={detailsId}
-        aria-hidden={!expanded}
-        className={cn(
-          'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
-          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <Stack className="gap-2 pl-6 pt-2 text-xs font-normal text-text">{desc}</Stack>
-        </div>
-      </div>
+      <Collapse open={expanded} id={detailsId} contentGap={2}>
+        <Stack className="gap-2 pl-6 text-xs font-normal text-text">{desc}</Stack>
+      </Collapse>
     </Stack>
   )
 }

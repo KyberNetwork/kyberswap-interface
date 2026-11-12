@@ -714,7 +714,6 @@ function Remove({ tokenId }: { tokenId: bigint }) {
                             significantDigits: 6,
                           })}
                           disableCurrencySelect={!currency0IsETHER && !currency0IsWETH}
-                          isSwitchMode={currency0IsETHER || currency0IsWETH}
                           onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
                         />
                       </div>
@@ -731,7 +730,6 @@ function Remove({ tokenId }: { tokenId: bigint }) {
                             significantDigits: 6,
                           })}
                           disableCurrencySelect={!currency1IsETHER && !currency1IsWETH}
-                          isSwitchMode={currency1IsETHER || currency1IsWETH}
                           onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
                         />
                       </div>

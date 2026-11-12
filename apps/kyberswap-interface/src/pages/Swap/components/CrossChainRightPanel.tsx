@@ -1,0 +1,51 @@
+import { type Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { Suspense, lazy } from 'react'
+
+import TokenPriceChart from 'components/TokenPriceChart'
+import { getChartTokens } from 'components/TokenPriceChart/tokens'
+import TradeRoutePanel, { TradeRouteSkeleton } from 'components/TradeRouting/TradeRoutePanel'
+import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
+
+const CrossChainTradeRoute = lazy(() => import('components/TradeRouting/CrossChainTradeRoute'))
+
+const PendingTradeRoute = ({ defaultCollapsed }: { defaultCollapsed: boolean }) => (
+  <TradeRoutePanel
+    defaultCollapsed={defaultCollapsed}
+    heading={<span className="text-lg font-medium text-blue">Route:</span>}
+  >
+    <TradeRouteSkeleton poolLines={1} />
+  </TradeRoutePanel>
+)
+
+type Props = {
+  currencyIn: EvmCurrency | undefined
+  currencyOut: EvmCurrency | undefined
+  isProviderLoading: boolean
+}
+
+/** Chart metadata comes from the page pair so it can render before the cross-chain engine loads.
+ * Only the trade route needs the shared quote provider. */
+const CrossChainRightPanel = ({ currencyIn, currencyOut, isProviderLoading }: Props) => {
+  const showChart = useShowPricingChart()
+  const showRoutes = useShowTradeRoutes()
+
+  const tokens = [currencyIn, currencyOut].filter((token): token is EvmCurrency => !!token)
+  const hasChart = getChartTokens(tokens).length > 0
+  const defaultCollapsed = showChart && hasChart
+
+  return (
+    <>
+      {showChart && hasChart && <TokenPriceChart tokens={tokens} />}
+      {showRoutes &&
+        (isProviderLoading ? (
+          <PendingTradeRoute defaultCollapsed={defaultCollapsed} />
+        ) : (
+          <Suspense fallback={<PendingTradeRoute defaultCollapsed={defaultCollapsed} />}>
+            <CrossChainTradeRoute defaultCollapsed={defaultCollapsed} />
+          </Suspense>
+        ))}
+    </>
+  )
+}
+
+export default CrossChainRightPanel

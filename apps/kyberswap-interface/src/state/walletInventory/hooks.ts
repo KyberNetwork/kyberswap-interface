@@ -2,6 +2,7 @@ import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useSyncExternalStore } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
+import { useEvmBalanceAccount } from 'state/wallet/WalletBalanceContext'
 import { useNativeBalance } from 'state/wallet/hooks'
 import {
   TokenMetadata,
@@ -30,8 +31,9 @@ export type { WalletInventory }
  * Pass `enabled: false` for surfaces that are mounted but not showing balances (a closed modal), so
  * they register no traffic.
  */
-export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInventory => {
-  const { chainId: currentChain, account } = useActiveWeb3React()
+export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInventory & { loading: boolean } => {
+  const { chainId: currentChain } = useActiveWeb3React()
+  const account = useEvmBalanceAccount()
   const resolvedChain = chainId || currentChain
   const subscribed = enabled && isInventoryChain(resolvedChain) && !!account
 
@@ -53,7 +55,13 @@ export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInv
   // keyed on the value to avoid rebuilding rows for a balance that did not move.
   const nativeRawBalance = useNativeBalance(resolvedChain)?.quotient.toString()
 
-  return useMemo(() => resolveInventory(entry, subscribed, nativeRawBalance), [entry, subscribed, nativeRawBalance])
+  return useMemo(
+    () => ({
+      ...resolveInventory(entry, subscribed, nativeRawBalance),
+      loading: subscribed && (!entry || entry.status === 'loading'),
+    }),
+    [entry, subscribed, nativeRawBalance],
+  )
 }
 
 /**

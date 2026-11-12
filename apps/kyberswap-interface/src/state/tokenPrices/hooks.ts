@@ -84,6 +84,13 @@ export const useTokenPricesWithLoading = (
   return { data: dataCached, loading, refetch }
 }
 
+/**
+ * Whether the price service has answered for this token, with a usable price or without one. A
+ * missing USD figure means "no price" only once this is true; before, the price is still on its way.
+ */
+export const useIsTokenPriceSettled = (chainId: ChainId, address: string): boolean =>
+  useAppSelector(state => state.tokenPrices[chainId]?.[address.toLowerCase()] !== undefined)
+
 export const useTokenPrices = (
   addresses: Array<string>,
   chainId?: ChainId,

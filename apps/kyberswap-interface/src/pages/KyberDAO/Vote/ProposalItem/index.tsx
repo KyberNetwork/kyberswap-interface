@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { Collapse } from 'components/Collapse'
 import LaunchIcon from 'components/Icons/LaunchIcon'
 import { RowBetween } from 'components/Row'
 import { Center, HStack, Stack } from 'components/Stack'
@@ -246,7 +247,7 @@ function ProposalItem({
 
   return (
     <Stack
-      className="gap-4 overflow-hidden rounded-2xl bg-background p-4 shadow-[0px_2px_34px_rgba(0,0,0,0.0467931)] sm:p-6"
+      className="gap-0 overflow-hidden rounded-2xl bg-background p-4 shadow-[0px_2px_34px_rgba(0,0,0,0.0467931)] sm:p-6"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '60px' } as React.CSSProperties}
     >
       <Stack className="z-[1] gap-4 bg-background">
@@ -263,24 +264,28 @@ function ProposalItem({
           </Center>
         </RowBetween>
 
-        <HStack className="items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
-          <HStack className="flex-wrap gap-2">
-            <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
-              {proposal.status}
-            </StatusBadged>
-            <IDBadged>ID #{proposal.proposal_id}</IDBadged>
-          </HStack>
-          {isActive && (
-            <HStack className="shrink-0 items-center gap-2">
-              <span className="text-xs text-subText">
-                <Trans>Voting ends in: </Trans>
-              </span>
-              <TimerCountdown endTime={proposal.end_timestamp} />
+        <div>
+          <HStack className="items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
+            <HStack className="flex-wrap gap-2">
+              <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
+                {proposal.status}
+              </StatusBadged>
+              <IDBadged>ID #{proposal.proposal_id}</IDBadged>
             </HStack>
-          )}
-        </HStack>
+            {isActive && (
+              <HStack className="shrink-0 items-center gap-2">
+                <span className="text-xs text-subText">
+                  <Trans>Voting ends in: </Trans>
+                </span>
+                <TimerCountdown endTime={proposal.end_timestamp} />
+              </HStack>
+            )}
+          </HStack>
 
-        {(show || isActive) && renderVotes}
+          <Collapse open={show || isActive} unmountOnExit contentGap={4}>
+            {renderVotes}
+          </Collapse>
+        </div>
 
         <HStack className="items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
           {isActive ? (
@@ -305,8 +310,8 @@ function ProposalItem({
         </HStack>
       </Stack>
 
-      {show && (
-        <Stack className="z-0 gap-8 pt-4 transition-all duration-200">
+      <Collapse open={show} unmountOnExit contentGap={8}>
+        <Stack className="z-0 gap-8">
           <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_368px]">
             <Stack className="gap-4">
               {proposal?.link && proposal.link !== '0x0' && (
@@ -333,7 +338,7 @@ function ProposalItem({
           </div>
           <Participants proposalId={proposal.proposal_id} />
         </Stack>
-      )}
+      </Collapse>
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal
           isShow={showConfirmModal}

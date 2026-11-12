@@ -341,6 +341,17 @@ export const resolveRouteMetadata = (pathname: string, search: string): RouteSeo
     }
   }
 
+  if (normalizedPath === APP_PATHS.KYBER_CROSS) {
+    const canonicalPath = APP_PATHS.KYBER_CROSS
+    return {
+      title: 'KyberCross | KyberSwap',
+      description: CROSS_CHAIN_DESCRIPTION,
+      canonicalPath,
+      jsonLd: buildSiteJsonLd(canonicalPath),
+      robots: NOINDEX_ROBOTS,
+    }
+  }
+
   if (normalizedPath === APP_PATHS.EARN) {
     return {
       title: 'Explore Earning Opportunity, Provide Liquidity & Earn Yield',

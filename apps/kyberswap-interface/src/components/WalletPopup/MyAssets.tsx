@@ -10,8 +10,8 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import Row from 'components/Row'
 import TokenSelectorModal from 'components/TokenSelectorModal'
-import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
-import { TokenRow } from 'components/TokenSelectorModal/TokenList'
+import { TokenRow } from 'components/TokenSelectorModal/TokenList/TokenRow'
+import { ImportTokenView } from 'components/TokenSelectorModal/TokenSelection/ImportTokenView'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBalanceWait } from 'hooks/useBalanceWait'
@@ -144,6 +144,7 @@ export default function MyAssets({
                   balanceUnknown={token.isNative}
                   showFavoriteIcon={false}
                   usdBalance={usdBalance}
+                  markUnpriced
                   hoverColor={theme.bg3}
                   // An imported token is vetted by the user, not by the whitelist — one squatting on
                   // a verified symbol still deserves its warning here, not only in the hidden section.
@@ -163,6 +164,7 @@ export default function MyAssets({
                     ? usdBalances[token.address] * parseFloat(currencyBalances[token.address]?.toExact() ?? '0')
                     : undefined
                 }
+                markUnpriced
                 hideBalance={hideBalance}
                 showFavoriteIcon={false}
                 showLoading

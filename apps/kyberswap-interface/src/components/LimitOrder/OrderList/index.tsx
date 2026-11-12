@@ -4,6 +4,7 @@ import { ChevronRight, ChevronUp, List, TrendingUp } from 'react-feather'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
+import { Collapse } from 'components/Collapse'
 import History from 'components/Icons/History'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
@@ -252,7 +253,7 @@ const OrderList = () => {
               </button>
             }
           />
-          {!isMarketCollapsed && (
+          <Collapse open={!isMarketCollapsed} unmountOnExit>
             <Stack className="border-t border-darkBorder">
               {marketTab === LimitOrderTab.PRICE ? (
                 <OrdersPriceChart
@@ -264,7 +265,7 @@ const OrderList = () => {
                 <OpenLimitOrders count={counts.limit} onShowOrders={() => showOrders(OrderKind.LIMIT)} />
               )}
             </Stack>
-          )}
+          </Collapse>
         </OrderPanelCard>
       )}
 
