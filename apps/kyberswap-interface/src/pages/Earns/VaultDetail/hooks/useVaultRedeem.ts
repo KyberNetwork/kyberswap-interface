@@ -1,15 +1,10 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { VaultSupportedAsset } from 'services/vault'
 
-import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { submitTransaction } from 'pages/Earns/utils'
-import { useNotify } from 'state/application/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useVaultTransaction } from 'pages/Earns/VaultDetail/hooks/useVaultTransaction'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { friendlyError } from 'utils/errorMessage'
 import { Address, encodeFunctionData, erc4626Abi, formatUnits } from 'utils/viem'
 
 type UseVaultRedeemArgs = {
@@ -38,47 +33,26 @@ export const useVaultRedeem = ({
   assetOut,
   expectedAssets,
 }: UseVaultRedeemArgs) => {
-  const { account } = useActiveWeb3React()
-  const { isSmartConnector } = useWeb3React()
-  const notify = useNotify()
-  const addTransactionWithType = useTransactionAdder()
+  const { account, send, isSubmitting, submitError } = useVaultTransaction({
+    chainId,
+    errorTitle: t`Withdrawal failed`,
+  })
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
-
-  /**
-   * Returns the transaction hash so a step sequence can wait for its receipt. A failure is reported
-   * here and then rethrown, so the sequence can tell a refusal from any other failure.
-   *
-   * `trackingPayload` rides on the transaction, for the events sent once its receipt is in.
-   */
+  /** `trackingPayload` rides on the transaction, for the events sent once its receipt is in. */
   const redeem = useCallback(
     async (trackingPayload?: Record<string, unknown>): Promise<string | undefined> => {
       if (!account || !vaultAddress || !shareToken || !assetOut) return undefined
       if (!shares || shares <= 0n || expectedAssets === undefined) return undefined
 
-      setSubmitError(null)
-      setIsSubmitting(true)
-
-      try {
-        const data = encodeFunctionData({
+      return send({
+        to: vaultAddress,
+        data: encodeFunctionData({
           abi: erc4626Abi,
           functionName: 'redeem',
           // The wallet is both the owner of the shares and the receiver of the assets.
           args: [shares, account as Address, account as Address],
-        })
-
-        const { txHash: hash, error } = await submitTransaction({
-          account,
-          chainId: chainId as ChainId,
-          txData: { to: vaultAddress, data, value: '0' },
-          isSmartConnector,
-        })
-
-        if (error || !hash) throw error || new Error('Transaction was not submitted')
-
-        addTransactionWithType({
-          hash,
+        }),
+        record: {
           type: TRANSACTION_TYPE.EARN_VAULT_WITHDRAW,
           extraInfo: {
             tokenAmountIn: formatUnits(shares, shareToken.decimals),
@@ -89,29 +63,10 @@ export const useVaultRedeem = ({
             tokenAddressOut: assetOut.assetAddress,
             trackingPayload,
           },
-        })
-        return hash
-      } catch (error) {
-        const message = friendlyError(error as Error)
-        setSubmitError(message)
-        notify({ title: t`Withdrawal failed`, summary: message, type: NotificationType.ERROR }, 8000)
-        throw error
-      } finally {
-        setIsSubmitting(false)
-      }
+        },
+      })
     },
-    [
-      account,
-      vaultAddress,
-      shareToken,
-      assetOut,
-      shares,
-      expectedAssets,
-      chainId,
-      isSmartConnector,
-      addTransactionWithType,
-      notify,
-    ],
+    [account, vaultAddress, shareToken, assetOut, shares, expectedAssets, send],
   )
 
   return { redeem, isSubmitting, submitError }
