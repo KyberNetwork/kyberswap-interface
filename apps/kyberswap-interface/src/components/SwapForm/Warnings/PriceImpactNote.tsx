@@ -57,6 +57,44 @@ type Props = {
   showLimitOrderLink?: boolean
 }
 
+export const VeryHighPriceImpactNote = ({
+  isDegenMode,
+  showLimitOrderLink = false,
+}: Pick<Props, 'isDegenMode' | 'showLimitOrderLink'>) => (
+  <ErrorWarning
+    type="error"
+    title={
+      <div className="flex items-center gap-[0.5ch]">
+        <Trans>
+          <span>
+            <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
+              Price Impact
+            </TextUnderlineColor>
+          </span>{' '}
+          is very high. You will lose funds!
+        </Trans>
+      </div>
+    }
+    desc={
+      <div>
+        {isDegenMode ? (
+          <Trans>You have turned on Degen Mode from settings. Trades with very high price impact can be executed</Trans>
+        ) : showLimitOrderLink ? (
+          <Trans>
+            You can turn on Degen Mode from Settings to execute trades with very high price impact or Place a{' '}
+            <LimitOrderLink />. This can result in bad rates and loss of funds
+          </Trans>
+        ) : (
+          <Trans>
+            You can turn on Degen Mode from Settings to execute trades with very high price impact. This can result in
+            bad rates and loss of funds
+          </Trans>
+        )}
+      </div>
+    }
+  />
+)
+
 const PriceImpactNote = ({ isDegenMode, priceImpact, showLimitOrderLink = false }: Props) => {
   const { chainId } = useActiveWeb3React()
   const priceImpactResult = checkPriceImpact(priceImpact)
@@ -104,47 +142,7 @@ const PriceImpactNote = ({ isDegenMode, priceImpact, showLimitOrderLink = false 
   }
 
   if (priceImpactResult.isVeryHigh) {
-    return (
-      <ErrorWarning
-        type="error"
-        title={
-          <div className="flex items-center gap-[0.5ch]">
-            <Trans>
-              <span>
-                <TextUnderlineColor
-                  as="a"
-                  href={PRICE_IMPACT_EXPLANATION_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  Price Impact
-                </TextUnderlineColor>
-              </span>{' '}
-              is very high. You will lose funds!
-            </Trans>
-          </div>
-        }
-        desc={
-          <div>
-            {isDegenMode ? (
-              <Trans>
-                You have turned on Degen Mode from settings. Trades with very high price impact can be executed
-              </Trans>
-            ) : showLimitOrderLink ? (
-              <Trans>
-                You can turn on Degen Mode from Settings to execute trades with very high price impact or Place a{' '}
-                <LimitOrderLink />. This can result in bad rates and loss of funds
-              </Trans>
-            ) : (
-              <Trans>
-                You can turn on Degen Mode from Settings to execute trades with very high price impact. This can result
-                in bad rates and loss of funds
-              </Trans>
-            )}
-          </div>
-        }
-      />
-    )
+    return <VeryHighPriceImpactNote isDegenMode={isDegenMode} showLimitOrderLink={showLimitOrderLink} />
   }
 
   if (showLimitOrderLink && !!priceImpact && priceImpact > 1 && isSupportLimitOrder(chainId)) {

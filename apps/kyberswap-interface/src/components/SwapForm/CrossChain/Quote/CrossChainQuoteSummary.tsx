@@ -6,8 +6,10 @@ import { formatUnits } from 'viem'
 import { ErrorWarning } from 'components/ErrorWarning'
 import type { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
 import { QuoteDetailRow } from 'components/SwapForm/Quote/QuoteDetails'
+import { VeryHighPriceImpactNote } from 'components/SwapForm/Warnings/PriceImpactNote'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import { useDegenModeManager } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { Currency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -161,7 +163,13 @@ export const CrossChainQuoteSummaryRows = ({
 }
 
 export const CrossChainPriceImpactWarning = ({ warning }: { warning: ReturnType<typeof getQuoteWarning> }) => {
+  const [isDegenMode] = useDegenModeManager()
+
   if (!warning?.priceImpactInfo?.message) return null
+
+  if (warning.priceImpactInfo.isVeryHigh && !warning.priceImpactInfo.unableToCalculate) {
+    return <VeryHighPriceImpactNote isDegenMode={isDegenMode} />
+  }
 
   return (
     <ErrorWarning
