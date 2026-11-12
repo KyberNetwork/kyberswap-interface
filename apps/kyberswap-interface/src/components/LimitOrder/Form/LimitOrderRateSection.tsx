@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Repeat } from 'react-feather'
 
 import InfoHelper from 'components/InfoHelper'
@@ -105,15 +105,16 @@ type RateSectionEvents = {
 }
 
 type Props = {
+  showInvertedRate: boolean
+  onInvertRate: () => void
   tokens?: RateSectionTokens
   rate?: RateSectionState
   events?: RateSectionEvents
 }
 
-const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) => {
+const LimitOrderRateSection = ({ showInvertedRate, onInvertRate, tokens = {}, rate = {}, events = {} }: Props) => {
   const { currencyIn, currencyOut } = tokens
   const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo, loadingTrade } = rate
-  const [showInvertedRate, setShowInvertedRate] = useState(false)
 
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
   const baseCurrency = showInvertedRate ? currencyOut : currencyIn
@@ -175,7 +176,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
             <button
               type="button"
               className="flex shrink-0 items-center justify-center text-subText transition hover:brightness-75"
-              onClick={() => setShowInvertedRate(value => !value)}
+              onClick={onInvertRate}
             >
               <Repeat size={14} />
             </button>

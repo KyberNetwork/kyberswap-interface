@@ -124,13 +124,10 @@ const STOP_MARKET_BY_CHAIN: ChainFeatureMap = {
   [ChainId.RISE]: NEEDS_SERVICE_SUPPORT,
   [ChainId.ARC]: NEEDS_SERVICE_SUPPORT,
   [ChainId.ELYSIUM]: NEEDS_SERVICE_SUPPORT,
-  [ChainId.ABSTRACT]: 'cross-chain only',
+  [ChainId.ABSTRACT]: NEEDS_SERVICE_SUPPORT,
 }
 
 export const isSupportStopMarket = (chainId: ChainId): boolean => STOP_MARKET_BY_CHAIN[chainId] === true
-
-// Available to cross-chain wallets and token reads, but not single-chain products.
-export const CROSS_CHAIN_ONLY_NETWORKS: ChainId[] = [ChainId.ABSTRACT]
 
 export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
@@ -145,6 +142,7 @@ export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
   ChainId.BLAST,
+  ChainId.ABSTRACT,
   ChainId.MANTLE,
   ChainId.SONIC,
   ChainId.BERA,

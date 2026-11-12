@@ -71,6 +71,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const { trackingHandler, isTrackingReady } = useTracking()
 
   const [showReview, setShowReview] = useState(false)
+  const [showInvertedRate, setShowInvertedRate] = useState(false)
   const trackedPageViewed = useRef(false)
 
   useEffect(() => {
@@ -183,6 +184,8 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
           <Stack className="gap-2">
             <LimitOrderRateSection
+              showInvertedRate={showInvertedRate}
+              onInvertRate={() => setShowInvertedRate(value => !value)}
               tokens={{ currencyIn, currencyOut }}
               rate={{
                 displayRate: form.displayRate,
@@ -256,7 +259,13 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
         </Stack>
       </Stack>
 
-      <CreateOrderFlow order={order} isOpen={showReview} onDismiss={review.closeReview} createOrder={createOrder} />
+      <CreateOrderFlow
+        order={order}
+        showInvertedRate={showInvertedRate}
+        isOpen={showReview}
+        onDismiss={review.closeReview}
+        createOrder={createOrder}
+      />
 
       <DateTimePicker
         returnPresetValue={true}

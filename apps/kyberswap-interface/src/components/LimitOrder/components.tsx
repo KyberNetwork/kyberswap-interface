@@ -31,19 +31,19 @@ const formatRateValue = (value?: string | number) => {
 }
 
 type RateValueProps = {
+  defaultShowInverted?: boolean
   currencyIn?: Currency
   currencyOut?: Currency
   rateInfo?: RateInfo
   order?: LimitOrder
 }
 
-const RateValue = ({ currencyIn, currencyOut, rateInfo, order }: RateValueProps) => {
-  const [showInverted, setShowInverted] = useState(false)
+const RateValue = ({ currencyIn, currencyOut, rateInfo, order, defaultShowInverted = false }: RateValueProps) => {
+  const [showInverted, setShowInverted] = useState(defaultShowInverted)
 
   let baseSymbol: string | undefined
   let quoteSymbol: string | undefined
   let rate: string | undefined
-  let referenceRate: string | undefined
 
   if (order) {
     const takerSymbol = getLimitOrderDisplayTakerSymbol(order)
@@ -51,21 +51,18 @@ const RateValue = ({ currencyIn, currencyOut, rateInfo, order }: RateValueProps)
     baseSymbol = showInverted ? order.makerAssetSymbol : takerSymbol
     quoteSymbol = showInverted ? takerSymbol : order.makerAssetSymbol
     rate = formatRateLimitOrder(order, showInverted)
-    referenceRate = formatRateLimitOrder(order, !showInverted)
   } else {
-    const baseCurrency = showInverted ? currencyIn : currencyOut
-    const quoteCurrency = showInverted ? currencyOut : currencyIn
+    const baseCurrency = showInverted ? currencyOut : currencyIn
+    const quoteCurrency = showInverted ? currencyIn : currencyOut
 
     baseSymbol = baseCurrency?.symbol
     quoteSymbol = quoteCurrency?.symbol
-    rate = showInverted ? rateInfo?.rate : rateInfo?.invertRate
-    referenceRate = showInverted ? rateInfo?.invertRate : rateInfo?.rate
+    rate = showInverted ? rateInfo?.invertRate : rateInfo?.rate
   }
 
   if (!baseSymbol || !quoteSymbol) return <span>--</span>
 
   const displayRate = order ? rate || '--' : formatRateValue(rate)
-  const displayReferenceRate = order ? referenceRate || '--' : formatRateValue(referenceRate)
 
   return (
     <HStack
@@ -77,13 +74,13 @@ const RateValue = ({ currencyIn, currencyOut, rateInfo, order }: RateValueProps)
       <span className="truncate">
         1 {baseSymbol} = {displayRate} {quoteSymbol}
       </span>
-      <span className="shrink-0 text-subText">~{displayReferenceRate}</span>
       <Repeat size={14} className="shrink-0 text-subText" />
     </HStack>
   )
 }
 
 type OrderSummaryProps = {
+  defaultShowInverted?: boolean
   title?: ReactNode
   inputCurrency: ReactNode
   outputCurrency: ReactNode
@@ -97,6 +94,7 @@ type OrderSummaryProps = {
 }
 
 export const OrderSummary = ({
+  defaultShowInverted,
   title,
   inputCurrency,
   outputCurrency,
@@ -113,7 +111,15 @@ export const OrderSummary = ({
     { label: <Trans>And receive</Trans>, content: outputCurrency },
     {
       label: <Trans>When</Trans>,
-      content: <RateValue currencyIn={currencyIn} currencyOut={currencyOut} rateInfo={rateInfo} order={order} />,
+      content: (
+        <RateValue
+          defaultShowInverted={defaultShowInverted}
+          currencyIn={currencyIn}
+          currencyOut={currencyOut}
+          rateInfo={rateInfo}
+          order={order}
+        />
+      ),
     },
     ...(expires ? [{ label: <Trans>Before the order expires on</Trans>, content: expires }] : []),
   ]

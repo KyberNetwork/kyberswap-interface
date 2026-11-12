@@ -158,7 +158,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOrCreateAdapter('kyberswap'),
       // CrossChainSwapFactory.getOrCreateAdapter('orbiter'),
       CrossChainSwapFactory.getOrCreateAdapter('socket'),
-      CrossChainSwapFactory.getOrCreateAdapter('kyberacross'),
+      // CrossChainSwapFactory.getOrCreateAdapter('kyberacross'),
       CrossChainSwapFactory.getOrCreateAdapter('kybercross'),
     ]
   }
