@@ -31,6 +31,7 @@ export const useCrossChainPair = ({ fromChainId, toChainId, tokenIn, tokenOut }:
   const { solanaTokens: solanaTokensOut } = useSolanaTokens(isToSolana ? tokenOut || '' : '', !isToSolana)
 
   const currencyIn = useMemo(() => {
+    if (!tokenIn) return undefined
     if (isFromEvm) return currencyInEvm
     if (isFromBitcoin) return BitcoinToken
     if (isFromNear) return nearTokens.find(token => token.assetId === tokenIn)
@@ -41,6 +42,7 @@ export const useCrossChainPair = ({ fromChainId, toChainId, tokenIn, tokenOut }:
   const currencyOutEvm = useCurrencyV2(isToEvm ? tokenOut : undefined, isToEvm ? (toChainId as ChainId) : undefined)
 
   const currencyOut = useMemo(() => {
+    if (!tokenOut) return undefined
     if (isToEvm) return currencyOutEvm
     if (isToBitcoin) return BitcoinToken
     if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)

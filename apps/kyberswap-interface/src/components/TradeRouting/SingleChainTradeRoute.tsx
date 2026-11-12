@@ -64,27 +64,27 @@ const SingleChainTradeRoute = ({
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-lg font-medium text-blue max-sm:hidden">Route:</span>
 
-          {currencyIn ? (
-            <div className="flex items-center gap-1.5">
-              <CurrencyLogo currency={currencyIn} size="18px" />
+          <div className="flex items-center gap-1.5">
+            <CurrencyLogo currency={currencyIn} size="18px" />
+            {currencyIn && (
               <span className="text-base font-medium text-subText max-sm:text-sm">
                 {titleData.amountIn ? `${titleData.amountIn} ` : ''}
                 {titleData.inputSymbol}
               </span>
-            </div>
-          ) : null}
+            )}
+          </div>
 
           {(currencyIn || currencyOut) && <span className="text-base font-medium text-subText max-sm:text-sm">→</span>}
 
-          {currencyOut ? (
-            <div className="flex items-center gap-1.5">
-              <CurrencyLogo currency={currencyOut} size="18px" />
+          <div className="flex items-center gap-1.5">
+            <CurrencyLogo currency={currencyOut} size="18px" />
+            {currencyOut && (
               <span className="text-base font-medium text-subText max-sm:text-sm">
                 {titleData.amountOut ? `${titleData.amountOut} ` : ''}
                 {titleData.outputSymbol}
               </span>
-            </div>
-          ) : null}
+            )}
+          </div>
 
           {isSmartSettlement && (
             <ClickTooltip

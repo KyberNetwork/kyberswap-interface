@@ -18,6 +18,9 @@ The cross-chain engine loads lazily on first cross-chain use and stays mounted
 afterward. Same-chain disables its requests and hides its snapshot; the current
 quote/review is invalidated while recipient drafts remain intact.
 
+Unified Swap defaults to the native input token and an empty output selection.
+Explicit URL pairs take precedence; pair edits and reversal preserve empty selections.
+
 Partner/User Swap retain their embedded URL parameters. Limit and Stop Market
 retain their forms in `LimitPage.tsx`. Transaction controllers stay outside mode
 and History visibility branches so submitted transactions keep reconciling.

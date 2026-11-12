@@ -4,7 +4,12 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Logo from 'components/Logo'
 import { formatRoutePercent } from 'components/TradeRouting/helpers'
-import type { RouteGraph, RouteGraphNode, RouteGraphPool } from 'components/TradeRouting/routeGraph'
+import {
+  type RouteGraph,
+  type RouteGraphNode,
+  type RouteGraphPool,
+  buildEmptyRouteGraph,
+} from 'components/TradeRouting/routeGraph'
 import { buildRoutePaths } from 'components/TradeRouting/routePaths'
 import { HopCard, PoolList, RouteDot, RouteList } from 'components/TradeRouting/styled'
 import { useRouteGraphLayout } from 'components/TradeRouting/useRouteGraphLayout'
@@ -43,7 +48,7 @@ const RouteGraphView = ({ graph }: { graph: RouteGraph }) => {
                       d={node.terminal.path}
                       className="stroke-white/[0.06]"
                       strokeWidth="1.5"
-                      markerEnd={`url(#${markerId})`}
+                      markerEnd={graph.empty ? undefined : `url(#${markerId})`}
                       fill="none"
                     />
                     <path d={node.terminal.connector} className="stroke-white/[0.06]" strokeWidth="1.5" fill="none" />
@@ -63,7 +68,7 @@ const RouteGraphView = ({ graph }: { graph: RouteGraph }) => {
                       d={path.path}
                       className="stroke-white/[0.06]"
                       strokeWidth="1.5"
-                      markerEnd={`url(#${markerId})`}
+                      markerEnd={graph.empty ? undefined : `url(#${markerId})`}
                       fill="none"
                     />
                   </Fragment>
@@ -92,6 +97,19 @@ const RouteGraphView = ({ graph }: { graph: RouteGraph }) => {
   )
 }
 
+const EMPTY_ROUTE_GRAPH = buildEmptyRouteGraph()
+
+export const EmptyRouteGraph = ({ message }: { message: string }) => (
+  <div className="relative">
+    <RouteGraphView graph={EMPTY_ROUTE_GRAPH} />
+    <div className="pointer-events-none absolute inset-x-12 top-1/2 flex -translate-y-1/2 justify-center">
+      <div className="rounded-lg border border-darkBorder bg-buttonBlack px-3 py-2 text-sm font-medium italic text-text3">
+        {message}
+      </div>
+    </div>
+  </div>
+)
+
 export default RouteGraphView
 
 const RouteNode = ({
@@ -108,7 +126,7 @@ const RouteNode = ({
   const Heading = node.href ? 'a' : 'div'
 
   return (
-    <HopCard ref={registerElement}>
+    <HopCard ref={registerElement} className={node.hidden ? 'invisible' : undefined}>
       <Heading
         href={node.href}
         target={node.href ? '_blank' : undefined}

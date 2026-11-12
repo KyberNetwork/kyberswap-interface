@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import useRouteRequest, { ArgsRouteRequest, IntendedFeeConfig } from 'components/SwapForm/hooks/useRouteRequest'
@@ -32,7 +32,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
   const query = useQuery({
     queryKey: request?.queryKey ?? ['swap-route', null],
-    queryFn: request?.queryFn,
+    queryFn: request?.queryFn ?? skipToken,
     enabled: canFetch,
     // Never treat a previous quote as fresh or retain it after its observers leave.
     staleTime: 0,
