@@ -152,6 +152,41 @@ afterEach(async () => {
 
 // Exercise the real pair reader, selection hook and tab navigation with a wallet on another chain.
 describe('unified swap pair navigation', () => {
+  it('opens with an empty output and preserves it when selecting input and reversing', async () => {
+    await mount('/swap/base')
+    expect(pairText()).toBe('8453:eth → 8453:')
+    expect(container.querySelector('[data-output-symbol]')?.textContent).toBe('')
+    await click('Select Base WETH')
+    expect(pairText()).toBe(`8453:${weth.address} → 8453:`)
+    await click('Reverse')
+    expect(pairText()).toBe(`8453: → 8453:${weth.address}`)
+    await click('Reverse')
+    expect(pairText()).toBe(`8453:${weth.address} → 8453:`)
+  })
+
+  it.each(['8453', NonEvmChain.Bitcoin, NonEvmChain.Solana])(
+    'preserves missing output through cross-chain normalization for %s',
+    async to => {
+      await mount(`/swap?from=1&to=${to}`)
+      expect(pairText()).toBe(`1:ETH → ${to}:`)
+      expect(new URL(url(), 'https://kyberswap.com').searchParams.get('tokenOut')).toBe('')
+      await click('Select Base WETH')
+      expect(pairText()).toBe(`8453:${weth.address} → ${to}:`)
+    },
+  )
+
+  it('keeps the native non-EVM input default without choosing an output', async () => {
+    await mount(`/swap?from=${NonEvmChain.Bitcoin}&to=8453`)
+    expect(pairText()).toBe(`${NonEvmChain.Bitcoin}:BTC → 8453:`)
+    await click('Reverse')
+    expect(pairText()).toBe(`8453: → ${NonEvmChain.Bitcoin}:BTC`)
+  })
+
+  it('keeps configured defaults outside Unified Swap', async () => {
+    await mount('/limit/base')
+    expect(container.querySelector('[data-output-symbol]')?.textContent).toBe('USDC')
+  })
+
   it.each(['1', NonEvmChain.Solana])('replaces legacy cross-chain links and preserves the pair for %s', async from => {
     const tokenIn = from === '1' ? 'ETH' : 'CaseSensitiveToken'
     const search = `?from=${from}&to=8453&tokenIn=${tokenIn}&tokenOut=${usdc.address}&input=12&utm_source=legacy`

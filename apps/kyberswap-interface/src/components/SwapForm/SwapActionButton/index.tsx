@@ -12,6 +12,7 @@ import type { BuildReview, SubmitReview, SwapReviewState } from 'components/Swap
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import { PermitState, usePermit } from 'hooks/usePermit'
 import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import useTheme from 'hooks/useTheme'
@@ -70,6 +71,7 @@ const ApprovalTooltip = ({
 }
 
 type Props = {
+  isCurrencyLoading?: boolean
   isGettingRoute: boolean
 
   parsedAmountFromTypedValue: CurrencyAmount<Currency> | undefined
@@ -96,6 +98,7 @@ type Props = {
 }
 
 const SwapActionButton = ({
+  isCurrencyLoading = false,
   isGettingRoute,
 
   parsedAmountFromTypedValue,
@@ -128,6 +131,8 @@ const SwapActionButton = ({
   const noRouteFound = routeSummary && !routeSummary.route
 
   const toggleWalletModal = useWalletModalToggle()
+  const isWalletRestoring = useIsWalletRestoring()
+  const pendingConnection = !account && (isWalletRestoring || isCurrencyLoading || isGettingRoute)
 
   const isTokenRestricted = useIsTokenRestricted()
   const restrictedCurrency = isTokenRestricted(currencyIn)
@@ -259,6 +264,10 @@ const SwapActionButton = ({
       {chainError ? (
         <ButtonPrimary id="swap-button" className="whitespace-nowrap text-sm" disabled>
           {chainError}
+        </ButtonPrimary>
+      ) : pendingConnection ? (
+        <ButtonPrimary id="swap-button" disabled>
+          <Trans>Swap</Trans>
         </ButtonPrimary>
       ) : !account ? (
         <ButtonLight onClick={toggleWalletModal}>

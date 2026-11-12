@@ -26,28 +26,25 @@ const CrossChainOutputFooter = lazy(() =>
   import('components/SwapForm/CrossChain/CrossChainSwap').then(module => ({ default: module.CrossChainOutputFooter })),
 )
 
-const PendingQuoteDetails = () => {
+// The engine publishes after mounting, so SSR and lazy loading share this non-executable shell.
+const PendingSwap = () => {
   const { rawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
   return (
-    <QuoteDetails className="gap-3">
-      {isSlippageControlPinned && <SlippageSetting isCrossChain />}
-      <SwapRate loading routes={<CrossChainRoutesButton disabled />} />
-      <Stack className="gap-2">
-        <CrossChainQuoteSummaryRows loading slippage={rawSlippage} showSlippage={!isSlippageControlPinned} />
-      </Stack>
-    </QuoteDetails>
+    <>
+      <QuoteDetails className="gap-3">
+        {isSlippageControlPinned && <SlippageSetting isCrossChain />}
+        <SwapRate loading routes={<CrossChainRoutesButton disabled />} />
+        <Stack className="gap-2">
+          <CrossChainQuoteSummaryRows loading slippage={rawSlippage} showSlippage={!isSlippageControlPinned} />
+        </Stack>
+      </QuoteDetails>
+      <ButtonPrimary id="swap-button" disabled>
+        <Trans>Swap</Trans>
+      </ButtonPrimary>
+    </>
   )
 }
-
-const PendingSwap = () => (
-  <>
-    <PendingQuoteDetails />
-    <ButtonPrimary disabled>
-      <Trans>Swap</Trans>
-    </ButtonPrimary>
-  </>
-)
 
 type Props = SwapFormSelectionProps & {
   isCrossChain: boolean
@@ -138,7 +135,7 @@ export const SwapForm = ({
             <PendingSwap />
           )
         ) : (
-          <SingleChainSwapContent />
+          <SingleChainSwapContent isCurrencyLoading={props.isInputCurrencyLoading || props.isOutputCurrencyLoading} />
         )
       }
       action={null}

@@ -16,6 +16,7 @@ export type RouteGraphNode = {
   chainBadge?: { src: string; name: string }
   groups: { id: string; label?: string; pools: RouteGraphPool[] }[]
   outputPercent?: number
+  hidden?: boolean
 }
 export type RouteGraphEdge = { id: string; source: string; target: string; percent?: number }
 export type RouteGraph = {
@@ -25,7 +26,21 @@ export type RouteGraph = {
   maximumPathLengths: Record<string, number>
   inputId: string
   maxLevel: number
+  empty?: boolean
 }
+
+export const buildEmptyRouteGraph = (): RouteGraph => ({
+  nodes: [
+    { id: 'empty-input', label: '', groups: [], hidden: true },
+    { id: 'empty-output', label: '', groups: [], hidden: true },
+  ],
+  edges: [{ id: 'empty-route', source: 'empty-input', target: 'empty-output' }],
+  levels: [1],
+  maximumPathLengths: { 'empty-input': 0, 'empty-output': 1 },
+  inputId: 'empty-input',
+  maxLevel: 1,
+  empty: true,
+})
 
 const poolDetails = (pool: string, exchange: string, chainId: ChainId, allDexes: Dex[], allowLink = true) => {
   const dex = getDexInfoByPool(exchange, allDexes)

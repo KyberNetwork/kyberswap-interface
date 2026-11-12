@@ -47,6 +47,13 @@ describe('SSR render smoke', () => {
     expect(html).not.toContain('<!--$?-->')
   })
 
+  it('keeps the same-chain action disabled before wallet restoration', async () => {
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml('/swap/ethereum/eth-to-usdc')
+
+    expect(html).toMatch(/<button\b(?=[^>]*id="swap-button")(?=[^>]*disabled)[^>]*>/)
+  })
+
   it('preserves the Limit Order entry on the swap page', async () => {
     const { renderRouteBodyHtml } = await import('entry-server')
     const html = await renderRouteBodyHtml('/swap/ethereum/eth-to-usdc')
@@ -64,7 +71,9 @@ describe('SSR render smoke', () => {
     const outputPanel = html.split('data-testid="swap-currency-output"')[1]
     expect(inputPanel).toContain('title="Ethereum"')
     expect(outputPanel).toContain('title="Base"')
-    // The engine publishes its quote state after mounting, so SSR renders the shared pair form.
+    // SSR keeps the quote shell visible, but cannot execute before the engine publishes.
+    expect(html).toContain('aria-label="Swap quote"')
+    expect(html).toMatch(/<button\b(?=[^>]*id="swap-button")(?=[^>]*disabled)[^>]*>/)
     expect(html).toContain('<aside')
     expect(html).not.toContain('data-testid="cross-chain-tab"')
     expect(html).not.toContain('<!--$?-->')
@@ -113,6 +122,8 @@ describe('SSR render smoke', () => {
     const outputPanel = html.split('data-testid="swap-currency-output"')[1]
     expect(inputPanel).toContain('title="Ethereum"')
     expect(outputPanel).toContain('title="Base"')
+    expect(html).toContain('aria-label="Swap quote"')
+    expect(html).toMatch(/<button\b(?=[^>]*id="swap-button")(?=[^>]*disabled)[^>]*>/)
     expect(html).not.toContain('<!--$?-->')
   })
 
