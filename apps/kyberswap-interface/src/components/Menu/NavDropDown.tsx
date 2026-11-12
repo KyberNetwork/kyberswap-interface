@@ -2,6 +2,7 @@ import { type ReactNode, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { Collapse } from 'components/Collapse'
 import { MenuItem, MenuItemContent, MenuItemLink } from 'components/Menu/MenuItems'
 import { HStack, Stack } from 'components/Stack'
 import { ApplicationModal } from 'state/application/actions'
@@ -40,38 +41,37 @@ const NavDropDown = ({ title, icon, options = [] }: NavDropDownProps) => {
           className={cn('-mx-1 size-6 shrink-0 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
         />
       </MenuItemContent>
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows] duration-300 ease-in-out',
-          isShowOptions ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-        )}
+      <Collapse
+        open={isShowOptions}
+        className="duration-300"
+        fade={false}
+        contentClassName="flex flex-col"
+        contentGap={3}
       >
-        <Stack className="min-h-0 overflow-hidden">
-          <Stack as="ul" className="m-0 list-none pl-6 pt-2.5">
-            {options.map(item => {
-              const optionLink = item.link ?? ''
+        <Stack as="ul" className="m-0 list-none pl-6">
+          {options.map(item => {
+            const optionLink = item.link ?? ''
 
-              return (
-                <MenuItem key={optionLink}>
-                  {item.external ? (
-                    <MenuItemLink>
-                      <ExternalLink href={optionLink} onClick={toggle}>
-                        {item.label}
-                      </ExternalLink>
-                    </MenuItemLink>
-                  ) : (
-                    <MenuItemLink>
-                      <NavLink to={optionLink} onClick={toggle}>
-                        {item.label}
-                      </NavLink>
-                    </MenuItemLink>
-                  )}
-                </MenuItem>
-              )
-            })}
-          </Stack>
+            return (
+              <MenuItem key={optionLink}>
+                {item.external ? (
+                  <MenuItemLink>
+                    <ExternalLink href={optionLink} onClick={toggle}>
+                      {item.label}
+                    </ExternalLink>
+                  </MenuItemLink>
+                ) : (
+                  <MenuItemLink>
+                    <NavLink to={optionLink} onClick={toggle}>
+                      {item.label}
+                    </NavLink>
+                  </MenuItemLink>
+                )}
+              </MenuItem>
+            )
+          })}
         </Stack>
-      </div>
+      </Collapse>
     </Stack>
   )
 }

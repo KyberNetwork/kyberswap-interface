@@ -6,6 +6,7 @@ import { useWatchAsset } from 'wagmi'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { Collapse } from 'components/Collapse'
 import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
@@ -230,18 +231,18 @@ export function TransactionErrorContent({
           <Stack className="w-full items-center gap-[5px]">
             <span className="text-base font-medium leading-6 text-red">{friendlyError(message)}</span>
             {message !== friendlyError(message) && (
-              <Stack className="w-full items-center gap-2">
+              <Stack className="w-full items-center">
                 <span
                   className="cursor-pointer text-sm font-medium text-primary hover:text-primary/80"
                   onClick={() => setShowDetail(prev => !prev)}
                 >
                   {showDetail ? t`Show less` : t`Show more`}
                 </span>
-                {showDetail && (
+                <Collapse open={showDetail} className="w-full" contentGap={2}>
                   <div className="max-h-[200px] w-full overflow-y-scroll break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
                     {typeof message === 'string' ? message : JSON.stringify(message)}
                   </div>
-                )}
+                </Collapse>
               </Stack>
             )}
             {suggestionMessage}

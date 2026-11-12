@@ -8,9 +8,9 @@ type Props = {
   skeletonStyle?: CSSProperties
 }
 
-const ValueWithLoadingSkeleton: React.FC<Props> = ({ content, isShowingSkeleton, skeletonStyle }) => {
+const ValueWithLoadingSkeleton = ({ content, isShowingSkeleton, skeletonStyle }: Props) => {
   if (isShowingSkeleton) {
-    const { height = '20px', ...style } = skeletonStyle || {}
+    const { height = '16px', ...style } = skeletonStyle || {}
 
     return <Skeleton style={style} height={height} variant="darkSubtle" />
   }

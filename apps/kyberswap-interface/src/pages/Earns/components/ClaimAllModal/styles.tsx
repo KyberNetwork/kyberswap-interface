@@ -1,3 +1,4 @@
+import { Collapse } from 'components/Collapse'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { cn } from 'utils/cn'
 
@@ -72,20 +73,23 @@ export const ChainRewardTitle = ({ children, className, ...rest }: React.HTMLAtt
 )
 
 export const ChainRewardTokens = ({
+  open,
   children,
   className,
   ...rest
-}: React.ComponentProps<typeof ScrollableWithSignal>) => (
-  <ScrollableWithSignal
-    className={cn(
-      'flex max-h-0 flex-col gap-3 overflow-hidden border-t border-solid border-transparent pl-8 transition-all duration-200 ease-in-out',
-      'data-[open=true]:max-h-[170px] data-[open=true]:overflow-auto data-[open=true]:border-t-primary-20 data-[open=true]:py-3',
-      className,
-    )}
-    {...rest}
-  >
-    {children}
-  </ScrollableWithSignal>
+}: React.ComponentProps<typeof ScrollableWithSignal> & { open: boolean }) => (
+  <Collapse open={open}>
+    <ScrollableWithSignal
+      data-open={open ? 'true' : 'false'}
+      className={cn(
+        'flex max-h-[170px] flex-col gap-3 overflow-auto border-t border-solid border-t-primary-20 py-3 pl-8',
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </ScrollableWithSignal>
+  </Collapse>
 )
 
 export const FilteredChainWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -101,18 +105,18 @@ export const FilteredChainTitle = ({ children, className, ...rest }: React.HTMLA
 )
 
 export const FilteredChainTokens = ({
+  open,
   children,
   className,
   ...rest
-}: React.ComponentProps<typeof ScrollableWithSignal>) => (
-  <ScrollableWithSignal
-    className={cn(
-      'mt-0 flex max-h-0 flex-col gap-2 overflow-hidden transition-all duration-200 ease-in-out',
-      'data-[open=true]:mt-3 data-[open=true]:max-h-[136px] data-[open=true]:overflow-auto',
-      className,
-    )}
-    {...rest}
-  >
-    {children}
-  </ScrollableWithSignal>
+}: React.ComponentProps<typeof ScrollableWithSignal> & { open: boolean }) => (
+  <Collapse open={open} contentGap={3}>
+    <ScrollableWithSignal
+      data-open={open ? 'true' : 'false'}
+      className={cn('flex max-h-[136px] flex-col gap-2 overflow-auto', className)}
+      {...rest}
+    >
+      {children}
+    </ScrollableWithSignal>
+  </Collapse>
 )

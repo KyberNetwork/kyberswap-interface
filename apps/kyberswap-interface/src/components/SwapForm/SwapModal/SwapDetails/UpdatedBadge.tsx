@@ -11,13 +11,7 @@ export interface Props {
   outputAmount: CurrencyAmount<Currency>
 }
 
-const LEVEL_CLASS: Record<NonNullable<Level>, string> = {
-  worst: 'bg-red-10 text-red',
-  worse: 'bg-warning-10 text-warning',
-  better: 'bg-primary-10 text-primary',
-}
-
-export default function UpdatedBadge({ $level, outputAmount }: Props) {
+const UpdatedBadge = ({ $level, outputAmount }: Props) => {
   const output = `${outputAmount.toExact()} ${outputAmount.currency.symbol}`
 
   if (!$level) {
@@ -29,7 +23,9 @@ export default function UpdatedBadge({ $level, outputAmount }: Props) {
       data-level={$level}
       className={cn(
         'flex items-center gap-1 rounded-[36px] px-2 py-1 text-xs font-normal leading-none',
-        LEVEL_CLASS[$level],
+        $level === 'worst' && 'bg-red-10 text-red',
+        $level === 'worse' && 'bg-warning-10 text-warning',
+        $level === 'better' && 'bg-primary-10 text-primary',
       )}
     >
       {$level === 'better' && (
@@ -48,3 +44,5 @@ export default function UpdatedBadge({ $level, outputAmount }: Props) {
     </div>
   )
 }
+
+export default UpdatedBadge

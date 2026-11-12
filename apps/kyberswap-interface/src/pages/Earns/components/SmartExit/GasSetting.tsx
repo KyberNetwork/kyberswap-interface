@@ -2,8 +2,9 @@ import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
+import { Collapse } from 'components/Collapse'
 import NumericalInput from 'components/NumericalInput'
-import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
+import { DropdownIcon } from 'components/SwapForm/Settings/SlippageSetting'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { GAS_MULTIPLIER_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
@@ -82,64 +83,60 @@ export default function GasSetting({
           </div>
         )}
       </div>
-      <div
-        className="flex flex-col gap-3 overflow-hidden transition-all duration-100"
-        style={{
-          paddingTop: feeSettingExpanded && feeInfo ? '8px' : '0px',
-          height: feeSettingExpanded && feeInfo ? 'max-content' : '0px',
-        }}
-      >
-        <div className="flex w-full gap-1.5">
-          {GAS_MULTIPLIER_PRESETS.map(item => {
-            const isSelected = !customGasPercent && multiplier === item
-            return (
-              <CustomOption
-                key={item}
-                onClick={() => {
-                  setCustomGasPercent('')
-                  setMultiplier(item)
-                }}
-                isSelected={isSelected}
-              >
-                {formatDisplayNumber(item * (feeInfo?.gas.percentage || 0), { significantDigits: 2 })}%
-              </CustomOption>
-            )
-          })}
+      <Collapse open={feeSettingExpanded} className="duration-100" contentGap={2}>
+        <div className="flex flex-col gap-3">
+          <div className="flex w-full gap-1.5">
+            {GAS_MULTIPLIER_PRESETS.map(item => {
+              const isSelected = !customGasPercent && multiplier === item
+              return (
+                <CustomOption
+                  key={item}
+                  onClick={() => {
+                    setCustomGasPercent('')
+                    setMultiplier(item)
+                  }}
+                  isSelected={isSelected}
+                >
+                  {formatDisplayNumber(item * (feeInfo?.gas.percentage || 0), { significantDigits: 2 })}%
+                </CustomOption>
+              )
+            })}
 
-          <CustomOption
-            key="custom"
-            className={cn('flex flex-1 items-center gap-1', customGasPercent && 'text-primary')}
-          >
-            <NumericalInput
-              value={customGasPercent}
-              onUserInput={v => setCustomGasPercent(v)}
-              placeholder={t`Custom`}
-              className="w-full bg-transparent text-xs"
-            />
-            <span className="text-xs text-inherit">%</span>
-          </CustomOption>
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-subText">
-              {t`Current est. gas`} = {formatDisplayNumber(feeInfo?.gas.percentage || 0, { significantDigits: 2 })}%
+            <CustomOption
+              key="custom"
+              className={cn('flex flex-1 items-center gap-1', customGasPercent && 'text-primary')}
+            >
+              <NumericalInput
+                value={customGasPercent}
+                onUserInput={v => setCustomGasPercent(v)}
+                placeholder={t`Custom`}
+                className="w-full bg-transparent text-xs"
+              />
+              <span className="text-xs text-inherit">%</span>
+            </CustomOption>
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-subText">
+                {t`Current est. gas`} = {formatDisplayNumber(feeInfo?.gas.percentage || 0, { significantDigits: 2 })}%
+              </span>
+              <span className="text-xs text-subText">
+                (~
+                {formatDisplayNumber(feeInfo.gas.usd, { significantDigits: 2, style: 'currency' })})
+              </span>
+            </div>
+            <span className={cn('text-xs', isWarningGas ? 'text-warning/90' : 'text-subText')}>
+              <Trans>
+                The buffer amount is recommended. The order will <span className="font-semibold">not execute</span> if
+                the actual cost exceeds this.
+              </Trans>
             </span>
-            <span className="text-xs text-subText">
-              (~
-              {formatDisplayNumber(feeInfo.gas.usd, { significantDigits: 2, style: 'currency' })})
+            <span className={cn('text-xs font-semibold', isWarningGas ? 'text-warning/90' : 'text-subText')}>
+              <Trans>The actual gas cost will be deducted from your outputs when the order executes.</Trans>
             </span>
           </div>
-          <span className={cn('text-xs', isWarningGas ? 'text-warning/90' : 'text-subText')}>
-            <Trans>
-              The buffer amount is recommended. The order will <span className="font-semibold">not execute</span> if the
-              actual cost exceeds this.
-            </Trans>
-          </span>
-          <span className={cn('text-xs font-semibold', isWarningGas ? 'text-warning/90' : 'text-subText')}>
-            <Trans>The actual gas cost will be deducted from your outputs when the order executes.</Trans>
-          </span>
         </div>
-      </div>
+      </Collapse>
     </div>
   )
 }

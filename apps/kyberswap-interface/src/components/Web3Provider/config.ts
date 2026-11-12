@@ -1,0 +1,635 @@
+import { PUBLIC_RPC_ENDPOINTS } from '@kyber/rpc-client'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { reconnect } from '@wagmi/core'
+import { type Chain, defineChain, fallback, http } from 'viem'
+import {
+  abstract,
+  arbitrum,
+  avalanche,
+  base,
+  berachain,
+  blast,
+  bsc,
+  etherlink,
+  fantom,
+  hyperEvm,
+  linea,
+  mainnet,
+  mantle,
+  megaeth,
+  monad,
+  optimism,
+  plasma,
+  polygon,
+  rise,
+  ronin,
+  scroll,
+  sonic,
+  unichain,
+  zksync,
+} from 'viem/chains'
+import { Connector, createConfig, createConnector } from 'wagmi'
+import { coinbaseWallet, injected, metaMask, safe, walletConnect } from 'wagmi/connectors'
+
+import WC_BG from 'assets/images/wc-bg.png'
+import Kyber from 'assets/svg/kyber/logo_kyberswap_with_padding.svg'
+import BINANCE_ICON from 'assets/wallets-connect/binance.svg'
+import BITGET_ICON from 'assets/wallets-connect/bitget-wallet.png'
+import COINBASE_ICON from 'assets/wallets-connect/coinbase.svg'
+import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
+import RABBY_ICON from 'assets/wallets-connect/rabby.svg'
+import SAFE_ICON from 'assets/wallets-connect/safe.svg'
+import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
+import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
+import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
+import { setMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
+import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
+import { KYBERSWAP_URL } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+
+export const CONNECTION = {
+  WALLET_CONNECT_CONNECTOR_ID: 'walletConnect',
+  UNISWAP_WALLET_CONNECT_CONNECTOR_ID: 'uniswapWalletConnect',
+  INJECTED_CONNECTOR_ID: 'injected',
+  INJECTED_CONNECTOR_TYPE: 'injected',
+  COINBASE_SDK_CONNECTOR_ID: 'coinbaseWalletSDK',
+  COINBASE_RDNS: 'com.coinbase.wallet',
+  METAMASK_SDK_CONNECTOR_ID: 'metaMaskSDK',
+  METAMASK_RDNS: 'io.metamask',
+  PHANTOM: 'app.phantom',
+  RABBY: 'io.rabby',
+  SAFE_CONNECTOR_ID: 'safe',
+  PORTO: 'xyz.ithaca.porto',
+  BINANCE: 'com.binance.wallet',
+  BITGET: 'com.bitget.web3',
+  SAFEPAL: 'io.safepal',
+  // SafePal's EIP-6963 announce uses its download URL as rdns (non-standard).
+  SAFEPAL_RDNS: 'https://www.safepal.com/download',
+} as const
+
+export const CONNECTION_ORDER = [
+  CONNECTION.METAMASK_SDK_CONNECTOR_ID,
+  CONNECTION.METAMASK_RDNS,
+  CONNECTION.WALLET_CONNECT_CONNECTOR_ID,
+  CONNECTION.PHANTOM,
+  CONNECTION.RABBY,
+  CONNECTION.COINBASE_SDK_CONNECTOR_ID,
+  CONNECTION.COINBASE_RDNS,
+  CONNECTION.BINANCE,
+  CONNECTION.BITGET,
+  CONNECTION.SAFEPAL,
+  CONNECTION.PORTO,
+]
+
+export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
+  [CONNECTION.METAMASK_SDK_CONNECTOR_ID]: METAMASK_ICON,
+  [CONNECTION.METAMASK_RDNS]: METAMASK_ICON,
+  [CONNECTION.COINBASE_SDK_CONNECTOR_ID]: COINBASE_ICON,
+  [CONNECTION.WALLET_CONNECT_CONNECTOR_ID]: WALLET_CONNECT_ICON,
+  [CONNECTION.SAFE_CONNECTOR_ID]: SAFE_ICON,
+  [CONNECTION.SAFEPAL]: SAFEPAL_ICON,
+}
+
+export const SMART_WALLETS = [CONNECTION.PORTO, CONNECTION.SAFE_CONNECTOR_ID]
+
+type ConnectorID = (typeof CONNECTION)[keyof typeof CONNECTION]
+
+export function getConnectorWithId(
+  connectors: readonly Connector[],
+  id: ConnectorID,
+  options: { shouldThrow: true },
+): Connector
+export function getConnectorWithId(connectors: readonly Connector[], id: ConnectorID): Connector | undefined
+export function getConnectorWithId(
+  connectors: readonly Connector[],
+  id: ConnectorID,
+  options?: { shouldThrow: true },
+): Connector | undefined {
+  const connector = connectors.find(c => c.id === id)
+  if (!connector && options?.shouldThrow) {
+    throw new Error(`Expected connector ${id} missing from wagmi context.`)
+  }
+  return connector
+}
+
+declare module 'wagmi' {
+  interface Register {
+    config: typeof wagmiConfig
+  }
+}
+
+export const HardCodedConnectors = [
+  {
+    id: 'KSRabby',
+    logo: RABBY_ICON,
+    name: 'Rabby Wallet',
+    url: 'https://rabby.io/',
+    realId: 'io.rabby',
+  },
+  {
+    id: 'KSBinanceWallet',
+    name: 'Binance Wallet',
+    logo: BINANCE_ICON,
+    url: 'https://www.binance.com/en/binancewallet',
+    realId: 'com.binance.wallet',
+  },
+  {
+    id: 'KSBitgetWallet',
+    name: 'Bitget Wallet',
+    logo: BITGET_ICON,
+    url: 'https://web3.bitget.com/en/wallet-download',
+    realId: 'com.bitget.web3',
+  },
+] as const
+
+// hardcoded connector to display as a default option. will replace by the real one if user already installed real extension
+const createPriorityConnector = ({ id, name, logo, url }: (typeof HardCodedConnectors)[number]) => {
+  return createConnector(config => {
+    const injectedConnector = injected()(config)
+
+    const connect: typeof injectedConnector.connect = () => {
+      window.open(url, '_blank')
+      return Promise.reject()
+    }
+
+    return {
+      ...injectedConnector,
+      get icon() {
+        return logo
+      },
+      get name() {
+        return name
+      },
+      get id() {
+        return id
+      },
+      connect,
+    }
+  })
+}
+
+// Resolve SafePal's EVM provider across both injection shapes the extension
+// uses: legacy `window.safepalProvider` (older builds) and the current
+// `window.__safepalEthereumBootstrap__.activeProvider` (newer builds, where
+// SafePal lazy-attaches the EVM provider behind a bootstrap object that also
+// holds Aptos/Tron providers + a setProvider switch). The active provider
+// carries an `isSafePal: true` flag even when it shims MetaMask via
+// `isMetaMask: true` / `__isMetaMaskShim__`, so use that to discriminate from
+// other wallets that may be active under the same bootstrap.
+export function getSafepalProvider(): typeof window.safepalProvider {
+  if (typeof window === 'undefined') return undefined
+  const active = window.__safepalEthereumBootstrap__?.activeProvider
+  if (active?.isSafePal) return active as typeof window.safepalProvider
+  return window.safepalProvider
+}
+
+function safepalConnector() {
+  return createConnector(config => {
+    const injectedConnector = injected({
+      target: () => ({ id: CONNECTION.SAFEPAL, name: 'SafePal', provider: getSafepalProvider() }),
+      // SafePal's content script can inject `window.safepalProvider` after wagmi's
+      // mount-time reconnect already runs `isAuthorized()`. Without this shim the
+      // connector would return `false` synchronously and stay disconnected until a
+      // manual reconnect. The shim makes `isAuthorized()` wait up to 5s for
+      // `ethereum#initialized` (or re-check the target on timeout) so a slow
+      // content-script injection no longer drops the session on refresh.
+      unstable_shimAsyncInject: 5_000,
+    })(config)
+
+    const connect: typeof injectedConnector.connect = (...params) => {
+      if (!getSafepalProvider()) {
+        window.open('https://www.safepal.com/download', '_blank')
+        return Promise.reject(new Error('SafePal extension not installed'))
+      }
+      return injectedConnector.connect(...params)
+    }
+
+    return {
+      ...injectedConnector,
+      get icon() {
+        return SAFEPAL_ICON
+      },
+      get id() {
+        return CONNECTION.SAFEPAL as string
+      },
+      get name() {
+        return 'SafePal'
+      },
+      // Pin the rdns SafePal advertises via EIP-6963 so wagmi's mipd dedup
+      // collapses the announced provider onto this custom connector instead of
+      // appending a second `id = <URL>` connector after first render. That keeps
+      // `recentConnectorId` stable as `io.safepal` and lets the reconnect path
+      // always find the same connector entry on refresh.
+      rdns: CONNECTION.SAFEPAL_RDNS,
+      connect,
+    }
+  })
+}
+
+// Generic browser-wallet fallback for non-MetaMask injected providers (Brave, Trust, etc.).
+// MetaMask install/deep-link is handled by the dedicated metaMask() SDK connector now,
+// so this connector is hidden when the active EIP-1193 provider is MetaMask.
+function injectedWithFallback() {
+  return createConnector(config => {
+    const injectedConnector = injected()(config)
+
+    return {
+      ...injectedConnector,
+      get icon() {
+        return INJECTED_DARK_ICON
+      },
+      get name() {
+        return 'Browser Wallet'
+      },
+    }
+  })
+}
+
+const WC_PARAMS = {
+  showQrModal: true,
+  projectId: WALLETCONNECT_PROJECT_ID,
+  metadata: {
+    name: 'KyberSwap',
+    description: typeof document !== 'undefined' ? document.title : 'KyberSwap',
+    url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+    icons: [`${KYBERSWAP_URL}/favicon.svg`],
+  },
+  qrModalOptions: {
+    chainImages: undefined,
+    themeMode: 'dark' as const,
+    themeVariables: {
+      '--wcm-z-index': '100000',
+      '--wcm-logo-image-url': Kyber,
+      '--wcm-background-image-url': WC_BG,
+      '--wcm-accent-color': '#31CB9E',
+      '--wcm-accent-fill-color': '#222222',
+      '--wcm-color-bg-1': '#0F0F0F',
+      '--wcm-background-color': '#31CB9E',
+    },
+  },
+}
+
+// WalletConnect v2 keeps all of its state under `wc@2:`-prefixed localStorage keys. Their presence means
+// this browser has talked to WalletConnect before, so there may be a session worth restoring at boot.
+const hasWalletConnectState = () => {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return false
+    return Object.keys(window.localStorage).some(key => key.startsWith('wc@2:'))
+  } catch {
+    // Storage can throw (disabled cookies, partitioned contexts) — treat it as "no session" and let the
+    // SDK load on the first Connect click instead.
+    return false
+  }
+}
+
+// wagmi runs `connector.setup()` for every connector while createConfig() builds the store, and
+// WalletConnect's setup() unconditionally awaits getProvider() — which dynamically imports the ~460KB
+// @walletconnect/ethereum-provider bundle and runs EthereumProvider.init() (relay, keychain, storage).
+// All of that exists to attach one 'connect' listener that only fires for a session being restored, so a
+// visitor who has never used WalletConnect pays the whole cost for nothing. Gate setup() on prior
+// WalletConnect state: connect() awaits getProvider() itself, so a first-time user still gets the SDK the
+// moment they click Connect, and returning WalletConnect users keep today's restore behaviour.
+const walletConnectWithDeferredSetup = (parameters: Parameters<typeof walletConnect>[0]) =>
+  createConnector(config => {
+    const connector = walletConnect(parameters)(config)
+    return {
+      ...connector,
+      async setup() {
+        if (!hasWalletConnectState()) return
+        await connector.setup?.()
+      },
+    }
+  })
+
+// Build an ordered, de-duplicated RPC list for a chain: KyberSwap RPC first,
+// then the public RPCs from @kyber/rpc-client. The list feeds both the wagmi
+// `transports` map (via viem `fallback()` for true rotation on read calls) and
+// the chain object's `rpcUrls.default.http` (which connectors like the MetaMask
+// SDK read directly — they ignore `transports` and only consume URL[0]).
+const getRpcUrlsForChain = (chainId: number): string[] => {
+  const primary = NETWORKS_INFO[chainId as ChainId]?.defaultRpcUrl
+  const publics = PUBLIC_RPC_ENDPOINTS[chainId] ?? []
+  const all = [primary, ...publics].filter((url): url is string => !!url)
+  return Array.from(new Set(all))
+}
+
+// Override viem's hardcoded chain defaults (e.g. https://56.rpc.thirdweb.com for BSC)
+// so connector-internal RPC clients don't bypass our transports config and hit
+// public RPCs that quickly rate-limit (HTTP 429).
+const withKyberRpc = <T extends { id: number; rpcUrls: { default: { http: readonly string[] } } }>(chain: T): T => {
+  const urls = getRpcUrlsForChain(chain.id)
+  if (urls.length === 0) return chain
+  return {
+    ...chain,
+    rpcUrls: {
+      ...chain.rpcUrls,
+      default: { ...chain.rpcUrls.default, http: urls },
+    },
+  }
+}
+
+export const robinhood = defineChain({
+  id: ChainId.ROBINHOOD,
+  name: 'Robinhood',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.mainnet.chain.robinhood.com'],
+      webSocket: ['wss://feed.mainnet.chain.robinhood.com'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Etherscan', url: 'https://robin.etherscan.io' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
+// Wallets read the native balance through `eth_getBalance`, which on Arc reports USDC with 18
+// decimals. The 6-decimal ERC-20 interface at 0x3600… is a token like any other and is not declared
+// here. See `utils/nativeErc20`.
+export const arc = defineChain({
+  id: ChainId.ARC,
+  name: 'Arc',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'USDC',
+    symbol: 'USDC',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.mainnet.arc.io'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Arcscan', url: 'https://arc.etherscan.io' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
+export const elysium = defineChain({
+  id: ChainId.ELYSIUM,
+  name: 'Elysium',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'HYPE',
+    symbol: 'HYPE',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.hyperlogic.fun'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Elysium Explorer', url: 'https://elysium.kinetiq.xyz' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
+const wagmiChains: readonly [Chain, ...Chain[]] = [
+  withKyberRpc(mainnet),
+  withKyberRpc(arbitrum),
+  withKyberRpc(optimism),
+  withKyberRpc(zksync),
+  withKyberRpc(polygon),
+  withKyberRpc(base),
+  withKyberRpc(bsc),
+  withKyberRpc(linea),
+  withKyberRpc(mantle),
+  withKyberRpc(scroll),
+  withKyberRpc(avalanche),
+  withKyberRpc(fantom),
+  withKyberRpc(blast),
+  withKyberRpc(sonic),
+  withKyberRpc(berachain),
+  withKyberRpc(ronin),
+  withKyberRpc(unichain),
+  withKyberRpc(hyperEvm),
+  withKyberRpc(etherlink),
+  withKyberRpc(plasma),
+  withKyberRpc(monad),
+  withKyberRpc(megaeth),
+  withKyberRpc(robinhood),
+  withKyberRpc(rise),
+  withKyberRpc(arc),
+  withKyberRpc(abstract),
+  withKyberRpc(elysium),
+] as const
+
+// One endpoint's share of the wait. `fallback()` walks its URLs in order and moves on only once the
+// current one has failed or run out of time, so a hop that hangs costs every call this long before
+// the next endpoint is tried. A healthy endpoint answers in well under a second; three seconds is
+// generous for one and still keeps a walk over the whole list to tens of seconds.
+const HOP_TIMEOUT_MS = 3_000
+const PUBLIC_HTTP_CONFIG = { timeout: HOP_TIMEOUT_MS } as const
+
+// JSON-RPC batching for the primary (KyberSwap) endpoint. viem sends one `eth_call` per multicall
+// chunk, so a sweep like the token selector's whole-whitelist `balanceOf` spans many calls that would
+// otherwise queue against the browser's per-host connection budget; batching folds them into a single
+// POST. Only the primary opts in — the public fallbacks are third-party endpoints whose batch support
+// we can't vouch for, and `batch.multicall.batchSize` keeps their call count in check on its own.
+const PRIMARY_HTTP_CONFIG = { ...PUBLIC_HTTP_CONFIG, batch: { batchSize: 50 } } as const
+
+// viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
+// giving us true client-side RPC rotation for every wagmi-issued call (multicall,
+// useReadContract, polling). KyberSwap RPC sits first; public endpoints are tried
+// only when it errors. Connector-internal calls still use URL[0] of `rpcUrls.default`
+// (set by `withKyberRpc` above), which is the same KyberSwap RPC.
+//
+// One pass over the list, never two: a call every endpoint has just refused is not going to be
+// answered by the same endpoints a moment later, and the second pass doubles both the wait and the
+// load on endpoints that are already rate-limiting the user.
+
+const transports = Object.fromEntries(
+  wagmiChains.map(c => {
+    const primaryUrl = NETWORKS_INFO[c.id as ChainId]?.defaultRpcUrl
+    const urls = getRpcUrlsForChain(c.id)
+    const httpTransports =
+      urls.length > 0
+        ? urls.map(url => (url === primaryUrl ? http(url, PRIMARY_HTTP_CONFIG) : http(url, PUBLIC_HTTP_CONFIG)))
+        : [http(undefined, PUBLIC_HTTP_CONFIG)]
+    return [c.id, fallback(httpTransports, { retryCount: 0 })]
+  }),
+) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof fallback>>
+
+// Migrate localStorage's recent-connector hint from the EIP-6963 io.metamask id (used by the
+// pre-PR injected connector) to the metaMaskSDK id (the new SDK connector). wagmi auto-resets
+// the main `wagmi.store` on the v2→v3 version bump, but `wagmi.recentConnectorId` lives outside
+// that store and would otherwise stay pointing at a non-existent connector — preventing the
+// reconnect-priority boost for returning MetaMask users on first visit after deploy.
+;(() => {
+  if (typeof window === 'undefined' || !window.localStorage) return
+  try {
+    const raw = window.localStorage.getItem('wagmi.recentConnectorId')
+    if (raw && JSON.parse(raw) === CONNECTION.METAMASK_RDNS) {
+      window.localStorage.setItem('wagmi.recentConnectorId', JSON.stringify(CONNECTION.METAMASK_SDK_CONNECTOR_ID))
+    }
+  } catch {
+    // ignore parse / storage failures — at worst the user reconnects manually
+  }
+})()
+
+// Porto's connector id, spelled out rather than imported so reading it cannot pull the Porto SDK back into
+// the entry chunk. registerPortoConnector() matches on the live `connector.id`, so if this ever drifts from
+// upstream the only cost is the mount effect waiting out its timeout before Porto registers itself.
+export const PORTO_CONNECTOR_ID = 'xyz.ithaca.porto'
+
+// How long the boot restore waits for an EIP-6963 wallet to announce itself. Extensions announce within a
+// few frames of the page loading; past this, the wallet is treated as gone rather than kept waiting on.
+export const CONNECTOR_ANNOUNCE_TIMEOUT = 2_000
+
+/** The connector a returning visitor last connected with, as wagmi persists it (JSON-encoded). */
+export const readRecentConnectorId = (): string | undefined => {
+  if (typeof window === 'undefined' || !window.localStorage) return undefined
+  try {
+    const raw = window.localStorage.getItem('wagmi.recentConnectorId')
+    return raw ? (JSON.parse(raw) as string) : undefined
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Whether wagmi persisted a live connection, i.e. whether there is a session worth restoring at boot.
+ *
+ * `recentConnectorId` cannot answer this: wagmi leaves it in place through `disconnect()`, so it only
+ * says which wallet was picked last, not whether it is still connected. `state.current` does — wagmi
+ * clears it the moment the last connection goes away, and persists that.
+ */
+export const hasPersistedConnection = (): boolean => {
+  if (typeof window === 'undefined' || !window.localStorage) return false
+  try {
+    const raw = window.localStorage.getItem('wagmi.store')
+    if (!raw) return false
+    return !!(JSON.parse(raw) as { state?: { current?: string | null } }).state?.current
+  } catch {
+    return false
+  }
+}
+
+export const wagmiConfig = createConfig({
+  chains: wagmiChains,
+  transports,
+  // Multicall chunking is measured in calldata *bytes*: at viem's 1024-byte default a 36-byte
+  // `balanceOf(address)` fits only 28 calls per `aggregate3`, so a several-hundred-token sweep spans a
+  // dozen-plus eth_calls. 4096 quadruples the calls per chunk while staying well inside node eth_call
+  // gas caps for the heavier reads that share this path (pool state, positions).
+  batch: { multicall: { batchSize: 4096 } },
+  pollingInterval: 12_000,
+  connectors: [
+    metaMask({
+      dapp: {
+        name: 'KyberSwap',
+        url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+        iconUrl: `${KYBERSWAP_URL}/favicon.svg`,
+      },
+      // The SDK calls this on a native mobile browser with the `metamask://connect/mwp?...`
+      // deep link, asynchronously after the relay handshake. We surface it to the wallet modal
+      // rather than opening it here, so the user launches MetaMask with a real tap — a genuine
+      // gesture is the reliable way to open the app, and tapping a custom-scheme link keeps this
+      // page (and its open relay connection) alive so the pairing can complete on return.
+      //
+      // Keep the `metamask://` custom scheme as-is: it carries the connection payload straight
+      // into the app, so MetaMask lands on the approval screen. Do NOT rewrite it to the
+      // `metamask.app.link` Universal Link — that domain is a Branch link that drops the query
+      // params, so the app opens to its home screen with no pairing request.
+      mobile: {
+        preferredOpenLink: deeplink => {
+          setMetaMaskMobileLink(deeplink)
+        },
+      },
+    }),
+    injectedWithFallback(),
+    walletConnectWithDeferredSetup(WC_PARAMS),
+    coinbaseWallet({
+      appName: 'KyberSwap',
+      appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
+    }),
+    safepalConnector(),
+    // Porto is absent here on purpose — registerPortoConnector() adds it after boot. See that function.
+    safe(),
+    ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
+  ],
+})
+
+// wagmi turns a connector's own `connect` event straight into "this is the current connection", with no
+// authorization check and no regard for which wallet was last used — the hook that lets a wallet attach
+// itself when someone connects the site from inside the extension. Extensions fire that event while
+// announcing themselves on page load too, and any wallet that still holds a permission for the site
+// answers `eth_accounts` with an account, so with more than one installed, whichever fires first claims
+// the session: a visitor who disconnected comes back connected to a wallet they never picked, and one
+// connected on another wallet comes back as this one.
+//
+// Nothing here needs that hook. A wallet is only ever picked from the modal, which goes through
+// `connect()`, or restored from the session on record, which goes through `reconnect()` — neither
+// consults it — so keep it off every connector. wagmi puts it back on a connector it sets up and on one it
+// disconnects, so re-apply on both.
+//
+// Runs at module scope rather than from an effect because connectors are set up inside `createConfig()`,
+// so a wallet can claim the session before React has mounted.
+const keepWalletsFromClaimingTheSession = () => {
+  const detach = () => {
+    for (const connector of wagmiConfig.connectors) {
+      connector.emitter.off('connect', wagmiConfig._internal.events.connect)
+    }
+  }
+
+  detach()
+  // EIP-6963 wallets and Porto register after this runs, each arriving with the hook attached.
+  wagmiConfig._internal.connectors.subscribe(detach)
+  // `disconnect()` re-attaches it to the wallet it just disconnected.
+  wagmiConfig.subscribe(state => state.connections, detach)
+}
+
+keepWalletsFromClaimingTheSession()
+
+// Porto ships ~620KB of JS (the SDK plus its `ox` dependency) and is one wallet choice among many, so
+// importing it at module scope put all of it in the entry chunk that gates the app's first render for every
+// visitor — including the vast majority who never pick it. Register it once the app is idle instead: the
+// wallet list reads connectors through wagmi's reactive `useConnectors()`, so Porto appears as soon as this
+// resolves. WalletModal calls this too when it opens, since idle can be several seconds out on a slow cold
+// load and the list must not render without Porto by then; the flag below makes whichever fires first win.
+//
+// `_internal` is wagmi's own escape hatch for exactly this (`reconnect` uses the same `setup` to register
+// connectors passed to it) — worth re-checking on a wagmi major bump. `setup()` also invokes the
+// connector's own setup() and wires its `connect` emitter, so the connector is fully live once added.
+let hasRegisteredPorto = false
+
+export const registerPortoConnector = async () => {
+  if (hasRegisteredPorto) return
+  hasRegisteredPorto = true
+  try {
+    const [{ Dialog, Mode }, { porto }] = await Promise.all([import('porto'), import('porto/wagmi')])
+    // Porto's default iframe renderer sets iframe.src while the connector sets itself up, which hits
+    // id.porto.sh. The official popup renderer opens the remote dialog only when a Porto request needs
+    // user confirmation.
+    const connector = wagmiConfig._internal.connectors.setup(porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) }))
+    wagmiConfig._internal.connectors.setState(connectors => [...connectors, connector])
+
+    // Porto is not in `connectors` while the mount-time reconnect below runs, so a visitor whose last
+    // wallet was Porto cannot be restored there. Reconnect them here instead, once the connector exists.
+    if (readRecentConnectorId() === connector.id) {
+      reconnect(wagmiConfig, { connectors: [connector] }).catch(() => {})
+    }
+  } catch {
+    hasRegisteredPorto = false // let a later mount retry; until then Porto is simply not offered
+  }
+}

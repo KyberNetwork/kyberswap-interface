@@ -1,6 +1,7 @@
 import { FarmingWrapper, TrendingWrapper } from 'components/EarnBanner/styles'
 import Skeleton from 'components/Skeleton'
 
+/** @deprecated Used only by the deprecated pool banners. */
 export const TrendingPoolContentSkeleton = () => (
   <div className="flex items-center justify-between">
     <div className="flex items-center">
@@ -12,6 +13,7 @@ export const TrendingPoolContentSkeleton = () => (
   </div>
 )
 
+/** @deprecated Used only by the deprecated pool banners. */
 export const FarmingPoolContentSkeleton = () => (
   <div className="relative flex items-center justify-center gap-2" style={{ width: 'calc(100% + 8px)', left: '-4px' }}>
     <Skeleton circle height={20} variant="darkSubtle" width={20} />
@@ -27,6 +29,7 @@ export const FarmingPoolContentSkeleton = () => (
   </div>
 )
 
+/** @deprecated Pool banners are no longer displayed in the trade layout. */
 export const TrendingPoolBannerSkeleton = () => (
   <TrendingWrapper>
     <div className="inline-flex items-center gap-2">
@@ -37,6 +40,7 @@ export const TrendingPoolBannerSkeleton = () => (
   </TrendingWrapper>
 )
 
+/** @deprecated Pool banners are no longer displayed in the trade layout. */
 export const FarmingPoolBannerSkeleton = () => (
   <FarmingWrapper>
     <div className="inline-flex items-center gap-2">

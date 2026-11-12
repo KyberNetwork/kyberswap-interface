@@ -2,15 +2,12 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useState 
 
 import { APP_PATHS } from 'constants/index'
 
-import { createFordefiProvider } from './providers/fordefi'
-import { createLedgerProvider } from './providers/ledger'
-import { createOkxProvider } from './providers/okx'
-import { createUnisatProvider } from './providers/unisat'
-import { createXverseProvider } from './providers/xverse'
-import { BitcoinWalletBase, CreateProviderParams, WalletInfo, WalletType } from './types'
+import { BitcoinConnection, createBitcoinConnection } from './connection'
+import { BitcoinWalletBase, WalletInfo, WalletType } from './types'
 
 // Context value interface
 interface BitcoinWalletContextValue {
+  connection?: BitcoinConnection
   walletInfo: WalletInfo
   availableWallets: BitcoinWalletBase[]
   connectingWallet: WalletType | null
@@ -32,6 +29,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
   const [walletInfo, setWalletInfo] = useState<WalletInfo>(defaultInfo)
   const [connectingWallet, setConnectingWallet] = useState<WalletType | null>(null)
 
+  const [connections, setConnections] = useState<BitcoinConnection[]>([])
   const [availableWallets, setAvailableWallets] = useState<BitcoinWalletBase[]>([])
 
   const { address, walletType } = walletInfo
@@ -61,35 +59,23 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
   // Check for available wallet providers
   useEffect(() => {
     const checkWalletProviders = () => {
-      const createProviderPrams: CreateProviderParams = {
-        connectingWallet,
-        setConnectingWallet,
-        setWalletInfo,
-        defaultInfo,
-      }
-      const enhanceProvider = (provider: BitcoinWalletBase): BitcoinWalletBase => ({
-        ...provider,
+      const sessions = (['xverse', 'okx', 'unisat', 'fordefi', 'ledger'] as const).map(type =>
+        createBitcoinConnection(type, setConnectingWallet, setWalletInfo),
+      )
+      const providers = sessions.map(session => ({
+        ...session.provider,
         disconnect: async () => {
-          await provider.disconnect?.()
+          await session.provider.disconnect?.()
           setBalance(0)
         },
-      })
-      const providers: BitcoinWalletBase[] = []
-      const xverseProvider = enhanceProvider(createXverseProvider(createProviderPrams))
-      const okxProvider = enhanceProvider(createOkxProvider(createProviderPrams))
-      const unisatProvider = enhanceProvider(createUnisatProvider(createProviderPrams))
-      const fordefiProvider = enhanceProvider(createFordefiProvider(createProviderPrams))
-      // const bitgetProvider = enhanceProvider(createBitgetProvider(createProviderPrams))
-      const ledgerProvider = enhanceProvider(createLedgerProvider(createProviderPrams))
+      }))
+      setConnections(sessions)
 
-      providers.push(xverseProvider)
-      // providers.push(bitgetProvider)
-      providers.push(okxProvider)
-      providers.push(unisatProvider)
-      providers.push(fordefiProvider)
-      providers.push(ledgerProvider)
-
-      if (window.location.pathname === APP_PATHS.CROSS_CHAIN) {
+      if (
+        [APP_PATHS.SWAP, APP_PATHS.KYBER_CROSS, APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP].some(path =>
+          window.location.pathname.startsWith(path),
+        )
+      ) {
         // Re-hydrate the previously connected wallet via its SILENT restore() only — never connect(), which
         // pops the wallet's approval dialog. This effect re-runs whenever the route mounts, so calling
         // connect() here made wallets without a silent path (OKX, Xverse) prompt on every cross-chain visit.
@@ -106,15 +92,20 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
 
       providers.sort(a => (a.isInstalled() ? -1 : 1))
       setAvailableWallets(providers)
+      return () =>
+        sessions.forEach(session => {
+          void session.dispose().catch(console.error)
+        })
     }
 
-    checkWalletProviders()
+    return checkWalletProviders()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <BitcoinWalletContext.Provider
       value={{
+        connection: connections.find(session => session.provider.type === walletType),
         walletInfo,
         availableWallets,
         connectingWallet,

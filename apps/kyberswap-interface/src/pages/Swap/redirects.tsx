@@ -9,6 +9,12 @@ import { useActiveWeb3React } from 'hooks'
 import { type SwapIntent, resolveSwapIntentPair } from 'utils/routes'
 import { getChainIdFromSlug } from 'utils/string'
 
+export const LegacyCrossChainRedirect = () => {
+  const location = useLocation()
+
+  return <Navigate to={{ ...location, pathname: APP_PATHS.SWAP }} replace />
+}
+
 // Redirects to a network-specific trade page but only replaces the pathname
 export const RedirectPathToTradeNetwork = () => {
   const { networkInfo, chainId } = useActiveWeb3React()

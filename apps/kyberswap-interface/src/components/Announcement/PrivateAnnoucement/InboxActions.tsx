@@ -1,7 +1,6 @@
 import { Trash2 } from 'react-feather'
 
-import { ReactComponent as PinIcon } from 'assets/svg/pin_icon.svg'
-import { ReactComponent as PinSolidIcon } from 'assets/svg/pin_solid_icon.svg'
+import { ReactComponent as PinIcon } from 'assets/svg/ic_pin.svg'
 import { ItemActionButton, ItemActionWrapper, PinnedBadge } from 'components/Announcement/PrivateAnnoucement/styled'
 
 type Props = {
@@ -19,7 +18,7 @@ export default function InboxActions({ isPinned, onPin, onDelete }: Props) {
     <>
       {isPinned ? (
         <PinnedBadge>
-          <PinSolidIcon />
+          <PinIcon aria-hidden="true" />
         </PinnedBadge>
       ) : null}
 
@@ -28,13 +27,14 @@ export default function InboxActions({ isPinned, onPin, onDelete }: Props) {
           {onPin ? (
             <ItemActionButton
               aria-label={isPinned ? 'Unpin notification' : 'Pin notification'}
+              aria-pressed={Boolean(isPinned)}
               $active={isPinned}
               onClick={e => {
                 e.stopPropagation()
                 onPin()
               }}
             >
-              {isPinned ? <PinSolidIcon /> : <PinIcon />}
+              <PinIcon aria-hidden="true" />
             </ItemActionButton>
           ) : null}
           {onDelete ? (

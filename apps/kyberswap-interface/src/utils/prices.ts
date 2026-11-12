@@ -87,3 +87,14 @@ export const formatPriceImpact = (pi: number, withPercent = true) => {
 
   return text
 }
+
+export type PriceImpactAction = 'swap' | 'enable-degen' | 'swap-anyway'
+
+export const getPriceImpactAction = (
+  isDegenMode: boolean,
+  priceImpact: number | null | undefined,
+): PriceImpactAction => {
+  const { isVeryHigh, isInvalid } = checkPriceImpact(priceImpact)
+  if (!isVeryHigh && !isInvalid) return 'swap'
+  return isDegenMode ? 'swap-anyway' : 'enable-degen'
+}

@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { type ReactNode, createContext, useContext } from 'react'
 
 import { ERC8056TokenInfo } from 'hooks/useERC8056Token'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
@@ -13,20 +13,17 @@ type SwapFormContextProps = {
   /** Scale input/output-token amounts for display when either token is ERC-8056. */
   inputERC8056Info: ERC8056TokenInfo
   outputERC8056Info: ERC8056TokenInfo
-  recipient: string | null
+  recipient: string
   isAdvancedMode: boolean
 }
 
 const SwapFormContext = createContext<SwapFormContextProps | undefined>(undefined)
 
-const SwapFormContextProvider: React.FC<
-  SwapFormContextProps & {
-    children: React.ReactNode
-  }
-> = ({ children, ...props }) => {
-  const contextValue: SwapFormContextProps = props
-  return <SwapFormContext.Provider value={contextValue}>{children}</SwapFormContext.Provider>
-}
+type SwapFormProviderProps = SwapFormContextProps & { children: ReactNode }
+
+const SwapFormContextProvider = ({ children, ...value }: SwapFormProviderProps) => (
+  <SwapFormContext.Provider value={value}>{children}</SwapFormContext.Provider>
+)
 
 const useSwapFormContext = (): SwapFormContextProps => {
   const context = useContext(SwapFormContext)

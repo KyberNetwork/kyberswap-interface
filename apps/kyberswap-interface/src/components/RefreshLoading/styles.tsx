@@ -25,7 +25,7 @@ export const CountDown = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElemen
   <div
     ref={ref}
     {...rest}
-    className={cn('absolute inset-x-0 mx-auto text-center text-xs font-medium text-primary', className)}
+    className={cn('absolute inset-x-0 mx-auto text-center text-[10px] font-medium text-primary', className)}
   />
 ))
 CountDown.displayName = 'CountDown'

@@ -6,6 +6,7 @@ import { GetRouteParams, GetRouteResponse } from 'services/route/types/getRoute'
 import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
 import { ETHER_ADDRESS } from 'constants/index'
+import type { AppDispatch } from 'state'
 
 export const AGGREGATOR_API_PATHS = {
   BUILD_ROUTE: '/api/v1/route/build',
@@ -30,97 +31,18 @@ const routeApi = createApi({
         clientId?: string
       }
     >({
+      keepUnusedDataFor: 0,
       query: ({ params, url, authentication, clientId }) => {
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
+          cache: 'no-store',
           params: rest,
           authentication,
           headers: {
             'x-client-id': clientId || 'kyberswap',
           },
         }
-      },
-      async transformResponse(baseResponse: GetRouteResponse, _meta, { params }): Promise<GetRouteResponse> {
-        const { routeSummary } = baseResponse?.data || {}
-        const { chainId, tokenInDecimals, tokenOutDecimals, tokenIn, tokenOut } = params || {}
-
-        // Ensure all necessary data is available
-        if (
-          baseResponse?.data?.routeSummary &&
-          routeSummary &&
-          chainId &&
-          // decimals can be 0
-          tokenInDecimals !== null &&
-          tokenInDecimals !== undefined &&
-          tokenOutDecimals !== null &&
-          tokenOutDecimals !== undefined
-        ) {
-          const { amountIn, amountOut } = routeSummary
-
-          if (!routeSummary.amountInUsd || !routeSummary.amountOutUsd) {
-            console.warn('[getRoute] aggregator returned empty amountInUsd/amountOutUsd', {
-              amountInUsd: routeSummary.amountInUsd,
-              amountOutUsd: routeSummary.amountOutUsd,
-              tokenIn,
-              tokenOut,
-              chainId,
-            })
-          }
-
-          try {
-            const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
-            const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
-
-            const priceResponse = await fetchTokenPrices({ [chainId]: [wrappedTokenIn, wrappedTokenOut] })
-
-            const tokenInMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenIn])
-            const tokenOutMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenOut])
-
-            const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
-            const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
-
-            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
-            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
-
-            return {
-              ...baseResponse,
-              data: {
-                ...baseResponse.data,
-                routeSummary: {
-                  ...routeSummary,
-                  amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
-                  amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
-                  rawAmountInUsd: routeSummary.amountInUsd,
-                  rawAmountOutUsd: routeSummary.amountOutUsd,
-                },
-              },
-            }
-          } catch (error) {
-            console.error('[getRoute] on-chain price fetch failed; rawAmount*Usd will not be set', {
-              error,
-              tokenIn,
-              tokenOut,
-              chainId,
-              apiAmountInUsd: routeSummary.amountInUsd,
-              apiAmountOutUsd: routeSummary.amountOutUsd,
-            })
-          }
-        } else {
-          console.warn('[getRoute] transform skipped; rawAmount*Usd will not be set', {
-            hasRouteSummary: !!routeSummary,
-            chainId,
-            tokenInDecimals,
-            tokenOutDecimals,
-            tokenIn,
-            tokenOut,
-            apiAmountInUsd: routeSummary?.amountInUsd,
-            apiAmountOutUsd: routeSummary?.amountOutUsd,
-          })
-        }
-
-        // Return original response if conditions are not met or request fails
-        return baseResponse
       },
     }),
     buildRoute: builder.mutation<
@@ -185,3 +107,7 @@ const routeApi = createApi({
 })
 
 export default routeApi
+
+/** Imperative API transport; TanStack Query owns quote observation and polling. */
+export const fetchRoute = (dispatch: AppDispatch, args: Parameters<typeof routeApi.endpoints.getRoute.initiate>[0]) =>
+  dispatch(routeApi.endpoints.getRoute.initiate(args, { subscribe: false, forceRefetch: true })).unwrap()

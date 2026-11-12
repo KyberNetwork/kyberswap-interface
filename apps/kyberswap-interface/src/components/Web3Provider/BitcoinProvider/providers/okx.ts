@@ -7,6 +7,7 @@ export const createOkxProvider = ({
   setConnectingWallet,
   setWalletInfo,
   defaultInfo,
+  addressOnly = false,
 }: CreateProviderParams): BitcoinWalletBase => {
   // Function to handle account changes
   const handleAccountsChanged = async (accounts: string[]) => {
@@ -33,17 +34,19 @@ export const createOkxProvider = ({
     }
   }
 
+  const handleDisconnect = () => {
+    setWalletInfo(defaultInfo)
+    localStorage.removeItem('bitcoinWallet')
+  }
   // Set up event listener when wallet is available
   const setupEventListeners = () => {
+    if (addressOnly) return
     if (isOkxInstalled() && window.okxwallet.bitcoin) {
       // Listen for account changes
       window.okxwallet.bitcoin.on?.('accountsChanged', handleAccountsChanged)
 
       // Listen for disconnect events (if available)
-      window.okxwallet.bitcoin.on?.('disconnect', () => {
-        setWalletInfo(defaultInfo)
-        localStorage.removeItem('bitcoinWallet')
-      })
+      window.okxwallet.bitcoin.on?.('disconnect', handleDisconnect)
     }
   }
 
@@ -51,7 +54,7 @@ export const createOkxProvider = ({
   const removeEventListeners = () => {
     if (isOkxInstalled() && window.okxwallet.bitcoin) {
       window.okxwallet.bitcoin.removeListener?.('accountsChanged', handleAccountsChanged)
-      window.okxwallet.bitcoin.removeListener?.('disconnect', () => {})
+      window.okxwallet.bitcoin.removeListener?.('disconnect', handleDisconnect)
     }
   }
   return {
@@ -68,10 +71,11 @@ export const createOkxProvider = ({
         if (!!connectingWallet) {
           return
         }
-        setConnectingWallet('okx')
+        setConnectingWallet?.('okx')
         let resp = await window.okxwallet.bitcoin.connect()
         // sometime okx return null => throw error => user try again => always failed.
         // => call disconnect && connect again will resolve
+        if (resp === null && addressOnly) throw new Error('Could not read the wallet address')
         if (resp === null) await window.okxwallet.bitcoin.disconnect?.()
         resp = await window.okxwallet.bitcoin.connect()
 
@@ -82,14 +86,16 @@ export const createOkxProvider = ({
           publicKey: compressedPublicKey,
           walletType: 'okx',
         })
-        setConnectingWallet(null)
+        setConnectingWallet?.(null)
 
         setupEventListeners()
       } catch (e) {
         console.log('okx connect error', e)
-        setConnectingWallet
+        setConnectingWallet?.(null)
+        if (addressOnly) throw e
       }
     },
+    dispose: removeEventListeners,
     disconnect: async () => {
       removeEventListeners()
       await window.okxwallet.bitcoin.disconnect?.()

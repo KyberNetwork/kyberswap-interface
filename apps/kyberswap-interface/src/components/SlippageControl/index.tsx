@@ -1,8 +1,6 @@
 import React, { ButtonHTMLAttributes, forwardRef, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
-import { APP_PATHS } from 'constants/index'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY } from 'constants/trade'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
@@ -23,15 +21,14 @@ type Props = {
   rawSlippage: number
   setRawSlippage: (value: number) => void
   isWarning?: boolean
+  isCrossChain?: boolean
   isHighlight?: boolean
   options: number[]
 }
 
 const SlippageControl: React.FC<Props> = props => {
-  const { rawSlippage, setRawSlippage, isWarning = false, isHighlight } = props
+  const { rawSlippage, setRawSlippage, isWarning = false, isHighlight, isCrossChain = false } = props
   const { trackingHandler } = useTracking()
-  const { pathname } = useLocation()
-  const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const cat = usePairCategory()
   const options = useMemo(
     () =>
@@ -93,6 +90,7 @@ const SlippageControl: React.FC<Props> = props => {
       })}
 
       <CustomSlippageInput
+        isCrossChain={isCrossChain}
         value={rawSlippage}
         isActive={isCustomActive}
         onActiveChange={setIsCustomActive}

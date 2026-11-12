@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
+import { Collapse } from 'components/Collapse'
 import MailIcon from 'components/Icons/MailIcon'
 import LanguageSelector from 'components/LanguageSelector'
 import { MenuSection, NavLinkBetween, Title } from 'components/Menu/MenuItems'
@@ -114,25 +115,18 @@ export const PreferencesSection = ({ toggle }: PreferencesSectionProps) => {
           />
         </HStack>
       </NavLinkBetween>
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows] duration-300 ease-in-out',
-          isLanguageOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <LanguageSelector
-            onDismiss={() => setIsLanguageOpen(false)}
-            onLanguageChange={(prevLang, newLang) => {
-              trackingHandler(TRACKING_EVENT_TYPE.LANGUAGE_CHANGED, {
-                previous_language: prevLang,
-                new_language: newLang,
-                source: 'menu_dropdown',
-              })
-            }}
-          />
-        </div>
-      </div>
+      <Collapse open={isLanguageOpen} className="duration-300" fade={false}>
+        <LanguageSelector
+          onDismiss={() => setIsLanguageOpen(false)}
+          onLanguageChange={(prevLang, newLang) => {
+            trackingHandler(TRACKING_EVENT_TYPE.LANGUAGE_CHANGED, {
+              previous_language: prevLang,
+              new_language: newLang,
+              source: 'menu_dropdown',
+            })
+          }}
+        />
+      </Collapse>
     </MenuSection>
   )
 }

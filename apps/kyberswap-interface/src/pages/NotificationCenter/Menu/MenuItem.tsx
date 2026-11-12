@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
+import { Collapse } from 'components/Collapse'
 import Column from 'components/Column'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -33,7 +34,6 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
   const [expand, setIsExpand] = useState(
     canShowExpand ? location.pathname.startsWith(`${APP_PATHS.PROFILE_MANAGE}${route}`) || defaultExpand : true,
   )
-  const canShowListChildren = expand && !isChildren
 
   const { trackingHandler } = useTracking()
   const onClickMenu = (e: React.MouseEvent) => {
@@ -84,31 +84,33 @@ const MenuItem: React.FC<Props> = ({ data, style, unread, isChildren, onChildren
           {canShowExpand && <DropdownArrowIcon rotate={expand} />}
         </div>
       </Link>
-      {canShowListChildren && (
-        <Column className="ml-6 py-2">
-          {childs?.map((el, i) => {
-            return (
-              <Fragment key={i}>
-                <MenuItem
-                  onChildrenClick={onChildrenClick}
-                  isChildren
-                  data={el}
-                  unread={unread}
-                  style={{ padding: '8px 0' }}
-                />
-                {el.divider && (
-                  <div
-                    style={{
-                      margin: '8px 0',
-                      width: '100%',
-                      borderBottom: `1px solid ${theme.border}`,
-                    }}
+      {!isChildren && !!childs?.length && (
+        <Collapse open={!!expand}>
+          <Column className="py-2 pl-6">
+            {childs?.map((el, i) => {
+              return (
+                <Fragment key={i}>
+                  <MenuItem
+                    onChildrenClick={onChildrenClick}
+                    isChildren
+                    data={el}
+                    unread={unread}
+                    style={{ padding: '8px 0' }}
                   />
-                )}
-              </Fragment>
-            )
-          })}
-        </Column>
+                  {el.divider && (
+                    <div
+                      style={{
+                        margin: '8px 0',
+                        width: '100%',
+                        borderBottom: `1px solid ${theme.border}`,
+                      }}
+                    />
+                  )}
+                </Fragment>
+              )
+            })}
+          </Column>
+        </Collapse>
       )}
     </>
   )

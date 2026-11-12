@@ -11,6 +11,7 @@ import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
+import crossChainTransactionsApi from 'services/crossChainTransactions'
 import earnServiceApi from 'services/earn'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
@@ -33,13 +34,14 @@ import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
 import tokenCatalogApi from 'services/tokenCatalog'
 import tokenChartApi from 'services/tokenChart'
+import walletTransactionsApi from 'services/walletTransactionsApi'
 import zapApi from 'services/zap'
 
 import application from 'state/application/reducer'
 import authen from 'state/authen/reducer'
 import burnProAmm from 'state/burn/proamm/reducer'
 import burn from 'state/burn/reducer'
-import crossChainSwap from 'state/crossChainSwap'
+import crossChainSwap, { persistCrossChainTransactions } from 'state/crossChainSwap'
 import customizeDexes from 'state/customizeDexes'
 import { updateVersion } from 'state/global/actions'
 import lists from 'state/lists/reducer'
@@ -56,15 +58,8 @@ import transactions from 'state/transactions/reducer'
 import tutorial from 'state/tutorial/reducer'
 import user, { UserState } from 'state/user/reducer'
 
-const PERSISTED_KEYS: string[] = [
-  'user',
-  'transactions',
-  'profile',
-  'crossChainSwap.transactions',
-  'crossChainSwap.excludedSources',
-  'crossChainSwap.quoteMode',
-  'crossChainSwap.gasDropFeatureEnabled',
-]
+// Liquidity source selections stay in memory and reset on reload.
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap.transactions']
 
 // Client-only: read persisted state from localStorage and migrate from old version to
 // new version, preventing lost favorite tokens of user. Returns {} under SSR/prerender.
@@ -121,6 +116,8 @@ const rootReducer = combineReducers({
   [identifyApi.reducerPath]: identifyApi.reducer,
   [ksSettingApi.reducerPath]: ksSettingApi.reducer,
   [crosschainApi.reducerPath]: crosschainApi.reducer,
+  [crossChainTransactionsApi.reducerPath]: crossChainTransactionsApi.reducer,
+  [walletTransactionsApi.reducerPath]: walletTransactionsApi.reducer,
   [priceAlertApi.reducerPath]: priceAlertApi.reducer,
   [socialApi.reducerPath]: socialApi.reducer,
   tutorial,
@@ -164,6 +161,8 @@ const apiMiddlewares: Middleware[] = [
   identifyApi,
   ksSettingApi,
   crosschainApi,
+  crossChainTransactionsApi,
+  walletTransactionsApi,
   priceAlertApi,
   routeApi,
   socialApi,
@@ -192,9 +191,22 @@ export const makeStore = (preloadedState?: Partial<AppState>) =>
     reducer: rootReducer,
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
-        .concat(save({ states: PERSISTED_KEYS, debounce: 100 }) as Middleware)
+        .concat(
+          save({
+            states: PERSISTED_KEYS.filter(key => key !== 'crossChainSwap.transactions'),
+            debounce: 100,
+          }) as Middleware,
+        )
+        .concat(persistCrossChainTransactions)
         .concat(apiMiddlewares),
-    preloadedState,
+    // Merge persisted transactions with the remaining slice defaults.
+    preloadedState: preloadedState && {
+      ...preloadedState,
+      crossChainSwap: {
+        ...crossChainSwap(undefined, { type: '@@INIT' }),
+        ...preloadedState.crossChainSwap,
+      },
+    },
   })
 
 export type AppStore = ReturnType<typeof makeStore>

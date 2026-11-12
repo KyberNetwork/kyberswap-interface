@@ -1,6 +1,7 @@
 import { type CSSProperties, forwardRef } from 'react'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { Collapse } from 'components/Collapse'
 import { cn } from 'utils/cn'
 
 export const DropdownTitleWrapper = ({
@@ -142,16 +143,14 @@ export const ScrollIndicator = ({
   $visible,
   ...rest
 }: React.HTMLAttributes<HTMLDivElement> & { $visible: boolean }) => (
-  <div
-    className={cn(
-      'flex shrink-0 cursor-pointer items-center justify-center overflow-hidden text-subText transition-[height,opacity] duration-150 ease-linear hover:text-text',
-      $visible ? 'pointer-events-auto h-5 opacity-100' : 'pointer-events-none h-0 opacity-0',
-      className,
-    )}
-    {...rest}
-  >
-    {children}
-  </div>
+  <Collapse open={$visible} className="shrink-0 duration-150 ease-linear">
+    <div
+      className={cn('flex h-5 cursor-pointer items-center justify-center text-subText hover:text-text', className)}
+      {...rest}
+    >
+      {children}
+    </div>
+  </Collapse>
 )
 
 type DropdownContentProps = React.HTMLAttributes<HTMLDivElement> & {

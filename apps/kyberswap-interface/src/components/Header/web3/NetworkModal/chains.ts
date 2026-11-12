@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { Chain, NonEvmChain } from 'types/crossChain'
 
 // The modal's two groups, in display order.
 export const L1_CHAINS = [

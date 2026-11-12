@@ -4,11 +4,11 @@ import { ChevronDown } from 'react-feather'
 
 import ClaimThresholdControl from 'components/ClaimThresholdControl'
 import { formatThresholdValue } from 'components/ClaimThresholdControl/CustomClaimThresholdInput'
+import { Collapse } from 'components/Collapse'
 import PositionStatusControl, {
   POSITION_STATUS_OPTIONS,
   PositionStatus,
 } from 'pages/Earns/components/PositionStatusControl'
-import { cn } from 'utils/cn'
 
 type Props = {
   thresholdValue?: number
@@ -79,29 +79,22 @@ export const RewardsFilterSetting = ({
         </div>
       </div>
 
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows,padding] duration-200 ease-in-out',
-          isExpanded ? 'grid-rows-[1fr] pt-3' : 'grid-rows-[0fr] pt-0',
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <div className="flex flex-col gap-3 pb-px">
-            {statusExpanded && <PositionStatusControl value={positionStatus} onChange={onPositionStatusChange} />}
-            {thresholdExpanded && (
-              <>
-                <span className="text-xs text-subText">
-                  <Trans>
-                    Only position with rewards above this estimated value will be included in the claim. Others will
-                    remain unclaimed.
-                  </Trans>
-                </span>
-                <ClaimThresholdControl value={thresholdValue} onChange={onThresholdChange} />
-              </>
-            )}
-          </div>
+      <Collapse open={isExpanded} fade={false} contentGap={3}>
+        <div className="flex flex-col gap-3 pb-px">
+          {statusExpanded && <PositionStatusControl value={positionStatus} onChange={onPositionStatusChange} />}
+          {thresholdExpanded && (
+            <>
+              <span className="text-xs text-subText">
+                <Trans>
+                  Only position with rewards above this estimated value will be included in the claim. Others will
+                  remain unclaimed.
+                </Trans>
+              </span>
+              <ClaimThresholdControl value={thresholdValue} onChange={onThresholdChange} />
+            </>
+          )}
         </div>
-      </div>
+      </Collapse>
     </div>
   )
 }

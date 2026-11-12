@@ -1,0 +1,115 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
+import { type ReactNode, useState } from 'react'
+import { useLocation } from 'react-router-dom'
+
+import { ErrorWarning } from 'components/ErrorWarning'
+import { HiddenH1, HiddenH2 } from 'components/Seo/components'
+import { HStack, Stack } from 'components/Stack'
+import { HeaderRightMenu } from 'components/TradeLayout/HeaderRightMenu'
+import { TAB, Tabs } from 'components/TradeLayout/Tabs'
+import { APP_PATHS } from 'constants/index'
+import { useDegenModeManager } from 'state/user/hooks'
+import { CloseIcon } from 'theme'
+import { cn } from 'utils/cn'
+import { isSwapLikePath } from 'utils/routes'
+
+/** Shared header composition. historyButton is a slot so the consuming page retains History state and lifecycle. */
+type HeaderProps = {
+  activeTab: TAB
+  onTabChange: (tab: TAB) => void
+  customChainId?: ChainId
+  historyButton?: ReactNode
+  isCrossChainMode?: boolean
+  activeMainTab?: TAB
+}
+
+export const Header = ({
+  activeTab,
+  onTabChange,
+  customChainId,
+  activeMainTab,
+  isCrossChainMode,
+  historyButton,
+}: HeaderProps) => {
+  const [isDegenMode] = useDegenModeManager()
+  const [isShowDegenBanner, setShowDegenBanner] = useState(true)
+  const { pathname } = useLocation()
+
+  const selectedTab = activeMainTab || activeTab
+  // Stop market order lives under the Limit Order top-level tab, so it must be excluded before the limit copy applies.
+  const isStopMarketPage = pathname.startsWith(APP_PATHS.STOP_MARKET)
+  const isLimitPage = !isStopMarketPage && (pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT)
+  const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
+  const isCrossChainPage = pathname.startsWith(APP_PATHS.KYBER_CROSS) || selectedTab === TAB.KYBER_CROSS
+
+  return (
+    <>
+      <Stack className="w-full items-center gap-2">
+        <HStack className="min-h-9 w-full items-center justify-between gap-0">
+          <Tabs activeTab={selectedTab} onTabChange={onTabChange} customChainId={customChainId} />
+          <HeaderRightMenu
+            activeTab={activeTab}
+            onTabChange={onTabChange}
+            activeMainTab={activeMainTab}
+            isCrossChainMode={isCrossChainMode}
+            historyButton={historyButton}
+          />
+        </HStack>
+        <HStack
+          className={cn(
+            'w-full items-center justify-between',
+            isLimitPage || isStopMarketPage ? '-mt-4 gap-0' : 'gap-3',
+          )}
+        >
+          {isLimitPage && (
+            <>
+              <HiddenH1>Auto execute with your price target.</HiddenH1>
+              <HiddenH2>
+                Gasless & no slippage - Kyberswap Limit Order execute on-chain automatically when the market reaches
+                your price.
+              </HiddenH2>
+              {/*<span className="text-xs font-medium text-subText">{t`Buy or sell tokens at customized prices`}</span>*/}
+            </>
+          )}
+          {isStopMarketPage && (
+            <>
+              <HiddenH1>Sell automatically when the price drops.</HiddenH1>
+              <HiddenH2>
+                Set a trigger price and KyberSwap sells at the best available market price when the Oracle price reaches
+                it. Free to place, and your tokens stay in your wallet until it executes.
+              </HiddenH2>
+              {/*<span className="text-xs font-medium text-subText">{t`Protect your positions from sudden price drops`}</span>*/}
+            </>
+          )}
+          {isSwapPage && (
+            <>
+              <HiddenH1>Swap any token at the best rate across chains.</HiddenH1>
+              <HiddenH2>
+                An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal
+                slippage.
+              </HiddenH2>
+              <span className="text-xs font-medium text-subText">{t`Across chains, at the best available rate`}</span>
+            </>
+          )}
+          {isCrossChainPage && (
+            <>
+              <HiddenH1>
+                Swap tokens between EVMs, Bitcoin, Solana, and Near chains in one step - no manual bridging.
+              </HiddenH1>
+              <HiddenH2>Quotes from multiple providers, best rate picked automatically.</HiddenH2>
+              <span className="text-xs font-medium text-subText">{t`Swap between tokens on different chains`}</span>
+            </>
+          )}
+        </HStack>
+      </Stack>
+      {isDegenMode && isShowDegenBanner && (
+        <ErrorWarning
+          type="warn"
+          title={<Trans>You have turned on Degen Mode. Be cautious</Trans>}
+          action={<CloseIcon className="size-4" onClick={() => setShowDegenBanner(false)} />}
+        />
+      )}
+    </>
+  )
+}

@@ -1,0 +1,189 @@
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
+import { ReactNode, createContext, useContext, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { parseGetRouteResponse } from 'services/route/utils'
+
+import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
+import { type EvmRecipient, useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
+import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
+import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
+import { useRecipientAddress } from 'components/SwapForm/hooks/useRecipientAddress'
+import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
+import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSession'
+import { MAINNET_NETWORKS } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
+import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
+
+type SingleChainSwapConfig = {
+  evmRecipient?: EvmRecipient
+  enabled?: boolean
+  currencyIn: Currency | undefined
+  currencyOut: Currency | undefined
+  balanceIn: CurrencyAmount<Currency> | undefined
+  balanceOut: CurrencyAmount<Currency> | undefined
+  isDegenMode: boolean
+  slippage: number
+  transactionTimeout: number
+  permit?: string
+  customChainId?: ChainId
+}
+
+const useSingleChainSwap = ({
+  enabled = true,
+  evmRecipient: sharedRecipient,
+  currencyIn,
+  currencyOut,
+  isDegenMode,
+  slippage,
+  transactionTimeout,
+  permit,
+  customChainId,
+}: SingleChainSwapConfig) => {
+  const [searchParams] = useSearchParams()
+  const { chainId: walletChainId, account, walletKey } = useActiveWeb3React()
+
+  const chainId = customChainId || walletChainId
+  const chainError =
+    !MAINNET_NETWORKS.includes(chainId) || chainId === ChainId.BLAST ? t`Swap not supported on this chain` : undefined
+
+  // SwapPage owns URL amount prefill across both swap engines.
+  const { typedValue, onUserInput } = useSwapInputAmount(false)
+  const evmRecipient = useEvmRecipient(account, sharedRecipient)
+
+  const parsedAmount = useParsedAmount(currencyIn, typedValue)
+  const {
+    wrapType,
+    inputError: wrapInputError,
+    execute: onWrap,
+  } = useWrapCallback(currencyIn, currencyOut, typedValue, false, customChainId)
+  const isWrapOrUnwrap = wrapType !== WrapType.NOT_APPLICABLE
+  const recipientLookup = useRecipientAddress(isWrapOrUnwrap ? account || '' : evmRecipient.recipient, { mode: 'evm' })
+  const recipient = recipientLookup.address || ''
+
+  // Invalidate a built review on wallet/form changes; slippage is rebuilt separately below.
+  const reviewIdentity = JSON.stringify([
+    chainId,
+    walletChainId,
+    account,
+    walletKey,
+    currencyIn?.chainId,
+    currencyIn?.wrapped.address,
+    currencyIn?.isNative,
+    currencyOut?.chainId,
+    currencyOut?.wrapped.address,
+    currencyOut?.isNative,
+    typedValue,
+    recipient,
+    isDegenMode,
+  ])
+  const { review, openReview, rebuildReview, confirmReview, dismissReview } = useSwapReviewSession(reviewIdentity)
+  const isProcessingSwap = review.phase !== 'closed'
+
+  const {
+    refresh,
+    result,
+    isLoading: routeLoading,
+    intendedFeeConfig,
+  } = useGetRoute({
+    enabled: enabled && !chainError && !isWrapOrUnwrap,
+    autoRefresh: true,
+    currencyIn,
+    currencyOut: currencyOut,
+    parsedAmount,
+    isProcessingSwap,
+    customChain: chainId,
+    clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
+  })
+
+  const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
+  const getRouteResponse = useMemo(() => {
+    if (!getRouteRawResponse?.data || getRouteError || !currencyIn || !currencyOut) {
+      return undefined
+    }
+
+    return parseGetRouteResponse(getRouteRawResponse.data, currencyIn, currencyOut)
+  }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
+
+  const routeSummary = getRouteResponse?.routeSummary
+
+  // Compare the response with the exact fee intent captured by the request, not current settings.
+  const isFeeTampered = useMemo(() => {
+    const responseExtraFee = getRouteRawResponse?.data?.routeSummary?.extraFee
+    if (!responseExtraFee) return false
+
+    const intended = intendedFeeConfig
+    const responseFeeReceiver = responseExtraFee.feeReceiver?.toLowerCase() || ''
+    const intendedFeeReceiver = intended.feeReceiver?.toLowerCase() || ''
+
+    if (responseFeeReceiver && responseFeeReceiver !== intendedFeeReceiver) return true
+    if (responseExtraFee.feeAmount && responseExtraFee.feeAmount !== intended.feeAmount) return true
+
+    return false
+  }, [getRouteRawResponse?.data?.routeSummary?.extraFee, intendedFeeConfig])
+
+  const buildRoute = useBuildRoute({
+    recipient,
+    routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
+    slippage,
+    transactionTimeout,
+    permit,
+    currencyIn,
+    currencyOut,
+  })
+
+  return {
+    chainId,
+    chainError,
+    typedValue,
+    onUserInput,
+    recipient,
+    recipientError: recipientLookup.error,
+    recipientMessage: recipientLookup.message,
+    onRecipientChange: evmRecipient.setRecipient,
+    recipientInputValue: evmRecipient.inputValue,
+    hasCustomRecipient: evmRecipient.hasCustomRecipient,
+    showRecipientInput: evmRecipient.expanded,
+    toggleRecipient: evmRecipient.toggleExpanded,
+    selectWalletRecipient: evmRecipient.useMyWallet,
+    applyRecipient: evmRecipient.applyRecipient,
+    parsedAmount,
+    wrapType,
+    wrapInputError,
+    onWrap,
+    isWrapOrUnwrap,
+    refresh,
+    routeLoading,
+    isGettingRoute,
+    routeSummary,
+    isFeeTampered,
+    buildRoute,
+    review,
+    openReview,
+    rebuildReview,
+    confirmReview,
+    dismissReview,
+  }
+}
+
+const SingleChainSwapContext = createContext<
+  (SingleChainSwapConfig & ReturnType<typeof useSingleChainSwap>) | undefined
+>(undefined)
+
+type ProviderProps = SingleChainSwapConfig & { children: ReactNode }
+
+/** Coordinates the quote and its review pause at the common ancestor of the form and route panel. */
+export const SingleChainSwapProvider = ({ children, ...config }: ProviderProps) => {
+  const swap = useSingleChainSwap(config)
+
+  return <SingleChainSwapContext.Provider value={{ ...config, ...swap }}>{children}</SingleChainSwapContext.Provider>
+}
+
+export const useSingleChainSwapContext = () => {
+  const swap = useContext(SingleChainSwapContext)
+
+  if (!swap) throw new Error('useSingleChainSwapContext must be used within SingleChainSwapProvider')
+
+  return swap
+}

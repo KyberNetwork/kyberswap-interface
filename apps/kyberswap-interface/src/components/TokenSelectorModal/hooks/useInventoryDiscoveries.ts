@@ -18,6 +18,7 @@ export const useInventoryDiscoveries = (
   chainId: ChainId,
 ): InventoryDiscoveries => {
   const metadata = useTokenMetadata()
+
   return useMemo(
     () => computeInventoryDiscoveries(inventory, defaultTokens, tokenImports, chainId, metadata),
     [inventory, defaultTokens, tokenImports, chainId, metadata],

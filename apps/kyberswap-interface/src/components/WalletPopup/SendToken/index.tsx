@@ -244,7 +244,6 @@ export default function SendToken({
             error={!!inputError}
             maxLength={16}
             value={inputAmount}
-            positionMax="top"
             currency={currencyIn}
             onUserInput={setInputAmount}
             onMax={handleMaxInput}

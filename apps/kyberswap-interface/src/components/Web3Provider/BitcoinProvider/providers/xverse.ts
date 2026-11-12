@@ -5,6 +5,7 @@ export const createXverseProvider = ({
   setConnectingWallet,
   setWalletInfo,
   defaultInfo,
+  addressOnly = false,
 }: CreateProviderParams): BitcoinWalletBase => {
   // Function to handle account changes
   const handleAccountsChanged = async (accounts: any) => {
@@ -22,13 +23,13 @@ export const createXverseProvider = ({
           message: 'Connect to KyberSwap.com',
         })
         if (response.error) {
-          setConnectingWallet(null)
+          setConnectingWallet?.(null)
           setWalletInfo(defaultInfo)
           throw new Error(response.error)
         }
         const address = response.result.addresses.find((addr: AddressResponse) => addr.purpose === 'payment')
         if (!address) {
-          setConnectingWallet(null)
+          setConnectingWallet?.(null)
           setWalletInfo(defaultInfo)
           throw new Error('No address found')
         }
@@ -52,6 +53,7 @@ export const createXverseProvider = ({
 
   // Set up event listeners when wallet is available
   const setupEventListeners = () => {
+    if (addressOnly) return
     if (window.XverseProviders?.BitcoinProvider) {
       // Listen for account changes
       accountChangeListener = window.XverseProviders.BitcoinProvider.addListener?.(
@@ -90,10 +92,10 @@ export const createXverseProvider = ({
         return
       }
 
-      setConnectingWallet('xverse')
+      setConnectingWallet?.('xverse')
       const permissionRes = await window.XverseProviders.BitcoinProvider.request('wallet_requestPermissions')
       if (permissionRes.error) {
-        setConnectingWallet(null)
+        setConnectingWallet?.(null)
         setWalletInfo(defaultInfo)
         throw new Error(permissionRes.error)
       }
@@ -103,13 +105,13 @@ export const createXverseProvider = ({
         message: 'Connect to KyberSwap.com',
       })
       if (response.error) {
-        setConnectingWallet(null)
+        setConnectingWallet?.(null)
         setWalletInfo(defaultInfo)
         throw new Error(response.error)
       }
       const address = response.result.addresses.find((addr: AddressResponse) => addr.purpose === 'payment')
       if (!address) {
-        setConnectingWallet(null)
+        setConnectingWallet?.(null)
         setWalletInfo(defaultInfo)
         throw new Error('No address found')
       }
@@ -123,6 +125,7 @@ export const createXverseProvider = ({
 
       setupEventListeners()
     },
+    dispose: removeEventListeners,
     disconnect: async () => {
       removeEventListeners()
       localStorage.removeItem('bitcoinWallet')

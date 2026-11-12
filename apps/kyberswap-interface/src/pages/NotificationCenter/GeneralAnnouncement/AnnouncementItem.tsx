@@ -3,6 +3,7 @@ import { useMedia } from 'react-use'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import AnimatedHeight from 'components/AnimatedHeight'
 import CtaButton from 'components/Announcement/Popups/CtaButton'
 import { formatCtaName } from 'components/Announcement/Popups/DetailAnnouncementPopup'
 import { Announcement } from 'components/Announcement/type'
@@ -42,42 +43,43 @@ export default function AnnouncementItem({
         src={thumbnailImageURL || NotificationImage}
         className="max-h-[92px] w-[140px] rounded-lg [object-fit:scale-down]"
       />
-      <div
-        className="flex max-w-full flex-1 flex-col items-start justify-between gap-2.5 overflow-hidden"
-        style={{
-          height: HEIGHT,
-          maxHeight: expand ? 'unset' : '100%',
-          ...(expand && { height: 'auto' }),
-        }}
-      >
-        <div className="flex w-full justify-between">
-          <div className={cn('text-xs font-medium text-text', !expand && 'truncate')}>{name} </div>
-          <div className="flex items-center">
-            {!upToMedium && (
-              <div className="w-full text-right text-subText max-md:text-[10px]">{formatTime(startAt)} </div>
-            )}
-            <div
-              data-expanded={expand}
-              className="flex size-5 items-center justify-center text-subText [&_svg]:transition-all [&_svg]:duration-150 [&_svg]:ease-in-out data-[expanded=true]:[&_svg]:rotate-180"
-            >
-              <DropdownSVG />
+      <AnimatedHeight className="min-w-0 max-w-full flex-1">
+        <div
+          className="flex flex-col items-start justify-between gap-2.5 overflow-hidden"
+          style={{
+            height: HEIGHT,
+            ...(expand && { height: 'auto' }),
+          }}
+        >
+          <div className="flex w-full justify-between">
+            <div className={cn('text-xs font-medium text-text', !expand && 'truncate')}>{name} </div>
+            <div className="flex items-center">
+              {!upToMedium && (
+                <div className="w-full text-right text-subText max-md:text-[10px]">{formatTime(startAt)} </div>
+              )}
+              <div
+                data-expanded={expand}
+                className="flex size-5 items-center justify-center text-subText [&_svg]:transition-all [&_svg]:duration-150 [&_svg]:ease-in-out data-[expanded=true]:[&_svg]:rotate-180"
+              >
+                <DropdownSVG />
+              </div>
             </div>
           </div>
-        </div>
-        {upToMedium && <div className="w-full text-left text-subText max-md:text-[10px]">{formatTime(startAt)} </div>}
-        <div
-          dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }}
-          className={cn(
-            'max-w-full break-words text-xs leading-4 text-subText',
-            !expand &&
-              'h-[34px] overflow-hidden text-ellipsis [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box] [&>*]:m-0',
-            expand && 'block [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
+          {upToMedium && <div className="w-full text-left text-subText max-md:text-[10px]">{formatTime(startAt)} </div>}
+          <div
+            dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }}
+            className={cn(
+              'max-w-full break-words text-xs leading-4 text-subText',
+              !expand &&
+                'h-[34px] overflow-hidden text-ellipsis [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box] [&>*]:m-0',
+              expand && 'block [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
+            )}
+          />
+          {expand && ctaName && ctaURL && (
+            <CtaButton color="link" data={{ url: ctaURL, name: ctaName }} onClick={onClickCta} />
           )}
-        />
-        {expand && ctaName && ctaURL && (
-          <CtaButton color="link" data={{ url: ctaURL, name: ctaName }} onClick={onClickCta} />
-        )}
-      </div>
+        </div>
+      </AnimatedHeight>
     </div>
   )
 }
