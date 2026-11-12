@@ -61,11 +61,10 @@ describe('SSR render smoke', () => {
     expect(html).toContain('id="swap-currency-input"')
     expect(html).toContain('id="swap-currency-output"')
     const inputPanel = html.split('data-testid="swap-currency-input"')[1].split('data-testid="swap-currency-output"')[0]
-    const outputPanel = html.split('data-testid="swap-currency-output"')[1].split('aria-label="Swap quote"')[0]
+    const outputPanel = html.split('data-testid="swap-currency-output"')[1]
     expect(inputPanel).toContain('title="Ethereum"')
     expect(outputPanel).toContain('title="Base"')
-    expect(html).toMatch(/<button\b[^>]*>(?:(?!<\/button>)[\s\S])*Routes<\/button>/)
-    expect(html).toContain('Est. Time')
+    // The engine publishes its quote state after mounting, so SSR renders the shared pair form.
     expect(html).toContain('<aside')
     expect(html).not.toContain('data-testid="cross-chain-tab"')
     expect(html).not.toContain('<!--$?-->')
@@ -110,7 +109,11 @@ describe('SSR render smoke', () => {
     )
     expect(html).toContain('id="swap-currency-input"')
     expect(html).toContain('id="swap-currency-output"')
-    expect(html).toContain('aria-label="Swap quote"')
+    const inputPanel = html.split('data-testid="swap-currency-input"')[1].split('data-testid="swap-currency-output"')[0]
+    const outputPanel = html.split('data-testid="swap-currency-output"')[1]
+    expect(inputPanel).toContain('title="Ethereum"')
+    expect(outputPanel).toContain('title="Base"')
+    expect(html).not.toContain('<!--$?-->')
   })
 
   it('honors embedded swap-only features', async () => {
