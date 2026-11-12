@@ -114,7 +114,9 @@ export const SwapForm = ({
       loading={isCrossChain ? (!cross || cross.loading) && !quote : single.routeLoading}
       receiver={
         independentWallets && cross ? (
-          <CrossChainReceiverWalletSelector key={outputChain} chain={outputChain} />
+          <div className={cross.recipient ? '-my-1 -ml-2 flex' : '-my-1 flex'}>
+            <CrossChainReceiverWalletSelector key={outputChain} chain={outputChain} />
+          </div>
         ) : undefined
       }
       receiverAddress={isCrossChain ? cross?.recipient : single.recipient}
