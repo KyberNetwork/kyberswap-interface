@@ -167,7 +167,7 @@ const RouteOptionsContent = ({
                       <HStack className="min-w-0 items-center gap-3">
                         <QuoteProviderName
                           quote={quote}
-                          iconAfter={
+                          iconBefore={
                             quote.quote.gasDrop && (
                               <span className="flex shrink-0 text-primary" aria-label={t`Gas Drop`}>
                                 <GasStation size={16} />
