@@ -144,6 +144,7 @@ export default function MyAssets({
                   balanceUnknown={token.isNative}
                   showFavoriteIcon={false}
                   usdBalance={usdBalance}
+                  markUnpriced
                   hoverColor={theme.bg3}
                   // An imported token is vetted by the user, not by the whitelist — one squatting on
                   // a verified symbol still deserves its warning here, not only in the hidden section.
@@ -163,6 +164,7 @@ export default function MyAssets({
                     ? usdBalances[token.address] * parseFloat(currencyBalances[token.address]?.toExact() ?? '0')
                     : undefined
                 }
+                markUnpriced
                 hideBalance={hideBalance}
                 showFavoriteIcon={false}
                 showLoading

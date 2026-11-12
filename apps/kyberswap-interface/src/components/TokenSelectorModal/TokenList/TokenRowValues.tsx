@@ -32,6 +32,8 @@ type Props = {
   showLoading?: boolean
   balanceUnknown?: boolean
   usdBalance?: number
+  /** A held balance with no usable price; its USD value reads "-". */
+  usdUnpriced?: boolean
   usdValueClassName: string
   onImportToken?: (token: Token) => void
   onRemoveImportedToken?: (token: Token) => void
@@ -51,6 +53,7 @@ export const TokenRowValues = ({
   showLoading,
   balanceUnknown,
   usdBalance,
+  usdUnpriced,
   usdValueClassName,
   onImportToken,
   onRemoveImportedToken,
@@ -118,11 +121,15 @@ export const TokenRowValues = ({
               unknown={balanceUnknown}
             />
           )}
-          {!!usdBalance && !hideBalance && (
+          {hideBalance ? null : usdBalance ? (
             <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
               {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
             </span>
-          )}
+          ) : usdUnpriced ? (
+            <span className="text-xs text-subText" data-testid="token-usd-unpriced">
+              -
+            </span>
+          ) : null}
         </ValueColumn>
       )}
       {onRemoveImportedToken && (

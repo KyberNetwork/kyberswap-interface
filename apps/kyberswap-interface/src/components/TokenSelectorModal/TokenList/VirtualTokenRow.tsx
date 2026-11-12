@@ -136,6 +136,7 @@ const TokenVirtualRow = (data: RowProps) => {
         otherSelected={otherSelected}
         onShowTokenInfo={data.onShowTokenInfo}
         usdBalance={usdBalance}
+        markUnpriced
         usdValueClassName="text-primary"
         priceUsd={extra?.price}
         priceChange24h={extra?.priceChange24h}

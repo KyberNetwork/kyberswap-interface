@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
-import { useGetPricesQuery, useGetTokenCategoryQuery } from 'services/tokenCatalog'
+import { isPriceStale, useGetPricesQuery, useGetTokenCategoryQuery } from 'services/tokenCatalog'
 
 import CopyHelper from 'components/Copy'
 import Tooltip from 'components/Tooltip'
@@ -39,8 +39,10 @@ const TokenInfo = ({ token, isNativeToken = false }: { token: Token; isNativeTok
   const priceInfo = useMemo(() => {
     if (!priceData) return null
     const entry = priceData.data?.[token.chainId]?.[token.address]
-    const buyPrice = entry?.PriceBuy
-    const sellPrice = entry?.PriceSell
+    // A stale quote reads as no quote, as it does in getMidPrice.
+    const current = entry && !isPriceStale(entry) ? entry : undefined
+    const buyPrice = current?.PriceBuy
+    const sellPrice = current?.PriceSell
     const spread =
       buyPrice === undefined || sellPrice === undefined
         ? undefined

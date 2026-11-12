@@ -3,6 +3,7 @@ import { NormalizedQuote } from 'services/crossChain/adapters/types'
 import { Quote } from 'services/crossChain/registry'
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS } from 'services/crossChain/utils'
 import { isAbstractStableToken } from 'services/crossChainTokens'
+import { TokenPriceEntry, isPriceStale } from 'services/tokenCatalog'
 import { parseUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
@@ -20,13 +21,8 @@ export type EvmCrossChainCurrency = EvmCurrency & {
   }
 }
 
-type TokenPrice = {
-  PriceBuy?: number
-  PriceSell?: number
-}
-
 export type TokenPricesResponse = {
-  data?: Record<string, Record<string, TokenPrice | undefined> | undefined>
+  data?: Record<string, Record<string, TokenPriceEntry | undefined> | undefined>
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
@@ -51,9 +47,10 @@ export const isNearToken = (currency: Currency | undefined): currency is NearTok
   return isObject(value) && typeof value.assetId === 'string'
 }
 
-export const getTokenMidPriceUsd = (price: TokenPrice | undefined) => {
-  const buy = price?.PriceBuy
-  const sell = price?.PriceSell
+export const getTokenMidPriceUsd = (price: TokenPriceEntry | undefined) => {
+  if (!price || isPriceStale(price)) return 0
+  const buy = price.PriceBuy
+  const sell = price.PriceSell
 
   if (typeof buy === 'number' && typeof sell === 'number') return (buy + sell) / 2
   return buy || sell || 0
