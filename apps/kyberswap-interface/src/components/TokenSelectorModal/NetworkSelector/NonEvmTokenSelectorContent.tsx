@@ -16,6 +16,7 @@ import {
   TokenSelectorTab,
 } from 'components/TokenSelectorModal/constants'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import useDebounce from 'hooks/useDebounce'
 import { useNearBalances } from 'hooks/useNearBalances'
@@ -185,4 +186,12 @@ const NonEvmTokenSelectorContent = ({ chain, selectedCurrency, networkSelector, 
   )
 }
 
-export default NonEvmTokenSelectorContent
+// Browsing a non-EVM network can precede activating the cross-chain form.
+// Reuse the route's providers when present; otherwise scope them to this lazy panel.
+const NonEvmTokenSelector = (props: Props) => (
+  <NonEvmProviders>
+    <NonEvmTokenSelectorContent {...props} />
+  </NonEvmProviders>
+)
+
+export default NonEvmTokenSelector

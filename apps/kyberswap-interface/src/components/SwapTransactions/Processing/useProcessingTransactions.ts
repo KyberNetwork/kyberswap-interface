@@ -2,6 +2,7 @@ import { selectIndexedTransactions } from 'services/walletTransactionsApi'
 
 import { localTransactionToHistory, mergeTransactionHistory } from 'components/SwapTransactions/history'
 import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
+import { useActiveWeb3React } from 'hooks'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { useAppSelector } from 'state/hooks'
 import { isProcessingTransactionStatus } from 'types/crossChain'
@@ -9,9 +10,13 @@ import { isProcessingTransactionStatus } from 'types/crossChain'
 // Read local history and loaded KD pages. Local sync runs independently of
 // panel visibility; indexed rows are refreshed through the KD history query.
 export const useProcessingTransactions = () => {
+  const { account } = useActiveWeb3React()
   const swapWallets = useSwapWallets()
-  const inputAddress =
-    swapWallets?.inputConnection?.family === 'evm' ? swapWallets.inputAddress.toLowerCase() : swapWallets?.inputAddress
+  const inputAddress = swapWallets
+    ? swapWallets.inputConnection?.family === 'evm'
+      ? swapWallets.inputAddress.toLowerCase()
+      : swapWallets.inputAddress
+    : account?.toLowerCase()
 
   const local = useCrossChainTransactions().map(localTransactionToHistory)
   const server = useAppSelector(selectIndexedTransactions)

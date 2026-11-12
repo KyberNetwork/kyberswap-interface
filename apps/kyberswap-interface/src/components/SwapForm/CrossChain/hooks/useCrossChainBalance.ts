@@ -3,14 +3,13 @@ import { useConnection } from '@solana/wallet-adapter-react'
 import { PublicKey } from '@solana/web3.js'
 import { useQuery } from '@tanstack/react-query'
 import { SOLANA_NATIVE } from 'services/crossChain/utils'
-import { erc20Abi, isAddress } from 'viem'
-import { usePublicClient } from 'wagmi'
 
+import { useEvmAddressBalance } from 'state/wallet/useEvmAddressBalance'
 import { Chain, Currency, NonEvmChain } from 'types/crossChain'
 
 /** Read-only balance lookup; both panels read by address without borrowing global wallet balances. */
 export const useCrossChainBalance = (chain: Chain, currency?: Currency, address?: string) => {
-  const publicClient = usePublicClient({ chainId: typeof chain === 'number' ? chain : undefined })
+  const evmBalance = useEvmAddressBalance(chain, currency, address)
   const { connection } = useConnection()
   const { getBalance, viewFunction } = useWalletSelector()
 
@@ -27,27 +26,12 @@ export const useCrossChainBalance = (chain: Chain, currency?: Currency, address?
 
   const { data } = useQuery({
     queryKey: ['cross-chain-wallet-balance', chain, token, address],
-    enabled: !!address && !!currency && (typeof chain !== 'number' || (!!publicClient && isAddress(address))),
+    enabled: !!address && !!currency && typeof chain !== 'number',
     staleTime: 30_000,
     refetchInterval: 30_000,
     retry: false,
     queryFn: async ({ signal }) => {
       if (!address) return undefined
-
-      if (typeof chain === 'number') {
-        if (!publicClient || !isAddress(address)) return undefined
-
-        return String(
-          token === 'native'
-            ? await publicClient.getBalance({ address })
-            : await publicClient.readContract({
-                address: token as `0x${string}`,
-                abi: erc20Abi,
-                functionName: 'balanceOf',
-                args: [address],
-              }),
-        )
-      }
 
       if (chain === NonEvmChain.Bitcoin) {
         const response = await fetch(`https://api.blockchain.info/haskoin-store/btc/address/${address}/balance`, {
@@ -75,5 +59,5 @@ export const useCrossChainBalance = (chain: Chain, currency?: Currency, address?
     },
   })
 
-  return data
+  return typeof chain === 'number' ? evmBalance : data
 }

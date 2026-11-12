@@ -1,8 +1,7 @@
 import { CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
-import type { ReactNode } from 'react'
+import { type ReactNode, Suspense, lazy } from 'react'
 
-import { CrossChainCurrencyPanel } from 'components/SwapForm/CrossChain/CrossChainCurrencyPanel'
-import { useCrossChainBalance } from 'components/SwapForm/CrossChain/hooks/useCrossChainBalance'
+import LocalLoader from 'components/LocalLoader'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/CurrencyInput/OutputCurrencyPanel'
@@ -16,7 +15,14 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
 import { WalletBalanceContext } from 'state/wallet/WalletBalanceContext'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { useEvmAddressBalance } from 'state/wallet/useEvmAddressBalance'
 import type { Chain, Currency, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
+
+const CrossChainCurrencyPanel = lazy(() =>
+  import('components/SwapForm/CrossChain/CrossChainCurrencyPanel').then(module => ({
+    default: module.CrossChainCurrencyPanel,
+  })),
+)
 
 const evmCurrency = (currency?: Currency) => (currency && 'isNative' in currency ? currency : undefined)
 
@@ -96,7 +102,7 @@ export const UnifiedSwapForm = ({
   // there on reverse. Independent output reads must instead use receiverAddress.
   const balanceIn = useCurrencyBalance(input, input?.chainId)
   const appBalanceOut = useCurrencyBalance(output, output?.chainId)
-  const receiverBalance = useCrossChainBalance(toChainId, output, independentEvmReceiver ? receiverAddress : undefined)
+  const receiverBalance = useEvmAddressBalance(toChainId, output, independentEvmReceiver ? receiverAddress : undefined)
   const balanceOut = independentEvmReceiver
     ? output && receiverBalance !== undefined
       ? CurrencyAmount.fromRawAmount(output, receiverBalance)
@@ -146,16 +152,18 @@ export const UnifiedSwapForm = ({
           value={independentWallets ? { chain: fromChainId, address: wallets.inputAddress } : undefined}
         >
           {typeof fromChainId !== 'number' ? (
-            <CrossChainCurrencyPanel
-              chain={fromChainId}
-              currency={currencyIn}
-              currencyLoading={isInputCurrencyLoading}
-              value={amount}
-              amountUsd={amountInUsd ? Number(amountInUsd) : undefined}
-              onUserInput={onAmountChange}
-              onCurrencySelect={onChangeCurrencyIn}
-              onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
-            />
+            <Suspense fallback={<LocalLoader />}>
+              <CrossChainCurrencyPanel
+                chain={fromChainId}
+                currency={currencyIn}
+                currencyLoading={isInputCurrencyLoading}
+                value={amount}
+                amountUsd={amountInUsd ? Number(amountInUsd) : undefined}
+                onUserInput={onAmountChange}
+                onCurrencySelect={onChangeCurrencyIn}
+                onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
+              />
+            </Suspense>
           ) : (
             <InputCurrencyPanel
               walletSelector={
@@ -190,20 +198,22 @@ export const UnifiedSwapForm = ({
           value={independentWallets ? { chain: toChainId, address: receiverAddress || '' } : undefined}
         >
           {toChainId && typeof toChainId !== 'number' ? (
-            <CrossChainCurrencyPanel
-              output
-              selectorChain={outputSelectorChain}
-              receiver={receiver}
-              receiverAddress={receiverAddress}
-              loading={loading}
-              chain={toChainId}
-              currency={currencyOut}
-              currencyLoading={isOutputCurrencyLoading}
-              value={outputAmount || ''}
-              amountUsd={amountOutUsd ? Number(amountOutUsd) : undefined}
-              onCurrencySelect={onChangeCurrencyOut}
-              onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
-            />
+            <Suspense fallback={<LocalLoader />}>
+              <CrossChainCurrencyPanel
+                output
+                selectorChain={outputSelectorChain}
+                receiver={receiver}
+                receiverAddress={receiverAddress}
+                loading={loading}
+                chain={toChainId}
+                currency={currencyOut}
+                currencyLoading={isOutputCurrencyLoading}
+                value={outputAmount || ''}
+                amountUsd={amountOutUsd ? Number(amountOutUsd) : undefined}
+                onCurrencySelect={onChangeCurrencyOut}
+                onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
+              />
+            </Suspense>
           ) : (
             <OutputCurrencyPanel
               selectorChain={outputSelectorChain}
