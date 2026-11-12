@@ -36,7 +36,7 @@ import {
   TokenSelectorNetwork,
   tokenRowKey,
 } from 'components/TokenSelectorModal/types'
-import { NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
+import { isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme'
@@ -174,13 +174,7 @@ export const TokenSelectorContent = ({
   const availableNetworks: TokenSelectorNetwork[] = requireOracle
     ? rankedChains.filter(chain => isSupportStopMarket(chain.chainId))
     : onSelectNonEvmCurrency
-    ? [
-        ...rankedChains,
-        ...[ChainId.BLAST]
-          .filter(chainId => !rankedChains.some(chain => chain.chainId === chainId))
-          .map(chainId => NETWORKS_INFO[chainId as ChainId]),
-        ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] })),
-      ]
+    ? [...rankedChains, ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] }))]
     : rankedChains
   const networks = networkSortBy === 'priority' ? sortNetworksByPriority(availableNetworks) : availableNetworks
 
