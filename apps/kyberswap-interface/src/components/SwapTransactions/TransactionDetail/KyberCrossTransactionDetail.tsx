@@ -468,7 +468,7 @@ const KyberCrossTransactionDetail = ({ tx }: { tx: HistoryTransaction }) => {
     <Stack className="gap-4">
       <HStack className="min-h-5 items-center justify-between gap-3 text-sm">
         <span className="font-medium">KyberCross</span>
-        <Badge variant={statusVariant} className="gap-1.5 py-0.5 text-xs" role="status">
+        <Badge variant={statusVariant} className="gap-1.5 px-4 py-0.5 text-xs" role="status">
           <span>{statusLabel}</span>
         </Badge>
       </HStack>
