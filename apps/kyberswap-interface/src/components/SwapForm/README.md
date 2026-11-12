@@ -33,9 +33,12 @@ includes both the form and the page's route panel.
 
 `SingleChainSwapFormProvider` connects balances and preferences to the EVM quote
 engine. `CrossChainSwapProvider` owns streamed quotes and cross-chain execution.
-The cross-chain engine loads on first use and stays mounted across mode changes.
-Same-chain disables requests and invalidates the active quote/review; recipient
-drafts and the shared fields keep their identity.
+The cross-chain wallet providers and engine load on first use and stay mounted
+across mode changes. Same-chain entry does not load non-EVM wallet SDKs; browsing
+a non-EVM token list loads its providers locally. Existing transfers still load
+the status updater for polling and terminal settlement enrichment.
+Same-chain disables cross-chain requests and invalidates its active quote/review.
+The pair, amount and EVM recipient drafts remain outside the lazy boundary.
 
 `SingleChainSwapContent` and `CrossChainSwap` render only mode-specific information
 and actions. The form and route panel read the same quote provider; neither starts
