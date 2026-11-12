@@ -59,6 +59,9 @@ const NO_BUILDER_CODE_SELECTORS = new Set([
 // quickly instead of stalling the "Waiting For Confirmation" step. Only applied
 // when the chain's RpcClient is first created (the client is a per-chain singleton).
 const PRE_SIGN_RPC_TIMEOUT_MS = 6000
+// The access-list simulation runs at twice the route's gas estimate: room for an estimate that runs
+// low, while staying far below the default cap a node would otherwise charge the sender for.
+const ACCESS_LIST_GAS_HEADROOM = 2n
 // Time-box the compliance check so a slow Blackjack service can't hold up the
 // wallet prompt — consistent with the existing fail-open policy on errors.
 const BLACKJACK_TIMEOUT_MS = 2000
@@ -112,7 +115,11 @@ export async function sendEVMTransaction({
    * Present for swaps only. `ACCESS_LIST_CONFIG` governs swaps, so a transaction sent without it
    * (approval, wrap, claim, …) never carries an access list; see `resolveAccessListPolicy`.
    */
-  swap?: { isSmartSettlement: boolean }
+  swap?: {
+    isSmartSettlement: boolean
+    /** The route's own gas estimate, in decimal gas units; it caps the access-list simulation. */
+    estimatedGas?: string
+  }
   // Fired once the tx is fully prepared (gas + fees estimated) and we're about to
   // ask the wallet to sign — lets the UI switch from "preparing" to "awaiting
   // signature" instead of claiming the wallet is open while we're still estimating.
@@ -158,9 +165,15 @@ export async function sendEVMTransaction({
   }
   const endpoints = { from: account, to: contractAddress }
 
+  // A node that is not told the gas runs the simulation at its own default cap and can demand the
+  // sender afford that cap (Arbitrum asks about 0.002 ETH on top of the swap's value), so the route's
+  // estimate, with headroom, stands in. A cap that proves too low fails the simulation, which only
+  // costs the list.
+  const routeGas = swap?.estimatedGas && /^[1-9]\d*$/.test(swap.estimatedGas) ? BigInt(swap.estimatedGas) : undefined
+  const accessListCall = routeGas ? { ...call, gas: `0x${(routeGas * ACCESS_LIST_GAS_HEADROOM).toString(16)}` } : call
   // Requested up front so it resolves while the gas estimate is in flight.
   const pendingAccessList = policy.attach
-    ? fetchAccessList(chainId, call).then(raw => sanitizeAccessList(raw, endpoints))
+    ? fetchAccessList(chainId, accessListCall).then(raw => sanitizeAccessList(raw, endpoints))
     : undefined
   let accessList: AccessListEntry[] | undefined
 
@@ -260,8 +273,8 @@ export async function sendEVMTransaction({
           rejectedByWallet,
         }
       : undefined
-  const sendError = (error: unknown) =>
-    new TransactionError(
+  const sendError = (error: unknown, accessListAttached: boolean) => {
+    const transactionError = new TransactionError(
       errorInfo.name,
       'sendTransaction',
       (error as Error)?.message,
@@ -269,6 +282,9 @@ export async function sendEVMTransaction({
       { cause: error },
       errorInfo.wallet,
     )
+    transactionError.accessListAttached = accessListAttached
+    return transactionError
+  }
   const send = async () =>
     (await walletClient.request({
       method: 'eth_sendTransaction',
@@ -287,7 +303,7 @@ export async function sendEVMTransaction({
     // typically nests it (cause / details).
     const recovered = extractTxHashFromError(error)
     if (recovered) return { hash: recovered, accessList: outcome(false) }
-    if (!accessList || !isAccessListRejectionError(error)) throw sendError(error)
+    if (!accessList || !isAccessListRejectionError(error)) throw sendError(error, Boolean(accessList))
   }
 
   // The wallet refused the list before signing, so this transaction goes out plain; a limit that
@@ -307,7 +323,7 @@ export async function sendEVMTransaction({
     plainHash = await send()
   } catch (error) {
     const recovered = extractTxHashFromError(error)
-    if (!recovered) throw sendError(error)
+    if (!recovered) throw sendError(error, false)
     plainHash = recovered
   }
   // Remembered only once the plain transaction went through, so a failure that merely looked like a

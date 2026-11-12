@@ -14,6 +14,7 @@ import { Field, permitError } from 'state/swap/actions'
 import { useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
+import { TransactionError } from 'utils/transactionError'
 
 type SingleChainSwapReviewParams = {
   currencyIn: Currency | undefined
@@ -24,7 +25,7 @@ type SingleChainSwapReviewParams = {
   buildRoute: BuildReview
   openReviewSession: (build: BuildReview) => Promise<void>
   rebuildReviewSession: (build: BuildReview) => Promise<void>
-  confirmReviewSession: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
+  confirmReviewSession: (submit: SubmitReview, onError: (message: string, error: unknown) => void) => Promise<void>
   dismissReviewSession: () => void
 }
 
@@ -41,7 +42,7 @@ export const useSingleChainSwapReview = ({
   confirmReviewSession,
   dismissReviewSession,
 }: SingleChainSwapReviewParams) => {
-  const { chainId, account, networkInfo } = useActiveWeb3React()
+  const { chainId, account, networkInfo, walletKey } = useActiveWeb3React()
   const { displayTypedValue } = useSwapFormContext()
   const dispatch = useDispatch()
   const { trackingHandler } = useTracking({
@@ -163,10 +164,11 @@ export const useSingleChainSwapReview = ({
     return swapCallback(buildResult.data.routerAddress, buildResult.data.data, onRequestSignature)
   }
 
-  const handleError = (error: string) => {
+  const handleError = (message: string, error?: unknown) => {
     const currencyIn = routeSummary?.parsedAmountIn?.currency
     const currencyOut = routeSummary?.parsedAmountOut?.currency
-    const isUserRejected = error.toLowerCase().includes('user rejected') || error.toLowerCase().includes('user denied')
+    const isUserRejected =
+      message.toLowerCase().includes('user rejected') || message.toLowerCase().includes('user denied')
 
     trackingHandler(TRACKING_EVENT_TYPE.SWAP_FAILED, {
       from_token: currencyIn?.symbol,
@@ -175,9 +177,12 @@ export const useSingleChainSwapReview = ({
       amount_in: displayTypedValue || routeSummary?.parsedAmountIn?.toSignificant(6),
       amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
       error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
-      error_message: error,
+      error_message: message,
       max_slippage: routeSummary?.priceImpact,
       chain: networkInfo.name,
+      wallet_connector: walletKey || undefined,
+      // Picks out a wallet that fails on an access list with an error the plain resend does not recognize.
+      access_list_attached: error instanceof TransactionError ? error.accessListAttached : undefined,
     })
   }
 

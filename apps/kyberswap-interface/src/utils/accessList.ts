@@ -169,7 +169,7 @@ const settleWithin = <T>(promise: Promise<T>, ms: number): Promise<T | undefined
  */
 export async function fetchAccessList(
   chainId: ChainId,
-  call: { from: string; to: string; data: string; value?: string },
+  call: { from: string; to: string; data: string; value?: string; gas?: string },
 ): Promise<unknown> {
   const rpcUrl = NETWORKS_INFO[chainId]?.defaultRpcUrl
   if (!rpcUrl) return undefined

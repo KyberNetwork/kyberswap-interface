@@ -22,6 +22,8 @@ export class TransactionError extends Error {
   rawData: TransactionErrorRawData
   code?: number
   wallet: string | undefined
+  /** Whether the send that failed carried an EIP-2930 access list; lets telemetry single out wallets that fail on one. */
+  accessListAttached?: boolean
 
   constructor(
     name: ErrorName,

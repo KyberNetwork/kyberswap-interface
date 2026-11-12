@@ -20,13 +20,14 @@ import { ErrorName } from 'utils/transactionError'
 
 // Sends the reviewed router payload and records its hash with the captured swap metadata.
 const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo, walletKey: connectorId } = useActiveWeb3React()
   const { connector, isSmartConnector } = useWeb3React()
   const walletKey = connector?.name
 
   const { recipient: recipientAddressOrName, routeSummary, displayTypedValue, outputERC8056Info } = useSwapFormContext()
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
   const isSmartSettlement = routeSummary?.isSmartSettlement
+  const routeGas = routeSummary?.gas
   const displayOutputAmount = useERC8056DisplayBalance(outputERC8056Info, outputAmount)?.toSignificant(6)
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -108,6 +109,8 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
           // back to a community tip link (null for non-tip-link swaps).
           tipLink: getTipLinkAttribution(searchParams) || undefined,
           isSmartSettlement: Boolean(isSmartSettlement),
+          // Names the wallet on a reverted swap's `Swap Failed`, by the id `ACCESS_LIST_CONFIG` uses.
+          connectorId: connectorId || undefined,
         },
       } as TransactionExtraInfo2Token,
     }
@@ -115,6 +118,7 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
     account,
     allowedSlippage,
     chainId,
+    connectorId,
     inputAmount,
     isPermitSwap,
     isSmartSettlement,
@@ -150,7 +154,7 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
         },
         chainId,
         gasLimitMarginBps: isSmartSettlement ? 5_000 : undefined,
-        swap: { isSmartSettlement: Boolean(isSmartSettlement) },
+        swap: { isSmartSettlement: Boolean(isSmartSettlement), estimatedGas: routeGas },
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
@@ -177,6 +181,7 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
       walletKey,
       isSmartConnector,
       isSmartSettlement,
+      routeGas,
       trackingHandler,
       networkInfo.name,
     ],

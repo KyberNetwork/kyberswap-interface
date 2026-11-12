@@ -22,7 +22,7 @@ type SingleChainSwapReviewProps = {
   review: SwapReviewState
   openReviewSession: (build: BuildReview) => Promise<void>
   rebuildReviewSession: (build: BuildReview) => Promise<void>
-  confirmReviewSession: (submit: SubmitReview, onError: (message: string) => void) => Promise<void>
+  confirmReviewSession: (submit: SubmitReview, onError: (message: string, error: unknown) => void) => Promise<void>
   dismissReviewSession: () => void
   buildRoute: BuildReview
 }

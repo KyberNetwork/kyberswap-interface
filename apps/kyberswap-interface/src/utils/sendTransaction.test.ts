@@ -69,6 +69,8 @@ const send = (overrides: Partial<Parameters<typeof sendEVMTransaction>[0]> = {})
 const sentParams = (call = 0) => mocks.sent[call]
 const walletAnswers = (...outcomes: typeof mocks.outcomes) => mocks.outcomes.push(...outcomes)
 const estimateCalls = () => mocks.rpcFetch.mock.calls.filter(([, method]) => method === 'eth_estimateGas')
+const accessListCall = () =>
+  mocks.directRpcFetch.mock.calls.find(([, method]) => method === 'eth_createAccessList')?.[2][0]
 const listEstimateCalls = () => mocks.directRpcFetch.mock.calls.filter(([, method]) => method === 'eth_estimateGas')
 
 beforeEach(() => {
@@ -166,7 +168,10 @@ describe('sendEVMTransaction with an access list', () => {
   it('does not remember the connector when the plain resend fails too', async () => {
     walletAnswers({ error: rejection }, { error: new Error('nonce too low') })
 
-    await expect(send()).rejects.toMatchObject({ message: expect.stringContaining('nonce too low') })
+    await expect(send()).rejects.toMatchObject({
+      message: expect.stringContaining('nonce too low'),
+      accessListAttached: false,
+    })
 
     expect(mocks.request).toHaveBeenCalledTimes(2)
     expect(mocks.storage.has('accessListRejectingConnectors')).toBe(false)
@@ -202,6 +207,28 @@ describe('sendEVMTransaction with an access list', () => {
       hash,
       accessList: { addresses: 1, storageKeys: 2, estimatedWithList: false, rejectedByWallet: false },
     })
+  })
+
+  it('runs the access-list simulation at twice the route gas estimate, so the node does not charge its own cap', async () => {
+    await send({ swap: { isSmartSettlement: true, estimatedGas: '300000' } })
+
+    expect(accessListCall()).toMatchObject({ from: account, to: router, gas: `0x${(600_000).toString(16)}` })
+    expect(estimateCalls()[0][2][0].gas).toBeUndefined()
+  })
+
+  it('leaves the simulation gas to the node when the route has no usable estimate', async () => {
+    await send({ swap: { isSmartSettlement: true, estimatedGas: '' } })
+
+    expect(accessListCall()).not.toHaveProperty('gas')
+  })
+
+  it('marks a send error with whether the transaction that failed carried the list', async () => {
+    walletAnswers({ error: new Error('Ledger device: UNKNOWN_ERROR (0x6a80)') })
+    await expect(send()).rejects.toMatchObject({ accessListAttached: true })
+    expect(mocks.request).toHaveBeenCalledTimes(1)
+
+    walletAnswers({ error: new Error('Ledger device: UNKNOWN_ERROR (0x6a80)') })
+    await expect(send({ swap: undefined })).rejects.toMatchObject({ accessListAttached: false })
   })
 
   it('does not read a viem-wrapped -32000 "insufficient funds" as a list rejection', async () => {
