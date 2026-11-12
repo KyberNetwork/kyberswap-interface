@@ -81,6 +81,36 @@ const enableGas = async () => {
 }
 
 describe('Gas Drop route selection', () => {
+  it('hides ordinary providers as their Gas Drop routes arrive and restores them when disabled', async () => {
+    mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+      if (request.params.gasDrop) return new Promise(() => undefined)
+      request.onQuotes([makeQuote(request), makeQuote(request, 'Relay'), makeQuote(request, 'Mayan')])
+      return Promise.resolve()
+    })
+    await act(async () => render('100'))
+    await flushQuotes()
+    const ordinary = state.quotes
+    await enableGas()
+    expect(state.routeOptions).toHaveLength(3)
+    expect(state.routeOptions).toEqual(expect.arrayContaining(ordinary))
+
+    const gas = requests()[1]
+    const kyberGas = makeQuote(gas)
+    await act(async () => gas.onQuotes([kyberGas]))
+    expect(state.routeOptions).toHaveLength(3)
+    expect(state.routeOptions[0]).toBe(kyberGas)
+    expect(state.routeOptions).toEqual(expect.arrayContaining([kyberGas, ordinary[1], ordinary[2]]))
+
+    const relayGas = makeQuote(gas, 'Relay')
+    await act(async () => gas.onQuotes([kyberGas, relayGas]))
+    expect(state.routeOptions).toHaveLength(3)
+    expect(state.routeOptions.slice(0, 2)).toEqual(expect.arrayContaining([kyberGas, relayGas]))
+    expect(state.routeOptions[2]).toBe(ordinary[2])
+
+    await act(async () => state.setGasDropEnabled(false))
+    expect(state.routeOptions).toEqual(ordinary)
+  })
+
   it.each([false, true])(
     'retains both pools across mode switches (ordinary completed in background: %s)',
     async completed => {
@@ -449,7 +479,7 @@ describe('Gas Drop route selection', () => {
     expect(state.selectedQuote).not.toBe(ordinary)
   })
 
-  it.each(['KyberCross', 'Relay'])('reuses the ordinary %s quote when selected from Gas Drop', async provider => {
+  it('reuses an ordinary route from a provider without Gas Drop when selected', async () => {
     mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
       request.onQuotes(
         request.params.gasDrop ? [makeQuote(request)] : [makeQuote(request), makeQuote(request, 'Relay')],
@@ -457,9 +487,9 @@ describe('Gas Drop route selection', () => {
     )
     await act(async () => render('100'))
     await flushQuotes()
-    const ordinary = state.quotes.find(quote => quote.adapter.getName() === provider) as Quote
+    const ordinary = state.quotes.find(quote => quote.adapter.getName() === 'Relay') as Quote
     await enableGas()
-    expect(state.routeOptions).toHaveLength(3)
+    expect(state.routeOptions).toHaveLength(2)
     expect(state.routeOptions).toContain(ordinary)
     expect(state.routeOptions[0]).toBe(state.selectedQuote)
     expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(true)

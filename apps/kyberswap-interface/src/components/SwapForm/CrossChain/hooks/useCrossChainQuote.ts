@@ -120,10 +120,15 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     slippage,
   })
 
+  const gasDropProviders = new Set(session.quotes.map(providerKey))
+
   return {
     ...session,
     routeOptions: gasDropEnabled
-      ? [...sortQuotesByNetOutput(session.quotes), ...sortQuotesByNetOutput(ordinaryQuotes)]
+      ? [
+          ...sortQuotesByNetOutput(session.quotes),
+          ...sortQuotesByNetOutput(ordinaryQuotes.filter(quote => !gasDropProviders.has(providerKey(quote)))),
+        ]
       : session.quotes,
     amountInWei: request.params?.amount,
     slippage,
