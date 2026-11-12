@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   rpcFetch: vi.fn(),
   directRpcFetch: vi.fn(),
   request: vi.fn(),
-  connectorId: 'io.metamask' as string | undefined,
+  connectorId: 'metaMaskSDK' as string | undefined,
   storage: new Map<string, string>(),
   config: undefined as AccessListConfig | undefined,
   /** Deep copies of what each `eth_sendTransaction` carried; the code mutates one params object across the resend. */
@@ -73,7 +73,7 @@ const listEstimateCalls = () => mocks.directRpcFetch.mock.calls.filter(([, metho
 
 beforeEach(() => {
   vi.clearAllMocks()
-  mocks.connectorId = 'io.metamask'
+  mocks.connectorId = 'metaMaskSDK'
   mocks.config = undefined
   mocks.storage.clear()
   vi.stubGlobal('localStorage', {
@@ -160,7 +160,7 @@ describe('sendEVMTransaction with an access list', () => {
       hash: plainHash,
       accessList: { addresses: 1, storageKeys: 2, estimatedWithList: false, rejectedByWallet: true },
     })
-    expect(Object.keys(JSON.parse(mocks.storage.get('accessListRejectingConnectors') ?? '{}'))).toEqual(['io.metamask'])
+    expect(Object.keys(JSON.parse(mocks.storage.get('accessListRejectingConnectors') ?? '{}'))).toEqual(['metaMaskSDK'])
   })
 
   it('does not remember the connector when the plain resend fails too', async () => {
@@ -173,7 +173,7 @@ describe('sendEVMTransaction with an access list', () => {
   })
 
   it('skips the list from the start for a connector that refused one before', async () => {
-    mocks.storage.set('accessListRejectingConnectors', JSON.stringify({ 'io.metamask': Date.now() }))
+    mocks.storage.set('accessListRejectingConnectors', JSON.stringify({ metaMaskSDK: Date.now() }))
 
     const result = await send()
 
@@ -272,7 +272,7 @@ describe('sendEVMTransaction on a chain that charges the gas limit', () => {
     mocks.config = {
       chains: { [ChainId.MONAD]: 'all' },
       walletBlocklist: [],
-      gasLimitWalletAllowlist: ['io.metamask'],
+      gasLimitWalletAllowlist: ['metaMaskSDK'],
     }
   })
   const sendOnMonad = () => send({ chainId: ChainId.MONAD, swap: { isSmartSettlement: false } })

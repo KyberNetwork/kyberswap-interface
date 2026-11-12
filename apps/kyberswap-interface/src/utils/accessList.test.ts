@@ -67,7 +67,7 @@ describe('resolveAccessListPolicy', () => {
   const config: AccessListConfig = {
     chains: { [ChainId.BASE]: 'ss', [ChainId.MATIC]: 'all', [ChainId.MONAD]: 'all' },
     walletBlocklist: ['app.phantom'],
-    gasLimitWalletAllowlist: ['io.metamask'],
+    gasLimitWalletAllowlist: ['metaMaskSDK'],
   }
   const base = {
     config,
@@ -107,7 +107,7 @@ describe('resolveAccessListPolicy', () => {
     const monad = { ...base, chainId: ChainId.MONAD, chargesGasLimit: true, isSmartSettlement: false }
     expect(resolveAccessListPolicy(monad)).toEqual({ attach: false })
     expect(resolveAccessListPolicy({ ...monad, connectorId: undefined })).toEqual({ attach: false })
-    expect(resolveAccessListPolicy({ ...monad, connectorId: 'io.metamask' })).toEqual({
+    expect(resolveAccessListPolicy({ ...monad, connectorId: 'metaMaskSDK' })).toEqual({
       attach: true,
       estimateWithList: true,
     })

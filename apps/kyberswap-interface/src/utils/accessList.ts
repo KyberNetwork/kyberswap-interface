@@ -30,23 +30,26 @@ export type AccessListConfig = {
 }
 
 export const ACCESS_LIST_CONFIG: AccessListConfig = {
-  // Chains whose default RPC answers `eth_createAccessList` and where Smart Settlement routes measured
-  // a 5–37% gas saving with a list. Optimism and Unichain also run Smart Settlement, but their public
-  // RPCs refuse the method.
+  // Chains whose default RPC answers `eth_createAccessList`. On the `ss` chains Smart Settlement routes
+  // measured a 5–37% gas saving with a list; Optimism and Unichain also run Smart Settlement, but their
+  // public RPCs refuse the method. Monad prices cold access high enough (10,100 per account, 8,100 per
+  // slot) that a plain route saves too: 38.6% on a single-pool MON to USDC swap.
   chains: {
     [ChainId.MAINNET]: 'ss',
     [ChainId.BASE]: 'ss',
     [ChainId.BSCMAINNET]: 'ss',
     [ChainId.ARBITRUM]: 'ss',
     [ChainId.MATIC]: 'ss',
+    [ChainId.MONAD]: 'all',
   },
   // Connector ids, as `CONNECTION` in components/Web3Provider spells them; literal here so this
   // module stays free of the wallet stack. SafePal's hardware fails to sign a type-2 transaction
   // that carries a list (-104 "show tx info failed"); Phantom rejects the request outright (-32000).
   walletBlocklist: ['io.safepal', 'https://www.safepal.com/download', 'app.phantom'],
-  // Empty keeps every chain that charges the gas limit (Monad) list-less until a wallet is confirmed
-  // at runtime to sign the list exactly as sent.
-  gasLimitWalletAllowlist: [],
+  // MetaMask signs the list and the app's gas limit exactly as sent, without re-estimating (checked on a
+  // Monad fork). Every MetaMask connection reports `metaMaskSDK`, extension and mobile app alike: the
+  // wallet modal hides the EIP-6963 `io.metamask` entry.
+  gasLimitWalletAllowlist: ['metaMaskSDK'],
 }
 
 export type AccessListPolicy =
