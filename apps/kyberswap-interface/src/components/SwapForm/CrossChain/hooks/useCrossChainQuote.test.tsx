@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { act } from 'react'
+import { StrictMode, act } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { getQuotes } from 'services/crossChain/quote/adapterQuotes'
 import type { Quote } from 'services/crossChain/registry'
@@ -991,4 +991,26 @@ it('stops requests and drops the old quote when the cross-chain engine is disabl
   expect(state.selectedQuote).toBeNull()
   expect(state.reviewQuote).toBeNull()
   expect(mocks.getQuotes).toHaveBeenCalledTimes(count)
+})
+
+it('starts quotes when token metadata resolves after an amount was entered in StrictMode', async () => {
+  const renderPair = (resolved: boolean) =>
+    root.render(
+      <StrictMode>
+        <Harness
+          pair={resolved ? pair : { ...pair, currencyOut: undefined }}
+          amount="100"
+          sender="sender"
+          receiver="recipient"
+          isReadOnly={false}
+        />
+      </StrictMode>,
+    )
+  await act(async () => renderPair(false))
+  await flushQuotes()
+  expect(mocks.getQuotes).not.toHaveBeenCalled()
+  await act(async () => renderPair(true))
+  await flushQuotes()
+  expect(mocks.getQuotes).toHaveBeenCalledOnce()
+  expect(requests()[0].params.amount).toBe('100000000')
 })
