@@ -29,8 +29,12 @@ import VaultPriceImpactNote, {
   priceImpactButtonClass,
 } from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
+import {
+  getNativePayoutNote,
+  getProcessingTime,
+  getProcessingTimeTooltip,
+} from 'pages/Earns/components/VaultWithdraw/nativeWithdrawCopy'
 import { WithdrawFormState } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
-import { formatTerm } from 'pages/Earns/hooks/useCountdown'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
@@ -70,7 +74,7 @@ const ConfirmWithdraw = ({
         })} ${form.swapToken.symbol}`
       : '--'
 
-  /** The token the chosen path pays out in: the queue's asset, or the one the route sells into. */
+  /** The token the chosen path pays out in: the vault's asset, or the one the route sells into. */
   const outToken = form.isNative ? form.nativeAsset : form.swapToken
 
   const zapMinOut =
@@ -92,6 +96,8 @@ const ConfirmWithdraw = ({
   const zapOutUsd = form.zapRoute
     ? formatDisplayNumber(form.zapRoute.zapDetails.finalAmountUsd, { style: 'currency', significantDigits: 4 })
     : undefined
+
+  const nativePayoutNote = form.isNative ? getNativePayoutNote(form.nativeKind) : undefined
 
   const impactTone = getPriceImpactTone(form.priceImpactResult)
   const isImpactBad = isPriceImpactBad(form.priceImpactResult)
@@ -159,8 +165,8 @@ const ConfirmWithdraw = ({
       ) : null}
 
       <DetailsBox>
-        {/* The queue's figure is the amount that arrives, so it is stated in a panel of its own
-            above; only the aggregator route has a floor to put among the terms. */}
+        {/* A native redemption's figure is quoted by the vault, so it is stated in a panel of its
+            own above; only the aggregator route has a floor to put among the terms. */}
         {!form.isNative ? (
           <InfoRow>
             <InfoLabel
@@ -176,10 +182,8 @@ const ConfirmWithdraw = ({
 
         {form.isNative ? (
           <InfoRow>
-            <InfoLabel
-              tooltip={t`How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule.`}
-            >{t`Processing Time`}</InfoLabel>
-            <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
+            <InfoLabel tooltip={getProcessingTimeTooltip(form.nativeKind)}>{t`Processing Time`}</InfoLabel>
+            <InfoValue>{getProcessingTime(form.nativeKind, form.queueLimits)}</InfoValue>
           </InfoRow>
         ) : (
           <>
@@ -202,11 +206,7 @@ const ConfirmWithdraw = ({
         )}
       </DetailsBox>
 
-      {form.isNative ? (
-        <FieldNote className="text-gray">
-          {t`When completed, tokens are automatically sent to your wallet, no need to claim.`}
-        </FieldNote>
-      ) : null}
+      {nativePayoutNote ? <FieldNote className="text-gray">{nativePayoutNote}</FieldNote> : null}
 
       <VaultPriceImpactNote result={form.priceImpactResult} isDegenMode={form.isDegenMode} />
 

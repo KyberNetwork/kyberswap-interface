@@ -3,6 +3,7 @@ import {
   VaultApiDetailItem,
   VaultApiListItem,
   VaultApiMetrics,
+  VaultApiStats,
   VaultBalanceHistory,
   VaultCanonicalPoint,
   VaultFinancialValue,
@@ -12,6 +13,7 @@ import {
   VaultSupportedAsset,
   VaultWithdrawRequest,
   VaultWithdrawRequestStatus,
+  VaultWithdrawalMode,
   VaultWithdrawalRoute,
 } from 'services/vault'
 
@@ -90,6 +92,14 @@ export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[]
 export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] =>
   toPositionSeries(history?.points, point => point)
 
+/**
+ * The rate a vault is quoted at. What it measures is the vault's own choice — a trailing return for
+ * one, a forward savings rate for another — and `current.rate` is that choice, so no window is
+ * picked here.
+ */
+export const toHeadlineRate = (stats?: VaultApiStats): number | undefined =>
+  financialNumber(stats?.canonicalMetrics?.current?.rate)
+
 const toEpochSeconds = (iso?: string | null): number | undefined => {
   if (!iso) return undefined
   const ms = Date.parse(iso)
@@ -107,7 +117,7 @@ export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
   label: item.name || '',
   partner: item.provider?.name || '',
   partnerLogo: item.provider?.logo || '',
-  apy: financialNumber(item.stats?.canonicalMetrics?.apy7d),
+  apy: toHeadlineRate(item.stats),
   tvl: financialNumber(item.stats?.canonicalMetrics?.current?.tvl),
   apyHistory: toChartPoints(item.metrics?.canonicalMetrics?.points, point => point.rate),
   tvlHistory: toChartPoints(item.metrics?.canonicalMetrics?.points, point => point.tvl),
@@ -124,7 +134,7 @@ export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: Vaul
   label: detail.name || '',
   partner: detail.provider?.name || '',
   partnerLogo: detail.provider?.logo || '',
-  apy: financialNumber(detail.stats?.canonicalMetrics?.apy7d),
+  apy: toHeadlineRate(detail.stats),
   tvl: financialNumber(detail.stats?.canonicalMetrics?.current?.tvl),
   apyHistory: toChartPoints(metrics?.canonicalMetrics?.points, point => point.rate),
   tvlHistory: toChartPoints(metrics?.canonicalMetrics?.points, point => point.tvl),
@@ -194,7 +204,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     label: v.name || '',
     partner: v.provider?.name || '',
     partnerLogo: v.provider?.logo || '',
-    apy: financialNumber(v.stats?.canonicalMetrics?.apy7d),
+    apy: toHeadlineRate(v.stats),
     tvl: financialNumber(v.stats?.canonicalMetrics?.current?.tvl),
     apyHistory: [],
     tvlHistory: [],
@@ -221,10 +231,42 @@ export const safeBigInt = (value: string | number | null | undefined, fallback =
 
 /** The one native route that can take a new request for this asset. A route without terms cannot be
  *  used even when it reports itself available. */
-export const getBoringQueueRoute = (asset?: VaultSupportedAsset): VaultWithdrawalRoute | undefined =>
-  asset?.withdrawalRoutes?.find(
+const getBoringQueueRoute = (asset: VaultSupportedAsset): VaultWithdrawalRoute | undefined =>
+  asset.withdrawalRoutes?.find(
     route => route.queueFamily === VaultQueueFamily.BORING_QUEUE && route.available && Boolean(route.limits),
   )
+
+/** How the vault itself pays an asset out: on the spot, or through a queue that fills later. */
+export type VaultNativeWithdrawal = { kind: 'redeem' } | { kind: 'queue'; route: VaultWithdrawalRoute }
+
+/**
+ * The vault's own way out for this asset, or nothing when it has none that can be used right now.
+ * The asset's `withdrawalMode` picks the flow, never the provider.
+ *
+ * A synchronous vault redeems on its own contract and needs no route, so an empty route list is how
+ * it normally reads. Redeeming pays the vault's underlying and nothing else, so only that asset
+ * qualifies. A queued vault needs a route that is open and has terms. Any other mode has no native
+ * withdrawal to infer.
+ */
+export const getNativeWithdrawal = (
+  asset: VaultSupportedAsset | undefined,
+  underlyingAddress: string | undefined,
+): VaultNativeWithdrawal | undefined => {
+  if (!asset || !asset.isActive || !asset.supportsWithdraw) return undefined
+
+  if (asset.withdrawalMode === VaultWithdrawalMode.SYNCHRONOUS_ERC4626) {
+    const paysUnderlying =
+      Boolean(underlyingAddress) && asset.assetAddress.toLowerCase() === underlyingAddress?.toLowerCase()
+    return paysUnderlying ? { kind: 'redeem' } : undefined
+  }
+
+  if (asset.withdrawalMode === VaultWithdrawalMode.QUEUED) {
+    const route = getBoringQueueRoute(asset)
+    return route ? { kind: 'queue', route } : undefined
+  }
+
+  return undefined
+}
 
 /** Requests the queue is still holding shares for — the only ones the user can act on. An expired
  *  one is still actionable: its payout is gone, but the escrowed shares can be reclaimed. */

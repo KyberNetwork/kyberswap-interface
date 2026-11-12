@@ -556,7 +556,7 @@ const ExploreVaults = () => {
         </div>
       )}
 
-      <Disclaimer>{t`Partner-managed vaults. Auto-compounding. Native withdrawals are not instant.`}</Disclaimer>
+      <Disclaimer>{t`Partner-managed vaults. Auto-compounding.`}</Disclaimer>
 
       <VaultDepositModal
         target={depositVault ? { chainId: depositVault.chainId, vaultId: depositVault.id } : null}

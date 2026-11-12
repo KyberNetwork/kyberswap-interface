@@ -219,6 +219,8 @@ const VaultDetail = () => {
     return <VaultDetailPageSkeleton />
   }
 
+  const partnerName = vault.partner
+
   return (
     <PageWrapper>
       <HeaderRow>
@@ -341,7 +343,7 @@ const VaultDetail = () => {
 
             <HowItWorks>
               <HowItWorksLabel>{t`How it works:`}</HowItWorksLabel>
-              <span>{t`Strategy vault optimizing yield across DeFi; earnings auto-compound.`}</span>
+              <span>{t`Deposits earn yield managed by ${partnerName}; earnings accrue in the vault's share price.`}</span>
             </HowItWorks>
           </ChartsCard>
         </ChartsColumn>

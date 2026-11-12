@@ -50,10 +50,15 @@ export interface VaultCanonicalPoint {
   rate: VaultFinancialValue
 }
 
-/** Headline figures and their chart series. `points` is empty on the current-only envelope in `stats`. */
+/**
+ * Headline figures and their chart series. `points` is empty on the current-only envelope in `stats`.
+ *
+ * `current.rate` and `points[].rate` are whichever rate `rateKind` names: a trailing one carries its
+ * window in `rateLookback`, a forward one has no window and leaves it null.
+ */
 export interface VaultCanonicalMetrics {
   rateKind: string
-  rateLookback: string
+  rateLookback: string | null
   interval?: string
   stepSeconds: number
   methodology: string
@@ -139,7 +144,18 @@ export interface VaultWithdrawalRoute {
   limits: VaultQueueLimits | null
 }
 
+/** How the vault pays an asset out natively. It decides the withdrawal flow; the provider does not. */
+export enum VaultWithdrawalMode {
+  /** `redeem` on the vault itself: the asset arrives in the same transaction, with no queue. */
+  SYNCHRONOUS_ERC4626 = 'SYNCHRONOUS_ERC4626',
+  /** A request placed with one of the asset's `withdrawalRoutes`, filled later. */
+  QUEUED = 'QUEUED',
+  UNKNOWN = 'UNKNOWN',
+}
+
 export interface VaultSupportedAsset {
+  /** Wider than the documented set on purpose: an unrecognised mode has no native withdrawal. */
+  withdrawalMode: string
   assetAddress: string
   symbol: string
   decimals: number
@@ -412,15 +428,12 @@ const vaultApi = earnServiceApi.injectEndpoints({
       }),
       transformResponse: (response: ApiEnvelope<VaultApiDetailItem>) => response.data,
     }),
-    vaultMetrics: builder.query<
-      VaultApiMetrics,
-      { chainId: number; vaultId: string; interval: VaultInterval; rateLookback?: VaultInterval }
-    >({
-      query: ({ chainId, vaultId, interval, rateLookback = '7d' }) => ({
+    vaultMetrics: builder.query<VaultApiMetrics, { chainId: number; vaultId: string; interval: VaultInterval }>({
+      query: ({ chainId, vaultId, interval }) => ({
         url: `/v1/vaults/${chainId}/${vaultId}/metrics`,
-        // The window and the trailing-rate window are independent; sending only `interval` would
-        // leave the rate lookback to the server default.
-        params: { interval, rateLookback },
+        // `interval` is the display window only. With no rate selector the series is the vault's own
+        // headline rate, the one `stats.canonicalMetrics.current.rate` reports.
+        params: { interval },
       }),
       transformResponse: (response: ApiEnvelope<{ metrics: VaultApiMetrics }>) => response.data.metrics,
     }),

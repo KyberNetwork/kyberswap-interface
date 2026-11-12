@@ -4,7 +4,7 @@ import { getApproveStepLabel } from 'components/ProcessingSteps/stepLabels'
 import type { ProcessingStepStatus } from 'components/ProcessingSteps/useProcessingSteps'
 
 /**
- * `action` is whichever on-chain move ends the flow: a deposit, a sale, or a queued redemption.
+ * `action` is whichever on-chain move ends the flow: a deposit, a sale, or a redemption.
  * A deposit can spend several tokens, and each needs its own allowance — the sequence finds a step
  * by value, so those steps carry the token address rather than sharing the bare `approve` id.
  */
@@ -17,8 +17,8 @@ export const vaultApproveStep = (tokenAddress: string): VaultStep =>
   `${VAULT_APPROVE_STEP}:${tokenAddress.toLowerCase()}`
 
 /**
- * A native redemption is only *requested* when its transaction confirms — the assets arrive days
- * later — so its wording is kept apart from the two that settle on the spot.
+ * A queued redemption is only *requested* when its transaction confirms — the assets arrive days
+ * later — so its wording is kept apart from the withdrawals that settle on the spot.
  */
 export type VaultActionKind = 'deposit' | 'withdraw' | 'request'
 

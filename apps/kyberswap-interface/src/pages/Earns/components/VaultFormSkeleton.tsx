@@ -121,7 +121,7 @@ export const VaultFieldsSkeleton = ({ kind }: { kind: VaultFormKind }) => (
       <InfoRowSkeleton labelWidth="w-24" rowHeight={kind === 'deposit' ? 'h-8' : 'h-[22px]'} />
     </DetailsBox>
 
-    {/* The queue path, which a withdrawal opens on, closes with a note about the payout. */}
+    {/* The native path, which a withdrawal opens on, closes with a note about the payout. */}
     {kind === 'withdraw' ? <NoteSkeleton /> : null}
   </>
 )

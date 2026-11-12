@@ -28,6 +28,6 @@ export {
   toHex,
 } from 'viem'
 
-export { maxUint256, zeroAddress, zeroHash } from 'viem'
+export { erc4626Abi, maxUint256, zeroAddress, zeroHash } from 'viem'
 
 export type { Abi, Address, Hash, Hex, Log, PublicClient, WalletClient } from 'viem'

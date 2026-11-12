@@ -357,7 +357,7 @@ const MyVaults = () => {
         </VaultCardsGrid>
       )}
 
-      <Disclaimer>{t`Partner-managed vaults. Auto-compounding. Native withdrawals are not instant.`}</Disclaimer>
+      <Disclaimer>{t`Partner-managed vaults. Auto-compounding.`}</Disclaimer>
 
       <VaultDepositModal
         target={depositVault ? { chainId: depositVault.chainId, vaultId: depositVault.vaultId } : null}

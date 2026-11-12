@@ -25,11 +25,13 @@ export const VAULT_CHAIN_OPTIONS: MenuOption[] = [
   },
 ]
 
-/** Matches `provider.key` in the vault API, which is what the list endpoint filters on. */
+/** Match `provider.key` in the vault API, which is what the list endpoint filters on. */
 export const ETHERFI_PROVIDER_KEY = 'etherfi'
+export const SKY_PROVIDER_KEY = 'sky'
 
 export const VAULT_PROTOCOL_OPTIONS: MenuOption[] = [
   AllProtocolsOption,
-  // The API returns an empty `provider.logo` for ether.fi, so the mark is bundled.
   { label: 'ether.fi', value: ETHERFI_PROVIDER_KEY, icon: EtherFiLogo },
+  // A partner's mark comes from `provider.logo` in the vault API, which is empty for Sky.
+  { label: 'Sky', value: SKY_PROVIDER_KEY },
 ]
