@@ -1,15 +1,16 @@
-import { ReactNode, createContext, useContext, useLayoutEffect, useRef } from 'react'
-import { isQuoteExecutable } from 'services/crossChain/utils'
+import { type ReactNode, Suspense, createContext, lazy, useCallback, useContext, useState } from 'react'
 
-import { useCrossChainExecution } from 'components/SwapForm/CrossChain/hooks/useCrossChainExecution'
-import { useCrossChainPair } from 'components/SwapForm/CrossChain/hooks/useCrossChainPair'
-import { useCrossChainQuote } from 'components/SwapForm/CrossChain/hooks/useCrossChainQuote'
-import { useCrossChainRecipient } from 'components/SwapForm/CrossChain/hooks/useCrossChainRecipient'
-import { usePriceImpactDegenMode } from 'components/SwapForm/SwapActionButton/usePriceImpactDegenMode'
-import { Chain } from 'types/crossChain'
-import { type PriceImpactAction, checkPriceImpact } from 'utils/prices'
+import type { EvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
+import type { Chain } from 'types/crossChain'
+import type { PriceImpactAction } from 'utils/prices'
+
+import type { useCrossChainPair } from './useCrossChainPair'
+import type { useCrossChainQuote } from './useCrossChainQuote'
+import type { useCrossChainRecipient } from './useCrossChainRecipient'
 
 export type CrossChainSwapOptions = {
+  evmRecipient?: EvmRecipient
+  enabled?: boolean
   fromChain: Chain
   toChain: Chain
   tokenIn: string
@@ -18,7 +19,7 @@ export type CrossChainSwapOptions = {
   setAmount: (amount: string) => void
 }
 
-type CrossChainSwapContext = ReturnType<typeof useCrossChainPair> &
+export type CrossChainSwapState = ReturnType<typeof useCrossChainPair> &
   ReturnType<typeof useCrossChainRecipient> &
   Omit<ReturnType<typeof useCrossChainQuote>, 'openReview'> & {
     openReview: (checkAllowance: () => Promise<boolean>) => Promise<void>
@@ -32,115 +33,41 @@ type CrossChainSwapContext = ReturnType<typeof useCrossChainPair> &
     setAmount: (amount: string) => void
   }
 
-const CrossChainSwapContext = createContext<CrossChainSwapContext | undefined>(undefined)
-
+const CrossChainSwapContext = createContext<CrossChainSwapState | undefined>(undefined)
+const Engine = lazy(() => import('./CrossChainSwapEngine'))
 type Props = CrossChainSwapOptions & { children: ReactNode }
 
-const CrossChainSwapProvider = ({ children, amount, setAmount, fromChain, toChain, tokenIn, tokenOut }: Props) => {
-  const pair = useCrossChainPair({ fromChainId: fromChain, toChainId: toChain, tokenIn, tokenOut })
-  const recipient = useCrossChainRecipient(pair.fromChainId, pair.toChainId)
+/** Stable data boundary: mounting an engine never remounts the form or page. */
+const CrossChainSwapProvider = ({ children, enabled = true, ...options }: Props) => {
+  const [activated, setActivated] = useState(enabled)
+  if (enabled && !activated) setActivated(true)
 
-  const quote = useCrossChainQuote({
-    pair,
-    amount,
-    sender: recipient.sender,
-    receiver: recipient.receiver,
-    isReadOnly: recipient.isReadOnly,
-  })
+  const [snapshot, setSnapshot] = useState<{ identity: string; value: CrossChainSwapState }>()
+  const identity = JSON.stringify([
+    enabled,
+    options.fromChain,
+    options.toChain,
+    options.tokenIn,
+    options.tokenOut,
+    options.amount,
+  ])
+  const publish = useCallback((value: CrossChainSwapState) => setSnapshot({ identity, value }), [identity])
 
-  const { isSubmitting, txHash, txError, submitSwap, resetSubmission } = useCrossChainExecution(quote.reviewQuote)
-
-  const { priceImpactAction, requiresDegenMode, requestDegenMode } = usePriceImpactDegenMode(
-    quote.selectedQuote?.quote.priceImpact,
-  )
-  const reviewedImpact = checkPriceImpact(quote.reviewQuote?.quote.priceImpact)
-  const reviewHasVeryHighPriceImpact = reviewedImpact.isVeryHigh || reviewedImpact.isInvalid
-  const pendingReview = useRef<symbol | null>(null)
-
-  useLayoutEffect(() => {
-    pendingReview.current = null
-    return () => {
-      pendingReview.current = null
-    }
-  }, [quote.selectedQuote, recipient.sender, recipient.receiver, recipient.isReadOnly])
-
-  const closeReview = () => {
-    pendingReview.current = null
-    resetSubmission()
-    quote.closeReview()
-  }
-
-  const openReview = async (checkAllowance: () => Promise<boolean>) => {
-    const selectedQuote = quote.selectedQuote
-    if (
-      pendingReview.current ||
-      quote.showPreview ||
-      isSubmitting ||
-      quote.loading ||
-      recipient.isReadOnly ||
-      !selectedQuote ||
-      !isQuoteExecutable(selectedQuote, recipient.sender, recipient.receiver)
-    )
-      return
-
-    if (requiresDegenMode(selectedQuote.quote.priceImpact)) {
-      requestDegenMode()
-      return
-    }
-
-    const attempt = Symbol('open review')
-    pendingReview.current = attempt
-    try {
-      const approved = await checkAllowance()
-      if (pendingReview.current !== attempt || !approved) return
-      if (requiresDegenMode(selectedQuote.quote.priceImpact)) {
-        requestDegenMode()
-        return
-      }
-      quote.openReview(selectedQuote)
-    } finally {
-      if (pendingReview.current === attempt) pendingReview.current = null
-    }
-  }
-
-  const confirmSwap = () => {
-    if (!quote.reviewQuote || isSubmitting) return
-    if (requiresDegenMode(quote.reviewQuote.quote.priceImpact)) {
-      closeReview()
-      requestDegenMode()
-      return
-    }
-    void submitSwap()
-  }
+  const value = enabled && snapshot?.identity === identity ? snapshot.value : undefined
 
   return (
-    <CrossChainSwapContext.Provider
-      value={{
-        ...pair,
-        ...recipient,
-        ...quote,
-        isSubmitting: isSubmitting,
-        txHash,
-        txError,
-        openReview,
-        priceImpactAction,
-        reviewHasVeryHighPriceImpact,
-        confirmSwap,
-        closeReview,
-        amount,
-        setAmount,
-      }}
-    >
+    <CrossChainSwapContext.Provider value={value}>
+      <Suspense fallback={null}>{activated && <Engine {...options} enabled={enabled} onChange={publish} />}</Suspense>
       {children}
     </CrossChainSwapContext.Provider>
   )
 }
 
+export const useOptionalCrossChainSwap = () => useContext(CrossChainSwapContext)
+
 export const useCrossChainSwap = () => {
-  const ctx = useContext(CrossChainSwapContext)
-
-  if (!ctx) throw new Error('useCrossChainSwap must be used within CrossChainSwapProvider')
-
+  const ctx = useOptionalCrossChainSwap()
+  if (!ctx) throw new Error('useCrossChainSwap requires a ready cross-chain engine')
   return ctx
 }
 

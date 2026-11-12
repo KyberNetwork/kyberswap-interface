@@ -8,6 +8,7 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { NonEvmChain } from 'types/crossChain'
 
 export type CrossChainQuoteInput = {
+  enabled?: boolean
   pair: CrossChainPair
   amount: string
   sender: string
@@ -16,14 +17,21 @@ export type CrossChainQuoteInput = {
 }
 
 /** Wallet/request snapshot shared by all cross-chain quote consumers. */
-export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isReadOnly }: CrossChainQuoteInput) => {
+export const useCrossChainQuoteRequest = ({
+  enabled = true,
+  pair,
+  amount,
+  sender,
+  receiver,
+  isReadOnly,
+}: CrossChainQuoteInput) => {
   const { pairKey, fromChainId, toChainId, currencyIn, currencyOut } = pair
 
   const wallets = useSwapWallets()
   const { walletInfo } = useBitcoinWallet()
   const [slippage] = useUserSlippageTolerance()
 
-  const amountInWei = currencyIn ? parseUnits(amount || '0', currencyIn.decimals).toString() : undefined
+  const amountInWei = enabled && currencyIn ? parseUnits(amount || '0', currencyIn.decimals).toString() : undefined
 
   // An empty selected slot must not borrow credentials from a global wallet.
   const btcPublicKey = wallets
@@ -35,7 +43,7 @@ export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isRe
   // Stable request identity includes raw input so editing immediately invalidates an old response/review.
   const request = useMemo(() => {
     const params =
-      fromChainId && toChainId && currencyIn && currencyOut && amountInWei && amountInWei !== '0'
+      enabled && fromChainId && toChainId && currencyIn && currencyOut && amountInWei && amountInWei !== '0'
         ? {
             fromChain: fromChainId,
             toChain: toChainId,
@@ -51,6 +59,7 @@ export const useCrossChainQuoteRequest = ({ pair, amount, sender, receiver, isRe
 
     return { pairKey, amount, params, isReadOnly }
   }, [
+    enabled,
     pairKey,
     amount,
     fromChainId,

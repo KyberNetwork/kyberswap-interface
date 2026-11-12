@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
-import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
+import { type EvmRecipient, useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useRecipientAddress } from 'components/SwapForm/hooks/useRecipientAddress'
@@ -17,6 +17,8 @@ import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 type SingleChainSwapConfig = {
+  evmRecipient?: EvmRecipient
+  enabled?: boolean
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
@@ -29,6 +31,8 @@ type SingleChainSwapConfig = {
 }
 
 const useSingleChainSwap = ({
+  enabled = true,
+  evmRecipient: sharedRecipient,
   currencyIn,
   currencyOut,
   isDegenMode,
@@ -46,7 +50,7 @@ const useSingleChainSwap = ({
 
   // SwapPage owns URL amount prefill across both swap engines.
   const { typedValue, onUserInput } = useSwapInputAmount(false)
-  const evmRecipient = useEvmRecipient(account)
+  const evmRecipient = useEvmRecipient(account, sharedRecipient)
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const {
@@ -83,7 +87,7 @@ const useSingleChainSwap = ({
     isLoading: routeLoading,
     intendedFeeConfig,
   } = useGetRoute({
-    enabled: !chainError && !isWrapOrUnwrap,
+    enabled: enabled && !chainError && !isWrapOrUnwrap,
     autoRefresh: true,
     currencyIn,
     currencyOut: currencyOut,

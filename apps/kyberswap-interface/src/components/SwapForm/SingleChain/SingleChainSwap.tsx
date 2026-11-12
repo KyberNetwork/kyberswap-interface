@@ -1,52 +1,20 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo } from 'react'
-
 import FeeControlGroup from 'components/FeeControlGroup'
 import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { Stack } from 'components/Stack'
-import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
-import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
-import OutputCurrencyPanel from 'components/SwapForm/CurrencyInput/OutputCurrencyPanel'
+import { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import { RecipientInput, RecipientToggle } from 'components/SwapForm/RecipientInput'
 import MEVProtection from 'components/SwapForm/Settings/MEVProtection'
 import SingleChainQuoteDetails from 'components/SwapForm/SingleChain/SingleChainQuoteDetails'
 import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import SwapActionButton from 'components/SwapForm/SwapActionButton'
 import { SwapFormContextProvider } from 'components/SwapForm/SwapFormContext'
-import { SwapFormLayout } from 'components/SwapForm/SwapFormLayout'
 import MultichainKNCNote from 'components/SwapForm/Warnings/MultichainKNCNote'
 import PriceImpactNote from 'components/SwapForm/Warnings/PriceImpactNote'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
-import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
-import useDebounce from 'hooks/useDebounce'
-import { getERC8056DisplayAmount, useERC8056TypedInput } from 'hooks/useERC8056Token'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
+import { useERC8056TypedInput } from 'hooks/useERC8056Token'
 
-/** Reads currencies and quote/execution state from the page provider.
- * The pair owner supplies metadata-loading flags independently of route loading. */
-type SingleChainSwapContentProps = {
-  hidden: boolean
-  isInputCurrencyLoading?: boolean
-  isOutputCurrencyLoading?: boolean
-  onChangeCurrencyIn: (c: Currency) => void
-  onChangeCurrencyOut: (c: Currency) => void
-  onSelectNonEvmCurrencyIn?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
-  onSelectNonEvmCurrencyOut?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
-}
-
-export const SingleChainSwapContent = ({
-  hidden,
-  isInputCurrencyLoading,
-  isOutputCurrencyLoading,
-  onChangeCurrencyIn,
-  onChangeCurrencyOut,
-  onSelectNonEvmCurrencyIn,
-  onSelectNonEvmCurrencyOut,
-}: SingleChainSwapContentProps) => {
-  const { networkInfo } = useActiveWeb3React()
-  const { trackingHandler } = useTracking()
+/** Same-chain details and execution; fields and selection belong to the common form. */
+export const SingleChainSwapContent = () => {
   const {
     currencyIn,
     currencyOut,
@@ -85,17 +53,8 @@ export const SingleChainSwapContent = ({
     dismissReview,
   } = useSingleChainSwapContext()
 
-  const debouncedTypedValue = useDebounce(typedValue, 1000)
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
-  const { displayTypedValue, onDisplayInput, onRawValue } = useERC8056TypedInput(
-    erc8056Info.inputInfo,
-    typedValue,
-    onUserInput,
-  )
-  const displayAmountOut = useMemo(
-    () => getERC8056DisplayAmount(erc8056Info.outputInfo, routeSummary?.parsedAmountOut),
-    [erc8056Info.outputInfo, routeSummary?.parsedAmountOut],
-  )
+  const { displayTypedValue } = useERC8056TypedInput(erc8056Info.inputInfo, typedValue, onUserInput)
 
   const swapInputError = useGetInputError({
     currencyIn,
@@ -113,64 +72,6 @@ export const SingleChainSwapContent = ({
     tokenSymbol: currencyOut?.symbol,
   })
 
-  const handleChangeCurrencyIn = useCallback(
-    (c: Currency) => {
-      trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SELECTED, {
-        token_symbol: c.symbol,
-        token_address: c.isNative ? 'NATIVE' : c.wrapped?.address,
-        token_position: 'input',
-        paired_token: currencyOut?.symbol,
-        chain: NETWORKS_INFO[c.chainId].name,
-      })
-
-      onChangeCurrencyIn(c)
-    },
-    [onChangeCurrencyIn, trackingHandler, currencyOut?.symbol],
-  )
-
-  const handleChangeCurrencyOut = useCallback(
-    (c: Currency) => {
-      trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SELECTED, {
-        token_symbol: c.symbol,
-        token_address: c.isNative ? 'NATIVE' : c.wrapped?.address,
-        token_position: 'output',
-        paired_token: currencyIn?.symbol,
-        chain: NETWORKS_INFO[c.chainId].name,
-      })
-
-      onChangeCurrencyOut(c)
-    },
-    [onChangeCurrencyOut, trackingHandler, currencyIn?.symbol],
-  )
-
-  const handleReverse = () => {
-    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
-      from_token: currencyIn?.symbol,
-      to_token: currencyOut?.symbol,
-      new_from_token: currencyOut?.symbol,
-      new_to_token: currencyIn?.symbol,
-      chain: networkInfo.name,
-    })
-
-    currencyIn && onChangeCurrencyOut(currencyIn)
-    routeSummary && onRawValue(routeSummary.parsedAmountOut.toExact())
-  }
-
-  // Track edits only; quote refreshes and wallet/context rerenders must not emit another event.
-  useEffect(() => {
-    if (debouncedTypedValue && Number(debouncedTypedValue) > 0 && currencyIn) {
-      trackingHandler(TRACKING_EVENT_TYPE.AMOUNT_ENTERED, {
-        token_symbol: currencyIn.symbol,
-        token_address: currencyIn.isNative ? 'NATIVE' : currencyIn.wrapped?.address,
-        amount: debouncedTypedValue,
-        token_position: 'input',
-        paired_token: currencyOut?.symbol,
-        chain: networkInfo.name,
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedTypedValue])
-
   return (
     <SwapFormContextProvider
       slippage={slippage}
@@ -182,110 +83,64 @@ export const SingleChainSwapContent = ({
       recipient={recipient}
       isAdvancedMode={isDegenMode}
     >
-      <SwapFormLayout
-        hidden={hidden}
-        inputPanel={
-          <InputCurrencyPanel
-            currencyLoading={isInputCurrencyLoading}
-            amountInUsd={routeSummary?.amountInUsd}
-            wrapType={wrapType}
-            typedValue={displayTypedValue}
-            rawTypedValue={typedValue}
-            onRawAmountChange={onRawValue}
-            onUserInput={onDisplayInput}
-            currencyIn={currencyIn}
-            currencyOut={currencyOut}
-            balanceIn={balanceIn}
-            balanceText={erc8056Info.input.balanceText}
-            highlightToken={erc8056Info.input.isScaled}
-            onChangeCurrencyIn={handleChangeCurrencyIn}
-            onSelectNonEvmCurrency={onSelectNonEvmCurrencyIn}
-            customChainId={currencyIn?.chainId ?? customChainId}
-            chainSelectionMode="form"
-          />
-        }
-        outputPanel={
-          <OutputCurrencyPanel
-            currencyLoading={isOutputCurrencyLoading}
-            wrapType={wrapType}
-            parsedAmountIn={parsedAmount}
-            parsedAmountOut={displayAmountOut}
-            currencyIn={currencyIn}
-            currencyOut={currencyOut}
-            amountOutUsd={routeSummary?.amountOutUsd}
-            balanceText={erc8056Info.output.balanceText}
-            highlightToken={erc8056Info.output.isScaled}
-            onChangeCurrencyOut={handleChangeCurrencyOut}
-            onSelectNonEvmCurrency={onSelectNonEvmCurrencyOut}
-            customChainId={currencyOut?.chainId ?? customChainId}
-            chainSelectionMode="form"
-            routeLoading={routeLoading}
-          />
-        }
-        tokenInfo={<ERC8056Info tokens={erc8056Info.tokens} />}
-        onReverse={handleReverse}
-        details={
-          <Stack className="gap-2">
-            <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
+      <Stack className="gap-2">
+        <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
-            {!isWrapOrUnwrap && (
-              <SingleChainQuoteDetails
-                recipientToggle={
-                  hasCustomRecipient ? (
-                    <RecipientToggle expanded={showRecipientInput} onToggle={toggleRecipient} />
-                  ) : undefined
-                }
-                recipient={
-                  hasCustomRecipient ? (
-                    <RecipientInput
-                      hideLabel
-                      mode="evm"
-                      value={recipientInputValue}
-                      expanded={showRecipientInput}
-                      error={recipientError}
-                      onChange={onRecipientChange}
-                      onToggle={toggleRecipient}
-                    />
-                  ) : undefined
-                }
-                loading={routeLoading}
-                routeSummary={routeSummary}
-                slippage={slippage}
-                refresh={refresh}
-                isFeeTampered={isFeeTampered}
-              />
-            )}
-
-            {!isWrapOrUnwrap && <FeeControlGroup />}
-            <MEVProtection className="w-fit self-end" />
-            <HoneypotWarning message={honeypotWarning} />
-
-            <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
-          </Stack>
-        }
-        action={
-          <SwapActionButton
-            chainError={chainError}
-            isGettingRoute={isGettingRoute}
-            parsedAmountFromTypedValue={parsedAmount}
-            balanceIn={balanceIn}
-            balanceOut={balanceOut}
-            currencyIn={currencyIn}
-            currencyOut={currencyOut}
-            wrapInputError={wrapInputError}
-            wrapType={wrapType}
+        {!isWrapOrUnwrap && (
+          <SingleChainQuoteDetails
+            recipientToggle={
+              hasCustomRecipient ? (
+                <RecipientToggle expanded={showRecipientInput} onToggle={toggleRecipient} />
+              ) : undefined
+            }
+            recipient={
+              hasCustomRecipient ? (
+                <RecipientInput
+                  hideLabel
+                  mode="evm"
+                  value={recipientInputValue}
+                  expanded={showRecipientInput}
+                  error={recipientError}
+                  onChange={onRecipientChange}
+                  onToggle={toggleRecipient}
+                />
+              ) : undefined
+            }
+            loading={routeLoading}
             routeSummary={routeSummary}
-            review={review}
-            openReviewSession={openReview}
-            rebuildReviewSession={rebuildReview}
-            confirmReviewSession={confirmReview}
-            dismissReviewSession={dismissReview}
-            onWrap={onWrap}
-            buildRoute={buildRoute}
-            swapInputError={swapInputError}
-            customChainId={customChainId}
+            slippage={slippage}
+            refresh={refresh}
+            isFeeTampered={isFeeTampered}
           />
-        }
+        )}
+
+        {!isWrapOrUnwrap && <FeeControlGroup />}
+        <MEVProtection className="w-fit self-end" />
+        <HoneypotWarning message={honeypotWarning} />
+
+        <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
+      </Stack>
+
+      <SwapActionButton
+        chainError={chainError}
+        isGettingRoute={isGettingRoute}
+        parsedAmountFromTypedValue={parsedAmount}
+        balanceIn={balanceIn}
+        balanceOut={balanceOut}
+        currencyIn={currencyIn}
+        currencyOut={currencyOut}
+        wrapInputError={wrapInputError}
+        wrapType={wrapType}
+        routeSummary={routeSummary}
+        review={review}
+        openReviewSession={openReview}
+        rebuildReviewSession={rebuildReview}
+        confirmReviewSession={confirmReview}
+        dismissReviewSession={dismissReview}
+        onWrap={onWrap}
+        buildRoute={buildRoute}
+        swapInputError={swapInputError}
+        customChainId={customChainId}
       />
     </SwapFormContextProvider>
   )

@@ -59,7 +59,7 @@ export const useQuoteSession = ({
 
   if (state.request !== request) {
     // Reset only quote-owned state. Recipient and form state live outside this session.
-    const previous = state.request.pairKey === pairKey ? state : EMPTY_QUOTE_STATE
+    const previous = !disable && state.request.pairKey === pairKey ? state : EMPTY_QUOTE_STATE
     setState({
       ...previous,
       request,

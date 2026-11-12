@@ -1,14 +1,13 @@
 # SwapForm
 
-`SwapForm` contains the forms and quote/review orchestration for Unified Swap.
-It has two entry components: `SingleChainSwapContent` for same-chain EVM swaps and
-`CrossChainSwap` for different-chain or non-EVM pairs. Shared layout, amount rows,
-settings and review visuals live alongside the mode-specific code.
+`SwapForm` contains the shared form and quote/review orchestration for Unified Swap.
+`SwapForm.tsx` maps the active quote into one `UnifiedSwapForm`, which owns the
+input/output panels, token selection tracking, balances and display units.
+Same-chain and cross-chain components supply their details and execution controls.
 
-The [Swap page](../../pages/Swap/README.md) composes the active form, wallet provider,
-chart/routes and transaction views. Pair URL handling lives in `hooks/useSwapFormPair`;
-signing slots and wallet controls live in `components/SwapWallets/`. Forms report selection intent
-through callbacks.
+The [Swap page](../../pages/Swap/README.md) owns pair/amount selection, the shared
+EVM recipient draft, wallet connections and History. The cross-chain data boundary stays mounted; its quote/execution engine loads lazily on first cross-chain use and stays mounted
+afterward. Same-chain disables quote requests while retaining the shared fields.
 
 ## Structure and owners
 
@@ -30,21 +29,23 @@ through callbacks.
 and `CrossChainSwapProvider` own their respective quote lifecycles. Their scope
 includes both the form and the page's route panel.
 
-## Mounting the forms
+## Quote and form boundaries
 
-On the unified page, `SingleChainSwapFormProvider` connects the selected currencies
-to balances, preferences and permit data, then mounts `SingleChainSwapProvider`.
-The page renders `SingleChainSwapContent` inside it. The form and right panel read
-the selected currencies and quote from this shared provider.
+`SingleChainSwapFormProvider` connects balances and preferences to the EVM quote
+engine. `CrossChainSwapProvider` owns streamed quotes and cross-chain execution.
+The cross-chain engine loads on first use and stays mounted across mode changes.
+Same-chain disables requests and invalidates the active quote/review; recipient
+drafts and the shared fields keep their identity.
 
-`CrossChainSwapProvider` is exported from `CrossChain/hooks/useCrossChainSwap.tsx`.
-It accepts `fromChain`, `toChain`, `tokenIn`, `tokenOut`, `amount` and `setAmount`.
-It combines pair resolution, recipient state, quote session and execution.
-`CrossChainSwap` consumes this context and composes the form and action UI.
+`SingleChainSwapContent` and `CrossChainSwap` render only mode-specific information
+and actions. The form and route panel read the same quote provider; neither starts
+a second quote request. Legacy KyberCross adapts its quotes through
+`CrossChainSwapForm` and reuses the common fields.
 
-Keep one active quote provider above both panels. Presentation components should
-read that context instead of fetching another quote. Pair changes go through the
-page's callbacks; token selectors own only the current selection interaction.
+The pair owner also keeps a one-time output-selector default per page mount:
+changing input from a same-chain pair to another chain defaults output browsing to
+the input chain until an output token is selected. Dismissing the popup preserves
+this default; after selection it is done until the page reloads/remounts.
 
 ## Shared amount panels
 
@@ -53,7 +54,7 @@ page's callbacks; token selectors own only the current selection interaction.
 amount/token presentation, balance controls and selector open state. Forms own
 amount calculations, validation and committed token selection; the
 [TokenSelectorModal](../TokenSelectorModal/README.md) owns browsing and selection
-interaction. `CrossChainSwap` supplies Gas Drop through the output footer.
+interaction. `CrossChainOutputFooter` supplies Gas Drop through the output footer.
 
 ## Same-chain EVM flow
 
@@ -262,7 +263,7 @@ belongs to the page-level transaction updater, not the confirmation modal.
 
 | Change                                           | Start here                                                                                                                       |
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| Form layout, amount fields or reverse control    | `SwapFormLayout.tsx`, `CurrencyInput/`, `CrossChain/CrossChainSwapForm.tsx`                                                      |
+| Form layout, amount fields or reverse control    | `UnifiedSwapForm.tsx`, `SwapFormLayout.tsx`, `CurrencyInput/`                                                      |
 | Same-chain request parameters, fees or refresh   | `hooks/useRouteRequest.ts`, `hooks/useGetRoute.ts`, fee hooks, `SingleChain/SingleChainSwapProvider.tsx`                         |
 | Same-chain approve/permit/wrap behavior          | `SwapActionButton/index.tsx` and the corresponding shared hooks                                                                  |
 | Same-chain review state or submission            | `hooks/useSwapReviewSession.ts`, `SingleChain/useSingleChainSwapReview.ts`, `SingleChain/useSingleChainSwapExecution.ts`         |

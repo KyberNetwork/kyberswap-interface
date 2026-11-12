@@ -49,8 +49,10 @@ const pair = {
 
 let state: ReturnType<typeof useCrossChainQuote>
 let root: ReturnType<typeof createRoot>
-const render = (amount: string, receiver = 'recipient') => {
-  root.render(<Harness pair={pair} amount={amount} sender="sender" receiver={receiver} isReadOnly={false} />)
+const render = (amount: string, receiver = 'recipient', enabled = true) => {
+  root.render(
+    <Harness enabled={enabled} pair={pair} amount={amount} sender="sender" receiver={receiver} isReadOnly={false} />,
+  )
 }
 const Harness = (props: Props) => {
   state = useCrossChainQuote(props)
@@ -966,4 +968,27 @@ it('takes Bitcoin public key from the input signing session after reversal', asy
   )
   await flushQuotes()
   expect(mocks.getQuotes.mock.calls[0][0].params).toMatchObject({ sender: 'btc-sender', publicKey: 'ledger-key' })
+})
+
+it('stops requests and drops the old quote when the cross-chain engine is disabled', async () => {
+  mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+    request.onQuotes([makeQuote(request)])
+    return Promise.resolve()
+  })
+  await act(async () => render('100', 'recipient', false))
+  await flushQuotes()
+  expect(mocks.getQuotes).not.toHaveBeenCalled()
+  await act(async () => render('100'))
+  await flushQuotes()
+  expect(state.selectedQuote).not.toBeNull()
+  const selectedQuote = state.selectedQuote
+  if (!selectedQuote) throw new Error('Expected an active quote')
+  await act(async () => state.openReview(selectedQuote))
+  expect(state.reviewQuote).not.toBeNull()
+  const count = mocks.getQuotes.mock.calls.length
+  await act(async () => render('100', 'recipient', false))
+  await flushQuotes()
+  expect(state.selectedQuote).toBeNull()
+  expect(state.reviewQuote).toBeNull()
+  expect(mocks.getQuotes).toHaveBeenCalledTimes(count)
 })

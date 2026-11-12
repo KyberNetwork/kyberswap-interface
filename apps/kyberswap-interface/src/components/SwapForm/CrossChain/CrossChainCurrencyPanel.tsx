@@ -21,10 +21,11 @@ import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import { useNearBalances } from 'hooks/useNearBalances'
 import { MEDIA_WIDTHS } from 'theme'
-import { Currency, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
+import { Chain, Currency, NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
+  selectorChain?: Chain
   chain: NonEvmChain
   currency?: Currency
   value: string
@@ -41,6 +42,7 @@ type Props = {
 
 export const CrossChainCurrencyPanel = ({
   chain,
+  selectorChain,
   currency,
   value,
   amountUsd,
@@ -175,7 +177,8 @@ export const CrossChainCurrencyPanel = ({
       <TokenSelectorModal
         isOpen={open}
         onDismiss={() => setOpen(false)}
-        initialNonEvmChain={chain}
+        customChainId={typeof selectorChain === 'number' ? selectorChain : undefined}
+        initialNonEvmChain={typeof selectorChain === 'number' ? undefined : selectorChain ?? chain}
         selectedNonEvmCurrency={currency && !('chainId' in currency) ? currency : undefined}
         chainSelectionMode="form"
         onCurrencySelect={onCurrencySelect}

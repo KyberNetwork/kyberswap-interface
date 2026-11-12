@@ -7,7 +7,11 @@ import {
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
 } from 'services/crossChain/utils'
 
-import { type RecipientAddressType, useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
+import {
+  type EvmRecipient,
+  type RecipientAddressType,
+  useEvmRecipient,
+} from 'components/SwapForm/hooks/useEvmRecipient'
 import { useRecipientAddress } from 'components/SwapForm/hooks/useRecipientAddress'
 import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
@@ -29,7 +33,7 @@ const getPreviewAddress = (chain: Chain | undefined, account: string | undefined
  * The provider owns signing sessions. This hook owns recipient presentation state,
  * so reverse preserves paste mode, text, and collapse state.
  */
-export const useCrossChainRecipient = (fromChainId: Chain, toChainId?: Chain) => {
+export const useCrossChainRecipient = (fromChainId: Chain, toChainId?: Chain, sharedRecipient?: EvmRecipient) => {
   const { account } = useActiveWeb3React()
   const { signedAccountId } = useWalletSelector()
   const { walletInfo } = useBitcoinWallet()
@@ -37,7 +41,7 @@ export const useCrossChainRecipient = (fromChainId: Chain, toChainId?: Chain) =>
   const wallets = useSwapWallets()
 
   const [recipientInput, setRecipientInput] = useState<RecipientInput>(EMPTY_INPUT)
-  const evm = useEvmRecipient(account)
+  const evm = useEvmRecipient(account, sharedRecipient)
 
   // Routes involving a non-EVM chain use an independent receiver.
   // EVM-to-EVM routes keep the existing app-wallet recipient behavior.

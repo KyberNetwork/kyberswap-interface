@@ -52,6 +52,8 @@ export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSea
   const [params] = useSearchParams()
   const [selected, setSelected] = useState<{ currencyIn?: EvmCurrency; currencyOut?: EvmCurrency }>({})
 
+  const [outputChainDefault, setOutputChainDefault] = useState<'idle' | 'pending' | 'done'>('idle')
+
   const isCrossChain = isCrossChainPair(inputChain, outputChain)
 
   const currencyIn = matches(selected.currencyIn, fromCurrency, inputChain) ? selected.currencyIn : resolvedInput
@@ -103,6 +105,18 @@ export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSea
   }
 
   const select = (field: Field, currency: Currency, chain: Chain) => {
+    if (field === Field.OUTPUT && outputChainDefault === 'pending') {
+      setOutputChainDefault('done')
+    } else if (
+      field === Field.INPUT &&
+      !isCrossChain &&
+      chain !== inputChain &&
+      outputChainDefault === 'idle' &&
+      (pathname.startsWith('/swap') || isEmbeddedSwap)
+    ) {
+      setOutputChainDefault('pending')
+    }
+
     const id = getSelectedTokenId(currency)
     const oppositeChain = field === Field.INPUT ? outputChain : inputChain
     const oppositeId = field === Field.INPUT ? outputId : inputId
@@ -153,6 +167,7 @@ export const useSwapFormPair = (getPairLocation: (pair: SwapPair, params: URLSea
     currencyOut,
     inputId,
     outputId,
+    outputSelectorChain: outputChainDefault === 'pending' ? inputChain : undefined,
     selectCurrency,
     selectNonEvmCurrency,
     reversePair,

@@ -7,19 +7,20 @@ feature owners.
 
 ## Page composition
 
-`SwapRoute.tsx` normalizes pair URLs and selects the appropriate network boundary.
-`SwapPage.tsx` mounts wallet connections, transaction controllers and the active
-swap provider. `SwapPageContent.tsx` composes the form, settings, chart, routes and
-History. `components/` contains the two page-specific chart/route compositions.
+`SwapRoute.tsx` normalizes pair URLs and synchronizes the wallet network without
+remounting the page when the pair changes mode. `SwapPage.tsx` owns the pair,
+amount, EVM recipient draft, wallet connections and History visibility.
+`SwapPageContent.tsx` renders one form alongside settings, charts and History.
 
-Same-chain EVM pairs use the single-chain form; different-chain and non-EVM pairs
-use the cross-chain form. Partner/User Swap retain their embedded URL parameters.
-Limit and Stop Market retain their forms in [`LimitPage.tsx`](LimitPage.tsx)
-and their existing shell in `layout/SwapLayout.tsx`.
+Both modes use `components/SwapForm/SwapForm.tsx` and the same input/output fields.
+Quote, review/execution, details and route presentation remain mode-specific.
+The cross-chain engine loads lazily on first cross-chain use and stays mounted
+afterward. Same-chain disables its requests and hides its snapshot; the current
+quote/review is invalidated while recipient drafts remain intact.
 
-The form and route panel share one active swap provider. `TransactionUpdater`
-and `TransactionDetailProvider` stay outside form-mode and History visibility
-branches so changing those views does not stop reconciliation or close detail.
+Partner/User Swap retain their embedded URL parameters. Limit and Stop Market
+retain their forms in `LimitPage.tsx`. Transaction controllers stay outside mode
+and History visibility branches so submitted transactions keep reconciling.
 
 ## Feature owners
 

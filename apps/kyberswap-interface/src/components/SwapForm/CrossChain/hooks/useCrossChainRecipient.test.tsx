@@ -3,6 +3,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
+import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 import { Chain, NonEvmChain } from 'types/crossChain'
 
 import { useCrossChainRecipient } from './useCrossChainRecipient'
@@ -179,4 +180,21 @@ it('applying an empty recipient restores wallet mode', async () => {
   await act(async () => result.applyRecipient(''))
   expect(result.recipient).toBe(wallet)
   expect(result.hasCustomRecipient).toBe(false)
+})
+
+it('shares one EVM recipient draft across both quote modes', async () => {
+  let shared: ReturnType<typeof useEvmRecipient>
+  const SharedForm = ({ to }: { to: Chain }) => {
+    shared = useEvmRecipient(mocks.account)
+    result = useCrossChainRecipient(1, to, shared)
+    return null
+  }
+  await act(async () => root.render(<SharedForm to={1} />))
+  await act(async () => shared.applyRecipient('0xcustom'))
+  await act(async () => root.render(<SharedForm to={8453} />))
+  expect(result.recipient).toBe('0xcustom')
+  expect(result.showRecipientInput).toBe(true)
+  await act(async () => result.setRecipient('0xupdated'))
+  await act(async () => root.render(<SharedForm to={1} />))
+  expect(result.recipientInputValue).toBe('0xupdated')
 })

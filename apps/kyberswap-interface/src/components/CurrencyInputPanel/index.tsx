@@ -13,7 +13,7 @@ import { Stack } from 'components/Stack'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
+import type { Chain, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { cn } from 'utils/cn'
 
 const InputPanel = ({ hideInput, className, ...props }: ComponentPropsWithRef<'div'> & { hideInput?: boolean }) => (
@@ -85,6 +85,7 @@ interface CurrencyInputPanelProps {
   currencyLoading?: boolean
   loadingText?: string
   selectClassName?: string
+  selectorChain?: Chain
   customChainId?: ChainId
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
@@ -130,6 +131,7 @@ const CurrencyInputPanel = ({
   loadingText,
   selectClassName,
   customChainId,
+  selectorChain,
   trackingSource,
   scaleERC8056Balances,
   balanceActionsEnabled: balanceActionsEnabledProp,
@@ -230,7 +232,8 @@ const CurrencyInputPanel = ({
             otherSelectedCurrency={otherCurrency}
             scaleERC8056Balances={scaleERC8056Balances}
             showPinnedTokens={showPinnedTokens}
-            customChainId={customChainId}
+            customChainId={typeof selectorChain === 'number' ? selectorChain : customChainId}
+            initialNonEvmChain={typeof selectorChain === 'string' ? selectorChain : undefined}
             trackingSource={trackingSource}
             requireOracle={requireOracle}
           />

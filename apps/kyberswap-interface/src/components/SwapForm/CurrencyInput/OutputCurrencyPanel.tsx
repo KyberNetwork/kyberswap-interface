@@ -10,7 +10,7 @@ import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
 import { MEDIA_WIDTHS } from 'theme'
-import type { NonEvmChain, NonEvmCurrency } from 'types/crossChain'
+import type { Chain, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
@@ -29,6 +29,7 @@ type Props = {
   onChangeCurrencyOut: (c: Currency) => void
   chainSelectionMode?: 'wallet' | 'form'
   onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
+  selectorChain?: Chain
   customChainId?: ChainId
   routeLoading: boolean
 }
@@ -49,6 +50,7 @@ const OutputCurrencyPanel = ({
   currencyLoading,
   onChangeCurrencyOut,
   customChainId,
+  selectorChain,
   chainSelectionMode,
   onSelectNonEvmCurrency,
   routeLoading,
@@ -132,6 +134,7 @@ const OutputCurrencyPanel = ({
         }
         positionLabel="in"
         customChainId={customChainId}
+        selectorChain={selectorChain}
         chainSelectionMode={chainSelectionMode}
         onSelectNonEvmCurrency={onSelectNonEvmCurrency}
         trackingSource="swap"

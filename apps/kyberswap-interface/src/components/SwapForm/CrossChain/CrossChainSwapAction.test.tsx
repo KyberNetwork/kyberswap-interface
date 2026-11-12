@@ -8,7 +8,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { NonEvmChain } from 'types/crossChain'
 
 import { CrossChainSwapAction } from './CrossChainSwapAction'
-import CrossChainSwapProvider from './hooks/useCrossChainSwap'
+import CrossChainSwapProvider, { useOptionalCrossChainSwap } from './hooks/useCrossChainSwap'
 
 const mocks = vi.hoisted(() => ({
   degen: false,
@@ -78,8 +78,10 @@ vi.mock('services/crossChain/utils', () => ({ isQuoteExecutable: () => true }))
 
 let container: HTMLDivElement
 let root: ReturnType<typeof createRoot>
-const render = () =>
-  act(async () =>
+const ReadyAction = () => (useOptionalCrossChainSwap() ? <CrossChainSwapAction /> : null)
+const render = async () => {
+  await act(async () => {
+    await import('./hooks/CrossChainSwapEngine')
     root.render(
       <I18nProvider i18n={i18n}>
         <CrossChainSwapProvider
@@ -90,11 +92,18 @@ const render = () =>
           amount="1"
           setAmount={vi.fn()}
         >
-          <CrossChainSwapAction />
+          <ReadyAction />
         </CrossChainSwapProvider>
       </I18nProvider>,
-    ),
-  )
+    )
+  })
+  await vi.waitFor(async () => {
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
+    expect(container.querySelector('button')).not.toBeNull()
+  })
+}
 const click = (selector = 'button') =>
   act(async () => {
     const button = container.querySelector<HTMLButtonElement>(selector)

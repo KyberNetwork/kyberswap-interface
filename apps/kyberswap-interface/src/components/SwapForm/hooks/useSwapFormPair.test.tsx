@@ -2,7 +2,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { i18n } from '@lingui/core'
 import { I18nProvider } from '@lingui/react'
-import { act } from 'react'
+import { act, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -76,6 +76,7 @@ function Page({ getPairLocation }: { getPairLocation?: Parameters<typeof useSwap
   const location = useLocation()
   const navigate = useNavigate()
   const pair = useSwapFormPair(getPairLocation)
+  const [draft, setDraft] = useState(false)
   const activeTab =
     location.pathname.startsWith('/limit') || new URLSearchParams(location.search).get('tab') === TAB.LIMIT
       ? TAB.LIMIT
@@ -85,7 +86,10 @@ function Page({ getPairLocation }: { getPairLocation?: Parameters<typeof useSwap
   return (
     <>
       <Tabs activeTab={activeTab} onTabChange={() => undefined} />
+      <button onClick={() => setDraft(true)}>Keep draft</button>
+      <span data-draft>{String(draft)}</span>
       <output>{location.pathname + location.search + location.hash}</output>
+      <span data-selector-chain>{pair.outputSelectorChain ?? 'default'}</span>
       <span data-output-symbol>{pair.currencyOut?.symbol}</span>
       <span data-loading>{String(pair.isOutputCurrencyLoading)}</span>
       <span data-pair>{`${pair.inputChain}:${pair.inputId} → ${pair.outputChain}:${pair.outputId}`}</span>
@@ -395,4 +399,38 @@ it('keeps Stop Market share URLs on their own product while preserving the pair'
     tokenOut: 'USDC',
   })
   expect(location).toEqual({ pathname: '/stop-market/base/eth-to-usdc', search: '' })
+})
+
+it('preserves page state across same-chain, cross-chain and network changes', async () => {
+  await mount('/swap/ethereum/eth-to-usdc')
+  await click('Keep draft')
+  await click('Select Base WETH')
+  expect(url()).toContain('/swap?')
+  expect(container.querySelector('[data-draft]')?.textContent).toBe('true')
+  await click('Select USDC')
+  expect(url()).toContain('/swap/base/')
+  expect(container.querySelector('[data-draft]')?.textContent).toBe('true')
+  await click('Back')
+  expect(container.querySelector('[data-draft]')?.textContent).toBe('true')
+})
+
+it('defaults output to the new input chain until selection, only once per page mount', async () => {
+  await mount('/swap/ethereum/eth-to-usdc')
+  const selector = () => container.querySelector('[data-selector-chain]')?.textContent
+  expect(selector()).toBe('default')
+  await click('Select Base WETH')
+  expect(selector()).toBe('8453')
+  // A rerender without selecting output must retain the default (including popup dismiss/reopen).
+  await click('Keep draft')
+  expect(selector()).toBe('8453')
+  await click('Select USDC')
+  expect(selector()).toBe('default')
+  await click('Select Ethereum')
+  expect(selector()).toBe('default')
+})
+
+it('does not arm the output default when input changes from an existing cross-chain pair', async () => {
+  await mount(`/swap?from=1&to=8453&tokenIn=ETH&tokenOut=${usdc.address}`)
+  await click('Select Base WETH')
+  expect(container.querySelector('[data-selector-chain]')?.textContent).toBe('default')
 })

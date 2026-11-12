@@ -5,8 +5,8 @@ import { Suspense, lazy, useRef } from 'react'
 import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import { Center, HStack, Stack } from 'components/Stack'
-import CrossChainSwapPending from 'components/SwapForm/CrossChain/CrossChainSwapPending'
-import { SingleChainSwapContent } from 'components/SwapForm/SingleChain/SingleChainSwap'
+import { useOptionalCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
+import { SwapForm } from 'components/SwapForm/SwapForm'
 import HistoryPanel, { HistoryButton } from 'components/SwapTransactions/History/HistoryPanel'
 import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -21,7 +21,6 @@ import { MEDIA_WIDTHS } from 'theme'
 import type { Chain, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
 import { cn } from 'utils/cn'
 
-const CrossChainSwap = lazy(() => import('components/SwapForm/CrossChain/CrossChainSwap'))
 const ProcessingTransactions = lazy(() => import('components/SwapTransactions/Processing/ProcessingTransactions'))
 const CrossChainSwapSources = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel/CrossChainSwapSources'))
 
@@ -35,14 +34,12 @@ type Props = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   inputChain: Chain
+  outputSelectorChain?: Chain
   outputChain: Chain
-  inputId: string
-  outputId: string
   amount: string
   isCrossChain: boolean
   isInputCurrencyLoading: boolean
   isOutputCurrencyLoading: boolean
-  isProviderLoading?: boolean
   activeTab: TAB
   highlightDegenMode: boolean
   shouldHighlightSwapBox: boolean
@@ -67,8 +64,7 @@ const SwapPageContent = ({
   isCrossChain,
   inputChain,
   outputChain,
-  inputId,
-  outputId,
+  outputSelectorChain,
   amount,
   onAmountChange,
   activeTab,
@@ -76,10 +72,10 @@ const SwapPageContent = ({
   onBackToMainTab,
   highlightDegenMode,
   shouldHighlightSwapBox,
-  isProviderLoading = false,
   showHistory,
   onHistoryChange,
 }: Props) => {
+  const crossChainReady = !!useOptionalCrossChainSwap()
   const reduceMotion = useReducedMotion()
   const wallets = useSwapWallets()
   const rightPanelRef = useRef<HTMLElement>(null)
@@ -105,31 +101,6 @@ const SwapPageContent = ({
     if (outputAmount !== undefined) onAmountChange(outputAmount)
   }
 
-  const crossChainSelectionProps = {
-    hidden: activeTab !== TAB.SWAP,
-    onChangeCurrencyIn: (currency: Currency) => selectCurrency(Field.INPUT, currency),
-    onChangeCurrencyOut: (currency: Currency) => selectCurrency(Field.OUTPUT, currency),
-    onSelectNonEvmCurrencyIn: (chain: NonEvmChain, currency: NonEvmCurrency) =>
-      selectNonEvmCurrency(Field.INPUT, chain, currency),
-    onSelectNonEvmCurrencyOut: (chain: NonEvmChain, currency: NonEvmCurrency) =>
-      selectNonEvmCurrency(Field.OUTPUT, chain, currency),
-    onReverse: handleReverse,
-  }
-
-  const pendingFormProps = {
-    ...crossChainSelectionProps,
-    amount,
-    onAmountChange,
-    currencyIn,
-    currencyOut,
-    fromChainId: inputChain,
-    toChainId: outputChain,
-    tokenIn: inputId,
-    tokenOut: outputId,
-    isInputCurrencyLoading,
-    isOutputCurrencyLoading,
-  }
-
   return (
     <Stack className="w-full max-w-[1464px] gap-6 px-9 py-6 max-sm:gap-4 max-sm:px-4 max-sm:py-5">
       <HStack className="w-full items-start justify-center gap-12 max-lg:flex-col max-lg:items-center max-lg:gap-6">
@@ -153,31 +124,30 @@ const SwapPageContent = ({
             )}
           >
             <Suspense fallback={<SwapFormLoader />}>
-              {isCrossChain ? (
-                <Suspense fallback={<CrossChainSwapPending {...pendingFormProps} />}>
-                  {isProviderLoading ? (
-                    <CrossChainSwapPending {...pendingFormProps} />
-                  ) : (
-                    <CrossChainSwap {...crossChainSelectionProps} />
-                  )}
-                </Suspense>
-              ) : (
-                <SingleChainSwapContent
-                  isInputCurrencyLoading={isInputCurrencyLoading}
-                  isOutputCurrencyLoading={isOutputCurrencyLoading}
-                  onChangeCurrencyIn={currency => selectCurrency(Field.INPUT, currency)}
-                  onChangeCurrencyOut={currency => selectCurrency(Field.OUTPUT, currency)}
-                  onSelectNonEvmCurrencyIn={(chain, currency) => selectNonEvmCurrency(Field.INPUT, chain, currency)}
-                  onSelectNonEvmCurrencyOut={(chain, currency) => selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
-                  hidden={activeTab !== TAB.SWAP}
-                />
-              )}
+              <SwapForm
+                hidden={activeTab !== TAB.SWAP}
+                isCrossChain={isCrossChain}
+                inputChain={inputChain}
+                outputChain={outputChain}
+                outputSelectorChain={outputSelectorChain}
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                amount={amount}
+                onAmountChange={onAmountChange}
+                isInputCurrencyLoading={isInputCurrencyLoading}
+                isOutputCurrencyLoading={isOutputCurrencyLoading}
+                onChangeCurrencyIn={currency => selectCurrency(Field.INPUT, currency)}
+                onChangeCurrencyOut={currency => selectCurrency(Field.OUTPUT, currency)}
+                onSelectNonEvmCurrencyIn={(chain, currency) => selectNonEvmCurrency(Field.INPUT, chain, currency)}
+                onSelectNonEvmCurrencyOut={(chain, currency) => selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
+                onReverse={handleReverse}
+              />
               {activeTab === TAB.INFO && <TokenInfo tokens={[currencyIn, currencyOut]} onBack={onBackToMainTab} />}
               {activeTab === TAB.SETTINGS && (
                 <SwapSettingsPanel
                   chainId={singleChainId}
                   crossChainQuoteMode="stream"
-                  recipientSettingsReady={!isProviderLoading}
+                  recipientSettingsReady={!isCrossChain || crossChainReady}
                   showDisplaySettings
                   mode={isCrossChain ? 'cross-chain' : 'single-chain'}
                   highlightDegenMode={highlightDegenMode}
@@ -219,7 +189,7 @@ const SwapPageContent = ({
                 <CrossChainRightPanel
                   currencyIn={currencyIn}
                   currencyOut={currencyOut}
-                  isProviderLoading={isProviderLoading}
+                  isProviderLoading={!crossChainReady}
                 />
               ) : (
                 <SingleChainRightPanel isTokenLoading={isInputCurrencyLoading || isOutputCurrencyLoading} />
