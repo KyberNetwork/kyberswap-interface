@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   getQuotes: vi.fn(),
   tokenInUsd: 1,
   outputUsd: 100,
+  slippage: 50,
   state: { crossChainSwap: { excludedSources: ['Relay'], quoteMode: 'direct' } },
 }))
 vi.mock('components/SwapWallets/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
@@ -28,7 +29,7 @@ vi.mock('services/tokenCatalog', () => ({ useLazyCheckSameAssetQuery: () => [moc
 vi.mock('state/hooks', () => ({
   useAppSelector: (select: (state: typeof mocks.state) => unknown) => select(mocks.state),
 }))
-vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [50] }))
+vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [mocks.slippage] }))
 vi.mock('services/crossChain/factory', () => ({ registry: {} }))
 vi.mock('services/crossChain/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
 vi.mock('services/crossChain/quote/adapterQuotes', () => ({ getQuotes: mocks.getQuotes }))
@@ -83,6 +84,56 @@ const enableGas = async () => {
 }
 
 describe('Gas Drop route selection', () => {
+  it('quotes Gas Drop directly after eligible amount and slippage edits', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    const oldGas = requests()[1]
+    await act(async () => render('50'))
+    expect(state.selectedQuote).toBeNull()
+    expect(oldGas.signal.aborted).toBe(true)
+    await flushQuotes()
+    mocks.slippage = 100
+    await act(async () => render('50'))
+    await flushQuotes()
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true, true])
+    expect(state.selectedQuote?.quote.quoteParams).toMatchObject({ amount: '50000000', slippage: 100, gasDrop: true })
+  })
+
+  it.each(['2.2', '2', '0', ''])('resets Gas Drop when amount %s no longer exceeds the threshold', async amount => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    await act(async () => render(amount))
+    expect(state.gasDropEnabled).toBe(false)
+    await flushQuotes()
+    await act(async () => render('100'))
+    await flushQuotes()
+    expect(state.gasDropEnabled).toBe(false)
+    expect(
+      requests()
+        .slice(2)
+        .every(request => !request.params.gasDrop),
+    ).toBe(true)
+  })
+
+  it('falls back to a new ordinary quote when carried Gas Drop is unavailable', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
+      request.onQuotes(request.params.gasDrop ? [] : [makeQuote(request)]),
+    )
+    await act(async () => render('50'))
+    await flushQuotes()
+    await flushQuotes()
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true, false])
+    expect(state.selectedQuote?.quote.quoteParams).toMatchObject({ amount: '50000000', gasDrop: false })
+  })
+
   it('hides ordinary providers as their Gas Drop routes arrive and restores them when disabled', async () => {
     mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
       if (request.params.gasDrop) return new Promise(() => undefined)
@@ -704,6 +755,7 @@ describe('Gas Drop route selection', () => {
       await act(async () => state.prepareGasDrop())
       const gas = requests()[1]
       if (confirmed) await enableGas()
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
       await act(async () => render('200'))
       await act(async () => vi.advanceTimersByTimeAsync(500))
       const selected = state.selectedQuote
@@ -715,7 +767,7 @@ describe('Gas Drop route selection', () => {
       expect(gas.signal.aborted).toBe(true)
       expect(state.selectedQuote).toBe(selected)
       expect(state.gasDropAvailable).toBe(true)
-      expect(state.gasDropEnabled).toBe(false)
+      expect(state.gasDropEnabled).toBe(confirmed)
       expect(state.gasDropUnsupported).toBe(false)
     },
   )
@@ -843,6 +895,7 @@ beforeEach(() => {
   mocks.wallets = undefined
   mocks.tokenInUsd = 1
   mocks.outputUsd = 100
+  mocks.slippage = 50
   mocks.getQuotes.mockReset().mockImplementation(() => new Promise(() => undefined))
   root = createRoot(document.createElement('div'))
 })

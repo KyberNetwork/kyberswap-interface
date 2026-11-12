@@ -79,18 +79,43 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
   const ordinaryPool = useQuotePool(selectionRequest, context => loadQuoteMode(context, false))
   const gasDropPool = useQuotePool(selectionRequest, context => loadQuoteMode(context, true))
   const ordinaryQuotes = ordinaryPool.snapshot?.quotes ?? []
-  const gasDropAvailable =
+  const eligibleOrdinaryQuote = ordinaryQuotes.find(
+    ({ adapter, quote }) =>
+      adapter.getName() === 'KyberCross' &&
+      Number.isFinite(quote.outputUsd) &&
+      quote.outputUsd > GAS_DROP_MIN_OUTPUT_USD,
+  )
+  const [gasDropSelection, setGasDropSelection] = useState({
+    request: selectionRequest,
+    enabled: false,
+    eligibilityQuote: undefined as Quote | undefined,
+  })
+  const previousParams = gasDropSelection.request.params
+  const params = selectionRequest.params
+  const eligibilityQuote = gasDropSelection.eligibilityQuote
+  // Carry only the mode and its eligibility estimate; quote pools still reset for every input edit.
+  const canCarryGasDrop =
+    gasDropSelection.enabled &&
     gasDropSupported &&
-    ordinaryQuotes.some(
-      ({ adapter, quote }) =>
-        adapter.getName() === 'KyberCross' &&
-        Number.isFinite(quote.outputUsd) &&
-        quote.outputUsd > GAS_DROP_MIN_OUTPUT_USD,
-    )
-  const [gasDropSelection, setGasDropSelection] = useState({ request: selectionRequest, enabled: false })
+    params &&
+    previousParams &&
+    gasDropSelection.request.pairKey === selectionRequest.pairKey &&
+    gasDropSelection.request.isReadOnly === selectionRequest.isReadOnly &&
+    gasDropSelection.request.excludedSources === selectionRequest.excludedSources &&
+    Object.entries(previousParams).every(
+      ([key, value]) => key === 'amount' || key === 'slippage' || params[key as keyof typeof params] === value,
+    ) &&
+    eligibilityQuote &&
+    (Number(params.amount) / Number(eligibilityQuote.quote.quoteParams.amount)) * eligibilityQuote.quote.outputUsd >
+      GAS_DROP_MIN_OUTPUT_USD
+  if (gasDropSelection.request !== selectionRequest) {
+    setGasDropSelection({ request: selectionRequest, enabled: !!canCarryGasDrop, eligibilityQuote })
+  }
+  const gasDropAvailable =
+    gasDropSupported && (!!eligibleOrdinaryQuote || (!ordinaryPool.snapshot && !!canCarryGasDrop))
   const gasDropEnabled = gasDropAvailable && gasDropSelection.request === selectionRequest && gasDropSelection.enabled
   if (gasDropSelection.request === selectionRequest && gasDropSelection.enabled && !gasDropAvailable) {
-    setGasDropSelection({ request: selectionRequest, enabled: false })
+    setGasDropSelection({ request: selectionRequest, enabled: false, eligibilityQuote })
   }
   const request = useMemo(() => ({ ...selectionRequest, gasDrop: gasDropEnabled }), [selectionRequest, gasDropEnabled])
 
@@ -101,7 +126,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     const hasQuotes = await activePool.load(context)
     if (gasDropEnabled && !context.signal.aborted && !hasQuotes) {
       setUnsupportedRequest(selectionRequest)
-      setGasDropSelection({ request: selectionRequest, enabled: false })
+      setGasDropSelection({ request: selectionRequest, enabled: false, eligibilityQuote })
     }
   }
 
@@ -137,12 +162,18 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     gasDropUnsupported: unsupportedRequest === selectionRequest,
     gasDropEnabled,
     prepareGasDrop: gasDropPool.prepare,
-    setGasDropEnabled: (enabled: boolean) => setGasDropSelection({ request: selectionRequest, enabled }),
+    setGasDropEnabled: (enabled: boolean) =>
+      setGasDropSelection({
+        request: selectionRequest,
+        enabled,
+        eligibilityQuote: eligibleOrdinaryQuote ?? eligibilityQuote,
+      }),
     selectRoute: (quote: Quote) => {
       session.setSelectedKey(providerKey(quote))
       setGasDropSelection({
         request: selectionRequest,
         enabled: !!quote.quote.quoteParams.gasDrop,
+        eligibilityQuote: eligibleOrdinaryQuote ?? eligibilityQuote,
       })
     },
   }

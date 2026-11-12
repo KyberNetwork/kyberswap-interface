@@ -201,7 +201,9 @@ output token. The `+ Gas` button becomes available when the current ordinary
 request (`gasDrop: false`) returns at least one KyberCross route with a finite
 `outputUsd` strictly above `GAS_DROP_MIN_OUTPUT_USD` ($2.2), regardless of the
 selected provider. Each ordinary request reevaluates eligibility from its results;
-changes to request inputs reset the selected mode. While Gas Drop is enabled,
+amount and slippage edits retain an enabled Gas Drop mode while the ordinary
+output estimate (scaled by the new input amount) remains above the threshold.
+Other request changes reset the selected mode. While Gas Drop is enabled,
 eligibility retains the ordinary request's result, including when the output
 after gas allocation falls below the threshold.
 
