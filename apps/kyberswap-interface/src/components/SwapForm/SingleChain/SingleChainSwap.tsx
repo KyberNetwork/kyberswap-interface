@@ -12,6 +12,7 @@ import MultichainKNCNote from 'components/SwapForm/Warnings/MultichainKNCNote'
 import PriceImpactNote from 'components/SwapForm/Warnings/PriceImpactNote'
 import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import { useERC8056TypedInput } from 'hooks/useERC8056Token'
+import { useSlippageSettingByPage } from 'state/user/hooks'
 
 /** Same-chain details and execution; fields and selection belong to the common form. */
 export const SingleChainSwapContent = ({ isCurrencyLoading = false }: { isCurrencyLoading?: boolean }) => {
@@ -52,6 +53,8 @@ export const SingleChainSwapContent = ({ isCurrencyLoading = false }: { isCurren
     confirmReview,
     dismissReview,
   } = useSingleChainSwapContext()
+
+  const { isSlippageControlPinned } = useSlippageSettingByPage()
 
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
   const { displayTypedValue } = useERC8056TypedInput(erc8056Info.inputInfo, typedValue, onUserInput)
@@ -115,7 +118,7 @@ export const SingleChainSwapContent = ({ isCurrencyLoading = false }: { isCurren
         )}
 
         {!isWrapOrUnwrap && <FeeControlGroup />}
-        <MEVProtection className="w-fit self-end" />
+        {(isWrapOrUnwrap || !isSlippageControlPinned) && <MEVProtection className="w-fit self-end" />}
         <HoneypotWarning message={honeypotWarning} />
 
         <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
