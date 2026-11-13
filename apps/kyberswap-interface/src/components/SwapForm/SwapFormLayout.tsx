@@ -12,7 +12,7 @@ type Props = {
   tokenInfo?: ReactNode
   details: ReactNode
   action: ReactNode
-  onReverse: () => void
+  onReverse?: () => void
 }
 
 export const SwapFormLayout = ({ hidden, inputPanel, outputPanel, tokenInfo, details, action, onReverse }: Props) => (

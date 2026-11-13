@@ -7,7 +7,7 @@ import Input from 'components/Input'
 import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import { useHistoryPagination } from 'components/SwapTransactions/History/useHistoryPagination'
-import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
+import { useSwapWalletSnapshot } from 'components/SwapWallets/SwapWalletContext'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import { Chain } from 'types/crossChain'
@@ -72,7 +72,7 @@ const WalletHistory = ({ sender, filter }: { sender: string; filter: string }) =
 
 export const useHistoryWallet = (inputChain: Chain) => {
   const { account } = useActiveWeb3React()
-  const wallets = useSwapWallets()
+  const wallets = useSwapWalletSnapshot()
 
   // History follows the current input signer after reverse; it never includes the receiver slot.
   const sender = wallets ? wallets.inputAddress : typeof inputChain === 'number' ? account || '' : ''

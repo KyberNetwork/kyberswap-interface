@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { type ComponentPropsWithRef, type ReactNode, useCallback, useState } from 'react'
 
 import Card from 'components/Card'
@@ -48,31 +48,25 @@ const Container = ({ className, hideInput, error, ...props }: ContainerProps) =>
 export { AmountShortcutChips, type AmountShortcut } from 'components/CurrencyInputPanel/AmountInputControls'
 export type CurrencyInputPanelFooter = ReactNode | ((openTokenSelector: () => void) => ReactNode)
 
-interface CurrencyInputPanelProps {
+interface CurrencyInputPanelViewProps {
   value: string
   amountShortcuts?: AmountShortcut[]
   footer?: CurrencyInputPanelFooter
-  requireOracle?: boolean
   onMax?: () => void
   onHalf?: () => void
   onUserInput?: (value: string) => void
   onFocus?: () => void
-  onClickSelect?: () => void
   label?: ReactNode
   positionLabel?: 'in' | 'out'
   chainSelectionMode?: 'wallet' | 'form'
-  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
-  onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
   currency?: Currency | null
   disableCurrencySelect?: boolean
   hideBalance?: boolean
   hideInput?: boolean
   disabledInput?: boolean
-  otherCurrency?: Currency | null
   id: string
   dataTestId?: string
-  showPinnedTokens?: boolean
   customBalanceText?: string
   hideLogo?: boolean
   highlightCurrencySelect?: boolean
@@ -85,40 +79,47 @@ interface CurrencyInputPanelProps {
   currencyLoading?: boolean
   loadingText?: string
   selectClassName?: string
+  balanceActionsEnabled?: boolean
+  selectedCurrencyBalance?: CurrencyAmount<Currency>
+  onSelectCurrency?: () => void
+  children?: ReactNode
+}
+
+interface CurrencyInputPanelProps
+  extends Omit<CurrencyInputPanelViewProps, 'selectedCurrencyBalance' | 'onSelectCurrency' | 'children'> {
+  requireOracle?: boolean
+  onClickSelect?: () => void
+  onSelectNonEvmCurrency?: (chain: NonEvmChain, currency: NonEvmCurrency) => void
+  onCurrencySelect?: (currency: Currency) => void
+  otherCurrency?: Currency | null
+  showPinnedTokens?: boolean
   selectorChain?: Chain
   customChainId?: ChainId
   trackingSource?: string
   /** Show the selected tokens' ERC-8056 balances in display units in the token selector. */
   scaleERC8056Balances?: boolean
-  balanceActionsEnabled?: boolean
 }
 
-const CurrencyInputPanel = ({
+export const CurrencyInputPanelView = ({
   value,
   amountShortcuts,
   footer,
-  requireOracle,
   error,
   onUserInput,
   onMax,
   onHalf,
   label = '',
   positionLabel = 'out',
-  onCurrencySelect,
   chainSelectionMode,
-  onSelectNonEvmCurrency,
   onSwitchCurrency,
   onFocus,
-  onClickSelect,
   currency,
   disableCurrencySelect = false,
   hideBalance = false,
   hideInput = false,
   disabledInput = false,
-  otherCurrency,
   id,
   dataTestId,
-  showPinnedTokens,
   customBalanceText,
   hideLogo = false,
   highlightCurrencySelect = false,
@@ -130,29 +131,12 @@ const CurrencyInputPanel = ({
   currencyLoading,
   loadingText,
   selectClassName,
-  customChainId,
-  selectorChain,
-  trackingSource,
-  scaleERC8056Balances,
-  balanceActionsEnabled: balanceActionsEnabledProp,
-}: CurrencyInputPanelProps) => {
-  const [modalOpen, setModalOpen] = useState(false)
-  const { account } = useActiveWeb3React()
-
-  const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
-  const balanceActionsEnabled = balanceActionsEnabledProp ?? !!(currency && account)
+  balanceActionsEnabled = false,
+  selectedCurrencyBalance,
+  onSelectCurrency,
+  children,
+}: CurrencyInputPanelViewProps) => {
   const isSwitchMode = !!onSwitchCurrency
-
-  const handleDismissSearch = useCallback(() => {
-    setModalOpen(false)
-  }, [setModalOpen])
-
-  const handleSelectCurrency = () => {
-    if (disableCurrencySelect) return
-    if (onSwitchCurrency) onSwitchCurrency()
-    else setModalOpen(true)
-    onClickSelect?.()
-  }
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -202,7 +186,7 @@ const CurrencyInputPanel = ({
                     highlightCurrencySelect && '!border-blue !bg-blue/20',
                     selectClassName,
                   )}
-                  onClick={handleSelectCurrency}
+                  onClick={onSelectCurrency}
                 >
                   <CurrencySelectContent
                     showChain={chainSelectionMode === 'form'}
@@ -218,28 +202,77 @@ const CurrencyInputPanel = ({
                 </CurrencySelect>
               )}
             </InputRow>
-            {typeof footer === 'function' ? footer(() => setModalOpen(true)) : footer}
+            {typeof footer === 'function' ? footer(() => onSelectCurrency?.()) : footer}
           </Stack>
         </Container>
-        {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
-          <TokenSelectorModal
-            isOpen={modalOpen}
-            onDismiss={handleDismissSearch}
-            onCurrencySelect={onCurrencySelect}
-            chainSelectionMode={chainSelectionMode}
-            onSelectNonEvmCurrency={onSelectNonEvmCurrency}
-            selectedCurrency={currency}
-            otherSelectedCurrency={otherCurrency}
-            scaleERC8056Balances={scaleERC8056Balances}
-            showPinnedTokens={showPinnedTokens}
-            customChainId={typeof selectorChain === 'number' ? selectorChain : customChainId}
-            initialNonEvmChain={typeof selectorChain === 'string' ? selectorChain : undefined}
-            trackingSource={trackingSource}
-            requireOracle={requireOracle}
-          />
-        )}
+        {children}
       </InputPanel>
     </div>
+  )
+}
+
+/** Owns wallet reads and token selection; pending forms use the presentation-only view. */
+const CurrencyInputPanel = (props: CurrencyInputPanelProps) => {
+  const {
+    currency,
+    customChainId,
+    disableCurrencySelect,
+    onSwitchCurrency,
+    onClickSelect,
+    onCurrencySelect,
+    chainSelectionMode,
+    onSelectNonEvmCurrency,
+    otherCurrency,
+    scaleERC8056Balances,
+    showPinnedTokens,
+    selectorChain,
+    trackingSource,
+    requireOracle,
+    ...viewProps
+  } = props
+  const [modalOpen, setModalOpen] = useState(false)
+  const { account } = useActiveWeb3React()
+  const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
+  const balanceActionsEnabled = props.balanceActionsEnabled ?? !!(currency && account)
+  const isSwitchMode = !!onSwitchCurrency
+
+  const handleDismissSearch = useCallback(() => setModalOpen(false), [])
+  const handleSelectCurrency = () => {
+    if (disableCurrencySelect) return
+    if (onSwitchCurrency) onSwitchCurrency()
+    else setModalOpen(true)
+    onClickSelect?.()
+  }
+
+  return (
+    <CurrencyInputPanelView
+      {...viewProps}
+      currency={currency}
+      disableCurrencySelect={disableCurrencySelect}
+      onSwitchCurrency={onSwitchCurrency}
+      chainSelectionMode={chainSelectionMode}
+      selectedCurrencyBalance={selectedCurrencyBalance}
+      balanceActionsEnabled={balanceActionsEnabled}
+      onSelectCurrency={handleSelectCurrency}
+    >
+      {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
+        <TokenSelectorModal
+          isOpen={modalOpen}
+          onDismiss={handleDismissSearch}
+          onCurrencySelect={onCurrencySelect}
+          chainSelectionMode={chainSelectionMode}
+          onSelectNonEvmCurrency={onSelectNonEvmCurrency}
+          selectedCurrency={currency}
+          otherSelectedCurrency={otherCurrency}
+          scaleERC8056Balances={scaleERC8056Balances}
+          showPinnedTokens={showPinnedTokens}
+          customChainId={typeof selectorChain === 'number' ? selectorChain : customChainId}
+          initialNonEvmChain={typeof selectorChain === 'string' ? selectorChain : undefined}
+          trackingSource={trackingSource}
+          requireOracle={requireOracle}
+        />
+      )}
+    </CurrencyInputPanelView>
   )
 }
 

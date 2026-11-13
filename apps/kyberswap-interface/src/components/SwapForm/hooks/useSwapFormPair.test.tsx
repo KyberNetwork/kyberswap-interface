@@ -20,9 +20,10 @@ import { getEmbeddedSwapPair, getTradeLocation } from 'utils/swapFlow'
 vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
 i18n.loadAndActivate({ locale: 'en', messages: {} })
 
+const wallet = vi.hoisted(() => ({ chainId: 1, networkInfo: { route: 'ethereum' } }))
 const tokens = vi.hoisted(() => ({ values: [] as any[], loading: false }))
 vi.mock('hooks', () => ({
-  useActiveWeb3React: () => ({ chainId: 1, networkInfo: { route: 'ethereum' } }),
+  useActiveWeb3React: () => wallet,
 }))
 vi.mock('hooks/useChainsConfig', () => ({ NETWORKS_INFO: {} }))
 vi.mock('hooks/useTokens', () => ({
@@ -39,7 +40,7 @@ vi.mock('hooks/useTokens', () => ({
     isLoading: false,
   }),
 }))
-vi.mock('state/user/hooks', () => ({}))
+vi.mock('state/user/hooks', () => ({ useIsAcceptedTerm: () => [true] }))
 vi.mock('services/tokenCatalog', () => ({}))
 vi.mock('hooks/useTracking', () => ({
   default: () => ({ trackingHandler: vi.fn() }),
@@ -55,7 +56,10 @@ vi.mock('hooks/usePageLocation', async () => {
   }
 })
 vi.mock('hooks/usePrefetchOnIntent', () => ({ default: () => ({}) }))
-vi.mock('hooks/web3/useSyncNetworkParamWithStore', () => ({ useSyncNetworkParamWithStore: vi.fn() }))
+vi.mock('hooks/web3/useChangeNetwork', () => ({ useChangeNetwork: () => ({ changeNetwork: vi.fn() }) }))
+vi.mock('hooks/useAccount', () => ({ useAccount: () => ({ isConnected: true, connector: {} }) }))
+vi.mock('hooks/useIsWalletRestoring', () => ({ default: () => false }))
+vi.mock('utils/safeApp', () => ({ isInSafeApp: false }))
 vi.mock('pages/Swap/SwapPage', () => ({ default: () => <Page /> }))
 vi.mock('components/TradeLayout/LimitTab', () => ({
   LimitTab: ({ onClick }: { onClick: () => void }) => <button onClick={onClick}>Limit Order</button>,
@@ -146,12 +150,32 @@ const pairText = () => container.querySelector('[data-pair]')?.textContent || ''
 afterEach(async () => {
   await act(async () => root?.unmount())
   container?.remove()
+  wallet.chainId = 1
+  wallet.networkInfo = { route: 'ethereum' }
   tokens.loading = false
   tokens.values = [usdc, weth]
 })
 
 // Exercise the real pair reader, selection hook and tab navigation with a wallet on another chain.
 describe('unified swap pair navigation', () => {
+  it.each([
+    '/swap/ethereum/eth-to-usdc?input=12',
+    `/swap?from=1&to=8453&tokenIn=ETH&tokenOut=${usdc.address}&input=12`,
+  ])('preserves the pair, amount URL and page draft when the connected chain changes on %s', async initialUrl => {
+    await mount(initialUrl)
+    await click('Keep draft')
+    const pair = pairText()
+    const location = url()
+
+    wallet.chainId = ChainId.BASE
+    wallet.networkInfo = { route: 'base' }
+    await render(initialUrl)
+
+    expect(url()).toBe(location)
+    expect(pairText()).toBe(pair)
+    expect(container.querySelector('[data-draft]')?.textContent).toBe('true')
+  })
+
   it('opens with an empty output and preserves it when selecting input and reversing', async () => {
     await mount('/swap/base')
     expect(pairText()).toBe('8453:eth → 8453:')

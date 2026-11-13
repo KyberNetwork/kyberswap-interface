@@ -87,6 +87,30 @@ const SearchLoading = () => (
   </Stack>
 )
 
+const NonEvmTokenSelectorFallback = ({ networkSelector }: { networkSelector?: ReactNode }) => (
+  <Stack className="min-h-0 min-w-0 flex-1 gap-3">
+    <Stack className="shrink-0 gap-2">
+      <HStack className="items-center gap-3">
+        <SearchWrapper className="flex-1">
+          <SearchInput
+            autoFocus
+            className="bg-white-04"
+            aria-label="Search token"
+            placeholder={t`Search by name, symbol or address`}
+            disabled
+          />
+        </SearchWrapper>
+        {networkSelector}
+      </HStack>
+      <TabBar tabs={[TokenSelectorTab.All]} activeTab={TokenSelectorTab.All} />
+    </Stack>
+    <Stack role="tabpanel" id="token-selector-panel" className="min-h-0 flex-1 gap-2">
+      <TokenListHeader activeTab={TokenSelectorTab.All} metricColumn="volume24h" sort={null} />
+      <TokenListSkeleton activeTab={TokenSelectorTab.All} showFavoriteIcon={false} showUsdBalance={false} />
+    </Stack>
+  </Stack>
+)
+
 const EmptyTokenMessage = ({ activeTab }: { activeTab: TokenSelectorTab }) => {
   return activeTab === TokenSelectorTab.Trending ? (
     <Trans>No trending tokens right recently. Check back later.</Trans>
@@ -367,7 +391,19 @@ export const TokenSelectorContent = ({
           />
         )}
         {nonEvmChain ? (
-          <Suspense fallback={<TokenListSkeleton activeTab={activeTab} />}>
+          <Suspense
+            fallback={
+              <NonEvmTokenSelectorFallback
+                networkSelector={
+                  showDiscoveryTabs ? (
+                    <div className="sm:hidden">
+                      <ChainSelector chains={networks} selectedChainId={nonEvmChain} onChange={selectNetwork} />
+                    </div>
+                  ) : undefined
+                }
+              />
+            }
+          >
             <NonEvmTokenSelectorContent
               key={nonEvmChain}
               chain={nonEvmChain}

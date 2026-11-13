@@ -23,10 +23,18 @@ export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
   // [ChainId.BASE]: 'https://base-rpc-mev-protection.kyberswap.com/',
 }
 
-const AddMEVProtectionModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+const AddMEVProtectionModal = ({
+  chainId,
+  isOpen,
+  onClose,
+}: {
+  chainId: ChainId
+  isOpen: boolean
+  onClose: () => void
+}) => {
   const { addNewNetwork } = useChangeNetwork()
   const { trackingHandler } = useTracking()
-  const { walletKey, chainId } = useActiveWeb3React()
+  const { walletKey } = useActiveWeb3React()
   const notify = useNotify()
   const isUsingMetamask = walletKey === CONNECTION.METAMASK_RDNS
   const chainName = NETWORKS_INFO[chainId].name
@@ -39,7 +47,7 @@ const AddMEVProtectionModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: 
 
     if (!KYBER_SWAP_RPC[chainId]) return
 
-    const name = 'Ethereum Mainnet (KyberSwap RPC)'
+    const name = `${chainName} (KyberSwap RPC)`
     trackingHandler(TRACKING_EVENT_TYPE.MEV_ADD_CLICK_MODAL, { type: name })
     addNewNetwork(
       chainId,

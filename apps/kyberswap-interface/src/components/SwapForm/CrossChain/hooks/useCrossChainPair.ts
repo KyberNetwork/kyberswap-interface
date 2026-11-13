@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { useNearIntentsTokens } from 'hooks/useNearIntentsTokens'
 import { useSolanaTokens } from 'hooks/useSolanaTokens'
-import { useCurrencyV2 } from 'hooks/useTokens'
+import { useCurrencyV2WithLoading } from 'hooks/useTokens'
 import { BitcoinToken, Chain, NonEvmChain, isEvmChain } from 'types/crossChain'
 
 type Props = {
@@ -25,30 +25,41 @@ export const useCrossChainPair = ({ fromChainId, toChainId, tokenIn, tokenOut }:
   const isFromSolana = fromChainId === NonEvmChain.Solana
   const isToSolana = toChainId === NonEvmChain.Solana
 
-  const currencyInEvm = useCurrencyV2(isFromEvm ? tokenIn : undefined, isFromEvm ? (fromChainId as ChainId) : undefined)
+  const inputEvm = useCurrencyV2WithLoading(
+    isFromEvm ? tokenIn : undefined,
+    isFromEvm ? (fromChainId as ChainId) : undefined,
+  )
+  const outputEvm = useCurrencyV2WithLoading(
+    isToEvm ? tokenOut : undefined,
+    isToEvm ? (toChainId as ChainId) : undefined,
+  )
 
-  const { solanaTokens: solanaTokensIn } = useSolanaTokens(isFromSolana ? tokenIn || '' : '', !isFromSolana)
-  const { solanaTokens: solanaTokensOut } = useSolanaTokens(isToSolana ? tokenOut || '' : '', !isToSolana)
+  const { solanaTokens: solanaTokensIn, isLoadingSolanaTokens: isLoadingSolanaIn } = useSolanaTokens(
+    isFromSolana ? tokenIn || '' : '',
+    !isFromSolana,
+  )
+  const { solanaTokens: solanaTokensOut, isLoadingSolanaTokens: isLoadingSolanaOut } = useSolanaTokens(
+    isToSolana ? tokenOut || '' : '',
+    !isToSolana,
+  )
 
   const currencyIn = useMemo(() => {
     if (!tokenIn) return undefined
-    if (isFromEvm) return currencyInEvm
+    if (isFromEvm) return inputEvm.currency
     if (isFromBitcoin) return BitcoinToken
     if (isFromNear) return nearTokens.find(token => token.assetId === tokenIn)
     if (isFromSolana) return solanaTokensIn.find(token => token.id === tokenIn)
     throw new Error('Network is not supported')
-  }, [currencyInEvm, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens, isFromSolana, solanaTokensIn])
-
-  const currencyOutEvm = useCurrencyV2(isToEvm ? tokenOut : undefined, isToEvm ? (toChainId as ChainId) : undefined)
+  }, [inputEvm.currency, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens, isFromSolana, solanaTokensIn])
 
   const currencyOut = useMemo(() => {
     if (!tokenOut) return undefined
-    if (isToEvm) return currencyOutEvm
+    if (isToEvm) return outputEvm.currency
     if (isToBitcoin) return BitcoinToken
     if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)
     if (isToSolana) return solanaTokensOut.find(token => token.id === tokenOut)
     throw new Error('Network is not supported')
-  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, solanaTokensOut, isToSolana])
+  }, [outputEvm.currency, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, solanaTokensOut, isToSolana])
 
   return {
     pairKey: JSON.stringify([fromChainId, toChainId, tokenIn, tokenOut]),
@@ -56,6 +67,12 @@ export const useCrossChainPair = ({ fromChainId, toChainId, tokenIn, tokenOut }:
     toChainId,
     currencyIn: currencyIn || undefined,
     currencyOut: currencyOut || undefined,
+    isInputCurrencyLoading:
+      Boolean(tokenIn) &&
+      (inputEvm.isLoading || (isFromSolana && isLoadingSolanaIn) || (isFromNear && nearTokens.length === 0)),
+    isOutputCurrencyLoading:
+      Boolean(tokenOut) &&
+      (outputEvm.isLoading || (isToSolana && isLoadingSolanaOut) || (isToNear && nearTokens.length === 0)),
     nearTokens,
   }
 }

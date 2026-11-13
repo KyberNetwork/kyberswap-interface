@@ -5,19 +5,20 @@ import { cn } from 'utils/cn'
 
 type Props = {
   className?: string
-  onClick: () => void
+  onClick?: () => void
 }
 const ReverseTokenSelectionButton = ({ className, onClick }: Props) => {
   const [rotated, setRotated] = useState(false)
 
   const handleClick = () => {
-    onClick()
+    onClick?.()
     setRotated(r => !r)
   }
 
   return (
     <button
       type="button"
+      disabled={!onClick}
       aria-label="Reverse input and output"
       onClick={handleClick}
       className={cn('flex rounded-full border-0 bg-transparent p-0', className)}

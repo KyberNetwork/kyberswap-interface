@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy, useCallback, useState } from 'react'
 
-import LocalLoader from 'components/LocalLoader'
+import { getCrossChainSwapIdentity } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { SingleChainSwapFormProvider } from 'components/SwapForm/SingleChain/SingleChainSwapFormProvider'
 import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 import { useSwapFormPair } from 'components/SwapForm/hooks/useSwapFormPair'
@@ -11,7 +11,8 @@ import { TAB } from 'components/TradeLayout/Tabs'
 import { useTradeController } from 'components/TradeLayout/useTradeController'
 import { useTradeLayoutPrefetch } from 'components/TradeLayout/useTradeLayoutPrefetch'
 import { useActiveWeb3React } from 'hooks'
-import SwapPageContent from 'pages/Swap/SwapPageContent'
+import SwapPageContent, { SwapPageForm, SwapPageFormFallback } from 'pages/Swap/SwapPageContent'
+import { SwapPageRuntime, type SwapRuntimeSnapshot, createSwapPageRuntime } from 'pages/Swap/SwapPageRuntime'
 
 const CrossChainProviders = lazy(() => import('./SwapCrossChainProviders'))
 const TransactionStatusUpdater = lazy(() =>
@@ -53,6 +54,26 @@ const SwapPage = () => {
     onHistoryChange: setShowHistory,
   }
 
+  // Only the data projection changes when lazy providers resolve; the page/right panel stay mounted.
+  const runtimeIdentity = getCrossChainSwapIdentity({
+    enabled: pair.isCrossChain,
+    fromChain: pair.inputChain,
+    toChain: pair.outputChain,
+    tokenIn: pair.inputId,
+    tokenOut: pair.outputId,
+    amount: typedValue,
+  })
+  // History follows the input signer; changing the receiver chain must not clear it.
+  const walletIdentity = String(pair.inputChain)
+  const [runtime] = useState(createSwapPageRuntime)
+  const publishRuntime = useCallback(
+    (snapshot: SwapRuntimeSnapshot) => {
+      runtime.publish(runtimeIdentity, walletIdentity, snapshot)
+    },
+    [runtime, runtimeIdentity, walletIdentity],
+  )
+  const pendingForm = <SwapPageFormFallback {...contentProps} />
+
   return (
     <TransactionDetailProvider>
       <Suspense fallback={null}>
@@ -65,32 +86,41 @@ const SwapPage = () => {
         currencyIn={pair.currencyIn}
         currencyOut={pair.currencyOut}
       >
-        {crossChainActivated ? (
-          <Suspense fallback={<LocalLoader />}>
-            <CrossChainProviders
-              enabled={pair.isCrossChain}
-              evmRecipient={evmRecipient}
-              amount={typedValue}
-              setAmount={onUserInput}
-              tokenIn={pair.inputId}
-              tokenOut={pair.outputId}
-              fromChain={pair.inputChain}
-              toChain={pair.outputChain}
-            >
-              <Suspense fallback={null}>
-                <WalletHistorySubscriptions />
-              </Suspense>
-              <SwapPageContent {...contentProps} />
-            </CrossChainProviders>
-          </Suspense>
-        ) : (
-          <>
-            <Suspense fallback={null}>
-              <WalletHistorySubscriptions evmOnly />
-            </Suspense>
-            <SwapPageContent {...contentProps} />
-          </>
-        )}
+        <SwapPageRuntime runtime={runtime} identity={runtimeIdentity} walletIdentity={walletIdentity}>
+          <SwapPageContent
+            {...contentProps}
+            requiresWallets={crossChainActivated}
+            form={
+              crossChainActivated ? (
+                <Suspense fallback={pendingForm}>
+                  <CrossChainProviders
+                    enabled={pair.isCrossChain}
+                    evmRecipient={evmRecipient}
+                    amount={typedValue}
+                    setAmount={onUserInput}
+                    tokenIn={pair.inputId}
+                    tokenOut={pair.outputId}
+                    fromChain={pair.inputChain}
+                    toChain={pair.outputChain}
+                    onRuntimeChange={publishRuntime}
+                  >
+                    <Suspense fallback={null}>
+                      <WalletHistorySubscriptions />
+                    </Suspense>
+                    <SwapPageForm {...contentProps} />
+                  </CrossChainProviders>
+                </Suspense>
+              ) : (
+                <>
+                  <Suspense fallback={null}>
+                    <WalletHistorySubscriptions evmOnly />
+                  </Suspense>
+                  <SwapPageForm {...contentProps} />
+                </>
+              )
+            }
+          />
+        </SwapPageRuntime>
       </SingleChainSwapFormProvider>
     </TransactionDetailProvider>
   )

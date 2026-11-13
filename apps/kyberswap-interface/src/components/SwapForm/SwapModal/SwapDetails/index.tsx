@@ -164,7 +164,11 @@ const SwapDetails = ({ isLoading, gasUsd, minimumAmountOut, priceImpact, buildDa
         </p>
       </DetailRow>
 
-      <MEVProtection showTrigger={slippageStatus === SLIPPAGE_STATUS.HIGH} className="w-fit self-end" />
+      <MEVProtection
+        chainId={routeSummary?.parsedAmountIn.currency.chainId}
+        showTrigger={slippageStatus === SLIPPAGE_STATUS.HIGH}
+        className="w-fit self-end"
+      />
 
       <SwapFeeAndRecipientDetails isLoading={isLoading} buildData={buildData} />
     </Stack>

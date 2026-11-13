@@ -3,14 +3,10 @@ import { Trans } from '@lingui/macro'
 import { Suspense, lazy, useEffect } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
-import { Stack } from 'components/Stack'
 import { CrossChainReceiverWalletSelector } from 'components/SwapForm/CrossChain/CrossChainReceiverWalletSelector'
-import { CrossChainQuoteSummaryRows } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteSummary'
-import { CrossChainRoutesButton } from 'components/SwapForm/CrossChain/Quote/CrossChainRoutesButton'
+import { PendingCrossChainQuoteDetails } from 'components/SwapForm/CrossChain/Quote/CrossChainQuoteLayout'
 import { useOptionalCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
-import { QuoteDetails } from 'components/SwapForm/Quote/QuoteDetails'
-import { SwapRate } from 'components/SwapForm/Quote/SwapRate'
-import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
+import { PendingWalletSelector } from 'components/SwapForm/PendingSwapForm'
 import { SingleChainSwapContent } from 'components/SwapForm/SingleChain/SingleChainSwap'
 import { useSingleChainSwapContext } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import { type SwapFormSelectionProps, UnifiedSwapForm } from 'components/SwapForm/UnifiedSwapForm'
@@ -18,7 +14,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
-import { useSlippageSettingByPage } from 'state/user/hooks'
 import type { Chain } from 'types/crossChain'
 
 const CrossChainSwap = lazy(() => import('components/SwapForm/CrossChain/CrossChainSwap'))
@@ -27,18 +22,10 @@ const CrossChainOutputFooter = lazy(() =>
 )
 
 // The engine publishes after mounting, so SSR and lazy loading share this non-executable shell.
-const PendingSwap = () => {
-  const { rawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
-
+const PendingSwap = ({ showRecipient }: { showRecipient: boolean }) => {
   return (
     <>
-      <QuoteDetails className="gap-3">
-        {isSlippageControlPinned && <SlippageSetting isCrossChain />}
-        <SwapRate loading routes={<CrossChainRoutesButton disabled />} />
-        <Stack className="gap-2">
-          <CrossChainQuoteSummaryRows loading slippage={rawSlippage} showSlippage={!isSlippageControlPinned} />
-        </Stack>
-      </QuoteDetails>
+      <PendingCrossChainQuoteDetails showRecipient={showRecipient} />
       <ButtonPrimary id="swap-button" disabled>
         <Trans>Swap</Trans>
       </ButtonPrimary>
@@ -72,6 +59,12 @@ export const SwapForm = ({
   const input = isCrossChain ? currencyIn ?? cross?.currencyIn : currencyIn
   const output = isCrossChain ? currencyOut ?? cross?.currencyOut : currencyOut
   const quote = cross?.selectedQuote?.quote
+  const inputCurrencyLoading = isCrossChain
+    ? !!cross?.isInputCurrencyLoading || (typeof inputChain !== 'number' && !input)
+    : props.isInputCurrencyLoading
+  const outputCurrencyLoading = isCrossChain
+    ? !!cross?.isOutputCurrencyLoading || (typeof outputChain !== 'number' && !output)
+    : props.isOutputCurrencyLoading
   const evmOutput = output && 'isNative' in output ? output : undefined
   const parsedAmountOut = isCrossChain
     ? evmOutput && quote
@@ -110,13 +103,19 @@ export const SwapForm = ({
       outputAmount={isCrossChain ? quote?.formattedOutputAmount : single.routeSummary?.parsedAmountOut.toExact()}
       amountInUsd={isCrossChain ? quote?.inputUsd?.toString() : single.routeSummary?.amountInUsd}
       amountOutUsd={isCrossChain ? quote?.outputUsd?.toString() : single.routeSummary?.amountOutUsd}
+      isInputCurrencyLoading={inputCurrencyLoading}
+      isOutputCurrencyLoading={outputCurrencyLoading}
       wrapType={isCrossChain ? WrapType.NOT_APPLICABLE : single.wrapType}
       loading={isCrossChain ? (!cross || cross.loading) && !quote : single.routeLoading}
       receiver={
-        independentWallets && cross ? (
-          <div className="-my-1 -ml-2 flex">
-            <CrossChainReceiverWalletSelector key={outputChain} chain={outputChain} />
-          </div>
+        independentWallets ? (
+          cross ? (
+            <div className="-my-1 -ml-2 flex">
+              <CrossChainReceiverWalletSelector key={outputChain} chain={outputChain} />
+            </div>
+          ) : (
+            <PendingWalletSelector />
+          )
         ) : undefined
       }
       receiverAddress={isCrossChain ? cross?.recipient : single.recipient}
@@ -130,14 +129,14 @@ export const SwapForm = ({
       details={
         isCrossChain ? (
           cross ? (
-            <Suspense fallback={<PendingSwap />}>
+            <Suspense fallback={<PendingSwap showRecipient={!independentWallets} />}>
               <CrossChainSwap />
             </Suspense>
           ) : (
-            <PendingSwap />
+            <PendingSwap showRecipient={!independentWallets} />
           )
         ) : (
-          <SingleChainSwapContent isCurrencyLoading={props.isInputCurrencyLoading || props.isOutputCurrencyLoading} />
+          <SingleChainSwapContent isCurrencyLoading={inputCurrencyLoading || outputCurrencyLoading} />
         )
       }
       action={null}
