@@ -6,8 +6,9 @@ import { VaultWithdrawRequest, VaultWithdrawRequestStatus } from 'services/vault
 import { NotificationType } from 'components/Announcement/type'
 import BORING_ON_CHAIN_QUEUE_ABI from 'constants/abis/earn/boringOnChainQueue.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { useApproveCallback } from 'hooks/useApproveCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useVaultTransaction } from 'pages/Earns/VaultDetail/hooks/useVaultTransaction'
 import { VAULT_WITHDRAW_APPROVAL_TRACKING } from 'pages/Earns/hooks/useVaultTracking'
 import { submitTransaction } from 'pages/Earns/utils'
 import { getWithdrawRequestCancellation, safeBigInt } from 'pages/Earns/utils/vault'
@@ -38,14 +39,10 @@ export const useVaultWithdraw = ({
   discount,
   secondsToDeadline,
 }: UseVaultWithdrawArgs) => {
-  const { account } = useActiveWeb3React()
-  const { isSmartConnector } = useWeb3React()
-  const notify = useNotify()
-  const addTransactionWithType = useTransactionAdder()
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const [txHash, setTxHash] = useState<string | null>(null)
+  const { account, send, isSubmitting, submitError } = useVaultTransaction({
+    chainId,
+    errorTitle: t`Withdrawal request failed`,
+  })
 
   // The queue pulls the shares itself, so the approval is on the share token, not the vault.
   const approvalAmount = useMemo<CurrencyAmount<Currency> | undefined>(
@@ -63,44 +60,20 @@ export const useVaultWithdraw = ({
     trackingPayload: VAULT_WITHDRAW_APPROVAL_TRACKING,
   })
 
-  const reset = useCallback(() => {
-    setSubmitError(null)
-    setTxHash(null)
-  }, [])
-
-  /**
-   * Returns the transaction hash so a step sequence can wait for its receipt. A failure is reported
-   * here and then rethrown, so the sequence can tell a refusal from any other failure.
-   *
-   * `trackingPayload` rides on the transaction, for the events sent once its receipt is in.
-   */
+  /** `trackingPayload` rides on the transaction, for the events sent once its receipt is in. */
   const requestWithdraw = useCallback(
     async (trackingPayload?: Record<string, unknown>): Promise<string | undefined> => {
       if (!account || !queueAddress || !assetOut || !shares || shares <= 0n) return undefined
       if (discount === undefined || secondsToDeadline === undefined) return undefined
 
-      setSubmitError(null)
-      setIsSubmitting(true)
-
-      try {
-        const data = encodeFunctionData({
+      return send({
+        to: queueAddress,
+        data: encodeFunctionData({
           abi: BORING_ON_CHAIN_QUEUE_ABI as Abi,
           functionName: 'requestOnChainWithdraw',
           args: [assetOut as Address, shares, discount, secondsToDeadline],
-        })
-
-        const { txHash: hash, error } = await submitTransaction({
-          account,
-          chainId: chainId as ChainId,
-          txData: { to: queueAddress, data, value: '0' },
-          isSmartConnector,
-        })
-
-        if (error || !hash) throw error || new Error('Transaction was not submitted')
-
-        setTxHash(hash)
-        addTransactionWithType({
-          hash,
+        }),
+        record: {
           type: TRANSACTION_TYPE.EARN_VAULT_WITHDRAW_REQUEST,
           extraInfo: {
             tokenAddress: shareToken?.address ?? '',
@@ -109,16 +82,8 @@ export const useVaultWithdraw = ({
             contract: queueAddress,
             trackingPayload,
           },
-        })
-        return hash
-      } catch (error) {
-        const message = friendlyError(error as Error)
-        setSubmitError(message)
-        notify({ title: t`Withdrawal request failed`, summary: message, type: NotificationType.ERROR }, 8000)
-        throw error
-      } finally {
-        setIsSubmitting(false)
-      }
+        },
+      })
     },
     [
       account,
@@ -127,25 +92,19 @@ export const useVaultWithdraw = ({
       shares,
       discount,
       secondsToDeadline,
-      chainId,
-      isSmartConnector,
-      addTransactionWithType,
+      send,
       shareToken?.address,
       shareToken?.symbol,
       approvalAmount,
-      notify,
     ],
   )
 
   return {
     approvalState,
     approve,
-    needsApproval: approvalState === ApprovalState.NOT_APPROVED,
     requestWithdraw,
     isSubmitting,
     submitError,
-    txHash,
-    reset,
   }
 }
 

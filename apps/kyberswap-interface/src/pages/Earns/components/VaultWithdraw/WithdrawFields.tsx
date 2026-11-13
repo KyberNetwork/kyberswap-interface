@@ -13,8 +13,9 @@ import { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
 /**
  * Amount field and terms for both withdrawal routes: selling the shares through the aggregator, or
- * queueing a redemption with the vault itself. The shares go in at the top and the route that takes
- * them out — along with the token it pays in — sits below the seam.
+ * redeeming them with the vault itself — on the spot where the vault pays out directly, through its
+ * queue where it does not. The shares go in at the top and the route that takes them out — along
+ * with the token it pays in — sits below the seam.
  */
 import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import SlippageSelect from 'pages/Earns/components/VaultDeposit/SlippageSelect'
@@ -39,8 +40,13 @@ import {
   TokenTag,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
+import {
+  getNativePayoutNote,
+  getNativeRouteNote,
+  getProcessingTime,
+  getProcessingTimeTooltip,
+} from 'pages/Earns/components/VaultWithdraw/nativeWithdrawCopy'
 import { PERCENT_OPTIONS, WithdrawFormState, WithdrawMode } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
-import { formatTerm } from 'pages/Earns/hooks/useCountdown'
 import { toWithdrawMethod } from 'pages/Earns/hooks/useVaultFlowTracking'
 import { useVaultTracking, vaultTargetFromDetail } from 'pages/Earns/hooks/useVaultTracking'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -109,9 +115,17 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
 
   const isOutLoading = form.isNative ? form.isLoadingPreview : form.isRouteLoading
 
-  /** The token the chosen path pays out in: the queue's asset, or the one the route sells into. */
+  /** The token the chosen path pays out in: the vault's asset, or the one the route sells into. */
   const outToken = form.isNative ? form.nativeAsset : form.swapToken
   const minReceived = form.isNative ? nativeOut : zapMinOut
+
+  // The native path is one of two things, and which one is only known once the vault's assets are
+  // in. Its wording waits behind a placeholder until then, so a vault that pays out on the spot
+  // never opens on the queue's waiting time.
+  const nativePayoutNote = getNativePayoutNote(form.nativeKind)
+  const routeNote = form.isNative
+    ? getNativeRouteNote(form.nativeKind)
+    : t`Instant exit uses market liquidity; output may differ from native redeem.`
 
   return (
     <>
@@ -168,11 +182,13 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             </SegmentedTab>
           </SegmentedTabs>
 
-          <FieldNote>
-            {form.isNative
-              ? t`Expected time: Starts ~3 days; may extend (3–10 days) depending on strategies.`
-              : t`Instant exit uses market liquidity; output may differ from native redeem.`}
-          </FieldNote>
+          {form.isResolvingNative ? (
+            <FieldNote>
+              <ValueSkeleton className="h-4 w-3/4" />
+            </FieldNote>
+          ) : routeNote ? (
+            <FieldNote>{routeNote}</FieldNote>
+          ) : null}
 
           <FieldRow>
             {form.isNative ? (
@@ -247,12 +263,14 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
       </FieldStack>
 
       <DetailsBox>
-        {/* The queue locks its figure into the request, so it is the amount that arrives; only the
+        {/* The vault quotes what it pays, so a native redemption states an amount; only the
             aggregator route has a slippage floor under it. The label says which of the two it is. */}
         <InfoRow>
           <InfoLabel
             tooltip={
-              form.isNative
+              form.isInstantRedeem
+                ? t`Quoted by the vault at its current rate. The redemption settles in the same transaction, at the rate when it confirms.`
+                : form.isNative
                 ? t`The queue prices this redemption when you submit it and locks the amount into the request, so this is the amount that arrives.`
                 : t`The least you will receive if the price moves against you by the full slippage tolerance.`
             }
@@ -276,10 +294,10 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
 
         {form.isNative ? (
           <InfoRow>
-            <InfoLabel
-              tooltip={t`How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule.`}
-            >{t`Processing Time`}</InfoLabel>
-            <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
+            <InfoLabel tooltip={getProcessingTimeTooltip(form.nativeKind)}>{t`Processing Time`}</InfoLabel>
+            <InfoValue>
+              {form.isResolvingNative ? <ValueSkeleton /> : getProcessingTime(form.nativeKind, form.queueLimits)}
+            </InfoValue>
           </InfoRow>
         ) : (
           <>
@@ -299,10 +317,12 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
         )}
       </DetailsBox>
 
-      {form.isNative ? (
+      {form.isResolvingNative ? (
         <FieldNote className="text-gray">
-          {t`When completed, tokens are automatically sent to your wallet, no need to claim.`}
+          <ValueSkeleton className="h-4 w-2/3" />
         </FieldNote>
+      ) : form.isNative && nativePayoutNote ? (
+        <FieldNote className="text-gray">{nativePayoutNote}</FieldNote>
       ) : null}
 
       {isSelectorOpen ? (

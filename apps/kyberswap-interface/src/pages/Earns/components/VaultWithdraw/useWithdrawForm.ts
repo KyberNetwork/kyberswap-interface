@@ -6,7 +6,9 @@ import { VaultApiDetailItem, VaultPositionItem, useVaultSupportedAssetsQuery } f
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { ApprovalState, ApprovalStatus } from 'hooks/useApproveCallback'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
+import { useVaultRedeem } from 'pages/Earns/VaultDetail/hooks/useVaultRedeem'
 import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw'
 import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
 import { getVaultPriceImpact, isPriceImpactBad } from 'pages/Earns/components/VaultPriceImpactNote'
@@ -20,7 +22,7 @@ import {
 import { VAULT_WITHDRAW_APPROVAL_TRACKING } from 'pages/Earns/hooks/useVaultTracking'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { isWrappedNativeToken } from 'pages/Earns/utils'
-import { getBoringQueueRoute, safeBigInt } from 'pages/Earns/utils/vault'
+import { getNativeWithdrawal, safeBigInt } from 'pages/Earns/utils/vault'
 import { formatVaultAmounts } from 'pages/Earns/utils/vaultFormat'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -31,8 +33,23 @@ import { formatUnits, parseUnits } from 'utils/viem'
 export enum WithdrawMode {
   /** Sell the shares through the aggregator; settles in one transaction. */
   ANY_TOKEN = 'any',
-  /** Queue a redemption with the vault; the solver delivers the asset later. */
+  /** Redeem with the vault itself: on the spot where it pays out directly, through its queue where it does not. */
   NATIVE = 'native',
+}
+
+/**
+ * The steps a withdrawal runs. A redemption the vault settles itself has the owner burning their own
+ * shares, so it has no allowance step and none of the fields that drive one.
+ */
+type WithdrawProcessing = {
+  chainId: number
+  steps: VaultStep[]
+  actionStep: VaultStep
+  onFinalStep: (trackingPayload?: Record<string, unknown>) => Promise<string | undefined>
+  approveStep?: VaultStep
+  approval?: ApprovalState
+  approveCallback?: () => Promise<ApprovalStatus>
+  checkApprovalManually?: () => Promise<boolean>
 }
 
 export const PERCENT_OPTIONS = [25, 50, 75, 100] as const
@@ -98,7 +115,7 @@ export const useWithdrawForm = ({
     [shareToken, shares],
   )
 
-  // ---- native path: the queue decides which assets it accepts and on what terms ----
+  // ---- native path: the vault decides which assets it pays out, and how ----
   const { data: supportedAssets, isLoading: isLoadingAssets } = useVaultSupportedAssetsQuery(
     { chainId, vaultId: vault.vaultId },
     { skip: !chainId || !vault.vaultId },
@@ -109,30 +126,51 @@ export const useWithdrawForm = ({
     [supportedAssets],
   )
 
+  const underlyingAddress = vault.underlyingToken?.address
+
+  // Opens on an asset the vault can pay out natively right now, so the native tab does not open on
+  // one it has to refuse while a usable one sits further down the list.
   const [nativeAssetAddress, setNativeAssetAddress] = useState<string | undefined>(undefined)
   useEffect(() => {
-    setNativeAssetAddress(current => current ?? withdrawableAssets[0]?.assetAddress)
-  }, [withdrawableAssets])
+    setNativeAssetAddress(
+      current =>
+        current ??
+        (withdrawableAssets.find(asset => getNativeWithdrawal(asset, underlyingAddress)) ?? withdrawableAssets[0])
+          ?.assetAddress,
+    )
+  }, [withdrawableAssets, underlyingAddress])
 
   const nativeAsset = withdrawableAssets.find(asset => asset.assetAddress === nativeAssetAddress)
 
+  const nativeWithdrawal = getNativeWithdrawal(nativeAsset, underlyingAddress)
+  const hasNativeRoute = withdrawableAssets.some(asset => getNativeWithdrawal(asset, underlyingAddress))
+
   // The queue that takes this asset, and the terms it enforces. Both come from the route rather
   // than the vault: an asset the vault lists is not necessarily one its queue is open for.
-  const queueRoute = getBoringQueueRoute(nativeAsset)
+  const queueRoute = nativeWithdrawal?.kind === 'queue' ? nativeWithdrawal.route : undefined
   const queueAddress = queueRoute?.queueAddress
   const queueLimits = queueRoute?.limits ?? undefined
-  const hasNativeRoute = withdrawableAssets.some(asset => getBoringQueueRoute(asset))
 
   // Native is the vault's own exit, so it stays selected while the routes are still loading.
   const effectiveMode = mode ?? (isLoadingAssets || hasNativeRoute ? WithdrawMode.NATIVE : WithdrawMode.ANY_TOKEN)
   const isNative = effectiveMode === WithdrawMode.NATIVE
+  /** Which of the vault's own exits the chosen asset takes; unset until the assets are known. */
+  const nativeKind = isNative ? nativeWithdrawal?.kind : undefined
+  const isInstantRedeem = nativeKind === 'redeem'
+  // The vault is its own share token on this path, and the contract the redemption is sent to.
+  const redeemVaultAddress = isInstantRedeem ? vault.vaultAddress : undefined
 
-  const { amountOut: nativeAmountOut, isLoading: isLoadingPreview } = useWithdrawPreview({
+  const {
+    amountOut: nativeAmountOut,
+    isLoading: isLoadingPreview,
+    hasFailed: hasPreviewFailed,
+  } = useWithdrawPreview({
     chainId,
     queueAddress,
     assetOut: nativeAssetAddress,
-    shares,
     discount: queueLimits?.minDiscount,
+    redeemVaultAddress,
+    shares,
     enabled: isNative,
   })
 
@@ -144,6 +182,15 @@ export const useWithdrawForm = ({
     assetOut: nativeAssetAddress,
     discount: queueLimits?.minDiscount,
     secondsToDeadline: queueLimits?.minimumSecondsToDeadline,
+  })
+
+  const redeemWithdraw = useVaultRedeem({
+    chainId,
+    vaultAddress: redeemVaultAddress,
+    shares,
+    shareToken,
+    assetOut: nativeAsset,
+    expectedAssets: nativeAmountOut,
   })
 
   // ---- any-token path: the aggregator sells the shares outright ----
@@ -306,12 +353,13 @@ export const useWithdrawForm = ({
   const zapPriceImpact = isNative ? undefined : zapWithdraw.route?.zapDetails.priceImpact
   const zapPriceImpactResult = !isNative && zapWithdraw.route ? getVaultPriceImpact(zapPriceImpact) : undefined
 
-  const active = isNative ? nativeWithdraw : zapWithdraw
+  /** Whichever of the three ways out is on screen; each reports its own submission. */
+  const active = isInstantRedeem ? redeemWithdraw : isNative ? nativeWithdraw : zapWithdraw
 
   const minimumShares = safeBigInt(queueLimits?.minimumShares)
   const insufficientShares = Boolean(shares && shares > shareBalanceRaw)
   const belowMinimum = Boolean(isNative && shares && minimumShares > 0n && shares < minimumShares)
-  const assetUnavailable = Boolean(isNative && !isLoadingAssets && nativeAsset && !queueRoute)
+  const assetUnavailable = Boolean(isNative && !isLoadingAssets && nativeAsset && !nativeWithdrawal)
   const noWithdrawableAsset = isNative && !isLoadingAssets && withdrawableAssets.length === 0
   const missingQueue = isNative && !isLoadingAssets && !hasNativeRoute
   const wrongChain = Boolean(account && chainId && walletChainId !== chainId)
@@ -325,7 +373,10 @@ export const useWithdrawForm = ({
       !belowMinimum &&
       !blocked &&
       !active.isSubmitting &&
-      (isNative
+      (isInstantRedeem
+        ? // The vault's quote is the amount being agreed to; without it there is nothing to review.
+          Boolean(redeemVaultAddress) && nativeAmountOut !== undefined
+        : isNative
         ? // The queue's terms are arguments to the request; without them there is nothing to submit.
           Boolean(queueAddress && queueLimits) && !isLoadingAssets
         : Boolean(zapWithdraw.route) && !zapWithdraw.routeError && !zapWithdraw.isRouteStale),
@@ -348,6 +399,8 @@ export const useWithdrawForm = ({
     ? t`Insufficient balance`
     : belowMinimum
     ? t`Amount below the queue minimum`
+    : isInstantRedeem && nativeAmountOut === undefined && !hasPreviewFailed
+    ? t`Fetching quote`
     : !isNative && zapWithdraw.isRouteLoading && !zapWithdraw.route
     ? t`Finding best route`
     : !isNative && zapWithdraw.routeError
@@ -362,6 +415,8 @@ export const useWithdrawForm = ({
     ? t`No asset can be withdrawn from this vault right now.`
     : assetUnavailable
     ? t`${nativeAssetSymbol} cannot be withdrawn from this vault.`
+    : isInstantRedeem && hasPreviewFailed && shares
+    ? t`The vault's quote could not be read. Retrying…`
     : !isNative && zapWithdraw.routeError && shares
     ? zapWithdraw.routeError
     : undefined
@@ -382,6 +437,27 @@ export const useWithdrawForm = ({
   const [isDegenMode] = useDegenModeManager()
   const needsDegenMode = isPriceImpactBad(zapPriceImpactResult) && !isDegenMode
 
+  const pulled = isNative ? nativeWithdraw : zapWithdraw
+  const processing: WithdrawProcessing = isInstantRedeem
+    ? {
+        chainId: chainId as number,
+        steps: [VAULT_ACTION_STEP],
+        actionStep: VAULT_ACTION_STEP,
+        onFinalStep: redeemWithdraw.redeem,
+      }
+    : {
+        chainId: chainId as number,
+        // Shares are an ERC20 the queue or the router pulls, so an allowance is in play. The approve
+        // step re-reads it on chain and skips itself when one is already in place.
+        steps: [VAULT_APPROVE_STEP, VAULT_ACTION_STEP],
+        approveStep: VAULT_APPROVE_STEP,
+        actionStep: VAULT_ACTION_STEP,
+        approval: pulled.approvalState,
+        approveCallback: pulled.approve,
+        checkApprovalManually,
+        onFinalStep: isNative ? nativeWithdraw.requestWithdraw : zapWithdraw.submit,
+      }
+
   /** The shares the run is about to spend, for the step list to name once it has gone through. */
   const amountSummary = useMemo(
     () =>
@@ -396,6 +472,10 @@ export const useWithdrawForm = ({
     chainId,
     mode: effectiveMode,
     isNative,
+    nativeKind,
+    isInstantRedeem,
+    /** True until the vault's assets are in, which is when the native path learns what it is. */
+    isResolvingNative: isNative && isLoadingAssets,
     onSelectMode,
     typedValue,
     amountSummary,
@@ -442,19 +522,8 @@ export const useWithdrawForm = ({
 
     submitError: active.submitError,
 
-    /** Fed to `useProcessingSteps` so the confirmation can run approve → withdraw in the open. */
-    processing: {
-      chainId: chainId as number,
-      // Shares are an ERC20 the queue or the router pulls, so an allowance is always in play. The
-      // approve step re-reads it on chain and skips itself when one is already in place.
-      steps: [VAULT_APPROVE_STEP, VAULT_ACTION_STEP] as VaultStep[],
-      approveStep: VAULT_APPROVE_STEP,
-      actionStep: VAULT_ACTION_STEP,
-      approval: active.approvalState,
-      approveCallback: active.approve,
-      checkApprovalManually,
-      onFinalStep: isNative ? nativeWithdraw.requestWithdraw : zapWithdraw.submit,
-    },
+    /** Fed to `useProcessingSteps` so the confirmation can run the withdrawal's steps in the open. */
+    processing,
 
     insufficientShares,
     belowMinimum,

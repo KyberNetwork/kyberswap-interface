@@ -149,7 +149,8 @@ const WithdrawTab = ({
         processing={processing}
         chainId={form.chainId}
         tokenSymbol={form.shareSymbol}
-        kind={form.isNative ? 'request' : 'withdraw'}
+        // Only a queued redemption is a request; the other two settle with the transaction.
+        kind={form.isNative && !form.isInstantRedeem ? 'request' : 'withdraw'}
         actionSummary={actionSummary}
         errorMessage={form.submitError}
       />

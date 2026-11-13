@@ -3,15 +3,17 @@ import {
   VaultApiDetailItem,
   VaultApiListItem,
   VaultApiMetrics,
+  VaultApiStats,
   VaultBalanceHistory,
   VaultCanonicalPoint,
+  VaultEarnings,
   VaultFinancialValue,
-  VaultGrowthHistory,
   VaultPositionItem,
   VaultQueueFamily,
   VaultSupportedAsset,
   VaultWithdrawRequest,
   VaultWithdrawRequestStatus,
+  VaultWithdrawalMode,
   VaultWithdrawalRoute,
 } from 'services/vault'
 
@@ -63,9 +65,8 @@ export const toDisplayLogo = (baseToken?: { symbol?: string; logo?: string }, un
   baseToken?.symbol ? baseToken.logo || '' : underlying?.logo || ''
 
 /**
- * A position's growth series as chart points. A bucket the API could not value stays a gap rather
- * than becoming a zero — the series is marked to NAV and can be negative, so a zero is a real value
- * here, not an absence.
+ * A position's history as chart points. A bucket the API could not value stays a gap rather than
+ * becoming a zero — a zero is a real value here, not an absence.
  *
  * The window always spans the whole interval, however young the position is, so the buckets before
  * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
@@ -87,8 +88,27 @@ const toPositionSeries = <Point extends { timestamp?: string | null }>(
 export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[] =>
   toPositionSeries(history?.points, point => point.balance)
 
-export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] =>
-  toPositionSeries(history?.points, point => point)
+/** The USD side of an earnings figure, in the envelope every other financial value comes in. */
+const toEarningsUsdValue = (earnings: VaultEarnings): VaultFinancialValue => ({
+  value: earnings.usdEquivalent,
+  status: earnings.usdStatus,
+  reason: earnings.usdReason,
+  valuationQuality: earnings.usdValuationQuality,
+  asOf: earnings.usdAsOf,
+})
+
+/** The yield earned so far, in USD, over time. Every point of the balance history carries the
+ *  cumulative earnings next to the balance, so the series is read off that same history. */
+export const toEarningSeries = (history?: VaultBalanceHistory): ChartDataPoint[] =>
+  toPositionSeries(history?.points, point => toEarningsUsdValue(point.vaultEarnings))
+
+/**
+ * The rate a vault is quoted at. What it measures is the vault's own choice — a trailing return for
+ * one, a forward savings rate for another — and `current.rate` is that choice, so no window is
+ * picked here.
+ */
+export const toHeadlineRate = (stats?: VaultApiStats): number | undefined =>
+  financialNumber(stats?.canonicalMetrics?.current?.rate)
 
 const toEpochSeconds = (iso?: string | null): number | undefined => {
   if (!iso) return undefined
@@ -107,7 +127,7 @@ export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
   label: item.name || '',
   partner: item.provider?.name || '',
   partnerLogo: item.provider?.logo || '',
-  apy: financialNumber(item.stats?.canonicalMetrics?.apy7d),
+  apy: toHeadlineRate(item.stats),
   tvl: financialNumber(item.stats?.canonicalMetrics?.current?.tvl),
   apyHistory: toChartPoints(item.metrics?.canonicalMetrics?.points, point => point.rate),
   tvlHistory: toChartPoints(item.metrics?.canonicalMetrics?.points, point => point.tvl),
@@ -124,7 +144,7 @@ export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: Vaul
   label: detail.name || '',
   partner: detail.provider?.name || '',
   partnerLogo: detail.provider?.logo || '',
-  apy: financialNumber(detail.stats?.canonicalMetrics?.apy7d),
+  apy: toHeadlineRate(detail.stats),
   tvl: financialNumber(detail.stats?.canonicalMetrics?.current?.tvl),
   apyHistory: toChartPoints(metrics?.canonicalMetrics?.points, point => point.rate),
   tvlHistory: toChartPoints(metrics?.canonicalMetrics?.points, point => point.tvl),
@@ -150,31 +170,25 @@ const toVaultEarnings = (item: VaultPositionItem): number | undefined =>
  * positive yield sitting next to a negative dollar amount.
  */
 const toVaultEarningsUsd = (item: VaultPositionItem): number | undefined =>
-  financialNumber(
-    item.vaultEarnings
-      ? {
-          value: item.vaultEarnings.usdEquivalent,
-          status: item.vaultEarnings.usdStatus,
-          reason: item.vaultEarnings.usdReason,
-          valuationQuality: item.vaultEarnings.usdValuationQuality,
-          asOf: item.vaultEarnings.usdAsOf,
-        }
-      : null,
-  )
+  financialNumber(item.vaultEarnings ? toEarningsUsdValue(item.vaultEarnings) : null)
+
+/** What the shares still in the wallet are worth. Shares escrowed by a withdrawal request are not
+ *  part of it. */
+export const toWalletUsd = (item?: Pick<VaultPositionItem, 'ownedValue'> | null): number =>
+  financialNumber(item?.ownedValue?.walletUsd) ?? 0
 
 /**
- * What the position is worth, a withdrawal already in flight included. The flat `usdValue` counts
- * only the shares still in the wallet, so queuing a withdrawal read as the balance dropping by the
- * amount being withdrawn — the money looked gone until the payout landed. `ownedValue` carries the
- * parts and `totalUsd` is their sum, which is the only one to read: `pendingPayoutUsd` and
- * `refundableSharesUsd` are the same shares in another state, so adding either would count it twice.
+ * What the position is worth, a withdrawal already in flight included. `walletUsd` counts only the
+ * shares still in the wallet, so on its own a queued withdrawal reads as the balance dropping by
+ * the amount being withdrawn — the money looks gone until the payout lands. `totalUsd` is the sum
+ * of the parts and the only one to read: `pendingPayoutUsd` and `refundableSharesUsd` are the same
+ * shares in another state, so adding either would count it twice.
  *
  * An expired request leaves `totalUsd` uncomputable. The wallet's own share is still true, so it
  * stands in — understating what can be reclaimed rather than leaving the row blank or, worse,
  * guessing at a total.
  */
-const toOwnedUsd = (item: VaultPositionItem): number =>
-  financialNumber(item.ownedValue?.totalUsd) ?? (Number(item.usdValue) || 0)
+const toOwnedUsd = (item: VaultPositionItem): number => financialNumber(item.ownedValue?.totalUsd) ?? toWalletUsd(item)
 
 export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition => {
   const v = item.vault
@@ -194,13 +208,13 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     label: v.name || '',
     partner: v.provider?.name || '',
     partnerLogo: v.provider?.logo || '',
-    apy: financialNumber(v.stats?.canonicalMetrics?.apy7d),
+    apy: toHeadlineRate(v.stats),
     tvl: financialNumber(v.stats?.canonicalMetrics?.current?.tvl),
     apyHistory: [],
     tvlHistory: [],
     balance: Number(item.underlyingEquivalent) || 0,
     balanceUsd: toOwnedUsd(item),
-    shareBalanceUsd: Number(item.usdValue) || 0,
+    shareBalanceUsd: toWalletUsd(item),
     earned: toVaultEarnings(item),
     earnedUsd: toVaultEarningsUsd(item),
     pendingWithdrawal:
@@ -221,10 +235,42 @@ export const safeBigInt = (value: string | number | null | undefined, fallback =
 
 /** The one native route that can take a new request for this asset. A route without terms cannot be
  *  used even when it reports itself available. */
-export const getBoringQueueRoute = (asset?: VaultSupportedAsset): VaultWithdrawalRoute | undefined =>
-  asset?.withdrawalRoutes?.find(
+const getBoringQueueRoute = (asset: VaultSupportedAsset): VaultWithdrawalRoute | undefined =>
+  asset.withdrawalRoutes?.find(
     route => route.queueFamily === VaultQueueFamily.BORING_QUEUE && route.available && Boolean(route.limits),
   )
+
+/** How the vault itself pays an asset out: on the spot, or through a queue that fills later. */
+export type VaultNativeWithdrawal = { kind: 'redeem' } | { kind: 'queue'; route: VaultWithdrawalRoute }
+
+/**
+ * The vault's own way out for this asset, or nothing when it has none that can be used right now.
+ * The asset's `withdrawalMode` picks the flow, never the provider.
+ *
+ * A synchronous vault redeems on its own contract and needs no route, so an empty route list is how
+ * it normally reads. Redeeming pays the vault's underlying and nothing else, so only that asset
+ * qualifies. A queued vault needs a route that is open and has terms. Any other mode has no native
+ * withdrawal to infer.
+ */
+export const getNativeWithdrawal = (
+  asset: VaultSupportedAsset | undefined,
+  underlyingAddress: string | undefined,
+): VaultNativeWithdrawal | undefined => {
+  if (!asset || !asset.isActive || !asset.supportsWithdraw) return undefined
+
+  if (asset.withdrawalMode === VaultWithdrawalMode.SYNCHRONOUS_ERC4626) {
+    const paysUnderlying =
+      Boolean(underlyingAddress) && asset.assetAddress.toLowerCase() === underlyingAddress?.toLowerCase()
+    return paysUnderlying ? { kind: 'redeem' } : undefined
+  }
+
+  if (asset.withdrawalMode === VaultWithdrawalMode.QUEUED) {
+    const route = getBoringQueueRoute(asset)
+    return route ? { kind: 'queue', route } : undefined
+  }
+
+  return undefined
+}
 
 /** Requests the queue is still holding shares for — the only ones the user can act on. An expired
  *  one is still actionable: its payout is gone, but the escrowed shares can be reclaimed. */

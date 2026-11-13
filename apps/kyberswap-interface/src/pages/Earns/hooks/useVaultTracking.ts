@@ -6,7 +6,7 @@ import { VaultApiDetailItem } from 'services/vault'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { UserVaultPosition, VaultInfo } from 'pages/Earns/ExploreVaults/types'
-import { financialNumber } from 'pages/Earns/utils/vault'
+import { financialNumber, toHeadlineRate } from 'pages/Earns/utils/vault'
 
 /** The surface a vault flow was opened from. Every vault event carries it, so each funnel step splits by it. */
 export type VaultTrackingSource = 'landing' | 'explore' | 'my_vaults' | 'details'
@@ -63,7 +63,7 @@ export const getVaultTrackingProps = (target: VaultTrackingTarget, source?: Vaul
 export const toTrackingTokenAddress = (address: string) =>
   address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() ? 'NATIVE' : address
 
-export const getVaultApy = (vault: VaultApiDetailItem) => financialNumber(vault.stats?.canonicalMetrics?.apy7d)
+export const getVaultApy = (vault: VaultApiDetailItem) => toHeadlineRate(vault.stats)
 
 export const getVaultTvlUsd = (vault: VaultApiDetailItem) =>
   financialNumber(vault.stats?.canonicalMetrics?.current?.tvl)

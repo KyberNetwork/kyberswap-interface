@@ -190,6 +190,9 @@ export const useVaultWithdrawTracking = ({ vault, form }: { vault: VaultApiDetai
 
     const payload: TrackingPayload = {
       withdraw_method: toWithdrawMethod(form.mode),
+      // Both of the vault's own exits report as `native`; the mode says whether this one pays out
+      // with the transaction or only places a request.
+      withdrawal_mode: form.isNative ? form.nativeAsset?.withdrawalMode : undefined,
       shares_in: form.shares ? formatUnits(form.shares, form.shareDecimals) : undefined,
       percent_of_balance:
         form.shares && form.shareBalanceRaw > 0n
@@ -198,7 +201,7 @@ export const useVaultWithdrawTracking = ({ vault, form }: { vault: VaultApiDetai
       to_token: outToken?.symbol,
       to_token_address: outToken ? toTrackingTokenAddress(outToken.address) : undefined,
       amount_out: outToken && amountOutRaw !== undefined ? formatUnits(amountOutRaw, outToken.decimals) : undefined,
-      // The queue quotes no route, so its payout is priced off the feed; a sale is priced by its route.
+      // A native payout quotes no route, so it is priced off the feed; a sale is priced by its route.
       amount_out_usd: finiteOrUndefined(
         form.isNative
           ? form.minReceivedUsd
@@ -207,6 +210,9 @@ export const useVaultWithdrawTracking = ({ vault, form }: { vault: VaultApiDetai
           : undefined,
       ),
     }
+
+    // A vault that redeems on the spot has no queue, no route and no slippage to report.
+    if (form.isInstantRedeem) return payload
 
     if (form.isNative) {
       return {
@@ -240,17 +246,20 @@ export const useVaultWithdrawTracking = ({ vault, form }: { vault: VaultApiDetai
 
   const processing = {
     ...form.processing,
-    approveCallback: () => {
-      if (form.shareToken) {
-        flow.trackApprovalInitiated(
-          { symbol: form.shareToken.symbol, address: form.shareToken.address },
-          // The queue pulls the shares for a native redemption; the router pulls them for a sale.
-          form.isNative ? form.queueAddress : form.zapRoute?.allowanceHubAddress,
-          VAULT_WITHDRAW_APPROVAL_TRACKING,
-        )
-      }
-      return approveCallback()
-    },
+    // Absent on a redemption the vault settles itself, which pulls nothing and so approves nothing.
+    approveCallback: approveCallback
+      ? () => {
+          if (form.shareToken) {
+            flow.trackApprovalInitiated(
+              { symbol: form.shareToken.symbol, address: form.shareToken.address },
+              // The queue pulls the shares for a queued redemption; the router pulls them for a sale.
+              form.isNative ? form.queueAddress : form.zapRoute?.allowanceHubAddress,
+              VAULT_WITHDRAW_APPROVAL_TRACKING,
+            )
+          }
+          return approveCallback()
+        }
+      : undefined,
     onFinalStep: () => form.processing.onFinalStep(flow.confirmedRef.current),
     onStepFailed: flow.onStepFailed,
   }

@@ -193,7 +193,7 @@ const EarnLanding = () => {
                     <NewTag />
                   </div>
                   <span className="text-sm leading-5 text-subText">
-                    {t`Auto-compounding, single-asset strategies managed by partners (starting with ether.fi).`}
+                    {t`Auto-compounding, single-asset strategies managed by partners.`}
                   </span>
                 </HeaderTextBlock>
               </SectionHeader>

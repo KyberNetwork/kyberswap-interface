@@ -80,7 +80,7 @@ const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boole
 
                   <div className="flex w-full items-center justify-between">
                     <VaultProtocolTag>
-                      <TokenLogo src={vault.partnerLogo} alt={vault.partner} size={12} />
+                      {vault.partnerLogo ? <TokenLogo src={vault.partnerLogo} alt={vault.partner} size={12} /> : null}
                       <span className="text-xs text-subText">
                         {t`managed by`} {vault.partner}
                       </span>

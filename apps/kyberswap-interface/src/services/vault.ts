@@ -50,10 +50,15 @@ export interface VaultCanonicalPoint {
   rate: VaultFinancialValue
 }
 
-/** Headline figures and their chart series. `points` is empty on the current-only envelope in `stats`. */
+/**
+ * Headline figures and their chart series. `points` is empty on the current-only envelope in `stats`.
+ *
+ * `current.rate` and `points[].rate` are whichever rate `rateKind` names: a trailing one carries its
+ * window in `rateLookback`, a forward one has no window and leaves it null.
+ */
 export interface VaultCanonicalMetrics {
   rateKind: string
-  rateLookback: string
+  rateLookback: string | null
   interval?: string
   stepSeconds: number
   methodology: string
@@ -139,7 +144,18 @@ export interface VaultWithdrawalRoute {
   limits: VaultQueueLimits | null
 }
 
+/** How the vault pays an asset out natively. It decides the withdrawal flow; the provider does not. */
+export enum VaultWithdrawalMode {
+  /** `redeem` on the vault itself: the asset arrives in the same transaction, with no queue. */
+  SYNCHRONOUS_ERC4626 = 'SYNCHRONOUS_ERC4626',
+  /** A request placed with one of the asset's `withdrawalRoutes`, filled later. */
+  QUEUED = 'QUEUED',
+  UNKNOWN = 'UNKNOWN',
+}
+
 export interface VaultSupportedAsset {
+  /** Wider than the documented set on purpose: an unrecognised mode has no native withdrawal. */
+  withdrawalMode: string
   assetAddress: string
   symbol: string
   decimals: number
@@ -243,32 +259,6 @@ export interface VaultWithdrawalRequestsResponse {
   source: VaultWithdrawalRequestsSource
 }
 
-/** One bucket of a position's growth series; carries the same envelope as every other figure. */
-export interface VaultGrowthPoint extends VaultFinancialValue {
-  timestamp: string | null
-}
-
-/**
- * A position's own history. Buckets before the wallet held anything come back unavailable rather
- * than as zero, and the figure is marked to NAV, so it can be negative.
- */
-export interface VaultGrowthHistory {
-  /** Which figure the series plots, e.g. `holdingPeriodReturnUsd`. */
-  metric: string
-  currency: string
-  methodology: string
-  interval: string
-  stepSeconds: number
-  windowStart: string | null
-  windowEnd: string | null
-  /** When the position's accounting starts; everything before it is outside coverage. */
-  accountingOrigin: string | null
-  coverageStart: string | null
-  coverageEnd: string | null
-  current: VaultGrowthPoint
-  points: VaultGrowthPoint[]
-}
-
 /**
  * One bucket of a position's balance series. `balance` is the whole underlying-token holding and
  * already contains the yield `vaultEarnings` reports, so the two are never added together.
@@ -347,7 +337,6 @@ export interface VaultPositionItem {
   shareBalance: string
   underlyingEquivalentRaw: string
   underlyingEquivalent: string
-  usdValue: string
   lastBalanceChangeAt: number
   accountingOrigin?: string | null
   vaultEarnings?: VaultEarnings | null
@@ -412,15 +401,12 @@ const vaultApi = earnServiceApi.injectEndpoints({
       }),
       transformResponse: (response: ApiEnvelope<VaultApiDetailItem>) => response.data,
     }),
-    vaultMetrics: builder.query<
-      VaultApiMetrics,
-      { chainId: number; vaultId: string; interval: VaultInterval; rateLookback?: VaultInterval }
-    >({
-      query: ({ chainId, vaultId, interval, rateLookback = '7d' }) => ({
+    vaultMetrics: builder.query<VaultApiMetrics, { chainId: number; vaultId: string; interval: VaultInterval }>({
+      query: ({ chainId, vaultId, interval }) => ({
         url: `/v1/vaults/${chainId}/${vaultId}/metrics`,
-        // The window and the trailing-rate window are independent; sending only `interval` would
-        // leave the rate lookback to the server default.
-        params: { interval, rateLookback },
+        // `interval` is the display window only. With no rate selector the series is the vault's own
+        // headline rate, the one `stats.canonicalMetrics.current.rate` reports.
+        params: { interval },
       }),
       transformResponse: (response: ApiEnvelope<{ metrics: VaultApiMetrics }>) => response.data.metrics,
     }),
@@ -442,16 +428,6 @@ const vaultApi = earnServiceApi.injectEndpoints({
         url: `/v1/vault-positions/${chainId}/${userAddress}/${vaultId}`,
       }),
       transformResponse: (response: ApiEnvelope<VaultPositionItem>) => response.data,
-    }),
-    vaultPositionGrowthHistory: builder.query<
-      VaultGrowthHistory,
-      { chainId: number; userAddress: string; vaultId: string; interval: VaultInterval }
-    >({
-      query: ({ chainId, userAddress, vaultId, interval }) => ({
-        url: `/v1/vault-positions/${chainId}/${userAddress}/${vaultId}/growth-history`,
-        params: { interval },
-      }),
-      transformResponse: (response: ApiEnvelope<VaultGrowthHistory>) => response.data,
     }),
     vaultPositionBalanceHistory: builder.query<
       VaultBalanceHistory,
@@ -478,7 +454,6 @@ const vaultApi = earnServiceApi.injectEndpoints({
 
 export const {
   useVaultListQuery,
-  useVaultPositionGrowthHistoryQuery,
   useVaultPositionBalanceHistoryQuery,
   useVaultDetailQuery,
   useVaultMetricsQuery,

@@ -8,7 +8,6 @@ import {
   useVaultMetricsQuery,
   useVaultPositionBalanceHistoryQuery,
   useVaultPositionDetailQuery,
-  useVaultPositionGrowthHistoryQuery,
 } from 'services/vault'
 
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
@@ -63,8 +62,9 @@ import {
   VaultDetailTab,
   toBalanceSeries,
   toChartSeries,
-  toGrowthSeries,
+  toEarningSeries,
   toVaultInfoFromDetail,
+  toWalletUsd,
 } from 'pages/Earns/utils/vault'
 import { formatVaultApy } from 'pages/Earns/utils/vaultFormat'
 import { MEDIA_WIDTHS } from 'theme'
@@ -148,7 +148,10 @@ const VaultDetail = () => {
   const hasPosition = Number(position?.shareBalance || 0) > 0
   // Waiting on the position to answer before asking for its history costs a whole round trip, and
   // the charts are the last thing on the page to fill. Both go out with it instead.
-  const { data: growthHistory } = useVaultPositionGrowthHistoryQuery(
+  //
+  // The earning and the balance charts read the same history, each over the period picked for it;
+  // while the two periods match they share one request.
+  const { data: earningHistory } = useVaultPositionBalanceHistoryQuery(
     {
       chainId,
       userAddress: (account || '').toLowerCase(),
@@ -176,7 +179,7 @@ const VaultDetail = () => {
   const openWithdrawTab = () => {
     if (activeTab !== 'withdraw') {
       track(TRACKING_EVENT_TYPE.VAULT_WITHDRAW_CLICKED, {
-        share_balance_usd: Number(position?.usdValue) || 0,
+        share_balance_usd: toWalletUsd(position),
         has_pending_withdrawal: (position?.pendingWithdrawalSummary?.count ?? 0) > 0,
       })
     }
@@ -198,7 +201,7 @@ const VaultDetail = () => {
 
   const tvlSeries = useMemo(() => toChartSeries(tvlMetrics, point => point.tvl), [tvlMetrics])
   const apySeries = useMemo(() => toChartSeries(apyMetrics, point => point.rate), [apyMetrics])
-  const earningSeries = useMemo(() => toGrowthSeries(growthHistory), [growthHistory])
+  const earningSeries = useMemo(() => toEarningSeries(earningHistory), [earningHistory])
   const balanceSeries = useMemo(() => toBalanceSeries(balanceHistory), [balanceHistory])
 
   const handleBack = () => navigate(-1)
@@ -218,6 +221,8 @@ const VaultDetail = () => {
   if (isDetailLoading || !detail || !vault) {
     return <VaultDetailPageSkeleton />
   }
+
+  const partnerName = vault.partner
 
   return (
     <PageWrapper>
@@ -341,7 +346,7 @@ const VaultDetail = () => {
 
             <HowItWorks>
               <HowItWorksLabel>{t`How it works:`}</HowItWorksLabel>
-              <span>{t`Strategy vault optimizing yield across DeFi; earnings auto-compound.`}</span>
+              <span>{t`Deposits earn yield managed by ${partnerName}; earnings accrue in the vault's share price.`}</span>
             </HowItWorks>
           </ChartsCard>
         </ChartsColumn>
