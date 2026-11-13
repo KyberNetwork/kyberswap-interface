@@ -93,16 +93,20 @@ uses `useWrapCallback` instead of requesting/building an aggregator route.
 Settings → Send to another Wallet opens a recipient popup for all Swap modes,
 independently of Degen Mode. The popup owns temporary edits; recipient hooks own
 Apply and expanding the form input. Popup and form share the address field.
+Valid uppercase or unprefixed EVM input is normalized to its checksummed `0x`
+address before storing the recipient. Prefixed lowercase addresses, ENS names,
+incomplete input, and invalid checksums remain unchanged.
 EVM-to-EVM forms initially hide recipient controls until a custom address is applied.
 Clearing the input restores the selected wallet; collapsing does not change the recipient.
 The setting is disabled for wrap/unwrap, which receives into the connected wallet.
 Recipient resolution is shared by Settings and the form: ENS resolves through its
 registered resolver on Ethereum before quote/build, with default RPC retries as in
 the legacy form. Successful lookups remain cached without background refresh.
-Non-EVM format checks run locally,
-with address libraries loaded alongside the form rather than on demand. Draft text
-is preserved, and pending/invalid recipients cannot execute. These checks do not
-verify account existence or ownership.
+Non-EVM format checks run locally; Bitcoin and Solana libraries load on demand.
+If a library fails to load, the non-empty recipient passes unchanged to the route
+provider for validation. Loaded validators still reject invalid addresses. Draft
+text is preserved, and pending/invalid recipients cannot execute. These checks do
+not verify account existence or ownership.
 
 ### Review and execution
 

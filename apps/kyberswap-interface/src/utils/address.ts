@@ -17,6 +17,12 @@ export function isAddressString(value: any): string {
   }
 }
 
+// Preserve prefixed lowercase input; checksum valid uppercase or unprefixed addresses.
+export function normalizeEvmAddressInput(value: string): string {
+  if (value.startsWith('0x') && value === value.toLowerCase()) return value
+  return isAddressString(value) || value
+}
+
 /**
  * Shorten the checksummed version of the input address to have 0x + 4 characters at start and end
  */

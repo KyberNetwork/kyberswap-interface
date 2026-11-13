@@ -9,7 +9,7 @@ import { Stack } from 'components/Stack'
 import type { ReceiverWallet } from 'components/SwapWallets/receiverWallet'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Chain, NonEvmChain } from 'types/crossChain'
-import { shortenHash } from 'utils/address'
+import { normalizeEvmAddressInput, shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 
 type Props = {
@@ -57,6 +57,11 @@ export const CrossChainWalletSelector = (props: Props) => {
   const displayAddress = (value: string) =>
     chain === NonEvmChain.Near && value.includes('.near') ? value : shortenHash(value)
 
+  const updateDraftAddress = (value: string) => {
+    const input = value.replace(/\s+/g, '')
+    setDraftAddress(typeof chain === 'number' ? normalizeEvmAddressInput(input) : input)
+  }
+
   const toggleMenu = () => {
     if (!isReceiver && !address) {
       onConnect()
@@ -71,7 +76,7 @@ export const CrossChainWalletSelector = (props: Props) => {
     try {
       const value = await navigator.clipboard.readText()
       if (request !== pasteRequest.current) return
-      setDraftAddress(value.replace(/\s+/g, ''))
+      updateDraftAddress(value)
     } catch {
       // Keep manual entry available when clipboard access is unavailable.
     }
@@ -190,7 +195,7 @@ export const CrossChainWalletSelector = (props: Props) => {
                         value={draftAddress}
                         onChange={event => {
                           pasteRequest.current++
-                          setDraftAddress(event.target.value.replace(/\s+/g, ''))
+                          updateDraftAddress(event.target.value)
                         }}
                         onKeyDown={event => {
                           if (event.key === 'Enter') {

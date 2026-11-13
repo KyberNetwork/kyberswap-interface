@@ -70,6 +70,23 @@ it('does not refetch on focus after a minute, but resolves a changed recipient',
   expect(mocks.read).toHaveBeenCalledTimes(4)
 })
 
+it('keeps offline ENS pending and resolves automatically after reconnecting', async () => {
+  onlineManager.setOnline(false)
+  mocks.read.mockResolvedValueOnce(resolver).mockResolvedValueOnce(wallet)
+  await render('alice.eth')
+  expect(result.loading).toBe(true)
+  expect(result.error).toBe(false)
+  expect(result.address).toBeUndefined()
+  expect(result.message).toBe('Resolving recipient')
+  expect(mocks.read).not.toHaveBeenCalled()
+
+  await act(async () => onlineManager.setOnline(true))
+  await settled()
+  expect(result.address).toBe(wallet)
+  expect(result.error).toBe(false)
+  expect(result.message).toBeUndefined()
+})
+
 it('resolves ENS directly even when the Universal Resolver is unavailable', async () => {
   mocks.resolve.mockRejectedValue(new Error('Universal Resolver unavailable'))
   mocks.read.mockResolvedValueOnce(resolver).mockResolvedValueOnce(wallet)
@@ -106,9 +123,10 @@ it.each([
   ['Bitcoin', 'BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4', true],
   ['Bitcoin', 'bc1qW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4', false],
   ['Bitcoin', 'bc1p5egaltnsssj57zr6k47mk4qmmv4fjsjnjhysge2gcsjl2n9rdntqcmvekz', true],
-])('checks %s address %s locally without a network request', async (networkName, value, valid) => {
+])('checks %s address %s without an RPC request', async (networkName, value, valid) => {
   onlineManager.setOnline(false)
   await render(value, { mode: 'nonEvm', networkName })
+  await settled()
   expect(!!result.address).toBe(valid)
   expect(result.error).toBe(!valid)
   expect(result.loading).toBe(false)
