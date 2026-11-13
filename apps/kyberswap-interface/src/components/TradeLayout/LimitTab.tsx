@@ -14,6 +14,7 @@ type Props = {
   active?: boolean
   customChainId?: ChainId
 }
+
 export const LimitTab = ({ onClick, active, customChainId }: Props) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const { pathname } = useLocation()
