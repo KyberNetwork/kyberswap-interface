@@ -6,8 +6,8 @@ import {
   VaultApiStats,
   VaultBalanceHistory,
   VaultCanonicalPoint,
+  VaultEarnings,
   VaultFinancialValue,
-  VaultGrowthHistory,
   VaultPositionItem,
   VaultQueueFamily,
   VaultSupportedAsset,
@@ -65,9 +65,8 @@ export const toDisplayLogo = (baseToken?: { symbol?: string; logo?: string }, un
   baseToken?.symbol ? baseToken.logo || '' : underlying?.logo || ''
 
 /**
- * A position's growth series as chart points. A bucket the API could not value stays a gap rather
- * than becoming a zero — the series is marked to NAV and can be negative, so a zero is a real value
- * here, not an absence.
+ * A position's history as chart points. A bucket the API could not value stays a gap rather than
+ * becoming a zero — a zero is a real value here, not an absence.
  *
  * The window always spans the whole interval, however young the position is, so the buckets before
  * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
@@ -89,8 +88,19 @@ const toPositionSeries = <Point extends { timestamp?: string | null }>(
 export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[] =>
   toPositionSeries(history?.points, point => point.balance)
 
-export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] =>
-  toPositionSeries(history?.points, point => point)
+/** The USD side of an earnings figure, in the envelope every other financial value comes in. */
+const toEarningsUsdValue = (earnings: VaultEarnings): VaultFinancialValue => ({
+  value: earnings.usdEquivalent,
+  status: earnings.usdStatus,
+  reason: earnings.usdReason,
+  valuationQuality: earnings.usdValuationQuality,
+  asOf: earnings.usdAsOf,
+})
+
+/** The yield earned so far, in USD, over time. Every point of the balance history carries the
+ *  cumulative earnings next to the balance, so the series is read off that same history. */
+export const toEarningSeries = (history?: VaultBalanceHistory): ChartDataPoint[] =>
+  toPositionSeries(history?.points, point => toEarningsUsdValue(point.vaultEarnings))
 
 /**
  * The rate a vault is quoted at. What it measures is the vault's own choice — a trailing return for
@@ -160,17 +170,7 @@ const toVaultEarnings = (item: VaultPositionItem): number | undefined =>
  * positive yield sitting next to a negative dollar amount.
  */
 const toVaultEarningsUsd = (item: VaultPositionItem): number | undefined =>
-  financialNumber(
-    item.vaultEarnings
-      ? {
-          value: item.vaultEarnings.usdEquivalent,
-          status: item.vaultEarnings.usdStatus,
-          reason: item.vaultEarnings.usdReason,
-          valuationQuality: item.vaultEarnings.usdValuationQuality,
-          asOf: item.vaultEarnings.usdAsOf,
-        }
-      : null,
-  )
+  financialNumber(item.vaultEarnings ? toEarningsUsdValue(item.vaultEarnings) : null)
 
 /** What the shares still in the wallet are worth. Shares escrowed by a withdrawal request are not
  *  part of it. */

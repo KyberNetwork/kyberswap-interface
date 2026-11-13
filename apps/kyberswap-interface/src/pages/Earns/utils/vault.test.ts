@@ -1,5 +1,7 @@
 import {
   VaultApiStats,
+  VaultBalanceHistory,
+  VaultBalancePoint,
   VaultFinancialValue,
   VaultPositionItem,
   VaultPositionOwnedValue,
@@ -8,7 +10,13 @@ import {
 } from 'services/vault'
 import { describe, expect, it } from 'vitest'
 
-import { getNativeWithdrawal, toHeadlineRate, toUserVaultPosition, toWalletUsd } from 'pages/Earns/utils/vault'
+import {
+  getNativeWithdrawal,
+  toEarningSeries,
+  toHeadlineRate,
+  toUserVaultPosition,
+  toWalletUsd,
+} from 'pages/Earns/utils/vault'
 
 const USDS = '0xdC035D45d973E3EC169d2276DDab16f1e407384F'
 const WEETH = '0xCd5fE23C85820F7B72D0926fC9b05b43E359b7ee'
@@ -187,5 +195,75 @@ describe('toUserVaultPosition', () => {
     const mapped = toUserVaultPosition(position(null))
     expect(mapped.balanceUsd).toBe(0)
     expect(mapped.shareBalanceUsd).toBe(0)
+  })
+})
+
+const balancePoint = (
+  timestamp: string,
+  usdEquivalent: string | null,
+  usdStatus = 'COMPUTABLE',
+): VaultBalancePoint => ({
+  timestamp,
+  balance: financial('100'),
+  vaultEarnings: {
+    amount: '1',
+    assetAddress: USDS,
+    status: 'COMPUTABLE',
+    reason: null,
+    valuationQuality: 'OBSERVED',
+    methodology: '',
+    coverageStart: null,
+    coverageEnd: null,
+    asOf: null,
+    usdEquivalent,
+    usdStatus,
+    usdReason: null,
+    usdValuationQuality: 'OBSERVED',
+    usdAsOf: null,
+  },
+})
+
+const balanceHistory = (points: VaultBalancePoint[]): VaultBalanceHistory => ({
+  metric: 'balance',
+  currency: 'USDS',
+  methodology: '',
+  interval: '7d',
+  stepSeconds: 3600,
+  balanceScope: 'wallet',
+  assetAddress: USDS,
+  windowStart: null,
+  windowEnd: null,
+  accountingOrigin: null,
+  current: points[points.length - 1],
+  points,
+})
+
+describe('toEarningSeries', () => {
+  it('plots the USD earnings carried by each balance point, not the balance', () => {
+    const series = toEarningSeries(balanceHistory([balancePoint('t1', '0.10'), balancePoint('t2', '0.13')]))
+    expect(series).toEqual([
+      { value: 0.1, timestamp: 't1' },
+      { value: 0.13, timestamp: 't2' },
+    ])
+  })
+
+  it('drops the buckets before the first valued one and keeps a later gap as a gap', () => {
+    const series = toEarningSeries(
+      balanceHistory([
+        balancePoint('t1', null, 'PENDING'),
+        balancePoint('t2', '0.10'),
+        balancePoint('t3', null, 'UNAVAILABLE'),
+        balancePoint('t4', '-0.02'),
+      ]),
+    )
+    expect(series).toEqual([
+      { value: 0.1, timestamp: 't2' },
+      { value: null, timestamp: 't3' },
+      { value: -0.02, timestamp: 't4' },
+    ])
+  })
+
+  it('is empty while the history has not loaded', () => {
+    expect(toEarningSeries(undefined)).toEqual([])
   })
 })

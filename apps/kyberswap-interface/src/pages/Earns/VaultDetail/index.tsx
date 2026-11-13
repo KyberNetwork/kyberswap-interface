@@ -8,7 +8,6 @@ import {
   useVaultMetricsQuery,
   useVaultPositionBalanceHistoryQuery,
   useVaultPositionDetailQuery,
-  useVaultPositionGrowthHistoryQuery,
 } from 'services/vault'
 
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
@@ -63,7 +62,7 @@ import {
   VaultDetailTab,
   toBalanceSeries,
   toChartSeries,
-  toGrowthSeries,
+  toEarningSeries,
   toVaultInfoFromDetail,
   toWalletUsd,
 } from 'pages/Earns/utils/vault'
@@ -149,7 +148,10 @@ const VaultDetail = () => {
   const hasPosition = Number(position?.shareBalance || 0) > 0
   // Waiting on the position to answer before asking for its history costs a whole round trip, and
   // the charts are the last thing on the page to fill. Both go out with it instead.
-  const { data: growthHistory } = useVaultPositionGrowthHistoryQuery(
+  //
+  // The earning and the balance charts read the same history, each over the period picked for it;
+  // while the two periods match they share one request.
+  const { data: earningHistory } = useVaultPositionBalanceHistoryQuery(
     {
       chainId,
       userAddress: (account || '').toLowerCase(),
@@ -199,7 +201,7 @@ const VaultDetail = () => {
 
   const tvlSeries = useMemo(() => toChartSeries(tvlMetrics, point => point.tvl), [tvlMetrics])
   const apySeries = useMemo(() => toChartSeries(apyMetrics, point => point.rate), [apyMetrics])
-  const earningSeries = useMemo(() => toGrowthSeries(growthHistory), [growthHistory])
+  const earningSeries = useMemo(() => toEarningSeries(earningHistory), [earningHistory])
   const balanceSeries = useMemo(() => toBalanceSeries(balanceHistory), [balanceHistory])
 
   const handleBack = () => navigate(-1)
