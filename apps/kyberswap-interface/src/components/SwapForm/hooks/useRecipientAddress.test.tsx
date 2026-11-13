@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { i18n } from '@lingui/core'
-import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, focusManager, onlineManager } from '@tanstack/react-query'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -10,6 +10,7 @@ import { useRecipientAddress } from './useRecipientAddress'
 
 const mocks = vi.hoisted(() => ({ resolve: vi.fn(), read: vi.fn() }))
 vi.mock('wagmi', () => ({ usePublicClient: () => ({ getEnsAddress: mocks.resolve, readContract: mocks.read }) }))
+const resolver = '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63'
 const wallet = '0x0000000000000000000000000000000000000001'
 let root: ReturnType<typeof createRoot>
 let client: QueryClient
@@ -43,10 +44,11 @@ afterEach(async () => {
   client.clear()
   vi.restoreAllMocks()
   focusManager.setFocused(undefined)
+  onlineManager.setOnline(true)
   vi.unstubAllGlobals()
 })
 it('does not refetch on focus after a minute, but resolves a changed recipient', async () => {
-  mocks.resolve.mockResolvedValue(wallet)
+  mocks.read.mockResolvedValueOnce(resolver).mockResolvedValueOnce(wallet)
   await render('alice.eth')
   await settled()
   expect(result.address).toBe(wallet)
@@ -59,26 +61,27 @@ it('does not refetch on focus after a minute, but resolves a changed recipient',
   expect(result.address).toBe(wallet)
   expect(result.loading).toBe(false)
   expect(result.message).toBeUndefined()
-  expect(mocks.resolve).toHaveBeenCalledTimes(1)
+  expect(mocks.read).toHaveBeenCalledTimes(2)
 
-  mocks.resolve.mockResolvedValue('0x0000000000000000000000000000000000000002')
+  mocks.read.mockResolvedValueOnce(resolver).mockResolvedValueOnce('0x0000000000000000000000000000000000000002')
   await render('bob.eth')
   await settled()
   expect(result.address).toBe('0x0000000000000000000000000000000000000002')
-  expect(mocks.resolve).toHaveBeenCalledTimes(2)
+  expect(mocks.read).toHaveBeenCalledTimes(4)
 })
 
-it('resolves legacy ENS through its registered resolver', async () => {
-  mocks.resolve.mockResolvedValue(null)
-  mocks.read.mockResolvedValueOnce('0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63').mockResolvedValueOnce(wallet)
+it('resolves ENS directly even when the Universal Resolver is unavailable', async () => {
+  mocks.resolve.mockRejectedValue(new Error('Universal Resolver unavailable'))
+  mocks.read.mockResolvedValueOnce(resolver).mockResolvedValueOnce(wallet)
   await render('jennie93.eth')
   await settled()
   expect(result.address).toBe(wallet)
   expect(mocks.read.mock.calls.map(([args]) => args.functionName)).toEqual(['resolver', 'addr'])
+  expect(mocks.resolve).not.toHaveBeenCalled()
 })
 it('does not apply a late ENS result to a changed input', async () => {
   let finish!: (value: string) => void
-  mocks.resolve.mockImplementationOnce(
+  mocks.read.mockResolvedValueOnce(resolver).mockImplementationOnce(
     () =>
       new Promise(resolve => {
         finish = resolve
@@ -103,11 +106,14 @@ it.each([
   ['Bitcoin', 'BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4', true],
   ['Bitcoin', 'bc1qW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4', false],
   ['Bitcoin', 'bc1p5egaltnsssj57zr6k47mk4qmmv4fjsjnjhysge2gcsjl2n9rdntqcmvekz', true],
-])('checks %s address %s', async (networkName, value, valid) => {
+])('checks %s address %s locally without a network request', async (networkName, value, valid) => {
+  onlineManager.setOnline(false)
   await render(value, { mode: 'nonEvm', networkName })
-  await settled()
   expect(!!result.address).toBe(valid)
   expect(result.error).toBe(!valid)
+  expect(result.loading).toBe(false)
+  expect(mocks.read).not.toHaveBeenCalled()
+  expect(mocks.resolve).not.toHaveBeenCalled()
 })
 
 it.each([
@@ -133,7 +139,6 @@ it('normalizes unchecksummed EVM input before quote/build', async () => {
 })
 
 it('does not resolve an empty ENS address record to the zero address', async () => {
-  mocks.resolve.mockResolvedValue(null)
   mocks.read
     .mockResolvedValueOnce('0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63')
     .mockResolvedValueOnce('0x0000000000000000000000000000000000000000')
@@ -143,17 +148,37 @@ it('does not resolve an empty ENS address record to the zero address', async () 
   expect(result.message).toBe('Invalid recipient')
 })
 
+it.each(['resolver', 'addr'])('recovers from a temporary %s RPC failure without editing the ENS name', async method => {
+  // Use the browser's default retry policy; shorten only the delay for this test.
+  client = new QueryClient({ defaultOptions: { queries: { retryDelay: 0, gcTime: 0 } } })
+  let failed = false
+  mocks.read.mockImplementation(async ({ functionName }) => {
+    if (functionName === method && !failed) {
+      failed = true
+      throw new Error('RPC timeout')
+    }
+    return functionName === 'resolver' ? resolver : wallet
+  })
+  await render('alice.eth')
+  await settled()
+  expect(result.address).toBe(wallet)
+  expect(result.error).toBe(false)
+  expect(result.message).toBeUndefined()
+  expect(mocks.read.mock.calls.filter(([args]) => args.functionName === method)).toHaveLength(2)
+})
+
 it('keeps RPC failures blocked without labelling the ENS name invalid', async () => {
-  mocks.resolve.mockRejectedValue(new Error('RPC timeout'))
+  client = new QueryClient({ defaultOptions: { queries: { retryDelay: 0, gcTime: 0 } } })
+  mocks.read.mockRejectedValue(new Error('RPC timeout'))
   await render('alice.eth')
   await settled()
   expect(result.address).toBeUndefined()
   expect(result.error).toBe(true)
   expect(result.message).toBe('Enter a recipient')
+  expect(mocks.read).toHaveBeenCalledTimes(4)
 })
 
 it('still reports invalid when ENS has no registered resolver', async () => {
-  mocks.resolve.mockResolvedValue(null)
   mocks.read.mockResolvedValue('0x0000000000000000000000000000000000000000')
   await render('missing.eth')
   await settled()

@@ -96,8 +96,11 @@ Apply and expanding the form input. Popup and form share the address field.
 EVM-to-EVM forms initially hide recipient controls until a custom address is applied.
 Clearing the input restores the selected wallet; collapsing does not change the recipient.
 The setting is disabled for wrap/unwrap, which receives into the connected wallet.
-Recipient resolution is shared by Settings and the form: ENS resolves on Ethereum
-before quote/build; non-EVM addresses are checked for destination format. Draft text
+Recipient resolution is shared by Settings and the form: ENS resolves through its
+registered resolver on Ethereum before quote/build, with default RPC retries as in
+the legacy form. Successful lookups remain cached without background refresh.
+Non-EVM format checks run locally,
+with address libraries loaded alongside the form rather than on demand. Draft text
 is preserved, and pending/invalid recipients cannot execute. These checks do not
 verify account existence or ownership.
 
