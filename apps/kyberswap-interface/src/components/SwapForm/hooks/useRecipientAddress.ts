@@ -1,20 +1,16 @@
 import { t } from '@lingui/macro'
 import { useQuery } from '@tanstack/react-query'
-import { getAddress, isAddress, namehash, parseAbi, zeroAddress } from 'viem'
+import { namehash, parseAbi, zeroAddress } from 'viem'
 import { normalize } from 'viem/ens'
 import { usePublicClient } from 'wagmi'
 
+import { isAddress } from 'utils/address'
+
 import type { RecipientAddressType } from './useEvmRecipient'
 
-const parseAddress = (value: string) => {
-  try {
-    if (!isAddress(value, { strict: true })) return undefined
-    const address = getAddress(value)
-    return address === zeroAddress ? undefined : address
-  } catch {
-    return undefined
-  }
-}
+// The shared validator accepts unchecksummed upper/lowercase and zero addresses,
+// normalizes the prefix/checksum, and still rejects incorrect mixed-case checksums.
+const parseAddress = (value: string) => isAddress(1, value) || undefined
 
 /** Keep user text separate from the validated address passed to quote/build. */
 export const useRecipientAddress = (value: string, type: RecipientAddressType) => {
@@ -39,7 +35,7 @@ export const useRecipientAddress = (value: string, type: RecipientAddressType) =
           return null
         }
         const address = await client.getEnsAddress({ name })
-        if (address) return parseAddress(address) ?? null
+        if (address && address !== zeroAddress) return parseAddress(address) ?? null
 
         // Legacy resolvers may answer addr directly while Universal Resolver returns null.
         const node = namehash(name)
@@ -56,14 +52,17 @@ export const useRecipientAddress = (value: string, type: RecipientAddressType) =
           functionName: 'addr',
           args: [node],
         })
-        return parseAddress(resolved) ?? null
+        // A zero ENS record means no destination, unlike an explicitly entered zero address.
+        return resolved === zeroAddress ? null : parseAddress(resolved) ?? null
       }
       if (network === 'Solana') {
         const { PublicKey } = await import('@solana/web3.js')
         return new PublicKey(value).toBase58() === value ? value : null
       }
       if (network === 'Bitcoin') {
-        const { address, networks } = await import('bitcoinjs-lib')
+        const [bitcoin, ecc] = await Promise.all([import('bitcoinjs-lib'), import('@bitcoinerlab/secp256k1')])
+        const { address, networks } = bitcoin
+        bitcoin.initEccLib(ecc)
         address.toOutputScript(value, networks.bitcoin)
         return value
       }

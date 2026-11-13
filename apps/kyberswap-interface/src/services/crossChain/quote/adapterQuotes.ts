@@ -1,4 +1,5 @@
 import { KyberCrossAdapter } from 'services/crossChain/adapters/KyberCrossAdapter'
+import { KyberCross } from 'services/crossChain/adapters/KyberCrossAdapter/constants'
 import { QuoteParams, QuoteProvider } from 'services/crossChain/adapters/types'
 import { CrossChainSwapFactory } from 'services/crossChain/factory'
 import { getSourceFilters, streamQuotes } from 'services/crossChain/quote/streamQuotes'
@@ -28,7 +29,7 @@ type QuoteRunnerParams = {
 const getAdapterQuote = async (adapter: QuoteProvider, params: QuoteParams, signal: AbortSignal) => {
   if (signal.aborted) throw new Error('Cancelled')
 
-  const quoteTimeoutMs = adapter.getName() === 'KyberCross' ? KYBERCROSS_QUOTE_TIMEOUT_MS : DEFAULT_QUOTE_TIMEOUT_MS
+  const quoteTimeoutMs = adapter.getName() === KyberCross ? KYBERCROSS_QUOTE_TIMEOUT_MS : DEFAULT_QUOTE_TIMEOUT_MS
   const requestController = new AbortController()
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   let handleAbort: (() => void) | undefined
@@ -116,7 +117,7 @@ export const getDirectQuotes = async ({
   const adapters = clientAdapters.filter(
     adapter =>
       adapter.getName() !== 'KyberSwap' &&
-      (!params.gasDrop || adapter.getName() === 'KyberCross') &&
+      (!params.gasDrop || adapter.getName() === KyberCross) &&
       adapter.getSupportedChains().includes(params.fromChain) &&
       adapter.getSupportedChains().includes(params.toChain),
   )

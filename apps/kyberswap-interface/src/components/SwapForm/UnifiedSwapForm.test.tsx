@@ -18,7 +18,7 @@ vi.mock('components/SwapWallets/SwapWalletContext', () => ({ useSwapWallets: () 
 vi.mock('components/SwapWallets/CrossChainEvmSenderWalletSelector', () => ({
   CrossChainEvmSenderWalletSelector: () => null,
 }))
-vi.mock('./CrossChain/hooks/useCrossChainBalance', () => ({ useCrossChainBalance: vi.fn() }))
+vi.mock('state/wallet/useEvmAddressBalance', () => ({ useEvmAddressBalance: vi.fn() }))
 vi.mock('./CrossChain/CrossChainCurrencyPanel', () => ({ CrossChainCurrencyPanel: () => null }))
 vi.mock('./CurrencyInput/ERC8056Info', () => ({
   default: () => null,

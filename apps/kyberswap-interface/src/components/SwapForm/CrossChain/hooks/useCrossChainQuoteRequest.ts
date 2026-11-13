@@ -16,7 +16,12 @@ export type CrossChainQuoteInput = {
   isReadOnly: boolean
 }
 
-/** Wallet/request snapshot shared by all cross-chain quote consumers. */
+/**
+ * Captures quote inputs in a stable identity shared by all mode-specific pools.
+ * Raw input, slippage and wallet/recipient changes invalidate that identity; the caller
+ * adds source exclusions. Gas Drop mode stays outside it so toggles can reuse pools.
+ * Null params disable requests. Debouncing and transport belong to the session/pools.
+ */
 export const useCrossChainQuoteRequest = ({
   enabled = true,
   pair,

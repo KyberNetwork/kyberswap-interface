@@ -44,7 +44,7 @@ The page boundary is the shared trade surface, not only the `components/LimitOrd
 
 The campaign page, unrelated Swap/Cross-Chain business logic, backend contract changes and a visual redesign remain out of scope. Existing API contracts, fee semantics, pair URLs, shared pair/sell amount, wrap/approve/sign/submit behavior and supported-chain gates must remain stable.
 
-In particular, do not bundle changes such as toggling `constants/env.ts:71` (`KYBERCROSS`) into this page refactor.
+In particular, do not bundle changes such as toggling `constants/env.ts:71` (`ENABLE_KYBERCROSS_DIRECT`) into this page refactor.
 
 Although this file lives under `components/LimitOrder`, its authority covers the shared Limit/Stop page surface described above. Move it to a neutral page/docs location only if it becomes the long-lived cross-feature implementation backlog.
 

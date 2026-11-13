@@ -10,6 +10,8 @@ import NonEvmTokenSelectorContent from 'components/TokenSelectorModal/NetworkSel
 import { WalletBalanceContext, WalletBalanceScope } from 'state/wallet/WalletBalanceContext'
 import { NonEvmChain } from 'types/crossChain'
 
+vi.mock('components/Web3Provider/NonEvmProviders', () => ({ default: ({ children }: any) => children }))
+
 const appAddress = '11111111111111111111111111111111'
 const selectedAddress = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 const mocks = vi.hoisted(() => ({ getBalance: vi.fn(), getAccounts: vi.fn(), bitcoinBalance: vi.fn() }))

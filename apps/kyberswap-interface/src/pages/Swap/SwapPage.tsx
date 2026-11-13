@@ -1,30 +1,40 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Suspense, lazy, useState } from 'react'
 
-import CrossChainSwapProvider from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
+import LocalLoader from 'components/LocalLoader'
 import { SingleChainSwapFormProvider } from 'components/SwapForm/SingleChain/SingleChainSwapFormProvider'
 import { useEvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
 import { useSwapFormPair } from 'components/SwapForm/hooks/useSwapFormPair'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import { TransactionDetailProvider } from 'components/SwapTransactions/TransactionDetail/TransactionDetailProvider'
-import { SwapWalletProvider } from 'components/SwapWallets/SwapWalletProvider'
 import { TAB } from 'components/TradeLayout/Tabs'
 import { useTradeController } from 'components/TradeLayout/useTradeController'
 import { useTradeLayoutPrefetch } from 'components/TradeLayout/useTradeLayoutPrefetch'
-import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { useActiveWeb3React } from 'hooks'
 import SwapPageContent from 'pages/Swap/SwapPageContent'
 
-const TransactionUpdater = lazy(() => import('components/SwapTransactions/TransactionUpdater'))
+const CrossChainProviders = lazy(() => import('./SwapCrossChainProviders'))
+const TransactionStatusUpdater = lazy(() =>
+  import('components/SwapTransactions/TransactionUpdater').then(module => ({
+    default: module.TransactionStatusUpdater,
+  })),
+)
+const WalletHistorySubscriptions = lazy(() =>
+  import('components/SwapTransactions/TransactionUpdater').then(module => ({
+    default: module.WalletHistorySubscriptions,
+  })),
+)
 
-/** Owns shared page state and the active quote provider for both panels.
- * The history controller stays outside swap-mode and History visibility branches. */
+/** Pair, amount, recipient and page controls survive the first cross-chain activation. */
 const SwapPage = () => {
   const [showHistory, setShowHistory] = useState(false)
 
   const { account } = useActiveWeb3React()
   const evmRecipient = useEvmRecipient(account)
   const pair = useSwapFormPair()
+  const [crossChainActivated, setCrossChainActivated] = useState(pair.isCrossChain)
+  if (pair.isCrossChain && !crossChainActivated) setCrossChainActivated(true)
+
   const controller = useTradeController(TAB.SWAP)
   const { typedValue, onUserInput } = useSwapInputAmount()
 
@@ -44,20 +54,20 @@ const SwapPage = () => {
   }
 
   return (
-    <NonEvmProviders>
-      <SwapWalletProvider inputChain={pair.inputChain} outputChain={pair.outputChain}>
-        <TransactionDetailProvider>
-          <Suspense fallback={null}>
-            <TransactionUpdater />
-          </Suspense>
-          <SingleChainSwapFormProvider
-            enabled={!pair.isCrossChain}
-            evmRecipient={evmRecipient}
-            chainId={typeof pair.inputChain === 'number' ? pair.inputChain : ChainId.MAINNET}
-            currencyIn={pair.currencyIn}
-            currencyOut={pair.currencyOut}
-          >
-            <CrossChainSwapProvider
+    <TransactionDetailProvider>
+      <Suspense fallback={null}>
+        <TransactionStatusUpdater />
+      </Suspense>
+      <SingleChainSwapFormProvider
+        enabled={!pair.isCrossChain}
+        evmRecipient={evmRecipient}
+        chainId={typeof pair.inputChain === 'number' ? pair.inputChain : ChainId.MAINNET}
+        currencyIn={pair.currencyIn}
+        currencyOut={pair.currencyOut}
+      >
+        {crossChainActivated ? (
+          <Suspense fallback={<LocalLoader />}>
+            <CrossChainProviders
               enabled={pair.isCrossChain}
               evmRecipient={evmRecipient}
               amount={typedValue}
@@ -67,12 +77,22 @@ const SwapPage = () => {
               fromChain={pair.inputChain}
               toChain={pair.outputChain}
             >
+              <Suspense fallback={null}>
+                <WalletHistorySubscriptions />
+              </Suspense>
               <SwapPageContent {...contentProps} />
-            </CrossChainSwapProvider>
-          </SingleChainSwapFormProvider>
-        </TransactionDetailProvider>
-      </SwapWalletProvider>
-    </NonEvmProviders>
+            </CrossChainProviders>
+          </Suspense>
+        ) : (
+          <>
+            <Suspense fallback={null}>
+              <WalletHistorySubscriptions evmOnly />
+            </Suspense>
+            <SwapPageContent {...contentProps} />
+          </>
+        )}
+      </SingleChainSwapFormProvider>
+    </TransactionDetailProvider>
   )
 }
 

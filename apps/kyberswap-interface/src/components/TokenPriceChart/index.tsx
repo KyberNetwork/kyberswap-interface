@@ -28,11 +28,11 @@ import { cn } from 'utils/cn'
 const TokenPriceChartCanvas = lazy(() => import('./TokenPriceChartCanvas'))
 
 const CHART_TIME_FRAME_OPTIONS = [
+  { label: '5m', value: '5m' },
   { label: '15m', value: '15m' },
   { label: '1h', value: '1h' },
   { label: '4h', value: '4h' },
   { label: '24h', value: '1d' },
-  { label: '1W', value: '7d' },
 ] as const
 
 type TokenPriceChartProps = {
@@ -68,7 +68,7 @@ const TokenPriceChart = ({ tokens, flatten, quoteCurrency, markerOverlay, header
   )
   const selectionContext = `${filteredTokens.map(getCurrencyKey).join(':')}:${defaultActiveTabIndex}`
 
-  const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1d')
+  const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1h')
   const [selection, setSelection] = useState<{ context: string; index: number }>()
   const [isExpanded, setIsExpanded] = useState(!upToSmall)
 

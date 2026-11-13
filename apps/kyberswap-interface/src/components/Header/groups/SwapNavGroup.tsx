@@ -8,7 +8,7 @@ import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { KYBERCROSS } from 'constants/env'
+import { ENABLE_KYBERCROSS_DIRECT } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { isSupportLimitOrder, isSupportStopMarket } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -105,7 +105,7 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
             </StyledNavLink>
           )}
 
-          {KYBERCROSS && (
+          {ENABLE_KYBERCROSS_DIRECT && (
             <StyledNavLink
               id="kybercross-nav-link"
               to={APP_PATHS.KYBER_CROSS}

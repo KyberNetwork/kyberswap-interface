@@ -4,6 +4,7 @@ import { type ReactNode, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { ErrorWarning } from 'components/ErrorWarning'
+import { NewTag } from 'components/Header/styleds'
 import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { HStack, Stack } from 'components/Stack'
 import { HeaderRightMenu } from 'components/TradeLayout/HeaderRightMenu'
@@ -89,7 +90,15 @@ export const Header = ({
                 An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal
                 slippage.
               </HiddenH2>
-              <span className="text-xs font-medium text-subText">{t`Across chains, at the best available rate`}</span>
+              <span className="text-xs font-medium text-subText">
+                <Trans>
+                  <span className="inline-flex items-center">
+                    Across chains
+                    <NewTag className="text-[10px]" />
+                  </span>
+                  , at the best available rate
+                </Trans>
+              </span>
             </>
           )}
           {isCrossChainPage && (
