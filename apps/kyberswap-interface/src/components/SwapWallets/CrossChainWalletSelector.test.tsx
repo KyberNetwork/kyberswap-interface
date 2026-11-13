@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { CrossChainWalletSelector } from 'components/SwapWallets/CrossChainWalletSelector'
-import { NonEvmChain } from 'types/crossChain'
+import { Chain, NonEvmChain } from 'types/crossChain'
 
 const mocks = vi.hoisted(() => ({
   nearAddress: null as string | null,
@@ -19,7 +19,7 @@ const mocks = vi.hoisted(() => ({
 
 let container: HTMLDivElement
 let root: ReturnType<typeof createRoot>
-const render = (recipient = '', chain = NonEvmChain.Near, isPastedRecipient = false, pastedRecipient = '') =>
+const render = (recipient = '', chain: Chain = NonEvmChain.Near, isPastedRecipient = false, pastedRecipient = '') =>
   act(async () => {
     root.render(
       <I18nProvider i18n={i18n}>
@@ -70,7 +70,26 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 
-describe('non-EVM receiver wallet selector', () => {
+describe('receiver wallet selector', () => {
+  it.each([
+    [1, '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d', '0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d'],
+    [1, '0xa2DFeb674d997b68ec5adB0A6fb9136BD45C2D2d', '0xa2DFeb674d997b68ec5adB0A6fb9136BD45C2D2d'],
+    [1, '0xA2DFEB674D997B68EC5ADB0A6FB9136BD45C2D2D', '0xa2DFeb674d997b68ec5adB0A6fb9136BD45C2D2d'],
+    [1, 'a2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d', '0xa2DFeb674d997b68ec5adB0A6fb9136BD45C2D2d'],
+    [1, 'alice.eth', 'alice.eth'],
+    [1, '0xa2dfeb674d997b68ec5adB0A6fb9136BD45C2D2d', '0xa2dfeb674d997b68ec5adB0A6fb9136BD45C2D2d'],
+    [NonEvmChain.Near, 'a2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d', 'a2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d'],
+  ] as const)('normalizes only valid EVM clipboard input on chain %s: %s', async (chain, value, expected) => {
+    mocks.readText.mockResolvedValue(` ${value}\n`)
+    await render('', chain)
+    await click(button('Select Wallet'))
+    await click(button('Paste recipient address'))
+    expect(container.querySelector('input')?.value).toBe(expected)
+    expect(mocks.onRecipientApply).not.toHaveBeenCalled()
+    await click(button('Apply'))
+    expect(mocks.onRecipientApply).toHaveBeenCalledWith(expected)
+  })
+
   it('disconnects only the receiver selection without changing the pasted address or selecting another wallet', async () => {
     mocks.nearAddress = 'connected.near'
     await render('pasted.near', NonEvmChain.Near, true, 'pasted.near')

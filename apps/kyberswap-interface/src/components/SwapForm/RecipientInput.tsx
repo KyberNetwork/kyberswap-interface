@@ -7,6 +7,7 @@ import { Collapse } from 'components/Collapse'
 import { Stack } from 'components/Stack'
 import type { RecipientAddressType } from 'components/SwapForm/hooks/useEvmRecipient'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { normalizeEvmAddressInput } from 'utils/address'
 import { cn } from 'utils/cn'
 
 type RecipientInputProps = {
@@ -87,7 +88,10 @@ export const RecipientAddressInput = (props: RecipientAddressInputProps) => {
       error={error}
       disabled={disabled}
       pattern={props.mode === 'nonEvm' ? null : undefined}
-      onChange={event => onChange(event.target.value.replace(/\s+/g, ''))}
+      onChange={event => {
+        const input = event.target.value.replace(/\s+/g, '')
+        onChange(props.mode === 'evm' ? normalizeEvmAddressInput(input) : input)
+      }}
       icon={
         value ? (
           <button
