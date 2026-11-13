@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
 
 import useBuildRoute from 'components/SwapForm/hooks/useBuildRoute'
@@ -13,8 +12,9 @@ import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount
 import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useSwapClientId from 'hooks/useSwapClientId'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
+import { usePermitData } from 'state/swap/hooks'
 
 type SingleChainSwapConfig = {
   evmRecipient?: EvmRecipient
@@ -26,7 +26,6 @@ type SingleChainSwapConfig = {
   isDegenMode: boolean
   slippage: number
   transactionTimeout: number
-  permit?: string
   customChainId?: ChainId
 }
 
@@ -38,10 +37,9 @@ const useSingleChainSwap = ({
   isDegenMode,
   slippage,
   transactionTimeout,
-  permit,
   customChainId,
 }: SingleChainSwapConfig) => {
-  const [searchParams] = useSearchParams()
+  const clientId = useSwapClientId()
   const { chainId: walletChainId, account, walletKey } = useActiveWeb3React()
 
   const chainId = customChainId || walletChainId
@@ -77,6 +75,7 @@ const useSingleChainSwap = ({
     typedValue,
     recipient,
     isDegenMode,
+    clientId,
   ])
   const { review, openReview, rebuildReview, confirmReview, dismissReview } = useSwapReviewSession(reviewIdentity)
   const isProcessingSwap = review.phase !== 'closed'
@@ -94,7 +93,7 @@ const useSingleChainSwap = ({
     parsedAmount,
     isProcessingSwap,
     customChain: chainId,
-    clientId: isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId') || undefined,
+    clientId,
   })
 
   const { data: getRouteRawResponse, isFetching: isGettingRoute, error: getRouteError } = result
@@ -107,6 +106,10 @@ const useSingleChainSwap = ({
   }, [currencyIn, currencyOut, getRouteError, getRouteRawResponse])
 
   const routeSummary = getRouteResponse?.routeSummary
+  const permitData = usePermitData(
+    currencyIn?.chainId === walletChainId ? currencyIn.wrapped.address : undefined,
+    routeSummary?.routerAddress,
+  )
 
   // Compare the response with the exact fee intent captured by the request, not current settings.
   const isFeeTampered = useMemo(() => {
@@ -128,7 +131,7 @@ const useSingleChainSwap = ({
     routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
     slippage,
     transactionTimeout,
-    permit,
+    permit: permitData?.rawSignature,
     currencyIn,
     currencyOut,
   })

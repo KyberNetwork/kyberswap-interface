@@ -9,6 +9,7 @@ import SwapActionButton from './index'
 
 const mocks = vi.hoisted(() => ({ restoring: false, connect: vi.fn(), account: undefined as string | undefined }))
 vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ account: mocks.account, chainId: 1 }) }))
+vi.mock('components/SwapForm/hooks/useV2Allowance', () => ({ default: () => false }))
 vi.mock('hooks/useIsWalletRestoring', () => ({ default: () => mocks.restoring }))
 vi.mock('state/application/hooks', () => ({ useWalletModalToggle: () => mocks.connect }))
 vi.mock('hooks/useApproveCallback', () => ({

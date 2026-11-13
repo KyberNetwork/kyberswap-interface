@@ -3,8 +3,6 @@ import { ReactNode } from 'react'
 
 import { SingleChainSwapProvider } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
 import type { EvmRecipient } from 'components/SwapForm/hooks/useEvmRecipient'
-import { useActiveWeb3React } from 'hooks'
-import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
@@ -27,16 +25,12 @@ export const SingleChainSwapFormProvider = ({
   currencyOut,
   children,
 }: SingleChainSwapFormProviderProps) => {
-  const { chainId: walletChainId } = useActiveWeb3React()
-
   const balanceIn = useCurrencyBalance(currencyIn, currencyIn?.chainId)
   const balanceOut = useCurrencyBalance(currencyOut, currencyOut?.chainId)
 
   const [ttl] = useUserTransactionTTL()
   const [isDegenMode] = useDegenModeManager()
   const [slippage] = useUserSlippageTolerance()
-
-  const permitData = usePermitData(currencyIn?.chainId === walletChainId ? currencyIn.wrapped.address : undefined)
 
   return (
     <SingleChainSwapProvider
@@ -49,7 +43,6 @@ export const SingleChainSwapFormProvider = ({
       isDegenMode={isDegenMode}
       slippage={slippage}
       transactionTimeout={ttl}
-      permit={permitData?.rawSignature}
       customChainId={chainId}
     >
       {children}
