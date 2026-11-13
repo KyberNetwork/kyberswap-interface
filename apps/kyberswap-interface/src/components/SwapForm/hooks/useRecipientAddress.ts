@@ -63,7 +63,9 @@ export const useRecipientAddress = (value: string, type: RecipientAddressType) =
         return new PublicKey(value).toBase58() === value ? value : null
       }
       if (network === 'Bitcoin') {
-        const { address, networks } = await import('bitcoinjs-lib')
+        const [bitcoin, ecc] = await Promise.all([import('bitcoinjs-lib'), import('@bitcoinerlab/secp256k1')])
+        const { address, networks } = bitcoin
+        bitcoin.initEccLib(ecc)
         address.toOutputScript(value, networks.bitcoin)
         return value
       }

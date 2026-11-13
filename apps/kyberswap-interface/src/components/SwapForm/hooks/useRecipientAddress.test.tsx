@@ -98,6 +98,7 @@ it.each([
   ['Solana', 'alice.near', false],
   ['Bitcoin', '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', true],
   ['Bitcoin', '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNb', false],
+  ['Bitcoin', 'bc1p5egaltnsssj57zr6k47mk4qmmv4fjsjnjhysge2gcsjl2n9rdntqcmvekz', true],
 ])('checks %s address %s', async (networkName, value, valid) => {
   await render(value, { mode: 'nonEvm', networkName })
   await settled()
