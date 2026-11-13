@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+export const WALLET_TRANSACTIONS_PAGE_SIZE = 100
+
 const amount = z.string().regex(/^\d+$/)
 const eventSchema = z.object({
   chainName: z.string().min(1),
@@ -131,7 +133,7 @@ export const indexedTransactionPageFromWalletRows = (rows: unknown[], offset: nu
   }),
   // KD exposes offset/limit only. RTK treats the next offset as an opaque cursor;
   // count raw rows so unsupported records never stall pagination.
-  nextCursor: rows.length === 10 ? String(offset + rows.length) : null,
+  nextCursor: rows.length === WALLET_TRANSACTIONS_PAGE_SIZE ? String(offset + rows.length) : null,
   oldestTimestamp: rows.reduce<number | undefined>((oldest, row) => {
     const parsed = z.object({ timestamp: z.string().datetime({ offset: true }) }).safeParse(row)
     if (!parsed.success) return oldest

@@ -1,6 +1,6 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { KeyboardEvent, ReactNode, useCallback, useDeferredValue, useEffect, useState } from 'react'
+import { KeyboardEvent, ReactNode, Suspense, lazy, useCallback, useDeferredValue, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 
@@ -12,7 +12,6 @@ import { ChainTokens } from 'components/TokenSelectorModal/AllNetworks/ChainToke
 import { useAggregateTokens } from 'components/TokenSelectorModal/AllNetworks/useAggregateTokens'
 import { ChainSelector } from 'components/TokenSelectorModal/NetworkSelector/ChainSelector'
 import { NetworkSidebar } from 'components/TokenSelectorModal/NetworkSelector/NetworkSidebar'
-import NonEvmTokenSelectorContent from 'components/TokenSelectorModal/NetworkSelector/NonEvmTokenSelectorContent'
 import { OtherChainTokens } from 'components/TokenSelectorModal/TokenList/OtherChainTokens'
 import { PinnedTokens } from 'components/TokenSelectorModal/TokenList/PinnedTokens'
 import TokenList from 'components/TokenSelectorModal/TokenList/TokenList'
@@ -37,12 +36,16 @@ import {
   TokenSelectorNetwork,
   tokenRowKey,
 } from 'components/TokenSelectorModal/types'
-import { NETWORKS_INFO, isSupportStopMarket } from 'constants/networks'
+import { isSupportStopMarket } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { CloseIcon } from 'theme'
 import { NonEvmChain, NonEvmChainInfo, NonEvmCurrency } from 'types/crossChain'
 import { getTokenAddress } from 'utils/tokenInfo'
+
+const NonEvmTokenSelectorContent = lazy(
+  () => import('components/TokenSelectorModal/NetworkSelector/NonEvmTokenSelectorContent'),
+)
 
 const PRIORITY_CHAINS: TokenSelectorNetwork['chainId'][] = [
   ChainId.MAINNET,
@@ -171,13 +174,7 @@ export const TokenSelectorContent = ({
   const availableNetworks: TokenSelectorNetwork[] = requireOracle
     ? rankedChains.filter(chain => isSupportStopMarket(chain.chainId))
     : onSelectNonEvmCurrency
-    ? [
-        ...rankedChains,
-        ...[ChainId.BLAST]
-          .filter(chainId => !rankedChains.some(chain => chain.chainId === chainId))
-          .map(chainId => NETWORKS_INFO[chainId as ChainId]),
-        ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] })),
-      ]
+    ? [...rankedChains, ...Object.values(NonEvmChain).map(chainId => ({ chainId, ...NonEvmChainInfo[chainId] }))]
     : rankedChains
   const networks = networkSortBy === 'priority' ? sortNetworksByPriority(availableNetworks) : availableNetworks
 
@@ -370,19 +367,21 @@ export const TokenSelectorContent = ({
           />
         )}
         {nonEvmChain ? (
-          <NonEvmTokenSelectorContent
-            key={nonEvmChain}
-            chain={nonEvmChain}
-            selectedCurrency={nonEvmChain === initialNonEvmChain ? selectedNonEvmCurrency : undefined}
-            onSelect={currency => onSelectNonEvmCurrency?.(nonEvmChain, currency)}
-            networkSelector={
-              showDiscoveryTabs ? (
-                <div className="sm:hidden">
-                  <ChainSelector chains={networks} selectedChainId={nonEvmChain} onChange={selectNetwork} />
-                </div>
-              ) : undefined
-            }
-          />
+          <Suspense fallback={<TokenListSkeleton activeTab={activeTab} />}>
+            <NonEvmTokenSelectorContent
+              key={nonEvmChain}
+              chain={nonEvmChain}
+              selectedCurrency={nonEvmChain === initialNonEvmChain ? selectedNonEvmCurrency : undefined}
+              onSelect={currency => onSelectNonEvmCurrency?.(nonEvmChain, currency)}
+              networkSelector={
+                showDiscoveryTabs ? (
+                  <div className="sm:hidden">
+                    <ChainSelector chains={networks} selectedChainId={nonEvmChain} onChange={selectNetwork} />
+                  </div>
+                ) : undefined
+              }
+            />
+          </Suspense>
         ) : (
           <Stack className="min-h-0 min-w-0 flex-1 gap-3">
             <Stack className="shrink-0 gap-2">

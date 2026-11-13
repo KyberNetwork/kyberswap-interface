@@ -8,16 +8,21 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { useProcessingTransactions } from 'components/SwapTransactions/Processing/useProcessingTransactions'
 import { NonEvmChain, type NormalizedTxResponse } from 'types/crossChain'
 
+let hasSwapWallets = true
 let account: string | undefined
 let solana: string | undefined
 let local: NormalizedTxResponse[]
 let server: Array<BackendTransaction & Partial<IndexedTransaction>>
 vi.mock('components/SwapWallets/SwapWalletContext', () => ({
-  useSwapWallets: () => ({
-    inputAddress: account || '',
-    inputConnection: { family: account?.startsWith('0x') ? 'evm' : 'solana' },
-  }),
+  useSwapWallets: () =>
+    hasSwapWallets
+      ? {
+          inputAddress: account || '',
+          inputConnection: { family: account?.startsWith('0x') ? 'evm' : 'solana' },
+        }
+      : undefined,
 }))
+vi.mock('hooks', () => ({ useActiveWeb3React: () => ({ account: '0xSENDER' }) }))
 vi.mock('state/crossChainSwap', () => ({ useCrossChainTransactions: () => local }))
 vi.mock('state/hooks', () => ({ useAppSelector: () => server }))
 vi.mock('services/walletTransactionsApi', () => ({ selectIndexedTransactions: vi.fn() }))
@@ -50,6 +55,7 @@ const Harness = () => {
 const render = () => act(async () => root.render(<Harness />))
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  hasSwapWallets = true
   account = '0xSENDER'
   solana = undefined
   local = []
@@ -140,4 +146,11 @@ it('deduplicates backend history and lets verified settlement remove a locally p
   server = [{ ...server[0], status: 'in_progress', historyType: 'swap', fromChain: 'ethereum', toChain: 'ethereum' }]
   await render()
   expect(transactions).toEqual([])
+})
+
+it('keeps EVM processing orders visible before the cross-chain wallet provider loads', async () => {
+  hasSwapWallets = false
+  local = [row(1), row(2, { sender: '0xother' })]
+  await render()
+  expect(transactions.map(tx => tx.id)).toEqual(['1'])
 })

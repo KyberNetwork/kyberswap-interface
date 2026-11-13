@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import { Collapse } from 'components/Collapse'
 import { ErrorWarning } from 'components/ErrorWarning'
-import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { Stack } from 'components/Stack'
@@ -137,13 +136,8 @@ const SlippageSetting = ({
     <div className="flex w-full flex-col" data-testid="slippage-setting">
       <div className="flex min-h-6 items-center justify-between gap-1 text-subText">
         <div className="flex items-center gap-1">
-          <span className="text-xs font-medium text-subText">
-            <Trans>Max Slippage</Trans>
-          </span>
-          <InfoHelper
-            clickOnly
-            margin={false}
-            placement="top"
+          <MouseoverTooltip
+            placement="right"
             text={
               tooltip || (
                 <span>
@@ -160,8 +154,11 @@ const SlippageSetting = ({
                 </span>
               )
             }
-          />
-          <span className="text-xs font-medium text-subText">:</span>
+          >
+            <span className="border-b border-dotted border-border text-xs font-medium text-subText">
+              <Trans>Max Slippage</Trans>:
+            </span>
+          </MouseoverTooltip>
           <div
             role="button"
             onClick={() => setExpanded(e => !e)}

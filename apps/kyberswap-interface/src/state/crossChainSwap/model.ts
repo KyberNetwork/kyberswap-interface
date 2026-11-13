@@ -1,5 +1,6 @@
 import type { BackendTransaction } from 'services/crossChainTransactions'
 
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import type { Chain, NormalizedTxResponse } from 'types/crossChain'
 
 export type FeStatus = NonNullable<NormalizedTxResponse['status']>
@@ -38,36 +39,14 @@ export type LocalTransaction = NormalizedTxResponse & {
 export const localTransactionKey = (tx: Pick<NormalizedTxResponse, 'sourceChain' | 'sourceTxHash' | 'sender'>) =>
   outboxKey(tx.sender || '', tx.sourceChain, tx.sourceTxHash, '')
 
-const CHAIN_IDS: Record<string, number> = {
-  ethereum: 1,
-  polygon: 137,
-  bsc: 56,
-  avalanche: 43114,
-  fantom: 250,
-  arbitrum: 42161,
-  optimism: 10,
-  zksync: 324,
-  linea: 59144,
-  base: 8453,
-  scroll: 534352,
-  blast: 81457,
-  mantle: 5000,
-  sonic: 146,
-  bera: 80094,
-  ronin: 2020,
-  unichain: 130,
-  hyperevm: 999,
-  etherlink: 42793,
-  plasma: 9745,
-  monad: 143,
-  robinhood: 4663,
-  arc: 5042,
-  abstract: 2741,
-}
 export const backendChainToChain = (chain: string): Chain | undefined => {
   if (['solana', 'near', 'bitcoin'].includes(chain)) return chain as Chain
-  const id = CHAIN_IDS[chain] ?? (/^\d+$/.test(chain) ? Number(chain) : undefined)
-  return id as Chain | undefined
+  if (/^\d+$/.test(chain)) return Number(chain) as Chain
+  const name = chain === 'bera' ? 'berachain' : chain
+  return SUPPORTED_NETWORKS.find(chainId => {
+    const network = NETWORKS_INFO[chainId]
+    return network.route === name || network.ksSettingRoute === name
+  })
 }
 const canonicalChain = (chain: string | number) => String(backendChainToChain(String(chain)) ?? chain)
 export const normalizeIdentity = (chain: string | number, identity: string) =>

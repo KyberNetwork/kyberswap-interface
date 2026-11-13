@@ -113,6 +113,21 @@ const response = (rows: BackendTransaction[]) =>
   new Response(JSON.stringify({ code: 0, data: rows.map(walletRow) }), {
     headers: { 'Content-Type': 'application/json' },
   })
+// Full API pages can contain records that are not displayable swaps.
+const fullResponse = (rows: BackendTransaction[]) =>
+  new Response(
+    JSON.stringify({
+      code: 0,
+      data: [
+        ...rows.map(walletRow),
+        ...Array.from({ length: 100 - rows.length }, () => ({
+          ...walletRow(rows[rows.length - 1]),
+          txType: 'approval',
+        })),
+      ],
+    }),
+    { headers: { 'Content-Type': 'application/json' } },
+  )
 let autoPoll = false
 let local: LocalTransaction[]
 let root: ReturnType<typeof createRoot>
@@ -186,7 +201,7 @@ it('paginates 25 local rows when the API has no cursor', async () => {
   expect(history.currentPage).toBe(2)
   expect(fetcher).toHaveBeenCalledOnce()
   expect((fetcher.mock.calls[0][0] as Request).url).toEqual(
-    expect.stringContaining('/v1/wallets/uni/0xsender/transactions?offset=0&limit=10'),
+    expect.stringContaining('/v1/wallets/uni/0xsender/transactions?offset=0&limit=100'),
   )
   sender = '0xother'
   await render()
@@ -205,17 +220,40 @@ it('paginates 25 local rows when the API has no cursor', async () => {
   expect(fetcher).not.toHaveBeenCalled()
 })
 
+it('fetches 100 API rows while navigating history in pages of 10', async () => {
+  fetcher.mockImplementation(async (request: Request) =>
+    response((new URL(request.url).searchParams.get('offset') === '0' ? range(101, 2) : [1]).map(serverRow)),
+  )
+  await render()
+  await waitFor(() => expect(hashes()).toEqual(range(101, 92).map(n => `hash-${n}`)))
+  for (let page = 2; page <= 9; page++) {
+    await act(async () => history.goNext())
+    expect(history.currentPage).toBe(page)
+    expect(history.transactions).toHaveLength(10)
+  }
+  expect(fetcher).toHaveBeenCalledOnce()
+  await act(async () => history.goNext())
+  expect(hashes()).toEqual(range(11, 2).map(n => `hash-${n}`))
+  expect(fetcher.mock.calls.map(([request]) => new URL(request.url).search)).toEqual([
+    '?offset=0&limit=100',
+    '?offset=100&limit=100',
+  ])
+  await act(async () => history.goNext())
+  expect(hashes()).toEqual(['hash-1'])
+  expect(history.canGoNext).toBe(false)
+})
+
 it('merges local and API rows before slicing, without duplicates or moving old local rows ahead of unloaded history', async () => {
   local = [localRow(32), localRow(31), localRow(30), localRow(5)]
   fetcher.mockImplementation(async (request: Request) => {
     const cursor = new URL(request.url).searchParams.get('offset')
-    return cursor === '10'
-      ? response(range(20, 11).map(serverRow))
-      : cursor === '20'
-      ? response(range(10, 1).map(serverRow))
-      : cursor === '30'
+    return cursor === '100'
+      ? fullResponse(range(20, 11).map(serverRow))
+      : cursor === '200'
+      ? fullResponse(range(10, 1).map(serverRow))
+      : cursor === '300'
       ? response([])
-      : response(range(30, 21).map(serverRow))
+      : fullResponse(range(30, 21).map(serverRow))
   })
   await render()
   await waitFor(() => expect(hashes()).toEqual(range(32, 23).map(n => `hash-${n}`)))
@@ -234,16 +272,18 @@ it('merges local and API rows before slicing, without duplicates or moving old l
   expect(fetcher).toHaveBeenCalledTimes(4)
   expect(fetcher.mock.calls.map(([request]) => new URL(request.url).searchParams.get('offset'))).toEqual([
     '0',
-    '10',
-    '20',
-    '30',
+    '100',
+    '200',
+    '300',
   ])
 })
 
 it('loads another search cursor without moving the normal history page', async () => {
   local = [localRow(21)]
   fetcher.mockImplementation(async (request: Request) =>
-    response((new URL(request.url).searchParams.get('offset') === '10' ? range(10, 1) : range(20, 11)).map(serverRow)),
+    fullResponse(
+      (new URL(request.url).searchParams.get('offset') === '100' ? range(10, 1) : range(20, 11)).map(serverRow),
+    ),
   )
   await render()
   await waitFor(() => expect(history.searchTransactions).toHaveLength(10))
@@ -278,7 +318,7 @@ it('ignores a next-page completion after switching wallets', async () => {
       return new Promise<Response>(resolve => {
         release = resolve
       })
-    return response(range(30, 21).map(serverRow))
+    return fullResponse(range(30, 21).map(serverRow))
   })
   await render()
   await waitFor(() => expect(history.transactions).toHaveLength(10))
@@ -368,11 +408,11 @@ it('ignores detail cache and keeps persisted local settlement until KD catches u
 it('keeps the current page on cursor failure and retries without skipping newly loaded rows', async () => {
   let fail = true
   fetcher.mockImplementation(async (request: Request) => {
-    if (new URL(request.url).searchParams.get('offset') === '0') return response(range(20, 11).map(serverRow))
-    if (new URL(request.url).searchParams.get('offset') === '20') return response([])
+    if (new URL(request.url).searchParams.get('offset') === '0') return fullResponse(range(20, 11).map(serverRow))
+    if (new URL(request.url).searchParams.get('offset') === '200') return response([])
     return fail
       ? new Response(JSON.stringify({ code: 4000 }), { status: 400, headers: { 'Content-Type': 'application/json' } })
-      : response(range(10, 1).map(serverRow))
+      : fullResponse(range(10, 1).map(serverRow))
   })
   await render()
   await waitFor(() => expect(hasQueryError()).toBe(true))
@@ -440,7 +480,7 @@ it('does not let a late next-page request undo previous-page navigation', async 
   local = [localRow(32), localRow(31)]
   let release!: (value: Response) => void
   fetcher.mockImplementation(async (request: Request) => {
-    if (new URL(request.url).searchParams.get('offset') === '0') return response(range(30, 21).map(serverRow))
+    if (new URL(request.url).searchParams.get('offset') === '0') return fullResponse(range(30, 21).map(serverRow))
     return new Promise<Response>(resolve => {
       release = resolve
     })
@@ -454,7 +494,7 @@ it('does not let a late next-page request undo previous-page navigation', async 
   await waitFor(() => expect(release).toBeDefined())
   await act(async () => history.goPrevious())
   await act(async () => {
-    release(response(range(20, 11).map(serverRow)))
+    release(fullResponse(range(20, 11).map(serverRow)))
     await next
   })
   expect(history.currentPage).toBe(1)

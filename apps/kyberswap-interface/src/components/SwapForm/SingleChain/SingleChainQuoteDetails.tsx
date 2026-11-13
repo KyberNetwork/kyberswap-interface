@@ -2,10 +2,11 @@ import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 
 import { ErrorWarning } from 'components/ErrorWarning'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import { QuoteDetailRow, QuoteDetails } from 'components/SwapForm/Quote/QuoteDetails'
 import { SwapFee } from 'components/SwapForm/Quote/SwapFee'
 import { SwapRate } from 'components/SwapForm/Quote/SwapRate'
+import MEVProtection from 'components/SwapForm/Settings/MEVProtection'
 import SlippageSetting from 'components/SwapForm/Settings/SlippageSetting'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import type { SwapQuoteRefresh } from 'components/SwapForm/hooks/useGetRoute'
@@ -62,7 +63,14 @@ const SingleChainQuoteDetails = ({
       {(isSlippageControlPinned || recipientToggle) && (
         <Stack>
           {isSlippageControlPinned ? (
-            <SlippageSetting rightComponent={recipientToggle} />
+            <SlippageSetting
+              rightComponent={
+                <HStack className="shrink-0 items-center gap-2">
+                  <MEVProtection />
+                  {recipientToggle}
+                </HStack>
+              }
+            />
           ) : (
             recipientToggle && <div className="flex justify-end">{recipientToggle}</div>
           )}

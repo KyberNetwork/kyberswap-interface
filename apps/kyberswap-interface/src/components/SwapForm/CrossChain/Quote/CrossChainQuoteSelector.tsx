@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { AnimatePresence, type HTMLMotionProps, motion, useReducedMotion } from 'framer-motion'
 import { type ReactNode, useState } from 'react'
@@ -5,6 +6,7 @@ import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
 import { sortQuotesByNetOutput } from 'services/crossChain/quote/utils'
 import { Quote, getQuoteId } from 'services/crossChain/registry'
+import { formatUnits } from 'viem'
 
 import { ReactComponent as FeeIcon } from 'assets/svg/fee.svg'
 import GasStation from 'components/Icons/GasStation'
@@ -20,6 +22,7 @@ import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCross
 import { TokenLogoWithChain } from 'components/TokenLogo/TokenLogoWithChain'
 import { ClickTooltip, MouseoverTooltip } from 'components/Tooltip'
 import { Z_INDEXS } from 'constants/styles'
+import { NativeCurrencies } from 'constants/tokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { Currency } from 'types/crossChain'
@@ -103,6 +106,22 @@ const RouteOptionsContent = ({
         >
           <AnimatePresence initial={false}>
             {quotes.map((quote, index) => {
+              const gasDrop = quote.quote.gasDrop
+              const native = NativeCurrencies[quote.quote.quoteParams.toChain as ChainId]
+              const formattedOutputAmount = formatDisplayNumber(quote.quote.formattedOutputAmount, {
+                significantDigits: 5,
+              })
+              const formattedOutputUsd = formatDisplayNumber(quote.quote.outputUsd, {
+                style: 'currency',
+                significantDigits: 3,
+                fractionDigits: 2,
+              })
+              const formattedGasDropAmount =
+                gasDrop && native
+                  ? formatDisplayNumber(formatUnits(BigInt(gasDrop.amount), native.decimals), {
+                      significantDigits: 6,
+                    })
+                  : null
               const additionalFee =
                 (quote.quote.additionalFeeUsd ?? 0) > 0
                   ? formatDisplayNumber(quote.quote.additionalFeeUsd, { style: 'currency', significantDigits: 3 })
@@ -120,7 +139,7 @@ const RouteOptionsContent = ({
                 >
                   <Stack className="gap-2">
                     <HStack className="flex-wrap items-center justify-between gap-2">
-                      <HStack className="min-w-0 items-center gap-2">
+                      <HStack className="min-w-0 items-center gap-1.5 whitespace-nowrap">
                         <HStack className="items-center gap-1">
                           <TokenLogoWithChain
                             currency={tokenOut}
@@ -131,19 +150,23 @@ const RouteOptionsContent = ({
                               top: 'auto',
                             }}
                           />
-                          <span className="text-xl font-medium">
-                            {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
-                          </span>
+                          <span className="text-xl font-medium">{formattedOutputAmount}</span>
                           <span className="text-lg font-medium text-subText">{tokenOut?.symbol}</span>
                         </HStack>
-                        <span className="text-sm font-medium text-subText">
-                          ~
-                          {formatDisplayNumber(quote.quote.outputUsd, {
-                            style: 'currency',
-                            significantDigits: 3,
-                            fractionDigits: 2,
-                          })}
-                        </span>
+                        <span className="text-sm font-medium text-subText">~{formattedOutputUsd}</span>
+                        {gasDrop && native && (
+                          <>
+                            <span className="text-subText">•</span>
+                            <HStack className="items-center gap-0 whitespace-nowrap">
+                              <span className="flex shrink-0 text-primary" aria-label={t`Gas Drop`}>
+                                <GasStation size={16} />
+                              </span>
+                              <span className="text-sm font-medium text-subText">
+                                +{formattedGasDropAmount} {native.symbol}
+                              </span>
+                            </HStack>
+                          </>
+                        )}
                       </HStack>
 
                       {routeBadge ? (
@@ -165,16 +188,7 @@ const RouteOptionsContent = ({
                     </HStack>
                     <HStack className="items-center justify-between gap-2 text-sm text-subText">
                       <HStack className="min-w-0 items-center gap-3">
-                        <QuoteProviderName
-                          quote={quote}
-                          iconBefore={
-                            quote.quote.gasDrop && (
-                              <span className="flex shrink-0 text-primary" aria-label={t`Gas Drop`}>
-                                <GasStation size={16} />
-                              </span>
-                            )
-                          }
-                        />
+                        <QuoteProviderName quote={quote} />
                         {!!additionalFee && (
                           <HStack
                             className="items-center gap-1 whitespace-nowrap"

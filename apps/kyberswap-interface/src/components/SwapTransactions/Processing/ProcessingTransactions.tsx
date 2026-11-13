@@ -1,14 +1,16 @@
 import { t } from '@lingui/macro'
+import { Suspense, lazy } from 'react'
 import { Maximize } from 'react-feather'
 
 import Badge, { BadgeVariant } from 'components/Badge'
 import IconButton from 'components/Button/IconButton'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { HStack, Stack } from 'components/Stack'
-import ProcessingTransactionItem from 'components/SwapTransactions/Processing/ProcessingTransactionItem'
 import { useProcessingTransactions } from 'components/SwapTransactions/Processing/useProcessingTransactions'
 import { localTransactionKey } from 'state/crossChainSwap/model'
 import { cn } from 'utils/cn'
+
+const ProcessingTransactionItem = lazy(() => import('./ProcessingTransactionItem'))
 
 const ProcessingTransactions = ({ onOpenHistory }: { onOpenHistory: () => void }) => {
   const transactions = useProcessingTransactions()
@@ -49,9 +51,11 @@ const ProcessingTransactions = ({ onOpenHistory }: { onOpenHistory: () => void }
         >
           {/* Three 28px rows and two 4px gaps. */}
           <Stack as="ul" className="gap-1">
-            {transactions.map(tx => (
-              <ProcessingTransactionItem key={localTransactionKey(tx)} tx={tx} />
-            ))}
+            <Suspense fallback={null}>
+              {transactions.map(tx => (
+                <ProcessingTransactionItem key={localTransactionKey(tx)} tx={tx} />
+              ))}
+            </Suspense>
           </Stack>
         </ScrollableWithSignal>
       </div>
