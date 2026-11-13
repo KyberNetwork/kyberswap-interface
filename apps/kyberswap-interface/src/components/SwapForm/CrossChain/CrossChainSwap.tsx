@@ -11,6 +11,7 @@ import { CrossChainPriceImpactWarning } from 'components/SwapForm/CrossChain/Quo
 import { GasDropOption } from 'components/SwapForm/CrossChain/Quote/GasDrop'
 import { useCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { useCrossChainWalletIntent } from 'components/SwapWallets/useCrossChainWalletIntent'
+import { isEvmChain } from 'types/crossChain'
 
 export const CrossChainOutputFooter = () => {
   const swap = useCrossChainSwap()
@@ -32,10 +33,12 @@ export const CrossChainOutputFooter = () => {
 
 /** Cross-chain information and execution, independent of the shared fields. */
 const CrossChainSwap = () => {
-  const { currencyOut, fromChainId, selectedQuote, loading, warning, hasCustomRecipient } = useCrossChainSwap()
+  const { currencyOut, fromChainId, toChainId, selectedQuote, loading, warning, hasCustomRecipient } =
+    useCrossChainSwap()
   const [showBitcoin, setShowBitcoin] = useState(false)
   const walletIntentModal = useCrossChainWalletIntent(fromChainId, () => setShowBitcoin(true))
   const output = currencyOut && 'isNative' in currencyOut ? currencyOut : undefined
+  const showRecipient = hasCustomRecipient || (isEvmChain(fromChainId) && !!toChainId && isEvmChain(toChainId))
   const { message } = useHoneypotWarning({
     chainId: output?.chainId,
     tokenAddress: output?.wrapped.address,
@@ -45,7 +48,7 @@ const CrossChainSwap = () => {
     <>
       {walletIntentModal}
       <Stack className="gap-2">
-        <CrossChainQuoteDetails recipient={hasCustomRecipient ? <CrossChainRecipient /> : undefined} />
+        <CrossChainQuoteDetails recipient={showRecipient ? <CrossChainRecipient /> : undefined} />
         <HoneypotWarning message={message} />
         <CrossChainPriceImpactWarning warning={warning} />
       </Stack>
