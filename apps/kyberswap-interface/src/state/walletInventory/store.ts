@@ -68,6 +68,13 @@ const NO_ADDRESSES: string[] = []
 const EMPTY_ROWS: Record<string, InventoryRow> = {}
 
 const subscriptions = new Map<string, number>()
+
+/**
+ * Wallets to walk once although nothing is reading them yet. The wallet a user connects is the one
+ * they are about to ask about, and a walk started then is a walk the first screen does not wait for.
+ * A key is dropped as soon as a walk has answered for it, so this never becomes a second poll.
+ */
+const prefetches = new Set<string>()
 const entries = new Map<string, InventoryEntry>()
 const meta = new Map<string, Meta>()
 
@@ -123,6 +130,20 @@ export const unregister = (chainId: number, account: string) => {
 }
 
 export const readSubscriptions = () => subscriptions
+
+/**
+ * Ask for one walk of this wallet without subscribing to it. Ignored for a wallet already walked,
+ * already queued, or already being polled by a consumer — this fetches what nothing else will.
+ */
+export const prefetchInventory = (chainId: number, account: string) => {
+  if (!isInventoryChain(chainId)) return
+  const key = inventoryKey(chainId, account)
+  if (entries.has(key) || prefetches.has(key) || subscriptions.has(key)) return
+  prefetches.add(key)
+  emit()
+}
+
+export const readPrefetches = () => prefetches
 export const readEntry = (key: string) => entries.get(key)
 export const readMeta = (key: string) => meta.get(key)
 
@@ -192,6 +213,7 @@ const rowsEqual = (a: Record<string, InventoryRow>, b: Record<string, InventoryR
 }
 
 export const commitResult = (key: string, result: WalletInventoryResult) => {
+  prefetches.delete(key)
   const now = Date.now()
   const previous = entries.get(key)
 
@@ -250,6 +272,7 @@ export const commitResult = (key: string, result: WalletInventoryResult) => {
 }
 
 export const commitFailure = (key: string) => {
+  prefetches.delete(key)
   const previous = meta.get(key)
   const failures = (previous?.failures ?? 0) + 1
   const base = INVENTORY_RETRY_BACKOFF_MS[Math.min(failures - 1, INVENTORY_RETRY_BACKOFF_MS.length - 1)]
@@ -273,6 +296,7 @@ export const commitFailure = (key: string) => {
 /** Test-only: drop all subscriptions, data and bookkeeping. */
 export const resetInventoryStore = () => {
   subscriptions.clear()
+  prefetches.clear()
   entries.clear()
   meta.clear()
   version = 0

@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react'
 import { UnsupportedChainError, fetchWalletInventory } from 'services/walletInventory'
 
+import { useActiveWeb3React } from 'hooks'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { INVENTORY_CATCHUP_INTERVAL_MS, INVENTORY_TTL_MS } from 'state/walletInventory/constants'
 import {
@@ -11,8 +12,10 @@ import {
   isCatchingUp,
   isInventoryChain,
   markChainUnsupported,
+  prefetchInventory,
   readEntry,
   readMeta,
+  readPrefetches,
   readSubscriptions,
   readTouchedTokens,
   subscribeStore,
@@ -27,11 +30,26 @@ const MAX_PARALLEL = 3
 type DueTarget = { key: string; chainId: ChainId; account: string }
 
 /**
- * Which subscribed wallets need fetching right now. A cold or explicitly expired wallet is always
- * fetched; TTL refreshes are visibility-gated so a background tab stops polling.
+ * Which wallets need fetching right now: those a consumer is subscribed to, and those asked for by
+ * `prefetchInventory` and not yet walked. A cold or explicitly expired wallet is always fetched; TTL
+ * refreshes are visibility-gated so a background tab stops polling.
  */
 export const selectDue = (now: number, windowVisible: boolean): DueTarget[] => {
   const due: DueTarget[] = []
+  const target = (key: string): DueTarget | undefined => {
+    const [chainPart, account] = key.split(':')
+    const chainId = Number(chainPart) as ChainId
+    return isInventoryChain(chainId) ? { key, chainId, account } : undefined
+  }
+
+  // Asked for once and never walked; a walk retires the key, so this yields it at most once.
+  readPrefetches().forEach(key => {
+    if (readEntry(key) || readSubscriptions().has(key)) return
+    const entryMeta = readMeta(key)
+    if (entryMeta && now < entryMeta.nextRetryAt) return
+    const found = target(key)
+    if (found) due.push(found)
+  })
 
   readSubscriptions().forEach((count, key) => {
     if (count <= 0) return
@@ -84,6 +102,15 @@ export const selectDue = (now: number, windowVisible: boolean): DueTarget[] => {
  */
 export default function Updater(): null {
   const windowVisible = useIsWindowVisible()
+  const { chainId, account } = useActiveWeb3React()
+
+  // The wallet a user has just connected, or just switched a chain on, is the one they are about to
+  // ask about. Walking it now means the first selector or wallet popup they open reads an answer
+  // instead of starting a request; a walk retires the ask, so this costs one request per wallet and
+  // chain, not a poll.
+  useEffect(() => {
+    if (account) prefetchInventory(chainId, account)
+  }, [chainId, account])
 
   // useSyncExternalStore rather than state, so a burst of mounts coalesces into one sweep.
   const storeVersion = useSyncExternalStore(subscribeStore, getStoreVersion, getStoreVersion)
