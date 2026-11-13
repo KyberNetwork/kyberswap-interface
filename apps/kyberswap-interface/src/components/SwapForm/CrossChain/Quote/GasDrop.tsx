@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
+import { KyberCross } from 'services/crossChain/adapters/KyberCrossAdapter/constants'
 import { getChainName } from 'services/crossChain/utils'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -97,7 +98,7 @@ const AddGasButton = ({ chain, provider, symbol, outputSymbol, onRequest, onAddG
 
   const handleAddGas = () => {
     onRequest()
-    if (provider && provider !== 'KyberCross') {
+    if (provider && provider !== KyberCross) {
       setShowConfirmation(true)
       return
     }

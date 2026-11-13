@@ -11,7 +11,16 @@ type PoolRun = {
   result: Promise<boolean>
 }
 
-/** A mode's transport and cache belong to the input identity, never to the visible mode or review. */
+/**
+ * Owns one request stream and its cache for an input identity.
+ * Mode switches/review detach the session without cancelling transport; changing request
+ * identity or unmounting aborts it. Repeated loads share an in-flight request.
+ *
+ * Expiry is 60 seconds after completion, not after the first streamed quote. This hook
+ * does not schedule refreshes. The session supplies that schedule and forceRefresh intent.
+ * `snapshot` is retained comparison data; `reusableSnapshot` may seed an active session
+ * only while streaming or unexpired. Neither may cross a changed input identity.
+ */
 export const useQuotePool = (
   request: ReturnType<typeof useCrossChainQuoteRequest>,
   loadQuotes: (context: QuoteLoadContext) => Promise<void>,
@@ -38,6 +47,11 @@ export const useQuotePool = (
 
   useEffect(() => () => pool.run?.controller.abort(), [pool])
 
+  /**
+   * Deduplicates pending work, otherwise reuses an unexpired result unless forced.
+   * Explicit preparation can retry an empty result; confirming an already prepared
+   * request consumes that result without silently issuing a duplicate request.
+   */
   const prepare = (forceRefresh = false, retryEmpty = false) => {
     if (!request.params) return
     const existing = pool.run
@@ -84,6 +98,7 @@ export const useQuotePool = (
     return run
   }
 
+  /** Attaches the current session publisher and returns whether the stream finishes with usable quotes. */
   const load = async (context: QuoteLoadContext) => {
     const run = prepare(context.forceRefresh)
     if (!run) return false
