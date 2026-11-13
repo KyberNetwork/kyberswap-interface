@@ -113,5 +113,11 @@ export const useQuotePool = (
       ? snapshot
       : undefined
 
-  return { snapshot, reusableSnapshot, load, prepare: () => void prepare(false, true) }
+  const invalidate = () => {
+    pool.run?.controller.abort()
+    pool.run = null
+    pool.notify()
+  }
+
+  return { snapshot, reusableSnapshot, load, invalidate, prepare: () => void prepare(false, true) }
 }

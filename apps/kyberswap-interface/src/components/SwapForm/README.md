@@ -186,10 +186,13 @@ is authoritative. A receiver address or preview placeholder cannot substitute
 for a signing connection. Stream quotes may still require provider-specific
 build/SDK calls during execution.
 
+Starting a submit attempt reserves its quote and refreshes all three Unified Swap
+quote pools before wallet signing. Rejecting or failing an attempt does not restore
+that quote. The attempt continues with its immutable reviewed snapshot.
 On broadcast, execution persists the source transaction and queues backend sync
-when `quoteId` and `quoteToken` are available. Closing the modal resets its UI,
-but an in-flight submission still persists its result. A timeout after a captured
-source hash does not turn that broadcast into an unsubmitted failure. Settlement
+when `quoteId` and `quoteToken` are available, without refreshing quotes again.
+Closing the modal resets its UI, but an in-flight submission still persists its result.
+A timeout after a captured source hash does not turn that broadcast into an unsubmitted failure. Settlement
 belongs to the page-level transaction updater, not the confirmation modal.
 
 ## Shared business rules

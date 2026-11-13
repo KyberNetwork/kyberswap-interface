@@ -30,7 +30,7 @@ import { NonEvmChain, type NormalizedTxResponse, isEvmChain } from 'types/crossC
  */
 export const useCrossChainExecution = (
   reviewedQuote: Quote | null,
-  { syncWithBackend = true }: { syncWithBackend?: boolean } = {},
+  { syncWithBackend = true, onSubmit }: { syncWithBackend?: boolean; onSubmit?: () => void } = {},
 ) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
@@ -42,6 +42,8 @@ export const useCrossChainExecution = (
   const [txError, setTxError] = useState('')
 
   const activeSubmission = useRef<symbol | null>(null)
+  const consumedQuotes = useRef(new WeakSet<Quote['quote']>())
+  const consumedQuoteIds = useRef(new Set<string>())
 
   const dispatch = useAppDispatch()
   const store = useStore<AppState>()
@@ -95,6 +97,14 @@ export const useCrossChainExecution = (
 
   const submitSwap = async (selectedQuote = reviewedQuote) => {
     if (!selectedQuote || activeSubmission.current) return
+
+    if (
+      consumedQuotes.current.has(selectedQuote.quote) ||
+      (selectedQuote.quote.quoteId && consumedQuoteIds.current.has(selectedQuote.quote.quoteId))
+    ) {
+      setTxError(t`The route is outdated. Please refresh and try again.`)
+      return
+    }
 
     const {
       fromChain: fromChainId,
@@ -235,6 +245,12 @@ export const useCrossChainExecution = (
     }
 
     try {
+      // Reserve this snapshot for one attempt before any async checks or wallet signing.
+      // Rejecting or dismissing the attempt must never make its quote reusable.
+      consumedQuotes.current.add(selectedQuote.quote)
+      if (selectedQuote.quote.quoteId) consumedQuoteIds.current.add(selectedQuote.quote.quoteId)
+      onSubmit?.()
+
       if (isEvmChain(fromChainId)) {
         const blackjackRes = await checkBlackjack(sender)
         if (blackjackRes?.data?.blacklisted) {

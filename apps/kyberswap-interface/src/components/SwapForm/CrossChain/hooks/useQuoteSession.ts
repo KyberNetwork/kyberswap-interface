@@ -67,7 +67,13 @@ export const useQuoteSession = ({
   const runRef = useRef<(() => void) | null>(null)
   const reviewRefreshRef = useRef<((paused: boolean) => void) | null>(null)
   const nextManualRefreshAt = useRef(0)
-  const [state, setState] = useState({ ...EMPTY_QUOTE_STATE, request, selectQuotes, loading: !disable })
+  const [state, setState] = useState({
+    ...EMPTY_QUOTE_STATE,
+    request,
+    selectQuotes,
+    loading: !disable,
+    refreshVersion: 0,
+  })
 
   if (state.request !== request) {
     // Reset only quote-owned state. Recipient and form state live outside this session.
@@ -83,21 +89,26 @@ export const useQuoteSession = ({
       countdown: 0,
       expiresAt: initialSnapshot?.expiresAt ?? null,
       category: initialSnapshot?.category ?? previous.category,
+      refreshVersion: 0,
     })
   } else if (state.selectQuotes !== selectQuotes) {
     setState({ ...state, selectQuotes, selectedKey: null, reviewQuote: null })
   }
 
-  const { selectedKey, reviewQuote, category, loading, allLoading, countdown } = state
+  const { selectedKey, reviewQuote, category, loading, allLoading, countdown, refreshVersion } = state
   const quotes = selectQuotes ? selectQuotes(state.quotes) : state.quotes
   const showPreview = reviewQuote !== null
   const selectedQuote = quotes.find(quote => getQuoteKey(quote) === selectedKey) || quotes[0] || null
 
   const update = useCallback(
     (patch: Partial<typeof EMPTY_QUOTE_STATE>) => {
-      setState(previous => (previous.request === request ? { ...previous, ...patch } : previous))
+      setState(previous =>
+        previous.request === request && previous.refreshVersion === refreshVersion
+          ? { ...previous, ...patch }
+          : previous,
+      )
     },
-    [request],
+    [request, refreshVersion],
   )
 
   const onRefresh = useCallback(() => {
@@ -130,6 +141,25 @@ export const useQuoteSession = ({
     })
   }
 
+  const refreshAfterSubmit = () => {
+    // Preserve the submitted review while making every old live quote unavailable.
+    // A new session run also detaches late publishes from the invalidated streams.
+    setState(previous =>
+      previous.request === request
+        ? {
+            ...previous,
+            quotes: [],
+            selectedKey: null,
+            loading: !disable,
+            allLoading: !disable,
+            countdown: 0,
+            expiresAt: null,
+            refreshVersion: previous.refreshVersion + 1,
+          }
+        : previous,
+    )
+  }
+
   useEffect(() => {
     const { params } = request
     if (!params) return
@@ -157,8 +187,8 @@ export const useQuoteSession = ({
       timer = setTimeout(() => void run(), remaining)
     }
 
-    const run = async (forceRefresh = true) => {
-      if (signal.aborted || running || paused) return
+    const run = async (forceRefresh = true, duringReview = false) => {
+      if (signal.aborted || running || (paused && !duringReview)) return
 
       runRef.current = () => void run()
       clearRefresh()
@@ -212,7 +242,8 @@ export const useQuoteSession = ({
     }
 
     reviewRefreshRef.current = syncReviewRefresh
-    if (allLoading) void run(false)
+    if (refreshVersion) void run(true, true)
+    else if (allLoading) void run(false)
     else syncReviewRefresh(showPreview)
 
     return () => {
@@ -222,7 +253,7 @@ export const useQuoteSession = ({
       clearRefresh()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Request owns the stream; review only controls scheduling below.
-  }, [request, update, refreshSeconds])
+  }, [request, update, refreshSeconds, refreshVersion])
 
   useEffect(() => {
     reviewRefreshRef.current?.(showPreview)
@@ -256,6 +287,7 @@ export const useQuoteSession = ({
     reviewQuote,
     openReview,
     closeReview,
+    refreshAfterSubmit,
     showPreview,
     disable,
     setSelectedKey,

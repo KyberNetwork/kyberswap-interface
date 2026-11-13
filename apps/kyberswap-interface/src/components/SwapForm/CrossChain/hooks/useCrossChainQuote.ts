@@ -227,6 +227,12 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
 
   return {
     ...session,
+    refreshAfterSubmit: () => {
+      ordinaryPool.invalidate()
+      gasDropPool.invalidate()
+      alternativePool.invalidate()
+      session.refreshAfterSubmit()
+    },
     routeOptions: gasDropEnabled
       ? [
           ...sortQuotesByNetOutput(session.quotes),
