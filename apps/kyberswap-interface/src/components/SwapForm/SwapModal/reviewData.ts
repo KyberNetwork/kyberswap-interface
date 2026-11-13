@@ -78,10 +78,10 @@ export const getSwapReviewData = ({
       inputERC8056Info,
       outputERC8056Info,
     )
-    // Min amount out is calculated from get route api amount out.
+    // The built transaction applies slippage to its own output, not to the quote's.
     const minimumAmountOut = getERC8056DisplayAmount(
       outputERC8056Info,
-      minimumAmountAfterSlippage(routeSummary.parsedAmountOut, slippage),
+      minimumAmountAfterSlippage(parsedAmountOut, slippage),
     )
 
     return {

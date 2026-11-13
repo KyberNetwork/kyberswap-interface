@@ -1,8 +1,9 @@
 import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
-import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
+import { BuildRouteData, BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
 import { GetRouteParams, GetRouteResponse } from 'services/route/types/getRoute'
+import { SwapRouteParams, SwapRouteResponse } from 'services/route/types/swapRoute'
 import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
 import { ETHER_ADDRESS } from 'constants/index'
@@ -11,10 +12,52 @@ import type { AppDispatch } from 'state'
 export const AGGREGATOR_API_PATHS = {
   BUILD_ROUTE: '/api/v1/route/build',
   GET_ROUTE: '/api/v1/routes',
+  SWAP: '/api/v1/swap',
 } as const
 
 const getWrappedToken = (token: string, chainId: ChainId) =>
   token.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : token
+
+type BuiltTrade = {
+  chainId?: ChainId
+  tokenIn: string
+  tokenOut: string
+  tokenInDecimals?: number
+  tokenOutDecimals?: number
+  amountIn: string
+  amountOut: string
+}
+
+/** Values a built trade at token-catalog mid prices; keeps the aggregator's USD values when it cannot. */
+const withMarketUsd = async <T extends BuildRouteData>(data: T, trade: BuiltTrade): Promise<T> => {
+  const { chainId, tokenIn, tokenOut, tokenInDecimals, tokenOutDecimals, amountIn, amountOut } = trade
+  if (!chainId || !tokenInDecimals || !tokenOutDecimals) return data
+
+  try {
+    const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
+    const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
+
+    const priceResponse = await fetchTokenPrices({ [chainId]: [wrappedTokenIn, wrappedTokenOut] })
+
+    const tokenInMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenIn])
+    const tokenOutMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenOut])
+
+    const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
+    const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
+
+    const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
+    const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
+
+    return {
+      ...data,
+      amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
+      amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
+    }
+  } catch (error) {
+    console.error('Failed to fetch on-chain price:', error)
+    return data
+  }
+}
 
 const routeApi = createApi({
   reducerPath: 'routeApi',
@@ -65,42 +108,59 @@ const routeApi = createApi({
       async transformResponse(baseResponse: BuildRouteResponse, _meta, { payload }): Promise<BuildRouteResponse> {
         const { data } = baseResponse || {}
         const { chainId, tokenInDecimals, tokenOutDecimals, routeSummary } = payload || {}
-        const { tokenIn, tokenOut } = routeSummary || {}
 
-        // Ensure all necessary data is available
-        if (data && routeSummary && chainId && tokenInDecimals && tokenOutDecimals) {
-          const { amountIn, amountOut } = routeSummary
+        if (!data || !routeSummary) return baseResponse
 
-          try {
-            const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
-            const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
-
-            const priceResponse = await fetchTokenPrices({ [chainId]: [wrappedTokenIn, wrappedTokenOut] })
-
-            const tokenInMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenIn])
-            const tokenOutMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenOut])
-
-            const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
-            const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
-
-            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
-            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
-
-            return {
-              ...baseResponse,
-              data: {
-                ...data,
-                amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
-                amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
-              },
-            }
-          } catch (error) {
-            console.error('Failed to fetch on-chain price:', error)
-          }
+        const { tokenIn, tokenOut, amountIn, amountOut } = routeSummary
+        return {
+          ...baseResponse,
+          data: await withMarketUsd(data, {
+            chainId,
+            tokenIn,
+            tokenOut,
+            tokenInDecimals,
+            tokenOutDecimals,
+            amountIn,
+            amountOut,
+          }),
         }
+      },
+    }),
+    swapRoute: builder.mutation<
+      SwapRouteResponse,
+      { url: string; params: SwapRouteParams; signal?: AbortSignal; authentication: boolean }
+    >({
+      query: ({ url, params, signal, authentication }) => {
+        const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
+        return {
+          url,
+          cache: 'no-store',
+          params: rest,
+          signal,
+          authentication,
+          headers: {
+            'x-client-id': params.source || 'kyberswap',
+          },
+        }
+      },
+      async transformResponse(baseResponse: SwapRouteResponse, _meta, { params }): Promise<SwapRouteResponse> {
+        const { data } = baseResponse || {}
+        if (!data) return baseResponse
 
-        // Return original response if conditions are not met or request fails
-        return baseResponse
+        const { chainId, tokenIn, tokenOut, tokenInDecimals, tokenOutDecimals } = params
+        return {
+          ...baseResponse,
+          data: await withMarketUsd(data, {
+            chainId,
+            tokenIn,
+            tokenOut,
+            tokenInDecimals,
+            tokenOutDecimals,
+            // The amounts this response built, which can differ from the quote on screen.
+            amountIn: data.amountIn,
+            amountOut: data.amountOut,
+          }),
+        }
       },
     }),
   }),

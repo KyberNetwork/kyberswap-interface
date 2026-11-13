@@ -14,7 +14,7 @@ import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { ChargeFeeBy } from 'types/route'
+import { ChargeFeeBy, ExtraFeeConfig } from 'types/route'
 import { RouteSide, routeAmountIn, routeTokenAddress, routeTokenDecimals } from 'utils/nativeErc20'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
@@ -79,6 +79,22 @@ export const useRouteApiDomain = () => {
 }
 
 export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'>
+
+/** True when a route charges a fee other than the one its request asked for. */
+export const isRouteFeeTampered = (
+  extraFee: Pick<ExtraFeeConfig, 'feeAmount' | 'feeReceiver'> | undefined,
+  intended: Pick<IntendedFeeConfig, 'feeAmount' | 'feeReceiver'>,
+) => {
+  if (!extraFee) return false
+
+  const responseFeeReceiver = extraFee.feeReceiver?.toLowerCase() || ''
+  const intendedFeeReceiver = intended.feeReceiver?.toLowerCase() || ''
+
+  if (responseFeeReceiver && responseFeeReceiver !== intendedFeeReceiver) return true
+  if (extraFee.feeAmount && extraFee.feeAmount !== intended.feeAmount) return true
+
+  return false
+}
 
 /** Defines the complete quote identity and query function for TanStack Query. */
 const useRouteRequest = (args: ArgsRouteRequest) => {
@@ -185,7 +201,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
           chargeFeeBy: feeConfigParams.chargeFeeBy || ChargeFeeBy.NONE,
         }
 
-        const routeParams = { ...params, ...feeConfigParams }
+        const routeParams: GetRouteParams = { ...params, ...feeConfigParams }
         const rawResponse = await fetchRoute(dispatch, {
           url,
           params: routeParams,
@@ -194,7 +210,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
         })
         const response = await enrichRouteResponse(rawResponse, routeParams)
 
-        return { response, intendedFeeConfig }
+        return { response, intendedFeeConfig, routeParams }
       },
     }
   }, [

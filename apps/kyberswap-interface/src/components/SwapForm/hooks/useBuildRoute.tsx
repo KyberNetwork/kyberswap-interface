@@ -3,16 +3,17 @@ import { t } from '@lingui/macro'
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
-import { BuildRouteData, BuildRoutePayload } from 'services/route/types/buildRoute'
-import { RouteSummary } from 'services/route/types/getRoute'
+import { BuildRouteData } from 'services/route/types/buildRoute'
+import { GetRouteParams, RouteSummary } from 'services/route/types/getRoute'
+import { SwapRouteParams } from 'services/route/types/swapRoute'
 
-import { useRouteApiDomain } from 'components/SwapForm/hooks/useRouteRequest'
+import { isRouteFeeTampered, useRouteApiDomain } from 'components/SwapForm/hooks/useRouteRequest'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { getCookieValue } from 'utils/cookie'
-import { amountFromRoute, routeTokenDecimals } from 'utils/nativeErc20'
+import { amountFromRoute } from 'utils/nativeErc20'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 export type BuildRouteResult =
@@ -28,21 +29,34 @@ export type BuildRouteResult =
 
 type Args = {
   recipient: string
+  /** The request that produced the quote on screen; the swap is built for the same trade. */
+  routeParams: GetRouteParams | undefined
+  /** The quote on screen, which the built output is compared against. */
   routeSummary: RouteSummary | undefined
+  /** Router of the quote on screen, the spender the input token is approved for. */
+  routerAddress: string | undefined
   slippage: number
   transactionTimeout: number
   permit?: string
   currencyIn: Currency | undefined
-  currencyOut: Currency | undefined
 }
 
+/** Signed percent by which `builtAmountOut` differs from `quotedAmountOut`. */
+export const getOutputChangePercent = (quotedAmountOut: string, builtAmountOut: string) => {
+  const quoted = BigInt(quotedAmountOut)
+  if (quoted === 0n) return 0
+
+  return (Number(BigInt(builtAmountOut) - quoted) / Number(quoted)) * 100
+}
+
+/** Quotes and builds the swap transaction in a single `/swap` request. */
 const useBuildRoute = (args: Args) => {
-  const { recipient, routeSummary, slippage, transactionTimeout, permit, currencyIn, currencyOut } = args
+  const { recipient, routeParams, routeSummary, routerAddress, slippage, transactionTimeout, permit, currencyIn } = args
   const [searchParams] = useSearchParams()
   const clientId = isInSafeApp ? SAFE_APP_CLIENT_ID : searchParams.get('clientId')
   const { chainId, account } = useActiveWeb3React()
   const { isEnableAuthenAggregator } = useKyberswapGlobalConfig()
-  const [buildRoute] = routeApi.useBuildRouteMutation()
+  const [swapRoute] = routeApi.useSwapRouteMutation()
   const aggregatorDomain = useRouteApiDomain()
   const recipientLookup = useENS(recipient)
   const to = recipientLookup.address
@@ -57,66 +71,33 @@ const useBuildRoute = (args: Args) => {
 
       if (!to) return { error: t`Enter a recipient` }
 
-      if (!routeSummary) {
+      if (!routeParams || !routeSummary) {
         return {
           error: t`Route summary is missing`,
         }
       }
 
-      const refCode = getCookieValue('refCode')
-
-      const rawRouteSummary = {
-        ...routeSummary,
-        amountInUsd: routeSummary.rawAmountInUsd as string,
-        amountOutUsd: routeSummary.rawAmountOutUsd as string,
-      }
-
-      delete rawRouteSummary.rawAmountInUsd
-      delete rawRouteSummary.rawAmountOutUsd
-
-      if (!rawRouteSummary.amountInUsd || !rawRouteSummary.amountOutUsd) {
-        console.error('[buildRoute] amountInUsd/amountOutUsd missing or empty before send', {
-          finalAmountInUsd: rawRouteSummary.amountInUsd,
-          finalAmountOutUsd: rawRouteSummary.amountOutUsd,
-          rawAmountInUsd: routeSummary.rawAmountInUsd,
-          rawAmountOutUsd: routeSummary.rawAmountOutUsd,
-          transformedAmountInUsd: routeSummary.amountInUsd,
-          transformedAmountOutUsd: routeSummary.amountOutUsd,
-          tokenIn: routeSummary.tokenIn,
-          tokenOut: routeSummary.tokenOut,
-          chainId,
-          tokenInDecimals: currencyIn?.decimals,
-          tokenOutDecimals: currencyOut?.decimals,
-        })
-      }
-
-      const payload: BuildRoutePayload = {
-        routeSummary: rawRouteSummary,
-        deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
-        slippageTolerance: slippage,
+      const params: SwapRouteParams = {
+        ...routeParams,
         sender: account,
         recipient: to,
+        slippageTolerance: slippage,
+        deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
         source: clientId || 'kyberswap',
-        skipSimulateTx: false,
-        enableGasEstimation: true,
+        // Simulated with balance and allowance overrides; its gas usage is the response's gas estimate.
+        enableSimulation: true,
         permit,
-        referral: refCode,
-        // for calculating price impact only
-        chainId,
-        // Must describe the units `routeSummary` actually carries, which is what the quote was asked
-        // for: the input side may be denominated in the native interface.
-        tokenInDecimals: currencyIn && routeTokenDecimals(currencyIn, 'in'),
-        tokenOutDecimals: currencyOut?.decimals,
+        referral: getCookieValue('refCode'),
       }
 
       try {
         if (signal.aborted) throw new Error('Build cancelled')
 
-        const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.BUILD_ROUTE}`
+        const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.SWAP}`
 
-        const request = buildRoute({
+        const request = swapRoute({
           url,
-          payload,
+          params,
           signal,
           authentication: isEnableAuthenAggregator,
         })
@@ -124,13 +105,34 @@ const useBuildRoute = (args: Args) => {
         signal.addEventListener('abort', abortRequest, { once: true })
 
         const response = await request.unwrap().finally(() => signal.removeEventListener('abort', abortRequest))
-        if (!response?.data?.data) throw new Error('Building route failed')
-        // The response echoes `amountIn` in the units it was given. Read it back into the input
-        // currency's own units here so every consumer of the build result works in one scale.
+        const swap = response?.data
+        if (!swap?.data) throw new Error('Building route failed')
+
+        const { routeSummary: builtRoute, simulation, ...build } = swap
+
+        if (simulation && simulation.status !== 'success') {
+          const reason = simulation.reason || simulation.status
+          return { error: `Swap simulation failed: ${reason}` }
+        }
+
+        // The input token is approved for the quoted router, so a swap through another one cannot pull it.
+        if (routerAddress && build.routerAddress.toLowerCase() !== routerAddress.toLowerCase()) {
+          return { error: 'The router of the built swap differs from the quoted one' }
+        }
+
+        if (isRouteFeeTampered(builtRoute?.extraFee, routeParams)) {
+          return { error: 'The fee of the built swap differs from the requested one' }
+        }
+
         return {
-          data: currencyIn
-            ? { ...response.data, amountIn: amountFromRoute(response.data.amountIn, currencyIn, 'in') }
-            : response.data,
+          data: {
+            ...build,
+            // The response echoes `amountIn` in the units it was given. Read it back into the input
+            // currency's own units here so every consumer of the build result works in one scale.
+            amountIn: currencyIn ? amountFromRoute(build.amountIn, currencyIn, 'in') : build.amountIn,
+            // The endpoint prices a fresh route and has no earlier quote to compare with.
+            outputChange: { percent: getOutputChangePercent(routeSummary.amountOut, build.amountOut) },
+          },
         }
       } catch (e) {
         if (Array.isArray(e?.data?.errorEntities)) {
@@ -151,14 +153,15 @@ const useBuildRoute = (args: Args) => {
       aggregatorDomain,
       chainId,
       to,
+      routeParams,
       routeSummary,
+      routerAddress,
       slippage,
       transactionTimeout,
-      buildRoute,
+      swapRoute,
       isEnableAuthenAggregator,
       permit,
       currencyIn,
-      currencyOut?.decimals,
     ],
   )
 
