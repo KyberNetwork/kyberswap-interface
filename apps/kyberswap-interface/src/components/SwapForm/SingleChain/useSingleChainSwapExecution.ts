@@ -27,7 +27,6 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
   const { recipient: recipientAddressOrName, routeSummary, displayTypedValue, outputERC8056Info } = useSwapFormContext()
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
   const isSmartSettlement = routeSummary?.isSmartSettlement
-  const routeGas = routeSummary?.gas
   const displayOutputAmount = useERC8056DisplayBalance(outputERC8056Info, outputAmount)?.toSignificant(6)
 
   const [allowedSlippage] = useUserSlippageTolerance()
@@ -154,7 +153,7 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
         },
         chainId,
         gasLimitMarginBps: isSmartSettlement ? 5_000 : undefined,
-        swap: { isSmartSettlement: Boolean(isSmartSettlement), estimatedGas: routeGas },
+        swap: { isSmartSettlement: Boolean(isSmartSettlement) },
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
@@ -181,7 +180,6 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
       walletKey,
       isSmartConnector,
       isSmartSettlement,
-      routeGas,
       trackingHandler,
       networkInfo.name,
     ],

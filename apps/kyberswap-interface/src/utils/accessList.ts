@@ -164,12 +164,12 @@ const settleWithin = <T>(promise: Promise<T>, ms: number): Promise<T | undefined
  * send time so only a swap the policy attaches a list to pays for the call, and the list reflects
  * the state the transaction will run on.
  * Deliberately not the rotating client: it puts an endpoint on cooldown for every method when one
- * answers `-32601`, and a chain whose public RPCs lack this method would lose its pool right before
- * the gas estimate. Resolves to `undefined` whenever the RPC cannot or will not answer.
+ * answers `-32601`, and a chain whose public RPCs lack this method would lose its pool for every
+ * other read. Resolves to `undefined` whenever the RPC cannot or will not answer.
  */
 export async function fetchAccessList(
   chainId: ChainId,
-  call: { from: string; to: string; data: string; value?: string; gas?: string },
+  call: { from: string; to: string; data: string; value?: string; gas: string },
 ): Promise<unknown> {
   const rpcUrl = NETWORKS_INFO[chainId]?.defaultRpcUrl
   if (!rpcUrl) return undefined

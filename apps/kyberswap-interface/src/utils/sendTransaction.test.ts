@@ -112,6 +112,7 @@ describe('sendEVMTransaction with an access list', () => {
     expect(estimateCalls()).toHaveLength(1)
     expect(estimateCalls()[0][2][0].accessList).toBeUndefined()
     expect(listEstimateCalls()).toHaveLength(0)
+    expect(accessListCall().gas).toBe(`0x${(120_000).toString(16)}`)
     expect(sentParams()).toMatchObject({
       type: '0x2',
       accessList: [{ address: pool, storageKeys: [slot(1), slot(2)] }],
@@ -209,17 +210,21 @@ describe('sendEVMTransaction with an access list', () => {
     })
   })
 
-  it('runs the access-list simulation at twice the route gas estimate, so the node does not charge its own cap', async () => {
-    await send({ swap: { isSmartSettlement: true, estimatedGas: '300000' } })
+  it('runs the access-list simulation at the gas limit the transaction carries', async () => {
+    await send({ gasLimitMarginBps: 5_000 })
 
-    expect(accessListCall()).toMatchObject({ from: account, to: router, gas: `0x${(600_000).toString(16)}` })
     expect(estimateCalls()[0][2][0].gas).toBeUndefined()
+    expect(accessListCall()).toMatchObject({ from: account, to: router, gas: `0x${(150_000).toString(16)}` })
+    expect(sentParams().gas).toBe(`0x${(150_000).toString(16)}`)
   })
 
-  it('leaves the simulation gas to the node when the route has no usable estimate', async () => {
-    await send({ swap: { isSmartSettlement: true, estimatedGas: '' } })
+  it('does not ask for a list when the gas estimate fails', async () => {
+    mocks.rpcFetch.mockRejectedValue(new Error('execution reverted'))
 
-    expect(accessListCall()).not.toHaveProperty('gas')
+    await expect(send()).rejects.toMatchObject({ type: 'estimateGas' })
+
+    expect(mocks.directRpcFetch).not.toHaveBeenCalled()
+    expect(mocks.request).not.toHaveBeenCalled()
   })
 
   it('marks a send error with whether the transaction that failed carried the list', async () => {
@@ -307,7 +312,8 @@ describe('sendEVMTransaction on a chain that charges the gas limit', () => {
   it('estimates with the list, against the default RPC, for an allowlisted wallet and sends that lower limit', async () => {
     const result = await sendOnMonad()
 
-    expect(estimateCalls()).toHaveLength(0)
+    expect(estimateCalls()).toHaveLength(1)
+    expect(accessListCall().gas).toBe(`0x${(120_000).toString(16)}`)
     expect(listEstimateCalls()).toHaveLength(1)
     expect(listEstimateCalls()[0][0]).toContain('http')
     expect(listEstimateCalls()[0][2][0].accessList).toBeDefined()
@@ -320,7 +326,7 @@ describe('sendEVMTransaction on a chain that charges the gas limit', () => {
     })
   })
 
-  it('re-estimates without the list before the plain resend, so the wallet is not sent a limit the list paid for', async () => {
+  it('resends plain at the list-less limit, so the wallet is not sent a limit the list paid for', async () => {
     walletAnswers({ error: rejection }, { value: plainHash })
 
     const result = await sendOnMonad()
