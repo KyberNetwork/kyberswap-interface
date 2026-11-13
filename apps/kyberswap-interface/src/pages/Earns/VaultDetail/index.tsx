@@ -65,6 +65,7 @@ import {
   toChartSeries,
   toGrowthSeries,
   toVaultInfoFromDetail,
+  toWalletUsd,
 } from 'pages/Earns/utils/vault'
 import { formatVaultApy } from 'pages/Earns/utils/vaultFormat'
 import { MEDIA_WIDTHS } from 'theme'
@@ -176,7 +177,7 @@ const VaultDetail = () => {
   const openWithdrawTab = () => {
     if (activeTab !== 'withdraw') {
       track(TRACKING_EVENT_TYPE.VAULT_WITHDRAW_CLICKED, {
-        share_balance_usd: Number(position?.usdValue) || 0,
+        share_balance_usd: toWalletUsd(position),
         has_pending_withdrawal: (position?.pendingWithdrawalSummary?.count ?? 0) > 0,
       })
     }

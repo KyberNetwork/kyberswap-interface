@@ -1,7 +1,14 @@
-import { VaultApiStats, VaultFinancialValue, VaultSupportedAsset, VaultWithdrawalRoute } from 'services/vault'
+import {
+  VaultApiStats,
+  VaultFinancialValue,
+  VaultPositionItem,
+  VaultPositionOwnedValue,
+  VaultSupportedAsset,
+  VaultWithdrawalRoute,
+} from 'services/vault'
 import { describe, expect, it } from 'vitest'
 
-import { getNativeWithdrawal, toHeadlineRate } from 'pages/Earns/utils/vault'
+import { getNativeWithdrawal, toHeadlineRate, toUserVaultPosition, toWalletUsd } from 'pages/Earns/utils/vault'
 
 const USDS = '0xdC035D45d973E3EC169d2276DDab16f1e407384F'
 const WEETH = '0xCd5fE23C85820F7B72D0926fC9b05b43E359b7ee'
@@ -119,5 +126,66 @@ describe('getNativeWithdrawal', () => {
     expect(getNativeWithdrawal(asset({ supportsWithdraw: false }), WEETH)).toBeUndefined()
     expect(getNativeWithdrawal({ ...synchronous, supportsWithdraw: false }, USDS)).toBeUndefined()
     expect(getNativeWithdrawal(undefined, USDS)).toBeUndefined()
+  })
+})
+
+const ownedValue = (walletUsd: VaultFinancialValue, totalUsd: VaultFinancialValue): VaultPositionOwnedValue => ({
+  asOf: null,
+  escrowedSharesRaw: null,
+  walletUsd,
+  pendingPayoutUsd: financial('0'),
+  refundableSharesUsd: financial('0'),
+  totalUsd,
+})
+
+const position = (owned: VaultPositionOwnedValue | null): VaultPositionItem => ({
+  chain: { id: 1, name: 'Ethereum', logo: '' },
+  wallet: '0x0000000000000000000000000000000000000001',
+  vault: {
+    id: '0x01',
+    address: WEETH,
+    shareToken: { address: WEETH, symbol: 'liquidETH', decimals: 18, logo: '' },
+    underlyingToken: { address: WEETH, symbol: 'weETH', decimals: 18, logo: '' },
+    provider: { key: 'etherfi', name: 'ether.fi', logo: '' },
+    assetGroup: 'ETH',
+    stats: stats('trailing_simple_annualized', financial('3.7'), financial('3.7')),
+  },
+  status: 'PositionStatusActive',
+  shareBalanceRaw: '1000000000000000000',
+  shareBalance: '1',
+  underlyingEquivalentRaw: '1100000000000000000',
+  underlyingEquivalent: '1.1',
+  lastBalanceChangeAt: 0,
+  ownedValue: owned,
+})
+
+describe('toWalletUsd', () => {
+  it('reads what the shares in the wallet are worth', () => {
+    expect(toWalletUsd(position(ownedValue(financial('120.5'), financial('300'))))).toBe(120.5)
+  })
+
+  it('is zero while that value is not computable or the position has not loaded', () => {
+    expect(toWalletUsd(position(ownedValue(financial(null, 'PENDING'), financial('300'))))).toBe(0)
+    expect(toWalletUsd(position(null))).toBe(0)
+    expect(toWalletUsd(undefined)).toBe(0)
+  })
+})
+
+describe('toUserVaultPosition', () => {
+  it('values the position at its total, a withdrawal in flight included', () => {
+    const mapped = toUserVaultPosition(position(ownedValue(financial('120.5'), financial('300'))))
+    expect(mapped.balanceUsd).toBe(300)
+    expect(mapped.shareBalanceUsd).toBe(120.5)
+  })
+
+  it('falls back to the wallet share when the total cannot be computed', () => {
+    const mapped = toUserVaultPosition(position(ownedValue(financial('120.5'), financial(null, 'UNAVAILABLE'))))
+    expect(mapped.balanceUsd).toBe(120.5)
+  })
+
+  it('reads zero when no owned value is reported at all', () => {
+    const mapped = toUserVaultPosition(position(null))
+    expect(mapped.balanceUsd).toBe(0)
+    expect(mapped.shareBalanceUsd).toBe(0)
   })
 })

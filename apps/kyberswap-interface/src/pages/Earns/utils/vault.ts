@@ -172,19 +172,23 @@ const toVaultEarningsUsd = (item: VaultPositionItem): number | undefined =>
       : null,
   )
 
+/** What the shares still in the wallet are worth. Shares escrowed by a withdrawal request are not
+ *  part of it. */
+export const toWalletUsd = (item?: Pick<VaultPositionItem, 'ownedValue'> | null): number =>
+  financialNumber(item?.ownedValue?.walletUsd) ?? 0
+
 /**
- * What the position is worth, a withdrawal already in flight included. The flat `usdValue` counts
- * only the shares still in the wallet, so queuing a withdrawal read as the balance dropping by the
- * amount being withdrawn — the money looked gone until the payout landed. `ownedValue` carries the
- * parts and `totalUsd` is their sum, which is the only one to read: `pendingPayoutUsd` and
- * `refundableSharesUsd` are the same shares in another state, so adding either would count it twice.
+ * What the position is worth, a withdrawal already in flight included. `walletUsd` counts only the
+ * shares still in the wallet, so on its own a queued withdrawal reads as the balance dropping by
+ * the amount being withdrawn — the money looks gone until the payout lands. `totalUsd` is the sum
+ * of the parts and the only one to read: `pendingPayoutUsd` and `refundableSharesUsd` are the same
+ * shares in another state, so adding either would count it twice.
  *
  * An expired request leaves `totalUsd` uncomputable. The wallet's own share is still true, so it
  * stands in — understating what can be reclaimed rather than leaving the row blank or, worse,
  * guessing at a total.
  */
-const toOwnedUsd = (item: VaultPositionItem): number =>
-  financialNumber(item.ownedValue?.totalUsd) ?? (Number(item.usdValue) || 0)
+const toOwnedUsd = (item: VaultPositionItem): number => financialNumber(item.ownedValue?.totalUsd) ?? toWalletUsd(item)
 
 export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition => {
   const v = item.vault
@@ -210,7 +214,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     tvlHistory: [],
     balance: Number(item.underlyingEquivalent) || 0,
     balanceUsd: toOwnedUsd(item),
-    shareBalanceUsd: Number(item.usdValue) || 0,
+    shareBalanceUsd: toWalletUsd(item),
     earned: toVaultEarnings(item),
     earnedUsd: toVaultEarningsUsd(item),
     pendingWithdrawal:

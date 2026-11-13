@@ -363,7 +363,6 @@ export interface VaultPositionItem {
   shareBalance: string
   underlyingEquivalentRaw: string
   underlyingEquivalent: string
-  usdValue: string
   lastBalanceChangeAt: number
   accountingOrigin?: string | null
   vaultEarnings?: VaultEarnings | null
