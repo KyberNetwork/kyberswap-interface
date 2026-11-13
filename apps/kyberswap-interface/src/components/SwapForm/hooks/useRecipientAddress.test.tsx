@@ -98,6 +98,10 @@ it.each([
   ['Solana', 'alice.near', false],
   ['Bitcoin', '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', true],
   ['Bitcoin', '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNb', false],
+  ['Bitcoin', '3JvL6Ymt8MVWiCNHC7oWU6nLeHNJKLZGLN', true],
+  ['Bitcoin', 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', true],
+  ['Bitcoin', 'BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4', true],
+  ['Bitcoin', 'bc1qW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4', false],
   ['Bitcoin', 'bc1p5egaltnsssj57zr6k47mk4qmmv4fjsjnjhysge2gcsjl2n9rdntqcmvekz', true],
 ])('checks %s address %s', async (networkName, value, valid) => {
   await render(value, { mode: 'nonEvm', networkName })
@@ -109,6 +113,9 @@ it.each([
 it.each([
   ['0xa2DFeb674d997b68ec5adB0A6fb9136BD45C2D2d', true],
   ['0xa2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d', true],
+  ['0xA2DFEB674D997B68EC5ADB0A6FB9136BD45C2D2D', true],
+  ['a2dfeb674d997b68ec5adb0a6fb9136bd45c2d2d', true],
+  ['0x0000000000000000000000000000000000000000', true],
   ['0xa2dfeb674d997b68ec5adB0A6fb9136BD45C2D2d', false],
 ])('preserves EVM checksum validation for %s', async (value, valid) => {
   await render(value)
@@ -116,6 +123,24 @@ it.each([
   expect(!!result.address).toBe(valid)
   expect(result.message).toBe(valid ? undefined : 'Invalid recipient')
   expect(mocks.resolve).not.toHaveBeenCalled()
+})
+
+it('normalizes unchecksummed EVM input before quote/build', async () => {
+  await render('A2DFEB674D997B68EC5ADB0A6FB9136BD45C2D2D')
+  expect(result.address).toBe('0xa2DFeb674d997b68ec5adB0A6fb9136BD45C2D2d')
+  expect(result.message).toBeUndefined()
+  expect(mocks.resolve).not.toHaveBeenCalled()
+})
+
+it('does not resolve an empty ENS address record to the zero address', async () => {
+  mocks.resolve.mockResolvedValue(null)
+  mocks.read
+    .mockResolvedValueOnce('0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63')
+    .mockResolvedValueOnce('0x0000000000000000000000000000000000000000')
+  await render('empty.eth')
+  await settled()
+  expect(result.address).toBeUndefined()
+  expect(result.message).toBe('Invalid recipient')
 })
 
 it('keeps RPC failures blocked without labelling the ENS name invalid', async () => {
