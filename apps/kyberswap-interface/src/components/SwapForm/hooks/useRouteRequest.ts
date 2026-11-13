@@ -11,10 +11,9 @@ import { AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
-import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { ChargeFeeBy } from 'types/route'
+import { ChargeFeeBy, ExtraFeeConfig } from 'types/route'
 import { RouteSide, routeAmountIn, routeTokenAddress, routeTokenDecimals } from 'utils/nativeErc20'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
@@ -70,15 +69,27 @@ const getFeeConfigParams = (
   }
 }
 
-// Use the public aggregator until authentication makes the configured domain available.
-export const useRouteApiDomain = () => {
-  const { aggregatorDomain } = useKyberswapGlobalConfig()
-  const { authenticationSuccess } = useSessionInfo()
-
-  return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
-}
+// Temporary, for testing against pre: quotes and swaps go to the env-configured aggregator only,
+// skipping the domain ks-setting configures.
+export const useRouteApiDomain = () => AGGREGATOR_API
 
 export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'>
+
+/** True when a route charges a fee other than the one its request asked for. */
+export const isRouteFeeTampered = (
+  extraFee: Pick<ExtraFeeConfig, 'feeAmount' | 'feeReceiver'> | undefined,
+  intended: Pick<IntendedFeeConfig, 'feeAmount' | 'feeReceiver'>,
+) => {
+  if (!extraFee) return false
+
+  const responseFeeReceiver = extraFee.feeReceiver?.toLowerCase() || ''
+  const intendedFeeReceiver = intended.feeReceiver?.toLowerCase() || ''
+
+  if (responseFeeReceiver && responseFeeReceiver !== intendedFeeReceiver) return true
+  if (extraFee.feeAmount && extraFee.feeAmount !== intended.feeAmount) return true
+
+  return false
+}
 
 /** Defines the complete quote identity and query function for TanStack Query. */
 const useRouteRequest = (args: ArgsRouteRequest) => {
@@ -163,6 +174,8 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
       includedSources: dexes,
       gasInclude: 'true',
       gasPrice: '',
+      // Temporary, for testing against pre: the quote and the swap built from it both use router V3.
+      useRouterV3: 'true',
       chainId,
     }
     const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
@@ -185,7 +198,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
           chargeFeeBy: feeConfigParams.chargeFeeBy || ChargeFeeBy.NONE,
         }
 
-        const routeParams = { ...params, ...feeConfigParams }
+        const routeParams: GetRouteParams = { ...params, ...feeConfigParams }
         const rawResponse = await fetchRoute(dispatch, {
           url,
           params: routeParams,
@@ -194,7 +207,7 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
         })
         const response = await enrichRouteResponse(rawResponse, routeParams)
 
-        return { response, intendedFeeConfig }
+        return { response, intendedFeeConfig, routeParams }
       },
     }
   }, [

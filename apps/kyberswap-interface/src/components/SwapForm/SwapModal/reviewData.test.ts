@@ -62,13 +62,13 @@ it.each([
   expect(review.isShowAcceptNewAmount).toBe(expected)
 })
 
-it('uses the quote for minimum receiving and the build for output and USD risk', () => {
+it('uses the build for minimum receiving, output and USD risk', () => {
   const review = getSwapReviewData({
     ...defaults,
     buildResult: build(-20, '80'),
     outputERC8056Info: { ...tokenInfo, enabled: true, isScaled: true, multiplier: 2n * 10n ** 18n },
   })
-  expect(review.details.minimumAmountOut?.toExact()).toBe('198')
+  expect(review.details.minimumAmountOut?.toExact()).toBe('158')
   expect(review.parsedAmountOutFromBuild?.toExact()).toBe('160')
   expect(review.priceImpactFromBuild).toBe(20)
   expect(review.priceImpactResult.isVeryHigh).toBe(true)

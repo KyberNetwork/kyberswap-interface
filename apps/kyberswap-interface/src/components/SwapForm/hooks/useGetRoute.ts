@@ -83,6 +83,8 @@ const useGetRoute = (args: ArgsGetRoute) => {
     result: { data: data?.response, error: enabled && !inputPending ? query.error : null, isFetching: isLoading },
     isLoading,
     intendedFeeConfig: data?.intendedFeeConfig ?? EMPTY_FEE_CONFIG,
+    // The exact request behind `result.data`, so the swap can be built for the same trade.
+    routeParams: data?.routeParams,
     refresh: { countdown, refreshTime: REFRESH_SECONDS, disableRefresh: !canFetch, isRefreshing: isLoading, onRefresh },
   }
 }

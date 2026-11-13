@@ -9,6 +9,7 @@ import { type EvmRecipient, useEvmRecipient } from 'components/SwapForm/hooks/us
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useRecipientAddress } from 'components/SwapForm/hooks/useRecipientAddress'
+import { isRouteFeeTampered } from 'components/SwapForm/hooks/useRouteRequest'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSession'
 import { MAINNET_NETWORKS } from 'constants/networks'
@@ -86,6 +87,7 @@ const useSingleChainSwap = ({
     result,
     isLoading: routeLoading,
     intendedFeeConfig,
+    routeParams,
   } = useGetRoute({
     enabled: enabled && !chainError && !isWrapOrUnwrap,
     autoRefresh: true,
@@ -109,28 +111,20 @@ const useSingleChainSwap = ({
   const routeSummary = getRouteResponse?.routeSummary
 
   // Compare the response with the exact fee intent captured by the request, not current settings.
-  const isFeeTampered = useMemo(() => {
-    const responseExtraFee = getRouteRawResponse?.data?.routeSummary?.extraFee
-    if (!responseExtraFee) return false
-
-    const intended = intendedFeeConfig
-    const responseFeeReceiver = responseExtraFee.feeReceiver?.toLowerCase() || ''
-    const intendedFeeReceiver = intended.feeReceiver?.toLowerCase() || ''
-
-    if (responseFeeReceiver && responseFeeReceiver !== intendedFeeReceiver) return true
-    if (responseExtraFee.feeAmount && responseExtraFee.feeAmount !== intended.feeAmount) return true
-
-    return false
-  }, [getRouteRawResponse?.data?.routeSummary?.extraFee, intendedFeeConfig])
+  const isFeeTampered = useMemo(
+    () => isRouteFeeTampered(getRouteRawResponse?.data?.routeSummary?.extraFee, intendedFeeConfig),
+    [getRouteRawResponse?.data?.routeSummary?.extraFee, intendedFeeConfig],
+  )
 
   const buildRoute = useBuildRoute({
     recipient,
+    routeParams,
     routeSummary: getRouteRawResponse?.data?.routeSummary || undefined,
+    routerAddress: getRouteRawResponse?.data?.routerAddress,
     slippage,
     transactionTimeout,
     permit,
     currencyIn,
-    currencyOut,
   })
 
   return {
