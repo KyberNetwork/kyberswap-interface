@@ -136,7 +136,7 @@ describe('swap review lifecycle', () => {
     await act(async () => pending.reject(new Error('User rejected')))
     expect(session.review.error).toBe('User rejected')
     expect(onError).toHaveBeenCalledTimes(1)
-    expect(onError).toHaveBeenCalledWith('User rejected')
+    expect(onError).toHaveBeenCalledWith('User rejected', expect.any(Error))
 
     await act(async () => {
       session.dismissReview()
@@ -198,7 +198,7 @@ describe('swap review lifecycle', () => {
     await act(async () => pending.reject(new Error('User denied')))
 
     expect(onError).toHaveBeenCalledTimes(1)
-    expect(onError).toHaveBeenCalledWith('User denied')
+    expect(onError).toHaveBeenCalledWith('User denied', expect.any(Error))
     expect(session.review).toEqual({ phase: 'review', buildResult: builtRoute })
   })
 })

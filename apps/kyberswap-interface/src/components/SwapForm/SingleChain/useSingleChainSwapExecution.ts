@@ -7,8 +7,9 @@ import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useERC8056DisplayBalance } from 'hooks/useERC8056Token'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
+import { TRANSACTION_TYPE, TransactionExtraInfo, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy } from 'types/route'
 import { isAddress, shortenAddress } from 'utils/address'
@@ -19,7 +20,7 @@ import { ErrorName } from 'utils/transactionError'
 
 // Sends the reviewed router payload and records its hash with the captured swap metadata.
 const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { account, chainId, networkInfo, walletKey: connectorId } = useActiveWeb3React()
   const { connector, isSmartConnector } = useWeb3React()
   const walletKey = connector?.name
 
@@ -30,6 +31,7 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
 
   const [allowedSlippage] = useUserSlippageTolerance()
   const [searchParams] = useSearchParams()
+  const { trackingHandler } = useTracking()
 
   const addTransactionWithType = useTransactionAdder()
 
@@ -105,6 +107,9 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
           // Persisted so the deferred `Swap Completed` updater can attribute the trade
           // back to a community tip link (null for non-tip-link swaps).
           tipLink: getTipLinkAttribution(searchParams) || undefined,
+          isSmartSettlement: Boolean(isSmartSettlement),
+          // Names the wallet on a reverted swap's `Swap Failed`, by the id `ACCESS_LIST_CONFIG` uses.
+          connectorId: connectorId || undefined,
         },
       } as TransactionExtraInfo2Token,
     }
@@ -112,8 +117,10 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
     account,
     allowedSlippage,
     chainId,
+    connectorId,
     inputAmount,
     isPermitSwap,
+    isSmartSettlement,
     networkInfo.name,
     outputAmount,
     priceImpact,
@@ -146,12 +153,23 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
         },
         chainId,
         gasLimitMarginBps: isSmartSettlement ? 5_000 : undefined,
+        swap: { isSmartSettlement: Boolean(isSmartSettlement) },
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
 
-      addTransactionWithType({ ...swapData, hash: response.hash })
-      return response?.hash
+      // The transaction is on-chain by now; it is recorded before anything that can still throw.
+      const extraInfo: TransactionExtraInfo = swapData.extraInfo
+      addTransactionWithType({
+        ...swapData,
+        hash: response.hash,
+        // Read back by the `Swap Completed` updater, which checks the mined tx for the list.
+        extraInfo: { ...extraInfo, arbitrary: { ...extraInfo.arbitrary, accessList: response.accessList } },
+      })
+      if (response.accessList?.rejectedByWallet) {
+        trackingHandler(TRACKING_EVENT_TYPE.ACCESS_LIST_REJECTED, { wallet: walletKey, chain: networkInfo.name })
+      }
+      return response.hash
     },
     [
       account,
@@ -162,6 +180,8 @@ const useSingleChainSwapExecution = (isPermitSwap?: boolean) => {
       walletKey,
       isSmartConnector,
       isSmartSettlement,
+      trackingHandler,
+      networkInfo.name,
     ],
   )
 

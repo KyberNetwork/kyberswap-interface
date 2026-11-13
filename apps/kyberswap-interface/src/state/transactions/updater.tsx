@@ -33,6 +33,29 @@ import { isAddress } from 'utils/address'
 import { findTx } from 'utils/transaction'
 import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes, toEventSelector } from 'utils/viem'
 
+// Bounds the read of a mined swap before its `Swap Completed` or `Swap Failed` event fires.
+const MINED_SWAP_LOOKUP_TIMEOUT_MS = 3000
+
+type MinedSwap = { gasLimit: bigint; carriesList: boolean }
+
+/**
+ * The mined swap's gas limit and whether it still carries an access list, which shows only on the
+ * transaction itself. Time-boxed so a slow RPC cannot hold back the event: `undefined` past the deadline.
+ */
+function readMinedSwap(client: NonNullable<ReturnType<typeof usePublicClient>>, hash: Hash) {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  return Promise.race([
+    client
+      .getTransaction({ hash })
+      .then(
+        (tx): MinedSwap => ({ gasLimit: tx.gas, carriesList: 'accessList' in tx && (tx.accessList?.length ?? 0) > 0 }),
+      ),
+    new Promise<undefined>(resolve => {
+      timer = setTimeout(() => resolve(undefined), MINED_SWAP_LOOKUP_TIMEOUT_MS)
+    }),
+  ]).finally(() => clearTimeout(timer))
+}
+
 const appsSdk = new SafeAppsSDK()
 
 // Emitted by the vault's withdraw queue for a new native redemption; the request id is its first indexed topic.
@@ -181,6 +204,8 @@ export default function Updater(): null {
   transactionsRef.current = transactions
   const accountRef = useRef(account)
   accountRef.current = account
+  const publicClientRef = useRef(publicClient)
+  publicClientRef.current = publicClient
 
   const handleTransactionReceipt = useCallback(
     (hash: string, receipt: any) => {
@@ -285,13 +310,27 @@ export default function Updater(): null {
             if (accountRef.current && arbitrary.isPermitSwap) {
               dispatch(revokePermit({ chainId, address: arbitrary.inputAddress, account: accountRef.current }))
             }
-            trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
-              arbitrary,
-              actual_gas: receipt.gasUsed || 0n,
-              gas_price: receipt.effectiveGasPrice || 0n,
-              tx_hash: receipt.transactionHash,
-              feeInfo: arbitrary.feeInfo,
-            })
+            const trackSwapCompleted = (accessListRetained?: boolean) =>
+              trackingHandler(TRACKING_EVENT_TYPE.SWAP_COMPLETED, {
+                arbitrary,
+                actual_gas: receipt.gasUsed || 0n,
+                gas_price: receipt.effectiveGasPrice || 0n,
+                tx_hash: receipt.transactionHash,
+                feeInfo: arbitrary.feeInfo,
+                access_list_retained: accessListRetained,
+              })
+            const client = publicClientRef.current
+            const requestedList = arbitrary.accessList
+            if (requestedList?.addresses && !requestedList.rejectedByWallet && client) {
+              // The tracking call sits outside the rejection handler so a throw inside it cannot fire twice.
+              readMinedSwap(client, receipt.transactionHash as Hash).then(
+                mined => trackSwapCompleted(mined?.carriesList),
+                () => trackSwapCompleted(undefined),
+              )
+            } else {
+              // A list the wallet refused never reached the chain; a swap sent without one leaves the field unset.
+              trackSwapCompleted(requestedList?.rejectedByWallet ? false : undefined)
+            }
             if (arbitrary.tipLink) {
               trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {
                 trade_type: 'swap',
@@ -394,8 +433,49 @@ export default function Updater(): null {
             break
         }
       } else {
-        // A vault transaction that reverts fails its flow here; one refused or never sent is reported
-        // by the form that tried to send it.
+        // A swap or vault transaction that reverts fails its flow here; one refused or never sent is
+        // reported by the form that tried to send it.
+        const arbitrary = transaction.extraInfo?.arbitrary
+        if (transaction.type === TRANSACTION_TYPE.SWAP && arbitrary) {
+          const requestedList = arbitrary.accessList
+          const trackSwapReverted = (mined: MinedSwap | undefined) =>
+            trackingHandler(TRACKING_EVENT_TYPE.SWAP_FAILED, {
+              from_token: arbitrary.inputSymbol,
+              to_token: arbitrary.outputSymbol,
+              pair:
+                arbitrary.inputSymbol && arbitrary.outputSymbol
+                  ? `${arbitrary.inputSymbol}/${arbitrary.outputSymbol}`
+                  : undefined,
+              amount_in: arbitrary.inputAmount,
+              amount_in_usd: arbitrary.amountInUsd ? Number(arbitrary.amountInUsd) : undefined,
+              error_type: 'tx_reverted',
+              error_message: 'Transaction reverted',
+              chain: arbitrary.chain,
+              tx_hash: receipt.transactionHash,
+              wallet_connector: arbitrary.connectorId,
+              is_smart_settlement: arbitrary.isSmartSettlement,
+              // A chain that charges the gas limit (Monad) reports the whole limit as used, so an out-of-gas
+              // revert there reads as a limit estimated with a list the mined transaction no longer carries.
+              gas_used: receipt.gasUsed !== undefined ? Number(receipt.gasUsed) : undefined,
+              gas_limit: mined ? Number(mined.gasLimit) : undefined,
+              access_list_addresses: requestedList?.addresses,
+              access_list_estimated_with_list: requestedList?.estimatedWithList,
+              access_list_rejected_by_wallet: requestedList?.rejectedByWallet,
+              access_list_retained: requestedList?.rejectedByWallet
+                ? false
+                : requestedList?.addresses
+                ? mined?.carriesList
+                : undefined,
+            })
+          const client = publicClientRef.current
+          if (client) {
+            readMinedSwap(client, receipt.transactionHash as Hash).then(trackSwapReverted, () =>
+              trackSwapReverted(undefined),
+            )
+          } else {
+            trackSwapReverted(undefined)
+          }
+        }
         const trackingPayload = transaction.extraInfo?.trackingPayload
         const isVaultWithdraw =
           transaction.type === TRANSACTION_TYPE.EARN_VAULT_WITHDRAW ||

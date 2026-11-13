@@ -98,5 +98,6 @@ export interface NetworkInfo {
     readonly KNCAddress: string
     readonly KNCLAddress: string
   }
-  readonly accessListEnabled?: boolean
+  /** Charges a transaction its gas limit rather than the gas it used (Monad). */
+  readonly chargesGasLimit?: boolean
 }

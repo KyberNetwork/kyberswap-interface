@@ -399,6 +399,9 @@ export enum TRACKING_EVENT_TYPE {
   // Tip Link Generator
   TIP_LINK_GENERATE_LINK_CLICK,
   TIP_LINK_TRADE,
+
+  // A wallet refused a swap that carried an EIP-2930 access list; the swap was re-sent without it.
+  ACCESS_LIST_REJECTED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -489,6 +492,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         // carried in `payload.trade_type` so all three flows roll up into one event.
         case TRACKING_EVENT_TYPE.TIP_LINK_TRADE: {
           formoTrack('Tip Link Trade', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.ACCESS_LIST_REJECTED: {
+          formoTrack('Access List Rejected', payload)
           break
         }
         // Token selector browsing is anonymous on purpose: much of it happens before a wallet is
@@ -679,6 +686,17 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_dexes: arbitrary.tradeRouteDexes,
             chain: arbitrary.chain,
             volume: arbitrary.volume,
+            is_smart_settlement: arbitrary.isSmartSettlement,
+          }
+
+          // Access-list rollout telemetry: `retained` says whether the mined transaction still carried the
+          // list the wallet was handed, which no wallet documents.
+          if (arbitrary.accessList) {
+            body.access_list_addresses = arbitrary.accessList.addresses
+            body.access_list_storage_keys = arbitrary.accessList.storageKeys
+            body.access_list_estimated_with_list = arbitrary.accessList.estimatedWithList
+            body.access_list_rejected_by_wallet = arbitrary.accessList.rejectedByWallet
+            body.access_list_retained = payload.access_list_retained
           }
 
           if (feeInfo) {

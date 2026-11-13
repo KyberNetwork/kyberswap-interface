@@ -8,6 +8,7 @@ import { useSingleChainSwapReview } from 'components/SwapForm/SingleChain/useSin
 import type { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { useSwapReviewSession } from 'components/SwapForm/hooks/useSwapReviewSession'
 import type { DetailedRouteSummary } from 'types/route'
+import { ErrorName, TransactionError } from 'utils/transactionError'
 
 const mocks = vi.hoisted(() => ({
   build: vi.fn(),
@@ -26,6 +27,7 @@ vi.mock('hooks', () => ({
     account: 'sender',
     chainId: 1,
     networkInfo: { name: 'Ethereum', nativeToken: { symbol: 'ETH' } },
+    walletKey: 'metaMaskSDK',
   }),
 }))
 vi.mock('hooks/useTracking', () => ({
@@ -154,6 +156,28 @@ it('reports execution rejection once without resetting permit on ordinary dismis
   await act(async () => controller.dismissReview())
   expect(mocks.dispatch).not.toHaveBeenCalled()
   expect(session.review.phase).toBe('closed')
+})
+
+it('reports the wallet and whether the send that failed carried an access list', async () => {
+  const error = new TransactionError(
+    ErrorName.SwapError,
+    'sendTransaction',
+    'Ledger device: UNKNOWN_ERROR (0x6a80)',
+    { from: 'sender', to: '0xrouter', data: '0x1234' },
+    undefined,
+    'MetaMask',
+  )
+  error.accessListAttached = true
+  mocks.execute.mockRejectedValue(error)
+  await act(async () => controller.openReview())
+  await act(async () => controller.confirmSwap())
+
+  expect(mocks.track.mock.calls.filter(([event]) => event === 'failed')).toEqual([
+    [
+      'failed',
+      expect.objectContaining({ error_type: 'tx_failed', wallet_connector: 'metaMaskSDK', access_list_attached: true }),
+    ],
+  ])
 })
 
 it('requests Degen Mode before building a high-impact quote', async () => {

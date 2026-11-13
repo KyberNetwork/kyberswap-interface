@@ -72,7 +72,7 @@ export const useSwapReviewSession = (identity: string) => {
   const rebuildReview = useCallback((build: BuildReview) => buildReview(build), [buildReview])
 
   const confirmReview = useCallback(
-    async (submit: SubmitReview, onError: (message: string) => void) => {
+    async (submit: SubmitReview, onError: (message: string, error: unknown) => void) => {
       if (current.current.phase !== 'review' || !current.current.buildResult?.data) return
 
       const request = generation.current
@@ -90,7 +90,7 @@ export const useSwapReviewSession = (identity: string) => {
         const message = error instanceof Error ? error.message : String(error)
         if (generation.current === request) updateReview({ phase: 'error', buildResult, error: message })
 
-        onError(message)
+        onError(message, error)
       }
     },
     [updateReview],

@@ -121,7 +121,8 @@ Add the surprise from every expansion here.
 - Arc: native USDC — an 18-decimal native and a 6-decimal ERC-20 share one balance, and there is no
   wrapped native; `useWrapCallback`, WETH decimals, symbol-keyed URLs and `.wrapped` all assumed
   otherwise.
-- Monad: access lists broke Phantom (`accessListEnabled: false`).
+- Monad: access lists broke Phantom. Access lists are opt-in per chain through `ACCESS_LIST_CONFIG`
+  in `utils/accessList.ts`; a new chain stays list-less until it is added there.
 - Elysium: the wrapped native is WHYPE; the only public RPCs and explorer were third-party; the
   Kyber RPC became VPN-only mid-review, which disabled Swap because allowance reads failed; the
   official explorer was gated by an access code until launch; the USDC pool was too thin to price

@@ -5,7 +5,6 @@ import { useCallback, useMemo } from 'react'
 import { wagmiConfig } from 'components/Web3Provider'
 import { useActiveWeb3React } from 'hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { createAccessListIfEnabled } from 'utils/accessList'
 import { Address, Hex, PublicClient, formatEther } from 'utils/viem'
 
 type EstimateParams = {
@@ -32,20 +31,12 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | nul
 
         const txValue = value !== 0n ? value : undefined
 
-        const accessList = await createAccessListIfEnabled(publicClient, chainId, {
-          from: account,
-          to: contractAddress,
-          data: encodedData,
-          value: txValue,
-        })
-
         const [estimateGas, gasPrice] = await Promise.all([
           (publicClient as PublicClient).estimateGas({
             account: account as Address,
             to: contractAddress as Address,
             data: encodedData as Hex,
             ...(txValue !== undefined ? { value: txValue } : {}),
-            ...(accessList ? { accessList } : {}),
           }),
           publicClient.getGasPrice(),
         ])

@@ -58,10 +58,9 @@ const monadInfo: NetworkInfo = {
   coingeckoNativeTokenId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
-  // Kept off: some wallets (e.g. Phantom) reject an `accessList` in `eth_sendTransaction`
-  // on Monad (-32000), and an accessList-warmed gas estimate under-reports the real cost of
-  // the wallet's list-less tx (out-of-gas). Re-enable once wallet support is reliable.
-  accessListEnabled: false,
+  // Monad charges the gas limit, not the gas used, so an access list pays off only when the limit is
+  // estimated with it; see `resolveAccessListPolicy` in utils/accessList.
+  chargesGasLimit: true,
 }
 
 export default monadInfo
