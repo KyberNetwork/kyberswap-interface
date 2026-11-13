@@ -1,7 +1,7 @@
 import { selectIndexedTransactions } from 'services/walletTransactionsApi'
 
 import { localTransactionToHistory, mergeTransactionHistory } from 'components/SwapTransactions/history'
-import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
+import { useSwapWalletSnapshot } from 'components/SwapWallets/SwapWalletContext'
 import { useActiveWeb3React } from 'hooks'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { useAppSelector } from 'state/hooks'
@@ -11,9 +11,9 @@ import { isProcessingTransactionStatus } from 'types/crossChain'
 // panel visibility; indexed rows are refreshed through the KD history query.
 export const useProcessingTransactions = () => {
   const { account } = useActiveWeb3React()
-  const swapWallets = useSwapWallets()
+  const swapWallets = useSwapWalletSnapshot()
   const inputAddress = swapWallets
-    ? swapWallets.inputConnection?.family === 'evm'
+    ? swapWallets.inputFamily === 'evm'
       ? swapWallets.inputAddress.toLowerCase()
       : swapWallets.inputAddress
     : account?.toLowerCase()

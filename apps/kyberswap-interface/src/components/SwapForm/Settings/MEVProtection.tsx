@@ -1,20 +1,28 @@
+import type { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
 import { useMedia } from 'react-use'
 
 import { Shield } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/Settings/AddMEVProtectionModal'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
-const MEVProtection = ({ className, showTrigger = true }: { className?: string; showTrigger?: boolean }) => {
+const MEVProtection = ({
+  chainId,
+  className,
+  showTrigger = true,
+}: {
+  chainId: ChainId | undefined
+  className?: string
+  showTrigger?: boolean
+}) => {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
-  const { chainId } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const { trackingHandler } = useTracking()
@@ -29,11 +37,14 @@ const MEVProtection = ({ className, showTrigger = true }: { className?: string; 
     setShowMevModal(false)
   }, [])
 
-  const canAddProtection = KYBER_SWAP_RPC[chainId] && active && !isEmbeddedSwap && !isMobile && !isTablet
+  useEffect(() => setShowMevModal(false), [chainId])
+
+  if (chainId === undefined || !KYBER_SWAP_RPC[chainId] || !active || isEmbeddedSwap || isMobile || isTablet)
+    return null
 
   return (
     <>
-      {showTrigger && canAddProtection && (
+      {showTrigger && (
         <button
           type="button"
           onClick={addMevProtectionHandler}
@@ -53,7 +64,7 @@ const MEVProtection = ({ className, showTrigger = true }: { className?: string; 
           </span>
         </button>
       )}
-      <AddMEVProtectionModal isOpen={showMevModal} onClose={onClose} />
+      <AddMEVProtectionModal chainId={chainId} isOpen={showMevModal} onClose={onClose} />
     </>
   )
 }

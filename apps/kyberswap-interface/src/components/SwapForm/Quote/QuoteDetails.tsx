@@ -6,7 +6,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { cn } from 'utils/cn'
 
 export const QuoteDetails = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <Stack as="section" aria-label="Swap quote" className={cn('min-w-0 gap-3 text-xs', className)}>
+  <Stack as="section" aria-label="Swap quote" className={cn('min-w-0 gap-2 text-xs', className)}>
     {children}
   </Stack>
 )
@@ -25,7 +25,7 @@ type QuoteDetailRowProps = {
 }
 
 export const QuoteDetailRow = ({ label, tooltip, children, loading = false }: QuoteDetailRowProps) => (
-  <HStack className="min-h-5 w-full items-center justify-between gap-3 text-xs">
+  <HStack className="min-h-6 w-full items-center justify-between gap-3 text-xs">
     {tooltip ? (
       <MouseoverTooltip text={tooltip} placement="right">
         <QuoteDetailLabel hasTooltip>{label}</QuoteDetailLabel>

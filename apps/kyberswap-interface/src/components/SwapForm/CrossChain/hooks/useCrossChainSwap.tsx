@@ -19,6 +19,17 @@ export type CrossChainSwapOptions = {
   setAmount: (amount: string) => void
 }
 
+/** Identity shared by the engine boundary and its page projection. */
+export const getCrossChainSwapIdentity = ({
+  enabled = true,
+  fromChain,
+  toChain,
+  tokenIn,
+  tokenOut,
+  amount,
+}: Pick<CrossChainSwapOptions, 'enabled' | 'fromChain' | 'toChain' | 'tokenIn' | 'tokenOut' | 'amount'>) =>
+  JSON.stringify([enabled, fromChain, toChain, tokenIn, tokenOut, amount])
+
 export type CrossChainSwapState = ReturnType<typeof useCrossChainPair> &
   ReturnType<typeof useCrossChainRecipient> &
   Omit<ReturnType<typeof useCrossChainQuote>, 'openReview'> & {
@@ -43,14 +54,7 @@ const CrossChainSwapProvider = ({ children, enabled = true, ...options }: Props)
   if (enabled && !activated) setActivated(true)
 
   const [snapshot, setSnapshot] = useState<{ identity: string; value: CrossChainSwapState }>()
-  const identity = JSON.stringify([
-    enabled,
-    options.fromChain,
-    options.toChain,
-    options.tokenIn,
-    options.tokenOut,
-    options.amount,
-  ])
+  const identity = getCrossChainSwapIdentity({ enabled, ...options })
   const publish = useCallback((value: CrossChainSwapState) => setSnapshot({ identity, value }), [identity])
 
   const value = enabled && snapshot?.identity === identity ? snapshot.value : undefined

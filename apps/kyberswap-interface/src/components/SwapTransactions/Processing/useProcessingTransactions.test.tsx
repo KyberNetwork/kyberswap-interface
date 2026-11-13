@@ -14,11 +14,11 @@ let solana: string | undefined
 let local: NormalizedTxResponse[]
 let server: Array<BackendTransaction & Partial<IndexedTransaction>>
 vi.mock('components/SwapWallets/SwapWalletContext', () => ({
-  useSwapWallets: () =>
+  useSwapWalletSnapshot: () =>
     hasSwapWallets
       ? {
           inputAddress: account || '',
-          inputConnection: { family: account?.startsWith('0x') ? 'evm' : 'solana' },
+          inputFamily: account?.startsWith('0x') ? 'evm' : 'solana',
         }
       : undefined,
 }))

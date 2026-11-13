@@ -1,21 +1,21 @@
 import type { Currency } from '@kyberswap/ks-sdk-core'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { Suspense, lazy, useRef } from 'react'
+import { type ReactNode, Suspense, lazy, useRef } from 'react'
 
 import Loader from 'components/Loader'
 import LocalLoader from 'components/LocalLoader'
 import { Center, HStack, Stack } from 'components/Stack'
 import { useOptionalCrossChainSwap } from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
+import { PendingSwapForm } from 'components/SwapForm/PendingSwapForm'
 import { SwapForm } from 'components/SwapForm/SwapForm'
 import HistoryPanel, { HistoryButton } from 'components/SwapTransactions/History/HistoryPanel'
-import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
+import { useSwapWalletSnapshot, useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { Header } from 'components/TradeLayout/Header'
 import { TAB } from 'components/TradeLayout/Tabs'
 import { LiquiditySourcesPanel, SwapSettingsPanel, TokenInfo } from 'components/TradeLayout/lazyPanels'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import CrossChainRightPanel from 'pages/Swap/components/CrossChainRightPanel'
-import { SingleChainRightPanel } from 'pages/Swap/components/SingleChainRightPanel'
+import SwapRightPanel from 'pages/Swap/components/SwapRightPanel'
 import { Field } from 'state/swap/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import type { Chain, NonEvmChain, NonEvmCurrency } from 'types/crossChain'
@@ -24,13 +24,7 @@ import { cn } from 'utils/cn'
 const ProcessingTransactions = lazy(() => import('components/SwapTransactions/Processing/ProcessingTransactions'))
 const CrossChainSwapSources = lazy(() => import('components/SwapForm/Settings/SwapSettingsPanel/CrossChainSwapSources'))
 
-const SwapFormLoader = () => (
-  <Center className="h-40">
-    <Loader size="20px" />
-  </Center>
-)
-
-type Props = {
+type FormProps = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   inputChain: Chain
@@ -42,18 +36,28 @@ type Props = {
   isOutputCurrencyLoading: boolean
   activeTab: TAB
   highlightDegenMode: boolean
-  shouldHighlightSwapBox: boolean
-  showHistory: boolean
   selectCurrency: (field: Field, currency: Currency) => void
   selectNonEvmCurrency: (field: Field, chain: NonEvmChain, currency: NonEvmCurrency) => void
   reversePair: () => void
   onAmountChange: (amount: string) => void
   onTabChange: (tab: TAB) => void
   onBackToMainTab: () => void
-  onHistoryChange: (visible: boolean) => void
 }
 
-const SwapPageContent = ({
+export const SwapPageFormFallback = ({
+  activeTab,
+  ...props
+}: Pick<FormProps, 'activeTab' | 'currencyIn' | 'currencyOut' | 'inputChain' | 'outputChain' | 'amount'>) =>
+  activeTab === TAB.SWAP ? (
+    <PendingSwapForm {...props} />
+  ) : (
+    <Center className="h-40">
+      <Loader size="20px" />
+    </Center>
+  )
+
+/** Mounted only inside the ready wallet providers; owns form/tab interactions. */
+export const SwapPageForm = ({
   currencyIn,
   currencyOut,
   isInputCurrencyLoading,
@@ -71,30 +75,11 @@ const SwapPageContent = ({
   onTabChange,
   onBackToMainTab,
   highlightDegenMode,
-  shouldHighlightSwapBox,
-  showHistory,
-  onHistoryChange,
-}: Props) => {
+}: FormProps) => {
   const crossChainReady = !!useOptionalCrossChainSwap()
-  const reduceMotion = useReducedMotion()
   const wallets = useSwapWallets()
-  const rightPanelRef = useRef<HTMLElement>(null)
-
-  const handleHistoryChange = (visible: boolean) => {
-    onHistoryChange(visible)
-    if (!visible || !window.matchMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`).matches) return
-
-    // Use the persistent panel after React commits the new layout, independent of its entry animation.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        rightPanelRef.current?.scrollIntoView({ behavior: reduceMotion ? 'instant' : 'smooth', block: 'start' })
-      })
-    })
-  }
-
   const singleChainId = !isCrossChain && typeof inputChain === 'number' ? inputChain : undefined
 
-  // Pending and loaded forms must reverse the pair and its signing slots together.
   const handleReverse = (outputAmount?: string) => {
     wallets?.reverseConnections()
     reversePair()
@@ -102,10 +87,114 @@ const SwapPageContent = ({
   }
 
   return (
+    <Suspense
+      fallback={
+        <SwapPageFormFallback
+          activeTab={activeTab}
+          currencyIn={currencyIn}
+          currencyOut={currencyOut}
+          inputChain={inputChain}
+          outputChain={outputChain}
+          amount={amount}
+        />
+      }
+    >
+      <SwapForm
+        hidden={activeTab !== TAB.SWAP}
+        isCrossChain={isCrossChain}
+        inputChain={inputChain}
+        outputChain={outputChain}
+        outputSelectorChain={outputSelectorChain}
+        currencyIn={currencyIn}
+        currencyOut={currencyOut}
+        amount={amount}
+        onAmountChange={onAmountChange}
+        isInputCurrencyLoading={isInputCurrencyLoading}
+        isOutputCurrencyLoading={isOutputCurrencyLoading}
+        onChangeCurrencyIn={currency => selectCurrency(Field.INPUT, currency)}
+        onChangeCurrencyOut={currency => selectCurrency(Field.OUTPUT, currency)}
+        onSelectNonEvmCurrencyIn={(chain, currency) => selectNonEvmCurrency(Field.INPUT, chain, currency)}
+        onSelectNonEvmCurrencyOut={(chain, currency) => selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
+        onReverse={handleReverse}
+      />
+      {activeTab === TAB.INFO && <TokenInfo tokens={[currencyIn, currencyOut]} onBack={onBackToMainTab} />}
+      {activeTab === TAB.SETTINGS && (
+        <SwapSettingsPanel
+          chainId={singleChainId}
+          crossChainQuoteMode="stream"
+          recipientSettingsReady={!isCrossChain || crossChainReady}
+          showDisplaySettings
+          mode={isCrossChain ? 'cross-chain' : 'single-chain'}
+          highlightDegenMode={highlightDegenMode}
+          onBack={onBackToMainTab}
+          onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}
+          onClickCrossChainSources={() => onTabChange(TAB.CROSS_CHAIN_SOURCES)}
+        />
+      )}
+      {activeTab === TAB.CROSS_CHAIN_SOURCES && (
+        <CrossChainSwapSources quoteMode="stream" onBack={() => onTabChange(TAB.SETTINGS)} />
+      )}
+      {activeTab === TAB.LIQUIDITY_SOURCES && (
+        <LiquiditySourcesPanel chainId={singleChainId} onBack={() => onTabChange(TAB.SETTINGS)} />
+      )}
+    </Suspense>
+  )
+}
+
+type Props = Pick<
+  FormProps,
+  | 'currencyIn'
+  | 'currencyOut'
+  | 'inputChain'
+  | 'isCrossChain'
+  | 'isInputCurrencyLoading'
+  | 'isOutputCurrencyLoading'
+  | 'activeTab'
+  | 'onTabChange'
+> & {
+  form: ReactNode
+  requiresWallets?: boolean
+  shouldHighlightSwapBox: boolean
+  showHistory: boolean
+  onHistoryChange: (visible: boolean) => void
+}
+
+const SwapPageContent = ({
+  form,
+  currencyIn,
+  currencyOut,
+  isInputCurrencyLoading,
+  isOutputCurrencyLoading,
+  isCrossChain,
+  requiresWallets = false,
+  inputChain,
+  activeTab,
+  onTabChange,
+  shouldHighlightSwapBox,
+  showHistory,
+  onHistoryChange,
+}: Props) => {
+  const wallets = useSwapWalletSnapshot()
+  const reduceMotion = useReducedMotion()
+  const rightPanelRef = useRef<HTMLElement>(null)
+
+  const handleHistoryChange = (visible: boolean) => {
+    onHistoryChange(visible)
+    if (!visible || !window.matchMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`).matches) return
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        rightPanelRef.current?.scrollIntoView({ behavior: reduceMotion ? 'instant' : 'smooth', block: 'start' })
+      })
+    })
+  }
+
+  return (
     <Stack className="w-full max-w-[1464px] gap-6 px-9 py-6 max-sm:gap-4 max-sm:px-4 max-sm:py-5">
       <HStack className="w-full items-start justify-center gap-12 max-lg:flex-col max-lg:items-center max-lg:gap-6">
         <Stack
           as="section"
+          inert={requiresWallets && !wallets}
           className="relative z-[1] w-full max-w-[425px] shrink-0 items-center gap-4 lg:sticky lg:top-4"
         >
           <Header
@@ -123,46 +212,7 @@ const SwapPageContent = ({
               activeTab === TAB.INFO ? 'p-0' : 'p-4',
             )}
           >
-            <Suspense fallback={<SwapFormLoader />}>
-              <SwapForm
-                hidden={activeTab !== TAB.SWAP}
-                isCrossChain={isCrossChain}
-                inputChain={inputChain}
-                outputChain={outputChain}
-                outputSelectorChain={outputSelectorChain}
-                currencyIn={currencyIn}
-                currencyOut={currencyOut}
-                amount={amount}
-                onAmountChange={onAmountChange}
-                isInputCurrencyLoading={isInputCurrencyLoading}
-                isOutputCurrencyLoading={isOutputCurrencyLoading}
-                onChangeCurrencyIn={currency => selectCurrency(Field.INPUT, currency)}
-                onChangeCurrencyOut={currency => selectCurrency(Field.OUTPUT, currency)}
-                onSelectNonEvmCurrencyIn={(chain, currency) => selectNonEvmCurrency(Field.INPUT, chain, currency)}
-                onSelectNonEvmCurrencyOut={(chain, currency) => selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
-                onReverse={handleReverse}
-              />
-              {activeTab === TAB.INFO && <TokenInfo tokens={[currencyIn, currencyOut]} onBack={onBackToMainTab} />}
-              {activeTab === TAB.SETTINGS && (
-                <SwapSettingsPanel
-                  chainId={singleChainId}
-                  crossChainQuoteMode="stream"
-                  recipientSettingsReady={!isCrossChain || crossChainReady}
-                  showDisplaySettings
-                  mode={isCrossChain ? 'cross-chain' : 'single-chain'}
-                  highlightDegenMode={highlightDegenMode}
-                  onBack={onBackToMainTab}
-                  onClickLiquiditySources={() => onTabChange(TAB.LIQUIDITY_SOURCES)}
-                  onClickCrossChainSources={() => onTabChange(TAB.CROSS_CHAIN_SOURCES)}
-                />
-              )}
-              {activeTab === TAB.CROSS_CHAIN_SOURCES && (
-                <CrossChainSwapSources quoteMode="stream" onBack={() => onTabChange(TAB.SETTINGS)} />
-              )}
-              {activeTab === TAB.LIQUIDITY_SOURCES && (
-                <LiquiditySourcesPanel chainId={singleChainId} onBack={() => onTabChange(TAB.SETTINGS)} />
-              )}
-            </Suspense>
+            {form}
           </div>
         </Stack>
 
@@ -185,15 +235,13 @@ const SwapPageContent = ({
             inert={showHistory}
           >
             <Suspense fallback={<LocalLoader />}>
-              {isCrossChain ? (
-                <CrossChainRightPanel
-                  currencyIn={currencyIn}
-                  currencyOut={currencyOut}
-                  isProviderLoading={!crossChainReady}
-                />
-              ) : (
-                <SingleChainRightPanel isTokenLoading={isInputCurrencyLoading || isOutputCurrencyLoading} />
-              )}
+              <SwapRightPanel
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                inputChain={inputChain}
+                isCrossChain={isCrossChain}
+                isTokenLoading={isInputCurrencyLoading || isOutputCurrencyLoading}
+              />
             </Suspense>
           </motion.div>
           <AnimatePresence initial={false} mode="popLayout">

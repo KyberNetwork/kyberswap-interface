@@ -1,10 +1,10 @@
 import { CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { type ReactNode, Suspense, lazy } from 'react'
 
-import LocalLoader from 'components/LocalLoader'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/CurrencyInput/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/CurrencyInput/InputCurrencyPanel'
 import OutputCurrencyPanel from 'components/SwapForm/CurrencyInput/OutputCurrencyPanel'
+import { PendingCurrencyPanel } from 'components/SwapForm/PendingSwapForm'
 import { SwapFormLayout } from 'components/SwapForm/SwapFormLayout'
 import { CrossChainEvmSenderWalletSelector } from 'components/SwapWallets/CrossChainEvmSenderWalletSelector'
 import { useSwapWallets } from 'components/SwapWallets/SwapWalletContext'
@@ -152,7 +152,7 @@ export const UnifiedSwapForm = ({
           value={independentWallets ? { chain: fromChainId, address: wallets.inputAddress } : undefined}
         >
           {typeof fromChainId !== 'number' ? (
-            <Suspense fallback={<LocalLoader />}>
+            <Suspense fallback={<PendingCurrencyPanel chain={fromChainId} currency={currencyIn} value={amount} />}>
               <CrossChainCurrencyPanel
                 chain={fromChainId}
                 currency={currencyIn}
@@ -198,7 +198,7 @@ export const UnifiedSwapForm = ({
           value={independentWallets ? { chain: toChainId, address: receiverAddress || '' } : undefined}
         >
           {toChainId && typeof toChainId !== 'number' ? (
-            <Suspense fallback={<LocalLoader />}>
+            <Suspense fallback={<PendingCurrencyPanel chain={toChainId} currency={currencyOut} value="" output />}>
               <CrossChainCurrencyPanel
                 output
                 selectorChain={outputSelectorChain}

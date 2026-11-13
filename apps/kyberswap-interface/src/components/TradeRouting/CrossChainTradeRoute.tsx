@@ -75,7 +75,7 @@ const CrossChainTradeRoute = ({ defaultCollapsed }: { defaultCollapsed?: boolean
   <CrossChainTradeRouteView {...useCrossChainSwap()} defaultCollapsed={defaultCollapsed} />
 )
 
-type Props = {
+export type CrossChainTradeRouteProps = {
   currencyIn?: Currency
   currencyOut?: Currency
   fromChainId: Chain
@@ -85,55 +85,74 @@ type Props = {
   defaultCollapsed?: boolean
 }
 
-export const CrossChainTradeRouteView = ({
+export const CrossChainTradeRouteView = (props: CrossChainTradeRouteProps) => (
+  <TradeRoutePanel defaultCollapsed={props.defaultCollapsed} heading={<CrossChainRouteHeading {...props} />}>
+    <CrossChainRouteBody {...props} />
+  </TradeRoutePanel>
+)
+
+const CrossChainRouteHeading = ({
+  currencyIn,
+  currencyOut,
+  fromChainId,
+  toChainId,
+  selectedQuote,
+}: CrossChainTradeRouteProps) => {
+  const quote = selectedQuote?.quote
+  const amountIn = quote
+    ? formatUnits(BigInt(quote.quoteParams.amount), quote.quoteParams.fromToken.decimals)
+    : undefined
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-base font-medium text-subText max-sm:text-sm">
+      <span className="text-lg font-medium text-blue max-sm:hidden">Route:</span>
+      <RouteTokenLabel currency={currencyIn} chain={fromChainId} amount={amountIn} />
+      <span>→</span>
+      <RouteTokenLabel currency={currencyOut} chain={toChainId} amount={quote?.formattedOutputAmount} />
+    </div>
+  )
+}
+
+const CrossChainRouteBody = ({
   currencyIn,
   currencyOut,
   fromChainId,
   toChainId,
   selectedQuote,
   loading,
-  defaultCollapsed,
-}: Props) => {
+}: CrossChainTradeRouteProps) => {
   const steps = useMemo(() => (selectedQuote ? getCrossChainRouteSteps(selectedQuote) : []), [selectedQuote])
   const graph = useMemo(() => buildCrossChainGraph(steps), [steps])
   const quote = selectedQuote?.quote
   const amountIn = quote
     ? formatUnits(BigInt(quote.quoteParams.amount), quote.quoteParams.fromToken.decimals)
     : undefined
-
-  return (
-    <TradeRoutePanel
-      defaultCollapsed={defaultCollapsed}
-      heading={
-        <div className="flex flex-wrap items-center gap-2 text-base font-medium text-subText max-sm:text-sm">
-          <span className="text-lg font-medium text-blue max-sm:hidden">Route:</span>
-          <RouteTokenLabel currency={currencyIn} chain={fromChainId} amount={amountIn} />
-          <span>→</span>
-          <RouteTokenLabel currency={currencyOut} chain={toChainId} amount={quote?.formattedOutputAmount} />
-        </div>
-      }
-    >
-      {loading && !selectedQuote ? (
-        <TradeRouteSkeleton poolLines={1} />
-      ) : (
-        <RouteContent>
-          <PairRow className="gap-6">
-            <PairTokenSlot>
-              <TokenLink as="div">
-                <RouteTokenLabel currency={currencyIn} chain={fromChainId} amount={amountIn} />
-              </TokenLink>
-            </PairTokenSlot>
-            <PairTokenSlot>
-              <TokenLink as="div" reverse>
-                <RouteTokenLabel currency={currencyOut} chain={toChainId} amount={quote?.formattedOutputAmount} />
-              </TokenLink>
-            </PairTokenSlot>
-          </PairRow>
-          {!selectedQuote ? <EmptyRouteGraph message={t`No route found`} /> : <RouteGraphView graph={graph} />}
-        </RouteContent>
-      )}
-    </TradeRoutePanel>
+  return loading && !selectedQuote ? (
+    <TradeRouteSkeleton poolLines={1} />
+  ) : (
+    <RouteContent>
+      <PairRow className="gap-6">
+        <PairTokenSlot>
+          <TokenLink as="div">
+            <RouteTokenLabel currency={currencyIn} chain={fromChainId} amount={amountIn} />
+          </TokenLink>
+        </PairTokenSlot>
+        <PairTokenSlot>
+          <TokenLink as="div" reverse>
+            <RouteTokenLabel currency={currencyOut} chain={toChainId} amount={quote?.formattedOutputAmount} />
+          </TokenLink>
+        </PairTokenSlot>
+      </PairRow>
+      {!selectedQuote ? <EmptyRouteGraph message={t`No route found`} /> : <RouteGraphView graph={graph} />}
+    </RouteContent>
   )
+}
+
+// The unified page keeps the route shell mounted while these data slots load.
+export const CrossChainTradeRouteSlot = ({
+  slot,
+  ...quote
+}: CrossChainTradeRouteProps & { slot: 'heading' | 'body' }) => {
+  return slot === 'heading' ? <CrossChainRouteHeading {...quote} /> : <CrossChainRouteBody {...quote} />
 }
 
 export default CrossChainTradeRoute

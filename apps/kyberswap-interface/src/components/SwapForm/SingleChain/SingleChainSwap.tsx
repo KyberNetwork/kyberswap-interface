@@ -91,6 +91,7 @@ export const SingleChainSwapContent = ({ isCurrencyLoading = false }: { isCurren
 
         {!isWrapOrUnwrap && (
           <SingleChainQuoteDetails
+            chainId={chainId}
             recipientToggle={
               hasCustomRecipient ? (
                 <RecipientToggle expanded={showRecipientInput} onToggle={toggleRecipient} />
@@ -118,7 +119,7 @@ export const SingleChainSwapContent = ({ isCurrencyLoading = false }: { isCurren
         )}
 
         {!isWrapOrUnwrap && <FeeControlGroup />}
-        {(isWrapOrUnwrap || !isSlippageControlPinned) && <MEVProtection className="w-fit self-end" />}
+        {(isWrapOrUnwrap || !isSlippageControlPinned) && <MEVProtection chainId={chainId} className="w-fit self-end" />}
         <HoneypotWarning message={honeypotWarning} />
 
         <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />

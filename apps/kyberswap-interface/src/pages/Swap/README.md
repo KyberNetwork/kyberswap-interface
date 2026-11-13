@@ -7,16 +7,22 @@ feature owners.
 
 ## Page composition
 
-`SwapRoute.tsx` normalizes pair URLs and synchronizes the wallet network without
-remounting the page when the pair changes mode. `SwapPage.tsx` owns the pair,
+`SwapRoute.tsx` normalizes pair URLs without remounting the page when the pair
+changes mode. The selected pair stays independent of the connected wallet network;
+changing the network in the header does not reset the form. `SwapPage.tsx` owns the pair,
 amount, EVM recipient draft, wallet connections and History visibility.
 `SwapPageContent.tsx` renders one form alongside settings, charts and History.
 
 Both modes use `components/SwapForm/SwapForm.tsx` and the same input/output fields.
 Quote, review/execution, details and route presentation remain mode-specific.
 The cross-chain engine loads lazily on first cross-chain use and stays mounted
-afterward. Same-chain disables its requests and hides its snapshot; the current
-quote/review is invalidated while recipient drafts remain intact.
+afterward. While the provider bundle loads, a disabled form preview renders the
+selected pair and amount without mounting wallet or quote logic. The page layout
+and chart stay mounted across mode changes, preserving chart preferences. A page-local
+projection supplies route display data and sender identity without exposing wallet
+or swap actions. Cross-chain requests stop and stale quotes are hidden in same-chain
+mode; recipient drafts remain intact. MEV Protection uses the form or review chain,
+independently of the connected wallet network.
 
 Unified Swap defaults to the native input token and an empty output selection.
 Explicit URL pairs take precedence; pair edits and reversal preserve empty selections.
@@ -42,7 +48,7 @@ Paths below are relative to `src/`.
 
 ## Integration boundaries
 
-Pair selection commits through the form pair owner. `SwapPageContent` coordinates
+Pair selection commits through the form pair owner. `SwapPageForm` coordinates
 pair reversal with signing-slot reversal. The input EVM connection follows the
 app wallet; recipient drafts belong to the form. See the
 [TokenSelectorModal README](../../components/TokenSelectorModal/README.md) for

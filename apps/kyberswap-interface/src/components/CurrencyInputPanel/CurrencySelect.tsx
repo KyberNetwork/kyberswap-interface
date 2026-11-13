@@ -99,7 +99,7 @@ export const CurrencySelectContent = ({
   if (currencyLoading && !currency) {
     return (
       <Aligner className="gap-2" role="status" aria-label="Loading token" aria-busy="true">
-        <Skeleton width={hideLogo ? 64 : 92} height={20} />
+        <Skeleton width={hideLogo ? 64 : 92} height={20} variant="darkSubtle" />
       </Aligner>
     )
   }
@@ -109,7 +109,7 @@ export const CurrencySelectContent = ({
   const tokenSymbol = displaySymbol || loadingText || <Trans>Select a token</Trans>
 
   return (
-    <Aligner className="gap-1">
+    <Aligner className="gap-2">
       <HStack className="w-fit items-center gap-2">
         {currency && !hideLogo ? (
           <div className="relative shrink-0">
@@ -134,13 +134,15 @@ export const CurrencySelectContent = ({
         </StyledTokenName>
       </HStack>
 
-      {!!nativeCurrency && <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />}
-      {!disableCurrencySelect && !isSwitchMode && (
-        <DropdownSVG width={16} height={24} viewBox="4 0 16 24" className="shrink-0" />
-      )}
-      {!disableCurrencySelect && isSwitchMode && (
-        <SwitchIcon className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')} />
-      )}
+      <HStack className="shrink-0 items-center gap-0.5">
+        {!!nativeCurrency && <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />}
+        {!disableCurrencySelect && !isSwitchMode && (
+          <DropdownSVG width={16} height={24} viewBox="4 0 16 24" className="shrink-0" />
+        )}
+        {!disableCurrencySelect && isSwitchMode && (
+          <SwitchIcon className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')} />
+        )}
+      </HStack>
     </Aligner>
   )
 }
