@@ -19,8 +19,10 @@ const EMPTY_QUOTE_STATE = {
 }
 
 export type QuoteLoadContext = {
+  /** Session cancellation: consumers must ignore late publishes; pool transport has its own signal. */
   signal: AbortSignal
   publish: (patch: Partial<typeof EMPTY_QUOTE_STATE>) => void
+  /** Manual/periodic refresh intent. A mode switch can reuse the existing pool instead. */
   forceRefresh?: boolean
 }
 
@@ -39,7 +41,17 @@ type Props = {
   initialSnapshot?: QuotePoolSnapshot
 }
 
-/** One owner for request debounce, cancellation, refresh, selection and immutable review snapshots. */
+/**
+ * Owns the active quote view: 500 ms request debounce, selection, refresh scheduling
+ * and an immutable review snapshot. Pools retain transport/cache ownership independently.
+ *
+ * Request changes clear actionable quotes immediately; only an explicitly supplied
+ * reusable pool snapshot can seed the new session. A pool's completion deadline drives
+ * the countdown, and changing modes never grants another 60 seconds to cached quotes.
+ * Review pauses scheduled refreshes while existing streams continue updating live data;
+ * live results never replace the open review snapshot. Closing review reuses fresh
+ * results or schedules a reload.
+ */
 export const useQuoteSession = ({
   request,
   loadQuotes,

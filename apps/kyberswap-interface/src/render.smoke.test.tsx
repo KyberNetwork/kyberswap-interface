@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 const flags = vi.hoisted(() => ({ kyberCross: false }))
 vi.mock('constants/env', async importOriginal => ({
   ...(await importOriginal<typeof import('constants/env')>()),
-  get KYBERCROSS() {
+  get ENABLE_KYBERCROSS_DIRECT() {
     return flags.kyberCross
   },
 }))
@@ -134,7 +134,7 @@ describe('SSR render smoke', () => {
     expect(html).not.toContain('id="limit-button"')
   })
 
-  it('gates both the KyberCross tab and route with KYBERCROSS', async () => {
+  it('gates both the KyberCross tab and route with ENABLE_KYBERCROSS_DIRECT', async () => {
     const { renderRouteBodyHtml } = await import('entry-server')
     const swap = await renderRouteBodyHtml('/swap/ethereum')
     expect(swap).not.toContain('id="kybercross-nav-link"')

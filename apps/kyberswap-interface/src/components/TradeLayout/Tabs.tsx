@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { LimitTab } from 'components/TradeLayout/LimitTab'
-import { KYBERCROSS } from 'constants/env'
+import { ENABLE_KYBERCROSS_DIRECT } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -129,7 +129,7 @@ export const Tabs = ({ activeTab, onTabChange, customChainId }: Props) => {
   const features = requestedFeatures.length ? requestedFeatures : [TAB.SWAP, TAB.LIMIT]
   const showSwap = !isEmbeddedSwap || features.includes(TAB.SWAP)
   const showLimit = (!isEmbeddedSwap || features.includes(TAB.LIMIT)) && isSupportLimitOrder(chainId)
-  const showKyberCross = !isEmbeddedSwap && KYBERCROSS
+  const showKyberCross = !isEmbeddedSwap && ENABLE_KYBERCROSS_DIRECT
 
   return (
     <Stack className="items-start sm:flex-row sm:items-center sm:justify-between">

@@ -3,6 +3,7 @@ import { type BaseQueryFn, type FetchArgs, createApi, fetchBaseQuery, retry } fr
 import {
   type IndexedTransaction,
   type IndexedTransactionPage,
+  WALLET_TRANSACTIONS_PAGE_SIZE,
   indexedTransactionPageFromWalletRows,
 } from 'services/walletTransactions'
 import { z } from 'zod'
@@ -41,7 +42,7 @@ const walletTransactionsApi = createApi({
       },
       query: ({ queryArg: sender, pageParam: cursor }) => ({
         url: `/v1/wallets/uni/${encodeURIComponent(sender)}/transactions`,
-        params: { offset: cursor ? Number(cursor) : 0, limit: 10 },
+        params: { offset: cursor ? Number(cursor) : 0, limit: WALLET_TRANSACTIONS_PAGE_SIZE },
       }),
       extraOptions: {
         schema: z.array(z.unknown()),

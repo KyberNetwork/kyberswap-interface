@@ -33,9 +33,12 @@ includes both the form and the page's route panel.
 
 `SingleChainSwapFormProvider` connects balances and preferences to the EVM quote
 engine. `CrossChainSwapProvider` owns streamed quotes and cross-chain execution.
-The cross-chain engine loads on first use and stays mounted across mode changes.
-Same-chain disables requests and invalidates the active quote/review; recipient
-drafts and the shared fields keep their identity.
+The cross-chain wallet providers and engine load on first use and stay mounted
+across mode changes. Same-chain entry does not load non-EVM wallet SDKs; browsing
+a non-EVM token list loads its providers locally. Existing transfers still load
+the status updater for polling and terminal settlement enrichment.
+Same-chain disables cross-chain requests and invalidates its active quote/review.
+The pair, amount and EVM recipient drafts remain outside the lazy boundary.
 
 `SingleChainSwapContent` and `CrossChainSwap` render only mode-specific information
 and actions. The form and route panel read the same quote provider; neither starts
@@ -147,67 +150,17 @@ Pair → token resolution + sender/receiver
   → source hash → local record + backend sync → settlement updater
 ```
 
-### Request and quote session
+### Quotes and Gas Drop
 
-`useCrossChainPair` resolves EVM/non-EVM currencies. `useCrossChainRecipient`
-combines the selected signing connections with recipient input. Missing addresses
-can use placeholders for preview requests, marked `isReadOnly`; those quotes are
-not executable.
+`useCrossChainPair` resolves currencies and `useCrossChainRecipient` combines the
+selected signing connections with recipient input. Preview quotes can use placeholder
+addresses and are marked `isReadOnly`; they are not executable.
 
-`useCrossChainQuoteRequest` captures pair, amount, slippage, sender, receiver and
-wallet request data. All request inputs share a 500 ms debounce in `useQuoteSession`;
-raw input remains part of request identity so old quotes stop being actionable immediately.
-
-`useCrossChainQuote` obtains pair category, USD prices and platform-fee policy
-from `getPairInfo`, then invokes `getQuotesForMode`. That helper requests
-only the requested mode through `getQuotes` with `quoteMode: 'stream'`. Source
-preferences come from `state.crossChainSwap.excludedSources`. Transport, parsing
-and adapter association live in [`src/services/crossChain/quote`](../../services/crossChain/quote/).
-Stream errors do not fall back to direct provider quotes.
-
-[`useQuoteSession`](CrossChain/hooks/useQuoteSession.ts) owns:
-
-- Active-pool subscription, request debounce, manual and periodic refresh scheduling.
-- Quote loading and the countdown. Unified Swap keeps quotes valid for 60 seconds per mode
-  after the response stream finishes; switching modes or closing review reuses fresh quotes
-  without extending that deadline. Auto refresh follows the active mode's deadline;
-  manual refresh requests new data.
-- Selected provider retention on same-pair refreshes. If its quote is unavailable,
-  selection falls back to the first quote. Pair changes reset selection and review.
-- Clearing live quotes when request inputs change, preventing an old amount or
-  address from becoming actionable after a timeout.
-- A separate `reviewQuote` snapshot. Opening review validates that the quote is
-  still selected and the request is current after asynchronous allowance checks.
-  Both modes keep streaming into the live route pool while review is open, with
-  refresh paused. Incoming quotes never replace the modal's snapshot.
-
-`loading` controls whether a quote is ready for use; `allLoading` can remain true
-while more provider results arrive. With Gas Drop enabled, Route Options includes
-both modes, with Gas Drop routes first and each group sorted by net output.
-Best Return follows the highest net output across the list, independently of row
-position. Fastest uses a valid nonnegative time estimate, breaking ties by output.
-Zero-second estimates display as `< 1s` and remain eligible for Fastest.
-Row identity includes the mode; selection updates the provider and mode through
-`useCrossChainQuote`.
-
-### Gas Drop
-
-`useCrossChainQuote` owns eligibility and the selected mode.
-Gas Drop requires different source and destination chains and a non-native EVM
-output token. The `+ Gas` button becomes available when the current ordinary
-request (`gasDrop: false`) returns at least one KyberCross route with a finite
-`outputUsd` strictly above `GAS_DROP_MIN_OUTPUT_USD` ($2.2), regardless of the
-selected provider. Each ordinary request reevaluates eligibility from its results;
-changes to request inputs reset the selected mode. While Gas Drop is enabled,
-eligibility retains the ordinary request's result, including when the output
-after gas allocation falls below the threshold.
-
-`useQuotePool` owns each mode's request, results and expiry. Switching modes
-only changes the session's subscription; both pools keep collecting routes.
-Changing request inputs or unmounting cancels both pools. Gas Drop loads on demand; confirmation
-reuses the pending or fresh result, including failures: no valid Gas Drop route
-returns to ordinary mode, reusing ordinary quotes only while they remain fresh.
-`GasDropOption` handles presentation and confirmation; it does not own quote state.
+`useCrossChainQuote` coordinates aggregator quotes and Gas Drop. `useQuotePool` owns
+requests/results, while `useQuoteSession` owns selection, refresh and review snapshots.
+The form and Route Options consume the same state. See the
+[quote and Gas Drop README](CrossChain/Quote/README.md) for ownership, decision rules,
+source precedence and lifecycle.
 
 ### Approval, review and submission
 
@@ -261,20 +214,17 @@ belongs to the page-level transaction updater, not the confirmation modal.
 
 ## Where to make changes
 
-| Change                                           | Start here                                                                                                                       |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| Form layout, amount fields or reverse control    | `UnifiedSwapForm.tsx`, `SwapFormLayout.tsx`, `CurrencyInput/`                                                      |
-| Same-chain request parameters, fees or refresh   | `hooks/useRouteRequest.ts`, `hooks/useGetRoute.ts`, fee hooks, `SingleChain/SingleChainSwapProvider.tsx`                         |
-| Same-chain approve/permit/wrap behavior          | `SwapActionButton/index.tsx` and the corresponding shared hooks                                                                  |
-| Same-chain review state or submission            | `hooks/useSwapReviewSession.ts`, `SingleChain/useSingleChainSwapReview.ts`, `SingleChain/useSingleChainSwapExecution.ts`         |
-| Review amounts, output acceptance or warnings    | `SwapModal/useSwapReviewData.ts`, `SwapModal/reviewData.ts`, `SwapModal/SwapReviewActions.tsx`                                   |
-| Cross-chain request inputs, selection or refresh | `CrossChain/hooks/useCrossChainQuoteRequest.ts`, `CrossChain/hooks/useCrossChainQuote.ts`, `CrossChain/hooks/useQuoteSession.ts` |
-| Gas Drop eligibility or mode selection           | `CrossChain/hooks/useCrossChainQuote.ts`                                                                                         |
-| Per-mode requests, results and expiry            | `CrossChain/hooks/useQuotePool.ts`, `CrossChain/hooks/getQuotesForMode.ts`                                                 |
-| Gas Drop presentation                            | `CrossChain/Quote/GasDrop.tsx`, `components/GasDrop/GasDropAmount.tsx`                                                           |
-| Cross-chain action prerequisites or allowance    | `CrossChain/CrossChainSwapAction.tsx`, `CrossChain/hooks/useCrossChainApproval.ts`                                               |
-| Cross-chain confirmation content                 | `CrossChain/CrossChainSwapConfirmation.tsx`, `CrossChain/Quote/`                                                                 |
-| Provider-specific execution or settlement        | `CrossChain/hooks/useCrossChainExecution.ts`, `src/services/crossChain/adapters/`, `src/state/crossChainSwap/`                   |
+| Change                                         | Start here                                                                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Form layout, amount fields or reverse control  | `UnifiedSwapForm.tsx`, `SwapFormLayout.tsx`, `CurrencyInput/`                                                            |
+| Same-chain request parameters, fees or refresh | `hooks/useRouteRequest.ts`, `hooks/useGetRoute.ts`, fee hooks, `SingleChain/SingleChainSwapProvider.tsx`                 |
+| Same-chain approve/permit/wrap behavior        | `SwapActionButton/index.tsx` and the corresponding shared hooks                                                          |
+| Same-chain review state or submission          | `hooks/useSwapReviewSession.ts`, `SingleChain/useSingleChainSwapReview.ts`, `SingleChain/useSingleChainSwapExecution.ts` |
+| Review amounts, output acceptance or warnings  | `SwapModal/useSwapReviewData.ts`, `SwapModal/reviewData.ts`, `SwapModal/SwapReviewActions.tsx`                           |
+| Cross-chain quotes, refresh or Gas Drop        | [Quote and Gas Drop ownership](CrossChain/Quote/README.md)                                                               |
+| Cross-chain action prerequisites or allowance  | `CrossChain/CrossChainSwapAction.tsx`, `CrossChain/hooks/useCrossChainApproval.ts`                                       |
+| Cross-chain confirmation content               | `CrossChain/CrossChainSwapConfirmation.tsx`, `CrossChain/Quote/`                                                         |
+| Provider-specific execution or settlement      | `CrossChain/hooks/useCrossChainExecution.ts`, `src/services/crossChain/adapters/`, `src/state/crossChainSwap/`           |
 
 Paths in the last table are relative to this directory unless prefixed with
 `src/`. For page composition and integration boundaries,

@@ -102,7 +102,7 @@ export const NewLabel = ({ isNew, children }: PropsWithChildren<{ isNew?: boolea
 /** Raised red "New" marker, matching the network selector's new-chain tag. Its parent must be a
  *  `flex items-center` row for the negative top margin to lift it. */
 export const NewTag = ({ className }: { className?: string }) => (
-  <span className={cn('-mt-2.5 ml-0.5 text-xs font-normal normal-case tracking-normal text-red', className)}>
+  <span className={cn('-mt-2.5 ml-0.5 text-xs font-medium normal-case tracking-normal text-red', className)}>
     {t`New`}
   </span>
 )

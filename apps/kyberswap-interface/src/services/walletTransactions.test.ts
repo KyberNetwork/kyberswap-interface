@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { mergeTransactionHistory } from 'components/SwapTransactions/history'
+import { backendChainToChain } from 'state/crossChainSwap/model'
 
 import { indexedTransactionPageFromWalletRows, walletTransactionToIndexed } from './walletTransactions'
 
@@ -36,6 +37,18 @@ const requiredRow = (value: unknown) => {
 }
 
 describe('KD wallet transaction mapping', () => {
+  it('resolves backend aliases, numeric IDs and non-EVM chains without accepting unknown names', () => {
+    expect(['bsc', 'bera', '99901', 'solana', 'near', 'bitcoin', 'unknown'].map(backendChainToChain)).toEqual([
+      56,
+      80094,
+      99901,
+      'solana',
+      'near',
+      'bitcoin',
+      undefined,
+    ])
+  })
+
   it('maps the same-chain swap contract with exact signed hex units and a single transaction hash', () => {
     const row = requiredRow(swap)
     expect(row).toMatchObject({
@@ -71,6 +84,22 @@ describe('KD wallet transaction mapping', () => {
     expect(mergeTransactionHistory({ server: [row], local: [], sender: 'solanasender' })).toHaveLength(0)
   })
 
+  it('keeps Elysium transactions in history when KD only provides chain names', () => {
+    const row = requiredRow({
+      ...swap,
+      txType: 'cross_chain',
+      fromChainName: 'arbitrum',
+      toChainName: 'elysium',
+      events: [
+        { ...swap.events[0], chainName: 'arbitrum' },
+        { ...swap.events[1], chainName: 'elysium' },
+      ],
+    })
+    const history = mergeTransactionHistory({ server: [row], local: [], sender: wallet })
+    expect(history).toHaveLength(1)
+    expect(history[0]).toMatchObject({ sourceChain: 42161, targetChain: 99901, status: 'Success' })
+  })
+
   it('does not lose raw integer precision or synthesize output for pending transactions', () => {
     const row = requiredRow({
       ...swap,
@@ -84,9 +113,9 @@ describe('KD wallet transaction mapping', () => {
   })
 
   it('advances by raw row count through malformed and unsupported rows', () => {
-    const rows = [swap, ...Array.from({ length: 9 }, () => ({ ...swap, txType: 'approval' }))]
-    expect(indexedTransactionPageFromWalletRows(rows, 10)).toMatchObject({
-      nextCursor: '20',
+    const rows = [swap, ...Array.from({ length: 99 }, () => ({ ...swap, txType: 'approval' }))]
+    expect(indexedTransactionPageFromWalletRows(rows, 100)).toMatchObject({
+      nextCursor: '200',
       oldestTimestamp: Date.parse(swap.timestamp),
       transactions: [expect.objectContaining({ historyType: 'swap' })],
     })

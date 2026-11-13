@@ -1,15 +1,8 @@
-import * as ecc from '@bitcoinerlab/secp256k1'
-import Btc from '@ledgerhq/hw-app-btc'
-import { getAppAndVersion } from '@ledgerhq/hw-app-btc/getAppAndVersion'
-import { Transaction } from '@ledgerhq/hw-app-btc/lib/types'
-import * as Transport from '@ledgerhq/hw-transport'
+import type { Transaction } from '@ledgerhq/hw-app-btc/lib/types'
+import type * as Transport from '@ledgerhq/hw-transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
-import * as bitcoin from 'bitcoinjs-lib'
 
 import { BitcoinWalletBase, CreateProviderParams, SendBitcoinParams } from '../types'
-
-// Initialize ECC library - this must be done before using bitcoinjs-lib
-bitcoin.initEccLib(ecc)
 
 function getFormat(derivationPath: string) {
   return derivationPath.startsWith("m/84'")
@@ -158,7 +151,9 @@ export const createLedgerProvider = ({
           await new Promise(resolve => setTimeout(resolve, 1000))
         }
 
+        // Request USB access before loading the SDK to preserve the user's activation.
         await TransportWebUSB.request()
+        const { default: Btc } = await import('@ledgerhq/hw-app-btc')
         transport = (await TransportWebUSB.create(undefined, 5_000)) as TransportWebUSB
         transport.setExchangeTimeout(30000)
         await transport.send(0xb0, 0x01, 0x00, 0x00)
@@ -213,6 +208,14 @@ export const createLedgerProvider = ({
           throw new Error('Ledger not connected. Please connect your device first.')
         }
         console.log(`Preparing to send ${amount} BTC from ${sender} to ${recipient}`)
+
+        const [{ default: Btc }, { getAppAndVersion }, bitcoin, ecc] = await Promise.all([
+          import('@ledgerhq/hw-app-btc'),
+          import('@ledgerhq/hw-app-btc/getAppAndVersion'),
+          import('bitcoinjs-lib'),
+          import('@bitcoinerlab/secp256k1'),
+        ])
+        bitcoin.initEccLib(ecc)
 
         // Initialize Btc app
         const btcApp = new Btc({

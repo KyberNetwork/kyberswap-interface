@@ -7,6 +7,7 @@ import {
   type QuoteRequest,
   kyberCrossApi,
 } from 'services/crossChain/adapters/KyberCrossAdapter/api'
+import { KyberCross } from 'services/crossChain/adapters/KyberCrossAdapter/constants'
 import { executeKyberCross } from 'services/crossChain/adapters/KyberCrossAdapter/service'
 import {
   type KyberCrossRawQuote,
@@ -45,7 +46,7 @@ const getKyberCrossTokenAddress = (token: Currency): Address =>
 
 export class KyberCrossAdapter extends BaseSwapAdapter implements QuoteProvider {
   getName(): string {
-    return 'KyberCross'
+    return KyberCross
   }
 
   getIcon(): string {

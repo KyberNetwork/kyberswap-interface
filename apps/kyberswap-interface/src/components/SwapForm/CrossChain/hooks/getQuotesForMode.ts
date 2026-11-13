@@ -7,7 +7,12 @@ export const selectOrdinaryQuotes = (quotes: Quote[]) => quotes.filter(item => !
 export const selectGasDropQuotes = (quotes: Quote[]) =>
   quotes.filter(item => item.quote.quoteParams.gasDrop && item.quote.gasDrop)
 
-/** Request only the requested mode and exclude Gas Drop responses without an allocation. */
+/**
+ * Requests the aggregator stream for one mode and publishes only usable mode-matching quotes.
+ * Gas Drop requires an allocation, not just a request flag. Stream failure preserves any
+ * usable partial results; cancellation ignores late data. Empty results let the owning hook
+ * decide fallback policy. This boundary never retries through direct provider adapters.
+ */
 export const getQuotesForMode = async ({
   onQuotes,
   onQuoteReady,

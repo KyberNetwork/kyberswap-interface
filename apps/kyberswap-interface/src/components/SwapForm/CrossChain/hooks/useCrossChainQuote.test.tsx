@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   getQuotes: vi.fn(),
   tokenInUsd: 1,
   outputUsd: 100,
+  slippage: 50,
   state: { crossChainSwap: { excludedSources: ['Relay'], quoteMode: 'direct' } },
 }))
 vi.mock('components/SwapWallets/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
@@ -28,7 +29,7 @@ vi.mock('services/tokenCatalog', () => ({ useLazyCheckSameAssetQuery: () => [moc
 vi.mock('state/hooks', () => ({
   useAppSelector: (select: (state: typeof mocks.state) => unknown) => select(mocks.state),
 }))
-vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [50] }))
+vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [mocks.slippage] }))
 vi.mock('services/crossChain/factory', () => ({ registry: {} }))
 vi.mock('services/crossChain/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
 vi.mock('services/crossChain/quote/adapterQuotes', () => ({ getQuotes: mocks.getQuotes }))
@@ -83,6 +84,256 @@ const enableGas = async () => {
 }
 
 describe('Gas Drop route selection', () => {
+  it.each(['debounce', 'pending stream'])(
+    'keeps confirmed Gas Drop through consecutive eligible edits during %s',
+    async phase => {
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+      await act(async () => render('100'))
+      await flushQuotes()
+      await enableGas()
+      mocks.getQuotes.mockImplementation(() => new Promise<void>(() => undefined))
+
+      await act(async () => render('200'))
+      await act(async () => vi.advanceTimersByTimeAsync(phase === 'debounce' ? 100 : 500))
+      expect(state.gasDropEnabled).toBe(true)
+      expect(state.selectedQuote).toBeNull()
+      const pendingRequests = requests().slice(2)
+
+      await act(async () => render('2000'))
+      expect(state.gasDropEnabled).toBe(true)
+      expect(state.selectedQuote).toBeNull()
+      expect(pendingRequests.every(request => request.signal.aborted)).toBe(true)
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+      await flushQuotes()
+      expect(state.selectedQuote?.quote.quoteParams).toMatchObject({ amount: '2000000000', gasDrop: true })
+      expect(
+        requests()
+          .slice(-2)
+          .map(request => [request.params.gasDrop, request.excludedSources]),
+      ).toEqual([
+        [false, ['Relay', 'KyberCross']],
+        [true, ['Relay']],
+      ])
+    },
+  )
+
+  it('clears carried KyberCross evidence when the new stream finishes without that route', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request, 'Mayan')]))
+    await act(async () => render('200'))
+    await flushQuotes()
+    expect(state.gasDropEnabled).toBe(true)
+
+    await act(async () => render('2000'))
+    expect(state.gasDropEnabled).toBe(false)
+    await flushQuotes()
+    expect(requests().at(-1)?.params.gasDrop).toBe(false)
+  })
+
+  it.each([
+    { edit: 'amount', provider: 'KyberCross', includeGas: true, carry: true },
+    { edit: 'slippage', provider: 'KyberCross', includeGas: true, carry: true },
+    { edit: 'amount', provider: 'Mayan', includeGas: true, carry: false },
+    { edit: 'slippage', provider: 'Mayan', includeGas: true, carry: false },
+    { edit: 'amount', provider: 'KyberCross', includeGas: false, carry: false },
+    { edit: 'slippage', provider: 'KyberCross', includeGas: false, carry: false },
+  ])(
+    'requires an existing KyberCross Gas Drop route on $edit edits: $provider/$includeGas',
+    async ({ edit, provider, includeGas, carry }) => {
+      mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+        request.onQuotes([
+          makeQuote(request, request.params.gasDrop ? provider : 'KyberCross', request.params.gasDrop && includeGas),
+        ])
+        return request.params.gasDrop ? new Promise<void>(() => undefined) : Promise.resolve()
+      })
+      await act(async () => render('100'))
+      await flushQuotes()
+      await enableGas()
+      expect(state.gasDropEnabled).toBe(true)
+
+      if (edit === 'slippage') mocks.slippage = 100
+      await act(async () => render(edit === 'amount' ? '50' : '100'))
+      await flushQuotes()
+      expect(state.gasDropEnabled).toBe(carry)
+      expect(
+        requests()
+          .slice(2)
+          .map(request => [request.params.gasDrop, request.excludedSources]),
+      ).toEqual(
+        carry
+          ? [
+              [false, ['Relay', 'KyberCross']],
+              [true, ['Relay']],
+            ]
+          : [[false, ['Relay']]],
+      )
+    },
+  )
+
+  it('quotes Gas Drop directly after eligible amount and slippage edits', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    const oldGas = requests()[1]
+    await act(async () => render('50'))
+    expect(state.selectedQuote).toBeNull()
+    expect(oldGas.signal.aborted).toBe(true)
+    await flushQuotes()
+    mocks.slippage = 100
+    await act(async () => render('50'))
+    await flushQuotes()
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, true, false, true])
+    expect(requests()[2].excludedSources).toEqual(['Relay', 'KyberCross'])
+    expect(requests()[4].excludedSources).toEqual(['Relay', 'KyberCross'])
+    expect(state.selectedQuote?.quote.quoteParams).toMatchObject({ amount: '50000000', slippage: 100, gasDrop: true })
+  })
+
+  it.each(['amount', 'slippage'])(
+    'loads alternatives on a Gas Drop %s edit and full ordinary quotes on disable',
+    async edit => {
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => {
+        const providers = request.params.gasDrop ? ['KyberCross'] : ['KyberCross', 'Mayan']
+        request.onQuotes(
+          providers
+            .filter(provider => !request.excludedSources.includes(provider))
+            .map(provider => makeQuote(request, provider)),
+        )
+      })
+      await act(async () => render('100'))
+      await flushQuotes()
+      await enableGas()
+      const amount = edit === 'amount' ? '50' : '100'
+      if (edit === 'slippage') mocks.slippage = 100
+      await act(async () => render(amount))
+      await flushQuotes()
+
+      expect(
+        requests()
+          .slice(2)
+          .map(request => [request.params.gasDrop, request.excludedSources]),
+      ).toEqual([
+        [false, ['Relay', 'KyberCross']],
+        [true, ['Relay']],
+      ])
+      expect(state.routeOptions.map(({ adapter, quote }) => [adapter.getName(), quote.quoteParams.gasDrop])).toEqual([
+        ['KyberCross', true],
+        ['Mayan', false],
+      ])
+
+      await act(async () => state.setGasDropEnabled(false))
+      await flushQuotes()
+      expect(requests()).toHaveLength(5)
+      expect(requests()[4]).toMatchObject({ params: { gasDrop: false }, excludedSources: ['Relay'] })
+      expect(state.routeOptions.map(({ adapter }) => adapter.getName())).toEqual(['KyberCross', 'Mayan'])
+    },
+  )
+
+  it.each(['2.2', '2', '0', ''])('resets Gas Drop when amount %s no longer exceeds the threshold', async amount => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    await act(async () => render(amount))
+    expect(state.gasDropEnabled).toBe(false)
+    await flushQuotes()
+    expect(requests().slice(2)).toHaveLength(amount === '0' || amount === '' ? 0 : 1)
+    expect(
+      requests()
+        .slice(2)
+        .every(request => !request.excludedSources.includes('KyberCross')),
+    ).toBe(true)
+    await act(async () => render('100'))
+    await flushQuotes()
+    expect(state.gasDropEnabled).toBe(false)
+    expect(
+      requests()
+        .slice(2)
+        .every(request => !request.params.gasDrop),
+    ).toBe(true)
+  })
+
+  it.each(['amount', 'slippage'])(
+    'uses ordinary KyberCross output regardless of lower Gas Drop output on a %s edit',
+    async edit => {
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+      await act(async () => render('100'))
+      await flushQuotes()
+      mocks.outputUsd = edit === 'amount' ? 5 : 2.2
+      await enableGas()
+      expect(state.gasDropEnabled).toBe(true)
+
+      if (edit === 'slippage') mocks.slippage = 100
+      await act(async () => render(edit === 'amount' ? '44' : '100'))
+      await flushQuotes()
+      expect(state.gasDropEnabled).toBe(true)
+      expect(
+        requests()
+          .slice(2)
+          .map(request => [request.params.gasDrop, request.excludedSources]),
+      ).toEqual([
+        [false, ['Relay', 'KyberCross']],
+        [true, ['Relay']],
+      ])
+    },
+  )
+
+  it.each(['amount', 'slippage'])(
+    'updates the estimate from non-KyberCross ordinary quotes after a %s edit',
+    async edit => {
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => {
+        const alternative = !request.params.gasDrop && request.excludedSources.includes('KyberCross')
+        const quote = makeQuote(request, alternative ? 'Mayan' : 'KyberCross')
+        quote.quote.outputUsd = alternative ? 3 : 100
+        request.onQuotes([quote])
+      })
+      await act(async () => render('100'))
+      await flushQuotes()
+      await enableGas()
+
+      const amount = edit === 'amount' ? '50' : '100'
+      if (edit === 'slippage') mocks.slippage = 100
+      await act(async () => render(amount))
+      await flushQuotes()
+      expect(state.gasDropEnabled).toBe(true)
+      expect(
+        requests()
+          .slice(2)
+          .map(request => [request.params.gasDrop, request.excludedSources]),
+      ).toEqual([
+        [false, ['Relay', 'KyberCross']],
+        [true, ['Relay']],
+      ])
+      expect(state.routeOptions.some(({ adapter }) => adapter.getName() === 'Mayan')).toBe(true)
+
+      // Latest ordinary quote is Mayan: $3 * 1/2 = $1.5, despite the Gas Drop output still being $100.
+      await act(async () => render(String(Number(amount) / 2)))
+      await flushQuotes()
+      expect(state.gasDropEnabled).toBe(false)
+      expect(requests()).toHaveLength(5)
+      expect(requests()[4]).toMatchObject({ params: { gasDrop: false }, excludedSources: ['Relay'] })
+    },
+  )
+
+  it('falls back to a new ordinary quote when carried Gas Drop is unavailable', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
+      request.onQuotes(request.params.gasDrop ? [] : [makeQuote(request)]),
+    )
+    await act(async () => render('50'))
+    await flushQuotes()
+    await flushQuotes()
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, true, false])
+    expect(requests().at(-1)?.excludedSources).toEqual(['Relay'])
+    expect(state.selectedQuote?.quote.quoteParams).toMatchObject({ amount: '50000000', gasDrop: false })
+  })
+
   it('hides ordinary providers as their Gas Drop routes arrive and restores them when disabled', async () => {
     mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
       if (request.params.gasDrop) return new Promise(() => undefined)
@@ -224,7 +475,7 @@ describe('Gas Drop route selection', () => {
     await act(async () => vi.advanceTimersByTimeAsync(59_999))
     expect(requests()).toHaveLength(requestCount)
     await act(async () => vi.advanceTimersByTimeAsync(1))
-    expect(requests()).toHaveLength(requestCount + 1)
+    expect(requests()).toHaveLength(requestCount + (gasDrop ? 2 : 1))
   })
 
   it.each([false, true])('keeps streaming into the pool without changing review (Gas Drop: %s)', async gasDrop => {
@@ -269,7 +520,7 @@ describe('Gas Drop route selection', () => {
     expect(state.allLoading).toBe(false)
     expect(requests()).toHaveLength(requestCount)
     await act(async () => vi.advanceTimersByTimeAsync(60_000))
-    expect(requests()).toHaveLength(requestCount + 1)
+    expect(requests()).toHaveLength(requestCount + (gasDrop ? 2 : 1))
   })
 
   it.each([false, true])('does not refresh a stream completed during review (Gas Drop: %s)', async gasDrop => {
@@ -343,7 +594,7 @@ describe('Gas Drop route selection', () => {
     expect(state.refresh.countdown).toBe(1)
     expect(requests()).toHaveLength(requestCount)
     await act(async () => vi.advanceTimersByTimeAsync(1))
-    expect(requests()).toHaveLength(requestCount + 1)
+    expect(requests()).toHaveLength(requestCount + (gasDrop ? 2 : 1))
     expect(requests().at(-1)?.params.gasDrop).toBe(gasDrop)
   })
 
@@ -388,7 +639,7 @@ describe('Gas Drop route selection', () => {
     await act(async () => vi.advanceTimersByTimeAsync(49_999))
     expect(mocks.getQuotes).toHaveBeenCalledTimes(2)
     await act(async () => vi.advanceTimersByTimeAsync(1))
-    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true])
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, true])
   })
 
   it.each(['remove', 'select'])(
@@ -704,6 +955,7 @@ describe('Gas Drop route selection', () => {
       await act(async () => state.prepareGasDrop())
       const gas = requests()[1]
       if (confirmed) await enableGas()
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
       await act(async () => render('200'))
       await act(async () => vi.advanceTimersByTimeAsync(500))
       const selected = state.selectedQuote
@@ -715,22 +967,170 @@ describe('Gas Drop route selection', () => {
       expect(gas.signal.aborted).toBe(true)
       expect(state.selectedQuote).toBe(selected)
       expect(state.gasDropAvailable).toBe(true)
+      // The previous Gas Drop request had no route yet, so the new input uses ordinary mode.
       expect(state.gasDropEnabled).toBe(false)
+      expect(
+        requests()
+          .slice(2)
+          .map(request => request.params.gasDrop),
+      ).toEqual([false])
       expect(state.gasDropUnsupported).toBe(false)
     },
   )
 
-  it('refreshes only the selected mode and reuses fresh ordinary quotes when disabled', async () => {
+  it.each(['manual', 'periodic'])(
+    'updates comparison routes and the estimate on each %s Gas Drop refresh',
+    async mode => {
+      let alternativeOutputUsd = 10
+      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => {
+        if (request.params.gasDrop) return request.onQuotes([makeQuote(request)])
+        const ordinary = makeQuote(request, 'Mayan')
+        ordinary.quote.outputUsd = request.excludedSources.includes('KyberCross') ? alternativeOutputUsd : 100
+        request.onQuotes(request.excludedSources.includes('KyberCross') ? [ordinary] : [makeQuote(request), ordinary])
+      })
+      await act(async () => render('100'))
+      await flushQuotes()
+      await enableGas()
+      const initialOrdinary = state.routeOptions.find(({ adapter }) => adapter.getName() === 'Mayan')
+
+      for (const output of [10, 3]) {
+        alternativeOutputUsd = output
+        const count = requests().length
+        await act(async () => {
+          if (mode === 'periodic') await vi.advanceTimersByTimeAsync(60_000)
+          else {
+            await vi.advanceTimersByTimeAsync(2_000)
+            state.refresh.onRefresh()
+          }
+        })
+        expect(
+          requests()
+            .slice(count)
+            .map(request => [request.params.gasDrop, request.excludedSources]),
+        ).toEqual([
+          [false, ['Relay', 'KyberCross']],
+          [true, ['Relay']],
+        ])
+        expect(state.routeOptions).not.toContain(initialOrdinary)
+        expect(state.routeOptions.find(({ adapter }) => adapter.getName() === 'Mayan')?.quote.outputUsd).toBe(output)
+      }
+
+      const count = requests().length
+      await act(async () => render('50'))
+      await flushQuotes()
+      // The refreshed ordinary estimate is $3 / 2, not the initial ordinary output of $100.
+      expect(state.gasDropEnabled).toBe(false)
+      expect(requests().slice(count)).toHaveLength(1)
+      expect(requests()[count]).toMatchObject({ params: { gasDrop: false }, excludedSources: ['Relay'] })
+    },
+  )
+
+  it('does not restore old comparison routes when refreshed alternatives are empty', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
+      request.onQuotes(
+        request.params.gasDrop ? [makeQuote(request)] : [makeQuote(request), makeQuote(request, 'Mayan')],
+      ),
+    )
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    expect(state.routeOptions).toHaveLength(2)
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) =>
+      request.onQuotes(request.params.gasDrop ? [makeQuote(request)] : []),
+    )
+    await act(async () => state.refresh.onRefresh())
+    expect(state.routeOptions).toEqual(state.quotes)
+    expect(state.gasDropEnabled).toBe(true)
+  })
+
+  it.each(['input', 'unmount'])('does not block Gas Drop on alternatives and cancels them on %s', async action => {
+    let finishAlternatives!: () => void
+    mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+      if (request.excludedSources.includes('KyberCross')) {
+        return new Promise<void>(resolve => (finishAlternatives = resolve))
+      }
+      request.onQuotes([makeQuote(request)])
+      return Promise.resolve()
+    })
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    await act(async () => state.refresh.onRefresh())
+    const alternatives = requests()[2]
+    const current = requests()[3]
+    expect(alternatives.excludedSources).toContain('KyberCross')
+    expect(state.loading).toBe(false)
+    expect(state.allLoading).toBe(false)
+    expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(true)
+
+    if (action === 'input') await act(async () => render('200'))
+    else await act(async () => root.unmount())
+    expect(alternatives.signal.aborted).toBe(true)
+    expect(current.signal.aborted).toBe(true)
+    await act(async () => {
+      alternatives.onQuotes([makeQuote(alternatives, 'Mayan')])
+      finishAlternatives()
+    })
+    if (action === 'input') {
+      expect(state.routeOptions).toEqual([])
+      await flushQuotes()
+      expect(state.selectedQuote?.quote.quoteParams.amount).toBe('200000000')
+      expect(state.routeOptions.every(({ quote }) => quote.quoteParams.amount === '200000000')).toBe(true)
+    }
+  })
+
+  it('prefers a newer full ordinary result over older alternatives after switching modes', async () => {
+    mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => {
+      if (request.params.gasDrop) return request.onQuotes([makeQuote(request)])
+      const ordinary = makeQuote(request, 'Mayan')
+      ordinary.quote.outputUsd = request.excludedSources.includes('KyberCross') ? 3 : mocks.outputUsd
+      request.onQuotes(request.excludedSources.includes('KyberCross') ? [ordinary] : [makeQuote(request), ordinary])
+    })
+    await act(async () => render('100'))
+    await flushQuotes()
+    await enableGas()
+    await act(async () => state.refresh.onRefresh())
+    expect(state.routeOptions.find(({ adapter }) => adapter.getName() === 'Mayan')?.quote.outputUsd).toBe(3)
+
+    await act(async () => state.setGasDropEnabled(false))
+    await flushQuotes()
+    mocks.outputUsd = 80
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2_000)
+      state.refresh.onRefresh()
+    })
+    const count = requests().length
+    const fullQuote = state.routeOptions.find(({ adapter }) => adapter.getName() === 'Mayan')
+    expect(fullQuote?.quote.outputUsd).toBe(80)
+    await enableGas()
+    expect(requests()).toHaveLength(count)
+    expect(state.routeOptions).toContain(fullQuote)
+
+    await act(async () => render('50'))
+    await flushQuotes()
+    // Use $80 / 2, not the older alternatives estimate of $3 / 2.
+    expect(state.gasDropEnabled).toBe(true)
+    expect(
+      requests()
+        .slice(count)
+        .map(request => [request.params.gasDrop, request.excludedSources]),
+    ).toEqual([
+      [false, ['Relay', 'KyberCross']],
+      [true, ['Relay']],
+    ])
+  })
+
+  it('refreshes Gas Drop with alternatives and reuses fresh full ordinary quotes when disabled', async () => {
     mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
     await act(async () => render('100'))
     await flushQuotes()
     await enableGas()
     await act(async () => state.refresh.onRefresh())
-    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true])
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, true])
     await act(async () => state.setGasDropEnabled(false))
     expect(state.loading).toBe(false)
     await flushQuotes()
-    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true])
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, true])
     expect(state.selectedQuote?.quote.quoteParams.gasDrop).toBe(false)
   })
 
@@ -816,7 +1216,7 @@ describe('Gas Drop route selection', () => {
     await act(async () => state.refresh.onRefresh())
     expect(state.gasDropAvailable).toBe(true)
     expect(state.gasDropEnabled).toBe(true)
-    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, true])
+    expect(requests().map(request => request.params.gasDrop)).toEqual([false, true, false, true])
   })
 
   it('does not offer Gas Drop for native output', async () => {
@@ -843,6 +1243,7 @@ beforeEach(() => {
   mocks.wallets = undefined
   mocks.tokenInUsd = 1
   mocks.outputUsd = 100
+  mocks.slippage = 50
   mocks.getQuotes.mockReset().mockImplementation(() => new Promise(() => undefined))
   root = createRoot(document.createElement('div'))
 })
