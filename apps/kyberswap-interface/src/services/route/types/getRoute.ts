@@ -13,6 +13,7 @@ export type GetRouteParams = {
   chargeFeeBy?: ChargeFeeBy
   isInBps?: string
   feeReceiver?: string
+  useRouterV3?: string
   debug?: string
   // for calculating price impact only
   chainId?: number

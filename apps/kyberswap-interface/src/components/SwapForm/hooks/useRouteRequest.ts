@@ -11,7 +11,6 @@ import { AGGREGATOR_API } from 'constants/env'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
-import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ChargeFeeBy, ExtraFeeConfig } from 'types/route'
@@ -70,13 +69,9 @@ const getFeeConfigParams = (
   }
 }
 
-// Use the public aggregator until authentication makes the configured domain available.
-export const useRouteApiDomain = () => {
-  const { aggregatorDomain } = useKyberswapGlobalConfig()
-  const { authenticationSuccess } = useSessionInfo()
-
-  return authenticationSuccess ? aggregatorDomain : AGGREGATOR_API
-}
+// Temporary, for testing against pre: quotes and swaps go to the env-configured aggregator only,
+// skipping the domain ks-setting configures.
+export const useRouteApiDomain = () => AGGREGATOR_API
 
 export type IntendedFeeConfig = Pick<GetRouteParams, 'feeAmount' | 'feeReceiver' | 'isInBps' | 'chargeFeeBy'>
 
@@ -179,6 +174,8 @@ const useRouteRequest = (args: ArgsRouteRequest) => {
       includedSources: dexes,
       gasInclude: 'true',
       gasPrice: '',
+      // Temporary, for testing against pre: the quote and the swap built from it both use router V3.
+      useRouterV3: 'true',
       chainId,
     }
     const url = `${aggregatorDomain}/${NETWORKS_INFO[chainId].aggregatorRoute}${AGGREGATOR_API_PATHS.GET_ROUTE}`
