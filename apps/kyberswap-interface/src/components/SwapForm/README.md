@@ -59,6 +59,35 @@ amount calculations, validation and committed token selection; the
 [TokenSelectorModal](../TokenSelectorModal/README.md) owns browsing and selection
 interaction. `CrossChainOutputFooter` supplies Gas Drop through the output footer.
 
+## Quote lifecycle during review
+
+Both modes use the same submit/close contract:
+
+| Event | Behavior |
+| --- | --- |
+| Open Review | Capture the execution snapshot and pause scheduled/manual quote refresh. Already-running requests may finish without replacing that snapshot. |
+| Submit | Invalidate before wallet preparation/signing, even if the attempt later fails or is rejected. Cancel old quote work and retain the review snapshot; do not fetch a replacement yet. |
+| Close after Submit | Resume fetching. The CTA stays disabled while loading or without a usable route. |
+| Close without Submit | Resume normal refresh scheduling. Reuse fresh cache without extending its expiry; fetch if expired. |
+| Close while the wallet is pending | Detach the old review UI. Its transaction can still be persisted, but late results cannot overwrite a newer review. |
+
+`SingleChainSwapProvider` connects submit to `useGetRoute.invalidateQuote`;
+TanStack Query owns cancellation, invalidation and resume. Loading includes requests
+paused for connectivity, so an offline refetch cannot expose the retained route as
+actionable. Reconnection resumes that request; a failed GET removes the actionable
+route until a successful refresh.
+
+`CrossChainSwapEngine` connects execution's submit callback to
+`useCrossChainQuote.invalidateQuotes`. This clears ordinary, Gas Drop and alternative
+pools; `useQuoteSession` preserves the review and resumes fetching on close. Only the
+active mode reloads, with alternatives alongside Gas Drop. Failed/empty replacement
+requests cannot restore invalidated quotes; an unusable Gas Drop result falls back
+to ordinary mode. See the [quote lifecycle](CrossChain/Quote/README.md#lifetime-and-review).
+
+The execution controllers block concurrent submissions; the query/pools own quote
+freshness. Broadcast persists the transaction and does not invalidate or refresh
+quotes again.
+
 ## Same-chain EVM flow
 
 ```text
@@ -187,9 +216,9 @@ for a signing connection. Stream quotes may still require provider-specific
 build/SDK calls during execution.
 
 On broadcast, execution persists the source transaction and queues backend sync
-when `quoteId` and `quoteToken` are available. Closing the modal resets its UI,
-but an in-flight submission still persists its result. A timeout after a captured
-source hash does not turn that broadcast into an unsubmitted failure. Settlement
+when `quoteId` and `quoteToken` are available, without refreshing quotes again.
+Closing the modal resets its UI, but an in-flight submission still persists its result.
+A timeout after a captured source hash does not turn that broadcast into an unsubmitted failure. Settlement
 belongs to the page-level transaction updater, not the confirmation modal.
 
 ## Shared business rules

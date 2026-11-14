@@ -1,4 +1,4 @@
-import { skipToken, useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import useRouteRequest, { ArgsRouteRequest, IntendedFeeConfig } from 'components/SwapForm/hooks/useRouteRequest'
@@ -20,8 +20,9 @@ export type ArgsGetRoute = ArgsRouteRequest & {
   autoRefresh?: boolean
 }
 
-/** TanStack owns quote data/loading/polling; local state is only the visible countdown. */
+/** TanStack owns quote data/loading/polling; the review pauses fetching. */
 const useGetRoute = (args: ArgsGetRoute) => {
+  const queryClient = useQueryClient()
   const request = useRouteRequest(args)
   const { enabled = true, isProcessingSwap = false, autoRefresh = false } = args
 
@@ -34,27 +35,39 @@ const useGetRoute = (args: ArgsGetRoute) => {
     queryKey: request?.queryKey ?? ['swap-route', null],
     queryFn: request?.queryFn ?? skipToken,
     enabled: canFetch,
-    // Never treat a previous quote as fresh or retain it after its observers leave.
-    staleTime: 0,
+    // Closing an unsubmitted review may reuse its quote within the normal refresh window.
+    staleTime: REFRESH_SECONDS * 1000,
     gcTime: 0,
     retry: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    refetchInterval: query =>
-      canFetch && autoRefresh && query.state.fetchStatus !== 'fetching' ? REFRESH_SECONDS * 1000 : false,
+    refetchInterval: query => {
+      if (!canFetch || !autoRefresh || query.state.fetchStatus !== 'idle') return false
+      const settledAt = Math.max(query.state.dataUpdatedAt, query.state.errorUpdatedAt)
+      return Math.max(1, REFRESH_SECONDS * 1000 - (Date.now() - settledAt))
+    },
     refetchIntervalInBackground: true,
   })
 
+  // A fetch waiting for connectivity must keep the CTA blocked, just like an active fetch.
+  const waitingForRoute = query.isFetching || query.isPaused
   const settledAt = Math.max(query.dataUpdatedAt, query.errorUpdatedAt)
   const [now, setNow] = useState(Date.now)
 
   const countdown =
-    canFetch && autoRefresh && !query.isFetching && settledAt
+    canFetch && autoRefresh && !waitingForRoute && settledAt
       ? Math.max(0, REFRESH_SECONDS * 1000 - Math.max(0, now - settledAt))
       : 0
 
-  const isLoading = Boolean(enabled && !isProcessingSwap && request && (inputPending || query.isFetching))
+  const isLoading = Boolean(enabled && !isProcessingSwap && request && (inputPending || waitingForRoute))
   const data = enabled && !inputPending ? query.data : undefined
+
+  const invalidateQuote = () => {
+    if (!request) return
+    // Keep the current review snapshot, but prevent late work from making this cache fresh again.
+    void queryClient.cancelQueries({ queryKey: request.queryKey, exact: true })
+    void queryClient.invalidateQueries({ queryKey: request.queryKey, exact: true, refetchType: 'none' })
+  }
 
   const { refetch } = query
   const fetcher = useCallback(() => {
@@ -63,24 +76,29 @@ const useGetRoute = (args: ArgsGetRoute) => {
 
   const nextManualRefreshAt = useRef(0)
   const onRefresh = useCallback(() => {
-    if (!canFetch || query.isFetching || Date.now() < nextManualRefreshAt.current) return
+    if (!canFetch || waitingForRoute || Date.now() < nextManualRefreshAt.current) return
 
     nextManualRefreshAt.current = Date.now() + 2000
     fetcher()
-  }, [canFetch, query.isFetching, fetcher])
+  }, [canFetch, waitingForRoute, fetcher])
 
   useEffect(() => {
-    if (!canFetch || !autoRefresh || query.isFetching || !settledAt) return
+    if (!canFetch || !autoRefresh || waitingForRoute || !settledAt) return
 
     setNow(Date.now())
     const ticker = setInterval(() => setNow(Date.now()), 1000)
 
     return () => clearInterval(ticker)
-  }, [canFetch, autoRefresh, query.isFetching, settledAt])
+  }, [canFetch, autoRefresh, waitingForRoute, settledAt])
 
   return {
     fetcher,
-    result: { data: data?.response, error: enabled && !inputPending ? query.error : null, isFetching: isLoading },
+    invalidateQuote,
+    result: {
+      data: data?.response,
+      error: enabled && !inputPending ? query.error : null,
+      isFetching: isLoading,
+    },
     isLoading,
     intendedFeeConfig: data?.intendedFeeConfig ?? EMPTY_FEE_CONFIG,
     refresh: { countdown, refreshTime: REFRESH_SECONDS, disableRefresh: !canFetch, isRefreshing: isLoading, onRefresh },

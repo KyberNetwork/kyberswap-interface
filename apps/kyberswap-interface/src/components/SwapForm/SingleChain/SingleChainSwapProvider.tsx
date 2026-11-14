@@ -86,6 +86,7 @@ const useSingleChainSwap = ({
     result,
     isLoading: routeLoading,
     intendedFeeConfig,
+    invalidateQuote,
   } = useGetRoute({
     enabled: enabled && !chainError && !isWrapOrUnwrap,
     autoRefresh: true,
@@ -162,7 +163,11 @@ const useSingleChainSwap = ({
     review,
     openReview,
     rebuildReview,
-    confirmReview,
+    confirmReview: (submit: Parameters<typeof confirmReview>[0], onError: Parameters<typeof confirmReview>[1]) =>
+      confirmReview(onRequestSignature => {
+        invalidateQuote()
+        return submit(onRequestSignature)
+      }, onError),
     dismissReview,
   }
 }

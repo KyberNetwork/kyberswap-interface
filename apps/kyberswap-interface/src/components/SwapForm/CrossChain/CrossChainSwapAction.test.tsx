@@ -12,10 +12,12 @@ import CrossChainSwapProvider, { useOptionalCrossChainSwap } from './hooks/useCr
 
 const mocks = vi.hoisted(() => ({
   degen: false,
+  loading: false,
   setParams: vi.fn(),
   openReview: vi.fn(),
   closeReview: vi.fn(),
   confirmSwap: vi.fn(),
+  invalidateQuotes: vi.fn(),
   allowance: vi.fn(async () => true),
   selectedQuote: { quote: { priceImpact: 11 as number | null } },
   reviewQuote: null as unknown,
@@ -26,11 +28,16 @@ vi.mock('components/Button', () => ({ ButtonPrimary: (props: any) => <button {..
 vi.mock('components/Dots', () => ({ default: ({ children }: any) => <span>{children}</span> }))
 vi.mock('components/Tooltip', () => ({ MouseoverTooltip: ({ children }: any) => <span>{children}</span> }))
 vi.mock('./CrossChainSwapConfirmation', () => ({
-  CrossChainSwapConfirmation: ({ isOpen, onConfirm }: any) =>
+  CrossChainSwapConfirmation: ({ isOpen, onConfirm, onDismiss }: any) =>
     isOpen ? (
-      <button data-confirm onClick={onConfirm}>
-        Confirm
-      </button>
+      <>
+        <button data-confirm onClick={onConfirm}>
+          Confirm
+        </button>
+        <button data-dismiss onClick={onDismiss}>
+          Close
+        </button>
+      </>
     ) : null,
 }))
 vi.mock('./hooks/useCrossChainPair', () => ({
@@ -50,13 +57,18 @@ vi.mock('./hooks/useCrossChainQuote', () => ({
     selectedQuote: mocks.selectedQuote,
     reviewQuote: mocks.reviewQuote,
     showPreview: !!mocks.reviewQuote,
+    loading: mocks.loading,
     openReview: mocks.openReview,
     closeReview: mocks.closeReview,
+    invalidateQuotes: mocks.invalidateQuotes,
   }),
 }))
 vi.mock('./hooks/useCrossChainExecution', () => ({
-  useCrossChainExecution: () => ({
-    submitSwap: mocks.confirmSwap,
+  useCrossChainExecution: (_quote: unknown, { onSubmit }: { onSubmit: () => void }) => ({
+    submitSwap: () => {
+      mocks.confirmSwap()
+      onSubmit()
+    },
     resetSubmission: vi.fn(),
   }),
 }))
@@ -115,6 +127,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   mocks.degen = false
+  mocks.loading = false
   mocks.selectedQuote = { quote: { priceImpact: 11 } }
   mocks.allowance.mockResolvedValue(true)
   mocks.reviewQuote = null
@@ -202,4 +215,33 @@ it('ignores allowance completion for a replaced quote', async () => {
   await act(async () => resolveAllowance(true))
   expect(mocks.openReview).not.toHaveBeenCalled()
   expect(mocks.setParams).not.toHaveBeenCalled()
+})
+
+it('disables the CTA while replacement quotes are loading', async () => {
+  mocks.loading = true
+  await render()
+  expect(container.querySelector('button')?.disabled).toBe(true)
+  await click()
+  expect(mocks.allowance).not.toHaveBeenCalled()
+  expect(mocks.openReview).not.toHaveBeenCalled()
+})
+
+it('invalidates at submit and dismissal only resumes the quote session', async () => {
+  mocks.degen = true
+  mocks.reviewQuote = mocks.selectedQuote
+  await render()
+  await click('[data-confirm]')
+  expect(mocks.invalidateQuotes).toHaveBeenCalledOnce()
+  expect(mocks.closeReview).not.toHaveBeenCalled()
+  await click('[data-dismiss]')
+  expect(mocks.invalidateQuotes).toHaveBeenCalledOnce()
+  expect(mocks.closeReview).toHaveBeenCalledWith()
+})
+
+it('does not invalidate when closing an unsubmitted review', async () => {
+  mocks.reviewQuote = mocks.selectedQuote
+  await render()
+  await click('[data-dismiss]')
+  expect(mocks.invalidateQuotes).not.toHaveBeenCalled()
+  expect(mocks.closeReview).toHaveBeenCalledWith()
 })

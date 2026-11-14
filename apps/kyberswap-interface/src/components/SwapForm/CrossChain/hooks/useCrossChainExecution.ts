@@ -30,7 +30,7 @@ import { NonEvmChain, type NormalizedTxResponse, isEvmChain } from 'types/crossC
  */
 export const useCrossChainExecution = (
   reviewedQuote: Quote | null,
-  { syncWithBackend = true }: { syncWithBackend?: boolean } = {},
+  { syncWithBackend = true, onSubmit }: { syncWithBackend?: boolean; onSubmit?: () => void } = {},
 ) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
@@ -95,6 +95,8 @@ export const useCrossChainExecution = (
 
   const submitSwap = async (selectedQuote = reviewedQuote) => {
     if (!selectedQuote || activeSubmission.current) return
+
+    onSubmit?.()
 
     const {
       fromChain: fromChainId,

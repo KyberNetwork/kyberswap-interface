@@ -92,8 +92,15 @@ an empty result, but confirming a prepared result does not automatically retry i
 
 `loading` gates quote readiness; `allLoading` tracks the remaining stream. Review
 captures the selected current quote after prerequisite checks, pauses refresh and
-keeps its snapshot unchanged while live streams continue. Closing review adopts
-fresh live results or reloads expired ones. Comparison snapshots and eligibility
-references do not bypass the active pool/session when selecting an executable route.
+keeps its snapshot unchanged while live streams continue. Starting a submit attempt
+invalidates ordinary, Gas Drop and alternatives before wallet preparation/signing,
+aborting their old streams. The execution snapshot remains available to the open
+modal, and no replacement request starts until it closes. Rejection or failure does
+not restore the invalidated pools. On close, the session resumes with loading blocking
+the CTA and fetches the active mode; Gas Drop also fetches alternatives. Broadcast
+does not refresh again. Closing without Submit preserves fresh pools and their
+original expiry, including any stream still in progress; expired quotes reload.
+Comparison snapshots and eligibility references do not bypass the active pool/session
+when selecting an executable route.
 
 For form composition, approvals and submission, see the [SwapForm README](../../README.md).

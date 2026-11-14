@@ -15,9 +15,10 @@ const mocks = vi.hoisted(() => ({
   track: vi.fn(),
   mixpanel: vi.fn(),
   entries: [] as { key: string }[],
+  onSubmit: vi.fn(),
 }))
 vi.mock('components/SwapWallets/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
-vi.mock('constants/env', () => ({ CROSSCHAIN_AGGREGATOR_API: 'https://execution.test' }))
+vi.mock('constants/networks', () => ({ NETWORKS_INFO: {}, SUPPORTED_NETWORKS: [] }))
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
 vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({}), useConnection: () => ({ connection: {} }) }))
 vi.mock('components/Web3Provider/BitcoinProvider', () => ({
@@ -74,7 +75,7 @@ const makeQuote = (managed = true) =>
 let root: ReturnType<typeof createRoot>
 let execution: ReturnType<typeof useCrossChainExecution>
 const Harness = ({ quote, syncWithBackend }: { quote: Quote | null; syncWithBackend?: boolean }) => {
-  execution = useCrossChainExecution(quote, { syncWithBackend })
+  execution = useCrossChainExecution(quote, { syncWithBackend, onSubmit: mocks.onSubmit })
   return null
 }
 const render = (quote: Quote | null, syncWithBackend = true) =>
@@ -110,6 +111,9 @@ it('persists broadcast before confirmation, retaining reviewed identity even whe
   await act(async () => {
     submission = execution.submitSwap()
   })
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
+  expect(mocks.onSubmit.mock.invocationCallOrder[0]).toBeLessThan(mocks.execute.mock.invocationCallOrder[0])
+  expect(mocks.enqueue).not.toHaveBeenCalled()
   await act(async () =>
     broadcast('real-source-hash', { id: 'provider-deposit-id', depositAddress: 'provider-deposit-id' }),
   )
@@ -127,6 +131,7 @@ it('persists broadcast before confirmation, retaining reviewed identity even whe
   )
   const captured = mocks.enqueue.mock.calls[0][0].transaction
   expect(execution.txHash).toBe('real-source-hash')
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
   expect(mocks.track).toHaveBeenCalledOnce()
   await render(null)
   // BE can settle and remove the outbox before the old review's adapter returns.
@@ -136,6 +141,7 @@ it('persists broadcast before confirmation, retaining reviewed identity even whe
     await submission
   })
   expect(mocks.enqueue).toHaveBeenCalledOnce()
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
   expect(execution.txHash).toBe('')
   expect(mocks.dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'legacy' }))
 })
@@ -151,16 +157,49 @@ it('does not call a broadcast swap failed when adapter confirmation times out', 
   expect(execution.txError).toBe('')
   expect(mocks.track).toHaveBeenCalledWith('init', expect.anything())
   expect(mocks.track).not.toHaveBeenCalledWith('failed', expect.anything())
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
 })
-it('creates no record for a rejected wallet or a missing source hash', async () => {
-  mocks.execute.mockRejectedValueOnce(new Error('User rejected'))
-  await render(makeQuote())
+it.each(['rejection', 'missing hash'])('invalidates before execution even when it ends with %s', async failure => {
+  if (failure === 'rejection') mocks.execute.mockRejectedValueOnce(new Error('User rejected'))
+  else mocks.execute.mockResolvedValueOnce({ sourceTxHash: '' })
+  const quote = makeQuote()
+  await render(quote)
   await act(async () => execution.submitSwap())
-  expect(mocks.enqueue).not.toHaveBeenCalled()
-  mocks.execute.mockResolvedValueOnce({ sourceTxHash: '' })
-  await act(async () => execution.submitSwap())
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
+  expect(mocks.onSubmit.mock.invocationCallOrder[0]).toBeLessThan(mocks.execute.mock.invocationCallOrder[0])
   expect(mocks.enqueue).not.toHaveBeenCalled()
   expect(mocks.dispatch).not.toHaveBeenCalled()
+  expect(execution.txError).toBe(failure === 'rejection' ? 'User rejected' : 'Source transaction hash is unavailable')
+
+  await render(null)
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
+})
+
+it('blocks duplicate submits while signing and does not invalidate again on late broadcast', async () => {
+  let finish!: (result: NormalizedTxResponse) => void
+  mocks.execute.mockImplementation(() => new Promise(resolve => (finish = resolve)))
+  const quote = makeQuote()
+  await render(quote)
+  let submission!: Promise<void>
+  await act(async () => {
+    submission = execution.submitSwap()
+    void execution.submitSwap()
+  })
+  const initialSubmit = mocks.onSubmit
+  expect(initialSubmit).toHaveBeenCalledOnce()
+  expect(execution.txHash).toBe('')
+  mocks.onSubmit = vi.fn()
+  await act(async () => execution.submitSwap())
+  expect(mocks.execute).toHaveBeenCalledOnce()
+  await render(null)
+  await act(async () => {
+    finish({ sourceTxHash: 'late-source' } as NormalizedTxResponse)
+    await submission
+  })
+  expect(initialSubmit).toHaveBeenCalledOnce()
+  expect(mocks.onSubmit).not.toHaveBeenCalled()
+  expect(execution.txHash).toBe('')
+  expect(mocks.enqueue).toHaveBeenCalledOnce()
 })
 it('keeps legacy callers on local history and deduplicates the broadcast callback and adapter return', async () => {
   mocks.execute.mockImplementation(async (...args) => {
@@ -260,8 +299,68 @@ it.each(['near', 'solana', 'bitcoin'] as const)(
 )
 it('blocks execution when the input slot is empty even if a global wallet remains connected', async () => {
   mocks.wallets = { inputAddress: '', inputConnection: undefined }
-  await render(makeQuote())
+  const quote = makeQuote()
+  await render(quote)
   await act(async () => execution.submitSwap())
   expect(mocks.execute).not.toHaveBeenCalled()
   expect(execution.txError).toBeTruthy()
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
+})
+
+it.each(['broadcast', 'rejection'])('isolates a late %s from a newer pending submission', async outcome => {
+  let finishOld!: (result: NormalizedTxResponse) => void
+  let rejectOld!: (error: Error) => void
+  let finishNew!: (result: NormalizedTxResponse) => void
+  mocks.execute
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve, reject) => {
+          finishOld = resolve
+          rejectOld = reject
+        }),
+    )
+    .mockImplementationOnce(
+      () =>
+        new Promise(resolve => {
+          finishNew = resolve
+        }),
+    )
+  const oldQuote = makeQuote()
+  await render(oldQuote)
+  let oldSubmission!: Promise<void>
+  await act(async () => {
+    oldSubmission = execution.submitSwap()
+  })
+  await render(null)
+  const nextQuote = { ...oldQuote, quote: { ...oldQuote.quote, quoteId: 'next-quote' } }
+  await render(nextQuote)
+  let nextSubmission!: Promise<void>
+  await act(async () => {
+    nextSubmission = execution.submitSwap()
+  })
+  await act(async () => {
+    if (outcome === 'broadcast') finishOld({ sourceTxHash: 'old-hash' } as NormalizedTxResponse)
+    else rejectOld(new Error('User rejected old submission'))
+    await oldSubmission
+  })
+  if (outcome === 'broadcast') {
+    expect(mocks.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        quoteId: 'reviewed-quote',
+        transaction: expect.objectContaining({ sourceTxHash: 'old-hash' }),
+      }),
+    )
+  } else expect(mocks.enqueue).not.toHaveBeenCalled()
+  expect(mocks.onSubmit).toHaveBeenCalledTimes(2)
+  expect(execution.isSubmitting).toBe(true)
+  expect(execution.txHash).toBe('')
+  expect(execution.txError).toBe('')
+  await act(async () => {
+    finishNew({ sourceTxHash: 'new-hash' } as NormalizedTxResponse)
+    await nextSubmission
+  })
+  expect(execution.txHash).toBe('new-hash')
+  expect(execution.isSubmitting).toBe(false)
+  expect(execution.txError).toBe('')
+  expect(mocks.onSubmit).toHaveBeenCalledTimes(2)
 })
