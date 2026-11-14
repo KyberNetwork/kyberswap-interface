@@ -157,52 +157,25 @@ it('does not call a broadcast swap failed when adapter confirmation times out', 
   expect(execution.txError).toBe('')
   expect(mocks.track).toHaveBeenCalledWith('init', expect.anything())
   expect(mocks.track).not.toHaveBeenCalledWith('failed', expect.anything())
-  await act(async () => execution.resetSubmission())
-  await act(async () => execution.submitSwap())
-  expect(mocks.execute).toHaveBeenCalledOnce()
   expect(mocks.onSubmit).toHaveBeenCalledOnce()
 })
-it.each(['rejection', 'missing hash'])('invalidates on submit without restoring the quote after %s', async failure => {
+it.each(['rejection', 'missing hash'])('invalidates before execution even when it ends with %s', async failure => {
   if (failure === 'rejection') mocks.execute.mockRejectedValueOnce(new Error('User rejected'))
   else mocks.execute.mockResolvedValueOnce({ sourceTxHash: '' })
   const quote = makeQuote()
   await render(quote)
   await act(async () => execution.submitSwap())
   expect(mocks.onSubmit).toHaveBeenCalledOnce()
+  expect(mocks.onSubmit.mock.invocationCallOrder[0]).toBeLessThan(mocks.execute.mock.invocationCallOrder[0])
   expect(mocks.enqueue).not.toHaveBeenCalled()
   expect(mocks.dispatch).not.toHaveBeenCalled()
   expect(execution.txError).toBe(failure === 'rejection' ? 'User rejected' : 'Source transaction hash is unavailable')
 
   await render(null)
-  await render(quote)
-  await act(async () => execution.submitSwap())
-  expect(mocks.execute).toHaveBeenCalledOnce()
   expect(mocks.onSubmit).toHaveBeenCalledOnce()
-  expect(execution.txError).toContain('outdated')
 })
 
-it.each([true, false])('blocks a consumed quote after closing and reopening review (managed: %s)', async managed => {
-  const original = makeQuote(managed)
-  mocks.execute.mockResolvedValue({ sourceTxHash: 'source', id: 'provider' })
-  await render(original)
-  await act(async () => execution.submitSwap())
-  await render(null)
-  // A quote ID must stay consumed even if the same quote is reconstructed by a new response.
-  const reopened = managed ? { ...original, quote: { ...original.quote } } : { ...original }
-  await render(reopened)
-  await act(async () => execution.submitSwap())
-  expect(mocks.execute).toHaveBeenCalledOnce()
-  expect(execution.txError).toContain('outdated')
-  expect(mocks.onSubmit).toHaveBeenCalledOnce()
-
-  const fresh = { ...original, quote: { ...original.quote, quoteId: 'fresh-quote' } }
-  await render(fresh)
-  await act(async () => execution.submitSwap())
-  expect(mocks.execute).toHaveBeenCalledTimes(2)
-  expect(mocks.onSubmit).toHaveBeenCalledTimes(2)
-})
-
-it('blocks reuse before signing finishes and does not invalidate again on late broadcast', async () => {
+it('blocks duplicate submits while signing and does not invalidate again on late broadcast', async () => {
   let finish!: (result: NormalizedTxResponse) => void
   mocks.execute.mockImplementation(() => new Promise(resolve => (finish = resolve)))
   const quote = makeQuote()
@@ -210,16 +183,14 @@ it('blocks reuse before signing finishes and does not invalidate again on late b
   let submission!: Promise<void>
   await act(async () => {
     submission = execution.submitSwap()
+    void execution.submitSwap()
   })
   const initialSubmit = mocks.onSubmit
   expect(initialSubmit).toHaveBeenCalledOnce()
   expect(execution.txHash).toBe('')
   mocks.onSubmit = vi.fn()
-  await render(null)
-  await render({ ...quote, quote: { ...quote.quote } })
   await act(async () => execution.submitSwap())
   expect(mocks.execute).toHaveBeenCalledOnce()
-  expect(execution.txError).toContain('outdated')
   await render(null)
   await act(async () => {
     finish({ sourceTxHash: 'late-source' } as NormalizedTxResponse)
@@ -328,8 +299,68 @@ it.each(['near', 'solana', 'bitcoin'] as const)(
 )
 it('blocks execution when the input slot is empty even if a global wallet remains connected', async () => {
   mocks.wallets = { inputAddress: '', inputConnection: undefined }
-  await render(makeQuote())
+  const quote = makeQuote()
+  await render(quote)
   await act(async () => execution.submitSwap())
   expect(mocks.execute).not.toHaveBeenCalled()
   expect(execution.txError).toBeTruthy()
+  expect(mocks.onSubmit).toHaveBeenCalledOnce()
+})
+
+it.each(['broadcast', 'rejection'])('isolates a late %s from a newer pending submission', async outcome => {
+  let finishOld!: (result: NormalizedTxResponse) => void
+  let rejectOld!: (error: Error) => void
+  let finishNew!: (result: NormalizedTxResponse) => void
+  mocks.execute
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve, reject) => {
+          finishOld = resolve
+          rejectOld = reject
+        }),
+    )
+    .mockImplementationOnce(
+      () =>
+        new Promise(resolve => {
+          finishNew = resolve
+        }),
+    )
+  const oldQuote = makeQuote()
+  await render(oldQuote)
+  let oldSubmission!: Promise<void>
+  await act(async () => {
+    oldSubmission = execution.submitSwap()
+  })
+  await render(null)
+  const nextQuote = { ...oldQuote, quote: { ...oldQuote.quote, quoteId: 'next-quote' } }
+  await render(nextQuote)
+  let nextSubmission!: Promise<void>
+  await act(async () => {
+    nextSubmission = execution.submitSwap()
+  })
+  await act(async () => {
+    if (outcome === 'broadcast') finishOld({ sourceTxHash: 'old-hash' } as NormalizedTxResponse)
+    else rejectOld(new Error('User rejected old submission'))
+    await oldSubmission
+  })
+  if (outcome === 'broadcast') {
+    expect(mocks.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        quoteId: 'reviewed-quote',
+        transaction: expect.objectContaining({ sourceTxHash: 'old-hash' }),
+      }),
+    )
+  } else expect(mocks.enqueue).not.toHaveBeenCalled()
+  expect(mocks.onSubmit).toHaveBeenCalledTimes(2)
+  expect(execution.isSubmitting).toBe(true)
+  expect(execution.txHash).toBe('')
+  expect(execution.txError).toBe('')
+  await act(async () => {
+    finishNew({ sourceTxHash: 'new-hash' } as NormalizedTxResponse)
+    await nextSubmission
+  })
+  expect(execution.txHash).toBe('new-hash')
+  expect(execution.isSubmitting).toBe(false)
+  expect(execution.txError).toBe('')
+  expect(mocks.onSubmit).toHaveBeenCalledTimes(2)
 })

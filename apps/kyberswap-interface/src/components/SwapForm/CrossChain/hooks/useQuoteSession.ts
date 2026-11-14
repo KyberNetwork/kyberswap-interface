@@ -49,8 +49,8 @@ type Props = {
  * reusable pool snapshot can seed the new session. A pool's completion deadline drives
  * the countdown, and changing modes never grants another 60 seconds to cached quotes.
  * Review pauses scheduled refreshes while existing streams continue updating live data;
- * live results never replace the open review snapshot. Closing review reuses fresh
- * results or schedules a reload.
+ * live results never replace the open review snapshot. Submit invalidates live quotes
+ * without fetching; closing review resumes the normal cache/expiry scheduling.
  */
 export const useQuoteSession = ({
   request,
@@ -141,9 +141,8 @@ export const useQuoteSession = ({
     })
   }
 
-  const refreshAfterSubmit = () => {
-    // Preserve the submitted review while making every old live quote unavailable.
-    // A new session run also detaches late publishes from the invalidated streams.
+  const invalidateQuotes = () => {
+    // Detach old streams and clear live quotes; the open review keeps fetching paused.
     setState(previous =>
       previous.request === request
         ? {
@@ -187,8 +186,8 @@ export const useQuoteSession = ({
       timer = setTimeout(() => void run(), remaining)
     }
 
-    const run = async (forceRefresh = true, duringReview = false) => {
-      if (signal.aborted || running || (paused && !duringReview)) return
+    const run = async (forceRefresh = true) => {
+      if (signal.aborted || running || paused) return
 
       runRef.current = () => void run()
       clearRefresh()
@@ -242,7 +241,7 @@ export const useQuoteSession = ({
     }
 
     reviewRefreshRef.current = syncReviewRefresh
-    if (refreshVersion) void run(true, true)
+    if (refreshVersion) void run(true)
     else if (allLoading) void run(false)
     else syncReviewRefresh(showPreview)
 
@@ -287,7 +286,7 @@ export const useQuoteSession = ({
     reviewQuote,
     openReview,
     closeReview,
-    refreshAfterSubmit,
+    invalidateQuotes,
     showPreview,
     disable,
     setSelectedKey,

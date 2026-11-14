@@ -599,7 +599,7 @@ describe('Gas Drop route selection', () => {
   })
 
   it.each([false, true])(
-    'refreshes all pools immediately on submit and preserves the execution snapshot (Gas Drop: %s)',
+    'invalidates all pools on submit but fetches only after closing review (Gas Drop: %s)',
     async gasDrop => {
       mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
       await act(async () => render('100'))
@@ -613,7 +613,6 @@ describe('Gas Drop route selection', () => {
       }
       const selected = state.selectedQuote as Quote
       await act(async () => state.openReview(selected))
-      const reviewed = state.reviewQuote
       const oldRequests = requests()
       const cachedRequests = [
         ...new Map(
@@ -621,84 +620,144 @@ describe('Gas Drop route selection', () => {
         ).values(),
       ]
       expect(cachedRequests).toHaveLength(3)
-      mocks.getQuotes.mockImplementation(() => new Promise<void>(() => undefined))
+      const completions = new Map<QuoteRequest, () => void>()
+      mocks.getQuotes.mockImplementation(
+        (request: QuoteRequest) => new Promise<void>(resolve => completions.set(request, resolve)),
+      )
 
-      await act(async () => state.refreshAfterSubmit())
+      const reviewed = state.reviewQuote
+      await act(async () => state.invalidateQuotes())
       expect(state.reviewQuote).toBe(reviewed)
+      await act(async () => state.refresh.onRefresh())
+      // Stay inside every pool's original TTL: a new request must be caused by invalidation.
+      await act(async () => vi.advanceTimersByTimeAsync(1_000))
+      expect(requests()).toHaveLength(oldRequests.length)
       expect(state.selectedQuote).toBeNull()
       expect(state.routeOptions).toEqual([])
       expect(state.loading).toBe(true)
       expect(cachedRequests.every(request => request.signal.aborted)).toBe(true)
-      expect(requests()).toHaveLength(oldRequests.length + (gasDrop ? 2 : 1))
-      const freshRequest = requests().at(-1) as QuoteRequest
+      await act(async () => state.closeReview())
+      expect(state.reviewQuote).toBeNull()
+      expect(state.loading).toBe(true)
+      expect(state.selectedQuote).toBeNull()
+      await flushQuotes()
+      const replacements = requests().slice(oldRequests.length)
+      expect(replacements.map(request => request.params.gasDrop)).toEqual(gasDrop ? [false, true] : [false])
+      if (gasDrop) expect(replacements[0].excludedSources).toContain('KyberCross')
+      const freshRequest = replacements.at(-1) as QuoteRequest
       expect(freshRequest.params.gasDrop).toBe(gasDrop)
 
-      // Closing before the replacement arrives must not expose the consumed quote.
-      await act(async () => state.closeReview())
+      // The old CTA callback must not reopen review while its replacement loads.
       await act(async () => state.openReview(selected))
       expect(state.reviewQuote).toBeNull()
       expect(state.loading).toBe(true)
       const fresh = makeQuote(freshRequest)
       await act(async () => {
-        freshRequest.onQuotes([fresh])
-        freshRequest.onQuoteReady()
+        for (const request of replacements) {
+          request.onQuotes([request === freshRequest ? fresh : makeQuote(request, 'Across')])
+          request.onQuoteReady()
+          completions.get(request)?.()
+        }
       })
       expect(state.selectedQuote).toBe(fresh)
+      expect(state.loading).toBe(false)
+      expect(state.allLoading).toBe(false)
       await act(async () => state.openReview(fresh))
       expect(state.reviewQuote?.quote).toBe(fresh.quote)
-
       await act(async () => state.closeReview())
       const count = requests().length
       await act(async () => state.setGasDropEnabled(!gasDrop))
+      expect(state.selectedQuote).toBeNull()
+      expect(state.loading).toBe(true)
       await flushQuotes()
+      // The inactive pool was invalidated too, even though only the active mode reloaded on close.
       expect(requests()).toHaveLength(count + 1)
+      expect(requests().at(-1)?.params.gasDrop).toBe(!gasDrop)
       expect(state.selectedQuote).toBeNull()
     },
   )
 
-  it('ignores late results from a stream invalidated on submit', async () => {
-    let finishOld!: () => void
-    mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
-      request.onQuotes([makeQuote(request)])
-      request.onQuoteReady()
-      return new Promise<void>(resolve => (finishOld = resolve))
-    })
-    await act(async () => render('100'))
-    await flushQuotes()
-    const oldRequest = requests()[0]
-    const selected = state.selectedQuote as Quote
-    await act(async () => state.openReview(selected))
-    mocks.getQuotes.mockImplementation(() => new Promise<void>(() => undefined))
-    await act(async () => state.refreshAfterSubmit())
-    await act(async () => {
-      oldRequest.onQuotes([selected])
-      finishOld()
-    })
-    expect(state.selectedQuote).toBeNull()
-    expect(state.loading).toBe(true)
-    expect(state.allLoading).toBe(true)
-    expect(state.reviewQuote?.quote).toBe(selected.quote)
-  })
-
-  it('does not restore a consumed quote when its replacement request fails', async () => {
-    const log = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    try {
-      mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+  it.each(['review open', 'replacement loading', 'replacement ready'])(
+    'ignores invalidated stream results while %s',
+    async phase => {
+      let finishOld!: () => void
+      mocks.getQuotes.mockImplementation((request: QuoteRequest) => {
+        request.onQuotes([makeQuote(request)])
+        request.onQuoteReady()
+        return new Promise<void>(resolve => (finishOld = resolve))
+      })
       await act(async () => render('100'))
       await flushQuotes()
+      const oldRequest = requests()[0]
       const selected = state.selectedQuote as Quote
       await act(async () => state.openReview(selected))
-      mocks.getQuotes.mockRejectedValue(new Error('Quote unavailable'))
-      await act(async () => state.refreshAfterSubmit())
-      expect(state.selectedQuote).toBeNull()
-      expect(state.reviewQuote?.quote).toBe(selected.quote)
-      await act(async () => state.closeReview())
-      await act(async () => state.openReview(selected))
-      expect(state.reviewQuote).toBeNull()
-    } finally {
-      log.mockRestore()
-    }
-  })
+      mocks.getQuotes.mockImplementation(() => new Promise<void>(() => undefined))
+      await act(async () => state.invalidateQuotes())
+      let fresh: Quote | undefined
+      if (phase !== 'review open') {
+        await act(async () => state.closeReview())
+        await flushQuotes()
+        if (phase === 'replacement ready') {
+          const request = requests().at(-1) as QuoteRequest
+          const replacement = makeQuote(request)
+          fresh = replacement
+          await act(async () => {
+            request.onQuotes([replacement])
+            request.onQuoteReady()
+          })
+        }
+      }
+      await act(async () => {
+        oldRequest.onQuotes([selected])
+        oldRequest.onQuoteReady()
+        finishOld()
+      })
+      expect(oldRequest.signal.aborted).toBe(true)
+      expect(state.selectedQuote).toBe(fresh ?? null)
+      expect(state.loading).toBe(!fresh)
+      expect(state.allLoading).toBe(true)
+      expect(state.reviewQuote?.quote).toBe(phase === 'review open' ? selected.quote : undefined)
+      expect(requests()).toHaveLength(phase === 'review open' ? 1 : 2)
+    },
+  )
+
+  it.each(['empty', 'error'])(
+    'keeps invalidated quotes unavailable after an %s replacement, then recovers on refresh',
+    async outcome => {
+      const log = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      try {
+        mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+        await act(async () => render('100'))
+        await flushQuotes()
+        const selected = state.selectedQuote as Quote
+        await act(async () => state.openReview(selected))
+        mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => {
+          if (outcome === 'error') throw new Error('Quote unavailable')
+          request.onQuotes([])
+        })
+        await act(async () => state.invalidateQuotes())
+        await act(async () => state.closeReview())
+        await flushQuotes()
+        expect(state.selectedQuote).toBeNull()
+        expect(state.reviewQuote).toBeNull()
+        expect(state.loading).toBe(false)
+        expect(state.allLoading).toBe(false)
+        expect(state.routeOptions).toEqual([])
+        await act(async () => state.openReview(selected))
+        expect(state.reviewQuote).toBeNull()
+        mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
+        await act(async () => state.refresh.onRefresh())
+        expect(requests()).toHaveLength(3)
+        expect(state.selectedQuote).not.toBe(selected)
+        expect(state.selectedQuote).not.toBeNull()
+        expect(state.loading).toBe(false)
+        await act(async () => state.openReview(state.selectedQuote as Quote))
+        expect(state.reviewQuote?.quote).toBe(state.selectedQuote?.quote)
+      } finally {
+        log.mockRestore()
+      }
+    },
+  )
 
   it.each([false, true])('reloads an expired quote when closing review (Gas Drop: %s)', async gasDrop => {
     mocks.getQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, onlineManager } from '@tanstack/react-query'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter } from 'react-router-dom'
@@ -10,6 +10,7 @@ import {
   SingleChainSwapProvider,
   useSingleChainSwapContext,
 } from 'components/SwapForm/SingleChain/SingleChainSwapProvider'
+import type { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 
 vi.mock('components/SwapForm/hooks/useRecipientAddress', () => ({
@@ -80,6 +81,36 @@ const deferred = () => {
 let root: ReturnType<typeof createRoot>
 let queryClient: QueryClient
 let state: ReturnType<typeof useGetRoute>
+let swap: ReturnType<typeof useSingleChainSwapContext>
+const SwapConsumer = () => {
+  swap = useSingleChainSwapContext()
+  return null
+}
+const renderSwap = async () => {
+  await act(async () =>
+    root.render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <SingleChainSwapProvider
+            currencyIn={currencyIn}
+            currencyOut={currencyOut}
+            balanceIn={undefined}
+            balanceOut={undefined}
+            isDegenMode={false}
+            slippage={50}
+            transactionTimeout={1200}
+          >
+            <SwapConsumer />
+          </SingleChainSwapProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    ),
+  )
+  await flush()
+}
+const builtRoute = { data: { data: '0x1234', routerAddress: '0xrouter' } } as BuildRouteResult
+const firstRoute = { parsedAmountIn: amounts[0] }
+const firstRouteResponse = { code: 0, data: { routeSummary: firstRoute } }
 type Props = { index?: number; autoRefresh?: boolean; paused?: boolean; enabled?: boolean; clientId?: string }
 const Harness = ({ index = 0, autoRefresh = false, paused = false, enabled = true, clientId }: Props) => {
   state = useGetRoute({
@@ -134,6 +165,7 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount())
   queryClient.clear()
+  onlineManager.setOnline(true)
   vi.useRealTimers()
   vi.unstubAllGlobals()
 })
@@ -313,6 +345,15 @@ it('shares a single quote across panels, pauses for review and isolates input ch
   expect(form.routeSummary).toBe(panel.routeSummary)
   expect(panel.routeSummary).toEqual(firstQuote)
 
+  // Opening and closing without Submit preserves this fresh quote and makes no GET.
+  await act(async () => form.openReview(form.buildRoute))
+  await act(async () => form.dismissReview())
+  await flush()
+  expect(mocks.trigger).toHaveBeenCalledOnce()
+  expect(form.routeSummary).toBe(panel.routeSummary)
+  expect(panel.routeSummary).toEqual(firstQuote)
+  expect(form.routeLoading).toBe(false)
+
   await act(async () => form.openReview(form.buildRoute))
   await advance(20000)
   expect(mocks.trigger).toHaveBeenCalledOnce()
@@ -342,6 +383,7 @@ it('shares a single quote across panels, pauses for review and isolates input ch
 })
 
 it('shares the effective recipient with build and review, preserving custom input across collapse and wallet changes', async () => {
+  mocks.trigger.mockResolvedValue({ code: 0, data: { routeSummary: { parsedAmountIn: amounts[0] } } })
   let form!: ReturnType<typeof useSingleChainSwapContext>
   const Form = () => {
     form = useSingleChainSwapContext()
@@ -368,6 +410,7 @@ it('shares the effective recipient with build and review, preserving custom inpu
       ),
     )
   await renderForm()
+  await flush()
   expect(form.recipient).toBe('0xsender')
   await act(async () => form.toggleRecipient())
   await act(async () => form.onRecipientChange('0xcustom'))
@@ -397,3 +440,172 @@ it('shares the effective recipient with build and review, preserving custom inpu
   expect(form.recipient).toBe('0xchanged')
   expect(mocks.build).toHaveBeenLastCalledWith(expect.objectContaining({ recipient: '0xchanged' }))
 })
+
+it.each(['success', 'rejection', 'late success', 'late rejection'])(
+  'invalidates on submit, stays paused, then refetches on dismissal (%s)',
+  async outcome => {
+    const late = outcome.startsWith('late')
+    const rejected = outcome.endsWith('rejection')
+    mocks.trigger.mockResolvedValue(firstRouteResponse)
+    await renderSwap()
+    const build = vi.fn(async () => builtRoute)
+    await act(async () => swap.openReview(build))
+    const onError = vi.fn()
+    const wallet = deferred()
+    const submit = vi.fn(async (onRequestSignature: () => void) => {
+      // Check the boundary inside the submit callback, before the wallet is invoked.
+      expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(true)
+      expect(mocks.trigger).toHaveBeenCalledOnce()
+      onRequestSignature()
+      await wallet.promise
+      if (rejected) throw new Error('User rejected')
+      return '0xhash'
+    })
+    const fresh = deferred()
+    mocks.trigger.mockReturnValueOnce(fresh.promise)
+    let submitting!: Promise<void>
+    await act(async () => {
+      submitting = swap.confirmReview(submit, onError)
+    })
+    await flush()
+    // Submit invalidates immediately, but the GET waits for dismissal.
+    expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(true)
+    await act(async () => swap.refresh.onRefresh())
+    await advance(20000)
+    expect(mocks.trigger).toHaveBeenCalledTimes(1)
+    expect(swap.review.phase).toBe('signing')
+    expect(swap.review.buildResult).toBe(builtRoute)
+    expect(swap.routeSummary).toEqual(firstRoute)
+    await act(async () => swap.confirmReview(submit, onError))
+    expect(submit).toHaveBeenCalledOnce()
+    expect(mocks.trigger).toHaveBeenCalledTimes(1)
+
+    if (!late) {
+      await act(async () => {
+        wallet.resolve()
+        await submitting
+      })
+      expect(swap.review.phase).toBe(rejected ? 'error' : 'submitted')
+      expect(onError).toHaveBeenCalledTimes(rejected ? 1 : 0)
+    }
+    expect(swap.routeSummary).toEqual(firstRoute)
+    await act(async () => {
+      swap.dismissReview()
+    })
+    await flush()
+    expect(mocks.trigger).toHaveBeenCalledTimes(2)
+    expect(swap.routeSummary).toEqual(firstRoute)
+    expect(swap.routeLoading).toBe(true)
+    expect(swap.isGettingRoute).toBe(true)
+    expect(build).toHaveBeenCalledOnce()
+    expect(swap.review.phase).toBe('closed')
+
+    const secondQuote = { parsedAmountIn: amounts[0], amountOut: '2' }
+    const freshResponse = { code: 0, message: 'fresh', data: { routeSummary: secondQuote } }
+    await resolve(fresh, freshResponse)
+    expect(swap.routeSummary).toEqual(secondQuote)
+    expect(swap.routeLoading).toBe(false)
+    expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(false)
+    await act(async () => swap.openReview(build))
+    expect(build).toHaveBeenCalledTimes(2)
+    if (late) {
+      await act(async () => {
+        wallet.resolve()
+        await submitting
+      })
+      expect(swap.review.phase).toBe('review')
+      expect(swap.review.txHash).toBeUndefined()
+      expect(swap.review.error).toBeUndefined()
+    }
+    expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(false)
+    expect(mocks.trigger).toHaveBeenCalledTimes(2)
+  },
+)
+
+it('cancels pre-submit GETs and keeps the query invalidated when replacement fails', async () => {
+  await render({ autoRefresh: true })
+  const old = deferred()
+  mocks.trigger.mockReturnValueOnce(old.promise)
+  await advance(10000)
+  await render({ autoRefresh: true, paused: true })
+  await act(async () => state.invalidateQuote())
+  expect(state.result.data).toEqual(response)
+  expect(mocks.trigger).toHaveBeenCalledTimes(2)
+  mocks.trigger.mockRejectedValueOnce(new Error('Replacement failed'))
+  await render({ autoRefresh: true })
+  expect(mocks.trigger).toHaveBeenCalledTimes(3)
+  expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(true)
+  expect(state.result.error).toEqual(new Error('Replacement failed'))
+  await resolve(old, { code: 0, message: 'late pre-close response' })
+  expect(state.result.data).toEqual(response)
+  expect(state.result.error).toEqual(new Error('Replacement failed'))
+  const fresh = deferred()
+  mocks.trigger.mockReturnValueOnce(fresh.promise)
+  await advance(10000)
+  expect(state.isLoading).toBe(true)
+  await resolve(fresh, { code: 0, message: 'replacement' })
+  expect(state.result.data?.message).toBe('replacement')
+})
+
+it('preserves the cache and original expiry when review closes without Submit', async () => {
+  mocks.trigger.mockResolvedValue(firstRouteResponse)
+  await renderSwap()
+  await advance(4000)
+  await act(async () => swap.openReview(async () => builtRoute))
+  await advance(2000)
+  await act(async () => swap.dismissReview())
+  await flush()
+  expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(false)
+  expect(swap.routeSummary).toEqual(firstRoute)
+  expect(swap.routeLoading).toBe(false)
+  expect(mocks.trigger).toHaveBeenCalledOnce()
+  expect(swap.refresh.countdown).toBeGreaterThan(3900)
+  expect(swap.refresh.countdown).toBeLessThanOrEqual(4000)
+  await advance(4000)
+  expect(mocks.trigger).toHaveBeenCalledTimes(2)
+})
+
+it.each(['success', 'failure'])(
+  'keeps loading while offline after submit and resumes on reconnect (%s)',
+  async outcome => {
+    mocks.trigger.mockResolvedValue(firstRouteResponse)
+    await renderSwap()
+    await act(async () => swap.openReview(async () => builtRoute))
+    await act(async () => swap.confirmReview(async () => '0xhash', vi.fn()))
+    await act(async () => {
+      onlineManager.setOnline(false)
+      swap.dismissReview()
+    })
+    await flush()
+    expect(queryClient.getQueryCache().getAll()[0].state.fetchStatus).toBe('paused')
+    expect(swap.routeSummary).toEqual(firstRoute)
+    expect(swap.isGettingRoute).toBe(true)
+    expect(swap.refresh.isRefreshing).toBe(true)
+    expect(swap.refresh.countdown).toBe(0)
+    await act(async () => swap.refresh.onRefresh())
+    await advance(20000)
+    expect(swap.routeLoading).toBe(true)
+    expect(mocks.trigger).toHaveBeenCalledOnce()
+
+    const replacement = deferred()
+    mocks.trigger.mockImplementationOnce(async () => {
+      await replacement.promise
+      if (outcome === 'failure') throw new Error('Replacement failed')
+      return { code: 0, data: { routeSummary: { ...firstRoute, amountOut: '2' } } }
+    })
+    await act(async () => onlineManager.setOnline(true))
+    await flush()
+    expect(mocks.trigger).toHaveBeenCalledTimes(2)
+    expect(swap.routeLoading).toBe(true)
+    await resolve(replacement)
+    expect(swap.routeLoading).toBe(false)
+    if (outcome === 'success') {
+      expect(swap.routeSummary).toEqual({ ...firstRoute, amountOut: '2' })
+      expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(false)
+    } else {
+      // Retained query data is not an actionable route after a failed replacement.
+      expect(swap.routeSummary).toBeUndefined()
+      expect(queryClient.getQueryCache().getAll()[0].state.isInvalidated).toBe(true)
+    }
+  },
+)

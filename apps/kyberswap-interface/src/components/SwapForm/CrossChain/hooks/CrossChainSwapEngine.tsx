@@ -36,7 +36,7 @@ const CrossChainSwapEngine = ({
   })
 
   const { isSubmitting, txHash, txError, submitSwap, resetSubmission } = useCrossChainExecution(quote.reviewQuote, {
-    onSubmit: quote.refreshAfterSubmit,
+    onSubmit: quote.invalidateQuotes,
   })
 
   const { priceImpactAction, requiresDegenMode, requestDegenMode } = usePriceImpactDegenMode(
