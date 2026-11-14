@@ -69,7 +69,7 @@ export const SOLANA_RPC = required('SOLANA_RPC')
 export const CONDITIONAL_SERVICE_URL = required('CONDITIONAL_SERVICE_URL')
 export const CROSSCHAIN_AGGREGATOR_API = required('CROSSCHAIN_AGGREGATOR_API')
 export const CROSSCHAIN_KYBERCROSS_API = required('CROSSCHAIN_KYBERCROSS_API')
-export const ENABLE_KYBERCROSS_DIRECT = false
+export const ENABLE_KYBERCROSS_DIRECT = true
 
 type FirebaseConfig = {
   apiKey: string

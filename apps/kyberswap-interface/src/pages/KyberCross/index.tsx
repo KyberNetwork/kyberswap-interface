@@ -1,25 +1,23 @@
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy } from 'react'
 
-import { BitcoinConnectModal } from 'components/Header/web3/WalletModal/BitcoinConnectModal'
 import LocalLoader from 'components/LocalLoader'
 import { HStack, Stack } from 'components/Stack'
-import { CrossChainRecipientInput } from 'components/SwapForm/CrossChain/CrossChainRecipient'
+import { CrossChainReceiverWalletSelector } from 'components/SwapForm/CrossChain/CrossChainReceiverWalletSelector'
+import CrossChainSwap, { CrossChainOutputFooter } from 'components/SwapForm/CrossChain/CrossChainSwap'
 import { CrossChainSwapForm } from 'components/SwapForm/CrossChain/CrossChainSwapForm'
+import CrossChainSwapProvider, {
+  useOptionalCrossChainSwap,
+} from 'components/SwapForm/CrossChain/hooks/useCrossChainSwap'
 import { useSwapFormPair } from 'components/SwapForm/hooks/useSwapFormPair'
 import { useSwapInputAmount } from 'components/SwapForm/hooks/useSwapInputAmount'
 import { localTransactionToHistory } from 'components/SwapTransactions/history'
-import { useCrossChainWalletIntent } from 'components/SwapWallets/useCrossChainWalletIntent'
+import { SwapWalletProvider } from 'components/SwapWallets/SwapWalletProvider'
 import { Header } from 'components/TradeLayout/Header'
 import { TAB } from 'components/TradeLayout/Tabs'
 import { useTradeController } from 'components/TradeLayout/useTradeController'
 import { CrossChainTradeRouteView } from 'components/TradeRouting/CrossChainTradeRoute'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
-import { GasDropPanel } from 'pages/KyberCross/components/GasDrop'
-import { KyberCrossQuoteDetails } from 'pages/KyberCross/components/KyberCrossQuoteDetails'
-import { SwapAction } from 'pages/KyberCross/components/SwapAction'
 import TransactionHistoryList from 'pages/KyberCross/components/TransactionHistoryList'
-import { useGasDrop } from 'pages/KyberCross/hooks/useGasDrop'
-import { KyberCrossProvider, useKyberCrossSwap } from 'pages/KyberCross/hooks/useKyberCrossSwap'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { Field } from 'state/swap/actions'
 import { SwapPair, getTradeLocation } from 'utils/swapFlow'
@@ -30,10 +28,8 @@ const HistoryUpdater = lazy(() => import('components/SwapTransactions/Transactio
 
 const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> }) => {
   const controller = useTradeController(TAB.KYBER_CROSS)
-  const swap = useKyberCrossSwap()
-  const { lowGas } = useGasDrop()
-  const [showBitcoin, setShowBitcoin] = useState(false)
-  const walletIntentModal = useCrossChainWalletIntent(swap.fromChainId, () => setShowBitcoin(true))
+  const swap = useOptionalCrossChainSwap()
+  const { typedValue, onUserInput } = useSwapInputAmount()
   const localTransactions = useCrossChainTransactions()
   const transactions = localTransactions.map(localTransactionToHistory)
   const { activeTab, onTabChange, onBackToMainTab } = controller
@@ -49,14 +45,14 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
           <Stack className="relative w-full gap-4 rounded-[20px] bg-background p-4">
             <CrossChainSwapForm
               hidden={activeTab !== TAB.KYBER_CROSS}
-              amount={swap.amount}
-              onAmountChange={swap.setAmount}
-              currencyIn={swap.currencyIn}
-              currencyOut={swap.currencyOut}
-              fromChainId={swap.fromChainId}
-              toChainId={swap.toChainId}
-              selectedQuote={swap.selectedQuote || undefined}
-              loading={swap.loading}
+              amount={typedValue}
+              onAmountChange={onUserInput}
+              currencyIn={pair.currencyIn ?? swap?.currencyIn}
+              currencyOut={pair.currencyOut ?? swap?.currencyOut}
+              fromChainId={pair.inputChain}
+              toChainId={pair.outputChain}
+              selectedQuote={swap?.selectedQuote || undefined}
+              loading={!swap || swap.loading}
               isInputCurrencyLoading={pair.isInputCurrencyLoading}
               isOutputCurrencyLoading={pair.isOutputCurrencyLoading}
               onChangeCurrencyIn={currency => pair.selectCurrency(Field.INPUT, currency)}
@@ -65,15 +61,19 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
               onSelectNonEvmCurrencyOut={(chain, currency) => pair.selectNonEvmCurrency(Field.OUTPUT, chain, currency)}
               onReverse={outputAmount => {
                 pair.reversePair()
-                if (outputAmount !== undefined) swap.setAmount(outputAmount)
+                if (outputAmount !== undefined) onUserInput(outputAmount)
               }}
-              details={
-                <Stack className="gap-3">
-                  {swap.gasDropSupported && <GasDropPanel lowGas={lowGas} />}
-                  <KyberCrossQuoteDetails recipient={<CrossChainRecipientInput {...swap} />} />
-                </Stack>
+              receiver={
+                (typeof pair.inputChain !== 'number' || typeof pair.outputChain !== 'number') && swap ? (
+                  <div className="-my-1 -ml-2 flex">
+                    <CrossChainReceiverWalletSelector key={pair.outputChain} chain={pair.outputChain} />
+                  </div>
+                ) : undefined
               }
-              action={<SwapAction setShowBtcModal={setShowBitcoin} />}
+              receiverAddress={swap?.recipient}
+              outputFooter={swap && <CrossChainOutputFooter />}
+              details={swap ? <CrossChainSwap /> : <LocalLoader />}
+              action={null}
             />
             <Suspense fallback={<LocalLoader />}>
               {activeTab === TAB.SETTINGS && (
@@ -93,12 +93,18 @@ const KyberCrossContent = ({ pair }: { pair: ReturnType<typeof useSwapFormPair> 
           </Stack>
         </Stack>
         <Stack as="aside" className="relative z-0 min-w-0 max-w-[920px] flex-1 gap-5 max-lg:w-full max-lg:flex-none">
-          <CrossChainTradeRouteView {...swap} />
+          <CrossChainTradeRouteView
+            fromChainId={pair.inputChain}
+            toChainId={pair.outputChain}
+            currencyIn={pair.currencyIn}
+            currencyOut={pair.currencyOut}
+            selectedQuote={null}
+            loading={!swap}
+            {...swap}
+          />
           <TransactionHistoryList transactions={transactions} />
         </Stack>
       </HStack>
-      {walletIntentModal}
-      <BitcoinConnectModal isOpen={showBitcoin} onDismiss={() => setShowBitcoin(false)} />
     </Stack>
   )
 }
@@ -110,16 +116,19 @@ const KyberCrossPage = () => {
   const { typedValue, onUserInput } = useSwapInputAmount()
   return (
     <NonEvmProviders>
-      <KyberCrossProvider
-        fromChain={pair.inputChain}
-        toChain={pair.outputChain}
-        tokenIn={pair.inputId}
-        tokenOut={pair.outputId}
-        amount={typedValue}
-        setAmount={onUserInput}
-      >
-        <KyberCrossContent pair={pair} />
-      </KyberCrossProvider>
+      <SwapWalletProvider inputChain={pair.inputChain} outputChain={pair.outputChain}>
+        <CrossChainSwapProvider
+          quoteMode="direct"
+          fromChain={pair.inputChain}
+          toChain={pair.outputChain}
+          tokenIn={pair.inputId}
+          tokenOut={pair.outputId}
+          amount={typedValue}
+          setAmount={onUserInput}
+        >
+          <KyberCrossContent pair={pair} />
+        </CrossChainSwapProvider>
+      </SwapWalletProvider>
     </NonEvmProviders>
   )
 }

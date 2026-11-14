@@ -3,7 +3,7 @@ import { KyberCross } from 'services/crossChain/adapters/KyberCrossAdapter/const
 import { registry } from 'services/crossChain/factory'
 import { getPairInfo } from 'services/crossChain/quote/getPairInfo'
 import { isEvmCurrency, sortQuotesByNetOutput } from 'services/crossChain/quote/utils'
-import { Quote } from 'services/crossChain/registry'
+import { Quote, getQuoteSelectionKey } from 'services/crossChain/registry'
 import { useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
 
 import { getQuoteWarning } from 'components/SwapForm/CrossChain/hooks/getQuoteWarning'
@@ -29,11 +29,13 @@ const GAS_DROP_MIN_OUTPUT_USD = 2.2
 const providerKey = (quote: Quote) => quote.adapter.getName()
 
 /**
- * Owns Unified Swap's quote policy: Gas Drop eligibility, mode changes and Route Options.
+ * Owns shared quote sessions and the caller's stream/direct Gas Drop policy.
+ * Direct is an unconditional user toggle and only loads the selected mode;
+ * stream uses the eligibility and comparison pools described below.
  *
  * Three input-scoped pools keep full ordinary, Gas Drop and ordinary-without-KyberCross
  * results separate. The session owns selection/review and schedules refreshes; pools own
- * transport and cache. All requests use the aggregator, regardless of legacy mode settings.
+ * transport and cache. Transport is explicit: Unified Swap uses stream; KyberCross uses direct.
  *
  * Initial Gas Drop availability requires an eligible ordinary KyberCross route. Carrying
  * it across amount/slippage edits additionally requires an existing KyberCross Gas Drop
@@ -41,10 +43,15 @@ const providerKey = (quote: Quote) => quote.adapter.getName()
  * inform whether to request new quotes; they are never adopted as executable new-input quotes.
  * See ../Quote/README.md for decisions, source precedence and lifecycle contracts.
  */
-export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
+export const useCrossChainQuote = (input: CrossChainQuoteInput, quoteMode: 'stream' | 'direct' = 'stream') => {
+  const direct = quoteMode === 'direct'
+  const getQuoteKey = direct ? getQuoteSelectionKey : providerKey
   const base = useCrossChainQuoteRequest(input)
-  const excludedSources = useAppSelector(state => state.crossChainSwap.excludedSources) || EMPTY_SOURCES
-  const selectionRequest = useMemo(() => ({ ...base, excludedSources }), [base, excludedSources])
+  const excludedSources =
+    useAppSelector(state =>
+      direct ? state.crossChainSwap.kyberCrossExcludedSources : state.crossChainSwap.excludedSources,
+    ) || EMPTY_SOURCES
+  const selectionRequest = useMemo(() => ({ ...base, excludedSources, quoteMode }), [base, excludedSources, quoteMode])
   const { currencyOut, fromChainId, toChainId } = input.pair
   const gasDropSupported = fromChainId !== toChainId && isEvmCurrency(currencyOut) && !isNativeAsset(currencyOut)
   const [slippage] = useUserSlippageTolerance()
@@ -73,6 +80,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     publish({ category: pairInfo.category })
 
     await getQuotesForMode({
+      quoteMode,
       params: {
         ...params,
         gasDrop,
@@ -159,16 +167,17 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
   if (gasDropSelection.request !== selectionRequest) {
     setGasDropSelection({
       request: selectionRequest,
-      enabled: !!canCarryGasDrop,
+      enabled: direct ? gasDropSelection.enabled : !!canCarryGasDrop,
       eligibilityQuote,
       hasKyberCrossGasDrop: !!canCarryGasDrop,
     })
   }
   const gasDropAvailable =
-    gasDropSupported &&
-    (!!eligibleOrdinaryQuote ||
-      (!ordinaryPool.snapshot &&
-        (gasDropSelection.request === selectionRequest ? gasDropSelection.enabled : !!canCarryGasDrop)))
+    direct ||
+    (gasDropSupported &&
+      (!!eligibleOrdinaryQuote ||
+        (!ordinaryPool.snapshot &&
+          (gasDropSelection.request === selectionRequest ? gasDropSelection.enabled : !!canCarryGasDrop))))
   const gasDropEnabled = gasDropAvailable && gasDropSelection.request === selectionRequest && gasDropSelection.enabled
   if (gasDropSelection.request === selectionRequest && gasDropSelection.enabled && !gasDropAvailable) {
     setGasDropSelection({ request: selectionRequest, enabled: false, eligibilityQuote, hasKyberCrossGasDrop })
@@ -198,11 +207,11 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
   const loadQuotes = async (context: QuoteLoadContext) => {
     // Refresh the comparison routes with Gas Drop, without also requesting ordinary KyberCross.
     // The initial mode switch can still reuse the full ordinary quotes already loaded.
-    if (gasDropEnabled && (context.forceRefresh || !ordinaryPool.snapshot)) {
+    if (!direct && gasDropEnabled && (context.forceRefresh || !ordinaryPool.snapshot)) {
       void alternativePool.load({ ...context, publish: () => undefined })
     }
     const hasQuotes = await activePool.load(context)
-    if (gasDropEnabled && !context.signal.aborted && !hasQuotes) {
+    if (!direct && gasDropEnabled && !context.signal.aborted && !hasQuotes) {
       setUnsupportedRequest(selectionRequest)
       setGasDropSelection({ request: selectionRequest, enabled: false, eligibilityQuote, hasKyberCrossGasDrop: false })
     }
@@ -212,7 +221,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
     request,
     loadQuotes,
     refreshSeconds: QUOTE_EXPIRY_TIME / 1000,
-    getQuoteKey: providerKey,
+    getQuoteKey,
     selectQuotes: gasDropEnabled ? selectGasDropQuotes : selectOrdinaryQuotes,
     initialSnapshot: activePool.reusableSnapshot,
   })
@@ -227,17 +236,18 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
 
   return {
     ...session,
-    routeOptions: gasDropEnabled
-      ? [
-          ...sortQuotesByNetOutput(session.quotes),
-          ...sortQuotesByNetOutput(routeOrdinaryQuotes.filter(quote => !gasDropProviders.has(providerKey(quote)))),
-        ]
-      : session.quotes,
+    routeOptions:
+      !direct && gasDropEnabled
+        ? [
+            ...sortQuotesByNetOutput(session.quotes),
+            ...sortQuotesByNetOutput(routeOrdinaryQuotes.filter(quote => !gasDropProviders.has(providerKey(quote)))),
+          ]
+        : session.quotes,
     amountInWei: request.params?.amount,
     slippage,
     warning,
     gasDropAvailable,
-    gasDropUnsupported: unsupportedRequest === selectionRequest,
+    gasDropUnsupported: !direct && unsupportedRequest === selectionRequest,
     gasDropEnabled,
     prepareGasDrop: gasDropPool.prepare,
     setGasDropEnabled: (enabled: boolean) =>
@@ -248,7 +258,7 @@ export const useCrossChainQuote = (input: CrossChainQuoteInput) => {
         hasKyberCrossGasDrop,
       }),
     selectRoute: (quote: Quote) => {
-      session.setSelectedKey(providerKey(quote))
+      session.setSelectedKey(getQuoteKey(quote))
       setGasDropSelection({
         request: selectionRequest,
         enabled: !!quote.quote.quoteParams.gasDrop,

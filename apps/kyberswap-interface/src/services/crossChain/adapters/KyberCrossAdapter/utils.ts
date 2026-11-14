@@ -33,6 +33,7 @@ const rawQuoteSchema = z
           route_plans: z
             .array(
               routeSummarySchema.extend({
+                sig: z.string().min(1),
                 expected_output_amount: z.string().regex(/^\d+$/),
                 min_output_amount: z.string().regex(/^\d+$/),
                 request: z.record(z.unknown()),
@@ -133,6 +134,7 @@ const kyberCrossBridgeProviderMap: Partial<Record<NormalizedProvider, BridgeProv
   [NormalizedProvider.Across]: 'across',
   [NormalizedProvider.Relay]: 'relay',
   [NormalizedProvider.Mayan]: 'mayan',
+  [NormalizedProvider.Symbiosis]: 'symbiosis',
   [NormalizedProvider.NearIntents]: 'near_intents',
   [NormalizedProvider.CctpV2]: 'cctp_v2',
   [NormalizedProvider.CctpV2Fast]: 'cctp_v2_fast',
@@ -164,22 +166,6 @@ const getFinalReceivedAmount = (trackingExecution: TrackingExecution, hasGasDrop
     details.dest_withdraw?.withdraw_amount ??
     (hasGasDrop || details.gas_drop ? undefined : details.bridge?.dest?.amount)
   )
-}
-
-const getFinalTxHash = (trackingExecution: TrackingExecution, hasGasDrop: boolean): string => {
-  if (trackingExecution.dest_tx_hash) return trackingExecution.dest_tx_hash
-
-  const details = trackingExecution.data
-  const hasDestinationAction =
-    trackingExecution.flow_type === 'bridge_then_swap' ||
-    trackingExecution.flow_type === 'swap_bridge_swap' ||
-    !!details.dest_swap ||
-    !!details.dest_withdraw ||
-    !!details.withdraw ||
-    !!details.gas_drop ||
-    hasGasDrop
-
-  return hasDestinationAction ? '' : details.bridge?.dest?.tx_hash || ''
 }
 
 export const getGasDropQuote = (route: { gas_drop_swap?: GasDropPlan }): GasDropQuote | undefined => {
@@ -215,7 +201,7 @@ const getGasDropStatus = (execution: TrackingExecution): GasDropStatus => {
 }
 
 export const mapRouteStateToSwapStatus = (trackingExecution: TrackingExecution, hasGasDrop = false): SwapStatus => {
-  const txHash = getFinalTxHash(trackingExecution, hasGasDrop)
+  const txHash = trackingExecution.dest_tx_hash ?? ''
   const amountOut = getFinalReceivedAmount(trackingExecution, hasGasDrop)
   const gasStatus = hasGasDrop ? { gasDropStatus: getGasDropStatus(trackingExecution) } : {}
 

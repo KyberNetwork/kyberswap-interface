@@ -13,6 +13,7 @@ export type BridgeProvider =
   | 'across'
   | 'relay'
   | 'mayan'
+  | 'symbiosis'
   | 'near_intents'
   | 'cctp_v2'
   | 'cctp_v2_fast'
@@ -176,6 +177,18 @@ type ArbitrumBridgeMetadata = {
   retryable_fee: UIntString
 }
 
+type SymbiosisBridgeMetadata = {
+  first_swap_calldata: Hex
+  second_swap_calldata: Hex
+  approved_tokens: Address[]
+  first_dex_router: Address
+  second_dex_router: Address
+  amount: UIntString
+  native_in: boolean
+  relay_recipient: Address
+  other_side_calldata: Hex
+}
+
 export type BridgeMetadata =
   | AcrossBridgeMetadata
   | CCTPBridgeMetadata
@@ -184,6 +197,7 @@ export type BridgeMetadata =
   | MayanBridgeMetadata
   | NearIntentsBridgeMetadata
   | ArbitrumBridgeMetadata
+  | SymbiosisBridgeMetadata
 
 type BridgePlan = {
   lane_id: string
@@ -200,6 +214,8 @@ type BridgePlan = {
 
 export type RoutePlan = {
   id: string
+  // Quote-issued signature; send the entire route plan to builds without modification.
+  sig: string
   estimated_duration_sec?: number
   tags?: string[]
   request: RoutePlanRequestSnapshot
@@ -332,6 +348,7 @@ const kyberCrossApiClient = axios.create({
   baseURL: CROSSCHAIN_KYBERCROSS_API,
   headers: {
     'Content-Type': 'application/json',
+    'x-client-id': 'kyberswap',
   },
 })
 

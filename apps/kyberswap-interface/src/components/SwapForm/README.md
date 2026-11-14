@@ -42,8 +42,10 @@ The pair, amount and EVM recipient drafts remain outside the lazy boundary.
 
 `SingleChainSwapContent` and `CrossChainSwap` render only mode-specific information
 and actions. The form and route panel read the same quote provider; neither starts
-a second quote request. Legacy KyberCross adapts its quotes through
-`CrossChainSwapForm` and reuses the common fields.
+a second quote request. KyberCross uses the same engine, wallet, quote details, approval and confirmation
+components with explicit direct transport. `CrossChainSwapForm` adapts its quote
+amounts to the common fields. Its Gas Drop toggle is unconditional; Unified Swap
+keeps its stream eligibility rules.
 
 The pair owner also keeps a one-time output-selector default per page mount:
 changing input from a same-chain pair to another chain defaults output browsing to

@@ -1,4 +1,4 @@
-import { getQuotes } from 'services/crossChain/quote/adapterQuotes'
+import { getDirectQuotes, getQuotes } from 'services/crossChain/quote/adapterQuotes'
 import type { Quote } from 'services/crossChain/registry'
 
 export const QUOTE_EXPIRY_TIME = 60_000
@@ -8,16 +8,17 @@ export const selectGasDropQuotes = (quotes: Quote[]) =>
   quotes.filter(item => item.quote.quoteParams.gasDrop && item.quote.gasDrop)
 
 /**
- * Requests the aggregator stream for one mode and publishes only usable mode-matching quotes.
+ * Requests the configured stream/direct transport and publishes usable mode-matching quotes.
  * Gas Drop requires an allocation, not just a request flag. Stream failure preserves any
  * usable partial results; cancellation ignores late data. Empty results let the owning hook
- * decide fallback policy. This boundary never retries through direct provider adapters.
+ * decide fallback policy. Stream failures never retry through direct provider adapters.
  */
 export const getQuotesForMode = async ({
   onQuotes,
   onQuoteReady,
+  quoteMode = 'stream',
   ...options
-}: Omit<Parameters<typeof getQuotes>[0], 'quoteMode'>) => {
+}: Omit<Parameters<typeof getQuotes>[0], 'quoteMode'> & { quoteMode?: 'stream' | 'direct' }) => {
   const { params, signal } = options
   const selectQuotes = params.gasDrop ? selectGasDropQuotes : selectOrdinaryQuotes
   let results: Quote[] = []
@@ -26,9 +27,10 @@ export const getQuotesForMode = async ({
   }
 
   try {
-    await getQuotes({
+    const load = quoteMode === 'direct' ? getDirectQuotes : getQuotes
+    await load({
       ...options,
-      quoteMode: 'stream',
+      quoteMode,
       onQuotes: quotes => {
         if (signal.aborted) return
         results = selectQuotes(quotes)

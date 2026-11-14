@@ -9,6 +9,7 @@ import type { useCrossChainQuote } from './useCrossChainQuote'
 import type { useCrossChainRecipient } from './useCrossChainRecipient'
 
 export type CrossChainSwapOptions = {
+  quoteMode?: 'stream' | 'direct'
   evmRecipient?: EvmRecipient
   enabled?: boolean
   fromChain: Chain
@@ -45,6 +46,7 @@ const CrossChainSwapProvider = ({ children, enabled = true, ...options }: Props)
   const [snapshot, setSnapshot] = useState<{ identity: string; value: CrossChainSwapState }>()
   const identity = JSON.stringify([
     enabled,
+    options.quoteMode,
     options.fromChain,
     options.toChain,
     options.tokenIn,

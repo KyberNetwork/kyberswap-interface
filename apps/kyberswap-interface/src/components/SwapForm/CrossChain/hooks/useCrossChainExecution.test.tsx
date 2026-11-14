@@ -17,7 +17,10 @@ const mocks = vi.hoisted(() => ({
   entries: [] as { key: string }[],
 }))
 vi.mock('components/SwapWallets/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
-vi.mock('constants/env', () => ({ CROSSCHAIN_AGGREGATOR_API: 'https://execution.test' }))
+vi.mock('constants/env', async importOriginal => ({
+  ...(await importOriginal<typeof import('constants/env')>()),
+  CROSSCHAIN_AGGREGATOR_API: 'https://execution.test',
+}))
 vi.mock('@near-wallet-selector/react-hook', () => ({ useWalletSelector: () => ({}) }))
 vi.mock('@solana/wallet-adapter-react', () => ({ useWallet: () => ({}), useConnection: () => ({ connection: {} }) }))
 vi.mock('components/Web3Provider/BitcoinProvider', () => ({
