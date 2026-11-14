@@ -77,6 +77,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOrCreateAdapter('relay'),
       CrossChainSwapFactory.getOrCreateAdapter('nearintents'),
       CrossChainSwapFactory.getOrCreateAdapter('mayan'),
+      CrossChainSwapFactory.getOrCreateAdapter('symbiosis'),
       cctpV2Source,
       cctpV2FastSource,
       ccipSource,

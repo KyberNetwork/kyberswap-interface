@@ -5,11 +5,17 @@ import { KyberCrossAdapter } from 'services/crossChain/adapters/KyberCrossAdapte
 import { type RoutePlan, kyberCrossApi } from 'services/crossChain/adapters/KyberCrossAdapter/api'
 import * as kyberCrossExecution from 'services/crossChain/adapters/KyberCrossAdapter/service'
 import { getKyberCrossRoutePlan } from 'services/crossChain/adapters/KyberCrossAdapter/utils'
-import type { QuoteProvider } from 'services/crossChain/adapters/types'
+import type { QuoteProvider, SwapProvider } from 'services/crossChain/adapters/types'
 import { CrossChainSwapFactory } from 'services/crossChain/factory'
 import { getDirectQuotes, getQuotes } from 'services/crossChain/quote/adapterQuotes'
 import { getSourceFilters } from 'services/crossChain/quote/streamQuotes'
-import { CrossChainSwapAdapterRegistry, type Quote, getQuoteId } from 'services/crossChain/registry'
+import {
+  CrossChainSwapAdapterRegistry,
+  type Quote,
+  getQuoteId,
+  getQuoteSelectionKey,
+  getSelectedQuote,
+} from 'services/crossChain/registry'
 import type { WalletClient } from 'viem'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -405,6 +411,7 @@ describe('KyberCross route options', () => {
   }
   const createRoute = (id: string, output: string, time: number): RoutePlan => ({
     id,
+    sig: `v1.${id.padEnd(43, 'A')}`,
     expires_at: '2026-09-28T00:00:00Z',
     flow_type: 'bridge_only',
     request: {
@@ -433,6 +440,31 @@ describe('KyberCross route options', () => {
       expected_fill_time_sec: 3,
       metadata: { execution_mode: 'deposit_address', deposit_address: address },
     },
+  })
+
+  it('includes and excludes Symbiosis through KyberCross for common token pairs', async () => {
+    const apiQuote = vi.spyOn(kyberCrossApi, 'getQuote').mockResolvedValue({
+      success: true,
+      request_id: 'request',
+      data: { route_plans: [createRoute('route', '99000000', 31)], ks_allowance_hub_address: address },
+    })
+    const adapter = new KyberCrossAdapter()
+    for (const excludedSources of [[], ['Symbiosis']]) {
+      const filters = getSourceFilters('direct', excludedSources, 'commonPair', params.fromToken, params.toToken)
+      await adapter.getQuote({
+        ...params,
+        includedSources: filters.includedSourceNames,
+        excludedSources: filters.excludedSourceNames,
+      })
+      const request = apiQuote.mock.lastCall?.[0]
+      if (excludedSources.length) {
+        expect(request?.include_bridges).not.toContain('symbiosis')
+        expect(request?.exclude_bridges).toContain('symbiosis')
+      } else {
+        expect(request?.include_bridges).toContain('symbiosis')
+        expect(request?.exclude_bridges).toBeUndefined()
+      }
+    }
   })
 
   it('shows every route and builds the chosen non-first route, including routes from the same bridge', async () => {
@@ -499,9 +531,105 @@ describe('KyberCross route options', () => {
     const result = await adapter.executeSwap({ ...selected, isReadOnly: false }, {} as WalletClient)
 
     expect(build).toHaveBeenCalledWith(routes[1])
+    expect(build.mock.calls[0][0]).toBe(routes[1])
+    expect(build.mock.calls[0][0].sig).toBe(routes[1].sig)
     expect(result.kyberCrossRoute).toMatchObject({ id: 'second', bridgeProvider: 'relay', flowType: 'bridge_only' })
     expect(result).toMatchObject({ outputAmount: '99000000', sourceTxHash: txHash })
     expect(routes).toHaveLength(2)
+  })
+
+  it('retains a selected route after IDs and ranking change, then builds the fresh route plan', async () => {
+    const first = createRoute('first', '99000000', 20)
+    const chosen = createRoute('chosen', '98000000', 40)
+    const refreshed = {
+      ...chosen,
+      id: 'chosen-refreshed',
+      sig: `v1.${'B'.repeat(43)}`,
+      expected_output_amount: '97000000',
+      min_output_amount: '96000000',
+    }
+    const otherProvider = {
+      ...refreshed,
+      id: 'other-provider',
+      bridge: { ...refreshed.bridge, provider: 'eco' as const },
+    }
+    const otherLane = { ...refreshed, id: 'other-lane', bridge: { ...refreshed.bridge, lane_id: 'other-lane' } }
+    const apiQuote = vi.spyOn(kyberCrossApi, 'getQuote')
+    apiQuote
+      .mockResolvedValueOnce({
+        success: true,
+        request_id: 'initial',
+        data: { route_plans: [first, chosen], ks_allowance_hub_address: address },
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        request_id: 'refreshed',
+        data: {
+          route_plans: [otherProvider, otherLane, refreshed, { ...first, id: 'first-refreshed' }],
+          ks_allowance_hub_address: address,
+        },
+      })
+    const adapter = new KyberCrossAdapter()
+    const initialQuotes = adapter.getRouteQuotes(await adapter.getQuote(params), false)
+    const selectionKey = getQuoteSelectionKey(initialQuotes[1])
+    const freshQuotes = adapter.getRouteQuotes(await adapter.getQuote(params), false)
+    const selected = getSelectedQuote(freshQuotes, selectionKey)
+
+    expect(selected).toBe(freshQuotes[2])
+    if (!selected) throw new Error('Selected route missing after refresh')
+    expect(getQuoteId(selected)).toBe('KyberCross:chosen-refreshed')
+    expect(selected.quote.outputAmount).toBe(97000000n)
+    expect(
+      getSelectedQuote(
+        freshQuotes.filter(q => q !== selected),
+        selectionKey,
+      ),
+    ).toBe(freshQuotes[0])
+    expect(getSelectedQuote(freshQuotes, null)).toBe(freshQuotes[0])
+    expect(getSelectedQuote([], selectionKey)).toBeNull()
+
+    const build = vi.spyOn(kyberCrossApi, 'build').mockResolvedValue({
+      success: true,
+      request_id: 'build',
+      data: { tx: { to: address, data: '0x1234', value: '0' } },
+    })
+    vi.spyOn(kyberCrossExecution, 'executeKyberCross').mockResolvedValue(`0x${'1'.repeat(64)}`)
+    await adapter.executeSwap(selected, {} as WalletClient)
+    expect(build).toHaveBeenCalledWith(refreshed)
+    expect(build.mock.calls[0][0].sig).toBe(refreshed.sig)
+  })
+
+  it.each([undefined, ''])('rejects a direct route with sig %s before building', async sig => {
+    const route = { ...createRoute('unsigned', '99000000', 20), sig }
+    const build = vi.spyOn(kyberCrossApi, 'build')
+    const execute = vi.spyOn(kyberCrossExecution, 'executeKyberCross')
+    const adapter = new KyberCrossAdapter()
+
+    await expect(
+      adapter.executeSwap(
+        {
+          adapter,
+          isReadOnly: false,
+          quote: {
+            ...normalizedQuote,
+            quoteParams: params,
+            rawQuote: { data: { route_plans: [route], ks_allowance_hub_address: address } },
+          },
+        },
+        {} as WalletClient,
+      ),
+    ).rejects.toThrow()
+    expect(build).not.toHaveBeenCalled()
+    expect(execute).not.toHaveBeenCalled()
+  })
+
+  it('preserves provider and explicit quote ID selection for other adapters', () => {
+    const adapter = { getName: () => 'Relay' } as SwapProvider
+    const quote: Quote = { adapter, quote: normalizedQuote, isReadOnly: false }
+    expect(getQuoteSelectionKey(quote)).toBe('Relay')
+    expect(getQuoteSelectionKey({ ...quote, id: 'explicit-id' })).toBe('explicit-id')
+    const freshQuote = { ...quote, quote: { ...normalizedQuote, outputAmount: 42n } }
+    expect(getSelectedQuote([freshQuote], getQuoteSelectionKey(quote))).toBe(freshQuote)
   })
 
   it('keeps each Gas Drop route net output and native allocation separate', async () => {
