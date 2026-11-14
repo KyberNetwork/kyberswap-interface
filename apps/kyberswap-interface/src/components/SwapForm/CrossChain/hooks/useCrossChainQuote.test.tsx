@@ -12,10 +12,12 @@ const mocks = vi.hoisted(() => ({
   connection: {},
   checkSameAsset: vi.fn(),
   getQuotes: vi.fn(),
+  getDirectQuotes: vi.fn(),
+  quoteMode: 'stream' as 'stream' | 'direct',
   tokenInUsd: 1,
   outputUsd: 100,
   slippage: 50,
-  state: { crossChainSwap: { excludedSources: ['Relay'], quoteMode: 'direct' } },
+  state: { crossChainSwap: { excludedSources: ['Relay'], kyberCrossExcludedSources: ['Across'], quoteMode: 'direct' } },
 }))
 vi.mock('components/SwapWallets/SwapWalletContext', () => ({ useSwapWallets: () => mocks.wallets }))
 vi.mock('@solana/wallet-adapter-react', () => ({
@@ -32,7 +34,10 @@ vi.mock('state/hooks', () => ({
 vi.mock('state/user/hooks', () => ({ useUserSlippageTolerance: () => [mocks.slippage] }))
 vi.mock('services/crossChain/factory', () => ({ registry: {} }))
 vi.mock('services/crossChain/adapters/RelayAdapter/relaySolanaWallet', () => ({ adaptRelaySolanaWallet: vi.fn() }))
-vi.mock('services/crossChain/quote/adapterQuotes', () => ({ getQuotes: mocks.getQuotes }))
+vi.mock('services/crossChain/quote/adapterQuotes', () => ({
+  getQuotes: mocks.getQuotes,
+  getDirectQuotes: mocks.getDirectQuotes,
+}))
 vi.mock('services/crossChain/quote/getPairInfo', () => ({
   getPairInfo: async () => ({ category: 'stablePair', feeBps: 10, tokenInUsd: mocks.tokenInUsd, tokenOutUsd: 1 }),
 }))
@@ -56,7 +61,7 @@ const render = (amount: string, receiver = 'recipient', enabled = true) => {
   )
 }
 const Harness = (props: Props) => {
-  state = useCrossChainQuote(props)
+  state = useCrossChainQuote(props, mocks.quoteMode)
   return null
 }
 
@@ -1238,6 +1243,10 @@ describe('Gas Drop route selection', () => {
 })
 
 beforeEach(() => {
+  mocks.quoteMode = 'stream'
+  mocks.getDirectQuotes
+    .mockReset()
+    .mockImplementation(async (request: QuoteRequest) => request.onQuotes([makeQuote(request)]))
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.useFakeTimers()
   mocks.wallets = undefined
@@ -1414,4 +1423,62 @@ it('starts quotes when token metadata resolves after an amount was entered in St
   await flushQuotes()
   expect(mocks.getQuotes).toHaveBeenCalledOnce()
   expect(requests()[0].params.amount).toBe('100000000')
+})
+
+describe('KyberCross direct parity', () => {
+  it('always offers Gas Drop and enables it without ordinary quotes or a USD threshold', async () => {
+    mocks.quoteMode = 'direct'
+    mocks.outputUsd = 1
+    await act(async () => render(''))
+    expect(state.gasDropAvailable).toBe(true)
+    expect(state.gasDropEnabled).toBe(false)
+    await act(async () => state.setGasDropEnabled(true))
+    expect(state.gasDropEnabled).toBe(true)
+    await act(async () => render('1'))
+    await flushQuotes()
+    expect(mocks.getQuotes).not.toHaveBeenCalled()
+    expect(mocks.getDirectQuotes).toHaveBeenCalledTimes(1)
+    expect(mocks.getDirectQuotes.mock.calls[0][0]).toMatchObject({
+      quoteMode: 'direct',
+      excludedSources: ['Across'],
+      params: { gasDrop: true },
+    })
+    expect(state.selectedQuote?.quote.gasDrop).toBeDefined()
+    await act(async () => state.setGasDropEnabled(false))
+    await flushQuotes()
+    expect(mocks.getDirectQuotes.mock.calls[1][0].params.gasDrop).toBe(false)
+  })
+
+  it('keeps direct Gas Drop on after an empty response and refreshes only the selected mode', async () => {
+    mocks.quoteMode = 'direct'
+    mocks.getDirectQuotes.mockImplementation(async (request: QuoteRequest) => request.onQuotes([]))
+    await act(async () => render('100'))
+    await act(async () => state.setGasDropEnabled(true))
+    await flushQuotes()
+    expect(state.gasDropEnabled).toBe(true)
+    expect(state.selectedQuote).toBeNull()
+    await act(async () => state.refresh.onRefresh())
+    expect(mocks.getDirectQuotes).toHaveBeenCalledTimes(2)
+    expect(mocks.getDirectQuotes.mock.calls.every(([request]) => request.params.gasDrop)).toBe(true)
+  })
+
+  it('preserves the direct lane selection when IDs and ranking change', async () => {
+    mocks.quoteMode = 'direct'
+    let generation = 0
+    mocks.getDirectQuotes.mockImplementation(async (request: QuoteRequest) => {
+      generation += 1
+      request.onQuotes(
+        ['one', 'two'].map(lane => ({
+          ...makeQuote(request),
+          id: `${lane}-${generation}`,
+          selectionKey: lane,
+        })),
+      )
+    })
+    await act(async () => render('100'))
+    await flushQuotes()
+    await act(async () => state.selectRoute(state.quotes[1]))
+    await act(async () => state.refresh.onRefresh())
+    expect(state.selectedQuote?.id).toBe('two-2')
+  })
 })

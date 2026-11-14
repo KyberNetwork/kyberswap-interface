@@ -15,9 +15,17 @@ from `services/crossChain/adapters/KyberCrossAdapter/constants`.
 | [`useCrossChainQuote`](../hooks/useCrossChainQuote.ts)                                    | Adds source exclusions, obtains pair prices/fees, chooses mode, estimates eligibility and combines Route Options.                   |
 | [`useQuotePool`](../hooks/useQuotePool.ts)                                                | One stream, cancellation, results and completion deadline per pool/input identity.                                                  |
 | [`useQuoteSession`](../hooks/useQuoteSession.ts)                                          | Active-pool subscription, debounce, selected provider, refresh scheduling and immutable review snapshot.                            |
-| [`getQuotesForMode`](../hooks/getQuotesForMode.ts)                                        | Aggregator-only requests and mode filtering; Gas Drop quotes require an actual allocation.                                          |
+| [`getQuotesForMode`](../hooks/getQuotesForMode.ts)                                        | Explicit stream/direct requests and mode filtering; Gas Drop quotes require an actual allocation.                                          |
 | [`GasDropOption`](GasDrop.tsx) / [`CrossChainQuoteSelector`](CrossChainQuoteSelector.tsx) | Confirmation and route-selection UI. Delegate fetching and mode changes to the quote owner.                                         |
 
+KyberCross direct uses the same form, wallet, approval, route-selection and review
+components with `quoteMode="direct"` and its own bridge exclusions. `+ Gas` is always
+available, starts off and enables immediately without token/USD/quote eligibility
+checks. The toggle survives input edits and empty responses until the user turns it
+off. Direct loads only the selected ordinary/Gas Drop mode, preserves route selection
+by bridge/lane/flow across refreshed IDs, and keeps execution tracking local.
+
+The following pool and eligibility rules apply to Unified Swap's stream mode.
 The quote owner keeps three pools. **Full ordinary** includes KyberCross unless
 excluded by the user; it supplies executable quotes when Gas Drop is off.
 **Gas Drop** supplies executable quotes when enabled. **Alternatives** requests

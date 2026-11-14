@@ -14,6 +14,7 @@ type Props = CrossChainSwapOptions & { onChange: (value: CrossChainSwapState) =>
 
 const CrossChainSwapEngine = ({
   onChange,
+  quoteMode = 'stream',
   enabled = true,
   evmRecipient,
   amount,
@@ -26,16 +27,21 @@ const CrossChainSwapEngine = ({
   const pair = useCrossChainPair({ fromChainId: fromChain, toChainId: toChain, tokenIn, tokenOut })
   const recipient = useCrossChainRecipient(pair.fromChainId, pair.toChainId, evmRecipient)
 
-  const quote = useCrossChainQuote({
-    enabled,
-    pair,
-    amount,
-    sender: recipient.sender,
-    receiver: recipient.receiver,
-    isReadOnly: recipient.isReadOnly,
-  })
+  const quote = useCrossChainQuote(
+    {
+      enabled,
+      pair,
+      amount,
+      sender: recipient.sender,
+      receiver: recipient.receiver,
+      isReadOnly: recipient.isReadOnly,
+    },
+    quoteMode,
+  )
 
-  const { isSubmitting, txHash, txError, submitSwap, resetSubmission } = useCrossChainExecution(quote.reviewQuote)
+  const { isSubmitting, txHash, txError, submitSwap, resetSubmission } = useCrossChainExecution(quote.reviewQuote, {
+    syncWithBackend: quoteMode !== 'direct',
+  })
 
   const { priceImpactAction, requiresDegenMode, requestDegenMode } = usePriceImpactDegenMode(
     quote.selectedQuote?.quote.priceImpact,
